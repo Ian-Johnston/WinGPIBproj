@@ -1,0 +1,344 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+    <configSections>
+        <sectionGroup name="userSettings" type="System.Configuration.UserSettingsGroup, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" >
+            <section name="PDVS2_GPIB.My.MySettings" type="System.Configuration.ClientSettingsSection, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" allowExeDefinition="MachineToLocalUser" requirePermission="false" />
+        </sectionGroup>
+    </configSections>
+    <system.diagnostics>
+        <sources>
+            <!-- This section defines the logging configuration for My.Application.Log -->
+            <source name="DefaultSource" switchName="DefaultSwitch">
+                <listeners>
+                    <add name="FileLog"/>
+                    <!-- Uncomment the below section to write to the Application Event Log -->
+                    <!--<add name="EventLog"/>-->
+                </listeners>
+            </source>
+        </sources>
+        <switches>
+            <add name="DefaultSwitch" value="Information" />
+        </switches>
+        <sharedListeners>
+            <add name="FileLog"
+                 type="Microsoft.VisualBasic.Logging.FileLogTraceListener, Microsoft.VisualBasic, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL"
+                 initializeData="FileLogWriter"/>
+            <!-- Uncomment the below section and replace APPLICATION_NAME with the name of your application to write to the Application Event Log -->
+            <!--<add name="EventLog" type="System.Diagnostics.EventLogTraceListener" initializeData="APPLICATION_NAME"/> -->
+        </sharedListeners>
+    </system.diagnostics>
+    <userSettings>
+        <PDVS2_GPIB.My.MySettings>
+            <setting name="data1" serializeAs="String">
+                <value>HP3458A</value>
+            </setting>
+            <setting name="data2" serializeAs="String">
+                <value>34461A</value>
+            </setting>
+            <setting name="data3" serializeAs="String">
+                <value>GPIB1::22::INSTR</value>
+            </setting>
+            <setting name="data4" serializeAs="String">
+                <value>TCPIP0::192.168.1.139::inst0::INSTR</value>
+            </setting>
+            <setting name="data5" serializeAs="String">
+                <value>END ALWAYS
+NPLC 100
+NRDGS 1</value>
+            </setting>
+            <setting name="data6" serializeAs="String">
+                <value>*RST
+CALC:SMO:RESP MED
+VOLT:DC:NPLC 10</value>
+            </setting>
+            <setting name="data7" serializeAs="String">
+                <value>NRDGS 1,AUTO</value>
+            </setting>
+            <setting name="data8" serializeAs="String">
+                <value />
+            </setting>
+            <setting name="data9" serializeAs="String">
+                <value>5</value>
+            </setting>
+            <setting name="data10" serializeAs="String">
+                <value>5</value>
+            </setting>
+            <setting name="data11" serializeAs="String">
+                <value>Log.csv</value>
+            </setting>
+            <setting name="data12" serializeAs="String">
+                <value />
+            </setting>
+            <setting name="data13" serializeAs="String">
+                <value>500</value>
+            </setting>
+            <setting name="data14" serializeAs="String">
+                <value>10</value>
+            </setting>
+            <setting name="data15" serializeAs="String">
+                <value>0</value>
+            </setting>
+            <setting name="data16" serializeAs="String">
+                <value>Temp&amp;Humidity</value>
+            </setting>
+            <setting name="data17" serializeAs="String">
+                <value>TARM SGL</value>
+            </setting>
+            <setting name="data18" serializeAs="String">
+                <value>:READ?</value>
+            </setting>
+            <setting name="data19" serializeAs="String">
+                <value>3</value>
+            </setting>
+            <setting name="data20" serializeAs="String">
+                <value>40</value>
+            </setting>
+            <setting name="data21" serializeAs="String">
+                <value>0</value>
+            </setting>
+            <setting name="data22" serializeAs="String">
+                <value>HP3458A</value>
+            </setting>
+            <setting name="data23" serializeAs="String">
+                <value>2015THD</value>
+            </setting>
+            <setting name="data24" serializeAs="String">
+                <value>15.0000</value>
+            </setting>
+            <setting name="data25" serializeAs="String">
+                <value>0.0000</value>
+            </setting>
+            <setting name="data26" serializeAs="String">
+                <value>10.000000</value>
+            </setting>
+            <setting name="data27" serializeAs="String">
+                <value>23.4</value>
+            </setting>
+            <setting name="data28" serializeAs="String">
+                <value>5</value>
+            </setting>
+            <setting name="data29" serializeAs="String">
+                <value>,</value>
+            </setting>
+            <setting name="data2b" serializeAs="String">
+                <value />
+            </setting>
+            <setting name="data2c" serializeAs="String">
+                <value />
+            </setting>
+            <setting name="data4b" serializeAs="String">
+                <value />
+            </setting>
+            <setting name="data4c" serializeAs="String">
+                <value />
+            </setting>
+            <setting name="data6b" serializeAs="String">
+                <value />
+            </setting>
+            <setting name="data6c" serializeAs="String">
+                <value />
+            </setting>
+            <setting name="data8b" serializeAs="String">
+                <value />
+            </setting>
+            <setting name="data8c" serializeAs="String">
+                <value />
+            </setting>
+            <setting name="data18b" serializeAs="String">
+                <value />
+            </setting>
+            <setting name="data18c" serializeAs="String">
+                <value />
+            </setting>
+            <setting name="dataIntSelDev2a" serializeAs="String">
+                <value>0</value>
+            </setting>
+            <setting name="dataIntSelDev2b" serializeAs="String">
+                <value>0</value>
+            </setting>
+            <setting name="dataIntSelDev2c" serializeAs="String">
+                <value>0</value>
+            </setting>
+            <setting name="data10b" serializeAs="String">
+                <value>6</value>
+            </setting>
+            <setting name="data10c" serializeAs="String">
+                <value>7</value>
+            </setting>
+            <setting name="data1b" serializeAs="String">
+                <value />
+            </setting>
+            <setting name="data1c" serializeAs="String">
+                <value />
+            </setting>
+            <setting name="data3b" serializeAs="String">
+                <value />
+            </setting>
+            <setting name="data3c" serializeAs="String">
+                <value />
+            </setting>
+            <setting name="data5b" serializeAs="String">
+                <value />
+            </setting>
+            <setting name="data5c" serializeAs="String">
+                <value />
+            </setting>
+            <setting name="data17b" serializeAs="String">
+                <value />
+            </setting>
+            <setting name="data17c" serializeAs="String">
+                <value />
+            </setting>
+            <setting name="data7b" serializeAs="String">
+                <value />
+            </setting>
+            <setting name="data7c" serializeAs="String">
+                <value />
+            </setting>
+            <setting name="dataIntSelDev1a" serializeAs="String">
+                <value>0</value>
+            </setting>
+            <setting name="dataIntSelDev1b" serializeAs="String">
+                <value>0</value>
+            </setting>
+            <setting name="dataIntSelDev1c" serializeAs="String">
+                <value>0</value>
+            </setting>
+            <setting name="data9b" serializeAs="String">
+                <value>2</value>
+            </setting>
+            <setting name="data9c" serializeAs="String">
+                <value>3</value>
+            </setting>
+            <setting name="dataDev1check1" serializeAs="String">
+                <value>True</value>
+            </setting>
+            <setting name="dataDev1check2" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="dataDev1check3" serializeAs="String">
+                <value>True</value>
+            </setting>
+            <setting name="dataDev1check4" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="dataDev1check5" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="dataDev1check6" serializeAs="String">
+                <value>True</value>
+            </setting>
+            <setting name="dataDev1check7" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="dataDev1check8" serializeAs="String">
+                <value>True</value>
+            </setting>
+            <setting name="dataDev1check9" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="dataDev1check10" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="dataDev1check11" serializeAs="String">
+                <value>True</value>
+            </setting>
+            <setting name="dataDev1check12" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="dataDev1check13" serializeAs="String">
+                <value>True</value>
+            </setting>
+            <setting name="dataDev1check14" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="dataDev1check15" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="dataDev2check1" serializeAs="String">
+                <value>True</value>
+            </setting>
+            <setting name="dataDev2check2" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="dataDev2check3" serializeAs="String">
+                <value>True</value>
+            </setting>
+            <setting name="dataDev2check4" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="dataDev2check5" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="dataDev2check6" serializeAs="String">
+                <value>True</value>
+            </setting>
+            <setting name="dataDev2check7" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="dataDev2check8" serializeAs="String">
+                <value>True</value>
+            </setting>
+            <setting name="dataDev2check9" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="dataDev2check10" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="dataDev2check11" serializeAs="String">
+                <value>True</value>
+            </setting>
+            <setting name="dataDev2check12" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="dataDev2check13" serializeAs="String">
+                <value>True</value>
+            </setting>
+            <setting name="dataDev2check14" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="dataDev2check15" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="Dev1STBMask1" serializeAs="String">
+                <value>16</value>
+            </setting>
+            <setting name="Dev2STBMask1" serializeAs="String">
+                <value>16</value>
+            </setting>
+            <setting name="Dev1STBMask2" serializeAs="String">
+                <value>16</value>
+            </setting>
+            <setting name="Dev2STBMask2" serializeAs="String">
+                <value>16</value>
+            </setting>
+            <setting name="Dev1STBMask3" serializeAs="String">
+                <value>16</value>
+            </setting>
+            <setting name="Dev2STBMask3" serializeAs="String">
+                <value>16</value>
+            </setting>
+            <setting name="DataDev1check10001" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="DataDev1check10002" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="DataDev1check10003" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="DataDev2check10001" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="DataDev2check10002" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="DataDev2check10003" serializeAs="String">
+                <value>False</value>
+            </setting>
+            <setting name="TempOffset" serializeAs="String">
+                <value>0</value>
+            </setting>
+        </PDVS2_GPIB.My.MySettings>
+    </userSettings>
+</configuration>
