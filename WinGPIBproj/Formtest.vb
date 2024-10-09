@@ -15,7 +15,7 @@
 ' Example console
 ' Console.WriteLine("Rolling Average Value for Device " & PPMdevice & " - " & tempcounter & " - " & PPMdegCrollingAverageValue)
 '
-'
+
 
 Imports IODevices
 Imports System
