@@ -167,7 +167,8 @@ Public Class Formtest
         'End If
 
         ' Hide the Advantest R6581 tab as it's not finished yet
-        TabControl1.TabPages.Remove(TabPage11)
+        'TabControl1.TabPages.Remove(TabPage11)
+        AllRegularConstantsReadR6581.Checked = True         ' default checked radio button
 
         ' Check for the existence of the WinGPIBdata folder in the OneDrive folder and if it exists then copy it to teh documents folder
         ' This is because some install incorrectly install the WinGPIBData folder under the OneDrive structure

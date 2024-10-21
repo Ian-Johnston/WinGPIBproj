@@ -34,6 +34,8 @@ Partial Class Formtest
     Dim CalRamPathfile6581 As System.IO.BinaryWriter
     Dim CalRamPathfile26581 As System.IO.BinaryWriter
     Dim c6581 As Char
+    Dim CalramStore6581(500) As String
+    'Dim Counter6581 As Integer = 1
 
     '3458A
     Dim Abort6581 As Boolean = False
@@ -44,10 +46,8 @@ Partial Class Formtest
     Dim RAMfilename26581 As String
     Dim CalramAddress6581 As Integer
     Dim Calrambytefordisplay6581 As String
-    Dim CalramStore6581(32768) As String
     Dim CalramStoreTemp16581 As String = ""
     Dim CalramStoreTemp26581 As String = ""
-    Dim Counter6581 As Integer = 1
     Dim Counter65812 As Integer = 1
     Dim CalramValue6581 As String = ""
     Dim CalAddrStart6581 As Integer = 393216
@@ -60,18 +60,32 @@ Partial Class Formtest
 
         ' run appropriate routine
 
-        If AllConstantsReadR6581.Checked = True Then    ' All calibration constants
+        If AllFactoryConstantsReadR6581.Checked = True Then    ' All factory calibration constants
             TextBoxCalRamFile6581.Text = ""
-            CalramextractR6581()
+            CalFactoryramextractR6581()
+        End If
+
+        If AllRegularConstantsReadR6581.Checked = True Then    ' All regular calibration constants
+            TextBoxCalRamFile6581.Text = ""
+            CalRegularramextractR6581()
         End If
 
 
     End Sub
 
 
-    Private Sub CalramextractR6581()
+    Private Sub CalFactoryramextractR6581()
 
-        ' R6581 all calibration constants read to file
+        ' R6581 all FACTORY calibration constants read to file
+
+
+
+    End Sub
+
+
+    Private Sub CalRegularramextractR6581()
+
+        ' R6581 all REGULAR calibration constants read to file
 
         Abort6581 = False
 
@@ -89,11 +103,9 @@ Partial Class Formtest
             System.Threading.Thread.Sleep(500)     ' 500mS delay
             Me.Refresh()
 
-            'dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 1", True)         ' Enable Service EXT protection mode.....not required for INT commands
-
             dev1.SendAsync("*RST", True)         ' NPLC 0
             CalramStatus6581.Text = "*RST"
-            System.Threading.Thread.Sleep(250)     ' 250mS delay
+            System.Threading.Thread.Sleep(3000)     ' 3sec delay
             Me.Refresh()
 
             dev1.SendAsync(":VOLT:DC:DIG MAX", True)         ' NPLC 0
@@ -113,73 +125,154 @@ Partial Class Formtest
 
             txtr1a.Text = ""                       ' Prepare reply textbox as empty
 
-            RAMfilename6581 = strPath & "\" & "R6581_Calibration_Constants" & DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") & ".txt"
+            RAMfilename6581 = strPath & "\" & "R6581_Regular_Calibration_Constants" & DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") & ".txt"
 
-            LabelCounter6581.Text = "0"
-            Counter6581 = 0
+            'LabelCounter6581.Text = "0"
+            'Counter6581 = 0
             TextBoxCalRamFile6581.Text = RAMfilename6581
 
             If Not IO.File.Exists(RAMfilename6581) Then
                 IO.File.Create(RAMfilename6581).Dispose()
             End If
 
-            For i = 0 To 24
+            dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 1", True)         ' Enable Service EXT protection mode.....not required for INT commands
+            Dev1TextResponse.Checked = True
 
-                CalramStatus6581.Text = "READING DCV Calibration Constants"
-                LabelCounter6581.Text = i
+            ' Write header to text file
+            IO.File.AppendAllText(RAMfilename6581, " Regular EXT:ZERO:FRONT:EEPROM Calibration Constants:" & Environment.NewLine)
+
+            Threading.Thread.Sleep(200)
+
+            ' FRONT INPUTS ZERO CALIBRATION
+            For i = 0 To 46
+
+                CalramStatus6581.Text = "READING Regular EXT:ZERO:FRONT:EEPROM Calibration Constants"
 
                 ' Blind command
-                dev1.SendAsync("CAL:INT:DCV:HOSEI:NUMBER " & i & "," & i, True)
+                dev1.SendAsync("CAL:EXT:ZERO:FRONT:NUMBER " & i & "," & i, True)      ' I.E. Limit the range to the 5th constant only  CAL:INT:DCV:HOSEI:NUMBER 5,5
+
+                Threading.Thread.Sleep(10)
 
                 ' New commmand, get reply, store it in array
                 Dim q As IOQuery = Nothing
-                dev1.QueryBlocking("CAL:INT:DCV:HOSEI?", q, False)
+                dev1.QueryBlocking("CAL:EXT:ZERO:FRONT:EEPROM:NEW?", q, False)                               ' Get the contents of the range specified above example, so just the 5th
                 Cbdev1(q)
 
                 ' Have got the reply, store it in array
-                CalramStore6581(Counter6581) = Val(txtr1a.Text)
-                LabelCalRamByte6581.Text = Val(txtr1a.Text)
+                LabelCalRamByte6581.Text = q.ResponseAsString
 
                 ' Write to text file
-                IO.File.AppendAllText(RAMfilename6581, CalramStore6581(Counter6581).ToString() & Environment.NewLine)
+                IO.File.AppendAllText(RAMfilename6581, q.ResponseAsString & Environment.NewLine)
 
-                Counter6581 = Counter6581 + 1
+                Threading.Thread.Sleep(10)
 
-                Threading.Thread.Sleep(100)
             Next
+
+            Threading.Thread.Sleep(100)
+
+            IO.File.AppendAllText(RAMfilename6581, Environment.NewLine)
+            IO.File.AppendAllText(RAMfilename6581, " Regular EXT:ZERO:REAR:EEPROM Calibration Constants:" & Environment.NewLine)
+
+            ' REAR INPUTS ZERO CALIBRATION
+            For i = 100 To 146
+
+                CalramStatus6581.Text = "READING Regular EXT:ZERO:REAR:EEPROM Calibration Constants"
+
+                ' Blind command
+                dev1.SendAsync("CAL:EXT:ZERO:REAR:NUMBER " & i & "," & i, True)      ' I.E. Limit the range to the 5th constant only  CAL:INT:DCV:HOSEI:NUMBER 5,5
+
+                Threading.Thread.Sleep(10)
+
+                ' New commmand, get reply, store it in array
+                Dim q As IOQuery = Nothing
+                dev1.QueryBlocking("CAL:EXT:ZERO:REAR:EEPROM:NEW?", q, False)                               ' Get the contents of the range specified above example, so just the 5th
+                Cbdev1(q)
+
+                ' Have got the reply, store it in array
+                LabelCalRamByte6581.Text = q.ResponseAsString
+
+                Me.Refresh()
+
+                ' Write to text file
+                IO.File.AppendAllText(RAMfilename6581, txtr1a.Text & Environment.NewLine)
+
+                Threading.Thread.Sleep(10)
+
+            Next
+
+            Threading.Thread.Sleep(100)
+
+            IO.File.AppendAllText(RAMfilename6581, Environment.NewLine)
+            IO.File.AppendAllText(RAMfilename6581, " Regular EXT:DCV:EEPROM Calibration Constants:" & Environment.NewLine)
+
+            ' DCV CALIBRATION
+            For i = 200 To 203
+
+                CalramStatus6581.Text = "READING Regular EXT:DCV:EEPROM Calibration Constants"
+
+                ' Blind command
+                dev1.SendAsync("CAL:EXT:DCV:NUMBER " & i & "," & i, True)      ' I.E. Limit the range to the 5th constant only  CAL:INT:DCV:HOSEI:NUMBER 5,5
+
+                Threading.Thread.Sleep(10)
+
+                ' New commmand, get reply, store it in array
+                Dim q As IOQuery = Nothing
+                dev1.QueryBlocking("CAL:EXT:DCV:EEPROM:NEW?", q, False)                               ' Get the contents of the range specified above example, so just the 5th
+                Cbdev1(q)
+
+                ' Have got the reply, store it in array
+                LabelCalRamByte6581.Text = q.ResponseAsString
+
+                Me.Refresh()
+
+                ' Write to text file
+                IO.File.AppendAllText(RAMfilename6581, txtr1a.Text & Environment.NewLine)
+
+                Threading.Thread.Sleep(10)
+
+            Next
+
+            Threading.Thread.Sleep(100)
+
+            IO.File.AppendAllText(RAMfilename6581, Environment.NewLine)
+            IO.File.AppendAllText(RAMfilename6581, " Regular INT:DCV:EEPROM Calibration Constants:" & Environment.NewLine)
+
+            ' DCV CALIBRATION
+            For i = 400 To 406
+
+                CalramStatus6581.Text = "READING Regular INT:DCV:EEPROM Calibration Constants"
+
+                ' Blind command
+                dev1.SendAsync("CAL:INT:DCV:NUMBER " & i & "," & i, True)      ' I.E. Limit the range to the 5th constant only  CAL:INT:DCV:HOSEI:NUMBER 5,5
+
+                Threading.Thread.Sleep(10)
+
+                ' New commmand, get reply, store it in array
+                Dim q As IOQuery = Nothing
+                dev1.QueryBlocking("CAL:INT:DCV:EEPROM:NEW?", q, False)                               ' Get the contents of the range specified above example, so just the 5th
+                Cbdev1(q)
+
+                ' Have got the reply, store it in array
+                LabelCalRamByte6581.Text = q.ResponseAsString
+
+                Me.Refresh()
+
+                ' Write to text file
+                IO.File.AppendAllText(RAMfilename6581, txtr1a.Text & Environment.NewLine)
+
+                Threading.Thread.Sleep(10)
+
+            Next
+
+            Dev1TextResponse.Checked = False
 
             System.Threading.Thread.Sleep(250)     ' 250mS delay
             Me.Refresh()
 
-            For i = 0 To 28
-
-                CalramStatus6581.Text = "READING AC Calibration Constants"
-                LabelCounter6581.Text = i
-
-                ' Blind command
-                dev1.SendAsync("CAL:INT:AC:HOSEI:NUMBER " & i & "," & i, True)
-
-                ' New commmand, get reply, store it in array
-                Dim q As IOQuery = Nothing
-                dev1.QueryBlocking("CAL:INT:AC:HOSEI?", q, False)
-                Cbdev1(q)
-
-                ' Have got the reply, store it in array
-                CalramStore6581(Counter6581) = Val(txtr1a.Text)
-                LabelCalRamByte6581.Text = Val(txtr1a.Text)
-
-                ' Write to text file
-                IO.File.AppendAllText(RAMfilename6581, CalramStore6581(Counter6581).ToString() & Environment.NewLine)
-
-                Counter6581 = Counter6581 + 1
-
-                Threading.Thread.Sleep(100)
-            Next
-
-            'dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)         ' Disable Service EXT protection mode.....not required for INT commands
+            dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)         ' Disable Service EXT protection mode.....not required for INT commands
 
             ' Finished
-            CalramStatus.Text = "DONE!"
+            CalramStatus6581.Text = "DONE!"
 
         Else
 
@@ -203,6 +296,7 @@ Partial Class Formtest
 
         Abort6581 = True
         TextBoxCalRamFile6581.Text = ""
+        Dev1TextResponse.Checked = False
 
     End Sub
 
