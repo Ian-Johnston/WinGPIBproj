@@ -154,7 +154,7 @@ Public Class Formtest
     Private Sub Formtest_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
 
         ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-        BannerText1 = "WinGPIB   V3.227"
+        BannerText1 = "WinGPIB   V3.228"
         BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
         ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -165,6 +165,9 @@ Public Class Formtest
         'My.Computer.FileSystem.CopyDirectory(strPathOD, strPath, True)
         'End If
         'End If
+
+        ' Hide the Advantest R6581 tab as it's not finished yet
+        TabControl1.TabPages.Remove(TabPage11)
 
         ' Check for the existence of the WinGPIBdata folder in the OneDrive folder and if it exists then copy it to teh documents folder
         ' This is because some install incorrectly install the WinGPIBData folder under the OneDrive structure
@@ -184,6 +187,7 @@ Public Class Formtest
         ' Initially enable all controls on Calram groupboxes
         GroupBox6.Enabled = True
         GroupBox7.Enabled = True
+        GroupBox10.Enabled = True
 
         ' Initially enable all controls on 3245A Cal groupbox
         GroupBox5.Enabled = True
@@ -1962,6 +1966,9 @@ Public Class Formtest
             If TabUsed = 8 Then
                 TabControl1.SelectedTab = TabPage8      ' set focus back to previous used tab
             End If
+            If TabUsed = 1 Then
+                TabControl1.SelectedTab = TabPage11     ' set focus back to previous used tab
+            End If
 
             externalchart.Show()    ' show the PlayBack chart
         End If
@@ -2056,7 +2063,6 @@ Public Class Formtest
 
 
     End Sub
-
 
 End Class
 

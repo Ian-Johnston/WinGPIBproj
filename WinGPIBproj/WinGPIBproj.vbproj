@@ -142,6 +142,9 @@
     <Compile Include="Cal3245A.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="CalRam6581x.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Chart.Designer.vb">
       <DependentUpon>Chart.vb</DependentUpon>
     </Compile>
@@ -151,7 +154,7 @@
     <Compile Include="CommsParse.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="CalRam.vb">
+    <Compile Include="CalRam3458x.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="CMDline.Designer.vb">

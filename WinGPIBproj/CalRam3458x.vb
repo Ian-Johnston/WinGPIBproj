@@ -1,5 +1,6 @@
 ﻿
-' CalRam MREAD (3458A)
+' CalRam HP 3458A
+' CalRam HP 3457A
 
 Imports IODevices
 Imports System.Threading

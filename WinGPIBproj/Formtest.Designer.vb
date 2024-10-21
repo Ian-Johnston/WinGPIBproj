@@ -161,6 +161,7 @@ Partial Class Formtest
         Me.noEOI = New System.Windows.Forms.CheckBox()
         Me.TextBoxTempHumSample = New System.Windows.Forms.TextBox()
         Me.txtname3 = New System.Windows.Forms.TextBox()
+        Me.ShowFilesCalRamR6581 = New System.Windows.Forms.Button()
         Me.SerialPort1 = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer6 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer7 = New System.Windows.Forms.Timer(Me.components)
@@ -508,6 +509,27 @@ Partial Class Formtest
         Me.Label128 = New System.Windows.Forms.Label()
         Me.CalramStatus3457A = New System.Windows.Forms.Label()
         Me.LabelCalRamByte3457A = New System.Windows.Forms.Label()
+        Me.TabPage11 = New System.Windows.Forms.TabPage()
+        Me.Label59 = New System.Windows.Forms.Label()
+        Me.GroupBox10 = New System.Windows.Forms.GroupBox()
+        Me.TextBoxCalRamFile6581 = New System.Windows.Forms.TextBox()
+        Me.Label312 = New System.Windows.Forms.Label()
+        Me.Label309 = New System.Windows.Forms.Label()
+        Me.Label310 = New System.Windows.Forms.Label()
+        Me.Label311 = New System.Windows.Forms.Label()
+        Me.ButtonCalramDumpR6581 = New System.Windows.Forms.Button()
+        Me.ButtonR6581abort = New System.Windows.Forms.Button()
+        Me.Label245 = New System.Windows.Forms.Label()
+        Me.Label246 = New System.Windows.Forms.Label()
+        Me.AllConstantsReadR6581 = New System.Windows.Forms.RadioButton()
+        Me.LabelCounter6581 = New System.Windows.Forms.Label()
+        Me.PictureBox1 = New System.Windows.Forms.PictureBox()
+        Me.Label248 = New System.Windows.Forms.Label()
+        Me.Label298 = New System.Windows.Forms.Label()
+        Me.Label304 = New System.Windows.Forms.Label()
+        Me.Label306 = New System.Windows.Forms.Label()
+        Me.LabelCalRamByte6581 = New System.Windows.Forms.Label()
+        Me.CalramStatus6581 = New System.Windows.Forms.Label()
         Me.TabPage12 = New System.Windows.Forms.TabPage()
         Me.Label259 = New System.Windows.Forms.Label()
         Me.Label260 = New System.Windows.Forms.Label()
@@ -848,6 +870,9 @@ Partial Class Formtest
         CType(Me.PictureBox3, System.ComponentModel.ISupportInitialize).BeginInit
         Me.GroupBox7.SuspendLayout
         CType(Me.PictureBox4, System.ComponentModel.ISupportInitialize).BeginInit
+        Me.TabPage11.SuspendLayout
+        Me.GroupBox10.SuspendLayout
+        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit
         Me.TabPage12.SuspendLayout
         Me.GroupBox5.SuspendLayout
         CType(Me.PictureBox8, System.ComponentModel.ISupportInitialize).BeginInit
@@ -2243,6 +2268,17 @@ Partial Class Formtest
         Me.txtname3.Text = "Temp&Humidity"
         Me.ToolTip1.SetToolTip(Me.txtname3, "Give your probe a name for easy reference")
         '
+        'ShowFilesCalRamR6581
+        '
+        Me.ShowFilesCalRamR6581.BackColor = System.Drawing.Color.Thistle
+        Me.ShowFilesCalRamR6581.Location = New System.Drawing.Point(928, 16)
+        Me.ShowFilesCalRamR6581.Name = "ShowFilesCalRamR6581"
+        Me.ShowFilesCalRamR6581.Size = New System.Drawing.Size(115, 37)
+        Me.ShowFilesCalRamR6581.TabIndex = 590
+        Me.ShowFilesCalRamR6581.Text = "\WinGPIBdata"
+        Me.ToolTip1.SetToolTip(Me.ShowFilesCalRamR6581, "Launch Windows File Explorer")
+        Me.ShowFilesCalRamR6581.UseVisualStyleBackColor = True
+        '
         'SerialPort1
         '
         Me.SerialPort1.BaudRate = 115200
@@ -2268,6 +2304,7 @@ Partial Class Formtest
         Me.TabControl1.Controls.Add(Me.TabPage4)
         Me.TabControl1.Controls.Add(Me.TabPage9)
         Me.TabControl1.Controls.Add(Me.TabPage7)
+        Me.TabControl1.Controls.Add(Me.TabPage11)
         Me.TabControl1.Controls.Add(Me.TabPage12)
         Me.TabControl1.Controls.Add(Me.TabPage5)
         Me.TabControl1.Controls.Add(Me.TabPage6)
@@ -2307,7 +2344,7 @@ Partial Class Formtest
         Me.TabPage1.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage1.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage1.TabIndex = 0
-        Me.TabPage1.Text = "Device 1 / 2    "
+        Me.TabPage1.Text = "Device 1 / 2  "
         '
         'Panel2
         '
@@ -3555,7 +3592,7 @@ Partial Class Formtest
         Me.TabPage10.Name = "TabPage10"
         Me.TabPage10.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage10.TabIndex = 9
-        Me.TabPage10.Text = "Cmd Line    "
+        Me.TabPage10.Text = "Cmd Line  "
         '
         'Label227
         '
@@ -3716,7 +3753,7 @@ Partial Class Formtest
         Me.TabPage8.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage8.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage8.TabIndex = 7
-        Me.TabPage8.Text = "Device Meters      "
+        Me.TabPage8.Text = "Device Meters  "
         '
         'Label169
         '
@@ -3856,7 +3893,7 @@ Partial Class Formtest
         Me.TabPage2.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage2.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage2.TabIndex = 1
-        Me.TabPage2.Text = "Temp. / Hum.    "
+        Me.TabPage2.Text = "Temp. / Hum.  "
         '
         'gboxtemphum
         '
@@ -4465,7 +4502,7 @@ Partial Class Formtest
         Me.TabPage3.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage3.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage3.TabIndex = 2
-        Me.TabPage3.Text = "Data Log / CSV / Event Log    "
+        Me.TabPage3.Text = "Data & Event Log / CSV  "
         '
         'Label291
         '
@@ -4893,7 +4930,7 @@ Partial Class Formtest
         Me.TabPage4.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage4.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage4.TabIndex = 3
-        Me.TabPage4.Text = "Live Chart    "
+        Me.TabPage4.Text = "Live Chart  "
         '
         'Label238
         '
@@ -5293,7 +5330,7 @@ Partial Class Formtest
         Me.TabPage9.Name = "TabPage9"
         Me.TabPage9.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage9.TabIndex = 8
-        Me.TabPage9.Text = "Playback Chart    "
+        Me.TabPage9.Text = "Playback Chart  "
         Me.TabPage9.UseVisualStyleBackColor = True
         '
         'TabPage7
@@ -5321,7 +5358,7 @@ Partial Class Formtest
         Me.TabPage7.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage7.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage7.TabIndex = 6
-        Me.TabPage7.Text = "345xA Ram Extract    "
+        Me.TabPage7.Text = "345xA Cal Extract  "
         '
         'AddressRangeF
         '
@@ -5407,9 +5444,9 @@ Partial Class Formtest
         Me.Label116.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label116.Location = New System.Drawing.Point(16, 331)
         Me.Label116.Name = "Label116"
-        Me.Label116.Size = New System.Drawing.Size(150, 15)
+        Me.Label116.Size = New System.Drawing.Size(265, 15)
         Me.Label116.TabIndex = 566
-        Me.Label116.Text = "3457A RAM EXTRACT:"
+        Me.Label116.Text = "HP 3457A CALIBRATION RAM EXTRACT:"
         '
         'TextBoxCalRamFile
         '
@@ -5434,9 +5471,9 @@ Partial Class Formtest
         Me.Label63.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label63.Location = New System.Drawing.Point(16, 16)
         Me.Label63.Name = "Label63"
-        Me.Label63.Size = New System.Drawing.Size(150, 15)
+        Me.Label63.Size = New System.Drawing.Size(265, 15)
         Me.Label63.TabIndex = 550
-        Me.Label63.Text = "3458A RAM EXTRACT:"
+        Me.Label63.Text = "HP 3458A CALIBRATION RAM EXTRACT:"
         '
         'Label60
         '
@@ -5955,6 +5992,232 @@ Partial Class Formtest
         Me.LabelCalRamByte3457A.TabIndex = 575
         Me.LabelCalRamByte3457A.Text = "####"
         '
+        'TabPage11
+        '
+        Me.TabPage11.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.TabPage11.Controls.Add(Me.Label59)
+        Me.TabPage11.Controls.Add(Me.ShowFilesCalRamR6581)
+        Me.TabPage11.Controls.Add(Me.GroupBox10)
+        Me.TabPage11.Location = New System.Drawing.Point(4, 22)
+        Me.TabPage11.Name = "TabPage11"
+        Me.TabPage11.Size = New System.Drawing.Size(1047, 599)
+        Me.TabPage11.TabIndex = 12
+        Me.TabPage11.Text = "R6581 Cal Extract  "
+        '
+        'Label59
+        '
+        Me.Label59.AutoSize = True
+        Me.Label59.Location = New System.Drawing.Point(90, 424)
+        Me.Label59.Name = "Label59"
+        Me.Label59.Size = New System.Drawing.Size(406, 13)
+        Me.Label59.TabIndex = 605
+        Me.Label59.Text = "Restore DCV && AC constants from file back to the R6581 DMM coming soon.........." &
+    "..."
+        '
+        'GroupBox10
+        '
+        Me.GroupBox10.Controls.Add(Me.TextBoxCalRamFile6581)
+        Me.GroupBox10.Controls.Add(Me.Label312)
+        Me.GroupBox10.Controls.Add(Me.Label309)
+        Me.GroupBox10.Controls.Add(Me.Label310)
+        Me.GroupBox10.Controls.Add(Me.Label311)
+        Me.GroupBox10.Controls.Add(Me.ButtonCalramDumpR6581)
+        Me.GroupBox10.Controls.Add(Me.ButtonR6581abort)
+        Me.GroupBox10.Controls.Add(Me.Label245)
+        Me.GroupBox10.Controls.Add(Me.Label246)
+        Me.GroupBox10.Controls.Add(Me.AllConstantsReadR6581)
+        Me.GroupBox10.Controls.Add(Me.LabelCounter6581)
+        Me.GroupBox10.Controls.Add(Me.PictureBox1)
+        Me.GroupBox10.Controls.Add(Me.Label248)
+        Me.GroupBox10.Controls.Add(Me.Label298)
+        Me.GroupBox10.Controls.Add(Me.Label304)
+        Me.GroupBox10.Controls.Add(Me.Label306)
+        Me.GroupBox10.Controls.Add(Me.LabelCalRamByte6581)
+        Me.GroupBox10.Controls.Add(Me.CalramStatus6581)
+        Me.GroupBox10.Enabled = False
+        Me.GroupBox10.Location = New System.Drawing.Point(8, 4)
+        Me.GroupBox10.Name = "GroupBox10"
+        Me.GroupBox10.Size = New System.Drawing.Size(913, 271)
+        Me.GroupBox10.TabIndex = 589
+        Me.GroupBox10.TabStop = False
+        '
+        'TextBoxCalRamFile6581
+        '
+        Me.TextBoxCalRamFile6581.Location = New System.Drawing.Point(12, 222)
+        Me.TextBoxCalRamFile6581.Name = "TextBoxCalRamFile6581"
+        Me.TextBoxCalRamFile6581.ReadOnly = True
+        Me.TextBoxCalRamFile6581.Size = New System.Drawing.Size(701, 20)
+        Me.TextBoxCalRamFile6581.TabIndex = 604
+        '
+        'Label312
+        '
+        Me.Label312.AutoSize = True
+        Me.Label312.Location = New System.Drawing.Point(11, 204)
+        Me.Label312.Name = "Label312"
+        Me.Label312.Size = New System.Drawing.Size(93, 13)
+        Me.Label312.TabIndex = 603
+        Me.Label312.Text = "File(s) saved here:"
+        '
+        'Label309
+        '
+        Me.Label309.AutoSize = True
+        Me.Label309.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label309.Location = New System.Drawing.Point(8, 12)
+        Me.Label309.Name = "Label309"
+        Me.Label309.Size = New System.Drawing.Size(377, 15)
+        Me.Label309.TabIndex = 602
+        Me.Label309.Text = "ADVANTEST R6581 CALIBRATION CONSTANTS EXTRACT:"
+        '
+        'Label310
+        '
+        Me.Label310.AutoSize = True
+        Me.Label310.Location = New System.Drawing.Point(8, 53)
+        Me.Label310.Name = "Label310"
+        Me.Label310.Size = New System.Drawing.Size(283, 13)
+        Me.Label310.TabIndex = 601
+        Me.Label310.Text = "Connect Device 1 to your R6581 (leave in STOP position)."
+        '
+        'Label311
+        '
+        Me.Label311.AutoSize = True
+        Me.Label311.Location = New System.Drawing.Point(8, 36)
+        Me.Label311.Name = "Label311"
+        Me.Label311.Size = New System.Drawing.Size(366, 13)
+        Me.Label311.TabIndex = 600
+        Me.Label311.Text = "This utility will read current calibration constants and dump them to a text file" &
+    "."
+        '
+        'ButtonCalramDumpR6581
+        '
+        Me.ButtonCalramDumpR6581.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonCalramDumpR6581.Location = New System.Drawing.Point(11, 148)
+        Me.ButtonCalramDumpR6581.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.ButtonCalramDumpR6581.Name = "ButtonCalramDumpR6581"
+        Me.ButtonCalramDumpR6581.Size = New System.Drawing.Size(100, 37)
+        Me.ButtonCalramDumpR6581.TabIndex = 591
+        Me.ButtonCalramDumpR6581.Text = "R6581 Read"
+        Me.ButtonCalramDumpR6581.UseVisualStyleBackColor = True
+        '
+        'ButtonR6581abort
+        '
+        Me.ButtonR6581abort.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonR6581abort.Location = New System.Drawing.Point(126, 148)
+        Me.ButtonR6581abort.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.ButtonR6581abort.Name = "ButtonR6581abort"
+        Me.ButtonR6581abort.Size = New System.Drawing.Size(48, 37)
+        Me.ButtonR6581abort.TabIndex = 590
+        Me.ButtonR6581abort.Text = "Abort"
+        Me.ButtonR6581abort.UseVisualStyleBackColor = True
+        '
+        'Label245
+        '
+        Me.Label245.AutoSize = True
+        Me.Label245.Location = New System.Drawing.Point(676, 42)
+        Me.Label245.Name = "Label245"
+        Me.Label245.Size = New System.Drawing.Size(207, 13)
+        Me.Label245.TabIndex = 594
+        Me.Label245.Text = "Uses factory calibration HOSEI commands"
+        '
+        'Label246
+        '
+        Me.Label246.AutoSize = True
+        Me.Label246.Location = New System.Drawing.Point(676, 19)
+        Me.Label246.Name = "Label246"
+        Me.Label246.Size = New System.Drawing.Size(85, 13)
+        Me.Label246.TabIndex = 590
+        Me.Label246.Text = "INFORMATION:"
+        '
+        'AllConstantsReadR6581
+        '
+        Me.AllConstantsReadR6581.AutoSize = True
+        Me.AllConstantsReadR6581.Checked = True
+        Me.AllConstantsReadR6581.Location = New System.Drawing.Point(11, 80)
+        Me.AllConstantsReadR6581.Name = "AllConstantsReadR6581"
+        Me.AllConstantsReadR6581.Size = New System.Drawing.Size(228, 17)
+        Me.AllConstantsReadR6581.TabIndex = 591
+        Me.AllConstantsReadR6581.TabStop = True
+        Me.AllConstantsReadR6581.Text = "All factory calibration constants - DCV && AC"
+        Me.AllConstantsReadR6581.UseVisualStyleBackColor = True
+        '
+        'LabelCounter6581
+        '
+        Me.LabelCounter6581.AutoSize = True
+        Me.LabelCounter6581.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelCounter6581.Location = New System.Drawing.Point(570, 160)
+        Me.LabelCounter6581.Name = "LabelCounter6581"
+        Me.LabelCounter6581.Size = New System.Drawing.Size(13, 13)
+        Me.LabelCounter6581.TabIndex = 564
+        Me.LabelCounter6581.Text = "0"
+        '
+        'PictureBox1
+        '
+        Me.PictureBox1.Image = CType(resources.GetObject("PictureBox1.Image"), System.Drawing.Image)
+        Me.PictureBox1.Location = New System.Drawing.Point(471, 22)
+        Me.PictureBox1.Name = "PictureBox1"
+        Me.PictureBox1.Size = New System.Drawing.Size(201, 90)
+        Me.PictureBox1.TabIndex = 590
+        Me.PictureBox1.TabStop = False
+        '
+        'Label248
+        '
+        Me.Label248.AutoSize = True
+        Me.Label248.Location = New System.Drawing.Point(469, 160)
+        Me.Label248.Name = "Label248"
+        Me.Label248.Size = New System.Drawing.Size(71, 13)
+        Me.Label248.TabIndex = 563
+        Me.Label248.Text = "Byte Counter:"
+        '
+        'Label298
+        '
+        Me.Label298.AutoSize = True
+        Me.Label298.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label298.ForeColor = System.Drawing.Color.Red
+        Me.Label298.Location = New System.Drawing.Point(3, 248)
+        Me.Label298.Name = "Label298"
+        Me.Label298.Size = New System.Drawing.Size(296, 16)
+        Me.Label298.TabIndex = 565
+        Me.Label298.Text = "This is experimental, please use at your own risk."
+        '
+        'Label304
+        '
+        Me.Label304.AutoSize = True
+        Me.Label304.Location = New System.Drawing.Point(469, 180)
+        Me.Label304.Name = "Label304"
+        Me.Label304.Size = New System.Drawing.Size(42, 13)
+        Me.Label304.TabIndex = 559
+        Me.Label304.Text = "Byte(s):"
+        Me.Label304.Visible = False
+        '
+        'Label306
+        '
+        Me.Label306.AutoSize = True
+        Me.Label306.Location = New System.Drawing.Point(469, 140)
+        Me.Label306.Name = "Label306"
+        Me.Label306.Size = New System.Drawing.Size(40, 13)
+        Me.Label306.TabIndex = 548
+        Me.Label306.Text = "Status:"
+        '
+        'LabelCalRamByte6581
+        '
+        Me.LabelCalRamByte6581.AutoSize = True
+        Me.LabelCalRamByte6581.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelCalRamByte6581.Location = New System.Drawing.Point(570, 180)
+        Me.LabelCalRamByte6581.Name = "LabelCalRamByte6581"
+        Me.LabelCalRamByte6581.Size = New System.Drawing.Size(35, 13)
+        Me.LabelCalRamByte6581.TabIndex = 560
+        Me.LabelCalRamByte6581.Text = "####"
+        Me.LabelCalRamByte6581.Visible = False
+        '
+        'CalramStatus6581
+        '
+        Me.CalramStatus6581.AutoSize = True
+        Me.CalramStatus6581.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.CalramStatus6581.Location = New System.Drawing.Point(570, 140)
+        Me.CalramStatus6581.Name = "CalramStatus6581"
+        Me.CalramStatus6581.Size = New System.Drawing.Size(14, 13)
+        Me.CalramStatus6581.TabIndex = 551
+        Me.CalramStatus6581.Text = "#"
+        '
         'TabPage12
         '
         Me.TabPage12.BackColor = System.Drawing.Color.WhiteSmoke
@@ -5966,7 +6229,7 @@ Partial Class Formtest
         Me.TabPage12.Name = "TabPage12"
         Me.TabPage12.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage12.TabIndex = 11
-        Me.TabPage12.Text = "3245A Cal.    "
+        Me.TabPage12.Text = "3245A Cal.  "
         '
         'Label259
         '
@@ -6415,7 +6678,7 @@ Partial Class Formtest
         Me.TabPage5.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage5.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage5.TabIndex = 4
-        Me.TabPage5.Text = "PDVS2mini    "
+        Me.TabPage5.Text = "PDVS2mini  "
         '
         'OnOffLed4
         '
@@ -9287,7 +9550,7 @@ Partial Class Formtest
         Me.TabPage6.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage6.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage6.TabIndex = 5
-        Me.TabPage6.Text = "About    "
+        Me.TabPage6.Text = "About  "
         '
         'Label240
         '
@@ -9532,6 +9795,11 @@ Partial Class Formtest
         Me.GroupBox7.ResumeLayout(False)
         Me.GroupBox7.PerformLayout
         CType(Me.PictureBox4, System.ComponentModel.ISupportInitialize).EndInit
+        Me.TabPage11.ResumeLayout(False)
+        Me.TabPage11.PerformLayout
+        Me.GroupBox10.ResumeLayout(False)
+        Me.GroupBox10.PerformLayout
+        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit
         Me.TabPage12.ResumeLayout(False)
         Me.TabPage12.PerformLayout
         Me.GroupBox5.ResumeLayout(False)
@@ -10347,4 +10615,26 @@ Partial Class Formtest
     Friend WithEvents Label65 As Label
     Friend WithEvents Label239 As Label
     Friend WithEvents Label240 As Label
+    Friend WithEvents TabPage11 As TabPage
+    Friend WithEvents GroupBox10 As GroupBox
+    Friend WithEvents TextBoxCalRamFile6581 As TextBox
+    Friend WithEvents Label312 As Label
+    Friend WithEvents Label309 As Label
+    Friend WithEvents Label310 As Label
+    Friend WithEvents Label311 As Label
+    Friend WithEvents ButtonCalramDumpR6581 As Button
+    Friend WithEvents ButtonR6581abort As Button
+    Friend WithEvents Label245 As Label
+    Friend WithEvents Label246 As Label
+    Friend WithEvents AllConstantsReadR6581 As RadioButton
+    Friend WithEvents LabelCounter6581 As Label
+    Friend WithEvents PictureBox1 As PictureBox
+    Friend WithEvents Label248 As Label
+    Friend WithEvents Label298 As Label
+    Friend WithEvents Label304 As Label
+    Friend WithEvents Label306 As Label
+    Friend WithEvents LabelCalRamByte6581 As Label
+    Friend WithEvents CalramStatus6581 As Label
+    Friend WithEvents ShowFilesCalRamR6581 As Button
+    Friend WithEvents Label59 As Label
 End Class
