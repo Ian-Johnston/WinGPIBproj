@@ -2,6 +2,11 @@ WinGPIB
 App rebranded 2nd Jan. 2022 - UK/USA Trademark.
 wingpib.co.uk & wingpib.com
 
+NOTE:
+Installation .MSI for WinGPIB is located in one of the other Repositories, here:
+\WinGPIBadditionalinfo\WinGPIB-AnyCPU_All-SetupFiles
+
+
 This app provides reliable Windows GPIB functionality to many brands and types of test instruments, aka HPIB, GPIB, or IEEE-488 Instrument Control.
 
 WinGPIB is for non-commercial use only, contact me if you wish to use it commercially.
