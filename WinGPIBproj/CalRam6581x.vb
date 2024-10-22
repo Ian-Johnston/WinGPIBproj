@@ -36,6 +36,7 @@ Partial Class Formtest
     Dim c6581 As Char
     Dim CalramStore6581(500) As String
     Dim Abort6581 As Boolean = False
+    Dim RAMfilename6581 As String
 
 
     Private Sub ButtonCalramDumpR6581_Click(sender As Object, e As EventArgs) Handles ButtonCalramDumpR6581.Click
@@ -89,7 +90,6 @@ Partial Class Formtest
 
             Dim i As Integer
             Dim s As String
-            Dim RAMfilename6581 As String
 
             CalramStatus6581.Text = "SETTING UP GPIB"
             System.Threading.Thread.Sleep(500)     ' 500mS delay
@@ -132,298 +132,25 @@ Partial Class Formtest
 
             ' Write Main header to text file
             IO.File.AppendAllText(RAMfilename6581, "# ADVANTEST R6581 - CALIBRATION CONSTANTS - " & DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss") & Environment.NewLine)
-            IO.File.AppendAllText(RAMfilename6581, Environment.NewLine)
-
-            ' Write header to text file
-            IO.File.AppendAllText(RAMfilename6581, "# Regular EXT:ZERO:FRONT:EEPROM:" & Environment.NewLine)
-
-            Threading.Thread.Sleep(200)
-
-            ' FRONT INPUTS ZERO CALIBRATION
-            For i = 0 To 46
-
-                CalramStatus6581.Text = "READING Regular EXT:ZERO:FRONT:EEPROM"
-
-                ' Blind command
-                dev1.SendAsync("CAL:EXT:ZERO:FRONT:NUMBER " & i & "," & i, True)      ' I.E. Limit the range to the 5th constant only  CAL:INT:DCV:HOSEI:NUMBER 5,5
-
-                Threading.Thread.Sleep(10)
-
-                ' New commmand, get reply, store it in array
-                Dim q As IOQuery = Nothing
-                dev1.QueryBlocking("CAL:EXT:ZERO:FRONT:EEPROM:NEW?", q, False)                               ' Get the contents of the range specified above example, so just the 5th
-                Cbdev1(q)
-
-                ' Have got the reply, store it in array
-                LabelCalRamByte6581.Text = q.ResponseAsString
-
-                ' Write to text file
-                IO.File.AppendAllText(RAMfilename6581, q.ResponseAsString & Environment.NewLine)
-
-                Threading.Thread.Sleep(10)
-
-            Next
 
             Threading.Thread.Sleep(100)
 
-            IO.File.AppendAllText(RAMfilename6581, Environment.NewLine)
-            IO.File.AppendAllText(RAMfilename6581, "# Regular EXT:ZERO:REAR:EEPROM:" & Environment.NewLine)
-
-            ' REAR INPUTS ZERO CALIBRATION
-            For i = 100 To 146
-
-                CalramStatus6581.Text = "READING Regular EXT:ZERO:REAR:EEPROM"
-
-                ' Blind command
-                dev1.SendAsync("CAL:EXT:ZERO:REAR:NUMBER " & i & "," & i, True)      ' I.E. Limit the range to the 5th constant only  CAL:INT:DCV:HOSEI:NUMBER 5,5
-
-                Threading.Thread.Sleep(10)
-
-                ' New commmand, get reply, store it in array
-                Dim q As IOQuery = Nothing
-                dev1.QueryBlocking("CAL:EXT:ZERO:REAR:EEPROM:NEW?", q, False)                               ' Get the contents of the range specified above example, so just the 5th
-                Cbdev1(q)
-
-                ' Have got the reply, store it in array
-                LabelCalRamByte6581.Text = q.ResponseAsString
-
-                Me.Refresh()
-
-                ' Write to text file
-                IO.File.AppendAllText(RAMfilename6581, txtr1a.Text & Environment.NewLine)
-
-                Threading.Thread.Sleep(10)
-
-            Next
+            GetCalConstants(0, 46, "READING Regular EXT:ZERO:FRONT:EEPROM", "CAL:EXT:ZERO:FRONT:NUMBER ", "CAL:EXT:ZERO:FRONT:EEPROM:NEW?", "# Regular EXT:ZERO:FRONT:EEPROM:")
+            GetCalConstants(100, 146, "READING Regular EXT:ZERO:REAR:EEPROM", "CAL:EXT:ZERO:REAR:NUMBER ", "CAL:EXT:ZERO:REAR:EEPROM:NEW?", "# Regular EXT:ZERO:REAR:EEPROM:")
+            GetCalConstants(200, 203, "READING Regular EXT:DCV:EEPROM", "CAL:EXT:DCV:NUMBER ", "CAL:EXT:DCV:EEPROM:NEW?", "# Regular EXT:DCV:EEPROM:")
+            GetCalConstants(300, 303, "READING Regular EXT:OHM:EEPROM", "CAL:EXT:OHM:NUMBER ", "CAL:EXT:OHM:EEPROM:NEW?", "# Regular EXT:OHM:EEPROM:")
+            GetCalConstants(500, 518, "READING Regular INT:OHM:EEPROM", "CAL:INT:OHM:NUMBER ", "CAL:INT:OHM:EEPROM:NEW?", "# Regular INT:OHM:EEPROM:")
+            GetCalConstants(600, 646, "READING Regular INT:AC:EEPROM", "CAL:INT:AC:NUMBER ", "CAL:INT:AC:EEPROM:NEW?", "# Regular INT:AC:EEPROM:")
+            GetCalConstants(400, 406, "READING Regular INT:DCV:EEPROM", "CAL:INT:DCV:NUMBER ", "CAL:INT:DCV:EEPROM:NEW?", "# Regular INT:DCV:EEPROM:")
 
             Threading.Thread.Sleep(100)
-
-            IO.File.AppendAllText(RAMfilename6581, Environment.NewLine)
-            IO.File.AppendAllText(RAMfilename6581, "# Regular EXT:DCV:EEPROM:" & Environment.NewLine)
-
-            ' EXT DCV CALIBRATION
-            For i = 200 To 203
-
-                CalramStatus6581.Text = "READING Regular EXT:DCV:EEPROM"
-
-                ' Blind command
-                dev1.SendAsync("CAL:EXT:DCV:NUMBER " & i & "," & i, True)      ' I.E. Limit the range to the 5th constant only  CAL:INT:DCV:HOSEI:NUMBER 5,5
-
-                Threading.Thread.Sleep(10)
-
-                ' New commmand, get reply, store it in array
-                Dim q As IOQuery = Nothing
-                dev1.QueryBlocking("CAL:EXT:DCV:EEPROM:NEW?", q, False)                               ' Get the contents of the range specified above example, so just the 5th
-                Cbdev1(q)
-
-                ' Have got the reply, store it in array
-                LabelCalRamByte6581.Text = q.ResponseAsString
-
-                Me.Refresh()
-
-                ' Write to text file
-                IO.File.AppendAllText(RAMfilename6581, txtr1a.Text & Environment.NewLine)
-
-                Threading.Thread.Sleep(10)
-
-            Next
-
-            Threading.Thread.Sleep(100)
-
-            IO.File.AppendAllText(RAMfilename6581, Environment.NewLine)
-            IO.File.AppendAllText(RAMfilename6581, "# Regular EXT:OHM:EEPROM:" & Environment.NewLine)
-
-            ' EXT OHM CALIBRATION
-            For i = 300 To 303
-
-                CalramStatus6581.Text = "READING Regular EXT:OHM:EEPROM"
-
-                ' Blind command
-                dev1.SendAsync("CAL:EXT:OHM:NUMBER " & i & "," & i, True)      ' I.E. Limit the range to the 5th constant only  CAL:INT:DCV:HOSEI:NUMBER 5,5
-
-                Threading.Thread.Sleep(10)
-
-                ' New commmand, get reply, store it in array
-                Dim q As IOQuery = Nothing
-                dev1.QueryBlocking("CAL:EXT:OHM:EEPROM:NEW?", q, False)                               ' Get the contents of the range specified above example, so just the 5th
-                Cbdev1(q)
-
-                ' Have got the reply, store it in array
-                LabelCalRamByte6581.Text = q.ResponseAsString
-
-                Me.Refresh()
-
-                ' Write to text file
-                IO.File.AppendAllText(RAMfilename6581, txtr1a.Text & Environment.NewLine)
-
-                Threading.Thread.Sleep(10)
-
-            Next
-
-            Threading.Thread.Sleep(100)
-
-            IO.File.AppendAllText(RAMfilename6581, Environment.NewLine)
-            IO.File.AppendAllText(RAMfilename6581, "# Regular INT:OHM:EEPROM:" & Environment.NewLine)
-
-            ' INT OHM CALIBRATION
-            For i = 500 To 518
-
-                CalramStatus6581.Text = "READING Regular INT:OHM:EEPROM"
-
-                ' Blind command
-                dev1.SendAsync("CAL:INT:OHM:NUMBER " & i & "," & i, True)      ' I.E. Limit the range to the 5th constant only  CAL:INT:DCV:HOSEI:NUMBER 5,5
-
-                Threading.Thread.Sleep(10)
-
-                ' New commmand, get reply, store it in array
-                Dim q As IOQuery = Nothing
-                dev1.QueryBlocking("CAL:INT:OHM:EEPROM:NEW?", q, False)                               ' Get the contents of the range specified above example, so just the 5th
-                Cbdev1(q)
-
-                ' Have got the reply, store it in array
-                LabelCalRamByte6581.Text = q.ResponseAsString
-
-                Me.Refresh()
-
-                ' Write to text file
-                IO.File.AppendAllText(RAMfilename6581, txtr1a.Text & Environment.NewLine)
-
-                Threading.Thread.Sleep(10)
-
-            Next
-
-
-            Threading.Thread.Sleep(100)
-
-            IO.File.AppendAllText(RAMfilename6581, Environment.NewLine)
-            IO.File.AppendAllText(RAMfilename6581, "# Regular INT:AC:EEPROM:" & Environment.NewLine)
-
-            ' INT OHM CALIBRATION
-            For i = 600 To 646
-
-                CalramStatus6581.Text = "READING Regular INT:AC:EEPROM"
-
-                ' Blind command
-                dev1.SendAsync("CAL:INT:AC:NUMBER " & i & "," & i, True)      ' I.E. Limit the range to the 5th constant only  CAL:INT:DCV:HOSEI:NUMBER 5,5
-
-                Threading.Thread.Sleep(10)
-
-                ' New commmand, get reply, store it in array
-                Dim q As IOQuery = Nothing
-                dev1.QueryBlocking("CAL:INT:AC:EEPROM:NEW?", q, False)                               ' Get the contents of the range specified above example, so just the 5th
-                Cbdev1(q)
-
-                ' Have got the reply, store it in array
-                LabelCalRamByte6581.Text = q.ResponseAsString
-
-                Me.Refresh()
-
-                ' Write to text file
-                IO.File.AppendAllText(RAMfilename6581, txtr1a.Text & Environment.NewLine)
-
-                Threading.Thread.Sleep(10)
-
-            Next
-
-            Threading.Thread.Sleep(100)
-
-            IO.File.AppendAllText(RAMfilename6581, Environment.NewLine)
-            IO.File.AppendAllText(RAMfilename6581, "# Regular INT:DCV:EEPROM:" & Environment.NewLine)
-
-            ' INT DCV CALIBRATION
-            For i = 400 To 406
-
-                CalramStatus6581.Text = "READING Regular INT:DCV:EEPROM"
-
-                ' Blind command
-                dev1.SendAsync("CAL:INT:DCV:NUMBER " & i & "," & i, True)      ' I.E. Limit the range to the 5th constant only  CAL:INT:DCV:HOSEI:NUMBER 5,5
-
-                Threading.Thread.Sleep(10)
-
-                ' New commmand, get reply, store it in array
-                Dim q As IOQuery = Nothing
-                dev1.QueryBlocking("CAL:INT:DCV:EEPROM:NEW?", q, False)                               ' Get the contents of the range specified above example, so just the 5th
-                Cbdev1(q)
-
-                ' Have got the reply, store it in array
-                LabelCalRamByte6581.Text = q.ResponseAsString
-
-                Me.Refresh()
-
-                ' Write to text file
-                IO.File.AppendAllText(RAMfilename6581, txtr1a.Text & Environment.NewLine)
-
-                Threading.Thread.Sleep(10)
-
-            Next
-
-            Threading.Thread.Sleep(100)
-
             IO.File.AppendAllText(RAMfilename6581, Environment.NewLine)
             IO.File.AppendAllText(RAMfilename6581, "#############################################################" & Environment.NewLine)
             IO.File.AppendAllText(RAMfilename6581, Environment.NewLine)
-
-            IO.File.AppendAllText(RAMfilename6581, Environment.NewLine)
-            IO.File.AppendAllText(RAMfilename6581, "# Factory INT:DCV:HOSEI:" & Environment.NewLine)
-
-            ' INT DCV HOSEI FACTORY CALIBRATION
-            For i = 0 To 25
-
-                CalramStatus6581.Text = "READING Factory INT:DCV:HOSIE"
-
-                ' Blind command
-                dev1.SendAsync("CAL:INT:DCV:HOSEI:NUMBER " & i & "," & i, True)      ' I.E. Limit the range to the 5th constant only  CAL:INT:DCV:HOSEI:NUMBER 5,5
-
-                Threading.Thread.Sleep(10)
-
-                ' New commmand, get reply, store it in array
-                Dim q As IOQuery = Nothing
-                dev1.QueryBlocking("CAL:INT:DCV:HOSEI?", q, False)                               ' Get the contents of the range specified above example, so just the 5th
-                Cbdev1(q)
-
-                ' Have got the reply, store it in array
-                LabelCalRamByte6581.Text = q.ResponseAsString
-
-                Me.Refresh()
-
-                ' Write to text file
-                IO.File.AppendAllText(RAMfilename6581, txtr1a.Text & Environment.NewLine)
-
-                Threading.Thread.Sleep(10)
-
-            Next
-
             Threading.Thread.Sleep(100)
 
-            IO.File.AppendAllText(RAMfilename6581, Environment.NewLine)
-            IO.File.AppendAllText(RAMfilename6581, "# Factory INT:AC:HOSIE:" & Environment.NewLine)
-
-            ' INT AC HOSEI FACTORY CALIBRATION
-            For i = 0 To 29
-
-                CalramStatus6581.Text = "READING Factory INT:AC:HOSIE"
-
-                ' Blind command
-                dev1.SendAsync("CAL:INT:AC:HOSEI:NUMBER " & i & "," & i, True)      ' I.E. Limit the range to the 5th constant only  CAL:INT:DCV:HOSEI:NUMBER 5,5
-
-                Threading.Thread.Sleep(10)
-
-                ' New commmand, get reply, store it in array
-                Dim q As IOQuery = Nothing
-                dev1.QueryBlocking("CAL:INT:AC:HOSEI?", q, False)                               ' Get the contents of the range specified above example, so just the 5th
-                Cbdev1(q)
-
-                ' Have got the reply, store it in array
-                LabelCalRamByte6581.Text = q.ResponseAsString
-
-                Me.Refresh()
-
-                ' Write to text file
-                IO.File.AppendAllText(RAMfilename6581, txtr1a.Text & Environment.NewLine)
-
-                Threading.Thread.Sleep(10)
-
-            Next
+            GetCalConstants(0, 25, "READING Factory INT:DCV:HOSIE", "CAL:INT:DCV:HOSEI:NUMBER ", "CAL:INT:DCV:HOSEI?", "# Factory INT:DCV:HOSEI:")
+            GetCalConstants(0, 29, "READING Factory INT:AC:HOSIE", "CAL:INT:AC:HOSEI:NUMBER ", "CAL:INT:AC:HOSEI?", "# Factory INT:AC:HOSEI:")
 
             Dev1TextResponse.Checked = False
             LabelCalRamByte6581.Text = ""
@@ -442,6 +169,41 @@ Partial Class Formtest
             CalramStatus6581.Text = "DEVICE 1 IS NOT STARTED"
 
         End If
+
+    End Sub
+
+
+    Private Sub GetCalConstants(startIndex As Integer, endIndex As Integer, statusText As String, commandPrefix As String, queryCommand As String, headerText As String)
+
+        ' Write header to text file
+        IO.File.AppendAllText(RAMfilename6581, Environment.NewLine)
+        IO.File.AppendAllText(RAMfilename6581, headerText & Environment.NewLine)
+
+        For i = startIndex To endIndex
+            CalramStatus6581.Text = statusText
+
+            ' Blind command
+            dev1.SendAsync(commandPrefix & i & "," & i, True)
+
+            Threading.Thread.Sleep(10)
+
+            ' New command, get reply, store it in array
+            Dim q As IOQuery = Nothing
+            dev1.QueryBlocking(queryCommand, q, False)
+            Cbdev1(q)
+
+            ' Store the reply
+            LabelCalRamByte6581.Text = q.ResponseAsString
+
+            Me.Refresh()
+
+            ' Write to text file
+            IO.File.AppendAllText(RAMfilename6581, txtr1a.Text & Environment.NewLine)
+
+            Threading.Thread.Sleep(10)
+        Next
+
+        Threading.Thread.Sleep(100)
 
     End Sub
 
