@@ -324,7 +324,7 @@ Partial Class Formtest
     ' ###############################################################################
 
 
-    ' Check box change
+    ' Checkbox change
     Private Sub SendRegularConstantsReadR6581_CheckedChanged(sender As Object, e As EventArgs) Handles SendRegularConstantsReadR6581.CheckedChanged
 
         If SendRegularConstantsReadR6581.Checked = True Then
@@ -402,7 +402,7 @@ Partial Class Formtest
 
 
         ' Call the upload function, passing in the selected JSON file path and checkboxes
-        Dim checkboxes As New List(Of CheckBox) From {CheckBoxR6581Upload1, CheckBoxR6581Upload2, CheckBoxR6581Upload3, CheckBoxR6581Upload4, CheckBoxR6581Upload5, CheckBoxR6581Upload6, CheckBoxR6581Upload7}
+        Dim checkboxes As New List(Of CheckBox) From {CheckBoxR6581Upload1, CheckBoxR6581Upload2, CheckBoxR6581Upload3, CheckBoxR6581Upload4, CheckBoxR6581Upload5, CheckBoxR6581Upload6, CheckBoxR6581Upload7, CheckBoxR6581Upload8, CheckBoxR6581Upload9}
         UploadSelectedCalibrationDataFromJson(jsonFilePath, checkboxes)
 
         ButtonR6581commitEEprom.Enabled = True
@@ -432,7 +432,9 @@ Partial Class Formtest
                 {CheckBoxR6581Upload4, "EXT:OHM:EEPROM"},
                 {CheckBoxR6581Upload5, "INT:OHM:EEPROM"},
                 {CheckBoxR6581Upload6, "INT:AC:EEPROM"},
-                {CheckBoxR6581Upload7, "INT:DCV:EEPROM"}
+                {CheckBoxR6581Upload7, "INT:DCV:EEPROM"},
+                {CheckBoxR6581Upload8, "INT:DCV:HOSEI"},
+                {CheckBoxR6581Upload9, "INT:AC:HOSEI"}
             }
 
                 ' Loop through each checkbox and process selected sections
@@ -544,6 +546,10 @@ Partial Class Formtest
                 Return "CAL:INT:AC:RAM"
             Case "INT:DCV:EEPROM"
                 Return "CAL:INT:DCV:RAM"
+            Case "INT:DCV:HOSEI"
+                Return "CAL:INT:DCV:HOSEI"
+            Case "INT:AC:HOSEI"
+                Return "CAL:INT:AC:HOSEI"
             Case Else
                 Return String.Empty
         End Select

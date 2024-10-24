@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -869,6 +869,8 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
+        Me.CheckBoxR6581Upload9 = New System.Windows.Forms.CheckBox()
+        Me.CheckBoxR6581Upload8 = New System.Windows.Forms.CheckBox()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.Panel2.SuspendLayout
@@ -5339,22 +5341,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea1.BackColor = System.Drawing.Color.Black
-        ChartArea1.BorderColor = System.Drawing.Color.White
-        ChartArea1.BorderWidth = 2
-        ChartArea1.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea1)
-        Legend1.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend1)
+        ChartArea2.BackColor = System.Drawing.Color.Black
+        ChartArea2.BorderColor = System.Drawing.Color.White
+        ChartArea2.BorderWidth = 2
+        ChartArea2.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea2)
+        Legend2.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend2)
         Me.Chart1.Location = New System.Drawing.Point(-32, 140)
         Me.Chart1.Name = "Chart1"
-        Series1.ChartArea = "ChartArea1"
-        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series1.Color = System.Drawing.Color.Yellow
-        Series1.Enabled = False
-        Series1.Legend = "Legend1"
-        Series1.Name = "Series1"
-        Me.Chart1.Series.Add(Series1)
+        Series2.ChartArea = "ChartArea1"
+        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series2.Color = System.Drawing.Color.Yellow
+        Series2.Enabled = False
+        Series2.Legend = "Legend1"
+        Series2.Name = "Series1"
+        Me.Chart1.Series.Add(Series2)
         Me.Chart1.Size = New System.Drawing.Size(1120, 462)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -6040,6 +6042,8 @@ Partial Class Formtest
         '
         'GroupBox10
         '
+        Me.GroupBox10.Controls.Add(Me.CheckBoxR6581Upload9)
+        Me.GroupBox10.Controls.Add(Me.CheckBoxR6581Upload8)
         Me.GroupBox10.Controls.Add(Me.Label305)
         Me.GroupBox10.Controls.Add(Me.Label248)
         Me.GroupBox10.Controls.Add(Me.Label301)
@@ -6094,7 +6098,7 @@ Partial Class Formtest
         '
         Me.Label305.AutoSize = True
         Me.Label305.ForeColor = System.Drawing.Color.Red
-        Me.Label305.Location = New System.Drawing.Point(242, 405)
+        Me.Label305.Location = New System.Drawing.Point(299, 423)
         Me.Label305.Name = "Label305"
         Me.Label305.Size = New System.Drawing.Size(212, 78)
         Me.Label305.TabIndex = 631
@@ -6303,10 +6307,10 @@ Partial Class Formtest
         Me.SendRegularConstantsReadR6581.Checked = True
         Me.SendRegularConstantsReadR6581.Location = New System.Drawing.Point(11, 349)
         Me.SendRegularConstantsReadR6581.Name = "SendRegularConstantsReadR6581"
-        Me.SendRegularConstantsReadR6581.Size = New System.Drawing.Size(336, 17)
+        Me.SendRegularConstantsReadR6581.Size = New System.Drawing.Size(380, 17)
         Me.SendRegularConstantsReadR6581.TabIndex = 610
         Me.SendRegularConstantsReadR6581.TabStop = True
-        Me.SendRegularConstantsReadR6581.Text = "Send regular calibration constants (select sections required below)"
+        Me.SendRegularConstantsReadR6581.Text = "Send regular && factory calibration constants (select sections required below)"
         Me.SendRegularConstantsReadR6581.UseVisualStyleBackColor = True
         '
         'Label59
@@ -10031,6 +10035,26 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
+        'CheckBoxR6581Upload9
+        '
+        Me.CheckBoxR6581Upload9.AutoSize = True
+        Me.CheckBoxR6581Upload9.Location = New System.Drawing.Point(245, 392)
+        Me.CheckBoxR6581Upload9.Name = "CheckBoxR6581Upload9"
+        Me.CheckBoxR6581Upload9.Size = New System.Drawing.Size(120, 17)
+        Me.CheckBoxR6581Upload9.TabIndex = 633
+        Me.CheckBoxR6581Upload9.Text = "CAL:INT:AC:HOSEI"
+        Me.CheckBoxR6581Upload9.UseVisualStyleBackColor = True
+        '
+        'CheckBoxR6581Upload8
+        '
+        Me.CheckBoxR6581Upload8.AutoSize = True
+        Me.CheckBoxR6581Upload8.Location = New System.Drawing.Point(245, 372)
+        Me.CheckBoxR6581Upload8.Name = "CheckBoxR6581Upload8"
+        Me.CheckBoxR6581Upload8.Size = New System.Drawing.Size(128, 17)
+        Me.CheckBoxR6581Upload8.TabIndex = 632
+        Me.CheckBoxR6581Upload8.Text = "CAL:INT:DCV:HOSEI"
+        Me.CheckBoxR6581Upload8.UseVisualStyleBackColor = True
+        '
         'Formtest
         '
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None
@@ -10947,4 +10971,6 @@ Partial Class Formtest
     Friend WithEvents LabelCalRamByte6581upload As Label
     Friend WithEvents CalramStatus6581upload As Label
     Friend WithEvents Label305 As Label
+    Friend WithEvents CheckBoxR6581Upload9 As CheckBox
+    Friend WithEvents CheckBoxR6581Upload8 As CheckBox
 End Class
