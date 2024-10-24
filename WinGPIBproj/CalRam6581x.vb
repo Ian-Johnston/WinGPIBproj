@@ -7,6 +7,8 @@ Imports System.Runtime.InteropServices
 Imports System.IO
 Imports Newtonsoft.Json
 Imports System.Text.RegularExpressions
+Imports System.IO.File
+Imports Newtonsoft.Json.Linq
 
 Partial Class Formtest
 
@@ -40,6 +42,18 @@ Partial Class Formtest
     Dim Abort6581 As Boolean = False
     Dim RAMfilename6581 As String
     Dim JSONfilename6581 As String
+
+
+    Private Sub AllRegularConstantsReadR6581_CheckedChanged(sender As Object, e As EventArgs) Handles AllRegularConstantsReadR6581.CheckedChanged
+
+        If AllRegularConstantsReadR6581.Checked = True Then
+
+            ButtonCalramDumpR6581.Enabled = True
+            ButtonOpenR6581fileSelectJson.Enabled = False
+
+        End If
+
+    End Sub
 
 
     Private Sub ButtonCalramDumpR6581_Click(sender As Object, e As EventArgs) Handles ButtonCalramDumpR6581.Click
@@ -304,5 +318,237 @@ Partial Class Formtest
         Dev1TextResponse.Checked = False
 
     End Sub
+
+
+
+    ' ###############################################################################
+
+
+    ' Check box change
+    Private Sub SendRegularConstantsReadR6581_CheckedChanged(sender As Object, e As EventArgs) Handles SendRegularConstantsReadR6581.CheckedChanged
+
+        If SendRegularConstantsReadR6581.Checked = True Then
+
+            ButtonCalramDumpR6581.Enabled = False
+            ButtonOpenR6581fileSelectJson.Enabled = True
+
+        End If
+
+    End Sub
+
+
+    ' Button to select JSON file
+    Private Sub ButtonOpenR6581fileSelectJson_Click(sender As Object, e As EventArgs) Handles ButtonOpenR6581fileSelectJson.Click
+
+        If SendRegularConstantsReadR6581.Checked = True Then
+
+            Dim fd As New OpenFileDialog()
+            fd.Title = "Select Calibration JSON File"
+            fd.InitialDirectory = strPath ' Set the initial directory
+            fd.Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*"
+            fd.FilterIndex = 1
+            fd.RestoreDirectory = True
+
+            If fd.ShowDialog() = DialogResult.OK Then
+                ' Set the selected file path to the text box
+                TextBoxCalRamFileJson6581Select.Text = fd.FileName
+                ButtonR6581upload.Enabled = True
+            Else
+                MessageBox.Show("No file selected. Please choose a valid JSON file.", "File Selection", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                ButtonR6581upload.Enabled = False
+                ButtonR6581commitEEprom.Enabled = False
+            End If
+
+        End If
+
+    End Sub
+
+
+    ' Button to initiate the upload process
+    Private Sub ButtonR6581upload_Click(sender As Object, e As EventArgs) Handles ButtonR6581upload.Click
+
+        CalramStatus6581upload.Text = "SETTING UP GPIB"
+        System.Threading.Thread.Sleep(500) ' 500ms delay
+        Me.Refresh()
+
+        'dev1.SendAsync("*RST", True) ' NPLC 0
+        CalramStatus6581upload.Text = "*RST"
+        System.Threading.Thread.Sleep(3000) ' 3sec delay
+        Me.Refresh()
+
+        'dev1.SendAsync(":VOLT:DC:DIG MAX", True) ' NPLC 0
+        CalramStatus6581upload.Text = "VOLT:DC:DIG MAX"
+        System.Threading.Thread.Sleep(250) ' 250ms delay
+        Me.Refresh()
+
+        'dev1.SendAsync(":SENS:VOLT:DC:RANG 10", True) ' NPLC 0
+        CalramStatus6581upload.Text = "SENS:VOLT:DC:RANG 10"
+        System.Threading.Thread.Sleep(250) ' 250ms delay
+        Me.Refresh()
+
+        'dev1.SendAsync(":VOLT:DC:NPLC 1", True) ' NPLC 1
+        CalramStatus6581upload.Text = "VOLT:DC:NPLC 1"
+        System.Threading.Thread.Sleep(250) ' 250ms delay
+        Me.Refresh()
+
+        Dim jsonFilePath As String = TextBoxCalRamFileJson6581Select.Text
+
+        ' Ensure a valid JSON file path is provided
+        If String.IsNullOrEmpty(jsonFilePath) OrElse Not System.IO.File.Exists(jsonFilePath) Then
+            MessageBox.Show("Please select a valid JSON file before proceeding.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            ButtonR6581commitEEprom.Enabled = False
+            Return
+        End If
+
+
+        ' Call the upload function, passing in the selected JSON file path and checkboxes
+        Dim checkboxes As New List(Of CheckBox) From {CheckBoxR6581Upload1, CheckBoxR6581Upload2, CheckBoxR6581Upload3, CheckBoxR6581Upload4, CheckBoxR6581Upload5, CheckBoxR6581Upload6, CheckBoxR6581Upload7}
+        UploadSelectedCalibrationDataFromJson(jsonFilePath, checkboxes)
+
+        ButtonR6581commitEEprom.Enabled = True
+
+    End Sub
+
+
+    ' Upload selected calibration data from the JSON file based on checkbox selection
+    Private Sub UploadSelectedCalibrationDataFromJson(jsonFilePath As String, checkboxes As List(Of CheckBox))
+        Try
+            ' Load JSON data from file
+            Dim jsonData As String = IO.File.ReadAllText(jsonFilePath)
+            Dim calibrationData As JObject = JObject.Parse(jsonData)
+
+            ' Assuming the calibration sections are structured under "Sections"
+            If calibrationData.ContainsKey("Sections") Then
+                ' Enable service EXT protection mode if needed
+                ' dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 1", True)
+
+                Dim sections As JObject = calibrationData("Sections")
+
+                ' Define mapping between checkboxes and the section names
+                Dim sectionMapping As New Dictionary(Of CheckBox, String) From {
+                {CheckBoxR6581Upload1, "EXT:ZERO:FRONT:EEPROM"},
+                {CheckBoxR6581Upload2, "EXT:ZERO:REAR:EEPROM"},
+                {CheckBoxR6581Upload3, "EXT:DCV:EEPROM"},
+                {CheckBoxR6581Upload4, "EXT:OHM:EEPROM"},
+                {CheckBoxR6581Upload5, "INT:OHM:EEPROM"},
+                {CheckBoxR6581Upload6, "INT:AC:EEPROM"},
+                {CheckBoxR6581Upload7, "INT:DCV:EEPROM"}
+            }
+
+                ' Loop through each checkbox and process selected sections
+                For Each kvp In sectionMapping
+                    Dim checkBox As CheckBox = kvp.Key
+                    Dim eepromSection As String = kvp.Value
+
+                    If checkBox.Checked AndAlso sections.ContainsKey(eepromSection) Then
+                        ' Extract the section as a JArray
+                        Dim calibrationList As JArray = CType(sections(eepromSection), JArray)
+
+                        ' Determine the GPIB command prefix based on the section
+                        Dim ramCommandPrefix As String = GetRamCommandPrefix(eepromSection)
+
+                        ' Loop through each calibration data entry and send it
+                        For Each calibrationItem As JObject In calibrationList
+                            Dim index As Integer = Convert.ToInt32(calibrationItem("Index"))
+                            Dim value As String = calibrationItem("Value").ToString().Trim()
+
+                            ' Construct and send GPIB command
+                            Dim command As String = $"{ramCommandPrefix} {index},{value}"
+                            LabelCalRamByte6581upload.Text = command
+
+                            ' Force the UI to update and process pending events
+                            Application.DoEvents()
+
+                            ' dev1.SendAsync(command, True)
+
+                            ' Add a short delay after each command
+                            Threading.Thread.Sleep(10)
+                        Next
+                    End If
+                Next
+
+                CalramStatus6581upload.Text = "Ram upload done!"
+
+                ' Disable service EXT protection mode if needed
+                ' dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)
+
+            Else
+                MessageBox.Show("Sections key not found in the JSON file.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                ' dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)
+            End If
+
+        Catch ex As Exception
+            ' Handle JSON parsing errors or other issues
+            MessageBox.Show("An error occurred while reading or processing the JSON file: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            ' dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)
+        End Try
+    End Sub
+
+
+    ' Button to commit RAM contents to EEPROM
+    Private Sub ButtonR6581commitEEprom_Click(sender As Object, e As EventArgs) Handles ButtonR6581commitEEprom.Click
+
+        ' Show confirmation dialog
+        Dim result As DialogResult = MessageBox.Show("Are you sure you want to transfer RAM contents to EEPROM?", "Confirm Action", MessageBoxButtons.YesNo, MessageBoxIcon.Warning)
+
+        If result = DialogResult.Yes Then
+
+            'dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 1", True)         ' Enable Service EXT protection mode.....not required for INT commands
+
+            ' Send GPIB command to commit RAM to EEPROM
+            Dim command As String = "CAL:EXT:EEPROM:STORE ON"
+            'dev1.SendAsync(command, True)
+            Threading.Thread.Sleep(10)
+            MessageBox.Show("All RAM contents have been committed to EEPROM.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+
+            ButtonR6581upload.Enabled = False
+            ButtonR6581commitEEprom.Enabled = False
+
+            'dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)         ' Disable Service EXT protection mode.....not required for INT commands
+
+            Threading.Thread.Sleep(10)
+
+            'dev1.SendAsync(":VOLT:DC:NPLC 30", True)                    ' Reset NPLC to 30
+            CalramStatus6581upload.Text = "VOLT:DC:NPLC 30"
+
+            Threading.Thread.Sleep(500)
+
+            CalramStatus6581upload.Text = "Commited to EEprom done!"
+            ' Force the UI to update and process pending events
+            Application.DoEvents()
+
+        Else
+
+            'dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)         ' Disable Service EXT protection mode.....not required for INT commands
+
+        End If
+
+    End Sub
+
+
+    ' Helper function to map EEPROM section to corresponding RAM GPIB command
+    Private Function GetRamCommandPrefix(eepromSection As String) As String
+
+        Select Case eepromSection
+            Case "EXT:ZERO:FRONT:EEPROM"
+                Return "CAL:EXT:ZERO:FRONT:RAM"
+            Case "EXT:ZERO:REAR:EEPROM"
+                Return "CAL:EXT:ZERO:REAR:RAM"
+            Case "EXT:DCV:EEPROM"
+                Return "CAL:EXT:DCV:RAM"
+            Case "EXT:OHM:EEPROM"
+                Return "CAL:EXT:OHM:RAM"
+            Case "INT:OHM:EEPROM"
+                Return "CAL:INT:OHM:RAM"
+            Case "INT:AC:EEPROM"
+                Return "CAL:INT:AC:RAM"
+            Case "INT:DCV:EEPROM"
+                Return "CAL:INT:DCV:RAM"
+            Case Else
+                Return String.Empty
+        End Select
+
+    End Function
+
 
 End Class

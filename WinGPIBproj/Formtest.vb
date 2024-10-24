@@ -694,6 +694,9 @@ Public Class Formtest
         'btncreate2.Enabled = True
         'btncreate3.Enabled = True
 
+        ButtonR6581upload.Enabled = False
+        ButtonR6581commitEEprom.Enabled = False
+
     End Sub
 
 

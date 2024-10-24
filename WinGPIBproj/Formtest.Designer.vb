@@ -510,8 +510,28 @@ Partial Class Formtest
         Me.LabelCalRamByte3457A = New System.Windows.Forms.Label()
         Me.TabPage11 = New System.Windows.Forms.TabPage()
         Me.GroupBox10 = New System.Windows.Forms.GroupBox()
+        Me.Label248 = New System.Windows.Forms.Label()
+        Me.Label301 = New System.Windows.Forms.Label()
+        Me.LabelCalRamByte6581upload = New System.Windows.Forms.Label()
+        Me.CalramStatus6581upload = New System.Windows.Forms.Label()
+        Me.Label247 = New System.Windows.Forms.Label()
+        Me.Label243 = New System.Windows.Forms.Label()
+        Me.Label244 = New System.Windows.Forms.Label()
+        Me.ButtonR6581commitEEprom = New System.Windows.Forms.Button()
+        Me.ButtonR6581upload = New System.Windows.Forms.Button()
+        Me.ButtonOpenR6581fileSelectJson = New System.Windows.Forms.Button()
+        Me.TextBoxCalRamFileJson6581Select = New System.Windows.Forms.TextBox()
+        Me.CheckBoxR6581Upload5 = New System.Windows.Forms.CheckBox()
+        Me.CheckBoxR6581Upload6 = New System.Windows.Forms.CheckBox()
+        Me.CheckBoxR6581Upload7 = New System.Windows.Forms.CheckBox()
+        Me.CheckBoxR6581Upload2 = New System.Windows.Forms.CheckBox()
+        Me.CheckBoxR6581Upload3 = New System.Windows.Forms.CheckBox()
+        Me.CheckBoxR6581Upload4 = New System.Windows.Forms.CheckBox()
+        Me.CheckBoxR6581Upload1 = New System.Windows.Forms.CheckBox()
+        Me.Label241 = New System.Windows.Forms.Label()
+        Me.Label242 = New System.Windows.Forms.Label()
+        Me.SendRegularConstantsReadR6581 = New System.Windows.Forms.RadioButton()
         Me.Label59 = New System.Windows.Forms.Label()
-        Me.Label111 = New System.Windows.Forms.Label()
         Me.ButtonOpenR6581fileJson = New System.Windows.Forms.Button()
         Me.TextBoxCalRamFileJson6581 = New System.Windows.Forms.TextBox()
         Me.ButtonOpenR6581file = New System.Windows.Forms.Button()
@@ -844,22 +864,7 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
-        Me.SendRegularConstantsReadR6581 = New System.Windows.Forms.RadioButton()
-        Me.Label241 = New System.Windows.Forms.Label()
-        Me.Label242 = New System.Windows.Forms.Label()
-        Me.CheckBoxR6581Upload1 = New System.Windows.Forms.CheckBox()
-        Me.CheckBoxR6581Upload4 = New System.Windows.Forms.CheckBox()
-        Me.CheckBoxR6581Upload3 = New System.Windows.Forms.CheckBox()
-        Me.CheckBoxR6581Upload2 = New System.Windows.Forms.CheckBox()
-        Me.CheckBoxR6581Upload7 = New System.Windows.Forms.CheckBox()
-        Me.CheckBoxR6581Upload6 = New System.Windows.Forms.CheckBox()
-        Me.CheckBoxR6581Upload5 = New System.Windows.Forms.CheckBox()
-        Me.ButtonOpenR6581fileSelectJson = New System.Windows.Forms.Button()
-        Me.TextBoxCalRamFileJson6581Select = New System.Windows.Forms.TextBox()
-        Me.ButtonR6581upload = New System.Windows.Forms.Button()
-        Me.ButtonR6581commitEEprom = New System.Windows.Forms.Button()
-        Me.Label243 = New System.Windows.Forms.Label()
-        Me.Label244 = New System.Windows.Forms.Label()
+        Me.Label305 = New System.Windows.Forms.Label()
         Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
@@ -6015,6 +6020,12 @@ Partial Class Formtest
         '
         'GroupBox10
         '
+        Me.GroupBox10.Controls.Add(Me.Label305)
+        Me.GroupBox10.Controls.Add(Me.Label248)
+        Me.GroupBox10.Controls.Add(Me.Label301)
+        Me.GroupBox10.Controls.Add(Me.LabelCalRamByte6581upload)
+        Me.GroupBox10.Controls.Add(Me.CalramStatus6581upload)
+        Me.GroupBox10.Controls.Add(Me.Label247)
         Me.GroupBox10.Controls.Add(Me.Label243)
         Me.GroupBox10.Controls.Add(Me.Label244)
         Me.GroupBox10.Controls.Add(Me.ButtonR6581commitEEprom)
@@ -6032,7 +6043,6 @@ Partial Class Formtest
         Me.GroupBox10.Controls.Add(Me.Label242)
         Me.GroupBox10.Controls.Add(Me.SendRegularConstantsReadR6581)
         Me.GroupBox10.Controls.Add(Me.Label59)
-        Me.GroupBox10.Controls.Add(Me.Label111)
         Me.GroupBox10.Controls.Add(Me.CheckBoxR6581RetrieveREF)
         Me.GroupBox10.Controls.Add(Me.ButtonOpenR6581fileJson)
         Me.GroupBox10.Controls.Add(Me.TextBoxCalRamFileJson6581)
@@ -6060,25 +6070,222 @@ Partial Class Formtest
         Me.GroupBox10.TabIndex = 589
         Me.GroupBox10.TabStop = False
         '
+        'Label248
+        '
+        Me.Label248.AutoSize = True
+        Me.Label248.Location = New System.Drawing.Point(540, 467)
+        Me.Label248.Name = "Label248"
+        Me.Label248.Size = New System.Drawing.Size(51, 13)
+        Me.Label248.TabIndex = 629
+        Me.Label248.Text = "ID Value:"
+        '
+        'Label301
+        '
+        Me.Label301.AutoSize = True
+        Me.Label301.Location = New System.Drawing.Point(540, 446)
+        Me.Label301.Name = "Label301"
+        Me.Label301.Size = New System.Drawing.Size(40, 13)
+        Me.Label301.TabIndex = 627
+        Me.Label301.Text = "Status:"
+        '
+        'LabelCalRamByte6581upload
+        '
+        Me.LabelCalRamByte6581upload.AutoSize = True
+        Me.LabelCalRamByte6581upload.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelCalRamByte6581upload.Location = New System.Drawing.Point(603, 467)
+        Me.LabelCalRamByte6581upload.Name = "LabelCalRamByte6581upload"
+        Me.LabelCalRamByte6581upload.Size = New System.Drawing.Size(14, 13)
+        Me.LabelCalRamByte6581upload.TabIndex = 630
+        Me.LabelCalRamByte6581upload.Text = "#"
+        '
+        'CalramStatus6581upload
+        '
+        Me.CalramStatus6581upload.AutoSize = True
+        Me.CalramStatus6581upload.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.CalramStatus6581upload.Location = New System.Drawing.Point(603, 446)
+        Me.CalramStatus6581upload.Name = "CalramStatus6581upload"
+        Me.CalramStatus6581upload.Size = New System.Drawing.Size(14, 13)
+        Me.CalramStatus6581upload.TabIndex = 628
+        Me.CalramStatus6581upload.Text = "#"
+        '
+        'Label247
+        '
+        Me.Label247.AutoSize = True
+        Me.Label247.Location = New System.Drawing.Point(155, 553)
+        Me.Label247.Name = "Label247"
+        Me.Label247.Size = New System.Drawing.Size(72, 13)
+        Me.Label247.TabIndex = 626
+        Me.Label247.Text = "Are you sure?"
+        '
+        'Label243
+        '
+        Me.Label243.AutoSize = True
+        Me.Label243.Location = New System.Drawing.Point(540, 298)
+        Me.Label243.Name = "Label243"
+        Me.Label243.Size = New System.Drawing.Size(362, 130)
+        Me.Label243.TabIndex = 625
+        Me.Label243.Text = resources.GetString("Label243.Text")
+        '
+        'Label244
+        '
+        Me.Label244.AutoSize = True
+        Me.Label244.Location = New System.Drawing.Point(540, 283)
+        Me.Label244.Name = "Label244"
+        Me.Label244.Size = New System.Drawing.Size(91, 13)
+        Me.Label244.TabIndex = 624
+        Me.Label244.Text = "INSTRUCTIONS:"
+        '
+        'ButtonR6581commitEEprom
+        '
+        Me.ButtonR6581commitEEprom.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonR6581commitEEprom.Location = New System.Drawing.Point(10, 544)
+        Me.ButtonR6581commitEEprom.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.ButtonR6581commitEEprom.Name = "ButtonR6581commitEEprom"
+        Me.ButtonR6581commitEEprom.Size = New System.Drawing.Size(143, 24)
+        Me.ButtonR6581commitEEprom.TabIndex = 623
+        Me.ButtonR6581commitEEprom.Text = "Commit Ram to EEprom"
+        Me.ButtonR6581commitEEprom.UseVisualStyleBackColor = True
+        '
+        'ButtonR6581upload
+        '
+        Me.ButtonR6581upload.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonR6581upload.Location = New System.Drawing.Point(802, 512)
+        Me.ButtonR6581upload.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.ButtonR6581upload.Name = "ButtonR6581upload"
+        Me.ButtonR6581upload.Size = New System.Drawing.Size(103, 24)
+        Me.ButtonR6581upload.TabIndex = 622
+        Me.ButtonR6581upload.Text = "Upload to Ram"
+        Me.ButtonR6581upload.UseVisualStyleBackColor = True
+        '
+        'ButtonOpenR6581fileSelectJson
+        '
+        Me.ButtonOpenR6581fileSelectJson.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonOpenR6581fileSelectJson.Location = New System.Drawing.Point(718, 512)
+        Me.ButtonOpenR6581fileSelectJson.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.ButtonOpenR6581fileSelectJson.Name = "ButtonOpenR6581fileSelectJson"
+        Me.ButtonOpenR6581fileSelectJson.Size = New System.Drawing.Size(75, 24)
+        Me.ButtonOpenR6581fileSelectJson.TabIndex = 621
+        Me.ButtonOpenR6581fileSelectJson.Text = "Select Json"
+        Me.ButtonOpenR6581fileSelectJson.UseVisualStyleBackColor = True
+        '
+        'TextBoxCalRamFileJson6581Select
+        '
+        Me.TextBoxCalRamFileJson6581Select.Location = New System.Drawing.Point(11, 514)
+        Me.TextBoxCalRamFileJson6581Select.Name = "TextBoxCalRamFileJson6581Select"
+        Me.TextBoxCalRamFileJson6581Select.ReadOnly = True
+        Me.TextBoxCalRamFileJson6581Select.Size = New System.Drawing.Size(701, 20)
+        Me.TextBoxCalRamFileJson6581Select.TabIndex = 620
+        '
+        'CheckBoxR6581Upload5
+        '
+        Me.CheckBoxR6581Upload5.AutoSize = True
+        Me.CheckBoxR6581Upload5.Location = New System.Drawing.Point(11, 452)
+        Me.CheckBoxR6581Upload5.Name = "CheckBoxR6581Upload5"
+        Me.CheckBoxR6581Upload5.Size = New System.Drawing.Size(122, 17)
+        Me.CheckBoxR6581Upload5.TabIndex = 619
+        Me.CheckBoxR6581Upload5.Text = "CAL:INT:OHM:RAM"
+        Me.CheckBoxR6581Upload5.UseVisualStyleBackColor = True
+        '
+        'CheckBoxR6581Upload6
+        '
+        Me.CheckBoxR6581Upload6.AutoSize = True
+        Me.CheckBoxR6581Upload6.Location = New System.Drawing.Point(11, 472)
+        Me.CheckBoxR6581Upload6.Name = "CheckBoxR6581Upload6"
+        Me.CheckBoxR6581Upload6.Size = New System.Drawing.Size(111, 17)
+        Me.CheckBoxR6581Upload6.TabIndex = 618
+        Me.CheckBoxR6581Upload6.Text = "CAL:INT:AC:RAM"
+        Me.CheckBoxR6581Upload6.UseVisualStyleBackColor = True
+        '
+        'CheckBoxR6581Upload7
+        '
+        Me.CheckBoxR6581Upload7.AutoSize = True
+        Me.CheckBoxR6581Upload7.Location = New System.Drawing.Point(11, 492)
+        Me.CheckBoxR6581Upload7.Name = "CheckBoxR6581Upload7"
+        Me.CheckBoxR6581Upload7.Size = New System.Drawing.Size(119, 17)
+        Me.CheckBoxR6581Upload7.TabIndex = 617
+        Me.CheckBoxR6581Upload7.Text = "CAL:INT:DCV:RAM"
+        Me.CheckBoxR6581Upload7.UseVisualStyleBackColor = True
+        '
+        'CheckBoxR6581Upload2
+        '
+        Me.CheckBoxR6581Upload2.AutoSize = True
+        Me.CheckBoxR6581Upload2.Location = New System.Drawing.Point(11, 392)
+        Me.CheckBoxR6581Upload2.Name = "CheckBoxR6581Upload2"
+        Me.CheckBoxR6581Upload2.Size = New System.Drawing.Size(163, 17)
+        Me.CheckBoxR6581Upload2.TabIndex = 616
+        Me.CheckBoxR6581Upload2.Text = "CAL:EXT:ZERO:REAR:RAM"
+        Me.CheckBoxR6581Upload2.UseVisualStyleBackColor = True
+        '
+        'CheckBoxR6581Upload3
+        '
+        Me.CheckBoxR6581Upload3.AutoSize = True
+        Me.CheckBoxR6581Upload3.Location = New System.Drawing.Point(11, 412)
+        Me.CheckBoxR6581Upload3.Name = "CheckBoxR6581Upload3"
+        Me.CheckBoxR6581Upload3.Size = New System.Drawing.Size(122, 17)
+        Me.CheckBoxR6581Upload3.TabIndex = 615
+        Me.CheckBoxR6581Upload3.Text = "CAL:EXT:DCV:RAM"
+        Me.CheckBoxR6581Upload3.UseVisualStyleBackColor = True
+        '
+        'CheckBoxR6581Upload4
+        '
+        Me.CheckBoxR6581Upload4.AutoSize = True
+        Me.CheckBoxR6581Upload4.Location = New System.Drawing.Point(11, 432)
+        Me.CheckBoxR6581Upload4.Name = "CheckBoxR6581Upload4"
+        Me.CheckBoxR6581Upload4.Size = New System.Drawing.Size(125, 17)
+        Me.CheckBoxR6581Upload4.TabIndex = 614
+        Me.CheckBoxR6581Upload4.Text = "CAL:EXT:OHM:RAM"
+        Me.CheckBoxR6581Upload4.UseVisualStyleBackColor = True
+        '
+        'CheckBoxR6581Upload1
+        '
+        Me.CheckBoxR6581Upload1.AutoSize = True
+        Me.CheckBoxR6581Upload1.Location = New System.Drawing.Point(11, 372)
+        Me.CheckBoxR6581Upload1.Name = "CheckBoxR6581Upload1"
+        Me.CheckBoxR6581Upload1.Size = New System.Drawing.Size(170, 17)
+        Me.CheckBoxR6581Upload1.TabIndex = 613
+        Me.CheckBoxR6581Upload1.Text = "CAL:EXT:ZERO:FRONT:RAM"
+        Me.CheckBoxR6581Upload1.UseVisualStyleBackColor = True
+        '
+        'Label241
+        '
+        Me.Label241.AutoSize = True
+        Me.Label241.Location = New System.Drawing.Point(8, 321)
+        Me.Label241.Name = "Label241"
+        Me.Label241.Size = New System.Drawing.Size(283, 13)
+        Me.Label241.TabIndex = 612
+        Me.Label241.Text = "Connect Device 1 to your R6581 (leave in STOP position)."
+        '
+        'Label242
+        '
+        Me.Label242.AutoSize = True
+        Me.Label242.Location = New System.Drawing.Point(8, 304)
+        Me.Label242.Name = "Label242"
+        Me.Label242.Size = New System.Drawing.Size(478, 13)
+        Me.Label242.TabIndex = 611
+        Me.Label242.Text = "This utility will upload the Json file contents to R6581 Ram. Select the section(" &
+    "s) you want to upload."
+        '
+        'SendRegularConstantsReadR6581
+        '
+        Me.SendRegularConstantsReadR6581.AutoSize = True
+        Me.SendRegularConstantsReadR6581.Checked = True
+        Me.SendRegularConstantsReadR6581.Location = New System.Drawing.Point(11, 349)
+        Me.SendRegularConstantsReadR6581.Name = "SendRegularConstantsReadR6581"
+        Me.SendRegularConstantsReadR6581.Size = New System.Drawing.Size(380, 17)
+        Me.SendRegularConstantsReadR6581.TabIndex = 610
+        Me.SendRegularConstantsReadR6581.TabStop = True
+        Me.SendRegularConstantsReadR6581.Text = "Send regular && factory calibration constants (select sections required below)"
+        Me.SendRegularConstantsReadR6581.UseVisualStyleBackColor = True
+        '
         'Label59
         '
         Me.Label59.AutoSize = True
-        Me.Label59.Enabled = False
         Me.Label59.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label59.Location = New System.Drawing.Point(8, 281)
         Me.Label59.Name = "Label59"
         Me.Label59.Size = New System.Drawing.Size(371, 15)
         Me.Label59.TabIndex = 609
         Me.Label59.Text = "ADVANTEST R6581 CALIBRATION CONSTANTS UPLOAD:"
-        '
-        'Label111
-        '
-        Me.Label111.AutoSize = True
-        Me.Label111.Location = New System.Drawing.Point(360, 434)
-        Me.Label111.Name = "Label111"
-        Me.Label111.Size = New System.Drawing.Size(31, 13)
-        Me.Label111.TabIndex = 608
-        Me.Label111.Text = "TBA."
         '
         'ButtonOpenR6581fileJson
         '
@@ -6133,9 +6340,9 @@ Partial Class Formtest
         Me.Label309.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label309.Location = New System.Drawing.Point(8, 12)
         Me.Label309.Name = "Label309"
-        Me.Label309.Size = New System.Drawing.Size(377, 15)
+        Me.Label309.Size = New System.Drawing.Size(394, 15)
         Me.Label309.TabIndex = 602
-        Me.Label309.Text = "ADVANTEST R6581 CALIBRATION CONSTANTS EXTRACT:"
+        Me.Label309.Text = "ADVANTEST R6581 CALIBRATION CONSTANTS DOWNLOAD:"
         '
         'Label310
         '
@@ -9772,181 +9979,17 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
-        'SendRegularConstantsReadR6581
+        'Label305
         '
-        Me.SendRegularConstantsReadR6581.AutoSize = True
-        Me.SendRegularConstantsReadR6581.Checked = True
-        Me.SendRegularConstantsReadR6581.Enabled = False
-        Me.SendRegularConstantsReadR6581.Location = New System.Drawing.Point(11, 349)
-        Me.SendRegularConstantsReadR6581.Name = "SendRegularConstantsReadR6581"
-        Me.SendRegularConstantsReadR6581.Size = New System.Drawing.Size(380, 17)
-        Me.SendRegularConstantsReadR6581.TabIndex = 610
-        Me.SendRegularConstantsReadR6581.TabStop = True
-        Me.SendRegularConstantsReadR6581.Text = "Send regular && factory calibration constants (select sections required below)"
-        Me.SendRegularConstantsReadR6581.UseVisualStyleBackColor = True
-        '
-        'Label241
-        '
-        Me.Label241.AutoSize = True
-        Me.Label241.Enabled = False
-        Me.Label241.Location = New System.Drawing.Point(8, 321)
-        Me.Label241.Name = "Label241"
-        Me.Label241.Size = New System.Drawing.Size(283, 13)
-        Me.Label241.TabIndex = 612
-        Me.Label241.Text = "Connect Device 1 to your R6581 (leave in STOP position)."
-        '
-        'Label242
-        '
-        Me.Label242.AutoSize = True
-        Me.Label242.Enabled = False
-        Me.Label242.Location = New System.Drawing.Point(8, 304)
-        Me.Label242.Name = "Label242"
-        Me.Label242.Size = New System.Drawing.Size(478, 13)
-        Me.Label242.TabIndex = 611
-        Me.Label242.Text = "This utility will upload the Json file contents to R6581 Ram. Select the section(" &
-    "s) you want to upload."
-        '
-        'CheckBoxR6581Upload1
-        '
-        Me.CheckBoxR6581Upload1.AutoSize = True
-        Me.CheckBoxR6581Upload1.Enabled = False
-        Me.CheckBoxR6581Upload1.Location = New System.Drawing.Point(11, 372)
-        Me.CheckBoxR6581Upload1.Name = "CheckBoxR6581Upload1"
-        Me.CheckBoxR6581Upload1.Size = New System.Drawing.Size(169, 17)
-        Me.CheckBoxR6581Upload1.TabIndex = 613
-        Me.CheckBoxR6581Upload1.Text = "EXT:ZERO:FRONT:EEPROM"
-        Me.CheckBoxR6581Upload1.UseVisualStyleBackColor = True
-        '
-        'CheckBoxR6581Upload4
-        '
-        Me.CheckBoxR6581Upload4.AutoSize = True
-        Me.CheckBoxR6581Upload4.Enabled = False
-        Me.CheckBoxR6581Upload4.Location = New System.Drawing.Point(11, 432)
-        Me.CheckBoxR6581Upload4.Name = "CheckBoxR6581Upload4"
-        Me.CheckBoxR6581Upload4.Size = New System.Drawing.Size(124, 17)
-        Me.CheckBoxR6581Upload4.TabIndex = 614
-        Me.CheckBoxR6581Upload4.Text = "EXT:OHM:EEPROM"
-        Me.CheckBoxR6581Upload4.UseVisualStyleBackColor = True
-        '
-        'CheckBoxR6581Upload3
-        '
-        Me.CheckBoxR6581Upload3.AutoSize = True
-        Me.CheckBoxR6581Upload3.Enabled = False
-        Me.CheckBoxR6581Upload3.Location = New System.Drawing.Point(11, 412)
-        Me.CheckBoxR6581Upload3.Name = "CheckBoxR6581Upload3"
-        Me.CheckBoxR6581Upload3.Size = New System.Drawing.Size(121, 17)
-        Me.CheckBoxR6581Upload3.TabIndex = 615
-        Me.CheckBoxR6581Upload3.Text = "EXT:DCV:EEPROM"
-        Me.CheckBoxR6581Upload3.UseVisualStyleBackColor = True
-        '
-        'CheckBoxR6581Upload2
-        '
-        Me.CheckBoxR6581Upload2.AutoSize = True
-        Me.CheckBoxR6581Upload2.Enabled = False
-        Me.CheckBoxR6581Upload2.Location = New System.Drawing.Point(11, 392)
-        Me.CheckBoxR6581Upload2.Name = "CheckBoxR6581Upload2"
-        Me.CheckBoxR6581Upload2.Size = New System.Drawing.Size(162, 17)
-        Me.CheckBoxR6581Upload2.TabIndex = 616
-        Me.CheckBoxR6581Upload2.Text = "EXT:ZERO:REAR:EEPROM"
-        Me.CheckBoxR6581Upload2.UseVisualStyleBackColor = True
-        '
-        'CheckBoxR6581Upload7
-        '
-        Me.CheckBoxR6581Upload7.AutoSize = True
-        Me.CheckBoxR6581Upload7.Enabled = False
-        Me.CheckBoxR6581Upload7.Location = New System.Drawing.Point(11, 492)
-        Me.CheckBoxR6581Upload7.Name = "CheckBoxR6581Upload7"
-        Me.CheckBoxR6581Upload7.Size = New System.Drawing.Size(118, 17)
-        Me.CheckBoxR6581Upload7.TabIndex = 617
-        Me.CheckBoxR6581Upload7.Text = "INT:DCV:EEPROM"
-        Me.CheckBoxR6581Upload7.UseVisualStyleBackColor = True
-        '
-        'CheckBoxR6581Upload6
-        '
-        Me.CheckBoxR6581Upload6.AutoSize = True
-        Me.CheckBoxR6581Upload6.Enabled = False
-        Me.CheckBoxR6581Upload6.Location = New System.Drawing.Point(11, 472)
-        Me.CheckBoxR6581Upload6.Name = "CheckBoxR6581Upload6"
-        Me.CheckBoxR6581Upload6.Size = New System.Drawing.Size(110, 17)
-        Me.CheckBoxR6581Upload6.TabIndex = 618
-        Me.CheckBoxR6581Upload6.Text = "INT:AC:EEPROM"
-        Me.CheckBoxR6581Upload6.UseVisualStyleBackColor = True
-        '
-        'CheckBoxR6581Upload5
-        '
-        Me.CheckBoxR6581Upload5.AutoSize = True
-        Me.CheckBoxR6581Upload5.Enabled = False
-        Me.CheckBoxR6581Upload5.Location = New System.Drawing.Point(11, 452)
-        Me.CheckBoxR6581Upload5.Name = "CheckBoxR6581Upload5"
-        Me.CheckBoxR6581Upload5.Size = New System.Drawing.Size(121, 17)
-        Me.CheckBoxR6581Upload5.TabIndex = 619
-        Me.CheckBoxR6581Upload5.Text = "INT:OHM:EEPROM"
-        Me.CheckBoxR6581Upload5.UseVisualStyleBackColor = True
-        '
-        'ButtonOpenR6581fileSelectJson
-        '
-        Me.ButtonOpenR6581fileSelectJson.Enabled = False
-        Me.ButtonOpenR6581fileSelectJson.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonOpenR6581fileSelectJson.Location = New System.Drawing.Point(718, 512)
-        Me.ButtonOpenR6581fileSelectJson.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
-        Me.ButtonOpenR6581fileSelectJson.Name = "ButtonOpenR6581fileSelectJson"
-        Me.ButtonOpenR6581fileSelectJson.Size = New System.Drawing.Size(75, 24)
-        Me.ButtonOpenR6581fileSelectJson.TabIndex = 621
-        Me.ButtonOpenR6581fileSelectJson.Text = "Select Json"
-        Me.ButtonOpenR6581fileSelectJson.UseVisualStyleBackColor = True
-        '
-        'TextBoxCalRamFileJson6581Select
-        '
-        Me.TextBoxCalRamFileJson6581Select.Enabled = False
-        Me.TextBoxCalRamFileJson6581Select.Location = New System.Drawing.Point(11, 514)
-        Me.TextBoxCalRamFileJson6581Select.Name = "TextBoxCalRamFileJson6581Select"
-        Me.TextBoxCalRamFileJson6581Select.ReadOnly = True
-        Me.TextBoxCalRamFileJson6581Select.Size = New System.Drawing.Size(701, 20)
-        Me.TextBoxCalRamFileJson6581Select.TabIndex = 620
-        '
-        'ButtonR6581upload
-        '
-        Me.ButtonR6581upload.Enabled = False
-        Me.ButtonR6581upload.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonR6581upload.Location = New System.Drawing.Point(802, 512)
-        Me.ButtonR6581upload.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
-        Me.ButtonR6581upload.Name = "ButtonR6581upload"
-        Me.ButtonR6581upload.Size = New System.Drawing.Size(103, 24)
-        Me.ButtonR6581upload.TabIndex = 622
-        Me.ButtonR6581upload.Text = "Upload to Ram"
-        Me.ButtonR6581upload.UseVisualStyleBackColor = True
-        '
-        'ButtonR6581commitEEprom
-        '
-        Me.ButtonR6581commitEEprom.Enabled = False
-        Me.ButtonR6581commitEEprom.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonR6581commitEEprom.Location = New System.Drawing.Point(10, 544)
-        Me.ButtonR6581commitEEprom.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
-        Me.ButtonR6581commitEEprom.Name = "ButtonR6581commitEEprom"
-        Me.ButtonR6581commitEEprom.Size = New System.Drawing.Size(143, 24)
-        Me.ButtonR6581commitEEprom.TabIndex = 623
-        Me.ButtonR6581commitEEprom.Text = "Commit Ram to EEprom"
-        Me.ButtonR6581commitEEprom.UseVisualStyleBackColor = True
-        '
-        'Label243
-        '
-        Me.Label243.AutoSize = True
-        Me.Label243.Enabled = False
-        Me.Label243.Location = New System.Drawing.Point(540, 298)
-        Me.Label243.Name = "Label243"
-        Me.Label243.Size = New System.Drawing.Size(362, 130)
-        Me.Label243.TabIndex = 625
-        Me.Label243.Text = resources.GetString("Label243.Text")
-        '
-        'Label244
-        '
-        Me.Label244.AutoSize = True
-        Me.Label244.Enabled = False
-        Me.Label244.Location = New System.Drawing.Point(540, 283)
-        Me.Label244.Name = "Label244"
-        Me.Label244.Size = New System.Drawing.Size(91, 13)
-        Me.Label244.TabIndex = 624
-        Me.Label244.Text = "INSTRUCTIONS:"
+        Me.Label305.AutoSize = True
+        Me.Label305.ForeColor = System.Drawing.Color.Red
+        Me.Label305.Location = New System.Drawing.Point(242, 405)
+        Me.Label305.Name = "Label305"
+        Me.Label305.Size = New System.Drawing.Size(212, 78)
+        Me.Label305.TabIndex = 631
+        Me.Label305.Text = "UPLOAD IS A WORK IN PROGRESS" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "BUTTONS ETC. WORK BUT NO ACTUAL" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "GPIB COMMANDS AR" &
+    "E SENT" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "FEEL FREE TO PLAY!"
+        Me.Label305.TextAlign = System.Drawing.ContentAlignment.TopCenter
         '
         'OnOffLed2
         '
@@ -10882,7 +10925,6 @@ Partial Class Formtest
     Friend WithEvents TextBoxCalRamFileJson6581 As TextBox
     Friend WithEvents CheckBoxR6581RetrieveREF As CheckBox
     Friend WithEvents Label59 As Label
-    Friend WithEvents Label111 As Label
     Friend WithEvents Label241 As Label
     Friend WithEvents Label242 As Label
     Friend WithEvents SendRegularConstantsReadR6581 As RadioButton
@@ -10899,4 +10941,10 @@ Partial Class Formtest
     Friend WithEvents ButtonR6581upload As Button
     Friend WithEvents Label243 As Label
     Friend WithEvents Label244 As Label
+    Friend WithEvents Label247 As Label
+    Friend WithEvents Label248 As Label
+    Friend WithEvents Label301 As Label
+    Friend WithEvents LabelCalRamByte6581upload As Label
+    Friend WithEvents CalramStatus6581upload As Label
+    Friend WithEvents Label305 As Label
 End Class
