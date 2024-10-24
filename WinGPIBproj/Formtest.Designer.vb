@@ -328,6 +328,8 @@ Partial Class Formtest
         Me.Label215 = New System.Windows.Forms.Label()
         Me.Label214 = New System.Windows.Forms.Label()
         Me.Label213 = New System.Windows.Forms.Label()
+        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.Label212 = New System.Windows.Forms.Label()
         Me.Label211 = New System.Windows.Forms.Label()
         Me.Label210 = New System.Windows.Forms.Label()
@@ -510,6 +512,7 @@ Partial Class Formtest
         Me.LabelCalRamByte3457A = New System.Windows.Forms.Label()
         Me.TabPage11 = New System.Windows.Forms.TabPage()
         Me.GroupBox10 = New System.Windows.Forms.GroupBox()
+        Me.Label305 = New System.Windows.Forms.Label()
         Me.Label248 = New System.Windows.Forms.Label()
         Me.Label301 = New System.Windows.Forms.Label()
         Me.LabelCalRamByte6581upload = New System.Windows.Forms.Label()
@@ -585,6 +588,7 @@ Partial Class Formtest
         Me.Label269 = New System.Windows.Forms.Label()
         Me.PictureBox9 = New System.Windows.Forms.PictureBox()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
+        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.Label145 = New System.Windows.Forms.Label()
         Me.Label79 = New System.Windows.Forms.Label()
         Me.Label81 = New System.Windows.Forms.Label()
@@ -840,6 +844,7 @@ Partial Class Formtest
         Me.CalAccuracyFinal = New System.Windows.Forms.TextBox()
         Me.Label117 = New System.Windows.Forms.Label()
         Me.Label121 = New System.Windows.Forms.Label()
+        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage6 = New System.Windows.Forms.TabPage()
         Me.Label240 = New System.Windows.Forms.Label()
         Me.Label65 = New System.Windows.Forms.Label()
@@ -864,11 +869,6 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
-        Me.Label305 = New System.Windows.Forms.Label()
-        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.Panel2.SuspendLayout
@@ -4132,6 +4132,26 @@ Partial Class Formtest
         Me.Label213.TabIndex = 537
         Me.Label213.Text = "Tx"
         '
+        'OnOffLed2
+        '
+        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
+        Me.OnOffLed2.Name = "OnOffLed2"
+        Me.OnOffLed2.OffText = Nothing
+        Me.OnOffLed2.OnText = Nothing
+        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed2.TabIndex = 536
+        '
+        'OnOffLed1
+        '
+        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
+        Me.OnOffLed1.Name = "OnOffLed1"
+        Me.OnOffLed1.OffText = Nothing
+        Me.OnOffLed1.OnText = Nothing
+        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed1.TabIndex = 535
+        '
         'Label212
         '
         Me.Label212.AutoSize = True
@@ -6070,6 +6090,18 @@ Partial Class Formtest
         Me.GroupBox10.TabIndex = 589
         Me.GroupBox10.TabStop = False
         '
+        'Label305
+        '
+        Me.Label305.AutoSize = True
+        Me.Label305.ForeColor = System.Drawing.Color.Red
+        Me.Label305.Location = New System.Drawing.Point(242, 405)
+        Me.Label305.Name = "Label305"
+        Me.Label305.Size = New System.Drawing.Size(212, 78)
+        Me.Label305.TabIndex = 631
+        Me.Label305.Text = "UPLOAD IS A WORK IN PROGRESS" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "BUTTONS ETC. WORK BUT NO ACTUAL" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "GPIB COMMANDS AR" &
+    "E SENT" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "FEEL FREE TO PLAY!"
+        Me.Label305.TextAlign = System.Drawing.ContentAlignment.TopCenter
+        '
         'Label248
         '
         Me.Label248.AutoSize = True
@@ -6271,10 +6303,10 @@ Partial Class Formtest
         Me.SendRegularConstantsReadR6581.Checked = True
         Me.SendRegularConstantsReadR6581.Location = New System.Drawing.Point(11, 349)
         Me.SendRegularConstantsReadR6581.Name = "SendRegularConstantsReadR6581"
-        Me.SendRegularConstantsReadR6581.Size = New System.Drawing.Size(380, 17)
+        Me.SendRegularConstantsReadR6581.Size = New System.Drawing.Size(336, 17)
         Me.SendRegularConstantsReadR6581.TabIndex = 610
         Me.SendRegularConstantsReadR6581.TabStop = True
-        Me.SendRegularConstantsReadR6581.Text = "Send regular && factory calibration constants (select sections required below)"
+        Me.SendRegularConstantsReadR6581.Text = "Send regular calibration constants (select sections required below)"
         Me.SendRegularConstantsReadR6581.UseVisualStyleBackColor = True
         '
         'Label59
@@ -6934,6 +6966,16 @@ Partial Class Formtest
         Me.TabPage5.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "PDVS2mini  "
+        '
+        'OnOffLed4
+        '
+        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
+        Me.OnOffLed4.Name = "OnOffLed4"
+        Me.OnOffLed4.OffText = Nothing
+        Me.OnOffLed4.OnText = Nothing
+        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed4.TabIndex = 797
         '
         'Label145
         '
@@ -9760,6 +9802,16 @@ Partial Class Formtest
         Me.Label121.TabIndex = 554
         Me.Label121.Text = "Comms Delay (mS)"
         '
+        'OnOffLed3
+        '
+        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
+        Me.OnOffLed3.Name = "OnOffLed3"
+        Me.OnOffLed3.OffText = Nothing
+        Me.OnOffLed3.OnText = Nothing
+        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed3.TabIndex = 796
+        '
         'TabPage6
         '
         Me.TabPage6.BackColor = System.Drawing.Color.WhiteSmoke
@@ -9978,58 +10030,6 @@ Partial Class Formtest
         'Timer14
         '
         Me.Timer14.Interval = 50
-        '
-        'Label305
-        '
-        Me.Label305.AutoSize = True
-        Me.Label305.ForeColor = System.Drawing.Color.Red
-        Me.Label305.Location = New System.Drawing.Point(242, 405)
-        Me.Label305.Name = "Label305"
-        Me.Label305.Size = New System.Drawing.Size(212, 78)
-        Me.Label305.TabIndex = 631
-        Me.Label305.Text = "UPLOAD IS A WORK IN PROGRESS" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "BUTTONS ETC. WORK BUT NO ACTUAL" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "GPIB COMMANDS AR" &
-    "E SENT" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "FEEL FREE TO PLAY!"
-        Me.Label305.TextAlign = System.Drawing.ContentAlignment.TopCenter
-        '
-        'OnOffLed2
-        '
-        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
-        Me.OnOffLed2.Name = "OnOffLed2"
-        Me.OnOffLed2.OffText = Nothing
-        Me.OnOffLed2.OnText = Nothing
-        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed2.TabIndex = 536
-        '
-        'OnOffLed1
-        '
-        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
-        Me.OnOffLed1.Name = "OnOffLed1"
-        Me.OnOffLed1.OffText = Nothing
-        Me.OnOffLed1.OnText = Nothing
-        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed1.TabIndex = 535
-        '
-        'OnOffLed4
-        '
-        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
-        Me.OnOffLed4.Name = "OnOffLed4"
-        Me.OnOffLed4.OffText = Nothing
-        Me.OnOffLed4.OnText = Nothing
-        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed4.TabIndex = 797
-        '
-        'OnOffLed3
-        '
-        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
-        Me.OnOffLed3.Name = "OnOffLed3"
-        Me.OnOffLed3.OffText = Nothing
-        Me.OnOffLed3.OnText = Nothing
-        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed3.TabIndex = 796
         '
         'Formtest
         '
