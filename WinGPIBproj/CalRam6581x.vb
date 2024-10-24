@@ -151,8 +151,8 @@ Partial Class Formtest
 
             txtr1a.Text = "" ' Prepare reply textbox as empty
 
-            RAMfilename6581 = strPath & "\" & "R6581_Regular_Calibration_Constants_" & DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") & ".txt"
-            JSONfilename6581 = strPath & "\" & "R6581_Regular_Calibration_Constants_" & DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") & ".json"
+            RAMfilename6581 = strPath & "\" & "R6581_Regular_Factory_Cal_Constants_" & DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") & ".txt"
+            JSONfilename6581 = strPath & "\" & "R6581_Regular_Factory_Cal_Constants_" & DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") & ".json"
 
             TextBoxCalRamFile6581.Text = RAMfilename6581
             TextBoxCalRamFileJson6581.Text = JSONfilename6581
@@ -252,7 +252,7 @@ Partial Class Formtest
             CalramStatus6581.Text = "VOLT:DC:NPLC 30"
 
             ' Finished
-            CalramStatus6581.Text = "DONE!"
+            CalramStatus6581.Text = "Download complete!"
 
         Else
             ' GPIB Dev 1 has not been started
@@ -353,6 +353,9 @@ Partial Class Formtest
                 ' Set the selected file path to the text box
                 TextBoxCalRamFileJson6581Select.Text = fd.FileName
                 ButtonR6581upload.Enabled = True
+
+                ' Call the subroutine to check JSON file contents
+                CheckJsonFileContents(fd.FileName)
             Else
                 MessageBox.Show("No file selected. Please choose a valid JSON file.", "File Selection", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 ButtonR6581upload.Enabled = False
@@ -364,48 +367,94 @@ Partial Class Formtest
     End Sub
 
 
+    ' Subroutine to check and display JSON file contents after the user browses to one
+    Private Sub CheckJsonFileContents(jsonFilePath As String)
+        Try
+            ' Ensure the file exists
+            If String.IsNullOrEmpty(jsonFilePath) OrElse Not IO.File.Exists(jsonFilePath) Then
+                MessageBox.Show("The selected file does not exist or the path is invalid.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                Return
+            End If
+
+            ' Load and parse JSON data from the file
+            Dim jsonData As String = IO.File.ReadAllText(jsonFilePath)
+            Dim calibrationData As JObject = JObject.Parse(jsonData)
+
+            ' Display Header if available
+            If calibrationData.ContainsKey("Header") Then
+                Dim header As String = calibrationData("Header").ToString()
+                MessageBox.Show("For your confirmation:" & Environment.NewLine & Environment.NewLine & "Header: " & header, "JSON File Contents", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Else
+                MessageBox.Show("No header found in the JSON file.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            End If
+
+            ' Check and list all sections available in the JSON
+            If calibrationData.ContainsKey("Sections") Then
+                Dim sections As JObject = calibrationData("Sections")
+                Dim sectionNames As String = String.Join(Environment.NewLine, sections.Properties().Select(Function(p) p.Name).ToArray())
+                MessageBox.Show("For your confirmation:" & Environment.NewLine & Environment.NewLine & "Sections Found:" & Environment.NewLine & sectionNames, "JSON File Contents", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Else
+                MessageBox.Show("No sections found in the JSON file.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            End If
+
+        Catch ex As Exception
+            ' Handle any parsing or file reading errors
+            MessageBox.Show("An error occurred while checking the JSON file: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+
     ' Button to initiate the upload process
     Private Sub ButtonR6581upload_Click(sender As Object, e As EventArgs) Handles ButtonR6581upload.Click
 
-        CalramStatus6581upload.Text = "SETTING UP GPIB"
-        System.Threading.Thread.Sleep(500) ' 500ms delay
-        Me.Refresh()
+        If ButtonDev1Run.Enabled = True Then ' Device 1 is started
 
-        'dev1.SendAsync("*RST", True) ' NPLC 0
-        CalramStatus6581upload.Text = "*RST"
-        System.Threading.Thread.Sleep(3000) ' 3sec delay
-        Me.Refresh()
+            TextBoxR6581GPIBlist.Clear()
 
-        'dev1.SendAsync(":VOLT:DC:DIG MAX", True) ' NPLC 0
-        CalramStatus6581upload.Text = "VOLT:DC:DIG MAX"
-        System.Threading.Thread.Sleep(250) ' 250ms delay
-        Me.Refresh()
+            CalramStatus6581upload.Text = "SETTING UP GPIB"
+            System.Threading.Thread.Sleep(500) ' 500ms delay
+            Me.Refresh()
 
-        'dev1.SendAsync(":SENS:VOLT:DC:RANG 10", True) ' NPLC 0
-        CalramStatus6581upload.Text = "SENS:VOLT:DC:RANG 10"
-        System.Threading.Thread.Sleep(250) ' 250ms delay
-        Me.Refresh()
+            'dev1.SendAsync("*RST", True) ' NPLC 0
+            CalramStatus6581upload.Text = "*RST"
+            System.Threading.Thread.Sleep(3000) ' 3sec delay
+            Me.Refresh()
 
-        'dev1.SendAsync(":VOLT:DC:NPLC 1", True) ' NPLC 1
-        CalramStatus6581upload.Text = "VOLT:DC:NPLC 1"
-        System.Threading.Thread.Sleep(250) ' 250ms delay
-        Me.Refresh()
+            'dev1.SendAsync(":VOLT:DC:DIG MAX", True) ' NPLC 0
+            CalramStatus6581upload.Text = "VOLT:DC:DIG MAX"
+            System.Threading.Thread.Sleep(250) ' 250ms delay
+            Me.Refresh()
 
-        Dim jsonFilePath As String = TextBoxCalRamFileJson6581Select.Text
+            'dev1.SendAsync(":SENS:VOLT:DC:RANG 10", True) ' NPLC 0
+            CalramStatus6581upload.Text = "SENS:VOLT:DC:RANG 10"
+            System.Threading.Thread.Sleep(250) ' 250ms delay
+            Me.Refresh()
 
-        ' Ensure a valid JSON file path is provided
-        If String.IsNullOrEmpty(jsonFilePath) OrElse Not System.IO.File.Exists(jsonFilePath) Then
-            MessageBox.Show("Please select a valid JSON file before proceeding.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            ButtonR6581commitEEprom.Enabled = False
-            Return
+            'dev1.SendAsync(":VOLT:DC:NPLC 1", True) ' NPLC 1
+            CalramStatus6581upload.Text = "VOLT:DC:NPLC 1"
+            System.Threading.Thread.Sleep(250) ' 250ms delay
+            Me.Refresh()
+
+            Dim jsonFilePath As String = TextBoxCalRamFileJson6581Select.Text
+
+            ' Ensure a valid JSON file path is provided
+            If String.IsNullOrEmpty(jsonFilePath) OrElse Not System.IO.File.Exists(jsonFilePath) Then
+                MessageBox.Show("Please select a valid JSON file before proceeding.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                ButtonR6581commitEEprom.Enabled = False
+                Return
+            End If
+
+
+            ' Call the upload function, passing in the selected JSON file path and checkboxes
+            Dim checkboxes As New List(Of CheckBox) From {CheckBoxR6581Upload1, CheckBoxR6581Upload2, CheckBoxR6581Upload3, CheckBoxR6581Upload4, CheckBoxR6581Upload5, CheckBoxR6581Upload6, CheckBoxR6581Upload7, CheckBoxR6581Upload8, CheckBoxR6581Upload9}
+            UploadSelectedCalibrationDataFromJson(jsonFilePath, checkboxes)
+
+            ButtonR6581commitEEprom.Enabled = True
+
+        Else
+            ' GPIB Dev 1 has not been started
+            CalramStatus6581upload.Text = "DEVICE 1 IS NOT STARTED"
         End If
-
-
-        ' Call the upload function, passing in the selected JSON file path and checkboxes
-        Dim checkboxes As New List(Of CheckBox) From {CheckBoxR6581Upload1, CheckBoxR6581Upload2, CheckBoxR6581Upload3, CheckBoxR6581Upload4, CheckBoxR6581Upload5, CheckBoxR6581Upload6, CheckBoxR6581Upload7, CheckBoxR6581Upload8, CheckBoxR6581Upload9}
-        UploadSelectedCalibrationDataFromJson(jsonFilePath, checkboxes)
-
-        ButtonR6581commitEEprom.Enabled = True
 
     End Sub
 
@@ -458,6 +507,9 @@ Partial Class Formtest
                             Dim command As String = $"{ramCommandPrefix} {index},{value}"
                             LabelCalRamByte6581upload.Text = command
 
+                            ' Add the command to the TextBox for logging
+                            TextBoxR6581GPIBlist.AppendText(command & Environment.NewLine)
+
                             ' Force the UI to update and process pending events
                             Application.DoEvents()
 
@@ -469,7 +521,7 @@ Partial Class Formtest
                     End If
                 Next
 
-                CalramStatus6581upload.Text = "Ram upload done!"
+                CalramStatus6581upload.Text = "Ram upload complete!"
 
                 ' Disable service EXT protection mode if needed
                 ' dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)
@@ -490,39 +542,46 @@ Partial Class Formtest
     ' Button to commit RAM contents to EEPROM
     Private Sub ButtonR6581commitEEprom_Click(sender As Object, e As EventArgs) Handles ButtonR6581commitEEprom.Click
 
-        ' Show confirmation dialog
-        Dim result As DialogResult = MessageBox.Show("Are you sure you want to transfer RAM contents to EEPROM?", "Confirm Action", MessageBoxButtons.YesNo, MessageBoxIcon.Warning)
+        If ButtonDev1Run.Enabled = True Then ' Device 1 is started
 
-        If result = DialogResult.Yes Then
+            ' Show confirmation dialog
+            Dim result As DialogResult = MessageBox.Show("Are you sure you want to transfer RAM contents to EEPROM?", "Confirm Action", MessageBoxButtons.YesNo, MessageBoxIcon.Warning)
 
-            'dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 1", True)         ' Enable Service EXT protection mode.....not required for INT commands
+            If result = DialogResult.Yes Then
 
-            ' Send GPIB command to commit RAM to EEPROM
-            Dim command As String = "CAL:EXT:EEPROM:STORE ON"
-            'dev1.SendAsync(command, True)
-            Threading.Thread.Sleep(10)
-            MessageBox.Show("All RAM contents have been committed to EEPROM.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                'dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 1", True)         ' Enable Service EXT protection mode.....not required for INT commands
 
-            ButtonR6581upload.Enabled = False
-            ButtonR6581commitEEprom.Enabled = False
+                ' Send GPIB command to commit RAM to EEPROM
+                Dim command As String = "CAL:EXT:EEPROM:STORE ON"
+                'dev1.SendAsync(command, True)
+                Threading.Thread.Sleep(10)
+                MessageBox.Show("All RAM contents have been committed to EEPROM.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
-            'dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)         ' Disable Service EXT protection mode.....not required for INT commands
+                ButtonR6581upload.Enabled = False
+                ButtonR6581commitEEprom.Enabled = False
 
-            Threading.Thread.Sleep(10)
+                'dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)         ' Disable Service EXT protection mode.....not required for INT commands
 
-            'dev1.SendAsync(":VOLT:DC:NPLC 30", True)                    ' Reset NPLC to 30
-            CalramStatus6581upload.Text = "VOLT:DC:NPLC 30"
+                Threading.Thread.Sleep(10)
 
-            Threading.Thread.Sleep(500)
+                'dev1.SendAsync(":VOLT:DC:NPLC 30", True)                    ' Reset NPLC to 30
+                CalramStatus6581upload.Text = "VOLT:DC:NPLC 30"
 
-            CalramStatus6581upload.Text = "Commited to EEprom done!"
-            ' Force the UI to update and process pending events
-            Application.DoEvents()
+                Threading.Thread.Sleep(500)
+
+                CalramStatus6581upload.Text = "Commited to EEprom complete!"
+                ' Force the UI to update and process pending events
+                Application.DoEvents()
+
+            Else
+
+                'dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)         ' Disable Service EXT protection mode.....not required for INT commands
+
+            End If
 
         Else
-
-            'dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)         ' Disable Service EXT protection mode.....not required for INT commands
-
+            ' GPIB Dev 1 has not been started
+            CalramStatus6581upload.Text = "DEVICE 1 IS NOT STARTED"
         End If
 
     End Sub

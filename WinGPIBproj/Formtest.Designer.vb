@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -328,8 +328,6 @@ Partial Class Formtest
         Me.Label215 = New System.Windows.Forms.Label()
         Me.Label214 = New System.Windows.Forms.Label()
         Me.Label213 = New System.Windows.Forms.Label()
-        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.Label212 = New System.Windows.Forms.Label()
         Me.Label211 = New System.Windows.Forms.Label()
         Me.Label210 = New System.Windows.Forms.Label()
@@ -512,12 +510,13 @@ Partial Class Formtest
         Me.LabelCalRamByte3457A = New System.Windows.Forms.Label()
         Me.TabPage11 = New System.Windows.Forms.TabPage()
         Me.GroupBox10 = New System.Windows.Forms.GroupBox()
+        Me.CheckBoxR6581Upload9 = New System.Windows.Forms.CheckBox()
+        Me.CheckBoxR6581Upload8 = New System.Windows.Forms.CheckBox()
         Me.Label305 = New System.Windows.Forms.Label()
         Me.Label248 = New System.Windows.Forms.Label()
         Me.Label301 = New System.Windows.Forms.Label()
         Me.LabelCalRamByte6581upload = New System.Windows.Forms.Label()
         Me.CalramStatus6581upload = New System.Windows.Forms.Label()
-        Me.Label247 = New System.Windows.Forms.Label()
         Me.Label243 = New System.Windows.Forms.Label()
         Me.Label244 = New System.Windows.Forms.Label()
         Me.ButtonR6581commitEEprom = New System.Windows.Forms.Button()
@@ -588,7 +587,6 @@ Partial Class Formtest
         Me.Label269 = New System.Windows.Forms.Label()
         Me.PictureBox9 = New System.Windows.Forms.PictureBox()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
-        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.Label145 = New System.Windows.Forms.Label()
         Me.Label79 = New System.Windows.Forms.Label()
         Me.Label81 = New System.Windows.Forms.Label()
@@ -844,7 +842,6 @@ Partial Class Formtest
         Me.CalAccuracyFinal = New System.Windows.Forms.TextBox()
         Me.Label117 = New System.Windows.Forms.Label()
         Me.Label121 = New System.Windows.Forms.Label()
-        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage6 = New System.Windows.Forms.TabPage()
         Me.Label240 = New System.Windows.Forms.Label()
         Me.Label65 = New System.Windows.Forms.Label()
@@ -869,8 +866,12 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
-        Me.CheckBoxR6581Upload9 = New System.Windows.Forms.CheckBox()
-        Me.CheckBoxR6581Upload8 = New System.Windows.Forms.CheckBox()
+        Me.TextBoxR6581GPIBlist = New System.Windows.Forms.TextBox()
+        Me.Label111 = New System.Windows.Forms.Label()
+        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.Panel2.SuspendLayout
@@ -4134,26 +4135,6 @@ Partial Class Formtest
         Me.Label213.TabIndex = 537
         Me.Label213.Text = "Tx"
         '
-        'OnOffLed2
-        '
-        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
-        Me.OnOffLed2.Name = "OnOffLed2"
-        Me.OnOffLed2.OffText = Nothing
-        Me.OnOffLed2.OnText = Nothing
-        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed2.TabIndex = 536
-        '
-        'OnOffLed1
-        '
-        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
-        Me.OnOffLed1.Name = "OnOffLed1"
-        Me.OnOffLed1.OffText = Nothing
-        Me.OnOffLed1.OnText = Nothing
-        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed1.TabIndex = 535
-        '
         'Label212
         '
         Me.Label212.AutoSize = True
@@ -5341,22 +5322,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea2.BackColor = System.Drawing.Color.Black
-        ChartArea2.BorderColor = System.Drawing.Color.White
-        ChartArea2.BorderWidth = 2
-        ChartArea2.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea2)
-        Legend2.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend2)
+        ChartArea1.BackColor = System.Drawing.Color.Black
+        ChartArea1.BorderColor = System.Drawing.Color.White
+        ChartArea1.BorderWidth = 2
+        ChartArea1.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea1)
+        Legend1.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend1)
         Me.Chart1.Location = New System.Drawing.Point(-32, 140)
         Me.Chart1.Name = "Chart1"
-        Series2.ChartArea = "ChartArea1"
-        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series2.Color = System.Drawing.Color.Yellow
-        Series2.Enabled = False
-        Series2.Legend = "Legend1"
-        Series2.Name = "Series1"
-        Me.Chart1.Series.Add(Series2)
+        Series1.ChartArea = "ChartArea1"
+        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series1.Color = System.Drawing.Color.Yellow
+        Series1.Enabled = False
+        Series1.Legend = "Legend1"
+        Series1.Name = "Series1"
+        Me.Chart1.Series.Add(Series1)
         Me.Chart1.Size = New System.Drawing.Size(1120, 462)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -6042,6 +6023,8 @@ Partial Class Formtest
         '
         'GroupBox10
         '
+        Me.GroupBox10.Controls.Add(Me.TextBoxR6581GPIBlist)
+        Me.GroupBox10.Controls.Add(Me.Label111)
         Me.GroupBox10.Controls.Add(Me.CheckBoxR6581Upload9)
         Me.GroupBox10.Controls.Add(Me.CheckBoxR6581Upload8)
         Me.GroupBox10.Controls.Add(Me.Label305)
@@ -6049,7 +6032,6 @@ Partial Class Formtest
         Me.GroupBox10.Controls.Add(Me.Label301)
         Me.GroupBox10.Controls.Add(Me.LabelCalRamByte6581upload)
         Me.GroupBox10.Controls.Add(Me.CalramStatus6581upload)
-        Me.GroupBox10.Controls.Add(Me.Label247)
         Me.GroupBox10.Controls.Add(Me.Label243)
         Me.GroupBox10.Controls.Add(Me.Label244)
         Me.GroupBox10.Controls.Add(Me.ButtonR6581commitEEprom)
@@ -6094,22 +6076,42 @@ Partial Class Formtest
         Me.GroupBox10.TabIndex = 589
         Me.GroupBox10.TabStop = False
         '
+        'CheckBoxR6581Upload9
+        '
+        Me.CheckBoxR6581Upload9.AutoSize = True
+        Me.CheckBoxR6581Upload9.Location = New System.Drawing.Point(245, 392)
+        Me.CheckBoxR6581Upload9.Name = "CheckBoxR6581Upload9"
+        Me.CheckBoxR6581Upload9.Size = New System.Drawing.Size(161, 17)
+        Me.CheckBoxR6581Upload9.TabIndex = 633
+        Me.CheckBoxR6581Upload9.Text = "CAL:INT:AC:HOSEI (factory)"
+        Me.CheckBoxR6581Upload9.UseVisualStyleBackColor = True
+        '
+        'CheckBoxR6581Upload8
+        '
+        Me.CheckBoxR6581Upload8.AutoSize = True
+        Me.CheckBoxR6581Upload8.Location = New System.Drawing.Point(245, 372)
+        Me.CheckBoxR6581Upload8.Name = "CheckBoxR6581Upload8"
+        Me.CheckBoxR6581Upload8.Size = New System.Drawing.Size(169, 17)
+        Me.CheckBoxR6581Upload8.TabIndex = 632
+        Me.CheckBoxR6581Upload8.Text = "CAL:INT:DCV:HOSEI (factory)"
+        Me.CheckBoxR6581Upload8.UseVisualStyleBackColor = True
+        '
         'Label305
         '
         Me.Label305.AutoSize = True
         Me.Label305.ForeColor = System.Drawing.Color.Red
-        Me.Label305.Location = New System.Drawing.Point(299, 423)
+        Me.Label305.Location = New System.Drawing.Point(188, 544)
         Me.Label305.Name = "Label305"
-        Me.Label305.Size = New System.Drawing.Size(212, 78)
+        Me.Label305.Size = New System.Drawing.Size(399, 26)
         Me.Label305.TabIndex = 631
-        Me.Label305.Text = "UPLOAD IS A WORK IN PROGRESS" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "BUTTONS ETC. WORK BUT NO ACTUAL" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "GPIB COMMANDS AR" &
-    "E SENT" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "FEEL FREE TO PLAY!"
+        Me.Label305.Text = "UPLOAD IS A WORK IN PROGRESS, BUTTONS ETC. WORK BUT NO ACTUAL" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "GPIB COMMANDS ARE " &
+    "SENT. FEEL FREE TO PLAY!"
         Me.Label305.TextAlign = System.Drawing.ContentAlignment.TopCenter
         '
         'Label248
         '
         Me.Label248.AutoSize = True
-        Me.Label248.Location = New System.Drawing.Point(540, 467)
+        Me.Label248.Location = New System.Drawing.Point(164, 452)
         Me.Label248.Name = "Label248"
         Me.Label248.Size = New System.Drawing.Size(51, 13)
         Me.Label248.TabIndex = 629
@@ -6118,7 +6120,7 @@ Partial Class Formtest
         'Label301
         '
         Me.Label301.AutoSize = True
-        Me.Label301.Location = New System.Drawing.Point(540, 446)
+        Me.Label301.Location = New System.Drawing.Point(164, 431)
         Me.Label301.Name = "Label301"
         Me.Label301.Size = New System.Drawing.Size(40, 13)
         Me.Label301.TabIndex = 627
@@ -6128,7 +6130,7 @@ Partial Class Formtest
         '
         Me.LabelCalRamByte6581upload.AutoSize = True
         Me.LabelCalRamByte6581upload.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelCalRamByte6581upload.Location = New System.Drawing.Point(603, 467)
+        Me.LabelCalRamByte6581upload.Location = New System.Drawing.Point(227, 452)
         Me.LabelCalRamByte6581upload.Name = "LabelCalRamByte6581upload"
         Me.LabelCalRamByte6581upload.Size = New System.Drawing.Size(14, 13)
         Me.LabelCalRamByte6581upload.TabIndex = 630
@@ -6138,27 +6140,18 @@ Partial Class Formtest
         '
         Me.CalramStatus6581upload.AutoSize = True
         Me.CalramStatus6581upload.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CalramStatus6581upload.Location = New System.Drawing.Point(603, 446)
+        Me.CalramStatus6581upload.Location = New System.Drawing.Point(227, 431)
         Me.CalramStatus6581upload.Name = "CalramStatus6581upload"
         Me.CalramStatus6581upload.Size = New System.Drawing.Size(14, 13)
         Me.CalramStatus6581upload.TabIndex = 628
         Me.CalramStatus6581upload.Text = "#"
-        '
-        'Label247
-        '
-        Me.Label247.AutoSize = True
-        Me.Label247.Location = New System.Drawing.Point(155, 553)
-        Me.Label247.Name = "Label247"
-        Me.Label247.Size = New System.Drawing.Size(72, 13)
-        Me.Label247.TabIndex = 626
-        Me.Label247.Text = "Are you sure?"
         '
         'Label243
         '
         Me.Label243.AutoSize = True
         Me.Label243.Location = New System.Drawing.Point(540, 298)
         Me.Label243.Name = "Label243"
-        Me.Label243.Size = New System.Drawing.Size(362, 130)
+        Me.Label243.Size = New System.Drawing.Size(362, 117)
         Me.Label243.TabIndex = 625
         Me.Label243.Text = resources.GetString("Label243.Text")
         '
@@ -6167,9 +6160,9 @@ Partial Class Formtest
         Me.Label244.AutoSize = True
         Me.Label244.Location = New System.Drawing.Point(540, 283)
         Me.Label244.Name = "Label244"
-        Me.Label244.Size = New System.Drawing.Size(91, 13)
+        Me.Label244.Size = New System.Drawing.Size(138, 13)
         Me.Label244.TabIndex = 624
-        Me.Label244.Text = "INSTRUCTIONS:"
+        Me.Label244.Text = "UPLOAD INSTRUCTIONS:"
         '
         'ButtonR6581commitEEprom
         '
@@ -6970,16 +6963,6 @@ Partial Class Formtest
         Me.TabPage5.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "PDVS2mini  "
-        '
-        'OnOffLed4
-        '
-        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
-        Me.OnOffLed4.Name = "OnOffLed4"
-        Me.OnOffLed4.OffText = Nothing
-        Me.OnOffLed4.OnText = Nothing
-        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed4.TabIndex = 797
         '
         'Label145
         '
@@ -9806,16 +9789,6 @@ Partial Class Formtest
         Me.Label121.TabIndex = 554
         Me.Label121.Text = "Comms Delay (mS)"
         '
-        'OnOffLed3
-        '
-        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
-        Me.OnOffLed3.Name = "OnOffLed3"
-        Me.OnOffLed3.OffText = Nothing
-        Me.OnOffLed3.OnText = Nothing
-        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed3.TabIndex = 796
-        '
         'TabPage6
         '
         Me.TabPage6.BackColor = System.Drawing.Color.WhiteSmoke
@@ -10035,25 +10008,64 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
-        'CheckBoxR6581Upload9
+        'TextBoxR6581GPIBlist
         '
-        Me.CheckBoxR6581Upload9.AutoSize = True
-        Me.CheckBoxR6581Upload9.Location = New System.Drawing.Point(245, 392)
-        Me.CheckBoxR6581Upload9.Name = "CheckBoxR6581Upload9"
-        Me.CheckBoxR6581Upload9.Size = New System.Drawing.Size(120, 17)
-        Me.CheckBoxR6581Upload9.TabIndex = 633
-        Me.CheckBoxR6581Upload9.Text = "CAL:INT:AC:HOSEI"
-        Me.CheckBoxR6581Upload9.UseVisualStyleBackColor = True
+        Me.TextBoxR6581GPIBlist.Location = New System.Drawing.Point(542, 437)
+        Me.TextBoxR6581GPIBlist.Multiline = True
+        Me.TextBoxR6581GPIBlist.Name = "TextBoxR6581GPIBlist"
+        Me.TextBoxR6581GPIBlist.ReadOnly = True
+        Me.TextBoxR6581GPIBlist.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
+        Me.TextBoxR6581GPIBlist.Size = New System.Drawing.Size(363, 68)
+        Me.TextBoxR6581GPIBlist.TabIndex = 635
         '
-        'CheckBoxR6581Upload8
+        'Label111
         '
-        Me.CheckBoxR6581Upload8.AutoSize = True
-        Me.CheckBoxR6581Upload8.Location = New System.Drawing.Point(245, 372)
-        Me.CheckBoxR6581Upload8.Name = "CheckBoxR6581Upload8"
-        Me.CheckBoxR6581Upload8.Size = New System.Drawing.Size(128, 17)
-        Me.CheckBoxR6581Upload8.TabIndex = 632
-        Me.CheckBoxR6581Upload8.Text = "CAL:INT:DCV:HOSEI"
-        Me.CheckBoxR6581Upload8.UseVisualStyleBackColor = True
+        Me.Label111.AutoSize = True
+        Me.Label111.Location = New System.Drawing.Point(540, 423)
+        Me.Label111.Name = "Label111"
+        Me.Label111.Size = New System.Drawing.Size(95, 13)
+        Me.Label111.TabIndex = 636
+        Me.Label111.Text = "Cal sent to R6581:"
+        '
+        'OnOffLed2
+        '
+        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
+        Me.OnOffLed2.Name = "OnOffLed2"
+        Me.OnOffLed2.OffText = Nothing
+        Me.OnOffLed2.OnText = Nothing
+        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed2.TabIndex = 536
+        '
+        'OnOffLed1
+        '
+        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
+        Me.OnOffLed1.Name = "OnOffLed1"
+        Me.OnOffLed1.OffText = Nothing
+        Me.OnOffLed1.OnText = Nothing
+        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed1.TabIndex = 535
+        '
+        'OnOffLed4
+        '
+        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
+        Me.OnOffLed4.Name = "OnOffLed4"
+        Me.OnOffLed4.OffText = Nothing
+        Me.OnOffLed4.OnText = Nothing
+        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed4.TabIndex = 797
+        '
+        'OnOffLed3
+        '
+        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
+        Me.OnOffLed3.Name = "OnOffLed3"
+        Me.OnOffLed3.OffText = Nothing
+        Me.OnOffLed3.OnText = Nothing
+        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed3.TabIndex = 796
         '
         'Formtest
         '
@@ -10965,7 +10977,6 @@ Partial Class Formtest
     Friend WithEvents ButtonR6581upload As Button
     Friend WithEvents Label243 As Label
     Friend WithEvents Label244 As Label
-    Friend WithEvents Label247 As Label
     Friend WithEvents Label248 As Label
     Friend WithEvents Label301 As Label
     Friend WithEvents LabelCalRamByte6581upload As Label
@@ -10973,4 +10984,6 @@ Partial Class Formtest
     Friend WithEvents Label305 As Label
     Friend WithEvents CheckBoxR6581Upload9 As CheckBox
     Friend WithEvents CheckBoxR6581Upload8 As CheckBox
+    Friend WithEvents TextBoxR6581GPIBlist As TextBox
+    Friend WithEvents Label111 As Label
 End Class
