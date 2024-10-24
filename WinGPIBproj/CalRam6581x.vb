@@ -6,6 +6,7 @@ Imports System.Threading
 Imports System.Runtime.InteropServices
 Imports System.IO
 Imports Newtonsoft.Json
+Imports System.Text.RegularExpressions
 
 Partial Class Formtest
 
@@ -129,7 +130,7 @@ Partial Class Formtest
             System.Threading.Thread.Sleep(250) ' 250ms delay
             Me.Refresh()
 
-            dev1.SendAsync(":VOLT:DC:NPLC 1", True) ' NPLC 0
+            dev1.SendAsync(":VOLT:DC:NPLC 1", True) ' NPLC 1
             CalramStatus6581.Text = "VOLT:DC:NPLC 1"
             System.Threading.Thread.Sleep(250) ' 250ms delay
             Me.Refresh()
@@ -157,13 +158,13 @@ Partial Class Formtest
             Threading.Thread.Sleep(100)
 
             ' Collect calibration constants and add to JSON
-            sections("EXT:ZERO:FRONT:EEPROM") = GetCalConstants(0, 46, "READING Regular EXT:ZERO:FRONT:EEPROM", "CAL:EXT:ZERO:FRONT:NUMBER ", "CAL:EXT:ZERO:FRONT:EEPROM:NEW?", "# Regular EXT:ZERO:FRONT:EEPROM:")
-            sections("EXT:ZERO:REAR:EEPROM") = GetCalConstants(100, 146, "READING Regular EXT:ZERO:REAR:EEPROM", "CAL:EXT:ZERO:REAR:NUMBER ", "CAL:EXT:ZERO:REAR:EEPROM:NEW?", "# Regular EXT:ZERO:REAR:EEPROM:")
-            sections("EXT:DCV:EEPROM") = GetCalConstants(200, 203, "READING Regular EXT:DCV:EEPROM", "CAL:EXT:DCV:NUMBER ", "CAL:EXT:DCV:EEPROM:NEW?", "# Regular EXT:DCV:EEPROM:")
-            sections("EXT:OHM:EEPROM") = GetCalConstants(300, 303, "READING Regular EXT:OHM:EEPROM", "CAL:EXT:OHM:NUMBER ", "CAL:EXT:OHM:EEPROM:NEW?", "# Regular EXT:OHM:EEPROM:")
-            sections("INT:OHM:EEPROM") = GetCalConstants(500, 518, "READING Regular INT:OHM:EEPROM", "CAL:INT:OHM:NUMBER ", "CAL:INT:OHM:EEPROM:NEW?", "# Regular INT:OHM:EEPROM:")
-            sections("INT:AC:EEPROM") = GetCalConstants(600, 646, "READING Regular INT:AC:EEPROM", "CAL:INT:AC:NUMBER ", "CAL:INT:AC:EEPROM:NEW?", "# Regular INT:AC:EEPROM:")
-            sections("INT:DCV:EEPROM") = GetCalConstants(400, 406, "READING Regular INT:DCV:EEPROM", "CAL:INT:DCV:NUMBER ", "CAL:INT:DCV:EEPROM:NEW?", "# Regular INT:DCV:EEPROM:")
+            sections("EXT:ZERO:FRONT:EEPROM") = GetCalConstants(0, 46, "READING Regular EXT:ZERO:FRONT:EEPROM", "CAL:EXT:ZERO:FRONT:NUMBER ", "CAL:EXT:ZERO:FRONT:EEPROM:NEW?", "# REGULAR EXT:ZERO:FRONT:EEPROM:")
+            sections("EXT:ZERO:REAR:EEPROM") = GetCalConstants(100, 146, "READING Regular EXT:ZERO:REAR:EEPROM", "CAL:EXT:ZERO:REAR:NUMBER ", "CAL:EXT:ZERO:REAR:EEPROM:NEW?", "# REGULAR EXT:ZERO:REAR:EEPROM:")
+            sections("EXT:DCV:EEPROM") = GetCalConstants(200, 203, "READING Regular EXT:DCV:EEPROM", "CAL:EXT:DCV:NUMBER ", "CAL:EXT:DCV:EEPROM:NEW?", "# REGULAR EXT:DCV:EEPROM:")
+            sections("EXT:OHM:EEPROM") = GetCalConstants(300, 303, "READING Regular EXT:OHM:EEPROM", "CAL:EXT:OHM:NUMBER ", "CAL:EXT:OHM:EEPROM:NEW?", "# REGULAR EXT:OHM:EEPROM:")
+            sections("INT:OHM:EEPROM") = GetCalConstants(500, 518, "READING Regular INT:OHM:EEPROM", "CAL:INT:OHM:NUMBER ", "CAL:INT:OHM:EEPROM:NEW?", "# REGULAR INT:OHM:EEPROM:")
+            sections("INT:AC:EEPROM") = GetCalConstants(600, 646, "READING Regular INT:AC:EEPROM", "CAL:INT:AC:NUMBER ", "CAL:INT:AC:EEPROM:NEW?", "# REGULAR INT:AC:EEPROM:")
+            sections("INT:DCV:EEPROM") = GetCalConstants(400, 406, "READING Regular INT:DCV:EEPROM", "CAL:INT:DCV:NUMBER ", "CAL:INT:DCV:EEPROM:NEW?", "# REGULAR INT:DCV:EEPROM:")
 
             Threading.Thread.Sleep(100)
             IO.File.AppendAllText(RAMfilename6581, Environment.NewLine)
@@ -171,8 +172,46 @@ Partial Class Formtest
             IO.File.AppendAllText(RAMfilename6581, Environment.NewLine)
             Threading.Thread.Sleep(100)
 
-            sections("INT:DCV:HOSEI") = GetCalConstants(0, 25, "READING Factory INT:DCV:HOSIE", "CAL:INT:DCV:HOSEI:NUMBER ", "CAL:INT:DCV:HOSEI?", "# Factory INT:DCV:HOSEI:")
-            sections("INT:AC:HOSEI") = GetCalConstants(0, 29, "READING Factory INT:AC:HOSIE", "CAL:INT:AC:HOSEI:NUMBER ", "CAL:INT:AC:HOSEI?", "# Factory INT:AC:HOSEI:")
+            sections("INT:DCV:HOSEI") = GetCalConstants(0, 25, "READING Factory INT:DCV:HOSIE", "CAL:INT:DCV:HOSEI:NUMBER ", "CAL:INT:DCV:HOSEI?", "# FACTORY INT:DCV:HOSEI:")
+            sections("INT:AC:HOSEI") = GetCalConstants(0, 29, "READING Factory INT:AC:HOSIE", "CAL:INT:AC:HOSEI:NUMBER ", "CAL:INT:AC:HOSEI?", "# FACTORY INT:AC:HOSEI:")
+
+            If CheckBoxR6581RetrieveREF.Checked = True Then
+                Threading.Thread.Sleep(100)
+                IO.File.AppendAllText(RAMfilename6581, Environment.NewLine)
+                IO.File.AppendAllText(RAMfilename6581, "#############################################################" & Environment.NewLine)
+                IO.File.AppendAllText(RAMfilename6581, Environment.NewLine)
+                Threading.Thread.Sleep(100)
+
+                GetCalConstants(0, 0, "READING REF DATA EXT:DCV:EEPROM", "CAL:EXT:DCV:NUMBER ", "CAL:EXT:DCV:EEPROM:REF?", "# REGULAR EXT:DCV:EEPROM: 7.2Vdc INTERNAL REFERENCE DATA HISTORY (20)")        ' works but get out of range error and beep on R6581....?
+                GetCalConstants(0, 0, "READING REF DATA EXT:OHM:EEPROM", "CAL:EXT:OHM:NUMBER ", "CAL:EXT:OHM:EEPROM:REF?", "# REGULAR EXT:OHM:EEPROM: 10kohm INTERNAL REFERENCE DATA HISTORY (20)")      ' works but get out of range error and beep on R6581....?
+            End If
+
+            ' Strip out the INDEX from the VALUE
+            For Each section In sections.Keys
+                Dim sectionList As List(Of Object) = sections(section)
+                For Each item In sectionList
+                    ' Use reflection to get the "Value" property dynamically
+                    Dim valueProperty = item.GetType().GetProperty("Value")
+                    If valueProperty IsNot Nothing Then
+                        Dim valueString As String = valueProperty.GetValue(item).ToString().Trim()
+
+                        ' Regular expressions for scientific notation and date/time patterns
+                        Dim sciNotationMatch As Match = Regex.Match(valueString, "[+-]?\d+\.\d+E[+-]?\d+")
+                        Dim dateTimeMatch As Match = Regex.Match(valueString, "\d{4}/\d{2}/\d{2} \d{2}:\d{2}")
+
+                        If sciNotationMatch.Success Then
+                            ' If scientific notation is found, set it as the value
+                            valueProperty.SetValue(item, sciNotationMatch.Value)
+                        ElseIf dateTimeMatch.Success Then
+                            ' If date/time pattern is found, retain it as is
+                            valueProperty.SetValue(item, dateTimeMatch.Value)
+                        Else
+                            ' If none of the patterns match, clear or set to a default
+                            valueProperty.SetValue(item, "")
+                        End If
+                    End If
+                Next
+            Next
 
             ' Add sections to JSON data
             jsonData("Header") = "ADVANTEST R6581 - CALIBRATION CONSTANTS - " & DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss")
@@ -194,6 +233,9 @@ Partial Class Formtest
             Me.Refresh()
 
             dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)         ' Disable Service EXT protection mode.....not required for INT commands
+
+            dev1.SendAsync(":VOLT:DC:NPLC 30", True)                    ' Reset NPLC to 30
+            CalramStatus6581.Text = "VOLT:DC:NPLC 30"
 
             ' Finished
             CalramStatus6581.Text = "DONE!"
@@ -218,9 +260,13 @@ Partial Class Formtest
         For i = startIndex To endIndex
             CalramStatus6581.Text = statusText
 
-            ' Send commands
-            dev1.SendAsync(commandPrefix & i & "," & i, True)
-            Threading.Thread.Sleep(10)
+            If startIndex = 0 And endIndex = 0 Then
+                ' do nothing
+            Else
+                ' Send commands
+                dev1.SendAsync(commandPrefix & i & "," & i, True)
+                Threading.Thread.Sleep(10)
+            End If
 
             ' Query and get response
             Dim q As IOQuery = Nothing
