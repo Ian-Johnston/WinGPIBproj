@@ -42,6 +42,7 @@ Partial Class Formtest
     Dim Abort6581 As Boolean = False
     Dim RAMfilename6581 As String
     Dim JSONfilename6581 As String
+    Dim stopTime As DateTime
 
 
     Private Sub AllRegularConstantsReadR6581_CheckedChanged(sender As Object, e As EventArgs) Handles AllRegularConstantsReadR6581.CheckedChanged
@@ -126,28 +127,43 @@ Partial Class Formtest
             Dim sections As New Dictionary(Of String, List(Of Object)) ' Sections for JSON
 
             CalramStatus6581.Text = "SETTING UP GPIB"
-            System.Threading.Thread.Sleep(500) ' 500ms delay
-            Me.Refresh()
+            'System.Threading.Thread.Sleep(500) ' 500ms delay
+            stopTime = DateTime.Now.AddMilliseconds(500)
+            Do While DateTime.Now < stopTime
+                Application.DoEvents()
+            Loop
 
             dev1.SendAsync("*RST", True) ' NPLC 0
             CalramStatus6581.Text = "*RST"
-            System.Threading.Thread.Sleep(3000) ' 3sec delay
-            Me.Refresh()
+            'System.Threading.Thread.Sleep(3000) ' 3sec delay
+            stopTime = DateTime.Now.AddMilliseconds(3000)
+            Do While DateTime.Now < stopTime
+                Application.DoEvents()
+            Loop
 
             dev1.SendAsync(":VOLT:DC:DIG MAX", True) ' NPLC 0
             CalramStatus6581.Text = "VOLT:DC:DIG MAX"
-            System.Threading.Thread.Sleep(250) ' 250ms delay
-            Me.Refresh()
+            'System.Threading.Thread.Sleep(250) ' 250ms delay
+            stopTime = DateTime.Now.AddMilliseconds(250)
+            Do While DateTime.Now < stopTime
+                Application.DoEvents()
+            Loop
 
             dev1.SendAsync(":SENS:VOLT:DC:RANG 10", True) ' NPLC 0
             CalramStatus6581.Text = "SENS:VOLT:DC:RANG 10"
-            System.Threading.Thread.Sleep(250) ' 250ms delay
-            Me.Refresh()
+            'System.Threading.Thread.Sleep(250) ' 250ms delay
+            stopTime = DateTime.Now.AddMilliseconds(250)
+            Do While DateTime.Now < stopTime
+                Application.DoEvents()
+            Loop
 
             dev1.SendAsync(":VOLT:DC:NPLC 1", True) ' NPLC 1
             CalramStatus6581.Text = "VOLT:DC:NPLC 1"
-            System.Threading.Thread.Sleep(250) ' 250ms delay
-            Me.Refresh()
+            'System.Threading.Thread.Sleep(250) ' 250ms delay
+            stopTime = DateTime.Now.AddMilliseconds(250)
+            Do While DateTime.Now < stopTime
+                Application.DoEvents()
+            Loop
 
             txtr1a.Text = "" ' Prepare reply textbox as empty
 
@@ -248,11 +264,14 @@ Partial Class Formtest
 
             dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)         ' Disable Service EXT protection mode.....not required for INT commands
 
+            Threading.Thread.Sleep(100)
+
             dev1.SendAsync(":VOLT:DC:NPLC 30", True)                    ' Reset NPLC to 30
             CalramStatus6581.Text = "VOLT:DC:NPLC 30"
 
             ' Finished
             CalramStatus6581.Text = "Download complete!"
+            MessageBox.Show("Download complete!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
         Else
             ' GPIB Dev 1 has not been started
@@ -643,12 +662,14 @@ Partial Class Formtest
                 'dev1.SendAsync(":VOLT:DC:NPLC 30", True)                    ' Reset NPLC to 30
                 CalramStatus6581upload.Text = "VOLT:DC:NPLC 30"
 
-                Threading.Thread.Sleep(500)
+                ' Pause for 2000ms without freezing the GUI - Delay to give the R6581 time to mass copy EEprom contents
+                'Threading.Thread.Sleep(2000)    ' delay to give the R6581 time to mass copy EEprom contents
+                stopTime = DateTime.Now.AddMilliseconds(2500)
+                Do While DateTime.Now < stopTime
+                    Application.DoEvents()
+                Loop
 
                 CalramStatus6581upload.Text = "Commit to EEprom complete!"
-                ' Force the UI to update and process pending events
-                Application.DoEvents()
-
                 MessageBox.Show("All RAM contents have been committed to EEPROM.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
             Else
