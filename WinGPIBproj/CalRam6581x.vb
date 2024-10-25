@@ -256,7 +256,8 @@ Partial Class Formtest
 
         Else
             ' GPIB Dev 1 has not been started
-            CalramStatus6581.Text = "DEVICE 1 IS NOT STARTED"
+            'CalramStatus6581.Text = "DEVICE 1 IS NOT STARTED"
+            MessageBox.Show("Device 1 is not started", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End If
 
     End Sub
@@ -264,6 +265,7 @@ Partial Class Formtest
 
 
     Private Function GetCalConstants(startIndex As Integer, endIndex As Integer, statusText As String, commandPrefix As String, queryCommand As String, headerText As String) As List(Of Object)
+
         ' Prepare to return JSON data
         Dim constantsList As New List(Of Object)
 
@@ -279,7 +281,7 @@ Partial Class Formtest
             Else
                 ' Send commands
                 dev1.SendAsync(commandPrefix & i & "," & i, True)
-                Threading.Thread.Sleep(10)
+                Threading.Thread.Sleep(100)
             End If
 
             ' Query and get response
@@ -294,10 +296,12 @@ Partial Class Formtest
 
             ' Add data to JSON structure
             constantsList.Add(New With {.Index = i, .Value = q.ResponseAsString})
+
             Threading.Thread.Sleep(10)
         Next
 
         Return constantsList
+
     End Function
 
 
@@ -383,7 +387,7 @@ Partial Class Formtest
             ' Display Header if available
             If calibrationData.ContainsKey("Header") Then
                 Dim header As String = calibrationData("Header").ToString()
-                MessageBox.Show("For your confirmation:" & Environment.NewLine & Environment.NewLine & "Header: " & header, "JSON File Contents", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                MessageBox.Show("For your confirmation:" & Environment.NewLine & Environment.NewLine & "Header:" & Environment.NewLine & header, "JSON File Contents", MessageBoxButtons.OK, MessageBoxIcon.Information)
             Else
                 MessageBox.Show("No header found in the JSON file.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             End If
@@ -392,7 +396,36 @@ Partial Class Formtest
             If calibrationData.ContainsKey("Sections") Then
                 Dim sections As JObject = calibrationData("Sections")
                 Dim sectionNames As String = String.Join(Environment.NewLine, sections.Properties().Select(Function(p) p.Name).ToArray())
-                MessageBox.Show("For your confirmation:" & Environment.NewLine & Environment.NewLine & "Sections Found:" & Environment.NewLine & sectionNames, "JSON File Contents", MessageBoxButtons.OK, MessageBoxIcon.Information)
+
+                ' Identify the sections that are selected for updating
+                Dim sectionMapping As New Dictionary(Of CheckBox, String) From {
+                {CheckBoxR6581Upload1, "EXT:ZERO:FRONT:EEPROM"},
+                {CheckBoxR6581Upload2, "EXT:ZERO:REAR:EEPROM"},
+                {CheckBoxR6581Upload3, "EXT:DCV:EEPROM"},
+                {CheckBoxR6581Upload4, "EXT:OHM:EEPROM"},
+                {CheckBoxR6581Upload5, "INT:OHM:EEPROM"},
+                {CheckBoxR6581Upload6, "INT:AC:EEPROM"},
+                {CheckBoxR6581Upload7, "INT:DCV:EEPROM"},
+                {CheckBoxR6581Upload8, "INT:DCV:HOSEI"},
+                {CheckBoxR6581Upload9, "INT:AC:HOSEI"}
+            }
+
+                ' Prepare a list of selected sections for updating
+                Dim selectedSections As New List(Of String)
+                For Each kvp In sectionMapping
+                    If kvp.Key.Checked Then
+                        selectedSections.Add(kvp.Value)
+                    End If
+                Next
+
+                Dim selectedSectionNames As String = String.Join(Environment.NewLine, selectedSections)
+
+                ' Display message with sections found and sections selected for updating
+                MessageBox.Show("For your confirmation:" & Environment.NewLine & Environment.NewLine &
+                            "Sections Found:" & Environment.NewLine & sectionNames & Environment.NewLine &
+                            Environment.NewLine & "Sections Selected for Updating:" & Environment.NewLine & selectedSectionNames,
+                            "JSON File Contents", MessageBoxButtons.OK, MessageBoxIcon.Information)
+
             Else
                 MessageBox.Show("No sections found in the JSON file.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             End If
@@ -453,7 +486,8 @@ Partial Class Formtest
 
         Else
             ' GPIB Dev 1 has not been started
-            CalramStatus6581upload.Text = "DEVICE 1 IS NOT STARTED"
+            'CalramStatus6581upload.Text = "DEVICE 1 IS NOT STARTED"
+            MessageBox.Show("Device 1 is not started", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End If
 
     End Sub
@@ -515,8 +549,8 @@ Partial Class Formtest
 
                             ' dev1.SendAsync(command, True)
 
-                            ' Add a short delay after each command
-                            Threading.Thread.Sleep(10)
+                            ' Add a sizeable delay after each command to give the R6581 time
+                            Threading.Thread.Sleep(200)
                         Next
                     End If
                 Next
@@ -549,29 +583,73 @@ Partial Class Formtest
 
             If result = DialogResult.Yes Then
 
-                'dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 1", True)         ' Enable Service EXT protection mode.....not required for INT commands
-
-                ' Send GPIB command to commit RAM to EEPROM
-                Dim command As String = "CAL:EXT:EEPROM:STORE ON"
-                'dev1.SendAsync(command, True)
-                Threading.Thread.Sleep(10)
-                MessageBox.Show("All RAM contents have been committed to EEPROM.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
-
                 ButtonR6581upload.Enabled = False
                 ButtonR6581commitEEprom.Enabled = False
 
-                'dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)         ' Disable Service EXT protection mode.....not required for INT commands
+                'dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 1", True)         ' Enable Service EXT protection mode.....not required for INT commands
 
-                Threading.Thread.Sleep(10)
+                TextBoxR6581GPIBlist.AppendText("CAL:EXT:EEPROM:PROTECTION 1" & Environment.NewLine)                        ' Add the command to the TextBox for logging
+
+
+                ' REGULAR
+
+                If CheckBoxR6581Upload1.Checked = True Or CheckBoxR6581Upload2.Checked = True Or CheckBoxR6581Upload3.Checked = True Or CheckBoxR6581Upload4.Checked = True Or CheckBoxR6581Upload5.Checked = True Or CheckBoxR6581Upload6.Checked = True Or CheckBoxR6581Upload7.Checked = True Then
+                    ' Send GPIB command to commit RAM to EEPROM
+                    Dim commandon As String = "CAL:EXT:EEPROM:STORE 1"
+                    'dev1.SendAsync(commandon, True)
+                    TextBoxR6581GPIBlist.AppendText("CAL:EXT:EEPROM:STORE 1" & Environment.NewLine)                            ' Add the command to the TextBox for logging
+
+                    CalramStatus6581upload.Text = "Regular RAM contents have been committed to EEPROM"
+
+                    Threading.Thread.Sleep(100)
+                End If
+
+
+                ' FACTORY DCV
+
+                If CheckBoxR6581Upload8.Checked = True Then
+                    ' Send GPIB command to commit RAM to EEPROM
+                    Dim command8on As String = "CAL:INT:DCV:HOSEI:STORE 1"
+                    'dev1.SendAsync(command8on, True)
+                    TextBoxR6581GPIBlist.AppendText("CAL:INT:DCV:HOSEI:STORE 1" & Environment.NewLine)                            ' Add the command to the TextBox for logging
+
+                    CalramStatus6581upload.Text = "Factory DCV RAM contents have been committed to EEPROM"
+
+                    Threading.Thread.Sleep(100)
+                End If
+
+
+                ' FACTORY AC
+
+                If CheckBoxR6581Upload9.Checked = True Then
+                    ' Send GPIB command to commit RAM to EEPROM
+                    Dim command9on As String = "CAL:INT:AC:HOSEI:STORE 1"
+                    'dev1.SendAsync(command9on, True)
+                    TextBoxR6581GPIBlist.AppendText("CAL:INT:AC:HOSEI:STORE 1" & Environment.NewLine)                            ' Add the command to the TextBox for logging
+
+                    CalramStatus6581upload.Text = "Factory AC RAM contents have been committed to EEPROM"
+
+                    Threading.Thread.Sleep(100)
+                End If
+
+
+                ' FINISH UP
+
+                'dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)         ' Disable Service EXT protection mode.....not required for INT commands
+                TextBoxR6581GPIBlist.AppendText("CAL:EXT:EEPROM:PROTECTION 0" & Environment.NewLine)                        ' Add the command to the TextBox for logging
+
+                Threading.Thread.Sleep(100)
 
                 'dev1.SendAsync(":VOLT:DC:NPLC 30", True)                    ' Reset NPLC to 30
                 CalramStatus6581upload.Text = "VOLT:DC:NPLC 30"
 
                 Threading.Thread.Sleep(500)
 
-                CalramStatus6581upload.Text = "Commited to EEprom complete!"
+                CalramStatus6581upload.Text = "Commit to EEprom complete!"
                 ' Force the UI to update and process pending events
                 Application.DoEvents()
+
+                MessageBox.Show("All RAM contents have been committed to EEPROM.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
             Else
 
@@ -581,7 +659,8 @@ Partial Class Formtest
 
         Else
             ' GPIB Dev 1 has not been started
-            CalramStatus6581upload.Text = "DEVICE 1 IS NOT STARTED"
+            'CalramStatus6581upload.Text = "DEVICE 1 IS NOT STARTED"
+            MessageBox.Show("Device 1 is not started", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End If
 
     End Sub
