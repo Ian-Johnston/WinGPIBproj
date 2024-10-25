@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -510,6 +510,7 @@ Partial Class Formtest
         Me.LabelCalRamByte3457A = New System.Windows.Forms.Label()
         Me.TabPage11 = New System.Windows.Forms.TabPage()
         Me.GroupBox10 = New System.Windows.Forms.GroupBox()
+        Me.ButtonJsonViewer = New System.Windows.Forms.Button()
         Me.TextBoxR6581GPIBlist = New System.Windows.Forms.TextBox()
         Me.Label111 = New System.Windows.Forms.Label()
         Me.CheckBoxR6581Upload9 = New System.Windows.Forms.CheckBox()
@@ -5322,22 +5323,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea1.BackColor = System.Drawing.Color.Black
-        ChartArea1.BorderColor = System.Drawing.Color.White
-        ChartArea1.BorderWidth = 2
-        ChartArea1.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea1)
-        Legend1.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend1)
+        ChartArea2.BackColor = System.Drawing.Color.Black
+        ChartArea2.BorderColor = System.Drawing.Color.White
+        ChartArea2.BorderWidth = 2
+        ChartArea2.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea2)
+        Legend2.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend2)
         Me.Chart1.Location = New System.Drawing.Point(-32, 140)
         Me.Chart1.Name = "Chart1"
-        Series1.ChartArea = "ChartArea1"
-        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series1.Color = System.Drawing.Color.Yellow
-        Series1.Enabled = False
-        Series1.Legend = "Legend1"
-        Series1.Name = "Series1"
-        Me.Chart1.Series.Add(Series1)
+        Series2.ChartArea = "ChartArea1"
+        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series2.Color = System.Drawing.Color.Yellow
+        Series2.Enabled = False
+        Series2.Legend = "Legend1"
+        Series2.Name = "Series1"
+        Me.Chart1.Series.Add(Series2)
         Me.Chart1.Size = New System.Drawing.Size(1120, 462)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -6023,6 +6024,7 @@ Partial Class Formtest
         '
         'GroupBox10
         '
+        Me.GroupBox10.Controls.Add(Me.ButtonJsonViewer)
         Me.GroupBox10.Controls.Add(Me.TextBoxR6581GPIBlist)
         Me.GroupBox10.Controls.Add(Me.Label111)
         Me.GroupBox10.Controls.Add(Me.CheckBoxR6581Upload9)
@@ -6075,6 +6077,18 @@ Partial Class Formtest
         Me.GroupBox10.Size = New System.Drawing.Size(913, 588)
         Me.GroupBox10.TabIndex = 589
         Me.GroupBox10.TabStop = False
+        '
+        'ButtonJsonViewer
+        '
+        Me.ButtonJsonViewer.Enabled = False
+        Me.ButtonJsonViewer.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonJsonViewer.Location = New System.Drawing.Point(718, 539)
+        Me.ButtonJsonViewer.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.ButtonJsonViewer.Name = "ButtonJsonViewer"
+        Me.ButtonJsonViewer.Size = New System.Drawing.Size(75, 24)
+        Me.ButtonJsonViewer.TabIndex = 638
+        Me.ButtonJsonViewer.Text = "Json Viewer"
+        Me.ButtonJsonViewer.UseVisualStyleBackColor = True
         '
         'TextBoxR6581GPIBlist
         '
@@ -6477,7 +6491,7 @@ Partial Class Formtest
         Me.Label298.AutoSize = True
         Me.Label298.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label298.ForeColor = System.Drawing.Color.Red
-        Me.Label298.Location = New System.Drawing.Point(613, 566)
+        Me.Label298.Location = New System.Drawing.Point(613, 567)
         Me.Label298.Name = "Label298"
         Me.Label298.Size = New System.Drawing.Size(296, 16)
         Me.Label298.TabIndex = 565
@@ -10986,4 +11000,5 @@ Partial Class Formtest
     Friend WithEvents CheckBoxR6581Upload8 As CheckBox
     Friend WithEvents TextBoxR6581GPIBlist As TextBox
     Friend WithEvents Label111 As Label
+    Friend WithEvents ButtonJsonViewer As Button
 End Class

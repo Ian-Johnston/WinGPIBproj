@@ -365,6 +365,8 @@ Partial Class Formtest
 
         If SendRegularConstantsReadR6581.Checked = True Then
 
+            ButtonJsonViewer.Enabled = True
+
             Dim fd As New OpenFileDialog()
             fd.Title = "Select Calibration JSON File"
             fd.InitialDirectory = strPath ' Set the initial directory
@@ -714,6 +716,21 @@ Partial Class Formtest
         End Select
 
     End Function
+
+
+    Private Sub ButtonJsonViewer_Click(sender As Object, e As EventArgs) Handles ButtonJsonViewer.Click
+        ' Example usage to show JSON content in the tree viewer pop-up
+        Dim filePath As String = TextBoxCalRamFileJson6581Select.Text
+
+        If System.IO.File.Exists(filePath) Then
+            Dim jsonText As String = System.IO.File.ReadAllText(filePath)
+            Dim viewer As New JsonViewer()
+            viewer.LoadJson(jsonText)  ' Prepare the JSON data in the viewer
+            viewer.ShowDialog()        ' Show as a pop-up
+        Else
+            MessageBox.Show("File not found: " & filePath, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End If
+    End Sub
 
 
 End Class
