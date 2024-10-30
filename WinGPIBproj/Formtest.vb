@@ -30,6 +30,7 @@ Imports WinGPIBproj.Formtest
 Imports System.Text
 Imports System.Text.RegularExpressions
 Imports System.Drawing
+Imports System.Management
 
 
 Public Class Formtest
@@ -154,7 +155,7 @@ Public Class Formtest
     Private Sub Formtest_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
 
         ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-        BannerText1 = "WinGPIB   V3.238"
+        BannerText1 = "WinGPIB   V3.239"
         BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
         ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -2065,6 +2066,35 @@ Public Class Formtest
             ButtonDev12Run.Enabled = True
         End If
 
+
+    End Sub
+
+
+    Private Sub ShowExtendedSerialPortsInfo()
+        ' String to hold the detailed port list with an extra line after the header
+        Dim portList As String = "Available Serial Ports:" & Environment.NewLine & Environment.NewLine
+
+        ' Query WMI for COM port descriptions
+        Dim searcher As New ManagementObjectSearcher("SELECT * FROM Win32_PnPEntity WHERE Name LIKE '%(COM%'")
+
+        ' Iterate through each found port and extract information
+        For Each port As ManagementObject In searcher.Get()
+            Dim name As String = port("Name").ToString() ' Contains description, e.g., "USB Serial Device (COM13)"
+            portList &= $"{name}" & Environment.NewLine
+        Next
+
+        ' Show in message box
+        If portList = "Available Serial Ports:" & Environment.NewLine & Environment.NewLine Then
+            MessageBox.Show("No serial ports available.", "Serial Ports", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        Else
+            MessageBox.Show(portList, "Serial Ports", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        End If
+    End Sub
+
+
+    Private Sub ButtonAvailableComPorts_Click(sender As Object, e As EventArgs) Handles ButtonAvailableComPorts.Click
+
+        ShowExtendedSerialPortsInfo()
 
     End Sub
 

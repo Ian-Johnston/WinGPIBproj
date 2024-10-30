@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -869,6 +869,7 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
+        Me.ButtonAvailableComPorts = New System.Windows.Forms.Button()
         Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
@@ -1261,7 +1262,7 @@ Partial Class Formtest
         'ButtonSaveSettings
         '
         Me.ButtonSaveSettings.BackColor = System.Drawing.Color.PaleGreen
-        Me.ButtonSaveSettings.Location = New System.Drawing.Point(951, 355)
+        Me.ButtonSaveSettings.Location = New System.Drawing.Point(951, 377)
         Me.ButtonSaveSettings.Name = "ButtonSaveSettings"
         Me.ButtonSaveSettings.Size = New System.Drawing.Size(90, 37)
         Me.ButtonSaveSettings.TabIndex = 77
@@ -1272,7 +1273,7 @@ Partial Class Formtest
         'ButtonNotePad2
         '
         Me.ButtonNotePad2.BackColor = System.Drawing.Color.Wheat
-        Me.ButtonNotePad2.Location = New System.Drawing.Point(951, 228)
+        Me.ButtonNotePad2.Location = New System.Drawing.Point(951, 258)
         Me.ButtonNotePad2.Name = "ButtonNotePad2"
         Me.ButtonNotePad2.Size = New System.Drawing.Size(90, 41)
         Me.ButtonNotePad2.TabIndex = 78
@@ -1294,7 +1295,7 @@ Partial Class Formtest
         'ShowFiles2
         '
         Me.ShowFiles2.BackColor = System.Drawing.Color.Thistle
-        Me.ShowFiles2.Location = New System.Drawing.Point(951, 293)
+        Me.ShowFiles2.Location = New System.Drawing.Point(951, 319)
         Me.ShowFiles2.Name = "ShowFiles2"
         Me.ShowFiles2.Size = New System.Drawing.Size(90, 37)
         Me.ShowFiles2.TabIndex = 557
@@ -1521,7 +1522,7 @@ Partial Class Formtest
         'EditMode
         '
         Me.EditMode.AutoSize = True
-        Me.EditMode.Location = New System.Drawing.Point(966, 195)
+        Me.EditMode.Location = New System.Drawing.Point(966, 191)
         Me.EditMode.Name = "EditMode"
         Me.EditMode.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.EditMode.Size = New System.Drawing.Size(74, 17)
@@ -2357,6 +2358,7 @@ Partial Class Formtest
         'TabPage1
         '
         Me.TabPage1.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.TabPage1.Controls.Add(Me.ButtonAvailableComPorts)
         Me.TabPage1.Controls.Add(Me.Panel2)
         Me.TabPage1.Controls.Add(Me.Panel1)
         Me.TabPage1.Controls.Add(Me.Label133)
@@ -5323,22 +5325,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea2.BackColor = System.Drawing.Color.Black
-        ChartArea2.BorderColor = System.Drawing.Color.White
-        ChartArea2.BorderWidth = 2
-        ChartArea2.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea2)
-        Legend2.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend2)
+        ChartArea1.BackColor = System.Drawing.Color.Black
+        ChartArea1.BorderColor = System.Drawing.Color.White
+        ChartArea1.BorderWidth = 2
+        ChartArea1.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea1)
+        Legend1.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend1)
         Me.Chart1.Location = New System.Drawing.Point(-32, 140)
         Me.Chart1.Name = "Chart1"
-        Series2.ChartArea = "ChartArea1"
-        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series2.Color = System.Drawing.Color.Yellow
-        Series2.Enabled = False
-        Series2.Legend = "Legend1"
-        Series2.Name = "Series1"
-        Me.Chart1.Series.Add(Series2)
+        Series1.ChartArea = "ChartArea1"
+        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series1.Color = System.Drawing.Color.Yellow
+        Series1.Enabled = False
+        Series1.Legend = "Legend1"
+        Series1.Name = "Series1"
+        Me.Chart1.Series.Add(Series1)
         Me.Chart1.Size = New System.Drawing.Size(1120, 462)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -10041,6 +10043,17 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
+        'ButtonAvailableComPorts
+        '
+        Me.ButtonAvailableComPorts.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.ButtonAvailableComPorts.Location = New System.Drawing.Point(951, 221)
+        Me.ButtonAvailableComPorts.Name = "ButtonAvailableComPorts"
+        Me.ButtonAvailableComPorts.Size = New System.Drawing.Size(90, 22)
+        Me.ButtonAvailableComPorts.TabIndex = 562
+        Me.ButtonAvailableComPorts.Text = "COM ports"
+        Me.ToolTip1.SetToolTip(Me.ButtonAvailableComPorts, "Export profiles & settings data to ProfilesData.dat")
+        Me.ButtonAvailableComPorts.UseVisualStyleBackColor = True
+        '
         'OnOffLed2
         '
         Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
@@ -11001,4 +11014,5 @@ Partial Class Formtest
     Friend WithEvents TextBoxR6581GPIBlist As TextBox
     Friend WithEvents Label111 As Label
     Friend WithEvents ButtonJsonViewer As Button
+    Friend WithEvents ButtonAvailableComPorts As Button
 End Class
