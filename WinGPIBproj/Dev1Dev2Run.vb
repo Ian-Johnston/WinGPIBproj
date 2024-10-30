@@ -209,6 +209,7 @@ Partial Class Formtest
         Dev1INTb.ForeColor = Color.Black
 
         If (ButtonDev1Run.Text = "Run") Then
+
             EnableChart1.Enabled = True
             CheckBoxDevice1Hide.Enabled = True
 

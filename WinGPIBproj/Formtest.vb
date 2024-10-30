@@ -155,7 +155,7 @@ Public Class Formtest
     Private Sub Formtest_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
 
         ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-        BannerText1 = "WinGPIB   V3.239"
+        BannerText1 = "WinGPIB   V3.240"
         BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
         ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -828,6 +828,11 @@ Public Class Formtest
             Device1nameLive.Text = txtname1.Text
             TextBoxDev1CMD.Text = TextBoxDev1CMD.Text + "READY!" + Environment.NewLine  ' vbCrLf
 
+            ButtonSaveSettings.Enabled = False
+            btnBackup.Enabled = False
+            btnRestore.Enabled = False
+            ButtonAvailableComPorts.Enabled = False
+
         End If
 
         IODevice.ShowDevices()
@@ -885,6 +890,11 @@ Public Class Formtest
             CMDdev2.Text = txtname2.Text
             Device2nameLive.Text = txtname2.Text
             TextBoxDev2CMD.Text = TextBoxDev2CMD.Text + "READY!" + Environment.NewLine
+
+            ButtonSaveSettings.Enabled = False
+            btnBackup.Enabled = False
+            btnRestore.Enabled = False
+            ButtonAvailableComPorts.Enabled = False
 
         End If
 
@@ -957,6 +967,11 @@ Public Class Formtest
             EditMode.Enabled = False
 
             Device1nameLive.Text = txtname1.Text
+
+            ButtonSaveSettings.Enabled = False
+            btnBackup.Enabled = False
+            btnRestore.Enabled = False
+            ButtonAvailableComPorts.Enabled = False
 
         End If
 
@@ -1747,6 +1762,11 @@ Public Class Formtest
     End Sub
 
     Private Sub ButtonReset_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonReset.Click
+
+        ButtonSaveSettings.Enabled = True
+        btnBackup.Enabled = True
+        btnRestore.Enabled = True
+        ButtonAvailableComPorts.Enabled = True
 
         Dev1IntEnable.Enabled = True
         Dev2IntEnable.Enabled = True
