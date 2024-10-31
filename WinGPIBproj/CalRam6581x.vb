@@ -62,8 +62,10 @@ Partial Class Formtest
         'R6581
 
         If AllRegularConstantsReadR6581.Checked = True Then    ' All regular calibration constants
+
             TextBoxCalRamFile6581.Text = ""
             CalRegularramextractR6581()
+
         End If
 
 
@@ -87,6 +89,28 @@ Partial Class Formtest
             Catch ex As Exception
                 MessageBox.Show("Unable to open the file: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
+        Else
+            MessageBox.Show("The specified file does not exist. Please check the path and try again.", "File Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        End If
+
+    End Sub
+
+
+    Private Sub ButtonJsonViewer2_Click(sender As Object, e As EventArgs) Handles ButtonJsonViewer2.Click
+
+        ' Example usage to show JSON content in the tree viewer pop-up
+        Dim filePath As String = TextBoxCalRamFileJson6581.Text
+
+        If Not String.IsNullOrEmpty(filePath) AndAlso IO.File.Exists(filePath) Then
+
+            If System.IO.File.Exists(filePath) Then
+                Dim jsonText As String = System.IO.File.ReadAllText(filePath)
+                Dim viewer As New JsonViewer()
+                viewer.LoadJson(jsonText)  ' Prepare the JSON data in the viewer
+                viewer.ShowDialog()        ' Show as a pop-up
+            Else
+                MessageBox.Show("File not found: " & filePath, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End If
         Else
             MessageBox.Show("The specified file does not exist. Please check the path and try again.", "File Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning)
         End If

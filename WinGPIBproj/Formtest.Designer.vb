@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea3 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend3 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series3 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -870,6 +870,7 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
+        Me.ButtonJsonViewer2 = New System.Windows.Forms.Button()
         Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
@@ -5336,22 +5337,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea2.BackColor = System.Drawing.Color.Black
-        ChartArea2.BorderColor = System.Drawing.Color.White
-        ChartArea2.BorderWidth = 2
-        ChartArea2.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea2)
-        Legend2.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend2)
+        ChartArea3.BackColor = System.Drawing.Color.Black
+        ChartArea3.BorderColor = System.Drawing.Color.White
+        ChartArea3.BorderWidth = 2
+        ChartArea3.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea3)
+        Legend3.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend3)
         Me.Chart1.Location = New System.Drawing.Point(-32, 140)
         Me.Chart1.Name = "Chart1"
-        Series2.ChartArea = "ChartArea1"
-        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series2.Color = System.Drawing.Color.Yellow
-        Series2.Enabled = False
-        Series2.Legend = "Legend1"
-        Series2.Name = "Series1"
-        Me.Chart1.Series.Add(Series2)
+        Series3.ChartArea = "ChartArea1"
+        Series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series3.Color = System.Drawing.Color.Yellow
+        Series3.Enabled = False
+        Series3.Legend = "Legend1"
+        Series3.Name = "Series1"
+        Me.Chart1.Series.Add(Series3)
         Me.Chart1.Size = New System.Drawing.Size(1120, 462)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -6037,6 +6038,7 @@ Partial Class Formtest
         '
         'GroupBox10
         '
+        Me.GroupBox10.Controls.Add(Me.ButtonJsonViewer2)
         Me.GroupBox10.Controls.Add(Me.ButtonJsonViewer)
         Me.GroupBox10.Controls.Add(Me.TextBoxR6581GPIBlist)
         Me.GroupBox10.Controls.Add(Me.Label111)
@@ -6098,9 +6100,10 @@ Partial Class Formtest
         Me.ButtonJsonViewer.Location = New System.Drawing.Point(718, 539)
         Me.ButtonJsonViewer.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.ButtonJsonViewer.Name = "ButtonJsonViewer"
-        Me.ButtonJsonViewer.Size = New System.Drawing.Size(75, 24)
+        Me.ButtonJsonViewer.Size = New System.Drawing.Size(80, 24)
         Me.ButtonJsonViewer.TabIndex = 638
-        Me.ButtonJsonViewer.Text = "Json Viewer"
+        Me.ButtonJsonViewer.Text = "JSON Viewer"
+        Me.ToolTip1.SetToolTip(Me.ButtonJsonViewer, "Open the JSON file in the built in viewer")
         Me.ButtonJsonViewer.UseVisualStyleBackColor = True
         '
         'TextBoxR6581GPIBlist
@@ -6238,9 +6241,10 @@ Partial Class Formtest
         Me.ButtonOpenR6581fileSelectJson.Location = New System.Drawing.Point(718, 512)
         Me.ButtonOpenR6581fileSelectJson.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.ButtonOpenR6581fileSelectJson.Name = "ButtonOpenR6581fileSelectJson"
-        Me.ButtonOpenR6581fileSelectJson.Size = New System.Drawing.Size(75, 24)
+        Me.ButtonOpenR6581fileSelectJson.Size = New System.Drawing.Size(80, 24)
         Me.ButtonOpenR6581fileSelectJson.TabIndex = 621
-        Me.ButtonOpenR6581fileSelectJson.Text = "Select Json"
+        Me.ButtonOpenR6581fileSelectJson.Text = "Select JSON"
+        Me.ToolTip1.SetToolTip(Me.ButtonOpenR6581fileSelectJson, "Select the JSON file you wish to upload")
         Me.ButtonOpenR6581fileSelectJson.UseVisualStyleBackColor = True
         '
         'TextBoxCalRamFileJson6581Select
@@ -6368,9 +6372,10 @@ Partial Class Formtest
         Me.ButtonOpenR6581fileJson.Location = New System.Drawing.Point(719, 238)
         Me.ButtonOpenR6581fileJson.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.ButtonOpenR6581fileJson.Name = "ButtonOpenR6581fileJson"
-        Me.ButtonOpenR6581fileJson.Size = New System.Drawing.Size(75, 24)
+        Me.ButtonOpenR6581fileJson.Size = New System.Drawing.Size(80, 24)
         Me.ButtonOpenR6581fileJson.TabIndex = 607
-        Me.ButtonOpenR6581fileJson.Text = "Open Json"
+        Me.ButtonOpenR6581fileJson.Text = "Open JSON"
+        Me.ToolTip1.SetToolTip(Me.ButtonOpenR6581fileJson, "Open the JSON file in Notepad")
         Me.ButtonOpenR6581fileJson.UseVisualStyleBackColor = True
         '
         'TextBoxCalRamFileJson6581
@@ -6387,9 +6392,10 @@ Partial Class Formtest
         Me.ButtonOpenR6581file.Location = New System.Drawing.Point(719, 212)
         Me.ButtonOpenR6581file.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.ButtonOpenR6581file.Name = "ButtonOpenR6581file"
-        Me.ButtonOpenR6581file.Size = New System.Drawing.Size(75, 24)
+        Me.ButtonOpenR6581file.Size = New System.Drawing.Size(80, 24)
         Me.ButtonOpenR6581file.TabIndex = 605
         Me.ButtonOpenR6581file.Text = "Open Txt"
+        Me.ToolTip1.SetToolTip(Me.ButtonOpenR6581file, "Open the TXT file in Notepad")
         Me.ButtonOpenR6581file.UseVisualStyleBackColor = True
         '
         'TextBoxCalRamFile6581
@@ -10054,6 +10060,18 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
+        'ButtonJsonViewer2
+        '
+        Me.ButtonJsonViewer2.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonJsonViewer2.Location = New System.Drawing.Point(803, 238)
+        Me.ButtonJsonViewer2.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.ButtonJsonViewer2.Name = "ButtonJsonViewer2"
+        Me.ButtonJsonViewer2.Size = New System.Drawing.Size(80, 24)
+        Me.ButtonJsonViewer2.TabIndex = 639
+        Me.ButtonJsonViewer2.Text = "Json Viewer"
+        Me.ToolTip1.SetToolTip(Me.ButtonJsonViewer2, "Open the JSON file in the built in viewer")
+        Me.ButtonJsonViewer2.UseVisualStyleBackColor = True
+        '
         'OnOffLed2
         '
         Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
@@ -11015,4 +11033,5 @@ Partial Class Formtest
     Friend WithEvents Label111 As Label
     Friend WithEvents ButtonJsonViewer As Button
     Friend WithEvents ButtonAvailableComPorts As Button
+    Friend WithEvents ButtonJsonViewer2 As Button
 End Class
