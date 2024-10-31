@@ -155,7 +155,7 @@ Public Class Formtest
     Private Sub Formtest_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
 
         ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-        BannerText1 = "WinGPIB   V3.241"
+        BannerText1 = "WinGPIB   V3.242"
         BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
         ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
