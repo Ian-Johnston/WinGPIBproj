@@ -155,7 +155,7 @@ Public Class Formtest
     Private Sub Formtest_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
 
         ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-        BannerText1 = "WinGPIB   V3.240"
+        BannerText1 = "WinGPIB   V3.241"
         BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
         ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -832,6 +832,16 @@ Public Class Formtest
             btnBackup.Enabled = False
             btnRestore.Enabled = False
             ButtonAvailableComPorts.Enabled = False
+            ProfDev1_1.Enabled = False
+            ProfDev1_2.Enabled = False
+            ProfDev1_3.Enabled = False
+            ProfDev1_4.Enabled = False
+            ProfDev1_5.Enabled = False
+            ProfDev1_6.Enabled = False
+            ProfDev1_7.Enabled = False
+            ProfDev1_8.Enabled = False
+            txtaddr1.Enabled = False
+            lstIntf1.Enabled = False
 
         End If
 
@@ -895,6 +905,16 @@ Public Class Formtest
             btnBackup.Enabled = False
             btnRestore.Enabled = False
             ButtonAvailableComPorts.Enabled = False
+            ProfDev2_1.Enabled = False
+            ProfDev2_2.Enabled = False
+            ProfDev2_3.Enabled = False
+            ProfDev2_4.Enabled = False
+            ProfDev2_5.Enabled = False
+            ProfDev2_6.Enabled = False
+            ProfDev2_7.Enabled = False
+            ProfDev2_8.Enabled = False
+            txtaddr2.Enabled = False
+            lstIntf2.Enabled = False
 
         End If
 
@@ -972,6 +992,26 @@ Public Class Formtest
             btnBackup.Enabled = False
             btnRestore.Enabled = False
             ButtonAvailableComPorts.Enabled = False
+            ProfDev1_1.Enabled = False
+            ProfDev1_2.Enabled = False
+            ProfDev1_3.Enabled = False
+            ProfDev1_4.Enabled = False
+            ProfDev1_5.Enabled = False
+            ProfDev1_6.Enabled = False
+            ProfDev1_7.Enabled = False
+            ProfDev1_8.Enabled = False
+            txtaddr1.Enabled = False
+            lstIntf1.Enabled = False
+            ProfDev2_1.Enabled = False
+            ProfDev2_2.Enabled = False
+            ProfDev2_3.Enabled = False
+            ProfDev2_4.Enabled = False
+            ProfDev2_5.Enabled = False
+            ProfDev2_6.Enabled = False
+            ProfDev2_7.Enabled = False
+            ProfDev2_8.Enabled = False
+            txtaddr2.Enabled = False
+            lstIntf2.Enabled = False
 
         End If
 
@@ -1767,6 +1807,26 @@ Public Class Formtest
         btnBackup.Enabled = True
         btnRestore.Enabled = True
         ButtonAvailableComPorts.Enabled = True
+        ProfDev1_1.Enabled = True
+        ProfDev1_2.Enabled = True
+        ProfDev1_3.Enabled = True
+        ProfDev1_4.Enabled = True
+        ProfDev1_5.Enabled = True
+        ProfDev1_6.Enabled = True
+        ProfDev1_7.Enabled = True
+        ProfDev1_8.Enabled = True
+        txtaddr1.Enabled = True
+        lstIntf1.Enabled = True
+        ProfDev2_1.Enabled = True
+        ProfDev2_2.Enabled = True
+        ProfDev2_3.Enabled = True
+        ProfDev2_4.Enabled = True
+        ProfDev2_5.Enabled = True
+        ProfDev2_6.Enabled = True
+        ProfDev2_7.Enabled = True
+        ProfDev2_8.Enabled = True
+        txtaddr2.Enabled = True
+        lstIntf2.Enabled = True
 
         Dev1IntEnable.Enabled = True
         Dev2IntEnable.Enabled = True
