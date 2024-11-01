@@ -318,16 +318,19 @@ Partial Class Formtest
             If Abort6581 = True Then
                 CalramStatus6581.Text = "Download aborted!"
                 MessageBox.Show("Download aborted!", "Aborted", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                ButtonOpenR6581file.Enabled = False
+                ButtonOpenR6581fileJson.Enabled = False
+                ButtonJsonViewer2.Enabled = False
             Else
                 CalramStatus6581.Text = "Download complete!"
                 MessageBox.Show("Download complete!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                ButtonOpenR6581file.Enabled = True
+                ButtonOpenR6581fileJson.Enabled = True
+                ButtonJsonViewer2.Enabled = True
             End If
 
 
             ButtonCalramDumpR6581.Enabled = True
-            ButtonOpenR6581file.Enabled = True
-            ButtonOpenR6581fileJson.Enabled = True
-            ButtonJsonViewer2.Enabled = True
 
         Else
             ' GPIB Dev 1 has not been started
@@ -405,9 +408,9 @@ Partial Class Formtest
         Dev1TextResponse.Checked = False
 
         ButtonCalramDumpR6581.Enabled = True
-        ButtonOpenR6581file.Enabled = True
-        ButtonOpenR6581fileJson.Enabled = True
-        ButtonJsonViewer2.Enabled = True
+        ButtonOpenR6581file.Enabled = False
+        ButtonOpenR6581fileJson.Enabled = False
+        ButtonJsonViewer2.Enabled = False
 
     End Sub
 
