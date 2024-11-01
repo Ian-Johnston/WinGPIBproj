@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -851,6 +851,15 @@ Partial Class Formtest
         Me.Label117 = New System.Windows.Forms.Label()
         Me.Label121 = New System.Windows.Forms.Label()
         Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
+        Me.TabPage13 = New System.Windows.Forms.TabPage()
+        Me.GroupBox11 = New System.Windows.Forms.GroupBox()
+        Me.Label308 = New System.Windows.Forms.Label()
+        Me.Label307 = New System.Windows.Forms.Label()
+        Me.Label247 = New System.Windows.Forms.Label()
+        Me.Label10 = New System.Windows.Forms.Label()
+        Me.TextBoxTextEditor = New System.Windows.Forms.TextBox()
+        Me.CheckBoxAllowSaveAnytime = New System.Windows.Forms.CheckBox()
+        Me.Label6 = New System.Windows.Forms.Label()
         Me.TabPage6 = New System.Windows.Forms.TabPage()
         Me.Label240 = New System.Windows.Forms.Label()
         Me.Label65 = New System.Windows.Forms.Label()
@@ -909,6 +918,8 @@ Partial Class Formtest
         CType(Me.PictureBox9, System.ComponentModel.ISupportInitialize).BeginInit
         Me.TabPage5.SuspendLayout
         Me.GroupBox2.SuspendLayout
+        Me.TabPage13.SuspendLayout
+        Me.GroupBox11.SuspendLayout
         Me.TabPage6.SuspendLayout
         CType(Me.PictureBox6, System.ComponentModel.ISupportInitialize).BeginInit
         Me.SuspendLayout
@@ -2420,6 +2431,7 @@ Partial Class Formtest
         Me.TabControl1.Controls.Add(Me.TabPage11)
         Me.TabControl1.Controls.Add(Me.TabPage12)
         Me.TabControl1.Controls.Add(Me.TabPage5)
+        Me.TabControl1.Controls.Add(Me.TabPage13)
         Me.TabControl1.Controls.Add(Me.TabPage6)
         Me.TabControl1.Location = New System.Drawing.Point(0, 0)
         Me.TabControl1.Multiline = True
@@ -2458,7 +2470,7 @@ Partial Class Formtest
         Me.TabPage1.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage1.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage1.TabIndex = 0
-        Me.TabPage1.Text = "Device 1 / 2  "
+        Me.TabPage1.Text = "Device 1/2  "
         '
         'Panel2
         '
@@ -4007,7 +4019,7 @@ Partial Class Formtest
         Me.TabPage2.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage2.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage2.TabIndex = 1
-        Me.TabPage2.Text = "Temp. / Hum.  "
+        Me.TabPage2.Text = "Temp/Hum  "
         '
         'gboxtemphum
         '
@@ -4616,7 +4628,7 @@ Partial Class Formtest
         Me.TabPage3.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage3.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage3.TabIndex = 2
-        Me.TabPage3.Text = "Data & Event Log / CSV  "
+        Me.TabPage3.Text = "Data & Event Log/CSV  "
         '
         'Label291
         '
@@ -5418,22 +5430,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea2.BackColor = System.Drawing.Color.Black
-        ChartArea2.BorderColor = System.Drawing.Color.White
-        ChartArea2.BorderWidth = 2
-        ChartArea2.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea2)
-        Legend2.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend2)
+        ChartArea1.BackColor = System.Drawing.Color.Black
+        ChartArea1.BorderColor = System.Drawing.Color.White
+        ChartArea1.BorderWidth = 2
+        ChartArea1.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea1)
+        Legend1.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend1)
         Me.Chart1.Location = New System.Drawing.Point(-32, 140)
         Me.Chart1.Name = "Chart1"
-        Series2.ChartArea = "ChartArea1"
-        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series2.Color = System.Drawing.Color.Yellow
-        Series2.Enabled = False
-        Series2.Legend = "Legend1"
-        Series2.Name = "Series1"
-        Me.Chart1.Series.Add(Series2)
+        Series1.ChartArea = "ChartArea1"
+        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series1.Color = System.Drawing.Color.Yellow
+        Series1.Enabled = False
+        Series1.Legend = "Legend1"
+        Series1.Name = "Series1"
+        Me.Chart1.Series.Add(Series1)
         Me.Chart1.Size = New System.Drawing.Size(1120, 462)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -6597,7 +6609,7 @@ Partial Class Formtest
         Me.TabPage12.Name = "TabPage12"
         Me.TabPage12.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage12.TabIndex = 11
-        Me.TabPage12.Text = "3245A Cal.  "
+        Me.TabPage12.Text = "3245A Cal  "
         '
         'Label259
         '
@@ -9893,6 +9905,94 @@ Partial Class Formtest
         Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
         Me.OnOffLed3.TabIndex = 796
         '
+        'TabPage13
+        '
+        Me.TabPage13.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.TabPage13.Controls.Add(Me.GroupBox11)
+        Me.TabPage13.Location = New System.Drawing.Point(4, 22)
+        Me.TabPage13.Name = "TabPage13"
+        Me.TabPage13.Size = New System.Drawing.Size(1047, 599)
+        Me.TabPage13.TabIndex = 13
+        Me.TabPage13.Text = "Settings  "
+        '
+        'GroupBox11
+        '
+        Me.GroupBox11.Controls.Add(Me.Label308)
+        Me.GroupBox11.Controls.Add(Me.Label307)
+        Me.GroupBox11.Controls.Add(Me.Label247)
+        Me.GroupBox11.Controls.Add(Me.Label10)
+        Me.GroupBox11.Controls.Add(Me.TextBoxTextEditor)
+        Me.GroupBox11.Controls.Add(Me.CheckBoxAllowSaveAnytime)
+        Me.GroupBox11.Controls.Add(Me.Label6)
+        Me.GroupBox11.Location = New System.Drawing.Point(8, 3)
+        Me.GroupBox11.Name = "GroupBox11"
+        Me.GroupBox11.Size = New System.Drawing.Size(1030, 589)
+        Me.GroupBox11.TabIndex = 589
+        Me.GroupBox11.TabStop = False
+        '
+        'Label308
+        '
+        Me.Label308.AutoSize = True
+        Me.Label308.Location = New System.Drawing.Point(8, 566)
+        Me.Label308.Name = "Label308"
+        Me.Label308.Size = New System.Drawing.Size(240, 13)
+        Me.Label308.TabIndex = 598
+        Me.Label308.Text = "These settings are saved immediately on change."
+        '
+        'Label307
+        '
+        Me.Label307.AutoSize = True
+        Me.Label307.Location = New System.Drawing.Point(586, 90)
+        Me.Label307.Name = "Label307"
+        Me.Label307.Size = New System.Drawing.Size(219, 13)
+        Me.Label307.TabIndex = 597
+        Me.Label307.Text = "C:\Program Files\Notepad++\notepad++.exe"
+        '
+        'Label247
+        '
+        Me.Label247.AutoSize = True
+        Me.Label247.Location = New System.Drawing.Point(532, 74)
+        Me.Label247.Name = "Label247"
+        Me.Label247.Size = New System.Drawing.Size(235, 13)
+        Me.Label247.TabIndex = 596
+        Me.Label247.Text = "Examples:  C:\Windows\System32\notepad.exe"
+        '
+        'Label10
+        '
+        Me.Label10.AutoSize = True
+        Me.Label10.Location = New System.Drawing.Point(290, 74)
+        Me.Label10.Name = "Label10"
+        Me.Label10.Size = New System.Drawing.Size(225, 13)
+        Me.Label10.TabIndex = 595
+        Me.Label10.Text = "Text editor path for 'Edit GPIBchannels' button"
+        '
+        'TextBoxTextEditor
+        '
+        Me.TextBoxTextEditor.Location = New System.Drawing.Point(11, 71)
+        Me.TextBoxTextEditor.Name = "TextBoxTextEditor"
+        Me.TextBoxTextEditor.Size = New System.Drawing.Size(273, 20)
+        Me.TextBoxTextEditor.TabIndex = 594
+        '
+        'CheckBoxAllowSaveAnytime
+        '
+        Me.CheckBoxAllowSaveAnytime.AutoSize = True
+        Me.CheckBoxAllowSaveAnytime.Location = New System.Drawing.Point(11, 46)
+        Me.CheckBoxAllowSaveAnytime.Name = "CheckBoxAllowSaveAnytime"
+        Me.CheckBoxAllowSaveAnytime.Size = New System.Drawing.Size(264, 17)
+        Me.CheckBoxAllowSaveAnytime.TabIndex = 593
+        Me.CheckBoxAllowSaveAnytime.Text = "Allow 'Save All Profiles/Settings' button at any time"
+        Me.CheckBoxAllowSaveAnytime.UseVisualStyleBackColor = True
+        '
+        'Label6
+        '
+        Me.Label6.AutoSize = True
+        Me.Label6.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label6.Location = New System.Drawing.Point(8, 14)
+        Me.Label6.Name = "Label6"
+        Me.Label6.Size = New System.Drawing.Size(78, 15)
+        Me.Label6.TabIndex = 592
+        Me.Label6.Text = "SETTINGS:"
+        '
         'TabPage6
         '
         Me.TabPage6.BackColor = System.Drawing.Color.WhiteSmoke
@@ -10177,6 +10277,9 @@ Partial Class Formtest
         Me.TabPage5.PerformLayout
         Me.GroupBox2.ResumeLayout(False)
         Me.GroupBox2.PerformLayout
+        Me.TabPage13.ResumeLayout(False)
+        Me.GroupBox11.ResumeLayout(False)
+        Me.GroupBox11.PerformLayout
         Me.TabPage6.ResumeLayout(False)
         Me.TabPage6.PerformLayout
         CType(Me.PictureBox6, System.ComponentModel.ISupportInitialize).EndInit
@@ -11034,4 +11137,13 @@ Partial Class Formtest
     Friend WithEvents ButtonJsonViewer As Button
     Friend WithEvents ButtonAvailableComPorts As Button
     Friend WithEvents ButtonJsonViewer2 As Button
+    Friend WithEvents TabPage13 As TabPage
+    Friend WithEvents GroupBox11 As GroupBox
+    Friend WithEvents CheckBoxAllowSaveAnytime As CheckBox
+    Friend WithEvents Label6 As Label
+    Friend WithEvents Label10 As Label
+    Friend WithEvents TextBoxTextEditor As TextBox
+    Friend WithEvents Label307 As Label
+    Friend WithEvents Label247 As Label
+    Friend WithEvents Label308 As Label
 End Class

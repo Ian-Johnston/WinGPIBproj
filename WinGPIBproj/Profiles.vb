@@ -14,6 +14,25 @@ Partial Class Formtest
     Dim ProfDev2checked_1 As Boolean = True
     Dim ProfDev2checked_2 As Boolean = False
     Dim ProfDev2checked_3 As Boolean = False
+    Dim TextEditorPath As String
+
+    ' Settings page
+    Private Sub CheckBoxAllowSaveAnytime_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxAllowSaveAnytime.CheckedChanged
+
+        My.Settings.data505 = CheckBoxAllowSaveAnytime.Checked          ' save off immediately
+        My.Settings.Save()
+
+    End Sub
+
+    Private Sub TextBoxTextEditor_TextChanged(sender As Object, e As EventArgs) Handles TextBoxTextEditor.TextChanged
+
+        TextEditorPath = TextBoxTextEditor.Text ' Adjust the path as needed
+        My.Settings.data506 = TextBoxTextEditor.Text          ' save off immediately
+        My.Settings.Save()
+        'Process.Start(notepadPlusPlusPath, strPath & "\" & "GPIBchannels.txt")
+
+    End Sub
+
 
     Private Sub ButtonSaveLiveSettings_Click(sender As Object, e As EventArgs) Handles ButtonSaveLiveSettings.Click
 
@@ -599,6 +618,8 @@ Partial Class Formtest
             My.Settings.data499 = Dev2SendQuery.Checked
         End If
 
+        ' Save the settings to persist the changes
+        My.Settings.Save()
 
         If CSVdelimiterComma.Checked = True Then
             CSVdelimit = ","

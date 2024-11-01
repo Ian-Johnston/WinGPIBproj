@@ -1638,5 +1638,11 @@ VOLT:DC:NPLC 10</Value>
     <Setting Name="data504" Type="System.Double" Scope="User">
       <Value Profile="(Default)">1</Value>
     </Setting>
+    <Setting Name="data505" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="data506" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Notepad.exe</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

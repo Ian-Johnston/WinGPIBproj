@@ -155,7 +155,7 @@ Public Class Formtest
     Private Sub Formtest_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
 
         ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-        BannerText1 = "WinGPIB   V3.243"
+        BannerText1 = "WinGPIB   V3.244"
         BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
         ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -312,7 +312,6 @@ Public Class Formtest
         Dev2IntEnable.Checked = My.Settings.data298
         Dev2Regex.Checked = My.Settings.data343
         Dev2DecimalNumDPs.Text = My.Settings.data461
-
 
         ' Load Live Chart settings
         XaxisPoints.Text = My.Settings.data255
@@ -716,6 +715,16 @@ Public Class Formtest
         ButtonR6581upload.Enabled = False
         ButtonR6581commitEEprom.Enabled = False
 
+        ' Settings
+        CheckBoxAllowSaveAnytime.Checked = My.Settings.data505
+        TextBoxTextEditor.Text = My.Settings.data506
+
+        If String.IsNullOrWhiteSpace(TextBoxTextEditor.Text) Then
+            TextBoxTextEditor.Text = "Notepad.exe"
+            My.Settings.data506 = "Notepad.exe"
+        End If
+
+
     End Sub
 
 
@@ -846,7 +855,12 @@ Public Class Formtest
             Device1nameLive.Text = txtname1.Text
             TextBoxDev1CMD.Text = TextBoxDev1CMD.Text + "READY!" + Environment.NewLine  ' vbCrLf
 
-            ButtonSaveSettings.Enabled = False
+            If CheckBoxAllowSaveAnytime.Checked = False Then
+                ButtonSaveSettings.Enabled = False
+            Else
+                ButtonSaveSettings.Enabled = True
+            End If
+
             btnBackup.Enabled = False
             btnRestore.Enabled = False
             ButtonAvailableComPorts.Enabled = False
@@ -919,7 +933,12 @@ Public Class Formtest
             Device2nameLive.Text = txtname2.Text
             TextBoxDev2CMD.Text = TextBoxDev2CMD.Text + "READY!" + Environment.NewLine
 
-            ButtonSaveSettings.Enabled = False
+            If CheckBoxAllowSaveAnytime.Checked = False Then
+                ButtonSaveSettings.Enabled = False
+            Else
+                ButtonSaveSettings.Enabled = True
+            End If
+
             btnBackup.Enabled = False
             btnRestore.Enabled = False
             ButtonAvailableComPorts.Enabled = False
@@ -1006,7 +1025,12 @@ Public Class Formtest
 
             Device1nameLive.Text = txtname1.Text
 
-            ButtonSaveSettings.Enabled = False
+            If CheckBoxAllowSaveAnytime.Checked = False Then
+                ButtonSaveSettings.Enabled = False
+            Else
+                ButtonSaveSettings.Enabled = True
+            End If
+
             btnBackup.Enabled = False
             btnRestore.Enabled = False
             ButtonAvailableComPorts.Enabled = False
@@ -1934,14 +1958,38 @@ Public Class Formtest
         My.Settings.data29 = ";"
     End Sub
 
-    Private Sub ButtonNotepad_Click_1(sender As Object, e As EventArgs)
-        Process.Start("notepad.exe", CSVfilepath.Text & "\" & "GPIBchannels.txt")
-    End Sub
+    'Private Sub ButtonNotepad_Click_1(sender As Object, e As EventArgs)
+    '    Process.Start(TextEditorPath, CSVfilepath.Text & "\" & "GPIBchannels.txt")
+    'End Sub
+
+    'Private Sub ButtonNotePad2_Click(sender As Object, e As EventArgs) Handles ButtonNotePad2.Click
+    '   Process.Start(TextEditorPath, strPath & "\" & "GPIBchannels.txt")
+    'End Sub
 
     Private Sub ButtonNotePad2_Click(sender As Object, e As EventArgs) Handles ButtonNotePad2.Click
-        'Process.Start("notepad.exe", CSVfilepath.Text & "\" & "GPIBchannels.txt")
-        Process.Start("notepad.exe", strPath & "\" & "GPIBchannels.txt")
+        'Dim TextEditorPath As String = "C:\Program Files\Notepad++\notepad++.exe" ' Adjust the path as needed
+        Dim filePath As String = System.IO.Path.Combine(CSVfilepath.Text, "GPIBchannels.txt")
+
+        ' Check if the text editor exists
+        If Not System.IO.File.Exists(TextEditorPath) Then
+            MessageBox.Show("Text editor not found at specified path: " & TextEditorPath, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return
+        End If
+
+        ' Check if the file to open exists
+        If Not System.IO.File.Exists(filePath) Then
+            MessageBox.Show("File not found: " & filePath, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return
+        End If
+
+        ' Attempt to open the file in the text editor
+        Try
+            Process.Start(TextEditorPath, filePath)
+        Catch ex As Exception
+            MessageBox.Show("An error occurred while trying to open the file: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
     End Sub
+
 
     Private Sub ButtonIanWebsite_Click_1(sender As Object, e As EventArgs) Handles ButtonIanWebsite.Click
         Process.Start("www.paypal.me/IanSJohnston")
