@@ -334,8 +334,6 @@ Partial Class Formtest
         Me.Label215 = New System.Windows.Forms.Label()
         Me.Label214 = New System.Windows.Forms.Label()
         Me.Label213 = New System.Windows.Forms.Label()
-        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.Label212 = New System.Windows.Forms.Label()
         Me.Label211 = New System.Windows.Forms.Label()
         Me.Label210 = New System.Windows.Forms.Label()
@@ -413,6 +411,7 @@ Partial Class Formtest
         Me.Label26 = New System.Windows.Forms.Label()
         Me.ListBoxData = New System.Windows.Forms.ListBox()
         Me.TabPage4 = New System.Windows.Forms.TabPage()
+        Me.Label313 = New System.Windows.Forms.Label()
         Me.Label238 = New System.Windows.Forms.Label()
         Me.Label237 = New System.Windows.Forms.Label()
         Me.Label236 = New System.Windows.Forms.Label()
@@ -594,7 +593,6 @@ Partial Class Formtest
         Me.Label269 = New System.Windows.Forms.Label()
         Me.PictureBox9 = New System.Windows.Forms.PictureBox()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
-        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.Label145 = New System.Windows.Forms.Label()
         Me.Label79 = New System.Windows.Forms.Label()
         Me.Label81 = New System.Windows.Forms.Label()
@@ -850,7 +848,6 @@ Partial Class Formtest
         Me.CalAccuracyFinal = New System.Windows.Forms.TextBox()
         Me.Label117 = New System.Windows.Forms.Label()
         Me.Label121 = New System.Windows.Forms.Label()
-        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage13 = New System.Windows.Forms.TabPage()
         Me.GroupBox11 = New System.Windows.Forms.GroupBox()
         Me.Label308 = New System.Windows.Forms.Label()
@@ -884,6 +881,10 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
+        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.Panel2.SuspendLayout
@@ -1289,7 +1290,7 @@ Partial Class Formtest
         Me.ButtonNotePad2.Name = "ButtonNotePad2"
         Me.ButtonNotePad2.Size = New System.Drawing.Size(90, 41)
         Me.ButtonNotePad2.TabIndex = 78
-        Me.ButtonNotePad2.Text = "Notepad" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "GPIBchannels"
+        Me.ButtonNotePad2.Text = "Edit" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "GPIBchannels"
         Me.ToolTip1.SetToolTip(Me.ButtonNotePad2, "Open: GPIBchannels.txt text file")
         Me.ButtonNotePad2.UseVisualStyleBackColor = True
         '
@@ -2358,6 +2359,7 @@ Partial Class Formtest
         '
         'ButtonOpenR6581fileJson
         '
+        Me.ButtonOpenR6581fileJson.Enabled = False
         Me.ButtonOpenR6581fileJson.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.ButtonOpenR6581fileJson.Location = New System.Drawing.Point(719, 238)
         Me.ButtonOpenR6581fileJson.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
@@ -2370,6 +2372,7 @@ Partial Class Formtest
         '
         'ButtonOpenR6581file
         '
+        Me.ButtonOpenR6581file.Enabled = False
         Me.ButtonOpenR6581file.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.ButtonOpenR6581file.Location = New System.Drawing.Point(719, 212)
         Me.ButtonOpenR6581file.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
@@ -2382,6 +2385,7 @@ Partial Class Formtest
         '
         'ButtonJsonViewer2
         '
+        Me.ButtonJsonViewer2.Enabled = False
         Me.ButtonJsonViewer2.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.ButtonJsonViewer2.Location = New System.Drawing.Point(803, 238)
         Me.ButtonJsonViewer2.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
@@ -4223,26 +4227,6 @@ Partial Class Formtest
         Me.Label213.TabIndex = 537
         Me.Label213.Text = "Tx"
         '
-        'OnOffLed2
-        '
-        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
-        Me.OnOffLed2.Name = "OnOffLed2"
-        Me.OnOffLed2.OffText = Nothing
-        Me.OnOffLed2.OnText = Nothing
-        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed2.TabIndex = 536
-        '
-        'OnOffLed1
-        '
-        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
-        Me.OnOffLed1.Name = "OnOffLed1"
-        Me.OnOffLed1.OffText = Nothing
-        Me.OnOffLed1.OnText = Nothing
-        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed1.TabIndex = 535
-        '
         'Label212
         '
         Me.Label212.AutoSize = True
@@ -4947,9 +4931,9 @@ Partial Class Formtest
         Me.CheckboxEnableCSV.AutoSize = True
         Me.CheckboxEnableCSV.Location = New System.Drawing.Point(472, 259)
         Me.CheckboxEnableCSV.Name = "CheckboxEnableCSV"
-        Me.CheckboxEnableCSV.Size = New System.Drawing.Size(83, 17)
+        Me.CheckboxEnableCSV.Size = New System.Drawing.Size(188, 17)
         Me.CheckboxEnableCSV.TabIndex = 52
-        Me.CheckboxEnableCSV.Text = "Enable CSV"
+        Me.CheckboxEnableCSV.Text = "Enable CSV  (Enable before RUN)"
         Me.CheckboxEnableCSV.UseVisualStyleBackColor = True
         '
         'TempHumLogs
@@ -5004,6 +4988,7 @@ Partial Class Formtest
         'TabPage4
         '
         Me.TabPage4.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.TabPage4.Controls.Add(Me.Label313)
         Me.TabPage4.Controls.Add(Me.Label238)
         Me.TabPage4.Controls.Add(Me.Label237)
         Me.TabPage4.Controls.Add(Me.Label236)
@@ -5057,6 +5042,15 @@ Partial Class Formtest
         Me.TabPage4.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage4.TabIndex = 3
         Me.TabPage4.Text = "Live Chart  "
+        '
+        'Label313
+        '
+        Me.Label313.AutoSize = True
+        Me.Label313.Location = New System.Drawing.Point(108, 95)
+        Me.Label313.Name = "Label313"
+        Me.Label313.Size = New System.Drawing.Size(157, 13)
+        Me.Label313.TabIndex = 714
+        Me.Label313.Text = "(Enable Dev1/Dev2 after RUN)"
         '
         'Label238
         '
@@ -7059,16 +7053,6 @@ Partial Class Formtest
         Me.TabPage5.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "PDVS2mini  "
-        '
-        'OnOffLed4
-        '
-        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
-        Me.OnOffLed4.Name = "OnOffLed4"
-        Me.OnOffLed4.OffText = Nothing
-        Me.OnOffLed4.OnText = Nothing
-        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed4.TabIndex = 797
         '
         'Label145
         '
@@ -9895,16 +9879,6 @@ Partial Class Formtest
         Me.Label121.TabIndex = 554
         Me.Label121.Text = "Comms Delay (mS)"
         '
-        'OnOffLed3
-        '
-        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
-        Me.OnOffLed3.Name = "OnOffLed3"
-        Me.OnOffLed3.OffText = Nothing
-        Me.OnOffLed3.OnText = Nothing
-        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed3.TabIndex = 796
-        '
         'TabPage13
         '
         Me.TabPage13.BackColor = System.Drawing.Color.WhiteSmoke
@@ -10211,6 +10185,46 @@ Partial Class Formtest
         'Timer14
         '
         Me.Timer14.Interval = 50
+        '
+        'OnOffLed2
+        '
+        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
+        Me.OnOffLed2.Name = "OnOffLed2"
+        Me.OnOffLed2.OffText = Nothing
+        Me.OnOffLed2.OnText = Nothing
+        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed2.TabIndex = 536
+        '
+        'OnOffLed1
+        '
+        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
+        Me.OnOffLed1.Name = "OnOffLed1"
+        Me.OnOffLed1.OffText = Nothing
+        Me.OnOffLed1.OnText = Nothing
+        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed1.TabIndex = 535
+        '
+        'OnOffLed4
+        '
+        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
+        Me.OnOffLed4.Name = "OnOffLed4"
+        Me.OnOffLed4.OffText = Nothing
+        Me.OnOffLed4.OnText = Nothing
+        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed4.TabIndex = 797
+        '
+        'OnOffLed3
+        '
+        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
+        Me.OnOffLed3.Name = "OnOffLed3"
+        Me.OnOffLed3.OffText = Nothing
+        Me.OnOffLed3.OnText = Nothing
+        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed3.TabIndex = 796
         '
         'Formtest
         '
@@ -11146,4 +11160,5 @@ Partial Class Formtest
     Friend WithEvents Label307 As Label
     Friend WithEvents Label247 As Label
     Friend WithEvents Label308 As Label
+    Friend WithEvents Label313 As Label
 End Class

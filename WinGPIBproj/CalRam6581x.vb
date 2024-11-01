@@ -39,10 +39,11 @@ Partial Class Formtest
     Dim CalRamPathfile26581 As System.IO.BinaryWriter
     Dim c6581 As Char
     Dim CalramStore6581(500) As String
-    Dim Abort6581 As Boolean = False
+    Private Abort6581 As Boolean = False
     Dim RAMfilename6581 As String
     Dim JSONfilename6581 As String
     Dim stopTime As DateTime
+    'Dim abortLoop As Boolean = False
 
 
     Private Sub AllRegularConstantsReadR6581_CheckedChanged(sender As Object, e As EventArgs) Handles AllRegularConstantsReadR6581.CheckedChanged
@@ -63,7 +64,15 @@ Partial Class Formtest
 
         If AllRegularConstantsReadR6581.Checked = True Then    ' All regular calibration constants
 
+            Abort6581 = False
+
+            ButtonCalramDumpR6581.Enabled = False
+            ButtonOpenR6581file.Enabled = False
+            ButtonOpenR6581fileJson.Enabled = False
+            ButtonJsonViewer2.Enabled = False
+
             TextBoxCalRamFile6581.Text = ""
+            TextBoxCalRamFileJson6581.Text = ""
             CalRegularramextractR6581()
 
         End If
@@ -242,8 +251,14 @@ Partial Class Formtest
 
             ' Strip out the INDEX from the VALUE
             For Each section In sections.Keys
+
+                If Abort6581 = True Then Exit For
+
                 Dim sectionList As List(Of Object) = sections(section)
                 For Each item In sectionList
+
+                    If Abort6581 = True Then Exit For
+
                     ' Use reflection to get the "Value" property dynamically
                     Dim valueProperty = item.GetType().GetProperty("Value")
                     If valueProperty IsNot Nothing Then
@@ -263,7 +278,12 @@ Partial Class Formtest
                             ' If none of the patterns match, clear or set to a default
                             valueProperty.SetValue(item, "")
                         End If
+
                     End If
+
+                    ' Keep the UI responsive
+                    Application.DoEvents()
+
                 Next
             Next
 
@@ -278,6 +298,7 @@ Partial Class Formtest
                 'MessageBox.Show("JSON file created successfully at: " & JSONfilename6581, "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
             Catch ex As Exception
                 'MessageBox.Show("Failed to create JSON file: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                ButtonCalramDumpR6581.Enabled = True
             End Try
 
             Dev1TextResponse.Checked = False
@@ -294,13 +315,28 @@ Partial Class Formtest
             CalramStatus6581.Text = "VOLT:DC:NPLC 30"
 
             ' Finished
-            CalramStatus6581.Text = "Download complete!"
-            MessageBox.Show("Download complete!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            If Abort6581 = True Then
+                CalramStatus6581.Text = "Download aborted!"
+                MessageBox.Show("Download aborted!", "Aborted", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Else
+                CalramStatus6581.Text = "Download complete!"
+                MessageBox.Show("Download complete!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            End If
+
+
+            ButtonCalramDumpR6581.Enabled = True
+            ButtonOpenR6581file.Enabled = True
+            ButtonOpenR6581fileJson.Enabled = True
+            ButtonJsonViewer2.Enabled = True
 
         Else
             ' GPIB Dev 1 has not been started
             'CalramStatus6581.Text = "DEVICE 1 IS NOT STARTED"
             MessageBox.Show("Device 1 is not started", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            ButtonCalramDumpR6581.Enabled = True
+            ButtonOpenR6581file.Enabled = True
+            ButtonOpenR6581fileJson.Enabled = True
+            ButtonJsonViewer2.Enabled = True
         End If
 
     End Sub
@@ -317,6 +353,9 @@ Partial Class Formtest
         IO.File.AppendAllText(RAMfilename6581, headerText & Environment.NewLine)
 
         For i = startIndex To endIndex
+
+            If Abort6581 = True Then Exit For
+
             CalramStatus6581.Text = statusText
 
             If startIndex = 0 And endIndex = 0 Then
@@ -362,7 +401,13 @@ Partial Class Formtest
 
         Abort6581 = True
         TextBoxCalRamFile6581.Text = ""
+        TextBoxCalRamFileJson6581.Text = ""
         Dev1TextResponse.Checked = False
+
+        ButtonCalramDumpR6581.Enabled = True
+        ButtonOpenR6581file.Enabled = True
+        ButtonOpenR6581fileJson.Enabled = True
+        ButtonJsonViewer2.Enabled = True
 
     End Sub
 
