@@ -500,8 +500,8 @@ Public Class Formtest
         Chart1.Visible = False              ' hide chart on boot
         StartChartMessage.Visible = True
 
-        Label6.BackColor = Color.Yellow
-        Label10.BackColor = Color.Aqua
+        IODeviceLabel1.BackColor = Color.Yellow
+        IODeviceLabel2.BackColor = Color.Aqua
 
         'EnableChart1.BackColor = Color.Yellow
         'EnableChart2.BackColor = Color.Aqua
@@ -2233,6 +2233,42 @@ Public Class Formtest
         If ProfDev2_6.Checked Then ToolTip1.SetToolTip(ProfDev2_6, txtname2.Text)
         If ProfDev2_7.Checked Then ToolTip1.SetToolTip(ProfDev2_7, txtname2.Text)
         If ProfDev2_8.Checked Then ToolTip1.SetToolTip(ProfDev2_8, txtname2.Text)
+    End Sub
+
+
+    Private Sub IODeviceLabel1_MouseHover(sender As Object, e As EventArgs) Handles IODeviceLabel1.MouseHover
+        Dim allTooltips As New List(Of String)
+
+        ' Collect tooltips from each checkbox
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_1))
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_2))
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_3))
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_4))
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_5))
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_6))
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_7))
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_8))
+
+        ' Set combined tooltips as the tooltip for IODeviceLabel
+        ToolTip1.SetToolTip(IODeviceLabel1, String.Join(Environment.NewLine, allTooltips))
+    End Sub
+
+
+    Private Sub IODeviceLabel2_MouseHover(sender As Object, e As EventArgs) Handles IODeviceLabel2.MouseHover
+        Dim allTooltips As New List(Of String)
+
+        ' Collect tooltips from each checkbox
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_1))
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_2))
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_3))
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_4))
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_5))
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_6))
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_7))
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_8))
+
+        ' Set combined tooltips as the tooltip for IODeviceLabel
+        ToolTip1.SetToolTip(IODeviceLabel2, String.Join(Environment.NewLine, allTooltips))
     End Sub
 
 
