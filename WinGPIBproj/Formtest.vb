@@ -554,6 +554,15 @@ Public Class Formtest
         ProfDev1_7.Checked = My.Settings.Dev1Prof7
         ProfDev1_8.Checked = My.Settings.Dev1Prof8
 
+        ToolTip1.SetToolTip(ProfDev1_1, My.Settings.data1)
+        ToolTip1.SetToolTip(ProfDev1_2, My.Settings.data1b)
+        ToolTip1.SetToolTip(ProfDev1_3, My.Settings.data1c)
+        ToolTip1.SetToolTip(ProfDev1_4, My.Settings.data139)
+        ToolTip1.SetToolTip(ProfDev1_5, My.Settings.data155)
+        ToolTip1.SetToolTip(ProfDev1_6, My.Settings.data171)
+        ToolTip1.SetToolTip(ProfDev1_7, My.Settings.data349)
+        ToolTip1.SetToolTip(ProfDev1_8, My.Settings.data375)
+
         ' Check to make sure that one of them is set TRUE, and also detect if more than one is set TRUE
         Dim checkboxesDev1() As CheckBox = {ProfDev1_1, ProfDev1_2, ProfDev1_3, ProfDev1_4, ProfDev1_5, ProfDev1_6, ProfDev1_7, ProfDev1_8}
         Dim checkedCountDev1 As Integer = 0
@@ -610,6 +619,15 @@ Public Class Formtest
         ProfDev2_6.Checked = My.Settings.Dev2Prof6
         ProfDev2_7.Checked = My.Settings.Dev2Prof7
         ProfDev2_8.Checked = My.Settings.Dev2Prof8
+
+        ToolTip1.SetToolTip(ProfDev2_1, My.Settings.data2)
+        ToolTip1.SetToolTip(ProfDev2_2, My.Settings.data2b)
+        ToolTip1.SetToolTip(ProfDev2_3, My.Settings.data2c)
+        ToolTip1.SetToolTip(ProfDev2_4, My.Settings.data91)
+        ToolTip1.SetToolTip(ProfDev2_5, My.Settings.data107)
+        ToolTip1.SetToolTip(ProfDev2_6, My.Settings.data123)
+        ToolTip1.SetToolTip(ProfDev2_7, My.Settings.data401)
+        ToolTip1.SetToolTip(ProfDev2_8, My.Settings.data427)
 
         ' Check to make sure that one of them is set TRUE, and also detect if more than one is set TRUE
         Dim checkboxesDev2() As CheckBox = {ProfDev2_1, ProfDev2_2, ProfDev2_3, ProfDev2_4, ProfDev2_5, ProfDev2_6, ProfDev2_7, ProfDev2_8}
@@ -2178,7 +2196,45 @@ Public Class Formtest
 
     End Sub
 
+    ' Tooltips for Device 1 checkboxes
+    ' Event handler for txtname1.TextChanged to update tooltips as necessary
+    Private Sub txtname1_TextChanged(sender As Object, e As EventArgs) Handles txtname1.TextChanged
+        UpdateCheckedTooltips1()
+    End Sub
+
+
+    ' Method to update tooltips only for checked checkboxes
+    Private Sub UpdateCheckedTooltips1()
+        If ProfDev1_1.Checked Then ToolTip1.SetToolTip(ProfDev1_1, txtname1.Text)
+        If ProfDev1_2.Checked Then ToolTip1.SetToolTip(ProfDev1_2, txtname1.Text)
+        If ProfDev1_3.Checked Then ToolTip1.SetToolTip(ProfDev1_3, txtname1.Text)
+        If ProfDev1_4.Checked Then ToolTip1.SetToolTip(ProfDev1_4, txtname1.Text)
+        If ProfDev1_5.Checked Then ToolTip1.SetToolTip(ProfDev1_5, txtname1.Text)
+        If ProfDev1_6.Checked Then ToolTip1.SetToolTip(ProfDev1_6, txtname1.Text)
+        If ProfDev1_7.Checked Then ToolTip1.SetToolTip(ProfDev1_7, txtname1.Text)
+        If ProfDev1_8.Checked Then ToolTip1.SetToolTip(ProfDev1_8, txtname1.Text)
+    End Sub
+
+
+    ' Tooltips for Device 2 checkboxes
+    ' Event handler for txtname1.TextChanged to update tooltips as necessary
+    Private Sub txtname2_TextChanged(sender As Object, e As EventArgs) Handles txtname2.TextChanged
+        UpdateCheckedTooltips2()
+    End Sub
+
+
+    ' Method to update tooltips only for checked checkboxes
+    Private Sub UpdateCheckedTooltips2()
+        If ProfDev2_1.Checked Then ToolTip1.SetToolTip(ProfDev2_1, txtname2.Text)
+        If ProfDev2_2.Checked Then ToolTip1.SetToolTip(ProfDev2_2, txtname2.Text)
+        If ProfDev2_3.Checked Then ToolTip1.SetToolTip(ProfDev2_3, txtname2.Text)
+        If ProfDev2_4.Checked Then ToolTip1.SetToolTip(ProfDev2_4, txtname2.Text)
+        If ProfDev2_5.Checked Then ToolTip1.SetToolTip(ProfDev2_5, txtname2.Text)
+        If ProfDev2_6.Checked Then ToolTip1.SetToolTip(ProfDev2_6, txtname2.Text)
+        If ProfDev2_7.Checked Then ToolTip1.SetToolTip(ProfDev2_7, txtname2.Text)
+        If ProfDev2_8.Checked Then ToolTip1.SetToolTip(ProfDev2_8, txtname2.Text)
+    End Sub
+
 
 End Class
-
 
