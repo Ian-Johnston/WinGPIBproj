@@ -556,9 +556,9 @@ Internal cmd's:
 </value>
   </data>
   <data name="Label243.Text" xml:space="preserve">
-    <value>1. Select 'Send'.
+    <value>1. Select 'Send.....' radio button.
 2. Select the sections you wish to upload.
-3. Select the Json file with the data you want to upload.
+3. Select the JSON file with the data you want to upload.
 4. Hit the 'Upload to Ram' button to upload the data to your R6581.
 5. Test your R6581 and if all is good then hit the 'Commit Ram to EEprom'
      button to transfer the contents permanently to EEprom.

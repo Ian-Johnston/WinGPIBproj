@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -334,6 +334,8 @@ Partial Class Formtest
         Me.Label215 = New System.Windows.Forms.Label()
         Me.Label214 = New System.Windows.Forms.Label()
         Me.Label213 = New System.Windows.Forms.Label()
+        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.Label212 = New System.Windows.Forms.Label()
         Me.Label211 = New System.Windows.Forms.Label()
         Me.Label210 = New System.Windows.Forms.Label()
@@ -593,6 +595,7 @@ Partial Class Formtest
         Me.Label269 = New System.Windows.Forms.Label()
         Me.PictureBox9 = New System.Windows.Forms.PictureBox()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
+        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.Label145 = New System.Windows.Forms.Label()
         Me.Label79 = New System.Windows.Forms.Label()
         Me.Label81 = New System.Windows.Forms.Label()
@@ -848,10 +851,12 @@ Partial Class Formtest
         Me.CalAccuracyFinal = New System.Windows.Forms.TextBox()
         Me.Label117 = New System.Windows.Forms.Label()
         Me.Label121 = New System.Windows.Forms.Label()
+        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage13 = New System.Windows.Forms.TabPage()
         Me.GroupBox11 = New System.Windows.Forms.GroupBox()
+        Me.TextBox2 = New System.Windows.Forms.TextBox()
+        Me.TextBox1 = New System.Windows.Forms.TextBox()
         Me.Label308 = New System.Windows.Forms.Label()
-        Me.Label307 = New System.Windows.Forms.Label()
         Me.Label247 = New System.Windows.Forms.Label()
         Me.Label10 = New System.Windows.Forms.Label()
         Me.TextBoxTextEditor = New System.Windows.Forms.TextBox()
@@ -881,10 +886,7 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
-        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
+        Me.CheckBoxEnableTooltips = New System.Windows.Forms.CheckBox()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.Panel2.SuspendLayout
@@ -1290,7 +1292,7 @@ Partial Class Formtest
         Me.ButtonNotePad2.Name = "ButtonNotePad2"
         Me.ButtonNotePad2.Size = New System.Drawing.Size(90, 41)
         Me.ButtonNotePad2.TabIndex = 78
-        Me.ButtonNotePad2.Text = "Edit" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "GPIBchannels"
+        Me.ButtonNotePad2.Text = "Edit .txt" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "GPIBchannels"
         Me.ToolTip1.SetToolTip(Me.ButtonNotePad2, "Open: GPIBchannels.txt text file")
         Me.ButtonNotePad2.UseVisualStyleBackColor = True
         '
@@ -4227,6 +4229,26 @@ Partial Class Formtest
         Me.Label213.TabIndex = 537
         Me.Label213.Text = "Tx"
         '
+        'OnOffLed2
+        '
+        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
+        Me.OnOffLed2.Name = "OnOffLed2"
+        Me.OnOffLed2.OffText = Nothing
+        Me.OnOffLed2.OnText = Nothing
+        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed2.TabIndex = 536
+        '
+        'OnOffLed1
+        '
+        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
+        Me.OnOffLed1.Name = "OnOffLed1"
+        Me.OnOffLed1.OffText = Nothing
+        Me.OnOffLed1.OnText = Nothing
+        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed1.TabIndex = 535
+        '
         'Label212
         '
         Me.Label212.AutoSize = True
@@ -5424,22 +5446,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea1.BackColor = System.Drawing.Color.Black
-        ChartArea1.BorderColor = System.Drawing.Color.White
-        ChartArea1.BorderWidth = 2
-        ChartArea1.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea1)
-        Legend1.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend1)
+        ChartArea2.BackColor = System.Drawing.Color.Black
+        ChartArea2.BorderColor = System.Drawing.Color.White
+        ChartArea2.BorderWidth = 2
+        ChartArea2.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea2)
+        Legend2.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend2)
         Me.Chart1.Location = New System.Drawing.Point(-32, 140)
         Me.Chart1.Name = "Chart1"
-        Series1.ChartArea = "ChartArea1"
-        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series1.Color = System.Drawing.Color.Yellow
-        Series1.Enabled = False
-        Series1.Legend = "Legend1"
-        Series1.Name = "Series1"
-        Me.Chart1.Series.Add(Series1)
+        Series2.ChartArea = "ChartArea1"
+        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series2.Color = System.Drawing.Color.Yellow
+        Series2.Enabled = False
+        Series2.Legend = "Legend1"
+        Series2.Name = "Series1"
+        Me.Chart1.Series.Add(Series2)
         Me.Chart1.Size = New System.Drawing.Size(1120, 462)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -6272,7 +6294,7 @@ Partial Class Formtest
         'Label243
         '
         Me.Label243.AutoSize = True
-        Me.Label243.Location = New System.Drawing.Point(540, 298)
+        Me.Label243.Location = New System.Drawing.Point(541, 298)
         Me.Label243.Name = "Label243"
         Me.Label243.Size = New System.Drawing.Size(362, 117)
         Me.Label243.TabIndex = 625
@@ -6281,7 +6303,7 @@ Partial Class Formtest
         'Label244
         '
         Me.Label244.AutoSize = True
-        Me.Label244.Location = New System.Drawing.Point(540, 283)
+        Me.Label244.Location = New System.Drawing.Point(541, 283)
         Me.Label244.Name = "Label244"
         Me.Label244.Size = New System.Drawing.Size(138, 13)
         Me.Label244.TabIndex = 624
@@ -6477,10 +6499,10 @@ Partial Class Formtest
         Me.Label311.AutoSize = True
         Me.Label311.Location = New System.Drawing.Point(8, 36)
         Me.Label311.Name = "Label311"
-        Me.Label311.Size = New System.Drawing.Size(409, 13)
+        Me.Label311.Size = New System.Drawing.Size(366, 13)
         Me.Label311.TabIndex = 600
-        Me.Label311.Text = "This utility will download the current calibration constants and dump them to a t" &
-    "ext file."
+        Me.Label311.Text = "This utility will download the current calibration constants to a text/JSON file." &
+    ""
         '
         'ButtonCalramDumpR6581
         '
@@ -7053,6 +7075,16 @@ Partial Class Formtest
         Me.TabPage5.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "PDVS2mini  "
+        '
+        'OnOffLed4
+        '
+        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
+        Me.OnOffLed4.Name = "OnOffLed4"
+        Me.OnOffLed4.OffText = Nothing
+        Me.OnOffLed4.OnText = Nothing
+        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed4.TabIndex = 797
         '
         'Label145
         '
@@ -9879,6 +9911,16 @@ Partial Class Formtest
         Me.Label121.TabIndex = 554
         Me.Label121.Text = "Comms Delay (mS)"
         '
+        'OnOffLed3
+        '
+        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
+        Me.OnOffLed3.Name = "OnOffLed3"
+        Me.OnOffLed3.OffText = Nothing
+        Me.OnOffLed3.OnText = Nothing
+        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed3.TabIndex = 796
+        '
         'TabPage13
         '
         Me.TabPage13.BackColor = System.Drawing.Color.WhiteSmoke
@@ -9891,8 +9933,10 @@ Partial Class Formtest
         '
         'GroupBox11
         '
+        Me.GroupBox11.Controls.Add(Me.CheckBoxEnableTooltips)
+        Me.GroupBox11.Controls.Add(Me.TextBox2)
+        Me.GroupBox11.Controls.Add(Me.TextBox1)
         Me.GroupBox11.Controls.Add(Me.Label308)
-        Me.GroupBox11.Controls.Add(Me.Label307)
         Me.GroupBox11.Controls.Add(Me.Label247)
         Me.GroupBox11.Controls.Add(Me.Label10)
         Me.GroupBox11.Controls.Add(Me.TextBoxTextEditor)
@@ -9904,6 +9948,26 @@ Partial Class Formtest
         Me.GroupBox11.TabIndex = 589
         Me.GroupBox11.TabStop = False
         '
+        'TextBox2
+        '
+        Me.TextBox2.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.TextBox2.Location = New System.Drawing.Point(594, 113)
+        Me.TextBox2.Name = "TextBox2"
+        Me.TextBox2.ReadOnly = True
+        Me.TextBox2.Size = New System.Drawing.Size(251, 13)
+        Me.TextBox2.TabIndex = 600
+        Me.TextBox2.Text = "C:\Program Files\Notepad++\notepad++.exe"
+        '
+        'TextBox1
+        '
+        Me.TextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.TextBox1.Location = New System.Drawing.Point(594, 96)
+        Me.TextBox1.Name = "TextBox1"
+        Me.TextBox1.ReadOnly = True
+        Me.TextBox1.Size = New System.Drawing.Size(251, 13)
+        Me.TextBox1.TabIndex = 599
+        Me.TextBox1.Text = "C:\Windows\System32\notepad.exe"
+        '
         'Label308
         '
         Me.Label308.AutoSize = True
@@ -9913,28 +9977,19 @@ Partial Class Formtest
         Me.Label308.TabIndex = 598
         Me.Label308.Text = "These settings are saved immediately on change."
         '
-        'Label307
-        '
-        Me.Label307.AutoSize = True
-        Me.Label307.Location = New System.Drawing.Point(586, 90)
-        Me.Label307.Name = "Label307"
-        Me.Label307.Size = New System.Drawing.Size(219, 13)
-        Me.Label307.TabIndex = 597
-        Me.Label307.Text = "C:\Program Files\Notepad++\notepad++.exe"
-        '
         'Label247
         '
         Me.Label247.AutoSize = True
-        Me.Label247.Location = New System.Drawing.Point(532, 74)
+        Me.Label247.Location = New System.Drawing.Point(532, 96)
         Me.Label247.Name = "Label247"
-        Me.Label247.Size = New System.Drawing.Size(235, 13)
+        Me.Label247.Size = New System.Drawing.Size(55, 13)
         Me.Label247.TabIndex = 596
-        Me.Label247.Text = "Examples:  C:\Windows\System32\notepad.exe"
+        Me.Label247.Text = "Examples:"
         '
         'Label10
         '
         Me.Label10.AutoSize = True
-        Me.Label10.Location = New System.Drawing.Point(290, 74)
+        Me.Label10.Location = New System.Drawing.Point(290, 96)
         Me.Label10.Name = "Label10"
         Me.Label10.Size = New System.Drawing.Size(225, 13)
         Me.Label10.TabIndex = 595
@@ -9942,7 +9997,7 @@ Partial Class Formtest
         '
         'TextBoxTextEditor
         '
-        Me.TextBoxTextEditor.Location = New System.Drawing.Point(11, 71)
+        Me.TextBoxTextEditor.Location = New System.Drawing.Point(11, 93)
         Me.TextBoxTextEditor.Name = "TextBoxTextEditor"
         Me.TextBoxTextEditor.Size = New System.Drawing.Size(273, 20)
         Me.TextBoxTextEditor.TabIndex = 594
@@ -10186,45 +10241,15 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
-        'OnOffLed2
+        'CheckBoxEnableTooltips
         '
-        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
-        Me.OnOffLed2.Name = "OnOffLed2"
-        Me.OnOffLed2.OffText = Nothing
-        Me.OnOffLed2.OnText = Nothing
-        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed2.TabIndex = 536
-        '
-        'OnOffLed1
-        '
-        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
-        Me.OnOffLed1.Name = "OnOffLed1"
-        Me.OnOffLed1.OffText = Nothing
-        Me.OnOffLed1.OnText = Nothing
-        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed1.TabIndex = 535
-        '
-        'OnOffLed4
-        '
-        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
-        Me.OnOffLed4.Name = "OnOffLed4"
-        Me.OnOffLed4.OffText = Nothing
-        Me.OnOffLed4.OnText = Nothing
-        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed4.TabIndex = 797
-        '
-        'OnOffLed3
-        '
-        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
-        Me.OnOffLed3.Name = "OnOffLed3"
-        Me.OnOffLed3.OffText = Nothing
-        Me.OnOffLed3.OnText = Nothing
-        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed3.TabIndex = 796
+        Me.CheckBoxEnableTooltips.AutoSize = True
+        Me.CheckBoxEnableTooltips.Location = New System.Drawing.Point(11, 69)
+        Me.CheckBoxEnableTooltips.Name = "CheckBoxEnableTooltips"
+        Me.CheckBoxEnableTooltips.Size = New System.Drawing.Size(112, 17)
+        Me.CheckBoxEnableTooltips.TabIndex = 601
+        Me.CheckBoxEnableTooltips.Text = "Enable all Tooltips"
+        Me.CheckBoxEnableTooltips.UseVisualStyleBackColor = True
         '
         'Formtest
         '
@@ -11157,8 +11182,10 @@ Partial Class Formtest
     Friend WithEvents Label6 As Label
     Friend WithEvents Label10 As Label
     Friend WithEvents TextBoxTextEditor As TextBox
-    Friend WithEvents Label307 As Label
     Friend WithEvents Label247 As Label
     Friend WithEvents Label308 As Label
     Friend WithEvents Label313 As Label
+    Friend WithEvents TextBox1 As TextBox
+    Friend WithEvents TextBox2 As TextBox
+    Friend WithEvents CheckBoxEnableTooltips As CheckBox
 End Class

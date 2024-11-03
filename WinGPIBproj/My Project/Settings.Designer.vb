@@ -6596,13 +6596,25 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("Notepad.exe")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("C:\Windows\System32\notepad.exe")>  _
         Public Property data506() As String
             Get
                 Return CType(Me("data506"),String)
             End Get
             Set
                 Me("data506") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("True")>  _
+        Public Property data507() As Boolean
+            Get
+                Return CType(Me("data507"),Boolean)
+            End Get
+            Set
+                Me("data507") = value
             End Set
         End Property
     End Class

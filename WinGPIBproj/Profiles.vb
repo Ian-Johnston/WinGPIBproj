@@ -24,6 +24,19 @@ Partial Class Formtest
 
     End Sub
 
+    Private Sub CheckBoxEnableTooltips_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxEnableTooltips.CheckedChanged
+
+        If CheckBoxEnableTooltips.Checked = True Then
+            ToolTip1.Active = True
+        Else
+            ToolTip1.Active = False
+        End If
+
+        My.Settings.data507 = CheckBoxEnableTooltips.Checked          ' save off immediately
+        My.Settings.Save()
+
+    End Sub
+
     Private Sub TextBoxTextEditor_TextChanged(sender As Object, e As EventArgs) Handles TextBoxTextEditor.TextChanged
 
         TextEditorPath = TextBoxTextEditor.Text ' Adjust the path as needed

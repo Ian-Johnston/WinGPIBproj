@@ -155,7 +155,7 @@ Public Class Formtest
     Private Sub Formtest_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
 
         ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-        BannerText1 = "WinGPIB   V3.246"
+        BannerText1 = "WinGPIB   V3.247"
         BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
         ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -718,11 +718,24 @@ Public Class Formtest
         ' Settings
         CheckBoxAllowSaveAnytime.Checked = My.Settings.data505
         TextBoxTextEditor.Text = My.Settings.data506
+        CheckBoxEnableTooltips.Checked = My.Settings.data507
 
         If String.IsNullOrWhiteSpace(TextBoxTextEditor.Text) Then
-            TextBoxTextEditor.Text = "Notepad.exe"
-            My.Settings.data506 = "Notepad.exe"
+            TextBoxTextEditor.Text = "C:\Windows\System32\notepad.exe"
+            My.Settings.data506 = "C:\Windows\System32\notepad.exe"
+            My.Settings.Save()
         End If
+
+        If CheckBoxEnableTooltips.Checked = True Then
+            ToolTip1.Active = True
+        Else
+            ToolTip1.Active = False
+        End If
+
+        ' Tooltip durations - If enabled
+        ToolTip1.AutoPopDelay = 10000   ' Time in milliseconds tooltip stays visible
+        ToolTip1.InitialDelay = 100     ' Delay before tooltip appears
+        ToolTip1.ReshowDelay = 100      ' Delay before tooltip reappears if user moves away and back
 
 
     End Sub
@@ -2231,9 +2244,9 @@ Public Class Formtest
 
         ' Show in message box
         If portList = "Available Serial Ports:" & Environment.NewLine & Environment.NewLine Then
-            MessageBox.Show("No serial ports available.", "Serial Ports", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            MessageBox.Show("No serial ports available.", "Serial COM Ports", MessageBoxButtons.OK, MessageBoxIcon.Warning)
         Else
-            MessageBox.Show(portList & Environment.NewLine & "(From Device Manager)", "Serial Ports", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show(portList & Environment.NewLine & "(From Device Manager)", "Serial COM Ports", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End If
     End Sub
 
