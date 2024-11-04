@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -854,6 +854,7 @@ Partial Class Formtest
         Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage13 = New System.Windows.Forms.TabPage()
         Me.GroupBox11 = New System.Windows.Forms.GroupBox()
+        Me.CheckBoxEnableTooltips = New System.Windows.Forms.CheckBox()
         Me.TextBox2 = New System.Windows.Forms.TextBox()
         Me.TextBox1 = New System.Windows.Forms.TextBox()
         Me.Label308 = New System.Windows.Forms.Label()
@@ -886,7 +887,6 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
-        Me.CheckBoxEnableTooltips = New System.Windows.Forms.CheckBox()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.Panel2.SuspendLayout
@@ -5446,22 +5446,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea2.BackColor = System.Drawing.Color.Black
-        ChartArea2.BorderColor = System.Drawing.Color.White
-        ChartArea2.BorderWidth = 2
-        ChartArea2.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea2)
-        Legend2.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend2)
+        ChartArea1.BackColor = System.Drawing.Color.Black
+        ChartArea1.BorderColor = System.Drawing.Color.White
+        ChartArea1.BorderWidth = 2
+        ChartArea1.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea1)
+        Legend1.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend1)
         Me.Chart1.Location = New System.Drawing.Point(-32, 140)
         Me.Chart1.Name = "Chart1"
-        Series2.ChartArea = "ChartArea1"
-        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series2.Color = System.Drawing.Color.Yellow
-        Series2.Enabled = False
-        Series2.Legend = "Legend1"
-        Series2.Name = "Series1"
-        Me.Chart1.Series.Add(Series2)
+        Series1.ChartArea = "ChartArea1"
+        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series1.Color = System.Drawing.Color.Yellow
+        Series1.Enabled = False
+        Series1.Legend = "Legend1"
+        Series1.Name = "Series1"
+        Me.Chart1.Series.Add(Series1)
         Me.Chart1.Size = New System.Drawing.Size(1120, 462)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -6139,6 +6139,7 @@ Partial Class Formtest
         Me.TabPage11.BackColor = System.Drawing.Color.WhiteSmoke
         Me.TabPage11.Controls.Add(Me.ShowFilesCalRamR6581)
         Me.TabPage11.Controls.Add(Me.GroupBox10)
+        Me.TabPage11.Controls.Add(Me.ButtonR6581abort)
         Me.TabPage11.Location = New System.Drawing.Point(4, 22)
         Me.TabPage11.Name = "TabPage11"
         Me.TabPage11.Size = New System.Drawing.Size(1047, 599)
@@ -6185,7 +6186,6 @@ Partial Class Formtest
         Me.GroupBox10.Controls.Add(Me.Label310)
         Me.GroupBox10.Controls.Add(Me.Label311)
         Me.GroupBox10.Controls.Add(Me.ButtonCalramDumpR6581)
-        Me.GroupBox10.Controls.Add(Me.ButtonR6581abort)
         Me.GroupBox10.Controls.Add(Me.Label245)
         Me.GroupBox10.Controls.Add(Me.Label246)
         Me.GroupBox10.Controls.Add(Me.AllRegularConstantsReadR6581)
@@ -6518,10 +6518,10 @@ Partial Class Formtest
         'ButtonR6581abort
         '
         Me.ButtonR6581abort.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonR6581abort.Location = New System.Drawing.Point(126, 148)
+        Me.ButtonR6581abort.Location = New System.Drawing.Point(928, 78)
         Me.ButtonR6581abort.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.ButtonR6581abort.Name = "ButtonR6581abort"
-        Me.ButtonR6581abort.Size = New System.Drawing.Size(48, 37)
+        Me.ButtonR6581abort.Size = New System.Drawing.Size(115, 37)
         Me.ButtonR6581abort.TabIndex = 590
         Me.ButtonR6581abort.Text = "Abort"
         Me.ButtonR6581abort.UseVisualStyleBackColor = True
@@ -6579,7 +6579,7 @@ Partial Class Formtest
         'Label304
         '
         Me.Label304.AutoSize = True
-        Me.Label304.Location = New System.Drawing.Point(188, 169)
+        Me.Label304.Location = New System.Drawing.Point(131, 171)
         Me.Label304.Name = "Label304"
         Me.Label304.Size = New System.Drawing.Size(51, 13)
         Me.Label304.TabIndex = 559
@@ -6588,7 +6588,7 @@ Partial Class Formtest
         'Label306
         '
         Me.Label306.AutoSize = True
-        Me.Label306.Location = New System.Drawing.Point(188, 148)
+        Me.Label306.Location = New System.Drawing.Point(131, 150)
         Me.Label306.Name = "Label306"
         Me.Label306.Size = New System.Drawing.Size(40, 13)
         Me.Label306.TabIndex = 548
@@ -6598,7 +6598,7 @@ Partial Class Formtest
         '
         Me.LabelCalRamByte6581.AutoSize = True
         Me.LabelCalRamByte6581.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelCalRamByte6581.Location = New System.Drawing.Point(244, 169)
+        Me.LabelCalRamByte6581.Location = New System.Drawing.Point(187, 171)
         Me.LabelCalRamByte6581.Name = "LabelCalRamByte6581"
         Me.LabelCalRamByte6581.Size = New System.Drawing.Size(14, 13)
         Me.LabelCalRamByte6581.TabIndex = 560
@@ -6608,7 +6608,7 @@ Partial Class Formtest
         '
         Me.CalramStatus6581.AutoSize = True
         Me.CalramStatus6581.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CalramStatus6581.Location = New System.Drawing.Point(244, 148)
+        Me.CalramStatus6581.Location = New System.Drawing.Point(187, 150)
         Me.CalramStatus6581.Name = "CalramStatus6581"
         Me.CalramStatus6581.Size = New System.Drawing.Size(14, 13)
         Me.CalramStatus6581.TabIndex = 551
@@ -9948,6 +9948,16 @@ Partial Class Formtest
         Me.GroupBox11.TabIndex = 589
         Me.GroupBox11.TabStop = False
         '
+        'CheckBoxEnableTooltips
+        '
+        Me.CheckBoxEnableTooltips.AutoSize = True
+        Me.CheckBoxEnableTooltips.Location = New System.Drawing.Point(11, 69)
+        Me.CheckBoxEnableTooltips.Name = "CheckBoxEnableTooltips"
+        Me.CheckBoxEnableTooltips.Size = New System.Drawing.Size(112, 17)
+        Me.CheckBoxEnableTooltips.TabIndex = 601
+        Me.CheckBoxEnableTooltips.Text = "Enable all Tooltips"
+        Me.CheckBoxEnableTooltips.UseVisualStyleBackColor = True
+        '
         'TextBox2
         '
         Me.TextBox2.BorderStyle = System.Windows.Forms.BorderStyle.None
@@ -10240,16 +10250,6 @@ Partial Class Formtest
         'Timer14
         '
         Me.Timer14.Interval = 50
-        '
-        'CheckBoxEnableTooltips
-        '
-        Me.CheckBoxEnableTooltips.AutoSize = True
-        Me.CheckBoxEnableTooltips.Location = New System.Drawing.Point(11, 69)
-        Me.CheckBoxEnableTooltips.Name = "CheckBoxEnableTooltips"
-        Me.CheckBoxEnableTooltips.Size = New System.Drawing.Size(112, 17)
-        Me.CheckBoxEnableTooltips.TabIndex = 601
-        Me.CheckBoxEnableTooltips.Text = "Enable all Tooltips"
-        Me.CheckBoxEnableTooltips.UseVisualStyleBackColor = True
         '
         'Formtest
         '

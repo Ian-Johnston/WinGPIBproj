@@ -46,6 +46,29 @@ Partial Class Formtest
     'Dim abortLoop As Boolean = False
 
 
+    Private Sub ButtonR6581abort_Click(sender As Object, e As EventArgs) Handles ButtonR6581abort.Click
+
+        'dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)         ' Disable Service EXT protection mode.....not required for INT commands
+
+        Abort6581 = True
+
+        TextBoxCalRamFile6581.Text = ""
+        TextBoxCalRamFileJson6581.Text = ""
+        Dev1TextResponse.Checked = False
+
+        ButtonCalramDumpR6581.Enabled = True
+        ButtonOpenR6581file.Enabled = False
+        ButtonOpenR6581fileJson.Enabled = False
+        ButtonJsonViewer2.Enabled = False
+
+        TextBoxCalRamFileJson6581Select.Text = ""
+
+
+
+
+    End Sub
+
+
     Private Sub AllRegularConstantsReadR6581_CheckedChanged(sender As Object, e As EventArgs) Handles AllRegularConstantsReadR6581.CheckedChanged
 
         If AllRegularConstantsReadR6581.Checked = True Then
@@ -329,7 +352,6 @@ Partial Class Formtest
                 ButtonJsonViewer2.Enabled = True
             End If
 
-
             ButtonCalramDumpR6581.Enabled = True
 
         Else
@@ -337,9 +359,14 @@ Partial Class Formtest
             'CalramStatus6581.Text = "DEVICE 1 IS NOT STARTED"
             MessageBox.Show("Device 1 is not started", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information)
             ButtonCalramDumpR6581.Enabled = True
-            ButtonOpenR6581file.Enabled = True
-            ButtonOpenR6581fileJson.Enabled = True
-            ButtonJsonViewer2.Enabled = True
+            'ButtonOpenR6581file.Enabled = True
+            'ButtonOpenR6581fileJson.Enabled = True
+            'ButtonJsonViewer2.Enabled = True
+
+            ButtonOpenR6581file.Enabled = False
+            ButtonOpenR6581fileJson.Enabled = False
+            ButtonJsonViewer2.Enabled = False
+
         End If
 
     End Sub
@@ -398,24 +425,6 @@ Partial Class Formtest
     End Sub
 
 
-    Private Sub ButtonR6581abort_Click(sender As Object, e As EventArgs) Handles ButtonR6581abort.Click
-
-        'dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)         ' Disable Service EXT protection mode.....not required for INT commands
-
-        Abort6581 = True
-        TextBoxCalRamFile6581.Text = ""
-        TextBoxCalRamFileJson6581.Text = ""
-        Dev1TextResponse.Checked = False
-
-        ButtonCalramDumpR6581.Enabled = True
-        ButtonOpenR6581file.Enabled = False
-        ButtonOpenR6581fileJson.Enabled = False
-        ButtonJsonViewer2.Enabled = False
-
-    End Sub
-
-
-
     ' ###############################################################################
 
 
@@ -466,6 +475,9 @@ Partial Class Formtest
 
     ' Subroutine to check and display JSON file contents after the user browses to one
     Private Sub CheckJsonFileContents(jsonFilePath As String)
+
+        Abort6581 = False
+
         Try
             ' Ensure the file exists
             If String.IsNullOrEmpty(jsonFilePath) OrElse Not IO.File.Exists(jsonFilePath) Then
@@ -510,6 +522,8 @@ Partial Class Formtest
                         selectedSections.Add(kvp.Value)
                     End If
                 Next
+
+                CalramStatus6581upload.Text = "JSON file is good, ready to upload to Ram"
 
                 Dim selectedSectionNames As String = String.Join(Environment.NewLine, selectedSections)
 
@@ -561,6 +575,16 @@ Partial Class Formtest
             System.Threading.Thread.Sleep(250) ' 250ms delay
             Me.Refresh()
 
+            ' Abort
+            If Abort6581 = True Then
+                CalramStatus6581upload.Text = "Upload to Ram aborted!"
+                MessageBox.Show("Upload to RAM aborted!", "Aborted", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                ButtonR6581upload.Enabled = False
+                ButtonJsonViewer.Enabled = False
+                ButtonOpenR6581fileSelectJson.Enabled = True
+                Exit Sub
+            End If
+
             Dim jsonFilePath As String = TextBoxCalRamFileJson6581Select.Text
 
             ' Ensure a valid JSON file path is provided
@@ -586,7 +610,7 @@ Partial Class Formtest
     End Sub
 
 
-    ' Upload selected calibration data from the JSON file based on checkbox selection
+    ' Upload selected calibration data to RAM from the JSON file
     Private Sub UploadSelectedCalibrationDataFromJson(jsonFilePath As String, checkboxes As List(Of CheckBox))
         Try
             ' Load JSON data from file
@@ -615,6 +639,9 @@ Partial Class Formtest
 
                 ' Loop through each checkbox and process selected sections
                 For Each kvp In sectionMapping
+
+                    If Abort6581 = True Then Exit For
+
                     Dim checkBox As CheckBox = kvp.Key
                     Dim eepromSection As String = kvp.Value
 
@@ -627,6 +654,9 @@ Partial Class Formtest
 
                         ' Loop through each calibration data entry and send it
                         For Each calibrationItem As JObject In calibrationList
+
+                            If Abort6581 = True Then Exit For
+
                             Dim index As Integer = Convert.ToInt32(calibrationItem("Index"))
                             Dim value As String = calibrationItem("Value").ToString().Trim()
 
@@ -648,7 +678,17 @@ Partial Class Formtest
                     End If
                 Next
 
-                CalramStatus6581upload.Text = "Ram upload complete!"
+                ' Finished
+                If Abort6581 = True Then
+                    ButtonR6581upload.Enabled = False
+                    ButtonJsonViewer.Enabled = False
+                    ButtonOpenR6581fileSelectJson.Enabled = True
+                    CalramStatus6581upload.Text = "Upload to RAM aborted!"
+                    MessageBox.Show("Upload to RAM aborted!", "Aborted", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                Else
+                    CalramStatus6581upload.Text = "Ram upload complete, ready to commit to EEprom"
+                    MessageBox.Show("Upload to RAM complete!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                End If
 
                 ' Disable service EXT protection mode if needed
                 ' dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)
