@@ -31,6 +31,7 @@ Imports System.Text
 Imports System.Text.RegularExpressions
 Imports System.Drawing
 Imports System.Management
+Imports System.Runtime.InteropServices
 
 
 Public Class Formtest

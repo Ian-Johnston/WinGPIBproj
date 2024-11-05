@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -139,8 +139,6 @@ Partial Class Formtest
         Me.PDVS2miniSave = New System.Windows.Forms.Button()
         Me.Dev1TextResponse = New System.Windows.Forms.CheckBox()
         Me.Dev2TextResponse = New System.Windows.Forms.CheckBox()
-        Me.btnBackup = New System.Windows.Forms.Button()
-        Me.btnRestore = New System.Windows.Forms.Button()
         Me.ButtonDev1PreRun = New System.Windows.Forms.Button()
         Me.ButtonDev2PreRun = New System.Windows.Forms.Button()
         Me.txtq2d = New System.Windows.Forms.TextBox()
@@ -334,8 +332,6 @@ Partial Class Formtest
         Me.Label215 = New System.Windows.Forms.Label()
         Me.Label214 = New System.Windows.Forms.Label()
         Me.Label213 = New System.Windows.Forms.Label()
-        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.Label212 = New System.Windows.Forms.Label()
         Me.Label211 = New System.Windows.Forms.Label()
         Me.Label210 = New System.Windows.Forms.Label()
@@ -551,7 +547,6 @@ Partial Class Formtest
         Me.Label310 = New System.Windows.Forms.Label()
         Me.Label311 = New System.Windows.Forms.Label()
         Me.ButtonCalramDumpR6581 = New System.Windows.Forms.Button()
-        Me.ButtonR6581abort = New System.Windows.Forms.Button()
         Me.Label245 = New System.Windows.Forms.Label()
         Me.Label246 = New System.Windows.Forms.Label()
         Me.AllRegularConstantsReadR6581 = New System.Windows.Forms.RadioButton()
@@ -561,6 +556,7 @@ Partial Class Formtest
         Me.Label306 = New System.Windows.Forms.Label()
         Me.LabelCalRamByte6581 = New System.Windows.Forms.Label()
         Me.CalramStatus6581 = New System.Windows.Forms.Label()
+        Me.ButtonR6581abort = New System.Windows.Forms.Button()
         Me.TabPage12 = New System.Windows.Forms.TabPage()
         Me.Label259 = New System.Windows.Forms.Label()
         Me.Label260 = New System.Windows.Forms.Label()
@@ -595,7 +591,6 @@ Partial Class Formtest
         Me.Label269 = New System.Windows.Forms.Label()
         Me.PictureBox9 = New System.Windows.Forms.PictureBox()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
-        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.Label145 = New System.Windows.Forms.Label()
         Me.Label79 = New System.Windows.Forms.Label()
         Me.Label81 = New System.Windows.Forms.Label()
@@ -851,7 +846,6 @@ Partial Class Formtest
         Me.CalAccuracyFinal = New System.Windows.Forms.TextBox()
         Me.Label117 = New System.Windows.Forms.Label()
         Me.Label121 = New System.Windows.Forms.Label()
-        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage13 = New System.Windows.Forms.TabPage()
         Me.GroupBox11 = New System.Windows.Forms.GroupBox()
         Me.CheckBoxEnableTooltips = New System.Windows.Forms.CheckBox()
@@ -887,6 +881,14 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
+        Me.btnRestore = New System.Windows.Forms.Button()
+        Me.btnBackup = New System.Windows.Forms.Button()
+        Me.Label307 = New System.Windows.Forms.Label()
+        Me.Label314 = New System.Windows.Forms.Label()
+        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.Panel2.SuspendLayout
@@ -1277,7 +1279,7 @@ Partial Class Formtest
         'ButtonSaveSettings
         '
         Me.ButtonSaveSettings.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.ButtonSaveSettings.Location = New System.Drawing.Point(951, 377)
+        Me.ButtonSaveSettings.Location = New System.Drawing.Point(951, 415)
         Me.ButtonSaveSettings.Name = "ButtonSaveSettings"
         Me.ButtonSaveSettings.Size = New System.Drawing.Size(90, 37)
         Me.ButtonSaveSettings.TabIndex = 77
@@ -2087,28 +2089,6 @@ Partial Class Formtest
         Me.ToolTip1.SetToolTip(Me.Dev2TextResponse, "Allow non-numerical responses using Query Async")
         Me.Dev2TextResponse.UseVisualStyleBackColor = True
         '
-        'btnBackup
-        '
-        Me.btnBackup.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.btnBackup.Location = New System.Drawing.Point(951, 417)
-        Me.btnBackup.Name = "btnBackup"
-        Me.btnBackup.Size = New System.Drawing.Size(90, 22)
-        Me.btnBackup.TabIndex = 560
-        Me.btnBackup.Text = "Export Profiles"
-        Me.ToolTip1.SetToolTip(Me.btnBackup, "Export profiles & settings data to ProfilesData.dat")
-        Me.btnBackup.UseVisualStyleBackColor = True
-        '
-        'btnRestore
-        '
-        Me.btnRestore.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.btnRestore.Location = New System.Drawing.Point(951, 442)
-        Me.btnRestore.Name = "btnRestore"
-        Me.btnRestore.Size = New System.Drawing.Size(90, 22)
-        Me.btnRestore.TabIndex = 561
-        Me.btnRestore.Text = "Import Profiles"
-        Me.ToolTip1.SetToolTip(Me.btnRestore, "Import profiles & settings data directly from ProfilesData.dat")
-        Me.btnRestore.UseVisualStyleBackColor = True
-        '
         'ButtonDev1PreRun
         '
         Me.ButtonDev1PreRun.Location = New System.Drawing.Point(347, 220)
@@ -2457,8 +2437,6 @@ Partial Class Formtest
         Me.TabPage1.Controls.Add(Me.noEOI)
         Me.TabPage1.Controls.Add(Me.GroupBox8)
         Me.TabPage1.Controls.Add(Me.btndevlist)
-        Me.TabPage1.Controls.Add(Me.btnRestore)
-        Me.TabPage1.Controls.Add(Me.btnBackup)
         Me.TabPage1.Controls.Add(Me.Label303)
         Me.TabPage1.Controls.Add(Me.Label302)
         Me.TabPage1.Controls.Add(Me.RunningTimeLogging)
@@ -4229,26 +4207,6 @@ Partial Class Formtest
         Me.Label213.TabIndex = 537
         Me.Label213.Text = "Tx"
         '
-        'OnOffLed2
-        '
-        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
-        Me.OnOffLed2.Name = "OnOffLed2"
-        Me.OnOffLed2.OffText = Nothing
-        Me.OnOffLed2.OnText = Nothing
-        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed2.TabIndex = 536
-        '
-        'OnOffLed1
-        '
-        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
-        Me.OnOffLed1.Name = "OnOffLed1"
-        Me.OnOffLed1.OffText = Nothing
-        Me.OnOffLed1.OnText = Nothing
-        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed1.TabIndex = 535
-        '
         'Label212
         '
         Me.Label212.AutoSize = True
@@ -5446,22 +5404,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea1.BackColor = System.Drawing.Color.Black
-        ChartArea1.BorderColor = System.Drawing.Color.White
-        ChartArea1.BorderWidth = 2
-        ChartArea1.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea1)
-        Legend1.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend1)
+        ChartArea2.BackColor = System.Drawing.Color.Black
+        ChartArea2.BorderColor = System.Drawing.Color.White
+        ChartArea2.BorderWidth = 2
+        ChartArea2.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea2)
+        Legend2.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend2)
         Me.Chart1.Location = New System.Drawing.Point(-32, 140)
         Me.Chart1.Name = "Chart1"
-        Series1.ChartArea = "ChartArea1"
-        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series1.Color = System.Drawing.Color.Yellow
-        Series1.Enabled = False
-        Series1.Legend = "Legend1"
-        Series1.Name = "Series1"
-        Me.Chart1.Series.Add(Series1)
+        Series2.ChartArea = "ChartArea1"
+        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series2.Color = System.Drawing.Color.Yellow
+        Series2.Enabled = False
+        Series2.Legend = "Legend1"
+        Series2.Name = "Series1"
+        Me.Chart1.Series.Add(Series2)
         Me.Chart1.Size = New System.Drawing.Size(1120, 462)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -6515,17 +6473,6 @@ Partial Class Formtest
         Me.ButtonCalramDumpR6581.Text = "R6581 Read"
         Me.ButtonCalramDumpR6581.UseVisualStyleBackColor = True
         '
-        'ButtonR6581abort
-        '
-        Me.ButtonR6581abort.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonR6581abort.Location = New System.Drawing.Point(928, 78)
-        Me.ButtonR6581abort.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
-        Me.ButtonR6581abort.Name = "ButtonR6581abort"
-        Me.ButtonR6581abort.Size = New System.Drawing.Size(115, 37)
-        Me.ButtonR6581abort.TabIndex = 590
-        Me.ButtonR6581abort.Text = "Abort"
-        Me.ButtonR6581abort.UseVisualStyleBackColor = True
-        '
         'Label245
         '
         Me.Label245.AutoSize = True
@@ -6613,6 +6560,17 @@ Partial Class Formtest
         Me.CalramStatus6581.Size = New System.Drawing.Size(14, 13)
         Me.CalramStatus6581.TabIndex = 551
         Me.CalramStatus6581.Text = "#"
+        '
+        'ButtonR6581abort
+        '
+        Me.ButtonR6581abort.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonR6581abort.Location = New System.Drawing.Point(928, 78)
+        Me.ButtonR6581abort.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.ButtonR6581abort.Name = "ButtonR6581abort"
+        Me.ButtonR6581abort.Size = New System.Drawing.Size(115, 37)
+        Me.ButtonR6581abort.TabIndex = 590
+        Me.ButtonR6581abort.Text = "Abort"
+        Me.ButtonR6581abort.UseVisualStyleBackColor = True
         '
         'TabPage12
         '
@@ -7075,16 +7033,6 @@ Partial Class Formtest
         Me.TabPage5.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "PDVS2mini  "
-        '
-        'OnOffLed4
-        '
-        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
-        Me.OnOffLed4.Name = "OnOffLed4"
-        Me.OnOffLed4.OffText = Nothing
-        Me.OnOffLed4.OnText = Nothing
-        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed4.TabIndex = 797
         '
         'Label145
         '
@@ -9911,16 +9859,6 @@ Partial Class Formtest
         Me.Label121.TabIndex = 554
         Me.Label121.Text = "Comms Delay (mS)"
         '
-        'OnOffLed3
-        '
-        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
-        Me.OnOffLed3.Name = "OnOffLed3"
-        Me.OnOffLed3.OffText = Nothing
-        Me.OnOffLed3.OnText = Nothing
-        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed3.TabIndex = 796
-        '
         'TabPage13
         '
         Me.TabPage13.BackColor = System.Drawing.Color.WhiteSmoke
@@ -9933,6 +9871,10 @@ Partial Class Formtest
         '
         'GroupBox11
         '
+        Me.GroupBox11.Controls.Add(Me.Label314)
+        Me.GroupBox11.Controls.Add(Me.Label307)
+        Me.GroupBox11.Controls.Add(Me.btnRestore)
+        Me.GroupBox11.Controls.Add(Me.btnBackup)
         Me.GroupBox11.Controls.Add(Me.CheckBoxEnableTooltips)
         Me.GroupBox11.Controls.Add(Me.TextBox2)
         Me.GroupBox11.Controls.Add(Me.TextBox1)
@@ -10250,6 +10192,88 @@ Partial Class Formtest
         'Timer14
         '
         Me.Timer14.Interval = 50
+        '
+        'btnRestore
+        '
+        Me.btnRestore.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.btnRestore.Location = New System.Drawing.Point(10, 156)
+        Me.btnRestore.Name = "btnRestore"
+        Me.btnRestore.Size = New System.Drawing.Size(90, 22)
+        Me.btnRestore.TabIndex = 603
+        Me.btnRestore.Text = "Import Profiles"
+        Me.ToolTip1.SetToolTip(Me.btnRestore, "Import profiles & settings data directly from ProfilesData.dat")
+        Me.btnRestore.UseVisualStyleBackColor = True
+        '
+        'btnBackup
+        '
+        Me.btnBackup.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.btnBackup.Location = New System.Drawing.Point(10, 125)
+        Me.btnBackup.Name = "btnBackup"
+        Me.btnBackup.Size = New System.Drawing.Size(90, 22)
+        Me.btnBackup.TabIndex = 602
+        Me.btnBackup.Text = "Export Profiles"
+        Me.ToolTip1.SetToolTip(Me.btnBackup, "Export profiles & settings data to ProfilesData.dat")
+        Me.btnBackup.UseVisualStyleBackColor = True
+        '
+        'Label307
+        '
+        Me.Label307.AutoSize = True
+        Me.Label307.Location = New System.Drawing.Point(106, 130)
+        Me.Label307.Name = "Label307"
+        Me.Label307.Size = New System.Drawing.Size(394, 13)
+        Me.Label307.TabIndex = 604
+        Me.Label307.Text = "Export all Profiles and saved data to ProfilesData.dat (disconnect from device 1&" &
+    "&2)"
+        '
+        'Label314
+        '
+        Me.Label314.AutoSize = True
+        Me.Label314.Location = New System.Drawing.Point(106, 161)
+        Me.Label314.Name = "Label314"
+        Me.Label314.Size = New System.Drawing.Size(404, 13)
+        Me.Label314.TabIndex = 605
+        Me.Label314.Text = "Import all Profiles and saved data from ProfilesData.dat (disconnect from device " &
+    "1&&2)"
+        '
+        'OnOffLed2
+        '
+        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
+        Me.OnOffLed2.Name = "OnOffLed2"
+        Me.OnOffLed2.OffText = Nothing
+        Me.OnOffLed2.OnText = Nothing
+        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed2.TabIndex = 536
+        '
+        'OnOffLed1
+        '
+        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
+        Me.OnOffLed1.Name = "OnOffLed1"
+        Me.OnOffLed1.OffText = Nothing
+        Me.OnOffLed1.OnText = Nothing
+        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed1.TabIndex = 535
+        '
+        'OnOffLed4
+        '
+        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
+        Me.OnOffLed4.Name = "OnOffLed4"
+        Me.OnOffLed4.OffText = Nothing
+        Me.OnOffLed4.OnText = Nothing
+        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed4.TabIndex = 797
+        '
+        'OnOffLed3
+        '
+        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
+        Me.OnOffLed3.Name = "OnOffLed3"
+        Me.OnOffLed3.OffText = Nothing
+        Me.OnOffLed3.OnText = Nothing
+        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed3.TabIndex = 796
         '
         'Formtest
         '
@@ -10981,8 +11005,6 @@ Partial Class Formtest
     Friend WithEvents Label227 As Label
     Friend WithEvents Dev2INTb As Label
     Friend WithEvents Dev1INTb As Label
-    Friend WithEvents btnRestore As Button
-    Friend WithEvents btnBackup As Button
     Friend WithEvents ButtonDev1PreRun As Button
     Friend WithEvents ButtonDev2PreRun As Button
     Friend WithEvents Dev2SendQuery As CheckBox
@@ -11188,4 +11210,8 @@ Partial Class Formtest
     Friend WithEvents TextBox1 As TextBox
     Friend WithEvents TextBox2 As TextBox
     Friend WithEvents CheckBoxEnableTooltips As CheckBox
+    Friend WithEvents Label314 As Label
+    Friend WithEvents Label307 As Label
+    Friend WithEvents btnRestore As Button
+    Friend WithEvents btnBackup As Button
 End Class
