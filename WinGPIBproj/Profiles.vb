@@ -4,6 +4,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
 Imports System.Threading
 Imports System.Xml.Serialization
 Imports Microsoft.Office.Interop.Word
+Imports System.Collections.Generic
 
 Partial Class Formtest
 
@@ -1681,6 +1682,12 @@ Partial Class Formtest
     End Sub
 
 
+    Private Sub btnBackup_Click(sender As Object, e As EventArgs) Handles btnBackup.Click
+        Dim backupFilePath As String = Path.Combine(documentsPath, "WinGPIBdata\ProfilesData.dat")
+        BackupSettings(backupFilePath)
+    End Sub
+
+
     ' Restore application settings from a file
     Public Sub RestoreSettings(filePath As String)
         Try
@@ -1700,22 +1707,54 @@ Partial Class Formtest
             ' Save the settings to make them persistent
             My.Settings.Save()
 
-            MessageBox.Show("Settings restored successfully - ProfilesData.dat", "WinGPIB Restore", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            ' Count the number of entries and display it with a carriage return
+            Dim entryCount As Integer = settings.Count
+            MessageBox.Show($"Profiles/settings restored successfully.{vbCrLf}{vbCrLf}{entryCount} entries were loaded.", "WinGPIB Restore", MessageBoxButtons.OK, MessageBoxIcon.Information)
         Catch ex As Exception
-            MessageBox.Show($"An error occurred while restoring settings: {ex.Message}", "WinGPIB Restore Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show($"An error occurred while restoring profiles/settings: {ex.Message}", "WinGPIB Restore Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
 
-    Private Sub btnBackup_Click(sender As Object, e As EventArgs) Handles btnBackup.Click
-        Dim backupFilePath As String = Path.Combine(documentsPath, "WinGPIBdata\ProfilesData.dat")
-        BackupSettings(backupFilePath)
-    End Sub
-
 
     Private Sub btnRestore_Click(sender As Object, e As EventArgs) Handles btnRestore.Click
-        Dim backupFilePath As String = Path.Combine(documentsPath, "WinGPIBdata\ProfilesData.dat")
-        RestoreSettings(backupFilePath)
+        Using openFileDialog As New OpenFileDialog()
+            openFileDialog.InitialDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "WinGPIBdata")
+            openFileDialog.Filter = "Data Files (*.dat)|*.dat|All Files (*.*)|*.*"
+            openFileDialog.Title = "Select a Profiles Data File"
+
+            If openFileDialog.ShowDialog() = DialogResult.OK Then
+                Dim selectedFilePath As String = openFileDialog.FileName
+
+                ' Check if the selected file has valid content
+                If IsValidProfileFile(selectedFilePath) Then
+                    RestoreSettings(selectedFilePath)
+                Else
+                    MessageBox.Show("The selected file is not a valid profile/settings data file.", "Invalid File", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                End If
+            End If
+        End Using
     End Sub
+
+
+    ' Function to check if the file has valid contents using deserialization
+    Private Function IsValidProfileFile(filePath As String) As Boolean
+        Try
+            ' Attempt to open and deserialize the file
+            Using fs As New FileStream(filePath, FileMode.Open, FileAccess.Read)
+                Dim formatter As New BinaryFormatter()
+                Dim data As Object = formatter.Deserialize(fs)
+
+                ' Check if the deserialized data is of the expected type (e.g., Dictionary)
+                If TypeOf data Is Dictionary(Of String, Object) Then
+                    ' Perform additional checks on contents if necessary
+                    Return True
+                End If
+            End Using
+        Catch ex As Exception
+            ' If deserialization fails, return False
+        End Try
+        Return False
+    End Function
 
 End Class

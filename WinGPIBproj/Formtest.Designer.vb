@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -166,6 +166,8 @@ Partial Class Formtest
         Me.ButtonOpenR6581fileJson = New System.Windows.Forms.Button()
         Me.ButtonOpenR6581file = New System.Windows.Forms.Button()
         Me.ButtonJsonViewer2 = New System.Windows.Forms.Button()
+        Me.btnRestore = New System.Windows.Forms.Button()
+        Me.btnBackup = New System.Windows.Forms.Button()
         Me.CheckBoxR6581RetrieveREF = New System.Windows.Forms.CheckBox()
         Me.SerialPort1 = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer6 = New System.Windows.Forms.Timer(Me.components)
@@ -848,6 +850,8 @@ Partial Class Formtest
         Me.Label121 = New System.Windows.Forms.Label()
         Me.TabPage13 = New System.Windows.Forms.TabPage()
         Me.GroupBox11 = New System.Windows.Forms.GroupBox()
+        Me.Label314 = New System.Windows.Forms.Label()
+        Me.Label307 = New System.Windows.Forms.Label()
         Me.CheckBoxEnableTooltips = New System.Windows.Forms.CheckBox()
         Me.TextBox2 = New System.Windows.Forms.TextBox()
         Me.TextBox1 = New System.Windows.Forms.TextBox()
@@ -881,10 +885,6 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
-        Me.btnRestore = New System.Windows.Forms.Button()
-        Me.btnBackup = New System.Windows.Forms.Button()
-        Me.Label307 = New System.Windows.Forms.Label()
-        Me.Label314 = New System.Windows.Forms.Label()
         Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
@@ -2377,6 +2377,28 @@ Partial Class Formtest
         Me.ButtonJsonViewer2.Text = "JSON Viewer"
         Me.ToolTip1.SetToolTip(Me.ButtonJsonViewer2, "Open the JSON file in the built in viewer")
         Me.ButtonJsonViewer2.UseVisualStyleBackColor = True
+        '
+        'btnRestore
+        '
+        Me.btnRestore.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.btnRestore.Location = New System.Drawing.Point(10, 156)
+        Me.btnRestore.Name = "btnRestore"
+        Me.btnRestore.Size = New System.Drawing.Size(90, 22)
+        Me.btnRestore.TabIndex = 603
+        Me.btnRestore.Text = "Import Profiles"
+        Me.ToolTip1.SetToolTip(Me.btnRestore, "Import profiles & settings data directly from ProfilesData.dat")
+        Me.btnRestore.UseVisualStyleBackColor = True
+        '
+        'btnBackup
+        '
+        Me.btnBackup.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.btnBackup.Location = New System.Drawing.Point(10, 125)
+        Me.btnBackup.Name = "btnBackup"
+        Me.btnBackup.Size = New System.Drawing.Size(90, 22)
+        Me.btnBackup.TabIndex = 602
+        Me.btnBackup.Text = "Export Profiles"
+        Me.ToolTip1.SetToolTip(Me.btnBackup, "Export profiles & settings data to ProfilesData.dat")
+        Me.btnBackup.UseVisualStyleBackColor = True
         '
         'CheckBoxR6581RetrieveREF
         '
@@ -5404,22 +5426,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea2.BackColor = System.Drawing.Color.Black
-        ChartArea2.BorderColor = System.Drawing.Color.White
-        ChartArea2.BorderWidth = 2
-        ChartArea2.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea2)
-        Legend2.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend2)
+        ChartArea1.BackColor = System.Drawing.Color.Black
+        ChartArea1.BorderColor = System.Drawing.Color.White
+        ChartArea1.BorderWidth = 2
+        ChartArea1.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea1)
+        Legend1.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend1)
         Me.Chart1.Location = New System.Drawing.Point(-32, 140)
         Me.Chart1.Name = "Chart1"
-        Series2.ChartArea = "ChartArea1"
-        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series2.Color = System.Drawing.Color.Yellow
-        Series2.Enabled = False
-        Series2.Legend = "Legend1"
-        Series2.Name = "Series1"
-        Me.Chart1.Series.Add(Series2)
+        Series1.ChartArea = "ChartArea1"
+        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series1.Color = System.Drawing.Color.Yellow
+        Series1.Enabled = False
+        Series1.Legend = "Legend1"
+        Series1.Name = "Series1"
+        Me.Chart1.Series.Add(Series1)
         Me.Chart1.Size = New System.Drawing.Size(1120, 462)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -9890,6 +9912,25 @@ Partial Class Formtest
         Me.GroupBox11.TabIndex = 589
         Me.GroupBox11.TabStop = False
         '
+        'Label314
+        '
+        Me.Label314.AutoSize = True
+        Me.Label314.Location = New System.Drawing.Point(106, 161)
+        Me.Label314.Name = "Label314"
+        Me.Label314.Size = New System.Drawing.Size(303, 13)
+        Me.Label314.TabIndex = 605
+        Me.Label314.Text = "Import all Profiles and saved data (disconnect from device 1&&2)"
+        '
+        'Label307
+        '
+        Me.Label307.AutoSize = True
+        Me.Label307.Location = New System.Drawing.Point(106, 130)
+        Me.Label307.Name = "Label307"
+        Me.Label307.Size = New System.Drawing.Size(394, 13)
+        Me.Label307.TabIndex = 604
+        Me.Label307.Text = "Export all Profiles and saved data to ProfilesData.dat (disconnect from device 1&" &
+    "&2)"
+        '
         'CheckBoxEnableTooltips
         '
         Me.CheckBoxEnableTooltips.AutoSize = True
@@ -10192,48 +10233,6 @@ Partial Class Formtest
         'Timer14
         '
         Me.Timer14.Interval = 50
-        '
-        'btnRestore
-        '
-        Me.btnRestore.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.btnRestore.Location = New System.Drawing.Point(10, 156)
-        Me.btnRestore.Name = "btnRestore"
-        Me.btnRestore.Size = New System.Drawing.Size(90, 22)
-        Me.btnRestore.TabIndex = 603
-        Me.btnRestore.Text = "Import Profiles"
-        Me.ToolTip1.SetToolTip(Me.btnRestore, "Import profiles & settings data directly from ProfilesData.dat")
-        Me.btnRestore.UseVisualStyleBackColor = True
-        '
-        'btnBackup
-        '
-        Me.btnBackup.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.btnBackup.Location = New System.Drawing.Point(10, 125)
-        Me.btnBackup.Name = "btnBackup"
-        Me.btnBackup.Size = New System.Drawing.Size(90, 22)
-        Me.btnBackup.TabIndex = 602
-        Me.btnBackup.Text = "Export Profiles"
-        Me.ToolTip1.SetToolTip(Me.btnBackup, "Export profiles & settings data to ProfilesData.dat")
-        Me.btnBackup.UseVisualStyleBackColor = True
-        '
-        'Label307
-        '
-        Me.Label307.AutoSize = True
-        Me.Label307.Location = New System.Drawing.Point(106, 130)
-        Me.Label307.Name = "Label307"
-        Me.Label307.Size = New System.Drawing.Size(394, 13)
-        Me.Label307.TabIndex = 604
-        Me.Label307.Text = "Export all Profiles and saved data to ProfilesData.dat (disconnect from device 1&" &
-    "&2)"
-        '
-        'Label314
-        '
-        Me.Label314.AutoSize = True
-        Me.Label314.Location = New System.Drawing.Point(106, 161)
-        Me.Label314.Name = "Label314"
-        Me.Label314.Size = New System.Drawing.Size(404, 13)
-        Me.Label314.TabIndex = 605
-        Me.Label314.Text = "Import all Profiles and saved data from ProfilesData.dat (disconnect from device " &
-    "1&&2)"
         '
         'OnOffLed2
         '
