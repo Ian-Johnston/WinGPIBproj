@@ -1675,9 +1675,9 @@ Partial Class Formtest
                 formatter.Serialize(fs, settings)
             End Using
 
-            MessageBox.Show("Settings backup completed successfully - ProfilesData.dat", "WinGPIB Backup", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show("Profiles/settings export completed successfully - ProfilesData.dat", "WinGPIB Export", MessageBoxButtons.OK, MessageBoxIcon.Information)
         Catch ex As Exception
-            MessageBox.Show($"An error occurred while backing up settings: {ex.Message}", "WinGPIB Backup Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show($"An error occurred while exporting profiles/settings: {ex.Message}", "WinGPIB Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
@@ -1709,9 +1709,9 @@ Partial Class Formtest
 
             ' Count the number of entries and display it with a carriage return
             Dim entryCount As Integer = settings.Count
-            MessageBox.Show($"Profiles/settings restored successfully.{vbCrLf}{vbCrLf}{entryCount} entries were loaded.", "WinGPIB Restore", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show($"Profiles/settings imported successfully.{vbCrLf}{vbCrLf}{entryCount} entries were loaded.", "WinGPIB Import", MessageBoxButtons.OK, MessageBoxIcon.Information)
         Catch ex As Exception
-            MessageBox.Show($"An error occurred while restoring profiles/settings: {ex.Message}", "WinGPIB Restore Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show($"An error occurred while importing profiles/settings: {ex.Message}", "WinGPIB import Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
