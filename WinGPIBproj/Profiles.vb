@@ -1675,7 +1675,8 @@ Partial Class Formtest
                 formatter.Serialize(fs, settings)
             End Using
 
-            MessageBox.Show("Profiles/settings export completed successfully - ProfilesData.dat", "WinGPIB Export", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Dim entryCount As Integer = settings.Count
+            MessageBox.Show($"Profiles/settings export completed successfully{vbCrLf}{vbCrLf}File = ProfilesData.dat{vbCrLf}{vbCrLf}{entryCount} entries were exported", "WinGPIB Export", MessageBoxButtons.OK, MessageBoxIcon.Information)
         Catch ex As Exception
             MessageBox.Show($"An error occurred while exporting profiles/settings: {ex.Message}", "WinGPIB Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
@@ -1709,12 +1710,11 @@ Partial Class Formtest
 
             ' Count the number of entries and display it with a carriage return
             Dim entryCount As Integer = settings.Count
-            MessageBox.Show($"Profiles/settings imported successfully.{vbCrLf}{vbCrLf}{entryCount} entries were loaded.", "WinGPIB Import", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show($"Profiles/settings imported successfully.{vbCrLf}{vbCrLf}{entryCount} entries were loaded", "WinGPIB Import", MessageBoxButtons.OK, MessageBoxIcon.Information)
         Catch ex As Exception
             MessageBox.Show($"An error occurred while importing profiles/settings: {ex.Message}", "WinGPIB import Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
-
 
 
     Private Sub btnRestore_Click(sender As Object, e As EventArgs) Handles btnRestore.Click
