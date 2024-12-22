@@ -4,9 +4,9 @@
 
 ' Yes yes yes.....some rather looooong SUBs and repeated ones at that!, I need to get around to re-writing those and make it all more efficient and an easier read and modify!
 
-Imports IODevices
-Imports System.Threading
-Imports System.Runtime.InteropServices
+'Imports IODevices
+'Imports System.Threading
+'Imports System.Runtime.InteropServices
 
 ' PDFsharp must be installed.
 ' To use PDFsharp, you need to install its NuGet package. Right-click on your project in the Solution Explorer, select "Manage NuGet Packages," search

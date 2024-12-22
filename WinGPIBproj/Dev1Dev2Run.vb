@@ -2,10 +2,10 @@
 ' Device 1 & 2 run code including the timers for each
 
 Imports IODevices
-Imports System.Threading
-Imports System.Diagnostics
-Imports System.Windows.Forms.VisualStyles.VisualStyleElement
-Imports System.Threading.Tasks
+'Imports System.Threading
+'Imports System.Diagnostics
+'Imports System.Windows.Forms.VisualStyles.VisualStyleElement
+'Imports System.Threading.Tasks
 
 Partial Class Formtest
 

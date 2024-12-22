@@ -3,9 +3,9 @@
 ' CalRam HP 3457A
 
 Imports IODevices
-Imports System.Threading
-Imports System.Runtime.InteropServices
-Imports System.IO
+'Imports System.Threading
+'Imports System.Runtime.InteropServices
+'Imports System.IO
 
 Partial Class Formtest
 

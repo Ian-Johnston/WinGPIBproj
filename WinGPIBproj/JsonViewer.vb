@@ -1,16 +1,30 @@
 ﻿Public Class JsonViewer
 
     ' Constructor to set additional form properties if needed
-    Public Sub New()
-        ' This call is required by the designer.
-        InitializeComponent()
+    'Public Sub New()
+    ' This call is required by the designer.
+    '   InitializeComponent()
 
-        ' Set form properties
-        Me.Text = "JSON File Viewer"
-        Me.MaximizeBox = False
-        Me.MinimizeBox = True
-        Me.FormBorderStyle = FormBorderStyle.FixedDialog
-        Me.StartPosition = FormStartPosition.CenterParent
+    ' Set form properties
+    'Me.Text = "JSON File Viewer"
+    'Me.MaximizeBox = False
+    'Me.MinimizeBox = True
+    'Me.FormBorderStyle = FormBorderStyle.FixedDialog
+    'Me.StartPosition = FormStartPosition.CenterParent
+    'End Sub
+
+    Public Sub New()
+        Try
+            InitializeComponent() ' Ensure this line runs successfully
+            Me.Text = "JSON File Viewer"
+            Me.MaximizeBox = False
+            Me.MinimizeBox = True
+            Me.FormBorderStyle = FormBorderStyle.FixedDialog
+            Me.StartPosition = FormStartPosition.CenterParent
+        Catch ex As Exception
+            MessageBox.Show($"Error in constructor: {ex.Message}", "Constructor Error")
+            Throw
+        End Try
     End Sub
 
 

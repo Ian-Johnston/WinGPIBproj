@@ -18,20 +18,20 @@
 
 
 Imports IODevices
-Imports System
+'Imports System
 Imports System.IO.Ports
-Imports System.Threading
+'Imports System.Threading
 Imports System.IO
 'Imports System.Xml.Serialization
 'Imports System.Configuration
 'Imports System.Text.RegularExpressions
-Imports System.Configuration
-Imports WinGPIBproj.Formtest
+'Imports System.Configuration
+'Imports WinGPIBproj.Formtest
 Imports System.Text
 Imports System.Text.RegularExpressions
-Imports System.Drawing
+'Imports System.Drawing
 Imports System.Management
-Imports System.Runtime.InteropServices
+'Imports System.Runtime.InteropServices
 
 
 Public Class Formtest
@@ -153,591 +153,601 @@ Public Class Formtest
     '    IODevice.DisposeAll()
     'End Sub
 
+    'Protected Overrides Sub OnLoad(e As EventArgs)
+    'MyBase.OnLoad(e) ' Ensure this is called to trigger the Load event
+    ' Additional logic
+    'End Sub
+
     Private Sub Formtest_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
 
-        ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-        BannerText1 = "WinGPIB   V3.250"
-        BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
+        Try
 
-        ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
-        ' doesn't exist then copy it from C:\Users\[username]\OneDrive\Documents to C:\Users\[username]\Documents folder
-        'If My.Computer.FileSystem.DirectoryExists(strPathOD) Then
-        ' The OneDrive folder exists so now copy if the target folder doesn't exist
-        'If Not My.Computer.FileSystem.DirectoryExists(strPath) Then
-        'My.Computer.FileSystem.CopyDirectory(strPathOD, strPath, True)
-        'End If
-        'End If
+            ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
+            BannerText1 = "WinGPIB   V3.251"
+            BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
-        ' Hide the Advantest R6581 tab as it's not finished yet
-        'TabControl1.TabPages.Remove(TabPage11)
-        AllRegularConstantsReadR6581.Checked = True         ' default checked radio button
+            ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
+            ' doesn't exist then copy it from C:\Users\[username]\OneDrive\Documents to C:\Users\[username]\Documents folder
+            'If My.Computer.FileSystem.DirectoryExists(strPathOD) Then
+            ' The OneDrive folder exists so now copy if the target folder doesn't exist
+            'If Not My.Computer.FileSystem.DirectoryExists(strPath) Then
+            'My.Computer.FileSystem.CopyDirectory(strPathOD, strPath, True)
+            'End If
+            'End If
 
-        ' Check for the existence of the WinGPIBdata folder in the OneDrive folder and if it exists then copy it to teh documents folder
-        ' This is because some install incorrectly install the WinGPIBData folder under the OneDrive structure
-        If Directory.Exists(strPathOD) Then
-            ' The OneDrive folder exists, so now copy if the target folder doesn't exist
-            If Not Directory.Exists(strPath) Then
-                My.Computer.FileSystem.CopyDirectory(strPathOD, strPath, True)
+            ' Hide the Advantest R6581 tab as it's not finished yet
+            'TabControl1.TabPages.Remove(TabPage11)
+            AllRegularConstantsReadR6581.Checked = True         ' default checked radio button
+
+            ' Check for the existence of the WinGPIBdata folder in the OneDrive folder and if it exists then copy it to the documents folder
+            ' This is because some install incorrectly install the WinGPIBData folder under the OneDrive structure
+            If Directory.Exists(strPathOD) Then
+                ' The OneDrive folder exists, so now copy if the target folder doesn't exist
+                If Not Directory.Exists(strPath) Then
+                    My.Computer.FileSystem.CopyDirectory(strPathOD, strPath, True)
+                End If
             End If
-        End If
 
-        ' get available COM ports
-        comPORT = ""
-        For Each sp As String In My.Computer.Ports.SerialPortNames
-            comPort_ComboBox.Items.Add(sp)
-        Next
-
-        ' Initially enable all controls on Calram groupboxes
-        GroupBox6.Enabled = True
-        GroupBox7.Enabled = True
-        GroupBox10.Enabled = True
-
-        ' Initially enable all controls on 3245A Cal groupbox
-        GroupBox5.Enabled = True
-
-        ' Initially enable all controls on PDVS2mini groupbox
-        GroupBox2.Enabled = True
-
-        ResetCSV.Enabled = True
-        TempHumLogs.Enabled = False
-
-        lstIntf1.Items.Add("Visa")
-        lstIntf1.Items.Add("GPIB:ADLink")
-        lstIntf1.Items.Add("gpib488.dll")
-        lstIntf1.Items.Add("Com port")
-        lstIntf1.Items.Add("Prologix Serial")
-        lstIntf1.Items.Add("Prologix Ethernet")
-        lstIntf1.SelectedIndex = 0
-
-        lstIntf2.Items.Add("Visa")
-        lstIntf2.Items.Add("GPIB:ADLink")
-        lstIntf2.Items.Add("gpib488.dll")
-        lstIntf2.Items.Add("Com port")
-        lstIntf2.Items.Add("Prologix Serial")
-        lstIntf2.Items.Add("Prologix Ethernet")
-        lstIntf2.SelectedIndex = 0
-
-        ' Temp/Hum sensor
-        lstIntf3.Items.Add("USB-TnH SHT10 V2.00")
-        lstIntf3.Items.Add("USB-TnH (SHT10)")
-        lstIntf3.Items.Add("USB-PA (BME280)")
-        lstIntf3.Items.Add("USB-TnH (LM75)")
-        lstIntf3.Items.Add("USB-TnH (SHT30)")
-        lstIntf3.Items.Add("Adafruit (MCP2221A/SHT40,41,45)")
-        lstIntf3.Items.Add("USB-User")
-        lstIntf3.SelectedIndex = 0
-        'TextBoxProtocolInput.ReadOnly = True
-        'TextBoxParseLeft.ReadOnly = True
-        'TextBoxParseRight.ReadOnly = True
-
-        ' Check if the PDVS2mini stored port is still available
-        If gPortListPDVS2mini.Contains(My.Settings.data333) Then
-            ' The port is available, you can use it, put it in focus
-            comPort_ComboBox.SelectedItem = My.Settings.data333
-            comPORT = My.Settings.data333
-        End If
-
-        ' Recall all saved data
-        txtname1.Text = My.Settings.data1
-        txtaddr1.Text = My.Settings.data3
-        CommandStart1.Text = My.Settings.data5
-        CommandStop1.Text = My.Settings.data7
-        Dev1SampleRate.Text = My.Settings.data9
-        CSVfilename.Text = My.Settings.data11
-        'CSVfilepath.Text = My.Settings.data12
-        XaxisPoints.Text = My.Settings.data13
-        Dev1Max.Text = My.Settings.data14
-        Dev1Min.Text = My.Settings.data15
-        txtname3.Text = My.Settings.data16
-        CommandStart1run.Text = My.Settings.data17
-        Dev12SampleRate.Text = My.Settings.data19
-        CSVdelimit = My.Settings.data29
-
-        TempOffset.Text = My.Settings.data78
-
-        ' Load Device 1 default profile 1
-        lstIntf1.SelectedIndex = My.Settings.data33
-        txtname1.Text = My.Settings.data1
-        txtaddr1.Text = My.Settings.data3
-        CommandStart1.Text = My.Settings.data5
-        CommandStart1run.Text = My.Settings.data17
-        CommandStop1.Text = My.Settings.data7
-        Dev1SampleRate.Text = My.Settings.data9
-        Dev1STBMask.Text = My.Settings.data66
-        Div1000Dev1.Checked = My.Settings.data72
-        Dev1PollingEnable.Checked = My.Settings.data36
-        Dev1removeletters.Checked = My.Settings.data37
-        IgnoreErrors1.Checked = My.Settings.data38
-        Dev1TerminatorEnable.Checked = My.Settings.data39
-        CheckBoxSendBlockingDev1.Checked = My.Settings.data40
-        Dev13457Aseven.Checked = My.Settings.data79
-        Dev1TerminatorEnable2.Checked = My.Settings.data85
-        Dev1K2001isolatedata.Checked = My.Settings.data207
-        Dev1K2001isolatedataCHAR.Text = My.Settings.data208
-        Mult1000Dev1.Checked = My.Settings.data225
-        Dev1Timeout.Text = My.Settings.data231
-        Dev1delayop.Text = My.Settings.data243
-        txtq1d.Text = My.Settings.data271
-        Dev1pauseDurationInSeconds.Text = My.Settings.data272
-        Dev1runStopwatchEveryInMins.Text = My.Settings.data273
-        Dev1IntEnable.Checked = My.Settings.data274
-        Dev1Regex.Checked = My.Settings.data337
-        Dev1DecimalNumDPs.Text = My.Settings.data453
-
-
-        ' Load Device 2 default profile 1
-        lstIntf2.SelectedIndex = My.Settings.data30
-        txtname2.Text = My.Settings.data2
-        txtaddr2.Text = My.Settings.data4
-        CommandStart2.Text = My.Settings.data6
-        CommandStart2run.Text = My.Settings.data18
-        CommandStop2.Text = My.Settings.data8
-        Dev2SampleRate.Text = My.Settings.data10
-        Dev2STBMask.Text = My.Settings.data67
-        Div1000Dev2.Checked = My.Settings.data75
-        Dev2PollingEnable.Checked = My.Settings.data51
-        Dev2removeletters.Checked = My.Settings.data52
-        IgnoreErrors2.Checked = My.Settings.data53
-        Dev2TerminatorEnable.Checked = My.Settings.data54
-        CheckBoxSendBlockingDev2.Checked = My.Settings.data55
-        Dev23457Aseven.Checked = My.Settings.data80
-        Dev2TerminatorEnable2.Checked = My.Settings.data86
-        Dev2K2001isolatedata.Checked = My.Settings.data195
-        Dev2K2001isolatedataCHAR.Text = My.Settings.data196
-        Mult1000Dev2.Checked = My.Settings.data219
-        Dev2Timeout.Text = My.Settings.data237
-        Dev2delayop.Text = My.Settings.data249
-        txtq2d.Text = My.Settings.data295
-        Dev2pauseDurationInSeconds.Text = My.Settings.data296
-        Dev2runStopwatchEveryInMins.Text = My.Settings.data297
-        Dev2IntEnable.Checked = My.Settings.data298
-        Dev2Regex.Checked = My.Settings.data343
-        Dev2DecimalNumDPs.Text = My.Settings.data461
-
-        ' Load Live Chart settings
-        XaxisPoints.Text = My.Settings.data255
-
-        ' recall with X amount of dp's and if no DP saved then recall as X.0
-        Dim storedValue As Double = My.Settings.data256
-        Dim formattedValue As String
-        If storedValue - Math.Floor(storedValue) = 0 Then
-            formattedValue = My.Settings.data256.ToString("0.0")
-        Else
-            formattedValue = My.Settings.data256.ToString()
-        End If
-        Dev1Max.Text = formattedValue
-
-        ' recall with X amount of dp's and if no DP saved then recall as X.0
-        storedValue = My.Settings.data257
-        If storedValue - Math.Floor(storedValue) = 0 Then
-            formattedValue = My.Settings.data257.ToString("0.0")
-        Else
-            formattedValue = My.Settings.data257.ToString()
-        End If
-        Dev1Min.Text = formattedValue
-
-        ' recall with X amount of dp's and if no DP saved then recall as X.0
-        storedValue = My.Settings.data258
-        If storedValue - Math.Floor(storedValue) = 0 Then
-            formattedValue = My.Settings.data258.ToString("0.0")
-        Else
-            formattedValue = My.Settings.data258.ToString()
-        End If
-        LCTempMax.Text = formattedValue
-
-        ' recall with X amount of dp's and if no DP saved then recall as X.0
-        storedValue = My.Settings.data259
-        If storedValue - Math.Floor(storedValue) = 0 Then
-            formattedValue = My.Settings.data259.ToString("0.0")
-        Else
-            formattedValue = My.Settings.data259.ToString()
-        End If
-        LCTempMin.Text = formattedValue
-
-        CheckBoxDevice1Hide.Enabled = False
-        CheckBoxDevice2Hide.Enabled = False
-        CheckBoxTempHide.Enabled = False
-
-
-        Device1nameLive.Text = ""
-        Device2nameLive.Text = ""
-
-        ' recall default PDVS2mini counts saved
-        Default0.Text = My.Settings.data260
-        Default1.Text = My.Settings.data261
-        Default2.Text = My.Settings.data262
-        Default3.Text = My.Settings.data263
-        Default4.Text = My.Settings.data264
-        Default5.Text = My.Settings.data265
-        Default6.Text = My.Settings.data266
-        Default7.Text = My.Settings.data267
-        Default8.Text = My.Settings.data268
-        Default9.Text = My.Settings.data269
-        Default10.Text = My.Settings.data270
-        Default11.Text = My.Settings.data502
-
-        If CSVdelimit = "," Then
-            CSVdelimiterComma.Checked = True
-        Else
-            CSVdelimiterSemiColon.Checked = True
-            CSVdelimit = ";"
-        End If
-
-        ' If CSV file path is empty then set location
-        If (CSVfilepath.Text = "") Then
-            CSVfilepath.Text = strPath
-        End If
-
-        ' Check that the CSV file specified exists, if it doesn't then create a new blank CSV file
-        ' On my Win10 laptop the install wizard pops up and it itself regenerates the Log.csv file......so looks like this sub not req'd?
-        'If System.IO.File.Exists(strPath & "\" & "Log.csv") Then
-        'the file exists
-        'Else
-        'the file doesn't exist
-        'System.IO.File.Create(CSVfilepath.Text & "\" & CSVfilename.Text).Dispose()
-
-        'Dialog2.Warning1 = "CSV file has been created:"
-        'Dialog2.Warning2 = "File = " & CSVfilename.Text
-        'Dialog2.Warning3 = ""
-        ''Dialog2.Show() ' this method positions anywhere!
-        'Dialog2.ShowDialog(Me)  ' this method positions centre of parent form, and requires to hit OK to return back to parent
-        'End If
-
-
-        ' Set Timer4 duration
-        Me.Timer4.Interval = 100
-        Me.Timer4.Start()
-
-        ' Set Timer1 duration
-        Me.Timer1.Interval = 1000
-        Me.Timer1.Stop()
-
-        ' Set Timer7 duration - PDVS2mini
-        Me.Timer7.Interval = 500
-        Me.Timer7.Stop()
-
-        ' Set Timer8 duration
-        Me.Timer8.Interval = 1000
-        Me.Timer8.Start()
-
-        ' Setup ComboBox of port
-        gboxtemphum.Enabled = True
-        Me.ComboBoxPort.Items.AddRange(gPortList)
-
-        ' Enable logging boxe
-        bgoxdata.Enabled = True
-
-        ' 3245A button
-        ButtonCal3245A.Enabled = False
-
-        ' CalRam button 3458A & 3457A
-        ButtonCalramDump3457A.Enabled = False
-        ButtonCalramDump3458A.Enabled = False
-
-        ' label style
-        Chart1.ChartAreas(0).AxisY.LabelStyle.Font = New Font("Microsoft Sans Serif", 9)
-        Chart1.ChartAreas(0).AxisY2.LabelStyle.Font = New Font("Microsoft Sans Serif", 9)
-        Chart1.ChartAreas(0).AxisX.LabelStyle.Enabled = False
-        Chart1.ChartAreas(0).AxisY.LabelStyle.Enabled = True
-        ' tick marks
-        Chart1.ChartAreas(0).AxisX.MajorTickMark.Enabled = True
-        Chart1.ChartAreas(0).AxisY.MajorTickMark.Enabled = True
-        Chart1.ChartAreas(0).AxisX.MinorTickMark.Enabled = False
-        Chart1.ChartAreas(0).AxisY.MinorTickMark.Enabled = False
-        ' grid
-        Chart1.ChartAreas(0).AxisX.MajorGrid.Enabled = True
-        Chart1.ChartAreas(0).AxisY.MajorGrid.Enabled = True
-        Chart1.ChartAreas(0).AxisX.MinorGrid.Enabled = True
-        Chart1.ChartAreas(0).AxisY.MinorGrid.Enabled = True
-        Chart1.ChartAreas(0).AxisX.MajorGrid.LineColor = Color.FromArgb(255, 85, 85, 85)
-        Chart1.ChartAreas(0).AxisY.MajorGrid.LineColor = Color.FromArgb(255, 85, 85, 85)
-        Chart1.ChartAreas(0).AxisX.MinorGrid.LineColor = Color.FromArgb(150, 85, 85, 85)
-        Chart1.ChartAreas(0).AxisY.MinorGrid.LineColor = Color.FromArgb(150, 85, 85, 85)
-
-        Chart1.DataBindTable(gChartTemp)
-        Chart1.Series(0).ChartType = 2
-        Chart1.Series.Clear()
-        Chart1.ChartAreas(0).BorderWidth = 1
-
-        Chart1.Series.Add("Device 1")
-        Chart1.Series.Add("Device 2")
-        Chart1.Series.Add("Temperature")
-
-        Chart1.Series(0).ChartType = DataVisualization.Charting.SeriesChartType.Line
-        Chart1.Series(1).ChartType = DataVisualization.Charting.SeriesChartType.Line
-        Chart1.Series(2).ChartType = DataVisualization.Charting.SeriesChartType.Line
-
-        Chart1.Series(2).YAxisType = DataVisualization.Charting.AxisType.Secondary
-        Chart1.ChartAreas(0).AxisY2.Enabled = True
-        Chart1.ChartAreas(0).AxisY2.Minimum = 15
-        Chart1.ChartAreas(0).AxisY2.Maximum = 30
-        Chart1.ChartAreas(0).AxisY2.Enabled = DataVisualization.Charting.AxisEnabled.True
-        Chart1.ChartAreas(0).AxisY2.LabelStyle.Enabled = True
-
-        Chart1.Series(0).YValueType = DataVisualization.Charting.ChartValueType.Single
-
-        Chart1.Legends(0).Enabled = False 'set true to see channel colour labels
-
-        Chart1.ChartAreas(0).AxisX.IntervalAutoMode = DataVisualization.Charting.IntervalAutoMode.VariableCount
-        Chart1.ChartAreas(0).AxisY.IntervalAutoMode = DataVisualization.Charting.IntervalAutoMode.VariableCount
-        Chart1.ChartAreas(0).AxisY.LabelAutoFitStyle = DataVisualization.Charting.LabelAutoFitStyles.DecreaseFont 'default is staggered
-
-        Chart1.ChartAreas(0).AxisX.IntervalOffset = 0
-        Chart1.Series(0).Color = Color.Yellow
-        Chart1.Series(1).Color = Color.Cyan
-        Chart1.Series(2).Color = Color.Red
-
-        Chart1.ChartAreas(0).AxisX.MajorGrid.LineDashStyle = DataVisualization.Charting.ChartDashStyle.Dot
-        Chart1.ChartAreas(0).AxisY.MajorGrid.LineDashStyle = DataVisualization.Charting.ChartDashStyle.Dot
-        'Chart1.ChartAreas(0).AxisY2.MajorGrid.LineDashStyle = DataVisualization.Charting.ChartDashStyle.Dot
-
-        Chart1.Series(0).YValueMembers = inst_value1FChart
-        Chart1.Series(1).YValueMembers = inst_value2FChart
-        Chart1.Series(2).YValueMembers = inst_value3FChart
-
-        Chart1.ChartAreas(0).AxisX.LabelStyle.Enabled = False   'disable X-axis scale
-
-        Chart1.Visible = False              ' hide chart on boot
-        StartChartMessage.Visible = True
-
-        IODeviceLabel1.BackColor = Color.Yellow
-        IODeviceLabel2.BackColor = Color.Aqua
-
-        'EnableChart1.BackColor = Color.Yellow
-        'EnableChart2.BackColor = Color.Aqua
-        'EnableChart3.BackColor = Color.Red
-
-        TextBoxDev1CMD.Enabled = False
-        TextBoxDev2CMD.Enabled = False
-        CMD1clear.Enabled = False
-        CMD2clear.Enabled = False
-        CheckBoxDev1Query.Checked = True
-        CheckBoxDev2Query.Checked = True
-        TextBoxDev1CMD.BackColor = Color.DarkGray
-        TextBoxDev2CMD.BackColor = Color.DarkGray
-        Me.TextBoxDev1CMD.Font = New Font("System", 10)
-        Me.TextBoxDev2CMD.Font = New Font("System", 10)
-
-        ButtonRefreshPorts.Enabled = True
-
-        TextBoxProtocolInput.Text = My.Settings.data319
-        TextBoxParseLeft.Text = My.Settings.data320
-        TextBoxParseRight.Text = My.Settings.data321
-        TextBoxRegex.Text = My.Settings.data322
-        TextBoxTempArithmentic.Text = My.Settings.data323
-        TextBoxTempUnits.Text = My.Settings.data324
-        TextBoxHumUnits.Text = My.Settings.data325
-        lstIntf3.SelectedItem = My.Settings.data326
-        TextBoxSerialPortBaud.Text = My.Settings.data327
-        TextBoxSerialPortBits.Text = My.Settings.data328
-        TextBoxSerialPortParity.Text = My.Settings.data329
-        TextBoxSerialPortStop.Text = My.Settings.data330
-        TextBoxSerialPortHand.Text = My.Settings.data331
-        ComboBoxPort.SelectedItem = My.Settings.data332         ' temp/hum
-        comPort_ComboBox.SelectedItem = My.Settings.data333     ' PDVS2mini
-        CheckBoxParseLeftRight.Checked = My.Settings.data334    ' temp/hum checkbox
-        CheckBoxRegex.Checked = My.Settings.data335             ' temp/hum checkbox
-        CheckBoxArithmetic.Checked = My.Settings.data336        ' temp/hum checkbox
-        TextBoxTempHumSample.Text = My.Settings.data504
-
-        'myVariable1 = TextBoxTempUnits.Text
-        'myVariable2 = TextBoxHumUnits.Text
-
-
-        ' Get saved settings Dev 1
-        ProfDev1_1.Checked = My.Settings.Dev1Prof1
-        ProfDev1_2.Checked = My.Settings.Dev1Prof2
-        ProfDev1_3.Checked = My.Settings.Dev1Prof3
-        ProfDev1_4.Checked = My.Settings.Dev1Prof4
-        ProfDev1_5.Checked = My.Settings.Dev1Prof5
-        ProfDev1_6.Checked = My.Settings.Dev1Prof6
-        ProfDev1_7.Checked = My.Settings.Dev1Prof7
-        ProfDev1_8.Checked = My.Settings.Dev1Prof8
-
-        ToolTip1.SetToolTip(ProfDev1_1, My.Settings.data1)
-        ToolTip1.SetToolTip(ProfDev1_2, My.Settings.data1b)
-        ToolTip1.SetToolTip(ProfDev1_3, My.Settings.data1c)
-        ToolTip1.SetToolTip(ProfDev1_4, My.Settings.data139)
-        ToolTip1.SetToolTip(ProfDev1_5, My.Settings.data155)
-        ToolTip1.SetToolTip(ProfDev1_6, My.Settings.data171)
-        ToolTip1.SetToolTip(ProfDev1_7, My.Settings.data349)
-        ToolTip1.SetToolTip(ProfDev1_8, My.Settings.data375)
-
-        ' Check to make sure that one of them is set TRUE, and also detect if more than one is set TRUE
-        Dim checkboxesDev1() As CheckBox = {ProfDev1_1, ProfDev1_2, ProfDev1_3, ProfDev1_4, ProfDev1_5, ProfDev1_6, ProfDev1_7, ProfDev1_8}
-        Dim checkedCountDev1 As Integer = 0
-        For i As Integer = 0 To checkboxesDev1.Length - 1
-            checkboxesDev1(i).Checked = My.Settings($"Dev1Prof{i + 1}")
-            If checkboxesDev1(i).Checked Then
-                checkedCountDev1 += 1
-            End If
-        Next
-        If checkedCountDev1 = 0 Then
-            ' If none of the checkboxes are checked, set ProfDev1_1 to true
-            ProfDev1_1.Checked = True
-        ElseIf checkedCountDev1 > 1 Then
-            ' If more than one checkbox is checked, set ProfDev1_1 to true and the rest to false
-            ProfDev1_1.Checked = True
-            For i As Integer = 1 To checkboxesDev1.Length - 1
-                checkboxesDev1(i).Checked = False
+            ' get available COM ports
+            comPORT = ""
+            For Each sp As String In My.Computer.Ports.SerialPortNames
+                comPort_ComboBox.Items.Add(sp)
             Next
-        End If
 
-        ' Load settings per Profile selected
-        If ProfDev1_1.Checked = True Then
-            ProfDev1_1_Click(ProfDev1_1, EventArgs.Empty)
-        End If
-        If ProfDev1_2.Checked = True Then
-            ProfDev1_2_Click(ProfDev1_2, EventArgs.Empty)
-        End If
-        If ProfDev1_3.Checked = True Then
-            ProfDev1_3_Click(ProfDev1_3, EventArgs.Empty)
-        End If
-        If ProfDev1_4.Checked = True Then
-            ProfDev1_4_Click(ProfDev1_4, EventArgs.Empty)
-        End If
-        If ProfDev1_5.Checked = True Then
-            ProfDev1_5_Click(ProfDev1_5, EventArgs.Empty)
-        End If
-        If ProfDev1_6.Checked = True Then
-            ProfDev1_6_Click(ProfDev1_6, EventArgs.Empty)
-        End If
-        If ProfDev1_7.Checked = True Then
-            ProfDev1_7_Click(ProfDev1_7, EventArgs.Empty)
-        End If
-        If ProfDev1_8.Checked = True Then
-            ProfDev1_8_Click(ProfDev1_8, EventArgs.Empty)
-        End If
+            ' Initially enable all controls on Calram groupboxes
+            GroupBox6.Enabled = True
+            GroupBox7.Enabled = True
+            GroupBox10.Enabled = True
 
+            ' Initially enable all controls on 3245A Cal groupbox
+            GroupBox5.Enabled = True
 
-        ' Get saved settings Dev 2
-        ProfDev2_1.Checked = My.Settings.Dev2Prof1
-        ProfDev2_2.Checked = My.Settings.Dev2Prof2
-        ProfDev2_3.Checked = My.Settings.Dev2Prof3
-        ProfDev2_4.Checked = My.Settings.Dev2Prof4
-        ProfDev2_5.Checked = My.Settings.Dev2Prof5
-        ProfDev2_6.Checked = My.Settings.Dev2Prof6
-        ProfDev2_7.Checked = My.Settings.Dev2Prof7
-        ProfDev2_8.Checked = My.Settings.Dev2Prof8
+            ' Initially enable all controls on PDVS2mini groupbox
+            GroupBox2.Enabled = True
 
-        ToolTip1.SetToolTip(ProfDev2_1, My.Settings.data2)
-        ToolTip1.SetToolTip(ProfDev2_2, My.Settings.data2b)
-        ToolTip1.SetToolTip(ProfDev2_3, My.Settings.data2c)
-        ToolTip1.SetToolTip(ProfDev2_4, My.Settings.data91)
-        ToolTip1.SetToolTip(ProfDev2_5, My.Settings.data107)
-        ToolTip1.SetToolTip(ProfDev2_6, My.Settings.data123)
-        ToolTip1.SetToolTip(ProfDev2_7, My.Settings.data401)
-        ToolTip1.SetToolTip(ProfDev2_8, My.Settings.data427)
+            ResetCSV.Enabled = True
+            TempHumLogs.Enabled = False
 
-        ' Check to make sure that one of them is set TRUE, and also detect if more than one is set TRUE
-        Dim checkboxesDev2() As CheckBox = {ProfDev2_1, ProfDev2_2, ProfDev2_3, ProfDev2_4, ProfDev2_5, ProfDev2_6, ProfDev2_7, ProfDev2_8}
-        Dim checkedCountDev2 As Integer = 0
-        For i As Integer = 0 To checkboxesDev2.Length - 1
-            checkboxesDev2(i).Checked = My.Settings($"Dev2Prof{i + 1}")
-            If checkboxesDev2(i).Checked Then
-                checkedCountDev2 += 1
+            lstIntf1.Items.Add("Visa")
+            lstIntf1.Items.Add("GPIB:ADLink")
+            lstIntf1.Items.Add("gpib488.dll")
+            lstIntf1.Items.Add("Com port")
+            lstIntf1.Items.Add("Prologix Serial")
+            lstIntf1.Items.Add("Prologix Ethernet")
+            lstIntf1.SelectedIndex = 0
+
+            lstIntf2.Items.Add("Visa")
+            lstIntf2.Items.Add("GPIB:ADLink")
+            lstIntf2.Items.Add("gpib488.dll")
+            lstIntf2.Items.Add("Com port")
+            lstIntf2.Items.Add("Prologix Serial")
+            lstIntf2.Items.Add("Prologix Ethernet")
+            lstIntf2.SelectedIndex = 0
+
+            ' Temp/Hum sensor
+            lstIntf3.Items.Add("USB-TnH SHT10 V2.00")
+            lstIntf3.Items.Add("USB-TnH (SHT10)")
+            lstIntf3.Items.Add("USB-PA (BME280)")
+            lstIntf3.Items.Add("USB-TnH (LM75)")
+            lstIntf3.Items.Add("USB-TnH (SHT30)")
+            lstIntf3.Items.Add("Adafruit (MCP2221A/SHT40,41,45)")
+            lstIntf3.Items.Add("USB-User")
+            lstIntf3.SelectedIndex = 0
+            'TextBoxProtocolInput.ReadOnly = True
+            'TextBoxParseLeft.ReadOnly = True
+            'TextBoxParseRight.ReadOnly = True
+
+            ' Check if the PDVS2mini stored port is still available
+            If gPortListPDVS2mini.Contains(My.Settings.data333) Then
+                ' The port is available, you can use it, put it in focus
+                comPort_ComboBox.SelectedItem = My.Settings.data333
+                comPORT = My.Settings.data333
             End If
-        Next
-        If checkedCountDev2 = 0 Then
-            ' If none of the checkboxes are checked, set ProfDev2_1 to true
-            ProfDev2_1.Checked = True
-        ElseIf checkedCountDev2 > 1 Then
-            ' If more than one checkbox is checked, set ProfDev2_1 to true and the rest to false
-            ProfDev2_1.Checked = True
-            For i As Integer = 1 To checkboxesDev2.Length - 1
-                checkboxesDev2(i).Checked = False
+
+            ' Recall all saved data
+            txtname1.Text = My.Settings.data1
+            txtaddr1.Text = My.Settings.data3
+            CommandStart1.Text = My.Settings.data5
+            CommandStop1.Text = My.Settings.data7
+            Dev1SampleRate.Text = My.Settings.data9
+            CSVfilename.Text = My.Settings.data11
+            'CSVfilepath.Text = My.Settings.data12
+            XaxisPoints.Text = My.Settings.data13
+            Dev1Max.Text = My.Settings.data14
+            Dev1Min.Text = My.Settings.data15
+            txtname3.Text = My.Settings.data16
+            CommandStart1run.Text = My.Settings.data17
+            Dev12SampleRate.Text = My.Settings.data19
+            CSVdelimit = My.Settings.data29
+
+            TempOffset.Text = My.Settings.data78
+
+            ' Load Device 1 default profile 1
+            lstIntf1.SelectedIndex = My.Settings.data33
+            txtname1.Text = My.Settings.data1
+            txtaddr1.Text = My.Settings.data3
+            CommandStart1.Text = My.Settings.data5
+            CommandStart1run.Text = My.Settings.data17
+            CommandStop1.Text = My.Settings.data7
+            Dev1SampleRate.Text = My.Settings.data9
+            Dev1STBMask.Text = My.Settings.data66
+            Div1000Dev1.Checked = My.Settings.data72
+            Dev1PollingEnable.Checked = My.Settings.data36
+            Dev1removeletters.Checked = My.Settings.data37
+            IgnoreErrors1.Checked = My.Settings.data38
+            Dev1TerminatorEnable.Checked = My.Settings.data39
+            CheckBoxSendBlockingDev1.Checked = My.Settings.data40
+            Dev13457Aseven.Checked = My.Settings.data79
+            Dev1TerminatorEnable2.Checked = My.Settings.data85
+            Dev1K2001isolatedata.Checked = My.Settings.data207
+            Dev1K2001isolatedataCHAR.Text = My.Settings.data208
+            Mult1000Dev1.Checked = My.Settings.data225
+            Dev1Timeout.Text = My.Settings.data231
+            Dev1delayop.Text = My.Settings.data243
+            txtq1d.Text = My.Settings.data271
+            Dev1pauseDurationInSeconds.Text = My.Settings.data272
+            Dev1runStopwatchEveryInMins.Text = My.Settings.data273
+            Dev1IntEnable.Checked = My.Settings.data274
+            Dev1Regex.Checked = My.Settings.data337
+            Dev1DecimalNumDPs.Text = My.Settings.data453
+
+
+            ' Load Device 2 default profile 1
+            lstIntf2.SelectedIndex = My.Settings.data30
+            txtname2.Text = My.Settings.data2
+            txtaddr2.Text = My.Settings.data4
+            CommandStart2.Text = My.Settings.data6
+            CommandStart2run.Text = My.Settings.data18
+            CommandStop2.Text = My.Settings.data8
+            Dev2SampleRate.Text = My.Settings.data10
+            Dev2STBMask.Text = My.Settings.data67
+            Div1000Dev2.Checked = My.Settings.data75
+            Dev2PollingEnable.Checked = My.Settings.data51
+            Dev2removeletters.Checked = My.Settings.data52
+            IgnoreErrors2.Checked = My.Settings.data53
+            Dev2TerminatorEnable.Checked = My.Settings.data54
+            CheckBoxSendBlockingDev2.Checked = My.Settings.data55
+            Dev23457Aseven.Checked = My.Settings.data80
+            Dev2TerminatorEnable2.Checked = My.Settings.data86
+            Dev2K2001isolatedata.Checked = My.Settings.data195
+            Dev2K2001isolatedataCHAR.Text = My.Settings.data196
+            Mult1000Dev2.Checked = My.Settings.data219
+            Dev2Timeout.Text = My.Settings.data237
+            Dev2delayop.Text = My.Settings.data249
+            txtq2d.Text = My.Settings.data295
+            Dev2pauseDurationInSeconds.Text = My.Settings.data296
+            Dev2runStopwatchEveryInMins.Text = My.Settings.data297
+            Dev2IntEnable.Checked = My.Settings.data298
+            Dev2Regex.Checked = My.Settings.data343
+            Dev2DecimalNumDPs.Text = My.Settings.data461
+
+            ' Load Live Chart settings
+            XaxisPoints.Text = My.Settings.data255
+
+            ' recall with X amount of dp's and if no DP saved then recall as X.0
+            Dim storedValue As Double = My.Settings.data256
+            Dim formattedValue As String
+            If storedValue - Math.Floor(storedValue) = 0 Then
+                formattedValue = My.Settings.data256.ToString("0.0")
+            Else
+                formattedValue = My.Settings.data256.ToString()
+            End If
+            Dev1Max.Text = formattedValue
+
+            ' recall with X amount of dp's and if no DP saved then recall as X.0
+            storedValue = My.Settings.data257
+            If storedValue - Math.Floor(storedValue) = 0 Then
+                formattedValue = My.Settings.data257.ToString("0.0")
+            Else
+                formattedValue = My.Settings.data257.ToString()
+            End If
+            Dev1Min.Text = formattedValue
+
+            ' recall with X amount of dp's and if no DP saved then recall as X.0
+            storedValue = My.Settings.data258
+            If storedValue - Math.Floor(storedValue) = 0 Then
+                formattedValue = My.Settings.data258.ToString("0.0")
+            Else
+                formattedValue = My.Settings.data258.ToString()
+            End If
+            LCTempMax.Text = formattedValue
+
+            ' recall with X amount of dp's and if no DP saved then recall as X.0
+            storedValue = My.Settings.data259
+            If storedValue - Math.Floor(storedValue) = 0 Then
+                formattedValue = My.Settings.data259.ToString("0.0")
+            Else
+                formattedValue = My.Settings.data259.ToString()
+            End If
+            LCTempMin.Text = formattedValue
+
+            CheckBoxDevice1Hide.Enabled = False
+            CheckBoxDevice2Hide.Enabled = False
+            CheckBoxTempHide.Enabled = False
+
+
+            Device1nameLive.Text = ""
+            Device2nameLive.Text = ""
+
+            ' recall default PDVS2mini counts saved
+            Default0.Text = My.Settings.data260
+            Default1.Text = My.Settings.data261
+            Default2.Text = My.Settings.data262
+            Default3.Text = My.Settings.data263
+            Default4.Text = My.Settings.data264
+            Default5.Text = My.Settings.data265
+            Default6.Text = My.Settings.data266
+            Default7.Text = My.Settings.data267
+            Default8.Text = My.Settings.data268
+            Default9.Text = My.Settings.data269
+            Default10.Text = My.Settings.data270
+            Default11.Text = My.Settings.data502
+
+            If CSVdelimit = "," Then
+                CSVdelimiterComma.Checked = True
+            Else
+                CSVdelimiterSemiColon.Checked = True
+                CSVdelimit = ";"
+            End If
+
+            ' If CSV file path is empty then set location
+            If (CSVfilepath.Text = "") Then
+                CSVfilepath.Text = strPath
+            End If
+
+            ' Check that the CSV file specified exists, if it doesn't then create a new blank CSV file
+            ' On my Win10 laptop the install wizard pops up and it itself regenerates the Log.csv file......so looks like this sub not req'd?
+            'If System.IO.File.Exists(strPath & "\" & "Log.csv") Then
+            'the file exists
+            'Else
+            'the file doesn't exist
+            'System.IO.File.Create(CSVfilepath.Text & "\" & CSVfilename.Text).Dispose()
+
+            'Dialog2.Warning1 = "CSV file has been created:"
+            'Dialog2.Warning2 = "File = " & CSVfilename.Text
+            'Dialog2.Warning3 = ""
+            ''Dialog2.Show() ' this method positions anywhere!
+            'Dialog2.ShowDialog(Me)  ' this method positions centre of parent form, and requires to hit OK to return back to parent
+            'End If
+
+
+            ' Set Timer4 duration
+            Me.Timer4.Interval = 100
+            Me.Timer4.Start()
+
+            ' Set Timer1 duration
+            Me.Timer1.Interval = 1000
+            Me.Timer1.Stop()
+
+            ' Set Timer7 duration - PDVS2mini
+            Me.Timer7.Interval = 500
+            Me.Timer7.Stop()
+
+            ' Set Timer8 duration
+            Me.Timer8.Interval = 1000
+            Me.Timer8.Start()
+
+            ' Setup ComboBox of port
+            gboxtemphum.Enabled = True
+            Me.ComboBoxPort.Items.AddRange(gPortList)
+
+            ' Enable logging boxe
+            bgoxdata.Enabled = True
+
+            ' 3245A button
+            ButtonCal3245A.Enabled = False
+
+            ' CalRam button 3458A & 3457A
+            ButtonCalramDump3457A.Enabled = False
+            ButtonCalramDump3458A.Enabled = False
+
+            ' label style
+            Chart1.ChartAreas(0).AxisY.LabelStyle.Font = New Font("Microsoft Sans Serif", 9)
+            Chart1.ChartAreas(0).AxisY2.LabelStyle.Font = New Font("Microsoft Sans Serif", 9)
+            Chart1.ChartAreas(0).AxisX.LabelStyle.Enabled = False
+            Chart1.ChartAreas(0).AxisY.LabelStyle.Enabled = True
+            ' tick marks
+            Chart1.ChartAreas(0).AxisX.MajorTickMark.Enabled = True
+            Chart1.ChartAreas(0).AxisY.MajorTickMark.Enabled = True
+            Chart1.ChartAreas(0).AxisX.MinorTickMark.Enabled = False
+            Chart1.ChartAreas(0).AxisY.MinorTickMark.Enabled = False
+            ' grid
+            Chart1.ChartAreas(0).AxisX.MajorGrid.Enabled = True
+            Chart1.ChartAreas(0).AxisY.MajorGrid.Enabled = True
+            Chart1.ChartAreas(0).AxisX.MinorGrid.Enabled = True
+            Chart1.ChartAreas(0).AxisY.MinorGrid.Enabled = True
+            Chart1.ChartAreas(0).AxisX.MajorGrid.LineColor = Color.FromArgb(255, 85, 85, 85)
+            Chart1.ChartAreas(0).AxisY.MajorGrid.LineColor = Color.FromArgb(255, 85, 85, 85)
+            Chart1.ChartAreas(0).AxisX.MinorGrid.LineColor = Color.FromArgb(150, 85, 85, 85)
+            Chart1.ChartAreas(0).AxisY.MinorGrid.LineColor = Color.FromArgb(150, 85, 85, 85)
+
+            Chart1.DataBindTable(gChartTemp)
+            Chart1.Series(0).ChartType = 2
+            Chart1.Series.Clear()
+            Chart1.ChartAreas(0).BorderWidth = 1
+
+            Chart1.Series.Add("Device 1")
+            Chart1.Series.Add("Device 2")
+            Chart1.Series.Add("Temperature")
+
+            Chart1.Series(0).ChartType = DataVisualization.Charting.SeriesChartType.Line
+            Chart1.Series(1).ChartType = DataVisualization.Charting.SeriesChartType.Line
+            Chart1.Series(2).ChartType = DataVisualization.Charting.SeriesChartType.Line
+
+            Chart1.Series(2).YAxisType = DataVisualization.Charting.AxisType.Secondary
+            Chart1.ChartAreas(0).AxisY2.Enabled = True
+            Chart1.ChartAreas(0).AxisY2.Minimum = 15
+            Chart1.ChartAreas(0).AxisY2.Maximum = 30
+            Chart1.ChartAreas(0).AxisY2.Enabled = DataVisualization.Charting.AxisEnabled.True
+            Chart1.ChartAreas(0).AxisY2.LabelStyle.Enabled = True
+
+            Chart1.Series(0).YValueType = DataVisualization.Charting.ChartValueType.Single
+
+            Chart1.Legends(0).Enabled = False 'set true to see channel colour labels
+
+            Chart1.ChartAreas(0).AxisX.IntervalAutoMode = DataVisualization.Charting.IntervalAutoMode.VariableCount
+            Chart1.ChartAreas(0).AxisY.IntervalAutoMode = DataVisualization.Charting.IntervalAutoMode.VariableCount
+            Chart1.ChartAreas(0).AxisY.LabelAutoFitStyle = DataVisualization.Charting.LabelAutoFitStyles.DecreaseFont 'default is staggered
+
+            Chart1.ChartAreas(0).AxisX.IntervalOffset = 0
+            Chart1.Series(0).Color = Color.Yellow
+            Chart1.Series(1).Color = Color.Cyan
+            Chart1.Series(2).Color = Color.Red
+
+            Chart1.ChartAreas(0).AxisX.MajorGrid.LineDashStyle = DataVisualization.Charting.ChartDashStyle.Dot
+            Chart1.ChartAreas(0).AxisY.MajorGrid.LineDashStyle = DataVisualization.Charting.ChartDashStyle.Dot
+            'Chart1.ChartAreas(0).AxisY2.MajorGrid.LineDashStyle = DataVisualization.Charting.ChartDashStyle.Dot
+
+            Chart1.Series(0).YValueMembers = inst_value1FChart
+            Chart1.Series(1).YValueMembers = inst_value2FChart
+            Chart1.Series(2).YValueMembers = inst_value3FChart
+
+            Chart1.ChartAreas(0).AxisX.LabelStyle.Enabled = False   'disable X-axis scale
+
+            Chart1.Visible = False              ' hide chart on boot
+            StartChartMessage.Visible = True
+
+            IODeviceLabel1.BackColor = Color.Yellow
+            IODeviceLabel2.BackColor = Color.Aqua
+
+            'EnableChart1.BackColor = Color.Yellow
+            'EnableChart2.BackColor = Color.Aqua
+            'EnableChart3.BackColor = Color.Red
+
+            TextBoxDev1CMD.Enabled = False
+            TextBoxDev2CMD.Enabled = False
+            CMD1clear.Enabled = False
+            CMD2clear.Enabled = False
+            CheckBoxDev1Query.Checked = True
+            CheckBoxDev2Query.Checked = True
+            TextBoxDev1CMD.BackColor = Color.DarkGray
+            TextBoxDev2CMD.BackColor = Color.DarkGray
+            Me.TextBoxDev1CMD.Font = New Font("System", 10)
+            Me.TextBoxDev2CMD.Font = New Font("System", 10)
+
+            ButtonRefreshPorts.Enabled = True
+
+            TextBoxProtocolInput.Text = My.Settings.data319
+            TextBoxParseLeft.Text = My.Settings.data320
+            TextBoxParseRight.Text = My.Settings.data321
+            TextBoxRegex.Text = My.Settings.data322
+            TextBoxTempArithmentic.Text = My.Settings.data323
+            TextBoxTempUnits.Text = My.Settings.data324
+            TextBoxHumUnits.Text = My.Settings.data325
+            lstIntf3.SelectedItem = My.Settings.data326
+            TextBoxSerialPortBaud.Text = My.Settings.data327
+            TextBoxSerialPortBits.Text = My.Settings.data328
+            TextBoxSerialPortParity.Text = My.Settings.data329
+            TextBoxSerialPortStop.Text = My.Settings.data330
+            TextBoxSerialPortHand.Text = My.Settings.data331
+            ComboBoxPort.SelectedItem = My.Settings.data332         ' temp/hum
+            comPort_ComboBox.SelectedItem = My.Settings.data333     ' PDVS2mini
+            CheckBoxParseLeftRight.Checked = My.Settings.data334    ' temp/hum checkbox
+            CheckBoxRegex.Checked = My.Settings.data335             ' temp/hum checkbox
+            CheckBoxArithmetic.Checked = My.Settings.data336        ' temp/hum checkbox
+            TextBoxTempHumSample.Text = My.Settings.data504
+
+            'myVariable1 = TextBoxTempUnits.Text
+            'myVariable2 = TextBoxHumUnits.Text
+
+
+            ' Get saved settings Dev 1
+            ProfDev1_1.Checked = My.Settings.Dev1Prof1
+            ProfDev1_2.Checked = My.Settings.Dev1Prof2
+            ProfDev1_3.Checked = My.Settings.Dev1Prof3
+            ProfDev1_4.Checked = My.Settings.Dev1Prof4
+            ProfDev1_5.Checked = My.Settings.Dev1Prof5
+            ProfDev1_6.Checked = My.Settings.Dev1Prof6
+            ProfDev1_7.Checked = My.Settings.Dev1Prof7
+            ProfDev1_8.Checked = My.Settings.Dev1Prof8
+
+            ToolTip1.SetToolTip(ProfDev1_1, My.Settings.data1)
+            ToolTip1.SetToolTip(ProfDev1_2, My.Settings.data1b)
+            ToolTip1.SetToolTip(ProfDev1_3, My.Settings.data1c)
+            ToolTip1.SetToolTip(ProfDev1_4, My.Settings.data139)
+            ToolTip1.SetToolTip(ProfDev1_5, My.Settings.data155)
+            ToolTip1.SetToolTip(ProfDev1_6, My.Settings.data171)
+            ToolTip1.SetToolTip(ProfDev1_7, My.Settings.data349)
+            ToolTip1.SetToolTip(ProfDev1_8, My.Settings.data375)
+
+            ' Check to make sure that one of them is set TRUE, and also detect if more than one is set TRUE
+            Dim checkboxesDev1() As CheckBox = {ProfDev1_1, ProfDev1_2, ProfDev1_3, ProfDev1_4, ProfDev1_5, ProfDev1_6, ProfDev1_7, ProfDev1_8}
+            Dim checkedCountDev1 As Integer = 0
+            For i As Integer = 0 To checkboxesDev1.Length - 1
+                checkboxesDev1(i).Checked = My.Settings($"Dev1Prof{i + 1}")
+                If checkboxesDev1(i).Checked Then
+                    checkedCountDev1 += 1
+                End If
             Next
-        End If
+            If checkedCountDev1 = 0 Then
+                ' If none of the checkboxes are checked, set ProfDev1_1 to true
+                ProfDev1_1.Checked = True
+            ElseIf checkedCountDev1 > 1 Then
+                ' If more than one checkbox is checked, set ProfDev1_1 to true and the rest to false
+                ProfDev1_1.Checked = True
+                For i As Integer = 1 To checkboxesDev1.Length - 1
+                    checkboxesDev1(i).Checked = False
+                Next
+            End If
 
-        ' Load settings per Profile selected
-        If ProfDev2_1.Checked = True Then
-            ProfDev2_1_Click(ProfDev2_1, EventArgs.Empty)
-        End If
-        If ProfDev2_2.Checked = True Then
-            ProfDev2_2_Click(ProfDev2_2, EventArgs.Empty)
-        End If
-        If ProfDev2_3.Checked = True Then
-            ProfDev2_3_Click(ProfDev2_3, EventArgs.Empty)
-        End If
-        If ProfDev2_4.Checked = True Then
-            ProfDev2_4_Click(ProfDev2_4, EventArgs.Empty)
-        End If
-        If ProfDev2_5.Checked = True Then
-            ProfDev2_5_Click(ProfDev2_5, EventArgs.Empty)
-        End If
-        If ProfDev2_6.Checked = True Then
-            ProfDev2_6_Click(ProfDev2_6, EventArgs.Empty)
-        End If
-        If ProfDev2_7.Checked = True Then
-            ProfDev2_7_Click(ProfDev2_7, EventArgs.Empty)
-        End If
-        If ProfDev2_8.Checked = True Then
-            ProfDev2_8_Click(ProfDev2_8, EventArgs.Empty)
-        End If
+            ' Load settings per Profile selected
+            If ProfDev1_1.Checked = True Then
+                ProfDev1_1_Click(ProfDev1_1, EventArgs.Empty)
+            End If
+            If ProfDev1_2.Checked = True Then
+                ProfDev1_2_Click(ProfDev1_2, EventArgs.Empty)
+            End If
+            If ProfDev1_3.Checked = True Then
+                ProfDev1_3_Click(ProfDev1_3, EventArgs.Empty)
+            End If
+            If ProfDev1_4.Checked = True Then
+                ProfDev1_4_Click(ProfDev1_4, EventArgs.Empty)
+            End If
+            If ProfDev1_5.Checked = True Then
+                ProfDev1_5_Click(ProfDev1_5, EventArgs.Empty)
+            End If
+            If ProfDev1_6.Checked = True Then
+                ProfDev1_6_Click(ProfDev1_6, EventArgs.Empty)
+            End If
+            If ProfDev1_7.Checked = True Then
+                ProfDev1_7_Click(ProfDev1_7, EventArgs.Empty)
+            End If
+            If ProfDev1_8.Checked = True Then
+                ProfDev1_8_Click(ProfDev1_8, EventArgs.Empty)
+            End If
 
-        ' PDVS2mini
-        TextBox3458Asn.Text = My.Settings.data469       ' 3458A serial number
-        TextBoxUser.Text = My.Settings.data470          ' User/Company
-        TextBoxLOWSHUT.Text = My.Settings.data471
-        TextBoxCENABLE.Text = My.Settings.data472
-        TextBoxOLMA.Text = My.Settings.data473
-        TextBoxFULLMA.Text = My.Settings.data474
-        TextBoxSERIAL.Text = My.Settings.data475
-        TextBoxSOAK.Text = My.Settings.data476
-        TextBoxDC.Text = My.Settings.data477
-        TextBoxCD.Text = My.Settings.data478
-        CalStep.Text = My.Settings.data479
-        CalAccuracy.Text = My.Settings.data480
-        CalStepFinal.Text = My.Settings.data481
-        CalAccuracyFinal.Text = My.Settings.data482
-        PDVS2delay.Text = My.Settings.data483
-        TextBoxSer.Text = ""
-        TextBoxdegC.Text = ""
-        Dev1Units.Text = My.Settings.data500
-        Dev2Units.Text = My.Settings.data501
-        DisableAllButtonsInGroupBox2ExceptPDVS2miniSave()
-        Label229.Enabled = False
-        LabelTemperature3.Enabled = False
-        volts11.Enabled = False
-        ButtonDacSpan10down.Enabled = False
-        ButtonDacSpan10.Enabled = False
-        ButtonDacSpan10Up.Enabled = False
-        LabeldacSpan10Cal.Enabled = False
-        Label150.Enabled = False
-        DacSpan10.Enabled = False
-        LabeldacSpan10Delta.Enabled = False
-        Default11.Enabled = False
-        Label149.Enabled = False
-        WryTech.Checked = My.Settings.data503
 
-        'btncreate2.Enabled = True
-        'btncreate3.Enabled = True
+            ' Get saved settings Dev 2
+            ProfDev2_1.Checked = My.Settings.Dev2Prof1
+            ProfDev2_2.Checked = My.Settings.Dev2Prof2
+            ProfDev2_3.Checked = My.Settings.Dev2Prof3
+            ProfDev2_4.Checked = My.Settings.Dev2Prof4
+            ProfDev2_5.Checked = My.Settings.Dev2Prof5
+            ProfDev2_6.Checked = My.Settings.Dev2Prof6
+            ProfDev2_7.Checked = My.Settings.Dev2Prof7
+            ProfDev2_8.Checked = My.Settings.Dev2Prof8
 
-        ButtonR6581upload.Enabled = False
-        ButtonR6581commitEEprom.Enabled = False
+            ToolTip1.SetToolTip(ProfDev2_1, My.Settings.data2)
+            ToolTip1.SetToolTip(ProfDev2_2, My.Settings.data2b)
+            ToolTip1.SetToolTip(ProfDev2_3, My.Settings.data2c)
+            ToolTip1.SetToolTip(ProfDev2_4, My.Settings.data91)
+            ToolTip1.SetToolTip(ProfDev2_5, My.Settings.data107)
+            ToolTip1.SetToolTip(ProfDev2_6, My.Settings.data123)
+            ToolTip1.SetToolTip(ProfDev2_7, My.Settings.data401)
+            ToolTip1.SetToolTip(ProfDev2_8, My.Settings.data427)
 
-        ' Settings
-        CheckBoxAllowSaveAnytime.Checked = My.Settings.data505
-        TextBoxTextEditor.Text = My.Settings.data506
-        CheckBoxEnableTooltips.Checked = My.Settings.data507
+            ' Check to make sure that one of them is set TRUE, and also detect if more than one is set TRUE
+            Dim checkboxesDev2() As CheckBox = {ProfDev2_1, ProfDev2_2, ProfDev2_3, ProfDev2_4, ProfDev2_5, ProfDev2_6, ProfDev2_7, ProfDev2_8}
+            Dim checkedCountDev2 As Integer = 0
+            For i As Integer = 0 To checkboxesDev2.Length - 1
+                checkboxesDev2(i).Checked = My.Settings($"Dev2Prof{i + 1}")
+                If checkboxesDev2(i).Checked Then
+                    checkedCountDev2 += 1
+                End If
+            Next
+            If checkedCountDev2 = 0 Then
+                ' If none of the checkboxes are checked, set ProfDev2_1 to true
+                ProfDev2_1.Checked = True
+            ElseIf checkedCountDev2 > 1 Then
+                ' If more than one checkbox is checked, set ProfDev2_1 to true and the rest to false
+                ProfDev2_1.Checked = True
+                For i As Integer = 1 To checkboxesDev2.Length - 1
+                    checkboxesDev2(i).Checked = False
+                Next
+            End If
 
-        If String.IsNullOrWhiteSpace(TextBoxTextEditor.Text) Then
-            TextBoxTextEditor.Text = "C:\Windows\System32\notepad.exe"
-            My.Settings.data506 = "C:\Windows\System32\notepad.exe"
-            My.Settings.Save()
-        End If
+            ' Load settings per Profile selected
+            If ProfDev2_1.Checked = True Then
+                ProfDev2_1_Click(ProfDev2_1, EventArgs.Empty)
+            End If
+            If ProfDev2_2.Checked = True Then
+                ProfDev2_2_Click(ProfDev2_2, EventArgs.Empty)
+            End If
+            If ProfDev2_3.Checked = True Then
+                ProfDev2_3_Click(ProfDev2_3, EventArgs.Empty)
+            End If
+            If ProfDev2_4.Checked = True Then
+                ProfDev2_4_Click(ProfDev2_4, EventArgs.Empty)
+            End If
+            If ProfDev2_5.Checked = True Then
+                ProfDev2_5_Click(ProfDev2_5, EventArgs.Empty)
+            End If
+            If ProfDev2_6.Checked = True Then
+                ProfDev2_6_Click(ProfDev2_6, EventArgs.Empty)
+            End If
+            If ProfDev2_7.Checked = True Then
+                ProfDev2_7_Click(ProfDev2_7, EventArgs.Empty)
+            End If
+            If ProfDev2_8.Checked = True Then
+                ProfDev2_8_Click(ProfDev2_8, EventArgs.Empty)
+            End If
 
-        If CheckBoxEnableTooltips.Checked = True Then
-            ToolTip1.Active = True
-        Else
-            ToolTip1.Active = False
-        End If
+            ' PDVS2mini
+            TextBox3458Asn.Text = My.Settings.data469       ' 3458A serial number
+            TextBoxUser.Text = My.Settings.data470          ' User/Company
+            TextBoxLOWSHUT.Text = My.Settings.data471
+            TextBoxCENABLE.Text = My.Settings.data472
+            TextBoxOLMA.Text = My.Settings.data473
+            TextBoxFULLMA.Text = My.Settings.data474
+            TextBoxSERIAL.Text = My.Settings.data475
+            TextBoxSOAK.Text = My.Settings.data476
+            TextBoxDC.Text = My.Settings.data477
+            TextBoxCD.Text = My.Settings.data478
+            CalStep.Text = My.Settings.data479
+            CalAccuracy.Text = My.Settings.data480
+            CalStepFinal.Text = My.Settings.data481
+            CalAccuracyFinal.Text = My.Settings.data482
+            PDVS2delay.Text = My.Settings.data483
+            TextBoxSer.Text = ""
+            TextBoxdegC.Text = ""
+            Dev1Units.Text = My.Settings.data500
+            Dev2Units.Text = My.Settings.data501
+            DisableAllButtonsInGroupBox2ExceptPDVS2miniSave()
+            Label229.Enabled = False
+            LabelTemperature3.Enabled = False
+            volts11.Enabled = False
+            ButtonDacSpan10down.Enabled = False
+            ButtonDacSpan10.Enabled = False
+            ButtonDacSpan10Up.Enabled = False
+            LabeldacSpan10Cal.Enabled = False
+            Label150.Enabled = False
+            DacSpan10.Enabled = False
+            LabeldacSpan10Delta.Enabled = False
+            Default11.Enabled = False
+            Label149.Enabled = False
+            WryTech.Checked = My.Settings.data503
 
-        ' Tooltip durations - If enabled
-        ToolTip1.AutoPopDelay = 10000   ' Time in milliseconds tooltip stays visible
-        ToolTip1.InitialDelay = 100     ' Delay before tooltip appears
-        ToolTip1.ReshowDelay = 100      ' Delay before tooltip reappears if user moves away and back
+            'btncreate2.Enabled = True
+            'btncreate3.Enabled = True
 
+            ButtonR6581upload.Enabled = False
+            ButtonR6581commitEEprom.Enabled = False
+
+            ' Settings
+            CheckBoxAllowSaveAnytime.Checked = My.Settings.data505
+            TextBoxTextEditor.Text = My.Settings.data506
+            CheckBoxEnableTooltips.Checked = My.Settings.data507
+
+            If String.IsNullOrWhiteSpace(TextBoxTextEditor.Text) Then
+                TextBoxTextEditor.Text = "C:\Windows\System32\notepad.exe"
+                My.Settings.data506 = "C:\Windows\System32\notepad.exe"
+                My.Settings.Save()
+            End If
+
+            If CheckBoxEnableTooltips.Checked = True Then
+                ToolTip1.Active = True
+            Else
+                ToolTip1.Active = False
+            End If
+
+            ' Tooltip durations - If enabled
+            ToolTip1.AutoPopDelay = 10000   ' Time in milliseconds tooltip stays visible
+            ToolTip1.InitialDelay = 100     ' Delay before tooltip appears
+            ToolTip1.ReshowDelay = 100      ' Delay before tooltip reappears if user moves away and back
+
+        Catch ex As Exception
+            MessageBox.Show($"Error during load: {ex.Message}")
+        End Try
 
     End Sub
 

@@ -1,10 +1,10 @@
 ﻿
 ' Data log, event log, CSV generation and main app chart control
 
-Imports System.IO
-Imports System.IO.File
-Imports System.Threading
-Imports Microsoft.Office.Interop.Word
+'Imports System.IO
+'Imports System.IO.File
+'Imports System.Threading
+'Imports Microsoft.Office.Interop.Word
 
 Partial Class Formtest
 

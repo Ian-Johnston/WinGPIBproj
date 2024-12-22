@@ -1,9 +1,9 @@
 ﻿Imports IODevices
-Imports System.Threading
-Imports System.Runtime.InteropServices
-Imports System.IO
-Imports System
-Imports System.IO.Ports
+'Imports System.Threading
+'Imports System.Runtime.InteropServices
+'Imports System.IO
+'Imports System
+'Imports System.IO.Ports
 
 
 Partial Class Formtest

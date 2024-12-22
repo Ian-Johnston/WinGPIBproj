@@ -6536,7 +6536,7 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("kΩ")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("kohm")>  _
         Public Property data501() As String
             Get
                 Return CType(Me("data501"),String)

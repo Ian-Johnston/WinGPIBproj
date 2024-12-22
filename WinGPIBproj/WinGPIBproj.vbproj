@@ -23,7 +23,8 @@
     </UpgradeBackupLocation>
     <OldToolsVersion>3.5</OldToolsVersion>
     <IsWebBootstrapper>false</IsWebBootstrapper>
-    <PublishUrl>D:\Visual Studio 2015\Projects\PDVS2_GPIB\PDVS2_GPIB\publish_released\</PublishUrl>
+    <TargetFrameworkProfile />
+    <PublishUrl>D:\Visual Studio Projects\Projects\WinGPIBproj\WinGPIBproj\publish_released\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
     <UpdateEnabled>false</UpdateEnabled>
@@ -38,7 +39,6 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -175,12 +175,6 @@
     <Compile Include="OnOffLed.vb">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="SeqCmds.Designer.vb">
-      <DependentUpon>SeqCmds.vb</DependentUpon>
-    </Compile>
-    <Compile Include="SeqCmds.vb">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="Profiles.Designer.vb">
       <DependentUpon>Profiles.vb</DependentUpon>
     </Compile>
@@ -208,7 +202,6 @@
     <Compile Include="Dev1Dev2Run.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Settings.vb" />
     <Compile Include="TempHumidity.vb">
       <SubType>Form</SubType>
     </Compile>

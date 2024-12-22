@@ -1,17 +1,17 @@
 ﻿' Playback chart control
 
-Imports System.Drawing.Printing
-Imports System.IO
-Imports System.IO.File
+'Imports System.Drawing.Printing
+'Imports System.IO
+'Imports System.IO.File
 Imports System.Windows.Forms.DataVisualization.Charting
-Imports System.Drawing
-Imports System.Reflection
-Imports System.Windows.Forms.VisualStyles.VisualStyleElement
+'Imports System.Drawing
+'Imports System.Reflection
+'Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 ' Imports System.Threading
-Imports System
-Imports System.Collections.Generic
-Imports System.Data
-Imports System.Linq
+'Imports System
+'Imports System.Collections.Generic
+'Imports System.Data
+'Imports System.Linq
 
 
 Public Class Chart

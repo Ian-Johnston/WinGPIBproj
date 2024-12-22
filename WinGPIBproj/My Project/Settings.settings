@@ -1627,7 +1627,7 @@ VOLT:DC:NPLC 10</Value>
       <Value Profile="(Default)">Vdc</Value>
     </Setting>
     <Setting Name="data501" Type="System.String" Scope="User">
-      <Value Profile="(Default)">kΩ</Value>
+      <Value Profile="(Default)">kohm</Value>
     </Setting>
     <Setting Name="data502" Type="System.Decimal" Scope="User">
       <Value Profile="(Default)">1000000</Value>

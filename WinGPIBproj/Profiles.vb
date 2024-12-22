@@ -1,10 +1,10 @@
 ﻿Imports System.Configuration
 Imports System.IO
 Imports System.Runtime.Serialization.Formatters.Binary
-Imports System.Threading
-Imports System.Xml.Serialization
-Imports Microsoft.Office.Interop.Word
-Imports System.Collections.Generic
+'Imports System.Threading
+'Imports System.Xml.Serialization
+'Imports Microsoft.Office.Interop.Word
+'Imports System.Collections.Generic
 
 Partial Class Formtest
 

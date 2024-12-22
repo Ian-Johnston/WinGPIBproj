@@ -2,12 +2,12 @@
 ' CalRam Advantest R6581 DMM
 
 Imports IODevices
-Imports System.Threading
-Imports System.Runtime.InteropServices
-Imports System.IO
+'Imports System.Threading
+'Imports System.Runtime.InteropServices
+'Imports System.IO
 Imports Newtonsoft.Json
 Imports System.Text.RegularExpressions
-Imports System.IO.File
+'Imports System.IO.File
 Imports Newtonsoft.Json.Linq
 
 Partial Class Formtest
@@ -62,9 +62,6 @@ Partial Class Formtest
         ButtonJsonViewer2.Enabled = False
 
         TextBoxCalRamFileJson6581Select.Text = ""
-
-
-
 
     End Sub
 
