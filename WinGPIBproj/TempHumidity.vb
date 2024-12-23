@@ -37,14 +37,15 @@ Partial Class Formtest
             Timer9.Start()
 
             REM Check setting
-            If portName = vbNullString Then
-                ThisMoment = Now
-                Return Double.NaN
-            End If
-            If portName.Length = 0 Then
-                ThisMoment = Now
-                Return Double.NaN
-            End If
+            ' portName is not actual used with the MCP2221A / SHT series, this sensor is a USB device using VID/PID
+            'If portName = vbNullString Then
+            'ThisMoment = Now
+            'Return Double.NaN
+            'End If
+            'If portName.Length = 0 Then
+            'ThisMoment = Now
+            'Return Double.NaN
+            'End If
 
             ' Config Serial Port
             If (Me.SerialPort.IsOpen = False) Then

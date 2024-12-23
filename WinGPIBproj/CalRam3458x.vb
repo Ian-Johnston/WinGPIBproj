@@ -32,6 +32,7 @@ Partial Class Formtest
     Dim CalramValue As String = ""
     Dim CalAddrStart As Integer = 393216
     Dim CalAddrEnd As Integer = 397311
+    Dim lineCountCalRam As Integer
 
     '3457A
     Dim Abort3457A As Boolean = False
@@ -105,24 +106,58 @@ Partial Class Formtest
 
             TextBoxCalRamFile.Text = RAMfilename
 
-            CalramStatus.Text = "SETTING UP GPIB"
+
+            CalramStatus.Text = "SETTING UP GPIB: STB Mask, Polling, CalRam Pre-Run"
             System.Threading.Thread.Sleep(500)     ' 500mS delay
             Me.Refresh()
 
-            dev1.SendAsync("NPLC 0", True)         ' NPLC 0
-            CalramStatus.Text = "NPLC 0"
-            System.Threading.Thread.Sleep(250)     ' 250mS delay
-            Me.Refresh()
 
-            dev1.SendAsync("TRIG HOLD", True)      ' TRIG HOLD
-            CalramStatus.Text = "TRIG HOLD"
-            System.Threading.Thread.Sleep(250)     ' 250mS delay
-            Me.Refresh()
+            ' Checkbox options
+            If Dev1PollingEnable.Checked = True Then
+                dev1.enablepoll = True
+            Else
+                dev1.enablepoll = False     'set to FALSE this if a device does not support polling ("poll timeout" is signalled)
+            End If
 
-            dev1.SendAsync("QFORMAT NUM", True)    ' QFORMAT NUM - Query responses will be in number format only, no headers. The 3458A cannot return HEX formatted data.
-            CalramStatus.Text = "QFORMAT NUM"
             System.Threading.Thread.Sleep(250)     ' 250mS delay
-            Me.Refresh()
+
+            If Dev1STBMask.Text = "" Then
+                Dev1STBMask.Text = "16"
+            End If
+            dev1.MAVmask = Val(Dev1STBMask.Text)
+            If Dev1STBMask.Text = "0" Then
+                dev1.enablepoll = False
+                Dev1PollingEnable.Checked = False
+            End If
+
+            System.Threading.Thread.Sleep(250)     ' 250mS delay
+
+            ' Send all lines from command CalRam PRE-RUN text box
+            lineCountCalRam = CalRam3458APreRun.Lines.Count
+            For i = 0 To (lineCountCalRam - 1)
+                If IgnoreErrors1.Checked = False Then
+                    dev1.SendAsync(CalRam3458APreRun.Lines(i), True)
+                Else
+                    dev1.SendAsync(CalRam3458APreRun.Lines(i), False)
+                End If
+                System.Threading.Thread.Sleep(250)     ' 250mS delay
+            Next i
+
+
+            'dev1.SendAsync("NPLC 0", True)         ' NPLC 0
+            'CalramStatus.Text = "NPLC 0"
+            'System.Threading.Thread.Sleep(250)     ' 250mS delay
+            'Me.Refresh()
+
+            'dev1.SendAsync("TRIG HOLD", True)      ' TRIG HOLD
+            'CalramStatus.Text = "TRIG HOLD"
+            'System.Threading.Thread.Sleep(250)     ' 250mS delay
+            'Me.Refresh()
+
+            'dev1.SendAsync("QFORMAT NUM", True)    ' QFORMAT NUM - Query responses will be in number format only, no headers. The 3458A cannot return HEX formatted data.
+            'CalramStatus.Text = "QFORMAT NUM"
+            'System.Threading.Thread.Sleep(250)     ' 250mS delay
+            'Me.Refresh()
 
             txtr1a.Text = ""                       ' Prepare reply as empty
 

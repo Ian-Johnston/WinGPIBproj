@@ -163,7 +163,7 @@ Public Class Formtest
         Try
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V3.251"
+            BannerText1 = "WinGPIB   V3.252"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
             ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -208,20 +208,22 @@ Public Class Formtest
             ResetCSV.Enabled = True
             TempHumLogs.Enabled = False
 
-            lstIntf1.Items.Add("Visa")
+            lstIntf1.Items.Add("VISA")
             lstIntf1.Items.Add("GPIB:ADLink")
             lstIntf1.Items.Add("gpib488.dll")
-            lstIntf1.Items.Add("Com port")
+            lstIntf1.Items.Add("Serial COM port")
             lstIntf1.Items.Add("Prologix Serial")
             lstIntf1.Items.Add("Prologix Ethernet")
+            lstIntf1.Items.Add("NI-GPIB-232CT-A")
             lstIntf1.SelectedIndex = 0
 
-            lstIntf2.Items.Add("Visa")
+            lstIntf2.Items.Add("VISA")
             lstIntf2.Items.Add("GPIB:ADLink")
             lstIntf2.Items.Add("gpib488.dll")
-            lstIntf2.Items.Add("Com port")
+            lstIntf2.Items.Add("Serial COM port")
             lstIntf2.Items.Add("Prologix Serial")
             lstIntf2.Items.Add("Prologix Ethernet")
+            lstIntf2.Items.Add("NI-GPIB-232CT-A")
             lstIntf2.SelectedIndex = 0
 
             ' Temp/Hum sensor
@@ -798,6 +800,7 @@ Public Class Formtest
                 Case 3 : dev = New SerialDevice(name, address)
                 Case 4 : dev = New PrologixDeviceSerial(name, address)
                 Case 5 : dev = New PrologixDeviceEthernet(name, address)
+                Case 6 : dev = New GPIB_NI_232CT_A(name, address)
                 Case Else : Return Nothing
             End Select
 

@@ -168,6 +168,7 @@ Partial Class Formtest
         Me.ButtonJsonViewer2 = New System.Windows.Forms.Button()
         Me.btnRestore = New System.Windows.Forms.Button()
         Me.btnBackup = New System.Windows.Forms.Button()
+        Me.CalRam3458APreRun = New System.Windows.Forms.TextBox()
         Me.CheckBoxR6581RetrieveREF = New System.Windows.Forms.CheckBox()
         Me.SerialPort1 = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer6 = New System.Windows.Forms.Timer(Me.components)
@@ -334,6 +335,8 @@ Partial Class Formtest
         Me.Label215 = New System.Windows.Forms.Label()
         Me.Label214 = New System.Windows.Forms.Label()
         Me.Label213 = New System.Windows.Forms.Label()
+        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.Label212 = New System.Windows.Forms.Label()
         Me.Label211 = New System.Windows.Forms.Label()
         Me.Label210 = New System.Windows.Forms.Label()
@@ -469,6 +472,8 @@ Partial Class Formtest
         Me.Label60 = New System.Windows.Forms.Label()
         Me.Label38 = New System.Windows.Forms.Label()
         Me.GroupBox6 = New System.Windows.Forms.GroupBox()
+        Me.Label318 = New System.Windows.Forms.Label()
+        Me.Label315 = New System.Windows.Forms.Label()
         Me.Label276 = New System.Windows.Forms.Label()
         Me.LabelCalRamAddressHex = New System.Windows.Forms.Label()
         Me.TextBoxCalRamFile2 = New System.Windows.Forms.TextBox()
@@ -593,6 +598,7 @@ Partial Class Formtest
         Me.Label269 = New System.Windows.Forms.Label()
         Me.PictureBox9 = New System.Windows.Forms.PictureBox()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
+        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.Label145 = New System.Windows.Forms.Label()
         Me.Label79 = New System.Windows.Forms.Label()
         Me.Label81 = New System.Windows.Forms.Label()
@@ -848,6 +854,7 @@ Partial Class Formtest
         Me.CalAccuracyFinal = New System.Windows.Forms.TextBox()
         Me.Label117 = New System.Windows.Forms.Label()
         Me.Label121 = New System.Windows.Forms.Label()
+        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage13 = New System.Windows.Forms.TabPage()
         Me.GroupBox11 = New System.Windows.Forms.GroupBox()
         Me.Label314 = New System.Windows.Forms.Label()
@@ -862,6 +869,7 @@ Partial Class Formtest
         Me.CheckBoxAllowSaveAnytime = New System.Windows.Forms.CheckBox()
         Me.Label6 = New System.Windows.Forms.Label()
         Me.TabPage6 = New System.Windows.Forms.TabPage()
+        Me.Label316 = New System.Windows.Forms.Label()
         Me.Label240 = New System.Windows.Forms.Label()
         Me.Label65 = New System.Windows.Forms.Label()
         Me.Label22 = New System.Windows.Forms.Label()
@@ -885,10 +893,6 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
-        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.Panel2.SuspendLayout
@@ -2399,6 +2403,19 @@ Partial Class Formtest
         Me.btnBackup.Text = "Export Profiles"
         Me.ToolTip1.SetToolTip(Me.btnBackup, "Export profiles & settings data to ProfilesData.dat")
         Me.btnBackup.UseVisualStyleBackColor = True
+        '
+        'CalRam3458APreRun
+        '
+        Me.CalRam3458APreRun.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.CalRam3458APreRun.Location = New System.Drawing.Point(229, 162)
+        Me.CalRam3458APreRun.Multiline = True
+        Me.CalRam3458APreRun.Name = "CalRam3458APreRun"
+        Me.CalRam3458APreRun.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
+        Me.CalRam3458APreRun.Size = New System.Drawing.Size(197, 71)
+        Me.CalRam3458APreRun.TabIndex = 600
+        Me.CalRam3458APreRun.Text = "END ALWAYS" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "NPLC 0" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "NRDGS 1" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "TRIG HOLD" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "QFORMAT NUM"
+        Me.ToolTip1.SetToolTip(Me.CalRam3458APreRun, "These batch commands are sent when 3458A READ is" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "pressed and are Send Asynchrono" &
+        "us type commands" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "i.e. expect no reply.")
         '
         'CheckBoxR6581RetrieveREF
         '
@@ -4229,6 +4246,26 @@ Partial Class Formtest
         Me.Label213.TabIndex = 537
         Me.Label213.Text = "Tx"
         '
+        'OnOffLed2
+        '
+        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
+        Me.OnOffLed2.Name = "OnOffLed2"
+        Me.OnOffLed2.OffText = Nothing
+        Me.OnOffLed2.OnText = Nothing
+        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed2.TabIndex = 536
+        '
+        'OnOffLed1
+        '
+        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
+        Me.OnOffLed1.Name = "OnOffLed1"
+        Me.OnOffLed1.OffText = Nothing
+        Me.OnOffLed1.OnText = Nothing
+        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed1.TabIndex = 535
+        '
         'Label212
         '
         Me.Label212.AutoSize = True
@@ -4458,9 +4495,9 @@ Partial Class Formtest
         Me.Label186.AutoSize = True
         Me.Label186.Location = New System.Drawing.Point(743, 145)
         Me.Label186.Name = "Label186"
-        Me.Label186.Size = New System.Drawing.Size(169, 13)
+        Me.Label186.Size = New System.Drawing.Size(235, 13)
         Me.Label186.TabIndex = 494
-        Me.Label186.Text = "Adafruit MCP2221A/SHT40,41,45"
+        Me.Label186.Text = "Adafruit MCP2221A/SHT40,41,45 (USB device)"
         '
         'Label185
         '
@@ -5572,7 +5609,7 @@ Partial Class Formtest
         '
         'TextBoxCalRamFile
         '
-        Me.TextBoxCalRamFile.Location = New System.Drawing.Point(20, 227)
+        Me.TextBoxCalRamFile.Location = New System.Drawing.Point(20, 243)
         Me.TextBoxCalRamFile.Name = "TextBoxCalRamFile"
         Me.TextBoxCalRamFile.ReadOnly = True
         Me.TextBoxCalRamFile.Size = New System.Drawing.Size(701, 20)
@@ -5581,7 +5618,7 @@ Partial Class Formtest
         'Label62
         '
         Me.Label62.AutoSize = True
-        Me.Label62.Location = New System.Drawing.Point(19, 209)
+        Me.Label62.Location = New System.Drawing.Point(19, 225)
         Me.Label62.Name = "Label62"
         Me.Label62.Size = New System.Drawing.Size(93, 13)
         Me.Label62.TabIndex = 555
@@ -5617,6 +5654,9 @@ Partial Class Formtest
         '
         'GroupBox6
         '
+        Me.GroupBox6.Controls.Add(Me.Label318)
+        Me.GroupBox6.Controls.Add(Me.Label315)
+        Me.GroupBox6.Controls.Add(Me.CalRam3458APreRun)
         Me.GroupBox6.Controls.Add(Me.Label276)
         Me.GroupBox6.Controls.Add(Me.LabelCalRamAddressHex)
         Me.GroupBox6.Controls.Add(Me.TextBoxCalRamFile2)
@@ -5643,9 +5683,28 @@ Partial Class Formtest
         Me.GroupBox6.Enabled = False
         Me.GroupBox6.Location = New System.Drawing.Point(8, 4)
         Me.GroupBox6.Name = "GroupBox6"
-        Me.GroupBox6.Size = New System.Drawing.Size(913, 290)
+        Me.GroupBox6.Size = New System.Drawing.Size(913, 307)
         Me.GroupBox6.TabIndex = 588
         Me.GroupBox6.TabStop = False
+        '
+        'Label318
+        '
+        Me.Label318.AutoSize = True
+        Me.Label318.Location = New System.Drawing.Point(676, 113)
+        Me.Label318.Name = "Label318"
+        Me.Label318.Size = New System.Drawing.Size(209, 52)
+        Me.Label318.TabIndex = 602
+        Me.Label318.Text = "On '3458A READ' the Device 1 STB Mask" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "&& Polling checkbox are set && Pre-Run" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Co" &
+    "mmands sent before CalRam is pulled" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "from the 3458A."
+        '
+        'Label315
+        '
+        Me.Label315.AutoSize = True
+        Me.Label315.Location = New System.Drawing.Point(227, 146)
+        Me.Label315.Name = "Label315"
+        Me.Label315.Size = New System.Drawing.Size(104, 13)
+        Me.Label315.TabIndex = 601
+        Me.Label315.Text = "Pre-Run Commands:"
         '
         'Label276
         '
@@ -5662,7 +5721,7 @@ Partial Class Formtest
         '
         Me.LabelCalRamAddressHex.AutoSize = True
         Me.LabelCalRamAddressHex.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelCalRamAddressHex.Location = New System.Drawing.Point(570, 179)
+        Me.LabelCalRamAddressHex.Location = New System.Drawing.Point(570, 216)
         Me.LabelCalRamAddressHex.Name = "LabelCalRamAddressHex"
         Me.LabelCalRamAddressHex.Size = New System.Drawing.Size(49, 13)
         Me.LabelCalRamAddressHex.TabIndex = 598
@@ -5670,7 +5729,7 @@ Partial Class Formtest
         '
         'TextBoxCalRamFile2
         '
-        Me.TextBoxCalRamFile2.Location = New System.Drawing.Point(12, 245)
+        Me.TextBoxCalRamFile2.Location = New System.Drawing.Point(12, 261)
         Me.TextBoxCalRamFile2.Name = "TextBoxCalRamFile2"
         Me.TextBoxCalRamFile2.ReadOnly = True
         Me.TextBoxCalRamFile2.Size = New System.Drawing.Size(701, 20)
@@ -5710,7 +5769,7 @@ Partial Class Formtest
         'Label141
         '
         Me.Label141.AutoSize = True
-        Me.Label141.Location = New System.Drawing.Point(676, 96)
+        Me.Label141.Location = New System.Drawing.Point(676, 91)
         Me.Label141.Name = "Label141"
         Me.Label141.Size = New System.Drawing.Size(151, 13)
         Me.Label141.TabIndex = 597
@@ -5719,7 +5778,7 @@ Partial Class Formtest
         'Label140
         '
         Me.Label140.AutoSize = True
-        Me.Label140.Location = New System.Drawing.Point(676, 58)
+        Me.Label140.Location = New System.Drawing.Point(676, 55)
         Me.Label140.Name = "Label140"
         Me.Label140.Size = New System.Drawing.Size(112, 13)
         Me.Label140.TabIndex = 596
@@ -5728,7 +5787,7 @@ Partial Class Formtest
         'Label139
         '
         Me.Label139.AutoSize = True
-        Me.Label139.Location = New System.Drawing.Point(676, 81)
+        Me.Label139.Location = New System.Drawing.Point(676, 76)
         Me.Label139.Name = "Label139"
         Me.Label139.Size = New System.Drawing.Size(223, 13)
         Me.Label139.TabIndex = 595
@@ -5737,7 +5796,7 @@ Partial Class Formtest
         'Label138
         '
         Me.Label138.AutoSize = True
-        Me.Label138.Location = New System.Drawing.Point(676, 42)
+        Me.Label138.Location = New System.Drawing.Point(676, 39)
         Me.Label138.Name = "Label138"
         Me.Label138.Size = New System.Drawing.Size(195, 13)
         Me.Label138.TabIndex = 594
@@ -5778,7 +5837,7 @@ Partial Class Formtest
         '
         Me.LabelCounter.AutoSize = True
         Me.LabelCounter.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelCounter.Location = New System.Drawing.Point(570, 160)
+        Me.LabelCounter.Location = New System.Drawing.Point(570, 197)
         Me.LabelCounter.Name = "LabelCounter"
         Me.LabelCounter.Size = New System.Drawing.Size(13, 13)
         Me.LabelCounter.TabIndex = 564
@@ -5796,7 +5855,7 @@ Partial Class Formtest
         'Label103
         '
         Me.Label103.AutoSize = True
-        Me.Label103.Location = New System.Drawing.Point(469, 160)
+        Me.Label103.Location = New System.Drawing.Point(469, 197)
         Me.Label103.Name = "Label103"
         Me.Label103.Size = New System.Drawing.Size(71, 13)
         Me.Label103.TabIndex = 563
@@ -5807,7 +5866,7 @@ Partial Class Formtest
         Me.Label68.AutoSize = True
         Me.Label68.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label68.ForeColor = System.Drawing.Color.Red
-        Me.Label68.Location = New System.Drawing.Point(3, 270)
+        Me.Label68.Location = New System.Drawing.Point(3, 286)
         Me.Label68.Name = "Label68"
         Me.Label68.Size = New System.Drawing.Size(296, 16)
         Me.Label68.TabIndex = 565
@@ -5817,7 +5876,7 @@ Partial Class Formtest
         '
         Me.LabelCalRamAddress.AutoSize = True
         Me.LabelCalRamAddress.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelCalRamAddress.Location = New System.Drawing.Point(644, 179)
+        Me.LabelCalRamAddress.Location = New System.Drawing.Point(644, 216)
         Me.LabelCalRamAddress.Name = "LabelCalRamAddress"
         Me.LabelCalRamAddress.Size = New System.Drawing.Size(49, 13)
         Me.LabelCalRamAddress.TabIndex = 562
@@ -5827,7 +5886,7 @@ Partial Class Formtest
         'LabelByte
         '
         Me.LabelByte.AutoSize = True
-        Me.LabelByte.Location = New System.Drawing.Point(469, 199)
+        Me.LabelByte.Location = New System.Drawing.Point(746, 213)
         Me.LabelByte.Name = "LabelByte"
         Me.LabelByte.Size = New System.Drawing.Size(42, 13)
         Me.LabelByte.TabIndex = 559
@@ -5837,7 +5896,7 @@ Partial Class Formtest
         'Label102
         '
         Me.Label102.AutoSize = True
-        Me.Label102.Location = New System.Drawing.Point(469, 179)
+        Me.Label102.Location = New System.Drawing.Point(469, 216)
         Me.Label102.Name = "Label102"
         Me.Label102.Size = New System.Drawing.Size(48, 13)
         Me.Label102.TabIndex = 561
@@ -5846,7 +5905,7 @@ Partial Class Formtest
         'Label61
         '
         Me.Label61.AutoSize = True
-        Me.Label61.Location = New System.Drawing.Point(469, 140)
+        Me.Label61.Location = New System.Drawing.Point(469, 177)
         Me.Label61.Name = "Label61"
         Me.Label61.Size = New System.Drawing.Size(40, 13)
         Me.Label61.TabIndex = 548
@@ -5856,7 +5915,7 @@ Partial Class Formtest
         '
         Me.LabelCalRamByte.AutoSize = True
         Me.LabelCalRamByte.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelCalRamByte.Location = New System.Drawing.Point(570, 199)
+        Me.LabelCalRamByte.Location = New System.Drawing.Point(847, 213)
         Me.LabelCalRamByte.Name = "LabelCalRamByte"
         Me.LabelCalRamByte.Size = New System.Drawing.Size(35, 13)
         Me.LabelCalRamByte.TabIndex = 560
@@ -5867,7 +5926,7 @@ Partial Class Formtest
         '
         Me.CalramStatus.AutoSize = True
         Me.CalramStatus.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CalramStatus.Location = New System.Drawing.Point(570, 140)
+        Me.CalramStatus.Location = New System.Drawing.Point(570, 177)
         Me.CalramStatus.Name = "CalramStatus"
         Me.CalramStatus.Size = New System.Drawing.Size(14, 13)
         Me.CalramStatus.TabIndex = 551
@@ -5917,7 +5976,7 @@ Partial Class Formtest
         'Label148
         '
         Me.Label148.AutoSize = True
-        Me.Label148.Location = New System.Drawing.Point(677, 76)
+        Me.Label148.Location = New System.Drawing.Point(677, 74)
         Me.Label148.Name = "Label148"
         Me.Label148.Size = New System.Drawing.Size(170, 13)
         Me.Label148.TabIndex = 604
@@ -5960,7 +6019,7 @@ Partial Class Formtest
         'Label142
         '
         Me.Label142.AutoSize = True
-        Me.Label142.Location = New System.Drawing.Point(677, 58)
+        Me.Label142.Location = New System.Drawing.Point(677, 56)
         Me.Label142.Name = "Label142"
         Me.Label142.Size = New System.Drawing.Size(235, 13)
         Me.Label142.TabIndex = 600
@@ -5980,7 +6039,7 @@ Partial Class Formtest
         'Label143
         '
         Me.Label143.AutoSize = True
-        Me.Label143.Location = New System.Drawing.Point(676, 42)
+        Me.Label143.Location = New System.Drawing.Point(676, 40)
         Me.Label143.Name = "Label143"
         Me.Label143.Size = New System.Drawing.Size(218, 13)
         Me.Label143.TabIndex = 599
@@ -7055,6 +7114,16 @@ Partial Class Formtest
         Me.TabPage5.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "PDVS2mini  "
+        '
+        'OnOffLed4
+        '
+        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
+        Me.OnOffLed4.Name = "OnOffLed4"
+        Me.OnOffLed4.OffText = Nothing
+        Me.OnOffLed4.OnText = Nothing
+        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed4.TabIndex = 797
         '
         'Label145
         '
@@ -9881,6 +9950,16 @@ Partial Class Formtest
         Me.Label121.TabIndex = 554
         Me.Label121.Text = "Comms Delay (mS)"
         '
+        'OnOffLed3
+        '
+        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
+        Me.OnOffLed3.Name = "OnOffLed3"
+        Me.OnOffLed3.OffText = Nothing
+        Me.OnOffLed3.OnText = Nothing
+        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed3.TabIndex = 796
+        '
         'TabPage13
         '
         Me.TabPage13.BackColor = System.Drawing.Color.WhiteSmoke
@@ -10018,6 +10097,7 @@ Partial Class Formtest
         'TabPage6
         '
         Me.TabPage6.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.TabPage6.Controls.Add(Me.Label316)
         Me.TabPage6.Controls.Add(Me.Label240)
         Me.TabPage6.Controls.Add(Me.Label65)
         Me.TabPage6.Controls.Add(Me.Label22)
@@ -10042,11 +10122,21 @@ Partial Class Formtest
         Me.TabPage6.TabIndex = 5
         Me.TabPage6.Text = "About  "
         '
+        'Label316
+        '
+        Me.Label316.AutoSize = True
+        Me.Label316.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label316.Location = New System.Drawing.Point(36, 121)
+        Me.Label316.Name = "Label316"
+        Me.Label316.Size = New System.Drawing.Size(418, 16)
+        Me.Label316.TabIndex = 572
+        Me.Label316.Text = "NI-GPIB-232CT-A Serial device library mods by Florian Diederichsen."
+        '
         'Label240
         '
         Me.Label240.AutoSize = True
         Me.Label240.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label240.Location = New System.Drawing.Point(36, 180)
+        Me.Label240.Location = New System.Drawing.Point(36, 191)
         Me.Label240.Name = "Label240"
         Me.Label240.Size = New System.Drawing.Size(660, 48)
         Me.Label240.TabIndex = 570
@@ -10086,7 +10176,7 @@ Partial Class Formtest
         '
         Me.Label234.AutoSize = True
         Me.Label234.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label234.Location = New System.Drawing.Point(36, 139)
+        Me.Label234.Location = New System.Drawing.Point(36, 157)
         Me.Label234.Name = "Label234"
         Me.Label234.Size = New System.Drawing.Size(224, 16)
         Me.Label234.TabIndex = 567
@@ -10233,46 +10323,6 @@ Partial Class Formtest
         'Timer14
         '
         Me.Timer14.Interval = 50
-        '
-        'OnOffLed2
-        '
-        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
-        Me.OnOffLed2.Name = "OnOffLed2"
-        Me.OnOffLed2.OffText = Nothing
-        Me.OnOffLed2.OnText = Nothing
-        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed2.TabIndex = 536
-        '
-        'OnOffLed1
-        '
-        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
-        Me.OnOffLed1.Name = "OnOffLed1"
-        Me.OnOffLed1.OffText = Nothing
-        Me.OnOffLed1.OnText = Nothing
-        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed1.TabIndex = 535
-        '
-        'OnOffLed4
-        '
-        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
-        Me.OnOffLed4.Name = "OnOffLed4"
-        Me.OnOffLed4.OffText = Nothing
-        Me.OnOffLed4.OnText = Nothing
-        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed4.TabIndex = 797
-        '
-        'OnOffLed3
-        '
-        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
-        Me.OnOffLed3.Name = "OnOffLed3"
-        Me.OnOffLed3.OffText = Nothing
-        Me.OnOffLed3.OnText = Nothing
-        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed3.TabIndex = 796
         '
         'Formtest
         '
@@ -11213,4 +11263,8 @@ Partial Class Formtest
     Friend WithEvents Label307 As Label
     Friend WithEvents btnRestore As Button
     Friend WithEvents btnBackup As Button
+    Friend WithEvents Label316 As Label
+    Friend WithEvents CalRam3458APreRun As TextBox
+    Friend WithEvents Label315 As Label
+    Friend WithEvents Label318 As Label
 End Class
