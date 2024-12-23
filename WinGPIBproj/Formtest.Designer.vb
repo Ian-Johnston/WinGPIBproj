@@ -5692,10 +5692,10 @@ Partial Class Formtest
         Me.Label318.AutoSize = True
         Me.Label318.Location = New System.Drawing.Point(676, 113)
         Me.Label318.Name = "Label318"
-        Me.Label318.Size = New System.Drawing.Size(209, 52)
+        Me.Label318.Size = New System.Drawing.Size(221, 52)
         Me.Label318.TabIndex = 602
-        Me.Label318.Text = "On '3458A READ' the Device 1 STB Mask" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "&& Polling checkbox are set && Pre-Run" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Co" &
-    "mmands sent before data is pulled from" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "the 3458A."
+        Me.Label318.Text = "On '3458A READ' the Device 1 STB Mask" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "&& Polling checkbox are configured && Pre-" &
+    "Run" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Commands sent before data is pulled from the" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "3458A."
         '
         'Label315
         '
