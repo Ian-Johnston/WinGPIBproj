@@ -223,8 +223,8 @@ Partial Class Formtest
             fs.Close()
 
             ' QFORMAT NORM, TRIG AUTO - set back to 3458A defaults
-            dev1.SendAsync("QFORMAT NORM", True)
-            dev1.SendAsync("TRIG AUTO", True)
+            'dev1.SendAsync("QFORMAT NORM", True)
+            'dev1.SendAsync("TRIG AUTO", True)
 
             ' Abort display update
             If Abort3458A = True Then
