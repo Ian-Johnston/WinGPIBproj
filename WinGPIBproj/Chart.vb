@@ -2268,13 +2268,10 @@ Public Class Chart
     ' Manually adjust Y value - max down
     Private Sub ButtonYmaxDec_Click(sender As Object, e As EventArgs) Handles ButtonYmaxDec.Click
         Ymin = YaxisMinimum.Text
-        'Ymin = Ymin + 0.00000000001
         Ymin += 0.00000000001
         Ymax = YaxisMaximum.Text
-        'Ymax = Ymax - ((Ymax - Ymin) / 10)  ' shift by a tenth
         Ymax -= (Ymax - Ymin) / 10  ' shift by a tenth
         If (Ymin < 0) Then
-            'Ymin = Ymin + 0.0000001         ' was  Ymin = Ymin = 0.0000001 which is wrong
             Ymin = 0.0000001
         End If
         If (Ymin < Ymax And Ymin >= 0) Then
@@ -2300,13 +2297,11 @@ Public Class Chart
     ' Manually adjust Y value - max up
     Private Sub ButtonYmaxInc_Click(sender As Object, e As EventArgs) Handles ButtonYmaxInc.Click
         Ymin = YaxisMinimum.Text
-        'Ymin = Ymin + 0.00000000001
         Ymin += 0.00000000001
         Ymax = YaxisMaximum.Text
-        'Ymax = Ymax + ((Ymax - Ymin) / 10)  ' shift by a tenth
-        Ymax -= (Ymax - Ymin) / 10  ' shift by a tenth
+        Ymax += (Ymax - Ymin) / 10  ' shift by a tenth
+
         If (Ymin < 0) Then
-            'Ymin = Ymin + 0.0000001         ' was  Ymin = Ymin = 0.0000001 which is wrong
             Ymin = 0.0000001
         End If
         If (Ymin < Ymax And Ymin >= 0) Then
@@ -2336,6 +2331,7 @@ Public Class Chart
         Ymax = YaxisMaximum.Text
         'Ymin = Ymin - ((Ymax - Ymin) / 10)  ' shift by a tenth
         Ymin -= (Ymax - Ymin) / 10  ' shift by a tenth
+
         If (Ymin < 0) Then
             Ymin = 0.0000001
         End If
