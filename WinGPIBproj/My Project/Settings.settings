@@ -1647,5 +1647,12 @@ VOLT:DC:NPLC 10</Value>
     <Setting Name="data507" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="data508" Type="System.String" Scope="User">
+      <Value Profile="(Default)">END ALWAYS
+NPLC 0
+NRDGS 1
+TRIG HOLD
+QFORMAT NUM</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

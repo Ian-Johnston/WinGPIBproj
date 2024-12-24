@@ -17,6 +17,14 @@ Partial Class Formtest
     Dim ProfDev2checked_3 As Boolean = False
     Dim TextEditorPath As String
 
+    ' 3458A Cal Pre-Run
+    Private Sub BtnSave3458A_Click(sender As Object, e As EventArgs) Handles BtnSave3458A.Click
+
+        My.Settings.data508 = CalRam3458APreRun.Text
+        My.Settings.Save()
+
+    End Sub
+
     ' Settings page
     Private Sub CheckBoxAllowSaveAnytime_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxAllowSaveAnytime.CheckedChanged
 

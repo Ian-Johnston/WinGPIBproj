@@ -163,7 +163,7 @@ Public Class Formtest
         Try
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V3.253"
+            BannerText1 = "WinGPIB   V3.254"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
             ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -729,6 +729,9 @@ Public Class Formtest
             CheckBoxAllowSaveAnytime.Checked = My.Settings.data505
             TextBoxTextEditor.Text = My.Settings.data506
             CheckBoxEnableTooltips.Checked = My.Settings.data507
+
+            '3458A CalRam
+            CalRam3458APreRun.Text = My.Settings.data508
 
             If String.IsNullOrWhiteSpace(TextBoxTextEditor.Text) Then
                 TextBoxTextEditor.Text = "C:\Windows\System32\notepad.exe"

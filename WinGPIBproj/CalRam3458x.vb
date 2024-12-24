@@ -163,64 +163,57 @@ Partial Class Formtest
 
             ' Retrieve the data
 
-            For CalAddr As Integer = CalAddrStart To CalAddrEnd Step Stepsize      ' Stepsize 2 enables reading of a 16bit word
+            For CalAddr As Integer = CalAddrStart To CalAddrEnd Step Stepsize
 
-                If Abort3458A = True Then
-                    Exit For
-                End If
+                If Abort3458A Then Exit For
 
+                ' Update status
                 CalramStatus.Text = "READING 2048 BYTES (1024 16bit)"
 
-                ' Send MREAD command with address and wait for reply
+                ' Send MREAD command and process reply
                 Dim q As IOQuery = Nothing
                 dev1.QueryBlocking("MREAD " & CalAddr, q, False)
-                Cbdev1(q)   ' Process reply which stores value in txtr1a.Text (see Formtest.vb)
+                Cbdev1(q)
 
-                ' Got reply, store it in array
-                CalramStore(Counter) = Hex(Val(txtr1a.Text))
+                ' Store reply as hexadecimal and pad to 4 characters
+                Dim hexValue As String = Hex(Val(txtr1a.Text)).PadLeft(4, "0"c)
 
-                If (Len(CalramStore(Counter)) > 4) Then     ' originally a negative number i.e. FFFFE3B9 so need to strip FFFF of beginning
-                    CalramStore(Counter) = CalramStore(Counter).Remove(0, 4)  ' remove first 4 characters if 5 or more bytes long
+                ' Strip first 4 characters if the value is longer
+                If hexValue.Length > 4 Then
+                    hexValue = hexValue.Substring(hexValue.Length - 4, 4)
                 End If
 
-                If (Len(CalramStore(Counter)) = 3) Then     ' FB9 should be 0FB9 so need to add a 0 to beginning
-                    CalramStore(Counter) = "0" & CalramStore(Counter)
-                End If
+                ' Extract high byte and ensure it's valid
+                Dim highByte As String = hexValue.Substring(0, 2)
 
-                If (Len(CalramStore(Counter)) = 2) Then     ' B9 should be 00B9 so need to add a 00 to beginning
-                    CalramStore(Counter) = "00" & CalramStore(Counter)
-                End If
+                ' Write high byte to binary file
+                fs.WriteByte(Convert.ToByte(highByte, 16))
 
-                If (Len(CalramStore(Counter)) = 1) Then     ' B should be 000B so need to add a 000 to beginning
-                    CalramStore(Counter) = "000" & CalramStore(Counter)
-                End If
-
-                ' Calram - Strip off the last two characters
-                If (Len(CalramStore(Counter)) = 4) Then     ' E3B9 so need to strip of 2nd hex number
-                    CalramStore(Counter) = CalramStore(Counter).Remove(2, 2)  ' remove last two characters, i.e. strip low byte
-                End If
-
-                ' Write to binary file
-                fs.WriteByte(Convert.ToByte(CalramStore(Counter), 16))
+                ' Store value in array
+                CalramStore(Counter) = highByte
 
                 ' Update display
-                LabelCalRamAddress.Text = CalAddr
-                LabelCalRamAddressHex.Text = String.Join(",", LabelCalRamAddress.Text.Split(","c).        ' Hex conversion
-                              Select(Function(x) _
-                              Convert.ToInt32(x).ToString("X")))
+                LabelCalRamAddress.Text = CalAddr.ToString()
+                LabelCalRamAddressHex.Text = Convert.ToInt32(CalAddr).ToString("X")
+                LabelCalRamByte.Text = highByte
+                CalramStatus.Text = $"{CalAddr} = {Val(txtr1a.Text)}"
+                LabelCounter.Text = Counter.ToString()
 
-                LabelCalRamByte.Text = Calrambytefordisplay
-
-                CalramStatus.Text = CalAddr & "=" & Int(Val(txtr1a.Text))     ' display
-                Counter = Counter + 1   ' prepare for next loop
-                Counter2 = Counter2 + 2   ' prepare for next loop
-
-                LabelCounter.Text = Counter
+                ' Increment counters
+                Counter += 1
+                Counter2 += 2
 
             Next
 
             ' Close file
             fs.Close()
+
+            ' Tidy up
+
+            LabelCounter.Text = "2048"                  ' fudged
+            LabelCalRamAddressHex.Text = "60FFF"        ' fudged
+            txtr1a.Text = ""
+            txtr1a_disp.Text = ""
 
 
             ' QFORMAT NORM, TRIG AUTO - set back to 3458A defaults

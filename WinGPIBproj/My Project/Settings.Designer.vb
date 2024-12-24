@@ -6617,6 +6617,18 @@ Namespace My
                 Me("data507") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("END ALWAYS"&Global.Microsoft.VisualBasic.ChrW(13)&Global.Microsoft.VisualBasic.ChrW(10)&"NPLC 0"&Global.Microsoft.VisualBasic.ChrW(13)&Global.Microsoft.VisualBasic.ChrW(10)&"NRDGS 1"&Global.Microsoft.VisualBasic.ChrW(13)&Global.Microsoft.VisualBasic.ChrW(10)&"TRIG HOLD"&Global.Microsoft.VisualBasic.ChrW(13)&Global.Microsoft.VisualBasic.ChrW(10)&"QFORMAT NUM")>  _
+        Public Property data508() As String
+            Get
+                Return CType(Me("data508"),String)
+            End Get
+            Set
+                Me("data508") = value
+            End Set
+        End Property
     End Class
 End Namespace
 
