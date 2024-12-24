@@ -194,7 +194,7 @@ Partial Class Formtest
 
                 ' Update display
                 LabelCalRamAddress.Text = CalAddr.ToString()
-                LabelCalRamAddressHex.Text = Convert.ToInt32(CalAddr).ToString("X")
+                LabelCalRamAddressHex.Text = Convert.ToInt32(CalAddr).ToString("X") & "  (TARGET = 60FFF)"
                 LabelCalRamByte.Text = highByte
                 CalramStatus.Text = $"{CalAddr} = {Val(txtr1a.Text)}"
                 LabelCounter.Text = Counter.ToString()
@@ -209,7 +209,6 @@ Partial Class Formtest
             fs.Close()
 
             ' Tidy up
-
             LabelCounter.Text = "2048"                  ' fudged
             LabelCalRamAddressHex.Text = "60FFF"        ' fudged
             txtr1a.Text = ""
@@ -279,86 +278,88 @@ Partial Class Formtest
             TextBoxCalRamFile.Text = RAMfilename    ' L
             TextBoxCalRamFile2.Text = RAMfilename2  ' U
 
-            CalramStatus.Text = "SETTING UP GPIB"
+            CalramStatus.Text = "SETTING UP GPIB: STB Mask, Polling, Settings Pre-Run"
             System.Threading.Thread.Sleep(500)     ' 500mS delay
             Me.Refresh()
 
-            dev1.SendAsync("NPLC 0", True)         ' NPLC 0
-            CalramStatus.Text = "NPLC 0"
-            System.Threading.Thread.Sleep(250)     ' 250mS delay
-            Me.Refresh()
+            ' Checkbox options
+            If Dev1PollingEnable.Checked = True Then
+                dev1.enablepoll = True
+            Else
+                dev1.enablepoll = False     'set to FALSE this if a device does not support polling ("poll timeout" is signalled)
+            End If
 
-            dev1.SendAsync("TRIG HOLD", True)      ' TRIG HOLD
-            CalramStatus.Text = "TRIG HOLD"
             System.Threading.Thread.Sleep(250)     ' 250mS delay
-            Me.Refresh()
 
-            dev1.SendAsync("QFORMAT NUM", True)    ' QFORMAT NUM - Query responses will be in number format only, no headers. The 3458A cannot return HEX formatted data.
-            CalramStatus.Text = "QFORMAT NUM"
+            If Dev1STBMask.Text = "" Then
+                Dev1STBMask.Text = "16"
+            End If
+            dev1.MAVmask = Val(Dev1STBMask.Text)
+            If Dev1STBMask.Text = "0" Then
+                dev1.enablepoll = False
+                Dev1PollingEnable.Checked = False
+            End If
+
             System.Threading.Thread.Sleep(250)     ' 250mS delay
-            Me.Refresh()
+
+            ' Send all lines from command CalRam PRE-RUN text box
+            lineCountCalRam = CalRam3458APreRun.Lines.Count
+            For i = 0 To (lineCountCalRam - 1)
+                If IgnoreErrors1.Checked = False Then
+                    dev1.SendAsync(CalRam3458APreRun.Lines(i), True)
+                Else
+                    dev1.SendAsync(CalRam3458APreRun.Lines(i), False)
+                End If
+                System.Threading.Thread.Sleep(250)     ' 250mS delay
+            Next i
 
             txtr1a.Text = ""                       ' Prepare reply as empty
 
 
             ' Retrieve the data
-            For CalAddr As Integer = CalAddrStart To CalAddrEnd Step Stepsize      ' Stepsize 2 enables reading of a 16bit word
+            For CalAddr As Integer = CalAddrStart To CalAddrEnd Step Stepsize
 
-                If Abort3458A = True Then
-                    Exit For
-                End If
+                If Abort3458A Then Exit For
 
-                CalramStatus.Text = "READING 2 LOTS 32768 BYTES (2 LOTS 16384 16bit)"
+                CalramStatus.Text = "READING 2 LOTS 32768 BYTES (2 LOTS 16384 16-bit)"
 
-                ' Send MREAD command with address and wait for reply
+                ' Send MREAD command and process reply
                 Dim q As IOQuery = Nothing
                 dev1.QueryBlocking("MREAD " & CalAddr, q, False)
-                Cbdev1(q)   ' Process reply which stores value in txtr1a.Text (see Formtest.vb)
+                Cbdev1(q)
 
-                ' Got reply, store it in array
-                CalramStore(Counter) = Hex(Val(txtr1a.Text))
+                ' Store reply as hexadecimal
+                Dim hexValue As String = Hex(Val(txtr1a.Text))
 
-                If (Len(CalramStore(Counter)) > 4) Then     ' originally a negative number i.e. FFFFE3B9 so need to strip FFFF of beginning
-                    CalramStore(Counter) = CalramStore(Counter).Remove(0, 4)  ' remove first 4 characters if 5 or more bytes long
+                ' If value is negative, strip leading 'FFFF'
+                If hexValue.Length > 4 Then
+                    hexValue = hexValue.Remove(0, 4)
                 End If
 
-                If (Len(CalramStore(Counter)) = 3) Then     ' FB9 should be 0FB9 so need to add a 0 to beginning
-                    CalramStore(Counter) = "0" & CalramStore(Counter)
-                End If
+                ' Pad to 4 characters
+                hexValue = hexValue.PadLeft(4, "0"c)
 
-                If (Len(CalramStore(Counter)) = 2) Then     ' B9 should be 00B9 so need to add a 00 to beginning
-                    CalramStore(Counter) = "00" & CalramStore(Counter)
-                End If
+                ' Split into high and low bytes
+                Dim highByte As String = hexValue.Remove(2, 2)
+                Dim lowByte As String = hexValue.Substring(2, 2)
 
-                If (Len(CalramStore(Counter)) = 1) Then     ' B should be 000B so need to add a 000 to beginning
-                    CalramStore(Counter) = "000" & CalramStore(Counter)
-                End If
+                ' Write bytes to files
+                fs.WriteByte(Convert.ToByte(lowByte, 16))
+                fs2.WriteByte(Convert.ToByte(highByte, 16))
 
-
-                ' Settings 1/2 - Split the two bytes and save them....so xABCD becomes two bytes AB (high byte) and CD (low byte)
-                If (Len(CalramStore(Counter)) = 4) Then     ' E3B9 so need to split into two bytes
-                    CalramStoreTemp1 = CalramStore(Counter).Remove(2, 2)  ' remove last two characters, i.e. strip low byte
-                    CalramStoreTemp2 = CalramStore(Counter).Remove(0, 2)  ' remove first two characters, i.e. strip high byte
-                End If
-                ' Write low byte to binary file
-                fs.WriteByte(Convert.ToByte(CalramStoreTemp2, 16))
-                ' Write high byte to binary file
-                fs2.WriteByte(Convert.ToByte(CalramStoreTemp1, 16))
-
+                ' Update array
+                CalramStore(Counter) = hexValue
 
                 ' Update display
-                LabelCalRamAddress.Text = CalAddr
-                LabelCalRamAddressHex.Text = String.Join(",", LabelCalRamAddress.Text.Split(","c).        ' Hex conversion
-                              Select(Function(x) _
-                              Convert.ToInt32(x).ToString("X")))
+                LabelCalRamAddress.Text = CalAddr.ToString()
+                LabelCalRamAddressHex.Text = Convert.ToInt32(CalAddr).ToString("X") & "  (TARGET = 12FFFF)"
+                LabelCalRamByte.Text = highByte & " " & lowByte
+                CalramStatus.Text = $"{CalAddr} = {Val(txtr1a.Text)}"
+                LabelCounter.Text = (Counter * 2).ToString()
 
-                LabelCalRamByte.Text = Calrambytefordisplay
-
-                CalramStatus.Text = CalAddr & "=" & Int(Val(txtr1a.Text))     ' display
-                Counter = Counter + 1   ' prepare for next loop
-                Counter2 = Counter2 + 2   ' prepare for next loop
-
-                LabelCounter.Text = Counter2
+                ' Increment counters
+                Counter += 1
+                Counter2 += 2
 
             Next
 
@@ -366,9 +367,15 @@ Partial Class Formtest
             fs.Close()
             fs2.Close()
 
+            ' Tidy up
+            LabelCounter.Text = "65536"                  ' fudged
+            LabelCalRamAddressHex.Text = "12FFFF"        ' fudged
+            txtr1a.Text = ""
+            txtr1a_disp.Text = ""
+
             ' QFORMAT NORM, TRIG AUTO - set back to 3458A defaults
-            dev1.SendAsync("QFORMAT NORM", True)
-            dev1.SendAsync("TRIG AUTO", True)
+            'dev1.SendAsync("QFORMAT NORM", True)
+            'dev1.SendAsync("TRIG AUTO", True)
 
             ' Abort display update
             If Abort3458A = True Then
