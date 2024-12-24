@@ -143,22 +143,6 @@ Partial Class Formtest
                 System.Threading.Thread.Sleep(250)     ' 250mS delay
             Next i
 
-
-            'dev1.SendAsync("NPLC 0", True)         ' NPLC 0
-            'CalramStatus.Text = "NPLC 0"
-            'System.Threading.Thread.Sleep(250)     ' 250mS delay
-            'Me.Refresh()
-
-            'dev1.SendAsync("TRIG HOLD", True)      ' TRIG HOLD
-            'CalramStatus.Text = "TRIG HOLD"
-            'System.Threading.Thread.Sleep(250)     ' 250mS delay
-            'Me.Refresh()
-
-            'dev1.SendAsync("QFORMAT NUM", True)    ' QFORMAT NUM - Query responses will be in number format only, no headers. The 3458A cannot return HEX formatted data.
-            'CalramStatus.Text = "QFORMAT NUM"
-            'System.Threading.Thread.Sleep(250)     ' 250mS delay
-            'Me.Refresh()
-
             txtr1a.Text = ""                       ' Prepare reply as empty
 
             ' Retrieve the data
@@ -193,9 +177,9 @@ Partial Class Formtest
                 CalramStore(Counter) = highByte
 
                 ' Update display
-                LabelCalRamAddress.Text = CalAddr.ToString()
+                'LabelCalRamAddress.Text = CalAddr.ToString()
                 LabelCalRamAddressHex.Text = Convert.ToInt32(CalAddr).ToString("X") & "  (TARGET = 60FFF)"
-                LabelCalRamByte.Text = highByte
+                'LabelCalRamByte.Text = highByte
                 CalramStatus.Text = $"{CalAddr} = {Val(txtr1a.Text)}"
                 LabelCounter.Text = Counter.ToString()
 
@@ -213,12 +197,6 @@ Partial Class Formtest
             LabelCalRamAddressHex.Text = "60FFF"        ' fudged
             txtr1a.Text = ""
             txtr1a_disp.Text = ""
-
-
-            ' QFORMAT NORM, TRIG AUTO - set back to 3458A defaults
-            'dev1.SendAsync("QFORMAT NORM", True)
-            'dev1.SendAsync("TRIG AUTO", True)
-
 
             ' Abort display update
             If Abort3458A = True Then
@@ -351,9 +329,9 @@ Partial Class Formtest
                 CalramStore(Counter) = hexValue
 
                 ' Update display
-                LabelCalRamAddress.Text = CalAddr.ToString()
+                'LabelCalRamAddress.Text = CalAddr.ToString()
                 LabelCalRamAddressHex.Text = Convert.ToInt32(CalAddr).ToString("X") & "  (TARGET = 12FFFF)"
-                LabelCalRamByte.Text = highByte & " " & lowByte
+                'LabelCalRamByte.Text = highByte & " " & lowByte
                 CalramStatus.Text = $"{CalAddr} = {Val(txtr1a.Text)}"
                 LabelCounter.Text = (Counter * 2).ToString()
 
