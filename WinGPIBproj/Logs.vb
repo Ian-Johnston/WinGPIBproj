@@ -709,18 +709,30 @@ Partial Class Formtest
                     ' Autoscale the minimum and maximum of the Y-axis
                     Dim minValue1 As Double = Chart1.Series(0).Points.Min(Function(p) p.YValues(0))
                     Dim maxValue1 As Double = Chart1.Series(0).Points.Max(Function(p) p.YValues(0))
+
+                    ' Ensure the difference is not zero to avoid crashes
+                    Dim range As Double = maxValue1 - minValue1
+                    If range = 0 Then
+                        ' Use a small buffer based on the magnitude of the values
+                        Dim buffer As Double = Math.Abs(minValue1) * 0.01 ' 1% of the magnitude as buffer
+                        If buffer = 0 Then buffer = 0.00001 ' Fallback to a minimal buffer for very small values
+                        minValue1 -= buffer
+                        maxValue1 += buffer
+                        range = maxValue1 - minValue1 ' Recalculate range
+                    End If
+
                     Chart1.ChartAreas(0).AxisY.Minimum = minValue1
                     Chart1.ChartAreas(0).AxisY.Maximum = maxValue1
 
                     ' Customize the Y-axis interval to control the tick marks and labels
-                    Chart1.ChartAreas(0).AxisY.Interval = (maxValue1 - minValue1) / 10 ' Adjust as needed
+                    Chart1.ChartAreas(0).AxisY.Interval = (range) / 10 ' Adjust as needed
 
                     ' Prevent scientific notation (e-notation) on the Y-axis labels
                     Chart1.ChartAreas(0).AxisY.LabelStyle.Format = "#0.########"
 
                     ' Autoscale the Y-axis
                     Chart1.ChartAreas(0).RecalculateAxesScale()
-                    YaxisDiff.Text = Format(maxValue1 - minValue1, "#0.00000000")
+                    YaxisDiff.Text = Format(range, "#0.00000000")
                 Else
                     UpdateChartYAxisMinMaxInterval()
                     YaxisDiff.Text = Format(Val(Dev1Max.Text) - Val(Dev1Min.Text), "#0.00000000")
@@ -740,18 +752,30 @@ Partial Class Formtest
                     ' Autoscale the minimum and maximum of the Y-axis
                     Dim minValue2 As Double = Chart1.Series(1).Points.Min(Function(p) p.YValues(0))
                     Dim maxValue2 As Double = Chart1.Series(1).Points.Max(Function(p) p.YValues(0))
+
+                    ' Ensure the difference is not zero to avoid crashes
+                    Dim range As Double = maxValue2 - minValue2
+                    If range = 0 Then
+                        ' Use a small buffer based on the magnitude of the values
+                        Dim buffer As Double = Math.Abs(minValue2) * 0.01 ' 1% of the magnitude as buffer
+                        If buffer = 0 Then buffer = 0.00001 ' Fallback to a minimal buffer for very small values
+                        minValue2 -= buffer
+                        maxValue2 += buffer
+                        range = maxValue2 - minValue2 ' Recalculate range
+                    End If
+
                     Chart1.ChartAreas(0).AxisY.Minimum = minValue2
                     Chart1.ChartAreas(0).AxisY.Maximum = maxValue2
 
                     ' Customize the Y-axis interval to control the tick marks and labels
-                    Chart1.ChartAreas(0).AxisY.Interval = (maxValue2 - minValue2) / 10 ' Adjust as needed
+                    Chart1.ChartAreas(0).AxisY.Interval = (range) / 10 ' Adjust as needed
 
                     ' Prevent scientific notation (e-notation) on the Y-axis labels
                     Chart1.ChartAreas(0).AxisY.LabelStyle.Format = "#0.########"
 
                     ' Autoscale the Y-axis
                     Chart1.ChartAreas(0).RecalculateAxesScale()
-                    YaxisDiff.Text = Format(maxValue2 - minValue2, "#0.00000000")
+                    YaxisDiff.Text = Format(range, "#0.00000000")
                 Else
                     UpdateChartYAxisMinMaxInterval()
                     YaxisDiff.Text = Format(Val(Dev1Max.Text) - Val(Dev1Min.Text), "#0.00000000")
@@ -782,12 +806,23 @@ Partial Class Formtest
                     Dim overallMin As Double = Math.Min(minValue1, minValue2)
                     Dim overallMax As Double = Math.Max(maxValue1, maxValue2)
 
+                    ' Ensure the difference is not zero to avoid crashes
+                    Dim range As Double = overallMax - overallMin
+                    If range = 0 Then
+                        ' Use a small buffer based on the magnitude of the values
+                        Dim buffer As Double = Math.Abs(overallMin) * 0.01 ' 1% of the magnitude as buffer
+                        If buffer = 0 Then buffer = 0.00001 ' Fallback to a minimal buffer for very small values
+                        overallMin -= buffer
+                        overallMax += buffer
+                        range = overallMax - overallMin ' Recalculate range
+                    End If
+
                     ' Set the minimum and maximum values for both Y-axes
                     Chart1.ChartAreas(0).AxisY.Minimum = overallMin
                     Chart1.ChartAreas(0).AxisY.Maximum = overallMax
 
                     ' Customize the Y-axis interval to control the tick marks and labels
-                    Chart1.ChartAreas(0).AxisY.Interval = (overallMax - overallMin) / 10 ' Adjust as needed
+                    Chart1.ChartAreas(0).AxisY.Interval = (range) / 10 ' Adjust as needed
 
                     ' Prevent scientific notation (e-notation) on the Y-axis labels
                     Chart1.ChartAreas(0).AxisY.LabelStyle.Format = "#0.########"
@@ -795,7 +830,7 @@ Partial Class Formtest
                     ' Recalculate the scale of the Y-axis
                     Chart1.ChartAreas(0).RecalculateAxesScale()
 
-                    YaxisDiff.Text = Format(overallMax - overallMin, "#0.00000000")
+                    YaxisDiff.Text = Format(range, "#0.00000000")
                 Else
                     UpdateChartYAxisMinMaxInterval()
                     YaxisDiff.Text = Format(Val(Dev1Max.Text) - Val(Dev1Min.Text), "#0.00000000")

@@ -23,9 +23,9 @@ Partial Class Chart
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
-        Dim ChartArea6 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend6 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series6 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Chart))
         Me.Chart2 = New System.Windows.Forms.DataVisualization.Charting.Chart()
         Me.ButtonScrollLeft = New System.Windows.Forms.Button()
@@ -154,8 +154,8 @@ Partial Class Chart
         Me.YaxisPerDiv = New System.Windows.Forms.TextBox()
         Me.Label19 = New System.Windows.Forms.Label()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
-        Me.SampleRateSecs = New System.Windows.Forms.TextBox()
         Me.Label18 = New System.Windows.Forms.Label()
+        Me.SampleRateSecs = New System.Windows.Forms.TextBox()
         Me.Label25 = New System.Windows.Forms.Label()
         Me.Label22 = New System.Windows.Forms.Label()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
@@ -191,22 +191,22 @@ Partial Class Chart
         'Chart2
         '
         Me.Chart2.BackColor = System.Drawing.SystemColors.Control
-        ChartArea6.BackColor = System.Drawing.Color.Black
-        ChartArea6.BorderColor = System.Drawing.Color.White
-        ChartArea6.BorderWidth = 2
-        ChartArea6.Name = "ChartArea1"
-        Me.Chart2.ChartAreas.Add(ChartArea6)
-        Legend6.Name = "Legend1"
-        Me.Chart2.Legends.Add(Legend6)
+        ChartArea1.BackColor = System.Drawing.Color.Black
+        ChartArea1.BorderColor = System.Drawing.Color.White
+        ChartArea1.BorderWidth = 2
+        ChartArea1.Name = "ChartArea1"
+        Me.Chart2.ChartAreas.Add(ChartArea1)
+        Legend1.Name = "Legend1"
+        Me.Chart2.Legends.Add(Legend1)
         Me.Chart2.Location = New System.Drawing.Point(1, 191)
         Me.Chart2.Name = "Chart2"
-        Series6.ChartArea = "ChartArea1"
-        Series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series6.Color = System.Drawing.Color.Yellow
-        Series6.Enabled = False
-        Series6.Legend = "Legend1"
-        Series6.Name = "Series1"
-        Me.Chart2.Series.Add(Series6)
+        Series1.ChartArea = "ChartArea1"
+        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series1.Color = System.Drawing.Color.Yellow
+        Series1.Enabled = False
+        Series1.Legend = "Legend1"
+        Series1.Name = "Series1"
+        Me.Chart2.Series.Add(Series1)
         Me.Chart2.Size = New System.Drawing.Size(1334, 610)
         Me.Chart2.TabIndex = 52
         Me.Chart2.Text = "Chart2"
@@ -524,11 +524,11 @@ Partial Class Chart
         'ButtonSaveSettings
         '
         Me.ButtonSaveSettings.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.ButtonSaveSettings.Location = New System.Drawing.Point(491, 35)
+        Me.ButtonSaveSettings.Location = New System.Drawing.Point(448, 35)
         Me.ButtonSaveSettings.Name = "ButtonSaveSettings"
-        Me.ButtonSaveSettings.Size = New System.Drawing.Size(85, 22)
+        Me.ButtonSaveSettings.Size = New System.Drawing.Size(129, 22)
         Me.ButtonSaveSettings.TabIndex = 98
-        Me.ButtonSaveSettings.Text = "Save Settings"
+        Me.ButtonSaveSettings.Text = "Save Playback Settings"
         Me.ToolTip1.SetToolTip(Me.ButtonSaveSettings, "Save settings for most of the user data on this form")
         Me.ButtonSaveSettings.UseVisualStyleBackColor = True
         '
@@ -1167,7 +1167,7 @@ Partial Class Chart
         'ShowFiles2
         '
         Me.ShowFiles2.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.ShowFiles2.Location = New System.Drawing.Point(491, 10)
+        Me.ShowFiles2.Location = New System.Drawing.Point(448, 10)
         Me.ShowFiles2.Name = "ShowFiles2"
         Me.ShowFiles2.Size = New System.Drawing.Size(85, 22)
         Me.ShowFiles2.TabIndex = 558
@@ -1457,15 +1457,6 @@ Partial Class Chart
         Me.GroupBox1.TabIndex = 567
         Me.GroupBox1.TabStop = False
         '
-        'SampleRateSecs
-        '
-        Me.SampleRateSecs.Location = New System.Drawing.Point(6, 25)
-        Me.SampleRateSecs.Name = "SampleRateSecs"
-        Me.SampleRateSecs.ReadOnly = True
-        Me.SampleRateSecs.Size = New System.Drawing.Size(46, 20)
-        Me.SampleRateSecs.TabIndex = 569
-        Me.SampleRateSecs.Text = "0"
-        '
         'Label18
         '
         Me.Label18.AutoSize = True
@@ -1475,6 +1466,15 @@ Partial Class Chart
         Me.Label18.Size = New System.Drawing.Size(90, 13)
         Me.Label18.TabIndex = 568
         Me.Label18.Text = "X-AXIS SCALE"
+        '
+        'SampleRateSecs
+        '
+        Me.SampleRateSecs.Location = New System.Drawing.Point(6, 25)
+        Me.SampleRateSecs.Name = "SampleRateSecs"
+        Me.SampleRateSecs.ReadOnly = True
+        Me.SampleRateSecs.Size = New System.Drawing.Size(46, 20)
+        Me.SampleRateSecs.TabIndex = 569
+        Me.SampleRateSecs.Text = "0"
         '
         'Label25
         '
