@@ -98,6 +98,10 @@ Public Class Chart
         DeviceName2.BackColor = Color.Violet
         RadioButtonDev1.BackColor = Color.GreenYellow
         RadioButtonDev2.BackColor = Color.Violet
+        RadioButtonPPMDev.BackColor = Color.White
+        RadioButtonPPMTempo.BackColor = Color.White
+        PlaybackTemp.BackColor = Color.Red
+        PlaybackHum.BackColor = Color.DodgerBlue
 
         GroupBoxMisc.Enabled = True
         GroupBoxMiscTempHum.Enabled = True

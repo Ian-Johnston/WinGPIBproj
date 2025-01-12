@@ -871,9 +871,9 @@ Partial Class Chart
         Me.MedianValueText.AutoSize = True
         Me.MedianValueText.Location = New System.Drawing.Point(892, 62)
         Me.MedianValueText.Name = "MedianValueText"
-        Me.MedianValueText.Size = New System.Drawing.Size(78, 13)
+        Me.MedianValueText.Size = New System.Drawing.Size(67, 13)
         Me.MedianValueText.TabIndex = 145
-        Me.MedianValueText.Text = "- Median Value"
+        Me.MedianValueText.Text = "- Initial Value"
         '
         'CheckBoxPPMenable
         '
@@ -1000,9 +1000,9 @@ Partial Class Chart
         Me.MedianTempText.AutoSize = True
         Me.MedianTempText.Location = New System.Drawing.Point(85, 77)
         Me.MedianTempText.Name = "MedianTempText"
-        Me.MedianTempText.Size = New System.Drawing.Size(78, 13)
+        Me.MedianTempText.Size = New System.Drawing.Size(67, 13)
         Me.MedianTempText.TabIndex = 150
-        Me.MedianTempText.Text = "- Median Temp"
+        Me.MedianTempText.Text = "- Initial Temp"
         '
         'MedianTemp
         '
