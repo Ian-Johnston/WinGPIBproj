@@ -25,21 +25,39 @@ Partial Class Formtest
         ' run appropriate routine depending on what needs calibrated. DCV is VOLTS only, DCV & DCI is VOLTS and CURRENT
 
         If RadioButton3245ADCV.Checked = True Then    ' DCV
-            CalStart = 1
-            CalEnd = 47
             CalNum = 1
             Cal3245status.Text = "STARTING CALIBRATION - DCV"
             LabelRDG.Text = "#"
             Label3458ARDG.Text = "#"
             Cal3245A()
         Else                                          ' DCV & DCI
-            CalStart = 1
-            CalEnd = 47
             CalNum = 1
             Cal3245status.Text = "STARTING CALIBRATION - DCV & DCI"
             LabelRDG.Text = "#"
             Label3458ARDG.Text = "#"
             Cal3245A()
+        End If
+
+    End Sub
+
+
+    Private Sub CheckBoxChA_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxChA.CheckedChanged
+
+        If CheckBoxChA.Checked = True Then
+            CheckBoxChB.Checked = False
+        Else
+            CheckBoxChB.Checked = True
+        End If
+
+    End Sub
+
+
+    Private Sub CheckBoxChB_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxChB.CheckedChanged
+
+        If CheckBoxChB.Checked = True Then
+            CheckBoxChA.Checked = False
+        Else
+            CheckBoxChA.Checked = True
         End If
 
     End Sub
@@ -70,135 +88,30 @@ Partial Class Formtest
             dev1.readtimeout = Val(Timeout3458A.Text)   ' set user adjustable timeout for Dev 1 3458A
             Dev1Timeout.Text = Timeout3458A.Text        ' copy to DEVICE 1 tab so they match.....this will be returned back to original once Cal is completed
 
-            Cal3245status.Text = "SETTING UP 3458A...."
-            System.Threading.Thread.Sleep(500)     ' delay
-            Me.Refresh()
-
-            dev1.SendAsync("FUNC DCV", True)       ' DCV
-            Cal3245status.Text = "3458A - FUNC DCV"
-
-            dev1.SendAsync("RANGE AUTO", True)       ' RANGE AUTO
-            Cal3245status.Text = "3458A - AUTO RANGE"
-
-            dev1.SendAsync("END ALWAYS", True)       ' END ALWAYS
-            Cal3245status.Text = "3458A - END ALWAYS"
-            System.Threading.Thread.Sleep(500)       ' delay
-
-            If CheckBoxAZERO.Checked = False Then
-                dev1.SendAsync("AZERO OFF", True)        ' AZERO OFF - Disabled autozero, speeds up readings......this helps if the GPIB fails, sometimes at RDG 45!
-                Cal3245status.Text = "3458A - AZERO OFF"
-                System.Threading.Thread.Sleep(500)     ' delay
-            Else
-                dev1.SendAsync("AZERO ON", True)        ' AZERO ON (default 3458A)
-                Cal3245status.Text = "3458A - AZERO ON"
-                System.Threading.Thread.Sleep(500)     ' delay
-            End If
-
-            dev1.SendAsync("NRDGS 1", True)        ' NRDGS 1
-            Cal3245status.Text = "3458A - NRDGS 1"
-            System.Threading.Thread.Sleep(500)     ' delay
-
-            dev1.SendAsync("NPLC 100", True)        ' NPLC 100
-            Cal3245status.Text = "3458A - NPLC 100"
-            System.Threading.Thread.Sleep(500)     ' delay
-
-            Cal3245status.Text = "SETTING UP 3245A...."
-            System.Threading.Thread.Sleep(500)     ' delay
-
-            dev2.SendAsync("USE 0", True)          ' USE 0
-            Cal3245status.Text = "3245A - USE 0"
-            System.Threading.Thread.Sleep(500)     ' delay
-
-            'If Code3245A.Text = "" Then     ' if code is blank then set it to zero. This would probably only happen if the hardware lock is in place and the user thought to just clear the code entry box
-            'Code3245A.Text = "0"        ' in which case the code immediately below will ignore it anyways.....I think.
-            'End If
-
-            If RadioButton3245ADCV.Checked = True Then
-                dev2.SendAsync("CAL VOLTS " & Code3245A.Text, True) ' CAL VOLTS 3245
-                Cal3245status.Text = "3245A - CAL DCV " & Code3245A.Text
-            Else
-                dev2.SendAsync("CAL " & Code3245A.Text, True) ' CAL VOLTS 3245
-                Cal3245status.Text = "3245A - CAL DCV && DCI " & Code3245A.Text
-            End If
-
-            Label264.Text = "of 47"
-
-            System.Threading.Thread.Sleep(500)     ' delay
-
-            Cal3245status.Text = "CALIBRATING......."
-
-            ' Now loop for DCV calibration - 1 to 47
-            For Calnum As Integer = CalStart To CalEnd      ' Loop
-
-                If Calnum = 45 Then     ' RDG 45 requires 3458A is put into 100Vdc range
-                    dev1.SendAsync("RANGE 100", True)       ' END ALWAYS
-                    Cal3245status.Text = "3458A - Set to 100Vdc RANGE"
-                    Me.Refresh()
-                    Thread.Sleep(500)     ' delay
-                End If
-                If Calnum = 46 Then     ' and back to AUTO range again
-                    dev1.SendAsync("RANGE AUTO", True)       ' END ALWAYS
-                    Cal3245status.Text = "3458A - AUTO RANGE"
-                    Me.Refresh()
-                    Thread.Sleep(500)     ' delay
-                End If
-
-                If Abort3245A = True Then   ' abort calibration, reset vars and exit sub
-                    Abort3245A = False
-                    Calnum = 1
-                    Cal3245status.Text = "USER ABORTED......"
-                    Exit Sub
-                End If
-
-                LabelRDG.Text = Calnum
-                Read3458A()
-                Application.DoEvents()
-                Write3245A()
-                Application.DoEvents()
-            Next
-
-            ' Get ready for DCI calibration
-            If RadioButton3245ADCVDCI.Checked = True Then
-
+            If CheckBoxChA.Checked = True Then
                 Dialog2.Warning1 = "3245A Calibration - User intervention req'd"
-                Dialog2.Warning2 = "Switch cables on 3458A to 'I' and 'LO' for DCI operation"
-                Dialog2.Warning3 = ".......Then hit OK"
+                Dialog2.Warning2 = "Ensure the following connections:"
+                Dialog2.Warning3 = " - Source to Ch A on 3245A"
+                Dialog2.Warning4 = " - Input to voltage on 3458A"
+                Dialog2.Warning5 = ".......Then hit OK"
                 Dialog2.ShowDialog(Me)  ' this method positions centre of parent form, and requires to hit OK to return back to parent
-
-                CalStart = 48
-                CalEnd = 71
-                Label264.Text = "of 71"
-
-                dev1.SendAsync("FUNC DCI", True)       ' DCI
-                Cal3245status.Text = "3458A - FUNC DCI"
-                Me.Refresh()
-                Thread.Sleep(500)     ' delay
-
-                Cal3245status.Text = "3458A - STARTING DCI CALIBRATION"
-                Me.Refresh()
-                Thread.Sleep(500)     ' delay
-
+                CalStart = 1
+                CalEnd = 47
+                Cal3245A_Channel("0")       ' 3245A Channel 0
             End If
 
-            ' now loop for DCI calibration - 48 to 71
-            If RadioButton3245ADCVDCI.Checked = True Then
-
-                For Calnum As Integer = CalStart To CalEnd      ' Loop
-
-                    If Abort3245A = True Then   ' abort calibration, reset vars and exit sub
-                        Abort3245A = False
-                        Calnum = 1
-                        Cal3245status.Text = "USER ABORTED......"
-                        Exit Sub
-                    End If
-
-                    LabelRDG.Text = Calnum
-                    Read3458A()
-                    Application.DoEvents()
-                    Write3245A()
-                    Application.DoEvents()
-                Next
-
+            If CheckBoxChB.Checked = True Then
+                dev1.SendAsync("BEEP", True)
+                dev1.SendAsync("BEEP", True)
+                Dialog2.Warning1 = "3245A Calibration - User intervention req'd"
+                Dialog2.Warning2 = "Ensure the following connections:"
+                Dialog2.Warning3 = " - Source to Ch B on 3245A"
+                Dialog2.Warning4 = " - Input to voltage on 3458A"
+                Dialog2.Warning5 = ".......Then hit OK"
+                Dialog2.ShowDialog(Me)  ' this method positions centre of parent form, and requires to hit OK to return back to parent
+                CalStart = 1
+                CalEnd = 47
+                Cal3245A_Channel("100")       ' 3245A Channel 1
             End If
 
             Cal3245status.Text = "COMPLETED - WAIT FOR 3245A"
@@ -223,6 +136,149 @@ Partial Class Formtest
 
         End If
 
+    End Sub
+
+    Private Sub Cal3245A_Channel(Channel As String)
+        ' 3245A Calibration
+        Me.Refresh()
+        Cal3245status.Text = "SETTING UP 3458A...."
+        System.Threading.Thread.Sleep(500)     ' delay
+        Me.Refresh()
+
+        dev1.SendAsync("RESET", True)                   ' DCV
+        Cal3245status.Text = "3458A - RESET"
+        dev1.SendAsync("FUNC DCV", True)                ' DCV
+        Cal3245status.Text = "3458A - FUNC DCV"
+
+        dev1.SendAsync("RANGE AUTO", True)              ' RANGE AUTO
+        Cal3245status.Text = "3458A - AUTO RANGE"
+
+        dev1.SendAsync("END ALWAYS", True)              ' END ALWAYS
+        Cal3245status.Text = "3458A - END ALWAYS"
+        System.Threading.Thread.Sleep(500)              ' delay
+
+        If CheckBoxAZERO.Checked = False Then
+            dev1.SendAsync("AZERO OFF", True)           ' AZERO OFF - Disabled autozero, speeds up readings......this helps if the GPIB fails, sometimes at RDG 45!
+            Cal3245status.Text = "3458A - AZERO OFF"
+            System.Threading.Thread.Sleep(500)          ' delay
+        Else
+            dev1.SendAsync("AZERO ON", True)            ' AZERO ON (default 3458A)
+            Cal3245status.Text = "3458A - AZERO ON"
+            System.Threading.Thread.Sleep(500)          ' delay
+        End If
+
+        dev1.SendAsync("NRDGS 1", True)                 ' NRDGS 1
+        Cal3245status.Text = "3458A - NRDGS 1"
+        System.Threading.Thread.Sleep(500)              ' delay
+
+        dev1.SendAsync("NPLC 100", True)                ' NPLC 100
+        Cal3245status.Text = "3458A - NPLC 100"
+        System.Threading.Thread.Sleep(500)              ' delay
+
+        Cal3245status.Text = "SETTING UP 3245A...."
+        System.Threading.Thread.Sleep(500)              ' delay
+        Cal3245status.Text = "STARTING......"
+        System.Threading.Thread.Sleep(1000)             ' 1000mS delay
+        dev2.SendAsync("USE " & Channel, True)          ' USE 0
+        Cal3245status.Text = "3245A - USE" & Channel
+        System.Threading.Thread.Sleep(500)              ' delay
+
+        'If Code3245A.Text = "" Then     ' if code is blank then set it to zero. This would probably only happen if the hardware lock is in place and the user thought to just clear the code entry box
+        'Code3245A.Text = "0"        ' in which case the code immediately below will ignore it anyways.....I think.
+        'End If
+
+        If RadioButton3245ADCV.Checked = True Then
+            dev2.SendAsync("CAL VOLTS " & Code3245A.Text, True) ' CAL VOLTS 3245
+            Cal3245status.Text = "3245A - CAL DCV " & Code3245A.Text
+        Else
+            dev2.SendAsync("CAL " & Code3245A.Text, True) ' CAL VOLTS 3245
+            Cal3245status.Text = "3245A - CAL DCV && DCI " & Code3245A.Text
+        End If
+
+        Label264.Text = "of 47"
+
+        System.Threading.Thread.Sleep(500)     ' delay
+
+        Cal3245status.Text = "CALIBRATING......."
+
+        ' Now loop for DCV calibration - 1 to 47
+        For Calnum As Integer = CalStart To CalEnd      ' Loop
+
+            If Calnum = 45 Then     ' RDG 45 requires 3458A is put into 100Vdc range
+                dev1.SendAsync("RANGE 100", True)       ' END ALWAYS
+                Cal3245status.Text = "3458A - Set to 100Vdc RANGE"
+                Me.Refresh()
+                Thread.Sleep(500)     ' delay
+            End If
+            If Calnum = 46 Then     ' and back to AUTO range again
+                dev1.SendAsync("RANGE AUTO", True)       ' END ALWAYS
+                Cal3245status.Text = "3458A - AUTO RANGE"
+                Me.Refresh()
+                Thread.Sleep(500)     ' delay
+            End If
+
+            If Abort3245A = True Then   ' abort calibration, reset vars and exit sub
+                Abort3245A = False
+                Calnum = 1
+                Cal3245status.Text = "USER ABORTED......"
+                Exit Sub
+            End If
+
+            LabelRDG.Text = Calnum
+            Read3458A()
+            Application.DoEvents()
+            Write3245A()
+            Application.DoEvents()
+        Next
+
+        ' Get ready for DCI calibration
+        If RadioButton3245ADCVDCI.Checked = True Then
+
+            dev1.SendAsync("BEEP", True)
+            dev1.SendAsync("BEEP", True)
+            Dialog2.Warning1 = "3245A Calibration - User intervention req'd"
+            Dialog2.Warning2 = "Switch cables on 3458A to 'I' and 'LO' for DCI operation"
+            Dialog2.Warning3 = ".......Then hit OK"
+            Dialog2.Warning3 = ""
+            Dialog2.Warning4 = ""
+            Dialog2.Warning5 = ""
+            Dialog2.ShowDialog(Me)  ' this method positions centre of parent form, and requires to hit OK to return back to parent
+
+            CalStart = 48
+            CalEnd = 71
+            Label264.Text = "of 71"
+
+            dev1.SendAsync("FUNC DCI", True)       ' DCI
+            Cal3245status.Text = "3458A - FUNC DCI"
+            Me.Refresh()
+            Thread.Sleep(500)     ' delay
+
+            Cal3245status.Text = "3458A - STARTING DCI CALIBRATION"
+            Me.Refresh()
+            Thread.Sleep(500)     ' delay
+
+        End If
+
+        ' now loop for DCI calibration - 48 to 71
+        If RadioButton3245ADCVDCI.Checked = True Then
+
+            For Calnum As Integer = CalStart To CalEnd      ' Loop
+
+                If Abort3245A = True Then   ' abort calibration, reset vars and exit sub
+                    Abort3245A = False
+                    Calnum = 1
+                    Cal3245status.Text = "USER ABORTED......"
+                    Exit Sub
+                End If
+
+                LabelRDG.Text = Calnum
+                Read3458A()
+                Application.DoEvents()
+                Write3245A()
+                Application.DoEvents()
+            Next
+
+        End If
     End Sub
 
     Private Sub RadioButton3245ADCV_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButton3245ADCV.CheckedChanged

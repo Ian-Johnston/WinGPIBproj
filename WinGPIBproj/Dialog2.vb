@@ -8,6 +8,8 @@ Public Class Dialog2
     Public Warning1 As String
     Public Warning2 As String
     Public Warning3 As String
+    Public Warning4 As String
+    Public Warning5 As String
 
     Public Sub Dialog2_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
 
@@ -15,6 +17,8 @@ Public Class Dialog2
         LabelWarning1.Text = Warning1
         LabelWarning2.Text = Warning2
         LabelWarning3.Text = Warning3
+        LabelWarning4.Text = Warning4
+        LabelWarning5.Text = Warning5
 
     End Sub
 

@@ -27,6 +27,8 @@ Partial Class Dialog2
         Me.LabelWarning1 = New System.Windows.Forms.Label()
         Me.LabelWarning2 = New System.Windows.Forms.Label()
         Me.LabelWarning3 = New System.Windows.Forms.Label()
+        Me.LabelWarning4 = New System.Windows.Forms.Label()
+        Me.LabelWarning5 = New System.Windows.Forms.Label()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -36,7 +38,7 @@ Partial Class Dialog2
         Me.TableLayoutPanel1.ColumnCount = 1
         Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TableLayoutPanel1.Controls.Add(Me.OK_Button, 0, 0)
-        Me.TableLayoutPanel1.Location = New System.Drawing.Point(182, 110)
+        Me.TableLayoutPanel1.Location = New System.Drawing.Point(182, 186)
         Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
         Me.TableLayoutPanel1.RowCount = 1
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
@@ -58,7 +60,7 @@ Partial Class Dialog2
         Me.LabelWarning1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelWarning1.Location = New System.Drawing.Point(11, 19)
         Me.LabelWarning1.Name = "LabelWarning1"
-        Me.LabelWarning1.Size = New System.Drawing.Size(29, 16)
+        Me.LabelWarning1.Size = New System.Drawing.Size(28, 16)
         Me.LabelWarning1.TabIndex = 63
         Me.LabelWarning1.Text = "###"
         Me.LabelWarning1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
@@ -70,7 +72,7 @@ Partial Class Dialog2
         Me.LabelWarning2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelWarning2.Location = New System.Drawing.Point(11, 48)
         Me.LabelWarning2.Name = "LabelWarning2"
-        Me.LabelWarning2.Size = New System.Drawing.Size(29, 16)
+        Me.LabelWarning2.Size = New System.Drawing.Size(28, 16)
         Me.LabelWarning2.TabIndex = 64
         Me.LabelWarning2.Text = "###"
         Me.LabelWarning2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
@@ -82,18 +84,44 @@ Partial Class Dialog2
         Me.LabelWarning3.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelWarning3.Location = New System.Drawing.Point(11, 76)
         Me.LabelWarning3.Name = "LabelWarning3"
-        Me.LabelWarning3.Size = New System.Drawing.Size(29, 16)
+        Me.LabelWarning3.Size = New System.Drawing.Size(28, 16)
         Me.LabelWarning3.TabIndex = 65
         Me.LabelWarning3.Text = "###"
         Me.LabelWarning3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'LabelWarning4
+        '
+        Me.LabelWarning4.Anchor = System.Windows.Forms.AnchorStyles.Top
+        Me.LabelWarning4.AutoSize = True
+        Me.LabelWarning4.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelWarning4.Location = New System.Drawing.Point(11, 104)
+        Me.LabelWarning4.Name = "LabelWarning4"
+        Me.LabelWarning4.Size = New System.Drawing.Size(28, 16)
+        Me.LabelWarning4.TabIndex = 66
+        Me.LabelWarning4.Text = "###"
+        Me.LabelWarning4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'LabelWarning5
+        '
+        Me.LabelWarning5.Anchor = System.Windows.Forms.AnchorStyles.Top
+        Me.LabelWarning5.AutoSize = True
+        Me.LabelWarning5.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelWarning5.Location = New System.Drawing.Point(11, 133)
+        Me.LabelWarning5.Name = "LabelWarning5"
+        Me.LabelWarning5.Size = New System.Drawing.Size(28, 16)
+        Me.LabelWarning5.TabIndex = 67
+        Me.LabelWarning5.Text = "###"
+        Me.LabelWarning5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'Dialog2
         '
         Me.AcceptButton = Me.OK_Button
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(436, 151)
+        Me.ClientSize = New System.Drawing.Size(436, 227)
         Me.ControlBox = False
+        Me.Controls.Add(Me.LabelWarning5)
+        Me.Controls.Add(Me.LabelWarning4)
         Me.Controls.Add(Me.LabelWarning3)
         Me.Controls.Add(Me.LabelWarning2)
         Me.Controls.Add(Me.LabelWarning1)
@@ -116,4 +144,6 @@ Partial Class Dialog2
     Friend WithEvents LabelWarning1 As Label
     Friend WithEvents LabelWarning2 As Label
     Friend WithEvents LabelWarning3 As Label
+    Friend WithEvents LabelWarning4 As Label
+    Friend WithEvents LabelWarning5 As Label
 End Class
