@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea3 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend3 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series3 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -5264,11 +5264,12 @@ Partial Class Formtest
         'DisableRollingChart
         '
         Me.DisableRollingChart.AutoSize = True
-        Me.DisableRollingChart.Location = New System.Drawing.Point(357, 115)
+        Me.DisableRollingChart.Location = New System.Drawing.Point(357, 68)
         Me.DisableRollingChart.Name = "DisableRollingChart"
         Me.DisableRollingChart.Size = New System.Drawing.Size(155, 17)
         Me.DisableRollingChart.TabIndex = 700
-        Me.DisableRollingChart.Text = "Disable Y-axis Rolling Chart"
+        Me.DisableRollingChart.Text = "Disable X-axis Rolling Chart"
+        Me.ToolTip1.SetToolTip(Me.DisableRollingChart, "Disable the rolling chart (X-axis Scale Points)")
         Me.DisableRollingChart.UseVisualStyleBackColor = True
         '
         'LabelChartPoints1
@@ -5313,7 +5314,7 @@ Partial Class Formtest
         '
         Me.YaxisDiff.AutoSize = True
         Me.YaxisDiff.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.YaxisDiff.Location = New System.Drawing.Point(432, 136)
+        Me.YaxisDiff.Location = New System.Drawing.Point(432, 130)
         Me.YaxisDiff.Name = "YaxisDiff"
         Me.YaxisDiff.Size = New System.Drawing.Size(63, 13)
         Me.YaxisDiff.TabIndex = 693
@@ -5322,7 +5323,7 @@ Partial Class Formtest
         'Label256
         '
         Me.Label256.AutoSize = True
-        Me.Label256.Location = New System.Drawing.Point(354, 136)
+        Me.Label256.Location = New System.Drawing.Point(354, 130)
         Me.Label256.Name = "Label256"
         Me.Label256.Size = New System.Drawing.Size(80, 13)
         Me.Label256.TabIndex = 694
@@ -5364,7 +5365,7 @@ Partial Class Formtest
         '
         'Dev1Max
         '
-        Me.Dev1Max.Location = New System.Drawing.Point(357, 68)
+        Me.Dev1Max.Location = New System.Drawing.Point(357, 86)
         Me.Dev1Max.Name = "Dev1Max"
         Me.Dev1Max.Size = New System.Drawing.Size(71, 20)
         Me.Dev1Max.TabIndex = 92
@@ -5372,7 +5373,7 @@ Partial Class Formtest
         '
         'Dev1Min
         '
-        Me.Dev1Min.Location = New System.Drawing.Point(357, 91)
+        Me.Dev1Min.Location = New System.Drawing.Point(357, 108)
         Me.Dev1Min.Name = "Dev1Min"
         Me.Dev1Min.Size = New System.Drawing.Size(71, 20)
         Me.Dev1Min.TabIndex = 94
@@ -5381,7 +5382,7 @@ Partial Class Formtest
         'Label39
         '
         Me.Label39.AutoSize = True
-        Me.Label39.Location = New System.Drawing.Point(433, 93)
+        Me.Label39.Location = New System.Drawing.Point(433, 110)
         Me.Label39.Name = "Label39"
         Me.Label39.Size = New System.Drawing.Size(85, 13)
         Me.Label39.TabIndex = 88
@@ -5390,7 +5391,7 @@ Partial Class Formtest
         'Label40
         '
         Me.Label40.AutoSize = True
-        Me.Label40.Location = New System.Drawing.Point(433, 70)
+        Me.Label40.Location = New System.Drawing.Point(433, 88)
         Me.Label40.Name = "Label40"
         Me.Label40.Size = New System.Drawing.Size(88, 13)
         Me.Label40.TabIndex = 95
@@ -5516,22 +5517,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea2.BackColor = System.Drawing.Color.Black
-        ChartArea2.BorderColor = System.Drawing.Color.White
-        ChartArea2.BorderWidth = 2
-        ChartArea2.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea2)
-        Legend2.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend2)
+        ChartArea3.BackColor = System.Drawing.Color.Black
+        ChartArea3.BorderColor = System.Drawing.Color.White
+        ChartArea3.BorderWidth = 2
+        ChartArea3.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea3)
+        Legend3.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend3)
         Me.Chart1.Location = New System.Drawing.Point(-32, 140)
         Me.Chart1.Name = "Chart1"
-        Series2.ChartArea = "ChartArea1"
-        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series2.Color = System.Drawing.Color.Yellow
-        Series2.Enabled = False
-        Series2.Legend = "Legend1"
-        Series2.Name = "Series1"
-        Me.Chart1.Series.Add(Series2)
+        Series3.ChartArea = "ChartArea1"
+        Series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series3.Color = System.Drawing.Color.Yellow
+        Series3.Enabled = False
+        Series3.Legend = "Legend1"
+        Series3.Name = "Series1"
+        Me.Chart1.Series.Add(Series3)
         Me.Chart1.Size = New System.Drawing.Size(1120, 462)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"

@@ -306,7 +306,7 @@ Partial Class Chart
         'Label3
         '
         Me.Label3.AutoSize = True
-        Me.Label3.Location = New System.Drawing.Point(440, 27)
+        Me.Label3.Location = New System.Drawing.Point(441, 27)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(71, 13)
         Me.Label3.TabIndex = 69
@@ -314,10 +314,10 @@ Partial Class Chart
         '
         'CSVfileLines
         '
-        Me.CSVfileLines.Location = New System.Drawing.Point(405, 23)
+        Me.CSVfileLines.Location = New System.Drawing.Point(401, 23)
         Me.CSVfileLines.Name = "CSVfileLines"
         Me.CSVfileLines.ReadOnly = True
-        Me.CSVfileLines.Size = New System.Drawing.Size(35, 20)
+        Me.CSVfileLines.Size = New System.Drawing.Size(40, 20)
         Me.CSVfileLines.TabIndex = 70
         Me.CSVfileLines.Text = "0"
         '
@@ -1198,7 +1198,7 @@ Partial Class Chart
         'CheckX1000
         '
         Me.CheckX1000.AutoSize = True
-        Me.CheckX1000.Location = New System.Drawing.Point(406, 67)
+        Me.CheckX1000.Location = New System.Drawing.Point(401, 67)
         Me.CheckX1000.Name = "CheckX1000"
         Me.CheckX1000.Size = New System.Drawing.Size(43, 17)
         Me.CheckX1000.TabIndex = 578
@@ -1282,9 +1282,9 @@ Partial Class Chart
         '
         'RMSwindow
         '
-        Me.RMSwindow.Location = New System.Drawing.Point(405, 42)
+        Me.RMSwindow.Location = New System.Drawing.Point(401, 42)
         Me.RMSwindow.Name = "RMSwindow"
-        Me.RMSwindow.Size = New System.Drawing.Size(35, 20)
+        Me.RMSwindow.Size = New System.Drawing.Size(40, 20)
         Me.RMSwindow.TabIndex = 586
         Me.ToolTip1.SetToolTip(Me.RMSwindow, resources.GetString("RMSwindow.ToolTip"))
         '
@@ -1530,7 +1530,7 @@ Partial Class Chart
         'Label21
         '
         Me.Label21.AutoSize = True
-        Me.Label21.Location = New System.Drawing.Point(440, 46)
+        Me.Label21.Location = New System.Drawing.Point(441, 46)
         Me.Label21.Name = "Label21"
         Me.Label21.Size = New System.Drawing.Size(76, 13)
         Me.Label21.TabIndex = 585
