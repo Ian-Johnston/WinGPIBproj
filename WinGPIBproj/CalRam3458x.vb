@@ -145,8 +145,18 @@ Partial Class Formtest
 
             txtr1a.Text = ""                       ' Prepare reply as empty
 
-            ' Retrieve the data
+            ' 10 dummy reads to set the interface up (some take a read or two to start getting valid data, buffer flush maybe)
+            CalramStatus.Text = "DUMMY READ - BUFFER FLUSH"
+            For CalAddrtemp As Integer = 1 To 10 Step 1
+                Dim r As IOQuery = Nothing
+                dev1.QueryBlocking("MREAD " & CalAddrStart, r, False)
+                Cbdev1(r)
+                System.Threading.Thread.Sleep(50)     ' 50mS delay
+            Next
 
+            System.Threading.Thread.Sleep(250)     ' 250mS delay
+
+            ' Retrieve the data
             For CalAddr As Integer = CalAddrStart To CalAddrEnd Step Stepsize
 
                 If Abort3458A Then Exit For
@@ -292,6 +302,18 @@ Partial Class Formtest
             Next i
 
             txtr1a.Text = ""                       ' Prepare reply as empty
+
+
+            ' 10 dummy reads to set the interface up (some take a read or two to start getting valid data, buffer flush maybe)
+            CalramStatus.Text = "DUMMY READ - BUFFER FLUSH"
+            For CalAddrtemp As Integer = 1 To 10 Step 1
+                Dim r As IOQuery = Nothing
+                dev1.QueryBlocking("MREAD " & CalAddrStart, r, False)
+                Cbdev1(r)
+                System.Threading.Thread.Sleep(50)     ' 50mS delay
+            Next
+
+            System.Threading.Thread.Sleep(250)     ' 250mS delay
 
 
             ' Retrieve the data
@@ -453,6 +475,19 @@ Partial Class Formtest
             Me.Refresh()
 
             txtr1a.Text = ""                       ' Prepare reply as empty
+
+
+            ' 10 dummy reads to set the interface up (some take a read or two to start getting valid data, buffer flush maybe)
+            CalramStatus.Text = "DUMMY READ - BUFFER FLUSH"
+            For CalAddrtemp As Integer = 1 To 10 Step 1
+                Dim r As IOQuery = Nothing
+                dev1.QueryBlocking("PEEK " & CalAddrStart3457A, r, False)
+                Cbdev1(r)
+                System.Threading.Thread.Sleep(50)     ' 50mS delay
+            Next
+
+            System.Threading.Thread.Sleep(250)     ' 250mS delay
+
 
             ' Retrieve the data
             For CalAddr3457A As Integer = CalAddrStart3457A To CalAddrEnd3457A Step 2      ' step 2 so even addresses only
