@@ -2127,9 +2127,9 @@ Public Class Chart
 
                 'Playbacknewmin = Playbacknewmin - ((Playbacknewmax - Playbacknewmin) / 20)
                 Playbacknewmin -= (Playbacknewmax - Playbacknewmin) / 20
-                If (Playbacknewmin < 0) Then
-                    Playbacknewmin = 0
-                End If
+                'If (Playbacknewmin < 0) Then
+                'Playbacknewmin = 0
+                'End If
                 YaxisMinimum.Text = Playbacknewmin
                 YaxisMinimum.Text = Math.Round((CDbl(Val(YaxisMinimum.Text))), 7)
 
@@ -2275,16 +2275,16 @@ Public Class Chart
         Ymin += 0.00000000001
         Ymax = YaxisMaximum.Text
         Ymax -= (Ymax - Ymin) / 10  ' shift by a tenth
-        If (Ymin < 0) Then
-            Ymin = 0.0000001
-        End If
-        If (Ymin < Ymax And Ymin >= 0) Then
+        'If (Ymin < 0) Then
+        'Ymin = 0.0000001
+        'End If
+        'If (Ymin < Ymax And Ymin >= 0) Then
+        If (Ymin < Ymax) Then
             YaxisMinimum.Text = Format(Ymin, "#0.00000000")
             YaxisMaximum.Text = Format(Ymax, "#0.00000000")
 
             Dim result As Double = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 32
             YaxisPerDiv.Text = result.ToString("#0.000000000")
-
 
             Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((CDbl(Val(YaxisMinimum.Text))), 7)
             Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((CDbl(Val(YaxisMaximum.Text))), 7)   ' was 7
@@ -2305,21 +2305,20 @@ Public Class Chart
         Ymax = YaxisMaximum.Text
         Ymax += (Ymax - Ymin) / 10  ' shift by a tenth
 
-        If (Ymin < 0) Then
-            Ymin = 0.0000001
-        End If
-        If (Ymin < Ymax And Ymin >= 0) Then
+        '        If (Ymin < 0) Then
+        '        Ymin = 0.0000001
+        '        End If
+        'If (Ymin < Ymax And Ymin >= 0) Then
+        If (Ymin < Ymax) Then
             YaxisMinimum.Text = Format(Ymin, "#0.00000000")
             YaxisMaximum.Text = Format(Ymax, "#0.00000000")
 
             Dim result As Double = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 32
             YaxisPerDiv.Text = result.ToString("#0.000000000")
 
-
             Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((CDbl(Val(YaxisMinimum.Text))), 7)
             Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((CDbl(Val(YaxisMaximum.Text))), 7)   ' was 7
             Chart2.ChartAreas(0).AxisY.Interval = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 20
-
         End If
 
         YaxisCheck1.Checked = False
@@ -2333,19 +2332,18 @@ Public Class Chart
     Private Sub ButtonYminDec_Click(sender As Object, e As EventArgs) Handles ButtonYminDec.Click
         Ymin = YaxisMinimum.Text
         Ymax = YaxisMaximum.Text
-        'Ymin = Ymin - ((Ymax - Ymin) / 10)  ' shift by a tenth
         Ymin -= (Ymax - Ymin) / 10  ' shift by a tenth
 
-        If (Ymin < 0) Then
-            Ymin = 0.0000001
-        End If
-        If (Ymin < Ymax And Ymin >= 0) Then
+        '       If (Ymin < 0) Then
+        '       Ymin = 0.0000001
+        '       End If
+        'If (Ymin < Ymax And Ymin >= 0) Then
+        If (Ymin < Ymax) Then
             YaxisMinimum.Text = Format(Ymin, "#0.00000000")
             YaxisMaximum.Text = Format(Ymax, "#0.00000000")
 
             Dim result As Double = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 32
-            YaxisPerDiv.Text = result.ToString("#0.000000000")
-
+            YaxisPerDiv.Text = result.ToString("#0.000000000") '
 
             Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((CDbl(Val(YaxisMinimum.Text))), 7)
             Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((CDbl(Val(YaxisMaximum.Text))), 7)   ' was 7
@@ -2363,18 +2361,17 @@ Public Class Chart
     Private Sub ButtonYminInc_Click(sender As Object, e As EventArgs) Handles ButtonYminInc.Click
         Ymin = YaxisMinimum.Text
         Ymax = YaxisMaximum.Text
-        'Ymin = Ymin + ((Ymax - Ymin) / 10)  ' shift by a tenth
         Ymin += (Ymax - Ymin) / 10  ' shift by a tenth
-        If (Ymin < 0) Then
-            Ymin = 0.0000001
-        End If
-        If (Ymin < Ymax And Ymin >= 0) Then
+        '        If (Ymin < 0) Then
+        '        Ymin = 0.0000001
+        '        End If
+        'If (Ymin < Ymax And Ymin >= 0) Then
+        If (Ymin < Ymax) Then
             YaxisMinimum.Text = Format(Ymin, "#0.0000000000")
             YaxisMaximum.Text = Format(Ymax, "#0.0000000000")
 
             Dim result As Double = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 32
             YaxisPerDiv.Text = result.ToString("#0.000000000")
-
 
             Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((CDbl(Val(YaxisMinimum.Text))), 7)
             Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((CDbl(Val(YaxisMaximum.Text))), 7)   ' was 7
