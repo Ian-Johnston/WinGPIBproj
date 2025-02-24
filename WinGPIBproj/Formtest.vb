@@ -163,7 +163,7 @@ Public Class Formtest
         Try
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V3.263"
+            BannerText1 = "WinGPIB   V3.264"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
             ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -292,6 +292,7 @@ Public Class Formtest
             Dev1IntEnable.Checked = My.Settings.data274
             Dev1Regex.Checked = My.Settings.data337
             Dev1DecimalNumDPs.Text = My.Settings.data453
+            txtOperationDev1.Text = My.Settings.data509
 
 
             ' Load Device 2 default profile 1
@@ -322,6 +323,7 @@ Public Class Formtest
             Dev2IntEnable.Checked = My.Settings.data298
             Dev2Regex.Checked = My.Settings.data343
             Dev2DecimalNumDPs.Text = My.Settings.data461
+            txtOperationDev2.Text = My.Settings.data510
 
             ' Load Live Chart settings
             XaxisPoints.Text = My.Settings.data255
@@ -1503,15 +1505,60 @@ Public Class Formtest
                 If Div1000Dev1.Checked = True Then
                     txtr1a.Text = Val(txtr1a.Text) / 1000
                 End If
-                'txtr1a_disp.Text = Format(Val(txtr1a.Text), "#00.000000000")
 
 
                 ' Multiply value by 1000
                 If Mult1000Dev1.Checked = True Then
                     txtr1a.Text = Val(txtr1a.Text) * 1000
                 End If
-                'txtr1a_disp.Text = Format(Val(txtr1a.Text), "#00000.000000")
-                'txtr1a_disp.Text = Val(txtr1a.Text)
+
+
+                If txtOperationDev1.Text.Trim() <> "" Then
+                    Dim input As String = txtOperationDev1.Text.Trim()
+
+                    If input.Length < 2 Then
+                        MessageBox.Show("Arithmetic: Please enter an operator (*, /, +, -) followed by a number.",
+                        "Arithmetic: Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    Else
+                        Dim op As Char = input(0)
+                        Dim numberPart As String = input.Substring(1).Trim()
+
+                        ' Check if the first character is one of the allowed operators
+                        If op <> "*" AndAlso op <> "/" AndAlso op <> "+" AndAlso op <> "-" Then
+                            MessageBox.Show("Arithmetic: Invalid operator. Please start with * / + or -.",
+                            "Arithmetic: Invalid Operator", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        Else
+                            Dim operand As Double
+                            If Not Double.TryParse(numberPart, operand) Then
+                                MessageBox.Show("Arithmetic: The number entered is not valid.",
+                                "Arithmetic: Invalid Number", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                            Else
+                                Dim currentValue As Double
+                                If Not Double.TryParse(txtr1a.Text, currentValue) Then
+                                    MessageBox.Show("Arithmetic: The current value is not valid.",
+                                    "Arithmetic: Invalid Value", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                                Else
+                                    Select Case op
+                                        Case "*" ' Multiply
+                                            currentValue *= operand
+                                        Case "/" ' Divide
+                                            If operand = 0 Then
+                                                MessageBox.Show("Arithmetic: Division by zero is not allowed.",
+                                                "Arithmetic: Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                                            Else
+                                                currentValue /= operand
+                                            End If
+                                        Case "+" ' Add
+                                            currentValue += operand
+                                        Case "-" ' Subtract
+                                            currentValue -= operand
+                                    End Select
+                                    txtr1a.Text = currentValue.ToString()
+                                End If
+                            End If
+                        End If
+                    End If
+                End If
 
 
                 ' Convert to decimal for display (data incoming can be a mix of e-notation or decimal)
@@ -1683,6 +1730,54 @@ Public Class Formtest
                 ' Multiply value by 1000
                 If Mult1000Dev2.Checked = True Then
                     txtr2a.Text = Val(txtr2a.Text) * 1000
+                End If
+
+
+                If txtOperationDev2.Text.Trim() <> "" Then
+                    Dim input As String = txtOperationDev2.Text.Trim()
+
+                    If input.Length < 2 Then
+                        MessageBox.Show("Arithmetic: Please enter an operator (*, /, +, -) followed by a number.",
+                        "Arithmetic: Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    Else
+                        Dim op As Char = input(0)
+                        Dim numberPart As String = input.Substring(1).Trim()
+
+                        ' Check if the first character is one of the allowed operators
+                        If op <> "*" AndAlso op <> "/" AndAlso op <> "+" AndAlso op <> "-" Then
+                            MessageBox.Show("Arithmetic: Invalid operator. Please start with * / + or -.",
+                            "Arithmetic: Invalid Operator", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        Else
+                            Dim operand As Double
+                            If Not Double.TryParse(numberPart, operand) Then
+                                MessageBox.Show("Arithmetic: The number entered is not valid.",
+                                "Arithmetic: Invalid Number", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                            Else
+                                Dim currentValue As Double
+                                If Not Double.TryParse(txtr2a.Text, currentValue) Then
+                                    MessageBox.Show("Arithmetic: The current value is not valid.",
+                                    "Arithmetic: Invalid Value", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                                Else
+                                    Select Case op
+                                        Case "*" ' Multiply
+                                            currentValue *= operand
+                                        Case "/" ' Divide
+                                            If operand = 0 Then
+                                                MessageBox.Show("Arithmetic: Division by zero is not allowed.",
+                                                "Arithmetic: Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                                            Else
+                                                currentValue /= operand
+                                            End If
+                                        Case "+" ' Add
+                                            currentValue += operand
+                                        Case "-" ' Subtract
+                                            currentValue -= operand
+                                    End Select
+                                    txtr2a.Text = currentValue.ToString()
+                                End If
+                            End If
+                        End If
+                    End If
                 End If
 
 

@@ -157,6 +157,7 @@ Partial Class Formtest
             My.Settings.data337 = Dev1Regex.Checked
             My.Settings.data453 = Dev1DecimalNumDPs.Text
             My.Settings.data484 = Dev1IntEnable.Checked
+            My.Settings.data509 = txtOperationDev1.Text
         End If
 
         ' Save Dev1 Profile 2
@@ -189,6 +190,7 @@ Partial Class Formtest
             My.Settings.data338 = Dev1Regex.Checked
             My.Settings.data454 = Dev1DecimalNumDPs.Text
             My.Settings.data486 = Dev1IntEnable.Checked
+            My.Settings.data510 = txtOperationDev1.Text
         End If
 
         ' Save Dev1 Profile 3
@@ -221,6 +223,7 @@ Partial Class Formtest
             My.Settings.data339 = Dev1Regex.Checked
             My.Settings.data455 = Dev1DecimalNumDPs.Text
             My.Settings.data488 = Dev1IntEnable.Checked
+            My.Settings.data511 = txtOperationDev1.Text
         End If
 
         ' Save Dev1 Profile 4
@@ -253,6 +256,7 @@ Partial Class Formtest
             My.Settings.data340 = Dev1Regex.Checked
             My.Settings.data456 = Dev1DecimalNumDPs.Text
             My.Settings.data490 = Dev1IntEnable.Checked
+            My.Settings.data512 = txtOperationDev1.Text
         End If
 
         ' Save Dev1 Profile 5
@@ -285,6 +289,7 @@ Partial Class Formtest
             My.Settings.data341 = Dev1Regex.Checked
             My.Settings.data457 = Dev1DecimalNumDPs.Text
             My.Settings.data492 = Dev1IntEnable.Checked
+            My.Settings.data513 = txtOperationDev1.Text
         End If
 
         ' Save Dev1 Profile 6
@@ -317,6 +322,7 @@ Partial Class Formtest
             My.Settings.data342 = Dev1Regex.Checked
             My.Settings.data458 = Dev1DecimalNumDPs.Text
             My.Settings.data494 = Dev1IntEnable.Checked
+            My.Settings.data514 = txtOperationDev1.Text
         End If
 
         ' Save Dev1 Profile 7
@@ -349,6 +355,7 @@ Partial Class Formtest
             My.Settings.data374 = Dev1Regex.Checked
             My.Settings.data459 = Dev1DecimalNumDPs.Text
             My.Settings.data496 = Dev1IntEnable.Checked
+            My.Settings.data515 = txtOperationDev1.Text
         End If
 
         ' Save Dev1 Profile 8
@@ -381,6 +388,7 @@ Partial Class Formtest
             My.Settings.data400 = Dev1Regex.Checked
             My.Settings.data460 = Dev1DecimalNumDPs.Text
             My.Settings.data498 = Dev1IntEnable.Checked
+            My.Settings.data516 = txtOperationDev1.Text
         End If
 
 
@@ -414,6 +422,7 @@ Partial Class Formtest
             My.Settings.data343 = Dev2Regex.Checked
             My.Settings.data461 = Dev2DecimalNumDPs.Text
             My.Settings.data485 = Dev2SendQuery.Checked
+            My.Settings.data517 = txtOperationDev2.Text
         End If
 
         ' Save Dev2 Profile 2
@@ -446,6 +455,7 @@ Partial Class Formtest
             My.Settings.data344 = Dev2Regex.Checked
             My.Settings.data462 = Dev2DecimalNumDPs.Text
             My.Settings.data487 = Dev2SendQuery.Checked
+            My.Settings.data518 = txtOperationDev2.Text
         End If
 
         ' Save Dev2 Profile 3
@@ -478,6 +488,7 @@ Partial Class Formtest
             My.Settings.data345 = Dev2Regex.Checked
             My.Settings.data463 = Dev2DecimalNumDPs.Text
             My.Settings.data489 = Dev2SendQuery.Checked
+            My.Settings.data519 = txtOperationDev2.Text
         End If
 
         ' Save Dev2 Profile 4
@@ -510,6 +521,7 @@ Partial Class Formtest
             My.Settings.data346 = Dev2Regex.Checked
             My.Settings.data464 = Dev2DecimalNumDPs.Text
             My.Settings.data491 = Dev2SendQuery.Checked
+            My.Settings.data520 = txtOperationDev2.Text
         End If
 
         ' Save Dev2 Profile 5
@@ -542,6 +554,7 @@ Partial Class Formtest
             My.Settings.data347 = Dev2Regex.Checked
             My.Settings.data465 = Dev2DecimalNumDPs.Text
             My.Settings.data493 = Dev2SendQuery.Checked
+            My.Settings.data521 = txtOperationDev2.Text
         End If
 
         ' Save Dev2 Profile 6
@@ -574,6 +587,7 @@ Partial Class Formtest
             My.Settings.data348 = Dev2Regex.Checked
             My.Settings.data466 = Dev2DecimalNumDPs.Text
             My.Settings.data495 = Dev2SendQuery.Checked
+            My.Settings.data522 = txtOperationDev2.Text
         End If
 
         ' Save Dev2 Profile 7
@@ -606,6 +620,7 @@ Partial Class Formtest
             My.Settings.data426 = Dev2Regex.Checked
             My.Settings.data467 = Dev2DecimalNumDPs.Text
             My.Settings.data497 = Dev2SendQuery.Checked
+            My.Settings.data523 = txtOperationDev2.Text
         End If
 
         ' Save Dev2 Profile 8
@@ -638,6 +653,7 @@ Partial Class Formtest
             My.Settings.data452 = Dev2Regex.Checked
             My.Settings.data468 = Dev2DecimalNumDPs.Text
             My.Settings.data499 = Dev2SendQuery.Checked
+            My.Settings.data524 = txtOperationDev2.Text
         End If
 
         ' Save the settings to persist the changes
@@ -716,6 +732,8 @@ Partial Class Formtest
 
         Dev1IntEnable.Checked = My.Settings.data484
 
+        txtOperationDev1.Text = My.Settings.data509
+
 
     End Sub
 
@@ -783,6 +801,8 @@ Partial Class Formtest
 
         Dev1IntEnable.Checked = My.Settings.data486
 
+        txtOperationDev1.Text = My.Settings.data510
+
     End Sub
 
     ' Device 1 profile 3
@@ -849,6 +869,8 @@ Partial Class Formtest
 
         Dev1IntEnable.Checked = My.Settings.data488
 
+        txtOperationDev1.Text = My.Settings.data511
+
     End Sub
 
     ' Device 1 profile 4
@@ -910,6 +932,7 @@ Partial Class Formtest
 
         Dev1IntEnable.Checked = My.Settings.data490
 
+        txtOperationDev1.Text = My.Settings.data512
 
     End Sub
 
@@ -972,6 +995,8 @@ Partial Class Formtest
 
         Dev1IntEnable.Checked = My.Settings.data492
 
+        txtOperationDev1.Text = My.Settings.data513
+
     End Sub
 
     ' Device 1 profile 6
@@ -1032,6 +1057,8 @@ Partial Class Formtest
         Dev1DecimalNumDPs.Text = My.Settings.data458
 
         Dev1IntEnable.Checked = My.Settings.data494
+
+        txtOperationDev1.Text = My.Settings.data514
 
     End Sub
 
@@ -1095,6 +1122,8 @@ Partial Class Formtest
 
         Dev1IntEnable.Checked = My.Settings.data496
 
+        txtOperationDev1.Text = My.Settings.data515
+
     End Sub
 
 
@@ -1156,6 +1185,8 @@ Partial Class Formtest
         Dev1DecimalNumDPs.Text = My.Settings.data460
 
         Dev1IntEnable.Checked = My.Settings.data498
+
+        txtOperationDev1.Text = My.Settings.data516
 
     End Sub
 
@@ -1225,6 +1256,8 @@ Partial Class Formtest
 
         Dev2SendQuery.Checked = My.Settings.data485
 
+        txtOperationDev2.Text = My.Settings.data517
+
     End Sub
 
     ' Device 2 profile 2
@@ -1291,6 +1324,8 @@ Partial Class Formtest
 
         Dev2SendQuery.Checked = My.Settings.data487
 
+        txtOperationDev2.Text = My.Settings.data518
+
     End Sub
 
     ' Device 2 profile 3
@@ -1356,6 +1391,8 @@ Partial Class Formtest
 
         Dev2SendQuery.Checked = My.Settings.data489
 
+        txtOperationDev2.Text = My.Settings.data519
+
     End Sub
 
     ' Device 2 profile 4
@@ -1418,6 +1455,7 @@ Partial Class Formtest
 
         Dev2SendQuery.Checked = My.Settings.data491
 
+        txtOperationDev2.Text = My.Settings.data520
 
     End Sub
 
@@ -1480,6 +1518,8 @@ Partial Class Formtest
 
         Dev2SendQuery.Checked = My.Settings.data493
 
+        txtOperationDev2.Text = My.Settings.data521
+
     End Sub
 
     ' Device 2 profile 6
@@ -1540,6 +1580,8 @@ Partial Class Formtest
         Dev2DecimalNumDPs.Text = My.Settings.data466
 
         Dev2SendQuery.Checked = My.Settings.data495
+
+        txtOperationDev2.Text = My.Settings.data522
 
     End Sub
 
@@ -1602,6 +1644,8 @@ Partial Class Formtest
 
         Dev2SendQuery.Checked = My.Settings.data497
 
+        txtOperationDev2.Text = My.Settings.data523
+
     End Sub
 
 
@@ -1663,6 +1707,8 @@ Partial Class Formtest
         Dev2DecimalNumDPs.Text = My.Settings.data468
 
         Dev2SendQuery.Checked = My.Settings.data499
+
+        txtOperationDev2.Text = My.Settings.data524
 
     End Sub
 
