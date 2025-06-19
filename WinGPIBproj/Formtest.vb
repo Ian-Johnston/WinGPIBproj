@@ -163,7 +163,7 @@ Public Class Formtest
         Try
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V3.266"
+            BannerText1 = "WinGPIB   V3.267"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
             ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -2443,7 +2443,6 @@ Public Class Formtest
         ' Set combined tooltips as the tooltip for IODeviceLabel
         ToolTip1.SetToolTip(IODeviceLabel2, String.Join(Environment.NewLine, allTooltips))
     End Sub
-
 
 End Class
 

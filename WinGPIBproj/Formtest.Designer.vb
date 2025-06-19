@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -175,6 +175,10 @@ Partial Class Formtest
         Me.CheckBoxChA = New System.Windows.Forms.CheckBox()
         Me.CheckBoxChB = New System.Windows.Forms.CheckBox()
         Me.DisableRollingChart = New System.Windows.Forms.CheckBox()
+        Me.txtOperationDev1 = New System.Windows.Forms.TextBox()
+        Me.Label140 = New System.Windows.Forms.Label()
+        Me.Label141 = New System.Windows.Forms.Label()
+        Me.txtOperationDev2 = New System.Windows.Forms.TextBox()
         Me.CheckBoxR6581RetrieveREF = New System.Windows.Forms.CheckBox()
         Me.SerialPort1 = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer6 = New System.Windows.Forms.Timer(Me.components)
@@ -564,6 +568,7 @@ Partial Class Formtest
         Me.Label260 = New System.Windows.Forms.Label()
         Me.Label261 = New System.Windows.Forms.Label()
         Me.GroupBox5 = New System.Windows.Forms.GroupBox()
+        Me.PictureBox7 = New System.Windows.Forms.PictureBox()
         Me.Label263 = New System.Windows.Forms.Label()
         Me.Timeout3458A = New System.Windows.Forms.TextBox()
         Me.Label273 = New System.Windows.Forms.Label()
@@ -884,14 +889,15 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
-        Me.txtOperationDev1 = New System.Windows.Forms.TextBox()
+        Me.GroupBox12 = New System.Windows.Forms.GroupBox()
+        Me.RadioButton3458A = New System.Windows.Forms.RadioButton()
+        Me.RadioButton344XXA = New System.Windows.Forms.RadioButton()
+        Me.GroupBox13 = New System.Windows.Forms.GroupBox()
+        Me.GroupBox14 = New System.Windows.Forms.GroupBox()
         Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
-        Me.Label140 = New System.Windows.Forms.Label()
-        Me.Label141 = New System.Windows.Forms.Label()
-        Me.txtOperationDev2 = New System.Windows.Forms.TextBox()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.Panel2.SuspendLayout
@@ -922,6 +928,7 @@ Partial Class Formtest
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit
         Me.TabPage12.SuspendLayout
         Me.GroupBox5.SuspendLayout
+        CType(Me.PictureBox7, System.ComponentModel.ISupportInitialize).BeginInit
         CType(Me.PictureBox8, System.ComponentModel.ISupportInitialize).BeginInit
         CType(Me.PictureBox9, System.ComponentModel.ISupportInitialize).BeginInit
         Me.TabPage5.SuspendLayout
@@ -930,6 +937,9 @@ Partial Class Formtest
         Me.GroupBox11.SuspendLayout
         Me.TabPage6.SuspendLayout
         CType(Me.PictureBox6, System.ComponentModel.ISupportInitialize).BeginInit
+        Me.GroupBox12.SuspendLayout
+        Me.GroupBox13.SuspendLayout
+        Me.GroupBox14.SuspendLayout
         Me.SuspendLayout
         '
         'SerialPort
@@ -1785,12 +1795,12 @@ Partial Class Formtest
         Me.CheckBoxAZERO.AutoSize = True
         Me.CheckBoxAZERO.Checked = True
         Me.CheckBoxAZERO.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.CheckBoxAZERO.Location = New System.Drawing.Point(187, 189)
+        Me.CheckBoxAZERO.Location = New System.Drawing.Point(190, 79)
         Me.CheckBoxAZERO.Name = "CheckBoxAZERO"
-        Me.CheckBoxAZERO.Size = New System.Drawing.Size(116, 17)
+        Me.CheckBoxAZERO.Size = New System.Drawing.Size(137, 17)
         Me.CheckBoxAZERO.TabIndex = 611
-        Me.CheckBoxAZERO.Text = "3458A AZERO ON"
-        Me.ToolTip1.SetToolTip(Me.CheckBoxAZERO, "3458A Auto Zero function")
+        Me.CheckBoxAZERO.Text = "DMM AUTO ZERO ON"
+        Me.ToolTip1.SetToolTip(Me.CheckBoxAZERO, "DMM Auto Zero function")
         Me.CheckBoxAZERO.UseVisualStyleBackColor = True
         '
         'ClearLOGdisp
@@ -2455,7 +2465,7 @@ Partial Class Formtest
         Me.CheckBoxChA.AutoSize = True
         Me.CheckBoxChA.Checked = True
         Me.CheckBoxChA.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.CheckBoxChA.Location = New System.Drawing.Point(11, 189)
+        Me.CheckBoxChA.Location = New System.Drawing.Point(14, 79)
         Me.CheckBoxChA.Name = "CheckBoxChA"
         Me.CheckBoxChA.Size = New System.Drawing.Size(109, 17)
         Me.CheckBoxChA.TabIndex = 693
@@ -2466,7 +2476,7 @@ Partial Class Formtest
         'CheckBoxChB
         '
         Me.CheckBoxChB.AutoSize = True
-        Me.CheckBoxChB.Location = New System.Drawing.Point(11, 214)
+        Me.CheckBoxChB.Location = New System.Drawing.Point(14, 99)
         Me.CheckBoxChB.Name = "CheckBoxChB"
         Me.CheckBoxChB.Size = New System.Drawing.Size(109, 17)
         Me.CheckBoxChB.TabIndex = 694
@@ -2484,6 +2494,44 @@ Partial Class Formtest
         Me.DisableRollingChart.Text = "Disable X-axis Rolling Chart"
         Me.ToolTip1.SetToolTip(Me.DisableRollingChart, "Disable the rolling chart (X-axis Scale Points)")
         Me.DisableRollingChart.UseVisualStyleBackColor = True
+        '
+        'txtOperationDev1
+        '
+        Me.txtOperationDev1.Location = New System.Drawing.Point(8, 82)
+        Me.txtOperationDev1.Name = "txtOperationDev1"
+        Me.txtOperationDev1.Size = New System.Drawing.Size(44, 20)
+        Me.txtOperationDev1.TabIndex = 121
+        Me.txtOperationDev1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
+        Me.ToolTip1.SetToolTip(Me.txtOperationDev1, "Arithmetic *, /, + or -")
+        '
+        'Label140
+        '
+        Me.Label140.AutoSize = True
+        Me.Label140.Location = New System.Drawing.Point(56, 87)
+        Me.Label140.Name = "Label140"
+        Me.Label140.Size = New System.Drawing.Size(53, 13)
+        Me.Label140.TabIndex = 122
+        Me.Label140.Text = "Arithmetic"
+        Me.ToolTip1.SetToolTip(Me.Label140, "Arithmetic *, /, + or -" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "I.e. /1000 or *20 etc." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Supports floating point")
+        '
+        'Label141
+        '
+        Me.Label141.AutoSize = True
+        Me.Label141.Location = New System.Drawing.Point(56, 87)
+        Me.Label141.Name = "Label141"
+        Me.Label141.Size = New System.Drawing.Size(53, 13)
+        Me.Label141.TabIndex = 126
+        Me.Label141.Text = "Arithmetic"
+        Me.ToolTip1.SetToolTip(Me.Label141, "Arithmetic *, /, + or -" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "I.e. /1000 or *20 etc." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Supports floating point")
+        '
+        'txtOperationDev2
+        '
+        Me.txtOperationDev2.Location = New System.Drawing.Point(8, 82)
+        Me.txtOperationDev2.Name = "txtOperationDev2"
+        Me.txtOperationDev2.Size = New System.Drawing.Size(44, 20)
+        Me.txtOperationDev2.TabIndex = 125
+        Me.txtOperationDev2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
+        Me.ToolTip1.SetToolTip(Me.txtOperationDev2, "Arithmetic *, /, + or -")
         '
         'CheckBoxR6581RetrieveREF
         '
@@ -5505,22 +5553,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea2.BackColor = System.Drawing.Color.Black
-        ChartArea2.BorderColor = System.Drawing.Color.White
-        ChartArea2.BorderWidth = 2
-        ChartArea2.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea2)
-        Legend2.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend2)
+        ChartArea1.BackColor = System.Drawing.Color.Black
+        ChartArea1.BorderColor = System.Drawing.Color.White
+        ChartArea1.BorderWidth = 2
+        ChartArea1.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea1)
+        Legend1.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend1)
         Me.Chart1.Location = New System.Drawing.Point(-32, 140)
         Me.Chart1.Name = "Chart1"
-        Series2.ChartArea = "ChartArea1"
-        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series2.Color = System.Drawing.Color.Yellow
-        Series2.Enabled = False
-        Series2.Legend = "Legend1"
-        Series2.Name = "Series1"
-        Me.Chart1.Series.Add(Series2)
+        Series1.ChartArea = "ChartArea1"
+        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series1.Color = System.Drawing.Color.Yellow
+        Series1.Enabled = False
+        Series1.Legend = "Legend1"
+        Series1.Name = "Series1"
+        Me.Chart1.Series.Add(Series1)
         Me.Chart1.Size = New System.Drawing.Size(1120, 462)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -6648,41 +6696,26 @@ Partial Class Formtest
         Me.Label261.AutoSize = True
         Me.Label261.Location = New System.Drawing.Point(16, 40)
         Me.Label261.Name = "Label261"
-        Me.Label261.Size = New System.Drawing.Size(441, 13)
+        Me.Label261.Size = New System.Drawing.Size(407, 13)
         Me.Label261.TabIndex = 589
         Me.Label261.Text = "This utility will automate the calibration adjustments of an HP 3245A by using a " &
-    "3458A DMM."
+    "DMM."
         '
         'GroupBox5
         '
-        Me.GroupBox5.Controls.Add(Me.CheckBoxChB)
-        Me.GroupBox5.Controls.Add(Me.CheckBoxChA)
-        Me.GroupBox5.Controls.Add(Me.Label263)
-        Me.GroupBox5.Controls.Add(Me.Timeout3458A)
+        Me.GroupBox5.Controls.Add(Me.GroupBox14)
+        Me.GroupBox5.Controls.Add(Me.GroupBox13)
+        Me.GroupBox5.Controls.Add(Me.GroupBox12)
+        Me.GroupBox5.Controls.Add(Me.PictureBox7)
         Me.GroupBox5.Controls.Add(Me.Label273)
         Me.GroupBox5.Controls.Add(Me.PictureBox8)
         Me.GroupBox5.Controls.Add(Me.Label272)
-        Me.GroupBox5.Controls.Add(Me.CheckBoxAZERO)
         Me.GroupBox5.Controls.Add(Me.Label267)
-        Me.GroupBox5.Controls.Add(Me.RadioButton3245ADCVDCI)
-        Me.GroupBox5.Controls.Add(Me.Label3245AWRI)
-        Me.GroupBox5.Controls.Add(Me.Label266)
         Me.GroupBox5.Controls.Add(Me.Button3245Aabort)
-        Me.GroupBox5.Controls.Add(Me.Label264)
-        Me.GroupBox5.Controls.Add(Me.Label262)
-        Me.GroupBox5.Controls.Add(Me.Code3245A)
-        Me.GroupBox5.Controls.Add(Me.Label3458123)
-        Me.GroupBox5.Controls.Add(Me.Label3458ARDG)
         Me.GroupBox5.Controls.Add(Me.ButtonCal3245A)
         Me.GroupBox5.Controls.Add(Me.Label265)
         Me.GroupBox5.Controls.Add(Me.Label268)
-        Me.GroupBox5.Controls.Add(Me.RadioButton3245ADCV)
-        Me.GroupBox5.Controls.Add(Me.LabelRDG)
-        Me.GroupBox5.Controls.Add(Me.Label270)
         Me.GroupBox5.Controls.Add(Me.Label271)
-        Me.GroupBox5.Controls.Add(Me.Label274)
-        Me.GroupBox5.Controls.Add(Me.Label275)
-        Me.GroupBox5.Controls.Add(Me.Cal3245status)
         Me.GroupBox5.Controls.Add(Me.Label255)
         Me.GroupBox5.Controls.Add(Me.Label269)
         Me.GroupBox5.Controls.Add(Me.PictureBox9)
@@ -6693,19 +6726,28 @@ Partial Class Formtest
         Me.GroupBox5.TabIndex = 594
         Me.GroupBox5.TabStop = False
         '
+        'PictureBox7
+        '
+        Me.PictureBox7.Image = CType(resources.GetObject("PictureBox7.Image"), System.Drawing.Image)
+        Me.PictureBox7.Location = New System.Drawing.Point(492, 82)
+        Me.PictureBox7.Name = "PictureBox7"
+        Me.PictureBox7.Size = New System.Drawing.Size(127, 59)
+        Me.PictureBox7.TabIndex = 698
+        Me.PictureBox7.TabStop = False
+        '
         'Label263
         '
         Me.Label263.AutoSize = True
-        Me.Label263.Location = New System.Drawing.Point(236, 164)
+        Me.Label263.Location = New System.Drawing.Point(239, 50)
         Me.Label263.Name = "Label263"
-        Me.Label263.Size = New System.Drawing.Size(101, 13)
+        Me.Label263.Size = New System.Drawing.Size(96, 13)
         Me.Label263.TabIndex = 691
-        Me.Label263.Text = "3458A Timeout (ms)"
+        Me.Label263.Text = "DMM Timeout (ms)"
         '
         'Timeout3458A
         '
         Me.Timeout3458A.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Timeout3458A.Location = New System.Drawing.Point(187, 160)
+        Me.Timeout3458A.Location = New System.Drawing.Point(190, 46)
         Me.Timeout3458A.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.Timeout3458A.MaxLength = 8
         Me.Timeout3458A.Name = "Timeout3458A"
@@ -6736,9 +6778,9 @@ Partial Class Formtest
         Me.Label272.AutoSize = True
         Me.Label272.Location = New System.Drawing.Point(8, 81)
         Me.Label272.Name = "Label272"
-        Me.Label272.Size = New System.Drawing.Size(283, 13)
+        Me.Label272.Size = New System.Drawing.Size(278, 13)
         Me.Label272.TabIndex = 595
-        Me.Label272.Text = "Connect Device 1 to your 3458A - Leave in STOP position"
+        Me.Label272.Text = "Connect Device 1 to your DMM - Leave in STOP position"
         '
         'Label267
         '
@@ -6752,7 +6794,7 @@ Partial Class Formtest
         'RadioButton3245ADCVDCI
         '
         Me.RadioButton3245ADCVDCI.AutoSize = True
-        Me.RadioButton3245ADCVDCI.Location = New System.Drawing.Point(11, 156)
+        Me.RadioButton3245ADCVDCI.Location = New System.Drawing.Point(14, 42)
         Me.RadioButton3245ADCVDCI.Name = "RadioButton3245ADCVDCI"
         Me.RadioButton3245ADCVDCI.Size = New System.Drawing.Size(129, 17)
         Me.RadioButton3245ADCVDCI.TabIndex = 608
@@ -6763,7 +6805,7 @@ Partial Class Formtest
         '
         Me.Label3245AWRI.AutoSize = True
         Me.Label3245AWRI.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label3245AWRI.Location = New System.Drawing.Point(558, 267)
+        Me.Label3245AWRI.Location = New System.Drawing.Point(118, 84)
         Me.Label3245AWRI.Name = "Label3245AWRI"
         Me.Label3245AWRI.Size = New System.Drawing.Size(14, 13)
         Me.Label3245AWRI.TabIndex = 607
@@ -6772,7 +6814,7 @@ Partial Class Formtest
         'Label266
         '
         Me.Label266.AutoSize = True
-        Me.Label266.Location = New System.Drawing.Point(457, 267)
+        Me.Label266.Location = New System.Drawing.Point(17, 84)
         Me.Label266.Name = "Label266"
         Me.Label266.Size = New System.Drawing.Size(69, 13)
         Me.Label266.TabIndex = 606
@@ -6782,7 +6824,7 @@ Partial Class Formtest
         '
         Me.Button3245Aabort.Enabled = False
         Me.Button3245Aabort.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Button3245Aabort.Location = New System.Drawing.Point(126, 243)
+        Me.Button3245Aabort.Location = New System.Drawing.Point(168, 498)
         Me.Button3245Aabort.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.Button3245Aabort.Name = "Button3245Aabort"
         Me.Button3245Aabort.Size = New System.Drawing.Size(48, 37)
@@ -6793,7 +6835,7 @@ Partial Class Formtest
         'Label264
         '
         Me.Label264.AutoSize = True
-        Me.Label264.Location = New System.Drawing.Point(578, 225)
+        Me.Label264.Location = New System.Drawing.Point(138, 42)
         Me.Label264.Name = "Label264"
         Me.Label264.Size = New System.Drawing.Size(34, 13)
         Me.Label264.TabIndex = 604
@@ -6802,7 +6844,7 @@ Partial Class Formtest
         'Label262
         '
         Me.Label262.AutoSize = True
-        Me.Label262.Location = New System.Drawing.Point(236, 136)
+        Me.Label262.Location = New System.Drawing.Point(239, 22)
         Me.Label262.Name = "Label262"
         Me.Label262.Size = New System.Drawing.Size(202, 13)
         Me.Label262.TabIndex = 595
@@ -6811,7 +6853,7 @@ Partial Class Formtest
         'Code3245A
         '
         Me.Code3245A.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Code3245A.Location = New System.Drawing.Point(187, 132)
+        Me.Code3245A.Location = New System.Drawing.Point(190, 18)
         Me.Code3245A.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.Code3245A.MaxLength = 8
         Me.Code3245A.Name = "Code3245A"
@@ -6823,7 +6865,7 @@ Partial Class Formtest
         '
         Me.Label3458123.AutoSize = True
         Me.Label3458123.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label3458123.Location = New System.Drawing.Point(686, 246)
+        Me.Label3458123.Location = New System.Drawing.Point(246, 63)
         Me.Label3458123.Name = "Label3458123"
         Me.Label3458123.Size = New System.Drawing.Size(14, 13)
         Me.Label3458123.TabIndex = 601
@@ -6833,7 +6875,7 @@ Partial Class Formtest
         '
         Me.Label3458ARDG.AutoSize = True
         Me.Label3458ARDG.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label3458ARDG.Location = New System.Drawing.Point(558, 246)
+        Me.Label3458ARDG.Location = New System.Drawing.Point(118, 63)
         Me.Label3458ARDG.Name = "Label3458ARDG"
         Me.Label3458ARDG.Size = New System.Drawing.Size(14, 13)
         Me.Label3458ARDG.TabIndex = 598
@@ -6842,12 +6884,12 @@ Partial Class Formtest
         'ButtonCal3245A
         '
         Me.ButtonCal3245A.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonCal3245A.Location = New System.Drawing.Point(10, 243)
+        Me.ButtonCal3245A.Location = New System.Drawing.Point(18, 498)
         Me.ButtonCal3245A.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.ButtonCal3245A.Name = "ButtonCal3245A"
-        Me.ButtonCal3245A.Size = New System.Drawing.Size(100, 37)
+        Me.ButtonCal3245A.Size = New System.Drawing.Size(130, 37)
         Me.ButtonCal3245A.TabIndex = 591
-        Me.ButtonCal3245A.Text = "3245A Calibration" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Adjustments"
+        Me.ButtonCal3245A.Text = "Run 3245A" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Calibration Adjustments"
         Me.ButtonCal3245A.UseVisualStyleBackColor = True
         '
         'Label265
@@ -6872,7 +6914,7 @@ Partial Class Formtest
         '
         Me.RadioButton3245ADCV.AutoSize = True
         Me.RadioButton3245ADCV.Checked = True
-        Me.RadioButton3245ADCV.Location = New System.Drawing.Point(11, 133)
+        Me.RadioButton3245ADCV.Location = New System.Drawing.Point(14, 19)
         Me.RadioButton3245ADCV.Name = "RadioButton3245ADCV"
         Me.RadioButton3245ADCV.Size = New System.Drawing.Size(99, 17)
         Me.RadioButton3245ADCV.TabIndex = 591
@@ -6884,7 +6926,7 @@ Partial Class Formtest
         '
         Me.LabelRDG.AutoSize = True
         Me.LabelRDG.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelRDG.Location = New System.Drawing.Point(558, 225)
+        Me.LabelRDG.Location = New System.Drawing.Point(118, 42)
         Me.LabelRDG.Name = "LabelRDG"
         Me.LabelRDG.Size = New System.Drawing.Size(14, 13)
         Me.LabelRDG.TabIndex = 564
@@ -6893,7 +6935,7 @@ Partial Class Formtest
         'Label270
         '
         Me.Label270.AutoSize = True
-        Me.Label270.Location = New System.Drawing.Point(457, 225)
+        Me.Label270.Location = New System.Drawing.Point(17, 42)
         Me.Label270.Name = "Label270"
         Me.Label270.Size = New System.Drawing.Size(60, 13)
         Me.Label270.TabIndex = 563
@@ -6913,16 +6955,16 @@ Partial Class Formtest
         'Label274
         '
         Me.Label274.AutoSize = True
-        Me.Label274.Location = New System.Drawing.Point(457, 246)
+        Me.Label274.Location = New System.Drawing.Point(17, 63)
         Me.Label274.Name = "Label274"
-        Me.Label274.Size = New System.Drawing.Size(70, 13)
+        Me.Label274.Size = New System.Drawing.Size(65, 13)
         Me.Label274.TabIndex = 561
-        Me.Label274.Text = "3458A Read:"
+        Me.Label274.Text = "DMM Read:"
         '
         'Label275
         '
         Me.Label275.AutoSize = True
-        Me.Label275.Location = New System.Drawing.Point(457, 204)
+        Me.Label275.Location = New System.Drawing.Point(17, 21)
         Me.Label275.Name = "Label275"
         Me.Label275.Size = New System.Drawing.Size(92, 13)
         Me.Label275.TabIndex = 548
@@ -6932,7 +6974,7 @@ Partial Class Formtest
         '
         Me.Cal3245status.AutoSize = True
         Me.Cal3245status.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Cal3245status.Location = New System.Drawing.Point(558, 204)
+        Me.Cal3245status.Location = New System.Drawing.Point(118, 21)
         Me.Cal3245status.Name = "Cal3245status"
         Me.Cal3245status.Size = New System.Drawing.Size(14, 13)
         Me.Cal3245status.TabIndex = 551
@@ -6942,7 +6984,7 @@ Partial Class Formtest
         '
         Me.Label255.AutoSize = True
         Me.Label255.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label255.Location = New System.Drawing.Point(463, 58)
+        Me.Label255.Location = New System.Drawing.Point(493, 58)
         Me.Label255.Name = "Label255"
         Me.Label255.Size = New System.Drawing.Size(23, 24)
         Me.Label255.TabIndex = 689
@@ -6952,7 +6994,7 @@ Partial Class Formtest
         '
         Me.Label269.AutoSize = True
         Me.Label269.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label269.Location = New System.Drawing.Point(629, 58)
+        Me.Label269.Location = New System.Drawing.Point(599, 58)
         Me.Label269.Name = "Label269"
         Me.Label269.Size = New System.Drawing.Size(23, 24)
         Me.Label269.TabIndex = 690
@@ -10244,14 +10286,75 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
-        'txtOperationDev1
+        'GroupBox12
         '
-        Me.txtOperationDev1.Location = New System.Drawing.Point(8, 82)
-        Me.txtOperationDev1.Name = "txtOperationDev1"
-        Me.txtOperationDev1.Size = New System.Drawing.Size(44, 20)
-        Me.txtOperationDev1.TabIndex = 121
-        Me.txtOperationDev1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
-        Me.ToolTip1.SetToolTip(Me.txtOperationDev1, "Arithmetic *, /, + or -")
+        Me.GroupBox12.Controls.Add(Me.RadioButton344XXA)
+        Me.GroupBox12.Controls.Add(Me.RadioButton3458A)
+        Me.GroupBox12.Location = New System.Drawing.Point(11, 128)
+        Me.GroupBox12.Name = "GroupBox12"
+        Me.GroupBox12.Size = New System.Drawing.Size(153, 65)
+        Me.GroupBox12.TabIndex = 699
+        Me.GroupBox12.TabStop = False
+        Me.GroupBox12.Text = "DMM"
+        '
+        'RadioButton3458A
+        '
+        Me.RadioButton3458A.AutoSize = True
+        Me.RadioButton3458A.Checked = True
+        Me.RadioButton3458A.Location = New System.Drawing.Point(15, 16)
+        Me.RadioButton3458A.Name = "RadioButton3458A"
+        Me.RadioButton3458A.Size = New System.Drawing.Size(56, 17)
+        Me.RadioButton3458A.TabIndex = 0
+        Me.RadioButton3458A.TabStop = True
+        Me.RadioButton3458A.Text = "3458A"
+        Me.RadioButton3458A.UseVisualStyleBackColor = True
+        '
+        'RadioButton344XXA
+        '
+        Me.RadioButton344XXA.AutoSize = True
+        Me.RadioButton344XXA.Location = New System.Drawing.Point(15, 39)
+        Me.RadioButton344XXA.Name = "RadioButton344XXA"
+        Me.RadioButton344XXA.Size = New System.Drawing.Size(64, 17)
+        Me.RadioButton344XXA.TabIndex = 1
+        Me.RadioButton344XXA.Text = "344XXA"
+        Me.RadioButton344XXA.UseVisualStyleBackColor = True
+        '
+        'GroupBox13
+        '
+        Me.GroupBox13.Controls.Add(Me.Label270)
+        Me.GroupBox13.Controls.Add(Me.Cal3245status)
+        Me.GroupBox13.Controls.Add(Me.Label275)
+        Me.GroupBox13.Controls.Add(Me.Label274)
+        Me.GroupBox13.Controls.Add(Me.LabelRDG)
+        Me.GroupBox13.Controls.Add(Me.Label3458ARDG)
+        Me.GroupBox13.Controls.Add(Me.Label3458123)
+        Me.GroupBox13.Controls.Add(Me.Label264)
+        Me.GroupBox13.Controls.Add(Me.Label266)
+        Me.GroupBox13.Controls.Add(Me.Label3245AWRI)
+        Me.GroupBox13.Location = New System.Drawing.Point(506, 208)
+        Me.GroupBox13.Name = "GroupBox13"
+        Me.GroupBox13.Size = New System.Drawing.Size(440, 115)
+        Me.GroupBox13.TabIndex = 700
+        Me.GroupBox13.TabStop = False
+        Me.GroupBox13.Text = "STATUS"
+        '
+        'GroupBox14
+        '
+        Me.GroupBox14.Controls.Add(Me.RadioButton3245ADCV)
+        Me.GroupBox14.Controls.Add(Me.Code3245A)
+        Me.GroupBox14.Controls.Add(Me.Label262)
+        Me.GroupBox14.Controls.Add(Me.RadioButton3245ADCVDCI)
+        Me.GroupBox14.Controls.Add(Me.CheckBoxAZERO)
+        Me.GroupBox14.Controls.Add(Me.Timeout3458A)
+        Me.GroupBox14.Controls.Add(Me.CheckBoxChB)
+        Me.GroupBox14.Controls.Add(Me.Label263)
+        Me.GroupBox14.Controls.Add(Me.CheckBoxChA)
+        Me.GroupBox14.Location = New System.Drawing.Point(11, 208)
+        Me.GroupBox14.Name = "GroupBox14"
+        Me.GroupBox14.Size = New System.Drawing.Size(464, 126)
+        Me.GroupBox14.TabIndex = 701
+        Me.GroupBox14.TabStop = False
+        Me.GroupBox14.Text = "SETUP"
         '
         'OnOffLed2
         '
@@ -10292,35 +10395,6 @@ Partial Class Formtest
         Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
         Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
         Me.OnOffLed3.TabIndex = 796
-        '
-        'Label140
-        '
-        Me.Label140.AutoSize = True
-        Me.Label140.Location = New System.Drawing.Point(56, 87)
-        Me.Label140.Name = "Label140"
-        Me.Label140.Size = New System.Drawing.Size(53, 13)
-        Me.Label140.TabIndex = 122
-        Me.Label140.Text = "Arithmetic"
-        Me.ToolTip1.SetToolTip(Me.Label140, "Arithmetic *, /, + or -" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "I.e. /1000 or *20 etc." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Supports floating point")
-        '
-        'Label141
-        '
-        Me.Label141.AutoSize = True
-        Me.Label141.Location = New System.Drawing.Point(56, 87)
-        Me.Label141.Name = "Label141"
-        Me.Label141.Size = New System.Drawing.Size(53, 13)
-        Me.Label141.TabIndex = 126
-        Me.Label141.Text = "Arithmetic"
-        Me.ToolTip1.SetToolTip(Me.Label141, "Arithmetic *, /, + or -" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "I.e. /1000 or *20 etc." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Supports floating point")
-        '
-        'txtOperationDev2
-        '
-        Me.txtOperationDev2.Location = New System.Drawing.Point(8, 82)
-        Me.txtOperationDev2.Name = "txtOperationDev2"
-        Me.txtOperationDev2.Size = New System.Drawing.Size(44, 20)
-        Me.txtOperationDev2.TabIndex = 125
-        Me.txtOperationDev2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
-        Me.ToolTip1.SetToolTip(Me.txtOperationDev2, "Arithmetic *, /, + or -")
         '
         'Formtest
         '
@@ -10381,6 +10455,7 @@ Partial Class Formtest
         Me.TabPage12.PerformLayout
         Me.GroupBox5.ResumeLayout(False)
         Me.GroupBox5.PerformLayout
+        CType(Me.PictureBox7, System.ComponentModel.ISupportInitialize).EndInit
         CType(Me.PictureBox8, System.ComponentModel.ISupportInitialize).EndInit
         CType(Me.PictureBox9, System.ComponentModel.ISupportInitialize).EndInit
         Me.TabPage5.ResumeLayout(False)
@@ -10393,6 +10468,12 @@ Partial Class Formtest
         Me.TabPage6.ResumeLayout(False)
         Me.TabPage6.PerformLayout
         CType(Me.PictureBox6, System.ComponentModel.ISupportInitialize).EndInit
+        Me.GroupBox12.ResumeLayout(False)
+        Me.GroupBox12.PerformLayout
+        Me.GroupBox13.ResumeLayout(False)
+        Me.GroupBox13.PerformLayout
+        Me.GroupBox14.ResumeLayout(False)
+        Me.GroupBox14.PerformLayout
         Me.ResumeLayout(False)
 
     End Sub
@@ -11264,4 +11345,10 @@ Partial Class Formtest
     Friend WithEvents Label140 As Label
     Friend WithEvents Label141 As Label
     Friend WithEvents txtOperationDev2 As TextBox
+    Friend WithEvents PictureBox7 As PictureBox
+    Friend WithEvents GroupBox12 As GroupBox
+    Friend WithEvents RadioButton344XXA As RadioButton
+    Friend WithEvents RadioButton3458A As RadioButton
+    Friend WithEvents GroupBox13 As GroupBox
+    Friend WithEvents GroupBox14 As GroupBox
 End Class
