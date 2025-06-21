@@ -530,6 +530,7 @@ Partial Class Formtest
             PictureBox7.Visible = False
             PictureBox2.Visible = False
             Label274.Text = "3458A Read"
+            Me.Refresh()
         End If
     End Sub
 
@@ -539,6 +540,7 @@ Partial Class Formtest
             PictureBox7.Visible = True
             PictureBox2.Visible = False
             Label274.Text = "344XXA Read"
+            Me.Refresh()
         End If
     End Sub
 
@@ -548,6 +550,7 @@ Partial Class Formtest
             PictureBox7.Visible = False
             PictureBox2.Visible = True
             Label274.Text = "R6581 Read"
+            Me.Refresh()
         End If
     End Sub
 

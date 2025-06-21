@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -179,6 +179,9 @@ Partial Class Formtest
         Me.Label140 = New System.Windows.Forms.Label()
         Me.Label141 = New System.Windows.Forms.Label()
         Me.txtOperationDev2 = New System.Windows.Forms.TextBox()
+        Me.RadioButton344XXA = New System.Windows.Forms.RadioButton()
+        Me.RadioButton3458A = New System.Windows.Forms.RadioButton()
+        Me.RadioButtonR6581 = New System.Windows.Forms.RadioButton()
         Me.CheckBoxR6581RetrieveREF = New System.Windows.Forms.CheckBox()
         Me.SerialPort1 = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer6 = New System.Windows.Forms.Timer(Me.components)
@@ -345,6 +348,8 @@ Partial Class Formtest
         Me.Label215 = New System.Windows.Forms.Label()
         Me.Label214 = New System.Windows.Forms.Label()
         Me.Label213 = New System.Windows.Forms.Label()
+        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.Label212 = New System.Windows.Forms.Label()
         Me.Label211 = New System.Windows.Forms.Label()
         Me.Label210 = New System.Windows.Forms.Label()
@@ -565,9 +570,9 @@ Partial Class Formtest
         Me.ButtonR6581abort = New System.Windows.Forms.Button()
         Me.TabPage12 = New System.Windows.Forms.TabPage()
         Me.Label259 = New System.Windows.Forms.Label()
-        Me.Label260 = New System.Windows.Forms.Label()
         Me.Label261 = New System.Windows.Forms.Label()
         Me.GroupBox5 = New System.Windows.Forms.GroupBox()
+        Me.PictureBox2 = New System.Windows.Forms.PictureBox()
         Me.GroupBox14 = New System.Windows.Forms.GroupBox()
         Me.RadioButton3245ADCV = New System.Windows.Forms.RadioButton()
         Me.Code3245A = New System.Windows.Forms.TextBox()
@@ -587,8 +592,6 @@ Partial Class Formtest
         Me.Label266 = New System.Windows.Forms.Label()
         Me.Label3245AWRI = New System.Windows.Forms.Label()
         Me.GroupBox12 = New System.Windows.Forms.GroupBox()
-        Me.RadioButton344XXA = New System.Windows.Forms.RadioButton()
-        Me.RadioButton3458A = New System.Windows.Forms.RadioButton()
         Me.PictureBox7 = New System.Windows.Forms.PictureBox()
         Me.Label273 = New System.Windows.Forms.Label()
         Me.PictureBox8 = New System.Windows.Forms.PictureBox()
@@ -603,6 +606,7 @@ Partial Class Formtest
         Me.Label269 = New System.Windows.Forms.Label()
         Me.PictureBox9 = New System.Windows.Forms.PictureBox()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
+        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.Label145 = New System.Windows.Forms.Label()
         Me.Label79 = New System.Windows.Forms.Label()
         Me.Label81 = New System.Windows.Forms.Label()
@@ -858,6 +862,7 @@ Partial Class Formtest
         Me.CalAccuracyFinal = New System.Windows.Forms.TextBox()
         Me.Label117 = New System.Windows.Forms.Label()
         Me.Label121 = New System.Windows.Forms.Label()
+        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage13 = New System.Windows.Forms.TabPage()
         Me.GroupBox11 = New System.Windows.Forms.GroupBox()
         Me.Label314 = New System.Windows.Forms.Label()
@@ -894,12 +899,7 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
-        Me.RadioButtonR6581 = New System.Windows.Forms.RadioButton()
-        Me.PictureBox2 = New System.Windows.Forms.PictureBox()
-        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
+        Me.Label260 = New System.Windows.Forms.Label()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.Panel2.SuspendLayout
@@ -930,6 +930,7 @@ Partial Class Formtest
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit
         Me.TabPage12.SuspendLayout
         Me.GroupBox5.SuspendLayout
+        CType(Me.PictureBox2, System.ComponentModel.ISupportInitialize).BeginInit
         Me.GroupBox14.SuspendLayout
         Me.GroupBox13.SuspendLayout
         Me.GroupBox12.SuspendLayout
@@ -942,7 +943,6 @@ Partial Class Formtest
         Me.GroupBox11.SuspendLayout
         Me.TabPage6.SuspendLayout
         CType(Me.PictureBox6, System.ComponentModel.ISupportInitialize).BeginInit
-        CType(Me.PictureBox2, System.ComponentModel.ISupportInitialize).BeginInit
         Me.SuspendLayout
         '
         'SerialPort
@@ -2535,6 +2535,41 @@ Partial Class Formtest
         Me.txtOperationDev2.TabIndex = 125
         Me.txtOperationDev2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         Me.ToolTip1.SetToolTip(Me.txtOperationDev2, "Arithmetic *, /, + or -")
+        '
+        'RadioButton344XXA
+        '
+        Me.RadioButton344XXA.AutoSize = True
+        Me.RadioButton344XXA.Location = New System.Drawing.Point(15, 39)
+        Me.RadioButton344XXA.Name = "RadioButton344XXA"
+        Me.RadioButton344XXA.Size = New System.Drawing.Size(64, 17)
+        Me.RadioButton344XXA.TabIndex = 1
+        Me.RadioButton344XXA.Text = "344XXA"
+        Me.ToolTip1.SetToolTip(Me.RadioButton344XXA, "Agilent/Keysight 34461A, 34465A, 34470A DMM")
+        Me.RadioButton344XXA.UseVisualStyleBackColor = True
+        '
+        'RadioButton3458A
+        '
+        Me.RadioButton3458A.AutoSize = True
+        Me.RadioButton3458A.Checked = True
+        Me.RadioButton3458A.Location = New System.Drawing.Point(15, 16)
+        Me.RadioButton3458A.Name = "RadioButton3458A"
+        Me.RadioButton3458A.Size = New System.Drawing.Size(56, 17)
+        Me.RadioButton3458A.TabIndex = 0
+        Me.RadioButton3458A.TabStop = True
+        Me.RadioButton3458A.Text = "3458A"
+        Me.ToolTip1.SetToolTip(Me.RadioButton3458A, "HP/Agilent/Keysight 3458A DMM")
+        Me.RadioButton3458A.UseVisualStyleBackColor = True
+        '
+        'RadioButtonR6581
+        '
+        Me.RadioButtonR6581.AutoSize = True
+        Me.RadioButtonR6581.Location = New System.Drawing.Point(15, 62)
+        Me.RadioButtonR6581.Name = "RadioButtonR6581"
+        Me.RadioButtonR6581.Size = New System.Drawing.Size(70, 17)
+        Me.RadioButtonR6581.TabIndex = 2
+        Me.RadioButtonR6581.Text = "R6581(T)"
+        Me.ToolTip1.SetToolTip(Me.RadioButtonR6581, "Advantest/ADCMT R6581, R6581T DMM")
+        Me.RadioButtonR6581.UseVisualStyleBackColor = True
         '
         'CheckBoxR6581RetrieveREF
         '
@@ -4369,6 +4404,26 @@ Partial Class Formtest
         Me.Label213.TabIndex = 537
         Me.Label213.Text = "Tx"
         '
+        'OnOffLed2
+        '
+        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
+        Me.OnOffLed2.Name = "OnOffLed2"
+        Me.OnOffLed2.OffText = Nothing
+        Me.OnOffLed2.OnText = Nothing
+        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed2.TabIndex = 536
+        '
+        'OnOffLed1
+        '
+        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
+        Me.OnOffLed1.Name = "OnOffLed1"
+        Me.OnOffLed1.OffText = Nothing
+        Me.OnOffLed1.OnText = Nothing
+        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed1.TabIndex = 535
+        '
         'Label212
         '
         Me.Label212.AutoSize = True
@@ -5556,22 +5611,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea1.BackColor = System.Drawing.Color.Black
-        ChartArea1.BorderColor = System.Drawing.Color.White
-        ChartArea1.BorderWidth = 2
-        ChartArea1.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea1)
-        Legend1.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend1)
+        ChartArea2.BackColor = System.Drawing.Color.Black
+        ChartArea2.BorderColor = System.Drawing.Color.White
+        ChartArea2.BorderWidth = 2
+        ChartArea2.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea2)
+        Legend2.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend2)
         Me.Chart1.Location = New System.Drawing.Point(-32, 140)
         Me.Chart1.Name = "Chart1"
-        Series1.ChartArea = "ChartArea1"
-        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series1.Color = System.Drawing.Color.Yellow
-        Series1.Enabled = False
-        Series1.Legend = "Legend1"
-        Series1.Name = "Series1"
-        Me.Chart1.Series.Add(Series1)
+        Series2.ChartArea = "ChartArea1"
+        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series2.Color = System.Drawing.Color.Yellow
+        Series2.Enabled = False
+        Series2.Legend = "Legend1"
+        Series2.Name = "Series1"
+        Me.Chart1.Series.Add(Series2)
         Me.Chart1.Size = New System.Drawing.Size(1120, 462)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -6685,15 +6740,6 @@ Partial Class Formtest
         Me.Label259.TabIndex = 591
         Me.Label259.Text = "3245A CALIBRATION ADJUSTMENTS:"
         '
-        'Label260
-        '
-        Me.Label260.AutoSize = True
-        Me.Label260.Location = New System.Drawing.Point(16, 66)
-        Me.Label260.Name = "Label260"
-        Me.Label260.Size = New System.Drawing.Size(316, 13)
-        Me.Label260.TabIndex = 590
-        Me.Label260.Text = "Execute ACAL DCV or ACAL ALL immediately prior to running Cal."
-        '
         'Label261
         '
         Me.Label261.AutoSize = True
@@ -6729,6 +6775,15 @@ Partial Class Formtest
         Me.GroupBox5.Size = New System.Drawing.Size(1036, 588)
         Me.GroupBox5.TabIndex = 594
         Me.GroupBox5.TabStop = False
+        '
+        'PictureBox2
+        '
+        Me.PictureBox2.Image = CType(resources.GetObject("PictureBox2.Image"), System.Drawing.Image)
+        Me.PictureBox2.Location = New System.Drawing.Point(443, 81)
+        Me.PictureBox2.Name = "PictureBox2"
+        Me.PictureBox2.Size = New System.Drawing.Size(226, 59)
+        Me.PictureBox2.TabIndex = 702
+        Me.PictureBox2.TabStop = False
         '
         'GroupBox14
         '
@@ -6936,30 +6991,6 @@ Partial Class Formtest
         Me.GroupBox12.TabStop = False
         Me.GroupBox12.Text = "DMM"
         '
-        'RadioButton344XXA
-        '
-        Me.RadioButton344XXA.AutoSize = True
-        Me.RadioButton344XXA.Location = New System.Drawing.Point(15, 39)
-        Me.RadioButton344XXA.Name = "RadioButton344XXA"
-        Me.RadioButton344XXA.Size = New System.Drawing.Size(64, 17)
-        Me.RadioButton344XXA.TabIndex = 1
-        Me.RadioButton344XXA.Text = "344XXA"
-        Me.ToolTip1.SetToolTip(Me.RadioButton344XXA, "Agilent/Keysight 34461A, 34465A, 34470A DMM")
-        Me.RadioButton344XXA.UseVisualStyleBackColor = True
-        '
-        'RadioButton3458A
-        '
-        Me.RadioButton3458A.AutoSize = True
-        Me.RadioButton3458A.Checked = True
-        Me.RadioButton3458A.Location = New System.Drawing.Point(15, 16)
-        Me.RadioButton3458A.Name = "RadioButton3458A"
-        Me.RadioButton3458A.Size = New System.Drawing.Size(56, 17)
-        Me.RadioButton3458A.TabIndex = 0
-        Me.RadioButton3458A.TabStop = True
-        Me.RadioButton3458A.Text = "3458A"
-        Me.ToolTip1.SetToolTip(Me.RadioButton3458A, "HP/Agilent/Keysight 3458A DMM")
-        Me.RadioButton3458A.UseVisualStyleBackColor = True
-        '
         'PictureBox7
         '
         Me.PictureBox7.Image = CType(resources.GetObject("PictureBox7.Image"), System.Drawing.Image)
@@ -7042,9 +7073,9 @@ Partial Class Formtest
         Me.Label268.AutoSize = True
         Me.Label268.Location = New System.Drawing.Point(679, 17)
         Me.Label268.Name = "Label268"
-        Me.Label268.Size = New System.Drawing.Size(35, 13)
+        Me.Label268.Size = New System.Drawing.Size(28, 13)
         Me.Label268.TabIndex = 590
-        Me.Label268.Text = "INFO:"
+        Me.Label268.Text = "Info:"
         '
         'Label271
         '
@@ -7193,6 +7224,16 @@ Partial Class Formtest
         Me.TabPage5.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "PDVS2mini  "
+        '
+        'OnOffLed4
+        '
+        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
+        Me.OnOffLed4.Name = "OnOffLed4"
+        Me.OnOffLed4.OffText = Nothing
+        Me.OnOffLed4.OnText = Nothing
+        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed4.TabIndex = 797
         '
         'Label145
         '
@@ -10019,6 +10060,16 @@ Partial Class Formtest
         Me.Label121.TabIndex = 554
         Me.Label121.Text = "Comms Delay (mS)"
         '
+        'OnOffLed3
+        '
+        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
+        Me.OnOffLed3.Name = "OnOffLed3"
+        Me.OnOffLed3.OffText = Nothing
+        Me.OnOffLed3.OnText = Nothing
+        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed3.TabIndex = 796
+        '
         'TabPage13
         '
         Me.TabPage13.BackColor = System.Drawing.Color.WhiteSmoke
@@ -10363,65 +10414,14 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
-        'RadioButtonR6581
+        'Label260
         '
-        Me.RadioButtonR6581.AutoSize = True
-        Me.RadioButtonR6581.Location = New System.Drawing.Point(15, 62)
-        Me.RadioButtonR6581.Name = "RadioButtonR6581"
-        Me.RadioButtonR6581.Size = New System.Drawing.Size(70, 17)
-        Me.RadioButtonR6581.TabIndex = 2
-        Me.RadioButtonR6581.Text = "R6581(T)"
-        Me.ToolTip1.SetToolTip(Me.RadioButtonR6581, "Advantest/ADCMT R6581, R6581T DMM")
-        Me.RadioButtonR6581.UseVisualStyleBackColor = True
-        '
-        'PictureBox2
-        '
-        Me.PictureBox2.Image = CType(resources.GetObject("PictureBox2.Image"), System.Drawing.Image)
-        Me.PictureBox2.Location = New System.Drawing.Point(443, 81)
-        Me.PictureBox2.Name = "PictureBox2"
-        Me.PictureBox2.Size = New System.Drawing.Size(226, 59)
-        Me.PictureBox2.TabIndex = 702
-        Me.PictureBox2.TabStop = False
-        '
-        'OnOffLed2
-        '
-        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
-        Me.OnOffLed2.Name = "OnOffLed2"
-        Me.OnOffLed2.OffText = Nothing
-        Me.OnOffLed2.OnText = Nothing
-        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed2.TabIndex = 536
-        '
-        'OnOffLed1
-        '
-        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
-        Me.OnOffLed1.Name = "OnOffLed1"
-        Me.OnOffLed1.OffText = Nothing
-        Me.OnOffLed1.OnText = Nothing
-        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed1.TabIndex = 535
-        '
-        'OnOffLed4
-        '
-        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
-        Me.OnOffLed4.Name = "OnOffLed4"
-        Me.OnOffLed4.OffText = Nothing
-        Me.OnOffLed4.OnText = Nothing
-        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed4.TabIndex = 797
-        '
-        'OnOffLed3
-        '
-        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
-        Me.OnOffLed3.Name = "OnOffLed3"
-        Me.OnOffLed3.OffText = Nothing
-        Me.OnOffLed3.OnText = Nothing
-        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed3.TabIndex = 796
+        Me.Label260.AutoSize = True
+        Me.Label260.Location = New System.Drawing.Point(16, 66)
+        Me.Label260.Name = "Label260"
+        Me.Label260.Size = New System.Drawing.Size(64, 13)
+        Me.Label260.TabIndex = 590
+        Me.Label260.Text = "Instructions:"
         '
         'Formtest
         '
@@ -10482,6 +10482,7 @@ Partial Class Formtest
         Me.TabPage12.PerformLayout
         Me.GroupBox5.ResumeLayout(False)
         Me.GroupBox5.PerformLayout
+        CType(Me.PictureBox2, System.ComponentModel.ISupportInitialize).EndInit
         Me.GroupBox14.ResumeLayout(False)
         Me.GroupBox14.PerformLayout
         Me.GroupBox13.ResumeLayout(False)
@@ -10501,7 +10502,6 @@ Partial Class Formtest
         Me.TabPage6.ResumeLayout(False)
         Me.TabPage6.PerformLayout
         CType(Me.PictureBox6, System.ComponentModel.ISupportInitialize).EndInit
-        CType(Me.PictureBox2, System.ComponentModel.ISupportInitialize).EndInit
         Me.ResumeLayout(False)
 
     End Sub
@@ -10981,7 +10981,6 @@ Partial Class Formtest
     Friend WithEvents ButtonSaveLiveSettings As Button
     Friend WithEvents TabPage12 As TabPage
     Friend WithEvents Label259 As Label
-    Friend WithEvents Label260 As Label
     Friend WithEvents Label261 As Label
     Friend WithEvents GroupBox5 As GroupBox
     Friend WithEvents Label3458ARDG As Label
@@ -11381,4 +11380,5 @@ Partial Class Formtest
     Friend WithEvents GroupBox14 As GroupBox
     Friend WithEvents RadioButtonR6581 As RadioButton
     Friend WithEvents PictureBox2 As PictureBox
+    Friend WithEvents Label260 As Label
 End Class
