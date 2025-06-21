@@ -110,6 +110,10 @@ Partial Class Formtest
                     dev1.SendAsync("SYST:BEEP", True)
                     dev1.SendAsync("SYST:BEEP", True)
                 End If
+                If RadioButtonR6581.Checked = True Then
+                    dev1.SendAsync("SYST:BEEP", True)
+                    dev1.SendAsync("SYST:BEEP", True)
+                End If
 
                 Dialog2.Warning1 = "3245A Calibration - User intervention req'd"
                 Dialog2.Warning2 = "Ensure the following connections:"
@@ -175,7 +179,17 @@ Partial Class Formtest
             System.Threading.Thread.Sleep(500)          ' delay
             dev1.SendAsync("VOLT:DC:RANG:AUTO ON", True)              ' RANGE AUTO
             Cal3245status.Text = "344XXA - AUTO RANGE"
-
+            System.Threading.Thread.Sleep(500)              ' delay
+        End If
+        If RadioButtonR6581.Checked = True Then
+            dev1.SendAsync("*RST", True)                   ' DCV
+            Cal3245status.Text = "R6581 - *RST"
+            System.Threading.Thread.Sleep(500)          ' delay
+            dev1.SendAsync("VOLT:DC:NPLC 10", True)                ' DCV
+            Cal3245status.Text = "R6581 - VOLT:DC:NPLC 10"
+            System.Threading.Thread.Sleep(500)          ' delay
+            dev1.SendAsync("VOLT:DC:RANG:AUTO ON", True)              ' RANGE AUTO
+            Cal3245status.Text = "R6581 - AUTO RANGE"
             System.Threading.Thread.Sleep(500)              ' delay
         End If
 
@@ -188,6 +202,11 @@ Partial Class Formtest
             End If
             If RadioButton344XXA.Checked = True Then
                 dev1.SendAsync("VOLT:DC:ZERO:AUTO OFF", True)
+                Cal3245status.Text = "344XXA - AUTO ZERO OFF"
+                System.Threading.Thread.Sleep(500)          ' delay
+            End If
+            If RadioButtonR6581.Checked = True Then
+                dev1.SendAsync("ZERO:AUTO OFF", True)
                 Cal3245status.Text = "344XXA - AUTO ZERO OFF"
                 System.Threading.Thread.Sleep(500)          ' delay
             End If
@@ -204,6 +223,11 @@ Partial Class Formtest
                 Cal3245status.Text = "344XXA - AUTO ZERO ON"
                 System.Threading.Thread.Sleep(500)          ' delay
             End If
+            If RadioButtonR6581.Checked = True Then
+                dev1.SendAsync("ZERO:AUTO ON", True)
+                Cal3245status.Text = "R6581 - AUTO ZERO ON"
+                System.Threading.Thread.Sleep(500)          ' delay
+            End If
 
         End If
 
@@ -217,6 +241,15 @@ Partial Class Formtest
             System.Threading.Thread.Sleep(500)
         End If
         If RadioButton344XXA.Checked = True Then
+            'dev1.SendAsync("NRDGS 1", True)                 ' NRDGS 1                  not required for 344XXA
+            'Cal3245status.Text = "3458A - NRDGS 1"
+            'System.Threading.Thread.Sleep(500)              ' delay
+
+            'dev1.SendAsync("NPLC 100", True)                ' NPLC 100                 already set earlier for 344XXA
+            'Cal3245status.Text = "344XXA - NPLC 100"
+            'System.Threading.Thread.Sleep(500)              ' delay
+        End If
+        If RadioButtonR6581.Checked = True Then
             'dev1.SendAsync("NRDGS 1", True)                 ' NRDGS 1                  not required for 344XXA
             'Cal3245status.Text = "3458A - NRDGS 1"
             'System.Threading.Thread.Sleep(500)              ' delay
@@ -269,6 +302,12 @@ Partial Class Formtest
                     Me.Refresh()
                     Thread.Sleep(500)     ' delay
                 End If
+                If RadioButtonR6581.Checked = True Then
+                    dev1.SendAsync("VOLT:DC:RANG 100", True)
+                    Cal3245status.Text = "R6581 - Set to 100Vdc RANGE"
+                    Me.Refresh()
+                    Thread.Sleep(500)     ' delay
+                End If
 
             End If
             If Calnum = 46 Then     ' and back to AUTO range again
@@ -281,6 +320,12 @@ Partial Class Formtest
                 If RadioButton344XXA.Checked = True Then
                     dev1.SendAsync("VOLT:DC:RANG AUTO", True)
                     Cal3245status.Text = "344XXA - AUTO RANGE"
+                    Me.Refresh()
+                    Thread.Sleep(500)     ' delay
+                End If
+                If RadioButtonR6581.Checked = True Then
+                    dev1.SendAsync("VOLT:DC:RANG:AUTO ON", True)
+                    Cal3245status.Text = "R6581 - AUTO RANGE"
                     Me.Refresh()
                     Thread.Sleep(500)     ' delay
                 End If
@@ -312,6 +357,10 @@ Partial Class Formtest
                 dev1.SendAsync("SYST:BEEP", True)
                 dev1.SendAsync("SYST:BEEP", True)
             End If
+            If RadioButtonR6581.Checked = True Then
+                dev1.SendAsync("SYST:BEEP", True)
+                dev1.SendAsync("SYST:BEEP", True)
+            End If
 
             Dialog2.Warning1 = "3245A Calibration - User intervention req'd"
             Dialog2.Warning2 = "Switch cables on DMM to 'I' and 'LO' for DCI operation"
@@ -334,6 +383,10 @@ Partial Class Formtest
                 System.Threading.Thread.Sleep(500)          ' delay
                 dev1.SendAsync("CURR:DC:NPLC 10", True)       ' DCI NPLC 10
                 Cal3245status.Text = "344XXA - NPLC 10"
+            End If
+            If RadioButtonR6581.Checked = True Then
+                dev1.SendAsync("CURR:DC:NPLC 10", True)       ' DCI
+                Cal3245status.Text = "R6581 - DCI OPERATION"
             End If
 
             Cal3245status.Text = "DMM - FUNC DCI"
@@ -471,33 +524,30 @@ Partial Class Formtest
 
     End Sub
 
-    Private Sub CheckBoxDMM3458A_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButton3458A.CheckedChanged
+    Private Sub RadioButtonDMM3458A_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButton3458A.CheckedChanged
         If RadioButton3458A.Checked = True Then
-            RadioButton344XXA.Checked = False
             PictureBox8.Visible = True
             PictureBox7.Visible = False
+            PictureBox2.Visible = False
             Label274.Text = "3458A Read"
         End If
-        If RadioButton3458A.Checked = False Then
-            RadioButton344XXA.Checked = True
+    End Sub
+
+    Private Sub RadioButtonDMM344XXA_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButton344XXA.CheckedChanged
+        If RadioButton344XXA.Checked = True Then
             PictureBox8.Visible = False
             PictureBox7.Visible = True
+            PictureBox2.Visible = False
             Label274.Text = "344XXA Read"
         End If
     End Sub
 
-    Private Sub CheckBoxDMM344XXA_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButton344XXA.CheckedChanged
-        If RadioButton344XXA.Checked = True Then
-            RadioButton3458A.Checked = False
+    Private Sub RadioButtonR6581_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButtonR6581.CheckedChanged
+        If RadioButtonR6581.Checked = True Then
             PictureBox8.Visible = False
-            PictureBox7.Visible = True
-            Label274.Text = "344XXA Read"
-        End If
-        If RadioButton344XXA.Checked = False Then
-            RadioButton3458A.Checked = True
-            PictureBox8.Visible = True
             PictureBox7.Visible = False
-            Label274.Text = "3458A Read"
+            PictureBox2.Visible = True
+            Label274.Text = "R6581 Read"
         End If
     End Sub
 

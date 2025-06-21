@@ -568,32 +568,37 @@ Partial Class Formtest
         Me.Label260 = New System.Windows.Forms.Label()
         Me.Label261 = New System.Windows.Forms.Label()
         Me.GroupBox5 = New System.Windows.Forms.GroupBox()
-        Me.PictureBox7 = New System.Windows.Forms.PictureBox()
-        Me.Label263 = New System.Windows.Forms.Label()
+        Me.GroupBox14 = New System.Windows.Forms.GroupBox()
+        Me.RadioButton3245ADCV = New System.Windows.Forms.RadioButton()
+        Me.Code3245A = New System.Windows.Forms.TextBox()
+        Me.Label262 = New System.Windows.Forms.Label()
+        Me.RadioButton3245ADCVDCI = New System.Windows.Forms.RadioButton()
         Me.Timeout3458A = New System.Windows.Forms.TextBox()
+        Me.Label263 = New System.Windows.Forms.Label()
+        Me.GroupBox13 = New System.Windows.Forms.GroupBox()
+        Me.Label270 = New System.Windows.Forms.Label()
+        Me.Cal3245status = New System.Windows.Forms.Label()
+        Me.Label275 = New System.Windows.Forms.Label()
+        Me.Label274 = New System.Windows.Forms.Label()
+        Me.LabelRDG = New System.Windows.Forms.Label()
+        Me.Label3458ARDG = New System.Windows.Forms.Label()
+        Me.Label3458123 = New System.Windows.Forms.Label()
+        Me.Label264 = New System.Windows.Forms.Label()
+        Me.Label266 = New System.Windows.Forms.Label()
+        Me.Label3245AWRI = New System.Windows.Forms.Label()
+        Me.GroupBox12 = New System.Windows.Forms.GroupBox()
+        Me.RadioButton344XXA = New System.Windows.Forms.RadioButton()
+        Me.RadioButton3458A = New System.Windows.Forms.RadioButton()
+        Me.PictureBox7 = New System.Windows.Forms.PictureBox()
         Me.Label273 = New System.Windows.Forms.Label()
         Me.PictureBox8 = New System.Windows.Forms.PictureBox()
         Me.Label272 = New System.Windows.Forms.Label()
         Me.Label267 = New System.Windows.Forms.Label()
-        Me.RadioButton3245ADCVDCI = New System.Windows.Forms.RadioButton()
-        Me.Label3245AWRI = New System.Windows.Forms.Label()
-        Me.Label266 = New System.Windows.Forms.Label()
         Me.Button3245Aabort = New System.Windows.Forms.Button()
-        Me.Label264 = New System.Windows.Forms.Label()
-        Me.Label262 = New System.Windows.Forms.Label()
-        Me.Code3245A = New System.Windows.Forms.TextBox()
-        Me.Label3458123 = New System.Windows.Forms.Label()
-        Me.Label3458ARDG = New System.Windows.Forms.Label()
         Me.ButtonCal3245A = New System.Windows.Forms.Button()
         Me.Label265 = New System.Windows.Forms.Label()
         Me.Label268 = New System.Windows.Forms.Label()
-        Me.RadioButton3245ADCV = New System.Windows.Forms.RadioButton()
-        Me.LabelRDG = New System.Windows.Forms.Label()
-        Me.Label270 = New System.Windows.Forms.Label()
         Me.Label271 = New System.Windows.Forms.Label()
-        Me.Label274 = New System.Windows.Forms.Label()
-        Me.Label275 = New System.Windows.Forms.Label()
-        Me.Cal3245status = New System.Windows.Forms.Label()
         Me.Label255 = New System.Windows.Forms.Label()
         Me.Label269 = New System.Windows.Forms.Label()
         Me.PictureBox9 = New System.Windows.Forms.PictureBox()
@@ -889,11 +894,8 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
-        Me.GroupBox12 = New System.Windows.Forms.GroupBox()
-        Me.RadioButton3458A = New System.Windows.Forms.RadioButton()
-        Me.RadioButton344XXA = New System.Windows.Forms.RadioButton()
-        Me.GroupBox13 = New System.Windows.Forms.GroupBox()
-        Me.GroupBox14 = New System.Windows.Forms.GroupBox()
+        Me.RadioButtonR6581 = New System.Windows.Forms.RadioButton()
+        Me.PictureBox2 = New System.Windows.Forms.PictureBox()
         Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
@@ -928,6 +930,9 @@ Partial Class Formtest
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit
         Me.TabPage12.SuspendLayout
         Me.GroupBox5.SuspendLayout
+        Me.GroupBox14.SuspendLayout
+        Me.GroupBox13.SuspendLayout
+        Me.GroupBox12.SuspendLayout
         CType(Me.PictureBox7, System.ComponentModel.ISupportInitialize).BeginInit
         CType(Me.PictureBox8, System.ComponentModel.ISupportInitialize).BeginInit
         CType(Me.PictureBox9, System.ComponentModel.ISupportInitialize).BeginInit
@@ -937,9 +942,7 @@ Partial Class Formtest
         Me.GroupBox11.SuspendLayout
         Me.TabPage6.SuspendLayout
         CType(Me.PictureBox6, System.ComponentModel.ISupportInitialize).BeginInit
-        Me.GroupBox12.SuspendLayout
-        Me.GroupBox13.SuspendLayout
-        Me.GroupBox14.SuspendLayout
+        CType(Me.PictureBox2, System.ComponentModel.ISupportInitialize).BeginInit
         Me.SuspendLayout
         '
         'SerialPort
@@ -6703,6 +6706,7 @@ Partial Class Formtest
         '
         'GroupBox5
         '
+        Me.GroupBox5.Controls.Add(Me.PictureBox2)
         Me.GroupBox5.Controls.Add(Me.GroupBox14)
         Me.GroupBox5.Controls.Add(Me.GroupBox13)
         Me.GroupBox5.Controls.Add(Me.GroupBox12)
@@ -6726,23 +6730,65 @@ Partial Class Formtest
         Me.GroupBox5.TabIndex = 594
         Me.GroupBox5.TabStop = False
         '
-        'PictureBox7
+        'GroupBox14
         '
-        Me.PictureBox7.Image = CType(resources.GetObject("PictureBox7.Image"), System.Drawing.Image)
-        Me.PictureBox7.Location = New System.Drawing.Point(492, 82)
-        Me.PictureBox7.Name = "PictureBox7"
-        Me.PictureBox7.Size = New System.Drawing.Size(127, 59)
-        Me.PictureBox7.TabIndex = 698
-        Me.PictureBox7.TabStop = False
+        Me.GroupBox14.Controls.Add(Me.RadioButton3245ADCV)
+        Me.GroupBox14.Controls.Add(Me.Code3245A)
+        Me.GroupBox14.Controls.Add(Me.Label262)
+        Me.GroupBox14.Controls.Add(Me.RadioButton3245ADCVDCI)
+        Me.GroupBox14.Controls.Add(Me.CheckBoxAZERO)
+        Me.GroupBox14.Controls.Add(Me.Timeout3458A)
+        Me.GroupBox14.Controls.Add(Me.CheckBoxChB)
+        Me.GroupBox14.Controls.Add(Me.Label263)
+        Me.GroupBox14.Controls.Add(Me.CheckBoxChA)
+        Me.GroupBox14.Location = New System.Drawing.Point(11, 241)
+        Me.GroupBox14.Name = "GroupBox14"
+        Me.GroupBox14.Size = New System.Drawing.Size(464, 126)
+        Me.GroupBox14.TabIndex = 701
+        Me.GroupBox14.TabStop = False
+        Me.GroupBox14.Text = "SETUP"
         '
-        'Label263
+        'RadioButton3245ADCV
         '
-        Me.Label263.AutoSize = True
-        Me.Label263.Location = New System.Drawing.Point(239, 50)
-        Me.Label263.Name = "Label263"
-        Me.Label263.Size = New System.Drawing.Size(96, 13)
-        Me.Label263.TabIndex = 691
-        Me.Label263.Text = "DMM Timeout (ms)"
+        Me.RadioButton3245ADCV.AutoSize = True
+        Me.RadioButton3245ADCV.Checked = True
+        Me.RadioButton3245ADCV.Location = New System.Drawing.Point(14, 19)
+        Me.RadioButton3245ADCV.Name = "RadioButton3245ADCV"
+        Me.RadioButton3245ADCV.Size = New System.Drawing.Size(99, 17)
+        Me.RadioButton3245ADCV.TabIndex = 591
+        Me.RadioButton3245ADCV.TabStop = True
+        Me.RadioButton3245ADCV.Text = "DCV Calibration"
+        Me.RadioButton3245ADCV.UseVisualStyleBackColor = True
+        '
+        'Code3245A
+        '
+        Me.Code3245A.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Code3245A.Location = New System.Drawing.Point(190, 18)
+        Me.Code3245A.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.Code3245A.MaxLength = 8
+        Me.Code3245A.Name = "Code3245A"
+        Me.Code3245A.Size = New System.Drawing.Size(46, 22)
+        Me.Code3245A.TabIndex = 602
+        Me.Code3245A.Text = "3245"
+        '
+        'Label262
+        '
+        Me.Label262.AutoSize = True
+        Me.Label262.Location = New System.Drawing.Point(239, 22)
+        Me.Label262.Name = "Label262"
+        Me.Label262.Size = New System.Drawing.Size(202, 13)
+        Me.Label262.TabIndex = 595
+        Me.Label262.Text = "3245A Security code (3245 is HP default)"
+        '
+        'RadioButton3245ADCVDCI
+        '
+        Me.RadioButton3245ADCVDCI.AutoSize = True
+        Me.RadioButton3245ADCVDCI.Location = New System.Drawing.Point(14, 42)
+        Me.RadioButton3245ADCVDCI.Name = "RadioButton3245ADCVDCI"
+        Me.RadioButton3245ADCVDCI.Size = New System.Drawing.Size(129, 17)
+        Me.RadioButton3245ADCVDCI.TabIndex = 608
+        Me.RadioButton3245ADCVDCI.Text = "DCV && DCI Calibration"
+        Me.RadioButton3245ADCVDCI.UseVisualStyleBackColor = True
         '
         'Timeout3458A
         '
@@ -6754,6 +6800,174 @@ Partial Class Formtest
         Me.Timeout3458A.Size = New System.Drawing.Size(46, 22)
         Me.Timeout3458A.TabIndex = 692
         Me.Timeout3458A.Text = "15000"
+        '
+        'Label263
+        '
+        Me.Label263.AutoSize = True
+        Me.Label263.Location = New System.Drawing.Point(239, 50)
+        Me.Label263.Name = "Label263"
+        Me.Label263.Size = New System.Drawing.Size(96, 13)
+        Me.Label263.TabIndex = 691
+        Me.Label263.Text = "DMM Timeout (ms)"
+        '
+        'GroupBox13
+        '
+        Me.GroupBox13.Controls.Add(Me.Label270)
+        Me.GroupBox13.Controls.Add(Me.Cal3245status)
+        Me.GroupBox13.Controls.Add(Me.Label275)
+        Me.GroupBox13.Controls.Add(Me.Label274)
+        Me.GroupBox13.Controls.Add(Me.LabelRDG)
+        Me.GroupBox13.Controls.Add(Me.Label3458ARDG)
+        Me.GroupBox13.Controls.Add(Me.Label3458123)
+        Me.GroupBox13.Controls.Add(Me.Label264)
+        Me.GroupBox13.Controls.Add(Me.Label266)
+        Me.GroupBox13.Controls.Add(Me.Label3245AWRI)
+        Me.GroupBox13.Location = New System.Drawing.Point(506, 241)
+        Me.GroupBox13.Name = "GroupBox13"
+        Me.GroupBox13.Size = New System.Drawing.Size(440, 115)
+        Me.GroupBox13.TabIndex = 700
+        Me.GroupBox13.TabStop = False
+        Me.GroupBox13.Text = "STATUS"
+        '
+        'Label270
+        '
+        Me.Label270.AutoSize = True
+        Me.Label270.Location = New System.Drawing.Point(17, 42)
+        Me.Label270.Name = "Label270"
+        Me.Label270.Size = New System.Drawing.Size(60, 13)
+        Me.Label270.TabIndex = 563
+        Me.Label270.Text = "Reading #:"
+        '
+        'Cal3245status
+        '
+        Me.Cal3245status.AutoSize = True
+        Me.Cal3245status.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Cal3245status.Location = New System.Drawing.Point(118, 21)
+        Me.Cal3245status.Name = "Cal3245status"
+        Me.Cal3245status.Size = New System.Drawing.Size(14, 13)
+        Me.Cal3245status.TabIndex = 551
+        Me.Cal3245status.Text = "#"
+        '
+        'Label275
+        '
+        Me.Label275.AutoSize = True
+        Me.Label275.Location = New System.Drawing.Point(17, 21)
+        Me.Label275.Name = "Label275"
+        Me.Label275.Size = New System.Drawing.Size(92, 13)
+        Me.Label275.TabIndex = 548
+        Me.Label275.Text = "Command/Status:"
+        '
+        'Label274
+        '
+        Me.Label274.AutoSize = True
+        Me.Label274.Location = New System.Drawing.Point(17, 63)
+        Me.Label274.Name = "Label274"
+        Me.Label274.Size = New System.Drawing.Size(65, 13)
+        Me.Label274.TabIndex = 561
+        Me.Label274.Text = "DMM Read:"
+        '
+        'LabelRDG
+        '
+        Me.LabelRDG.AutoSize = True
+        Me.LabelRDG.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelRDG.Location = New System.Drawing.Point(118, 42)
+        Me.LabelRDG.Name = "LabelRDG"
+        Me.LabelRDG.Size = New System.Drawing.Size(14, 13)
+        Me.LabelRDG.TabIndex = 564
+        Me.LabelRDG.Text = "#"
+        '
+        'Label3458ARDG
+        '
+        Me.Label3458ARDG.AutoSize = True
+        Me.Label3458ARDG.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label3458ARDG.Location = New System.Drawing.Point(118, 63)
+        Me.Label3458ARDG.Name = "Label3458ARDG"
+        Me.Label3458ARDG.Size = New System.Drawing.Size(14, 13)
+        Me.Label3458ARDG.TabIndex = 598
+        Me.Label3458ARDG.Text = "#"
+        '
+        'Label3458123
+        '
+        Me.Label3458123.AutoSize = True
+        Me.Label3458123.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label3458123.Location = New System.Drawing.Point(246, 63)
+        Me.Label3458123.Name = "Label3458123"
+        Me.Label3458123.Size = New System.Drawing.Size(14, 13)
+        Me.Label3458123.TabIndex = 601
+        Me.Label3458123.Text = "#"
+        '
+        'Label264
+        '
+        Me.Label264.AutoSize = True
+        Me.Label264.Location = New System.Drawing.Point(138, 42)
+        Me.Label264.Name = "Label264"
+        Me.Label264.Size = New System.Drawing.Size(34, 13)
+        Me.Label264.TabIndex = 604
+        Me.Label264.Text = "of  47"
+        '
+        'Label266
+        '
+        Me.Label266.AutoSize = True
+        Me.Label266.Location = New System.Drawing.Point(17, 84)
+        Me.Label266.Name = "Label266"
+        Me.Label266.Size = New System.Drawing.Size(69, 13)
+        Me.Label266.TabIndex = 606
+        Me.Label266.Text = "3245A Write:"
+        '
+        'Label3245AWRI
+        '
+        Me.Label3245AWRI.AutoSize = True
+        Me.Label3245AWRI.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label3245AWRI.Location = New System.Drawing.Point(118, 84)
+        Me.Label3245AWRI.Name = "Label3245AWRI"
+        Me.Label3245AWRI.Size = New System.Drawing.Size(14, 13)
+        Me.Label3245AWRI.TabIndex = 607
+        Me.Label3245AWRI.Text = "#"
+        '
+        'GroupBox12
+        '
+        Me.GroupBox12.Controls.Add(Me.RadioButtonR6581)
+        Me.GroupBox12.Controls.Add(Me.RadioButton344XXA)
+        Me.GroupBox12.Controls.Add(Me.RadioButton3458A)
+        Me.GroupBox12.Location = New System.Drawing.Point(11, 128)
+        Me.GroupBox12.Name = "GroupBox12"
+        Me.GroupBox12.Size = New System.Drawing.Size(153, 89)
+        Me.GroupBox12.TabIndex = 699
+        Me.GroupBox12.TabStop = False
+        Me.GroupBox12.Text = "DMM"
+        '
+        'RadioButton344XXA
+        '
+        Me.RadioButton344XXA.AutoSize = True
+        Me.RadioButton344XXA.Location = New System.Drawing.Point(15, 39)
+        Me.RadioButton344XXA.Name = "RadioButton344XXA"
+        Me.RadioButton344XXA.Size = New System.Drawing.Size(64, 17)
+        Me.RadioButton344XXA.TabIndex = 1
+        Me.RadioButton344XXA.Text = "344XXA"
+        Me.ToolTip1.SetToolTip(Me.RadioButton344XXA, "Agilent/Keysight 34461A, 34465A, 34470A DMM")
+        Me.RadioButton344XXA.UseVisualStyleBackColor = True
+        '
+        'RadioButton3458A
+        '
+        Me.RadioButton3458A.AutoSize = True
+        Me.RadioButton3458A.Checked = True
+        Me.RadioButton3458A.Location = New System.Drawing.Point(15, 16)
+        Me.RadioButton3458A.Name = "RadioButton3458A"
+        Me.RadioButton3458A.Size = New System.Drawing.Size(56, 17)
+        Me.RadioButton3458A.TabIndex = 0
+        Me.RadioButton3458A.TabStop = True
+        Me.RadioButton3458A.Text = "3458A"
+        Me.ToolTip1.SetToolTip(Me.RadioButton3458A, "HP/Agilent/Keysight 3458A DMM")
+        Me.RadioButton3458A.UseVisualStyleBackColor = True
+        '
+        'PictureBox7
+        '
+        Me.PictureBox7.Image = CType(resources.GetObject("PictureBox7.Image"), System.Drawing.Image)
+        Me.PictureBox7.Location = New System.Drawing.Point(492, 82)
+        Me.PictureBox7.Name = "PictureBox7"
+        Me.PictureBox7.Size = New System.Drawing.Size(127, 59)
+        Me.PictureBox7.TabIndex = 698
+        Me.PictureBox7.TabStop = False
         '
         'Label273
         '
@@ -6785,40 +6999,11 @@ Partial Class Formtest
         'Label267
         '
         Me.Label267.AutoSize = True
-        Me.Label267.Location = New System.Drawing.Point(669, 63)
+        Me.Label267.Location = New System.Drawing.Point(679, 63)
         Me.Label267.Name = "Label267"
-        Me.Label267.Size = New System.Drawing.Size(351, 130)
+        Me.Label267.Size = New System.Drawing.Size(351, 156)
         Me.Label267.TabIndex = 610
         Me.Label267.Text = resources.GetString("Label267.Text")
-        '
-        'RadioButton3245ADCVDCI
-        '
-        Me.RadioButton3245ADCVDCI.AutoSize = True
-        Me.RadioButton3245ADCVDCI.Location = New System.Drawing.Point(14, 42)
-        Me.RadioButton3245ADCVDCI.Name = "RadioButton3245ADCVDCI"
-        Me.RadioButton3245ADCVDCI.Size = New System.Drawing.Size(129, 17)
-        Me.RadioButton3245ADCVDCI.TabIndex = 608
-        Me.RadioButton3245ADCVDCI.Text = "DCV && DCI Calibration"
-        Me.RadioButton3245ADCVDCI.UseVisualStyleBackColor = True
-        '
-        'Label3245AWRI
-        '
-        Me.Label3245AWRI.AutoSize = True
-        Me.Label3245AWRI.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label3245AWRI.Location = New System.Drawing.Point(118, 84)
-        Me.Label3245AWRI.Name = "Label3245AWRI"
-        Me.Label3245AWRI.Size = New System.Drawing.Size(14, 13)
-        Me.Label3245AWRI.TabIndex = 607
-        Me.Label3245AWRI.Text = "#"
-        '
-        'Label266
-        '
-        Me.Label266.AutoSize = True
-        Me.Label266.Location = New System.Drawing.Point(17, 84)
-        Me.Label266.Name = "Label266"
-        Me.Label266.Size = New System.Drawing.Size(69, 13)
-        Me.Label266.TabIndex = 606
-        Me.Label266.Text = "3245A Write:"
         '
         'Button3245Aabort
         '
@@ -6831,55 +7016,6 @@ Partial Class Formtest
         Me.Button3245Aabort.TabIndex = 605
         Me.Button3245Aabort.Text = "Abort"
         Me.Button3245Aabort.UseVisualStyleBackColor = True
-        '
-        'Label264
-        '
-        Me.Label264.AutoSize = True
-        Me.Label264.Location = New System.Drawing.Point(138, 42)
-        Me.Label264.Name = "Label264"
-        Me.Label264.Size = New System.Drawing.Size(34, 13)
-        Me.Label264.TabIndex = 604
-        Me.Label264.Text = "of  47"
-        '
-        'Label262
-        '
-        Me.Label262.AutoSize = True
-        Me.Label262.Location = New System.Drawing.Point(239, 22)
-        Me.Label262.Name = "Label262"
-        Me.Label262.Size = New System.Drawing.Size(202, 13)
-        Me.Label262.TabIndex = 595
-        Me.Label262.Text = "3245A Security code (3245 is HP default)"
-        '
-        'Code3245A
-        '
-        Me.Code3245A.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Code3245A.Location = New System.Drawing.Point(190, 18)
-        Me.Code3245A.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
-        Me.Code3245A.MaxLength = 8
-        Me.Code3245A.Name = "Code3245A"
-        Me.Code3245A.Size = New System.Drawing.Size(46, 22)
-        Me.Code3245A.TabIndex = 602
-        Me.Code3245A.Text = "3245"
-        '
-        'Label3458123
-        '
-        Me.Label3458123.AutoSize = True
-        Me.Label3458123.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label3458123.Location = New System.Drawing.Point(246, 63)
-        Me.Label3458123.Name = "Label3458123"
-        Me.Label3458123.Size = New System.Drawing.Size(14, 13)
-        Me.Label3458123.TabIndex = 601
-        Me.Label3458123.Text = "#"
-        '
-        'Label3458ARDG
-        '
-        Me.Label3458ARDG.AutoSize = True
-        Me.Label3458ARDG.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label3458ARDG.Location = New System.Drawing.Point(118, 63)
-        Me.Label3458ARDG.Name = "Label3458ARDG"
-        Me.Label3458ARDG.Size = New System.Drawing.Size(14, 13)
-        Me.Label3458ARDG.TabIndex = 598
-        Me.Label3458ARDG.Text = "#"
         '
         'ButtonCal3245A
         '
@@ -6895,7 +7031,7 @@ Partial Class Formtest
         'Label265
         '
         Me.Label265.AutoSize = True
-        Me.Label265.Location = New System.Drawing.Point(669, 41)
+        Me.Label265.Location = New System.Drawing.Point(679, 41)
         Me.Label265.Name = "Label265"
         Me.Label265.Size = New System.Drawing.Size(334, 13)
         Me.Label265.TabIndex = 596
@@ -6904,42 +7040,11 @@ Partial Class Formtest
         'Label268
         '
         Me.Label268.AutoSize = True
-        Me.Label268.Location = New System.Drawing.Point(669, 17)
+        Me.Label268.Location = New System.Drawing.Point(679, 17)
         Me.Label268.Name = "Label268"
         Me.Label268.Size = New System.Drawing.Size(35, 13)
         Me.Label268.TabIndex = 590
         Me.Label268.Text = "INFO:"
-        '
-        'RadioButton3245ADCV
-        '
-        Me.RadioButton3245ADCV.AutoSize = True
-        Me.RadioButton3245ADCV.Checked = True
-        Me.RadioButton3245ADCV.Location = New System.Drawing.Point(14, 19)
-        Me.RadioButton3245ADCV.Name = "RadioButton3245ADCV"
-        Me.RadioButton3245ADCV.Size = New System.Drawing.Size(99, 17)
-        Me.RadioButton3245ADCV.TabIndex = 591
-        Me.RadioButton3245ADCV.TabStop = True
-        Me.RadioButton3245ADCV.Text = "DCV Calibration"
-        Me.RadioButton3245ADCV.UseVisualStyleBackColor = True
-        '
-        'LabelRDG
-        '
-        Me.LabelRDG.AutoSize = True
-        Me.LabelRDG.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelRDG.Location = New System.Drawing.Point(118, 42)
-        Me.LabelRDG.Name = "LabelRDG"
-        Me.LabelRDG.Size = New System.Drawing.Size(14, 13)
-        Me.LabelRDG.TabIndex = 564
-        Me.LabelRDG.Text = "#"
-        '
-        'Label270
-        '
-        Me.Label270.AutoSize = True
-        Me.Label270.Location = New System.Drawing.Point(17, 42)
-        Me.Label270.Name = "Label270"
-        Me.Label270.Size = New System.Drawing.Size(60, 13)
-        Me.Label270.TabIndex = 563
-        Me.Label270.Text = "Reading #:"
         '
         'Label271
         '
@@ -6951,34 +7056,6 @@ Partial Class Formtest
         Me.Label271.Size = New System.Drawing.Size(296, 16)
         Me.Label271.TabIndex = 565
         Me.Label271.Text = "This is experimental, please use at your own risk."
-        '
-        'Label274
-        '
-        Me.Label274.AutoSize = True
-        Me.Label274.Location = New System.Drawing.Point(17, 63)
-        Me.Label274.Name = "Label274"
-        Me.Label274.Size = New System.Drawing.Size(65, 13)
-        Me.Label274.TabIndex = 561
-        Me.Label274.Text = "DMM Read:"
-        '
-        'Label275
-        '
-        Me.Label275.AutoSize = True
-        Me.Label275.Location = New System.Drawing.Point(17, 21)
-        Me.Label275.Name = "Label275"
-        Me.Label275.Size = New System.Drawing.Size(92, 13)
-        Me.Label275.TabIndex = 548
-        Me.Label275.Text = "Command/Status:"
-        '
-        'Cal3245status
-        '
-        Me.Cal3245status.AutoSize = True
-        Me.Cal3245status.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Cal3245status.Location = New System.Drawing.Point(118, 21)
-        Me.Cal3245status.Name = "Cal3245status"
-        Me.Cal3245status.Size = New System.Drawing.Size(14, 13)
-        Me.Cal3245status.TabIndex = 551
-        Me.Cal3245status.Text = "#"
         '
         'Label255
         '
@@ -10286,75 +10363,25 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
-        'GroupBox12
+        'RadioButtonR6581
         '
-        Me.GroupBox12.Controls.Add(Me.RadioButton344XXA)
-        Me.GroupBox12.Controls.Add(Me.RadioButton3458A)
-        Me.GroupBox12.Location = New System.Drawing.Point(11, 128)
-        Me.GroupBox12.Name = "GroupBox12"
-        Me.GroupBox12.Size = New System.Drawing.Size(153, 65)
-        Me.GroupBox12.TabIndex = 699
-        Me.GroupBox12.TabStop = False
-        Me.GroupBox12.Text = "DMM"
+        Me.RadioButtonR6581.AutoSize = True
+        Me.RadioButtonR6581.Location = New System.Drawing.Point(15, 62)
+        Me.RadioButtonR6581.Name = "RadioButtonR6581"
+        Me.RadioButtonR6581.Size = New System.Drawing.Size(70, 17)
+        Me.RadioButtonR6581.TabIndex = 2
+        Me.RadioButtonR6581.Text = "R6581(T)"
+        Me.ToolTip1.SetToolTip(Me.RadioButtonR6581, "Advantest/ADCMT R6581, R6581T DMM")
+        Me.RadioButtonR6581.UseVisualStyleBackColor = True
         '
-        'RadioButton3458A
+        'PictureBox2
         '
-        Me.RadioButton3458A.AutoSize = True
-        Me.RadioButton3458A.Checked = True
-        Me.RadioButton3458A.Location = New System.Drawing.Point(15, 16)
-        Me.RadioButton3458A.Name = "RadioButton3458A"
-        Me.RadioButton3458A.Size = New System.Drawing.Size(56, 17)
-        Me.RadioButton3458A.TabIndex = 0
-        Me.RadioButton3458A.TabStop = True
-        Me.RadioButton3458A.Text = "3458A"
-        Me.RadioButton3458A.UseVisualStyleBackColor = True
-        '
-        'RadioButton344XXA
-        '
-        Me.RadioButton344XXA.AutoSize = True
-        Me.RadioButton344XXA.Location = New System.Drawing.Point(15, 39)
-        Me.RadioButton344XXA.Name = "RadioButton344XXA"
-        Me.RadioButton344XXA.Size = New System.Drawing.Size(64, 17)
-        Me.RadioButton344XXA.TabIndex = 1
-        Me.RadioButton344XXA.Text = "344XXA"
-        Me.RadioButton344XXA.UseVisualStyleBackColor = True
-        '
-        'GroupBox13
-        '
-        Me.GroupBox13.Controls.Add(Me.Label270)
-        Me.GroupBox13.Controls.Add(Me.Cal3245status)
-        Me.GroupBox13.Controls.Add(Me.Label275)
-        Me.GroupBox13.Controls.Add(Me.Label274)
-        Me.GroupBox13.Controls.Add(Me.LabelRDG)
-        Me.GroupBox13.Controls.Add(Me.Label3458ARDG)
-        Me.GroupBox13.Controls.Add(Me.Label3458123)
-        Me.GroupBox13.Controls.Add(Me.Label264)
-        Me.GroupBox13.Controls.Add(Me.Label266)
-        Me.GroupBox13.Controls.Add(Me.Label3245AWRI)
-        Me.GroupBox13.Location = New System.Drawing.Point(506, 208)
-        Me.GroupBox13.Name = "GroupBox13"
-        Me.GroupBox13.Size = New System.Drawing.Size(440, 115)
-        Me.GroupBox13.TabIndex = 700
-        Me.GroupBox13.TabStop = False
-        Me.GroupBox13.Text = "STATUS"
-        '
-        'GroupBox14
-        '
-        Me.GroupBox14.Controls.Add(Me.RadioButton3245ADCV)
-        Me.GroupBox14.Controls.Add(Me.Code3245A)
-        Me.GroupBox14.Controls.Add(Me.Label262)
-        Me.GroupBox14.Controls.Add(Me.RadioButton3245ADCVDCI)
-        Me.GroupBox14.Controls.Add(Me.CheckBoxAZERO)
-        Me.GroupBox14.Controls.Add(Me.Timeout3458A)
-        Me.GroupBox14.Controls.Add(Me.CheckBoxChB)
-        Me.GroupBox14.Controls.Add(Me.Label263)
-        Me.GroupBox14.Controls.Add(Me.CheckBoxChA)
-        Me.GroupBox14.Location = New System.Drawing.Point(11, 208)
-        Me.GroupBox14.Name = "GroupBox14"
-        Me.GroupBox14.Size = New System.Drawing.Size(464, 126)
-        Me.GroupBox14.TabIndex = 701
-        Me.GroupBox14.TabStop = False
-        Me.GroupBox14.Text = "SETUP"
+        Me.PictureBox2.Image = CType(resources.GetObject("PictureBox2.Image"), System.Drawing.Image)
+        Me.PictureBox2.Location = New System.Drawing.Point(443, 81)
+        Me.PictureBox2.Name = "PictureBox2"
+        Me.PictureBox2.Size = New System.Drawing.Size(226, 59)
+        Me.PictureBox2.TabIndex = 702
+        Me.PictureBox2.TabStop = False
         '
         'OnOffLed2
         '
@@ -10455,6 +10482,12 @@ Partial Class Formtest
         Me.TabPage12.PerformLayout
         Me.GroupBox5.ResumeLayout(False)
         Me.GroupBox5.PerformLayout
+        Me.GroupBox14.ResumeLayout(False)
+        Me.GroupBox14.PerformLayout
+        Me.GroupBox13.ResumeLayout(False)
+        Me.GroupBox13.PerformLayout
+        Me.GroupBox12.ResumeLayout(False)
+        Me.GroupBox12.PerformLayout
         CType(Me.PictureBox7, System.ComponentModel.ISupportInitialize).EndInit
         CType(Me.PictureBox8, System.ComponentModel.ISupportInitialize).EndInit
         CType(Me.PictureBox9, System.ComponentModel.ISupportInitialize).EndInit
@@ -10468,12 +10501,7 @@ Partial Class Formtest
         Me.TabPage6.ResumeLayout(False)
         Me.TabPage6.PerformLayout
         CType(Me.PictureBox6, System.ComponentModel.ISupportInitialize).EndInit
-        Me.GroupBox12.ResumeLayout(False)
-        Me.GroupBox12.PerformLayout
-        Me.GroupBox13.ResumeLayout(False)
-        Me.GroupBox13.PerformLayout
-        Me.GroupBox14.ResumeLayout(False)
-        Me.GroupBox14.PerformLayout
+        CType(Me.PictureBox2, System.ComponentModel.ISupportInitialize).EndInit
         Me.ResumeLayout(False)
 
     End Sub
@@ -11351,4 +11379,6 @@ Partial Class Formtest
     Friend WithEvents RadioButton3458A As RadioButton
     Friend WithEvents GroupBox13 As GroupBox
     Friend WithEvents GroupBox14 As GroupBox
+    Friend WithEvents RadioButtonR6581 As RadioButton
+    Friend WithEvents PictureBox2 As PictureBox
 End Class
