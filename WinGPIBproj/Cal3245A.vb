@@ -437,16 +437,36 @@ Partial Class Formtest
 
         ' Read from 3458A and wait for reply, do it twice so that reading is stable given the NPLC 100
         Label3458123.Text = "Read 1"
-        txtq1b.Text = "TARM SGL"
-        query_blocking3458A()
+
+        If RadioButton3458A.Checked = True Then
+            txtq1b.Text = "TARM SGL"
+        End If
+        If RadioButton344XXA.Checked = True Then
+            txtq1b.Text = "READ?"
+        End If
+        If RadioButtonR6581.Checked = True Then
+            txtq1b.Text = "READ?"
+        End If
+
+        query_blockingDMM()
 
         Label3458ARDG.Text = txtr1b.Text                                ' E-notation
 
         Application.DoEvents()
 
         Label3458123.Text = "Read 2"
-        txtq1b.Text = "TARM SGL"
-        query_blocking3458A()
+
+        If RadioButton3458A.Checked = True Then
+            txtq1b.Text = "TARM SGL"
+        End If
+        If RadioButton344XXA.Checked = True Then
+            txtq1b.Text = "READ?"
+        End If
+        If RadioButtonR6581.Checked = True Then
+            txtq1b.Text = "READ?"
+        End If
+
+        query_blockingDMM()
 
         Label3458ARDG.Text = txtr1b.Text                                ' E-notation
 
@@ -479,7 +499,7 @@ Partial Class Formtest
 
     End Sub
 
-    Private Sub query_blocking3458A()
+    Private Sub query_blockingDMM()
 
         ' This is basically a copy of the btnq1b_Click SUB from Formtest.vb
 
