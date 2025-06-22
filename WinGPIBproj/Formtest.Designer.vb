@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -570,6 +570,7 @@ Partial Class Formtest
         Me.ButtonR6581abort = New System.Windows.Forms.Button()
         Me.TabPage12 = New System.Windows.Forms.TabPage()
         Me.Label259 = New System.Windows.Forms.Label()
+        Me.Label260 = New System.Windows.Forms.Label()
         Me.Label261 = New System.Windows.Forms.Label()
         Me.GroupBox5 = New System.Windows.Forms.GroupBox()
         Me.PictureBox2 = New System.Windows.Forms.PictureBox()
@@ -899,7 +900,10 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
-        Me.Label260 = New System.Windows.Forms.Label()
+        Me.TextBoxNPLC = New System.Windows.Forms.TextBox()
+        Me.Label142 = New System.Windows.Forms.Label()
+        Me.TextBoxNPLCDCI = New System.Windows.Forms.TextBox()
+        Me.Label148 = New System.Windows.Forms.Label()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.Panel2.SuspendLayout
@@ -1798,7 +1802,7 @@ Partial Class Formtest
         Me.CheckBoxAZERO.AutoSize = True
         Me.CheckBoxAZERO.Checked = True
         Me.CheckBoxAZERO.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.CheckBoxAZERO.Location = New System.Drawing.Point(190, 79)
+        Me.CheckBoxAZERO.Location = New System.Drawing.Point(14, 137)
         Me.CheckBoxAZERO.Name = "CheckBoxAZERO"
         Me.CheckBoxAZERO.Size = New System.Drawing.Size(137, 17)
         Me.CheckBoxAZERO.TabIndex = 611
@@ -2479,7 +2483,7 @@ Partial Class Formtest
         'CheckBoxChB
         '
         Me.CheckBoxChB.AutoSize = True
-        Me.CheckBoxChB.Location = New System.Drawing.Point(14, 99)
+        Me.CheckBoxChB.Location = New System.Drawing.Point(14, 101)
         Me.CheckBoxChB.Name = "CheckBoxChB"
         Me.CheckBoxChB.Size = New System.Drawing.Size(109, 17)
         Me.CheckBoxChB.TabIndex = 694
@@ -5611,22 +5615,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea2.BackColor = System.Drawing.Color.Black
-        ChartArea2.BorderColor = System.Drawing.Color.White
-        ChartArea2.BorderWidth = 2
-        ChartArea2.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea2)
-        Legend2.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend2)
+        ChartArea1.BackColor = System.Drawing.Color.Black
+        ChartArea1.BorderColor = System.Drawing.Color.White
+        ChartArea1.BorderWidth = 2
+        ChartArea1.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea1)
+        Legend1.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend1)
         Me.Chart1.Location = New System.Drawing.Point(-32, 140)
         Me.Chart1.Name = "Chart1"
-        Series2.ChartArea = "ChartArea1"
-        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series2.Color = System.Drawing.Color.Yellow
-        Series2.Enabled = False
-        Series2.Legend = "Legend1"
-        Series2.Name = "Series1"
-        Me.Chart1.Series.Add(Series2)
+        Series1.ChartArea = "ChartArea1"
+        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series1.Color = System.Drawing.Color.Yellow
+        Series1.Enabled = False
+        Series1.Legend = "Legend1"
+        Series1.Name = "Series1"
+        Me.Chart1.Series.Add(Series1)
         Me.Chart1.Size = New System.Drawing.Size(1120, 462)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -6740,6 +6744,15 @@ Partial Class Formtest
         Me.Label259.TabIndex = 591
         Me.Label259.Text = "3245A CALIBRATION ADJUSTMENTS:"
         '
+        'Label260
+        '
+        Me.Label260.AutoSize = True
+        Me.Label260.Location = New System.Drawing.Point(16, 66)
+        Me.Label260.Name = "Label260"
+        Me.Label260.Size = New System.Drawing.Size(64, 13)
+        Me.Label260.TabIndex = 590
+        Me.Label260.Text = "Instructions:"
+        '
         'Label261
         '
         Me.Label261.AutoSize = True
@@ -6787,6 +6800,10 @@ Partial Class Formtest
         '
         'GroupBox14
         '
+        Me.GroupBox14.Controls.Add(Me.TextBoxNPLCDCI)
+        Me.GroupBox14.Controls.Add(Me.Label148)
+        Me.GroupBox14.Controls.Add(Me.TextBoxNPLC)
+        Me.GroupBox14.Controls.Add(Me.Label142)
         Me.GroupBox14.Controls.Add(Me.RadioButton3245ADCV)
         Me.GroupBox14.Controls.Add(Me.Code3245A)
         Me.GroupBox14.Controls.Add(Me.Label262)
@@ -6798,7 +6815,7 @@ Partial Class Formtest
         Me.GroupBox14.Controls.Add(Me.CheckBoxChA)
         Me.GroupBox14.Location = New System.Drawing.Point(11, 241)
         Me.GroupBox14.Name = "GroupBox14"
-        Me.GroupBox14.Size = New System.Drawing.Size(464, 126)
+        Me.GroupBox14.Size = New System.Drawing.Size(464, 165)
         Me.GroupBox14.TabIndex = 701
         Me.GroupBox14.TabStop = False
         Me.GroupBox14.Text = "SETUP"
@@ -10414,14 +10431,45 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
-        'Label260
+        'TextBoxNPLC
         '
-        Me.Label260.AutoSize = True
-        Me.Label260.Location = New System.Drawing.Point(16, 66)
-        Me.Label260.Name = "Label260"
-        Me.Label260.Size = New System.Drawing.Size(64, 13)
-        Me.Label260.TabIndex = 590
-        Me.Label260.Text = "Instructions:"
+        Me.TextBoxNPLC.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TextBoxNPLC.Location = New System.Drawing.Point(190, 74)
+        Me.TextBoxNPLC.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.TextBoxNPLC.MaxLength = 8
+        Me.TextBoxNPLC.Name = "TextBoxNPLC"
+        Me.TextBoxNPLC.Size = New System.Drawing.Size(46, 22)
+        Me.TextBoxNPLC.TabIndex = 696
+        Me.TextBoxNPLC.Text = "100"
+        '
+        'Label142
+        '
+        Me.Label142.AutoSize = True
+        Me.Label142.Location = New System.Drawing.Point(239, 78)
+        Me.Label142.Name = "Label142"
+        Me.Label142.Size = New System.Drawing.Size(89, 13)
+        Me.Label142.TabIndex = 695
+        Me.Label142.Text = "DMM NPLC DCV"
+        '
+        'TextBoxNPLCDCI
+        '
+        Me.TextBoxNPLCDCI.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TextBoxNPLCDCI.Location = New System.Drawing.Point(190, 102)
+        Me.TextBoxNPLCDCI.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.TextBoxNPLCDCI.MaxLength = 8
+        Me.TextBoxNPLCDCI.Name = "TextBoxNPLCDCI"
+        Me.TextBoxNPLCDCI.Size = New System.Drawing.Size(46, 22)
+        Me.TextBoxNPLCDCI.TabIndex = 698
+        Me.TextBoxNPLCDCI.Text = "10"
+        '
+        'Label148
+        '
+        Me.Label148.AutoSize = True
+        Me.Label148.Location = New System.Drawing.Point(239, 106)
+        Me.Label148.Name = "Label148"
+        Me.Label148.Size = New System.Drawing.Size(85, 13)
+        Me.Label148.TabIndex = 697
+        Me.Label148.Text = "DMM NPLC DCI"
         '
         'Formtest
         '
@@ -11381,4 +11429,8 @@ Partial Class Formtest
     Friend WithEvents RadioButtonR6581 As RadioButton
     Friend WithEvents PictureBox2 As PictureBox
     Friend WithEvents Label260 As Label
+    Friend WithEvents TextBoxNPLC As TextBox
+    Friend WithEvents Label142 As Label
+    Friend WithEvents TextBoxNPLCDCI As TextBox
+    Friend WithEvents Label148 As Label
 End Class

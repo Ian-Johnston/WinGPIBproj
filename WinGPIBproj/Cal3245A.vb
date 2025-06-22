@@ -174,8 +174,8 @@ Partial Class Formtest
             dev1.SendAsync("*RST", True)                   ' DCV
             Cal3245status.Text = "344XXA - *RST"
             System.Threading.Thread.Sleep(500)          ' delay
-            dev1.SendAsync("VOLT:DC:NPLC 10", True)                ' DCV
-            Cal3245status.Text = "344XXA - VOLT:DC:NPLC 10"
+            dev1.SendAsync("VOLT:DC:NPLC " & TextBoxNPLC.Text, True)                ' DCV
+            Cal3245status.Text = "344XXA - VOLT:DC:NPLC " & TextBoxNPLC.Text
             System.Threading.Thread.Sleep(500)          ' delay
             dev1.SendAsync("VOLT:DC:RANG:AUTO ON", True)              ' RANGE AUTO
             Cal3245status.Text = "344XXA - AUTO RANGE"
@@ -185,8 +185,8 @@ Partial Class Formtest
             dev1.SendAsync("*RST", True)                   ' DCV
             Cal3245status.Text = "R6581 - *RST"
             System.Threading.Thread.Sleep(500)          ' delay
-            dev1.SendAsync("VOLT:DC:NPLC 10", True)                ' DCV
-            Cal3245status.Text = "R6581 - VOLT:DC:NPLC 10"
+            dev1.SendAsync("VOLT:DC:NPLC " & TextBoxNPLC.Text, True)                ' DCV
+            Cal3245status.Text = "R6581 - VOLT:DC:NPLC " & TextBoxNPLC.Text
             System.Threading.Thread.Sleep(500)          ' delay
             dev1.SendAsync("VOLT:DC:RANG:AUTO ON", True)              ' RANGE AUTO
             Cal3245status.Text = "R6581 - AUTO RANGE"
@@ -236,8 +236,8 @@ Partial Class Formtest
             Cal3245status.Text = "3458A - NRDGS 1"
             System.Threading.Thread.Sleep(500)              ' delay
 
-            dev1.SendAsync("NPLC 100", True)
-            Cal3245status.Text = "3458A - NPLC 100"
+            dev1.SendAsync("NPLC " & TextBoxNPLC.Text, True)
+            Cal3245status.Text = "3458A - NPLC " & TextBoxNPLC.Text
             System.Threading.Thread.Sleep(500)
         End If
         If RadioButton344XXA.Checked = True Then
@@ -254,7 +254,7 @@ Partial Class Formtest
             'Cal3245status.Text = "3458A - NRDGS 1"
             'System.Threading.Thread.Sleep(500)              ' delay
 
-            'dev1.SendAsync("NPLC 100", True)                ' NPLC 100                 already set earlier for 344XXA
+            'dev1.SendAsync("NPLC 100", True)                ' NPLC 100                 already set earlier for R6581
             'Cal3245status.Text = "344XXA - NPLC 100"
             'System.Threading.Thread.Sleep(500)              ' delay
         End If
@@ -310,6 +310,7 @@ Partial Class Formtest
                 End If
 
             End If
+
             If Calnum = 46 Then     ' and back to AUTO range again
                 If RadioButton3458A.Checked = True Then
                     dev1.SendAsync("RANGE AUTO", True)
@@ -318,7 +319,7 @@ Partial Class Formtest
                     Thread.Sleep(500)     ' delay
                 End If
                 If RadioButton344XXA.Checked = True Then
-                    dev1.SendAsync("VOLT:DC:RANG AUTO", True)
+                    dev1.SendAsync("VOLT:DC:RANG:AUTO ON", True)
                     Cal3245status.Text = "344XXA - AUTO RANGE"
                     Me.Refresh()
                     Thread.Sleep(500)     ' delay
@@ -376,16 +377,19 @@ Partial Class Formtest
 
             If RadioButton3458A.Checked = True Then
                 dev1.SendAsync("FUNC DCI", True)       ' DCI
+                System.Threading.Thread.Sleep(500)          ' delay
+                dev1.SendAsync("NPLC " & TextBoxNPLCDCI.Text, True)       ' DCI NPLC 10
+                Cal3245status.Text = "3458A - NPLC " & TextBoxNPLCDCI.Text
             End If
             If RadioButton344XXA.Checked = True Then
                 dev1.SendAsync("CONF:CURR:DC", True)       ' DCI
                 Cal3245status.Text = "344XXA - DCI OPERATION"
                 System.Threading.Thread.Sleep(500)          ' delay
-                dev1.SendAsync("CURR:DC:NPLC 10", True)       ' DCI NPLC 10
-                Cal3245status.Text = "344XXA - NPLC 10"
+                dev1.SendAsync("CURR:DC:NPLC " & TextBoxNPLCDCI.Text, True)       ' DCI NPLC 10
+                Cal3245status.Text = "344XXA - NPLC " & TextBoxNPLCDCI.Text
             End If
             If RadioButtonR6581.Checked = True Then
-                dev1.SendAsync("CURR:DC:NPLC 10", True)       ' DCI
+                dev1.SendAsync("CURR:DC:NPLC " & TextBoxNPLCDCI.Text, True)       ' DCI
                 Cal3245status.Text = "R6581 - DCI OPERATION"
             End If
 
@@ -569,7 +573,7 @@ Partial Class Formtest
             PictureBox8.Visible = False
             PictureBox7.Visible = False
             PictureBox2.Visible = True
-            Label274.Text = "R6581 Read"
+            Label274.Text = "R6581(T) Read"
             Me.Refresh()
         End If
     End Sub
