@@ -179,6 +179,9 @@ Partial Class Formtest
             System.Threading.Thread.Sleep(500)          ' delay
             dev1.SendAsync("VOLT:DC:RANG:AUTO ON", True)              ' RANGE AUTO
             Cal3245status.Text = "344XXA - AUTO RANGE"
+            System.Threading.Thread.Sleep(500)
+            dev1.SendAsync("VOLT:IMP:AUTO ON", True)              ' INPUT Z AUTO
+            Cal3245status.Text = "344XXA - Input Z AUTO"
             System.Threading.Thread.Sleep(500)              ' delay
         End If
         If RadioButtonR6581.Checked = True Then
@@ -279,7 +282,7 @@ Partial Class Formtest
             Cal3245status.Text = "3245A - CAL DCV && DCI " & Code3245A.Text
         End If
 
-        Label264.Text = "of 47"
+        'Label264.Text = "of 47"
 
         System.Threading.Thread.Sleep(500)     ' delay
 
