@@ -1662,18 +1662,20 @@ Previous (old) calibration constants are not extracted.</value>
 </value>
   </data>
   <data name="Label267.Text" xml:space="preserve">
-    <value>The 3458A/344XXA/R6581(T) is set up automatically at the start.
+    <value>3245A Security code only req'd if hardware lockout jumper is in place.
+
+The 3458A/344XXA/R6581(T) DMM is set up automatically.
 
 Channel A or B on the 3245A can be selected.
 
-DCV calibration adjustments run through 47 readings, at reading 45 the
-DMM range is changed to 100V mode, then back again.
+DCV calibration adjustments run through 47 steps. At step 45 the
+DMM range is changed to 100V mode, then back again for 46 &amp;&amp; 47.
 
-For DCV &amp;&amp; DCI calibration adjustments, after DCV reading 47 has finished
+For DCV &amp;&amp; DCI calibration adjustments, after DCV step 47 has finished
 a pop-up will prompt the user to change the DMM inputs to 'I' and 'LO'
-and continue with DCI calibration adjustments.
+and continue with DCI calibration adjustments. The final step is 71.
 
-R6581 for DCV &amp;&amp; DCI calibration, R6581T for DCV only.
+R6581 for DCV &amp;&amp; DCI calibration, R6581T for DCV only (no DCI mode).
 </value>
   </data>
   <data name="PictureBox9.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">

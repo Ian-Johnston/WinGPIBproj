@@ -373,7 +373,7 @@ Partial Class Formtest
 
             CalStart = 48
             CalEnd = 71
-            Label264.Text = "of 71"
+            'Label264.Text = "of  71"
 
             If RadioButton3458A.Checked = True Then
                 dev1.SendAsync("FUNC DCI", True)       ' DCI
@@ -428,12 +428,18 @@ Partial Class Formtest
     Private Sub RadioButton3245ADCV_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButton3245ADCV.CheckedChanged
 
         'RadioButton3245ADCV.Checked = True
+        If RadioButton3245ADCV.Checked = True Then
+            Label264.Text = "of  47"
+        End If
 
     End Sub
 
     Private Sub RadioButton3245ADCVDCI_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButton3245ADCVDCI.CheckedChanged
 
         'RadioButton3245ADCV.Checked = True
+        If RadioButton3245ADCVDCI.Checked = True Then
+            Label264.Text = "of  71"
+        End If
 
     End Sub
 

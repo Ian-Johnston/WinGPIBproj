@@ -573,6 +573,10 @@ Partial Class Formtest
         Me.GroupBox5 = New System.Windows.Forms.GroupBox()
         Me.PictureBox2 = New System.Windows.Forms.PictureBox()
         Me.GroupBox14 = New System.Windows.Forms.GroupBox()
+        Me.TextBoxNPLCDCI = New System.Windows.Forms.TextBox()
+        Me.Label148 = New System.Windows.Forms.Label()
+        Me.TextBoxNPLC = New System.Windows.Forms.TextBox()
+        Me.Label142 = New System.Windows.Forms.Label()
         Me.RadioButton3245ADCV = New System.Windows.Forms.RadioButton()
         Me.Code3245A = New System.Windows.Forms.TextBox()
         Me.Label262 = New System.Windows.Forms.Label()
@@ -598,7 +602,6 @@ Partial Class Formtest
         Me.Label267 = New System.Windows.Forms.Label()
         Me.Button3245Aabort = New System.Windows.Forms.Button()
         Me.ButtonCal3245A = New System.Windows.Forms.Button()
-        Me.Label265 = New System.Windows.Forms.Label()
         Me.Label268 = New System.Windows.Forms.Label()
         Me.Label271 = New System.Windows.Forms.Label()
         Me.Label255 = New System.Windows.Forms.Label()
@@ -896,10 +899,6 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
-        Me.TextBoxNPLC = New System.Windows.Forms.TextBox()
-        Me.Label142 = New System.Windows.Forms.Label()
-        Me.TextBoxNPLCDCI = New System.Windows.Forms.TextBox()
-        Me.Label148 = New System.Windows.Forms.Label()
         Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
@@ -6727,7 +6726,7 @@ Partial Class Formtest
         'Label260
         '
         Me.Label260.AutoSize = True
-        Me.Label260.Location = New System.Drawing.Point(16, 66)
+        Me.Label260.Location = New System.Drawing.Point(20, 66)
         Me.Label260.Name = "Label260"
         Me.Label260.Size = New System.Drawing.Size(64, 13)
         Me.Label260.TabIndex = 590
@@ -6756,7 +6755,6 @@ Partial Class Formtest
         Me.GroupBox5.Controls.Add(Me.Label267)
         Me.GroupBox5.Controls.Add(Me.Button3245Aabort)
         Me.GroupBox5.Controls.Add(Me.ButtonCal3245A)
-        Me.GroupBox5.Controls.Add(Me.Label265)
         Me.GroupBox5.Controls.Add(Me.Label268)
         Me.GroupBox5.Controls.Add(Me.Label271)
         Me.GroupBox5.Controls.Add(Me.Label255)
@@ -6799,6 +6797,46 @@ Partial Class Formtest
         Me.GroupBox14.TabIndex = 701
         Me.GroupBox14.TabStop = False
         Me.GroupBox14.Text = "SETUP"
+        '
+        'TextBoxNPLCDCI
+        '
+        Me.TextBoxNPLCDCI.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TextBoxNPLCDCI.Location = New System.Drawing.Point(190, 102)
+        Me.TextBoxNPLCDCI.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.TextBoxNPLCDCI.MaxLength = 8
+        Me.TextBoxNPLCDCI.Name = "TextBoxNPLCDCI"
+        Me.TextBoxNPLCDCI.Size = New System.Drawing.Size(46, 22)
+        Me.TextBoxNPLCDCI.TabIndex = 698
+        Me.TextBoxNPLCDCI.Text = "10"
+        '
+        'Label148
+        '
+        Me.Label148.AutoSize = True
+        Me.Label148.Location = New System.Drawing.Point(239, 106)
+        Me.Label148.Name = "Label148"
+        Me.Label148.Size = New System.Drawing.Size(138, 13)
+        Me.Label148.TabIndex = 697
+        Me.Label148.Text = "DMM NPLC during DCI Cal."
+        '
+        'TextBoxNPLC
+        '
+        Me.TextBoxNPLC.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TextBoxNPLC.Location = New System.Drawing.Point(190, 74)
+        Me.TextBoxNPLC.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.TextBoxNPLC.MaxLength = 8
+        Me.TextBoxNPLC.Name = "TextBoxNPLC"
+        Me.TextBoxNPLC.Size = New System.Drawing.Size(46, 22)
+        Me.TextBoxNPLC.TabIndex = 696
+        Me.TextBoxNPLC.Text = "100"
+        '
+        'Label142
+        '
+        Me.Label142.AutoSize = True
+        Me.Label142.Location = New System.Drawing.Point(239, 78)
+        Me.Label142.Name = "Label142"
+        Me.Label142.Size = New System.Drawing.Size(142, 13)
+        Me.Label142.TabIndex = 695
+        Me.Label142.Text = "DMM NPLC during DCV Cal."
         '
         'RadioButton3245ADCV
         '
@@ -6886,9 +6924,9 @@ Partial Class Formtest
         Me.Label270.AutoSize = True
         Me.Label270.Location = New System.Drawing.Point(17, 42)
         Me.Label270.Name = "Label270"
-        Me.Label270.Size = New System.Drawing.Size(60, 13)
+        Me.Label270.Size = New System.Drawing.Size(42, 13)
         Me.Label270.TabIndex = 563
-        Me.Label270.Text = "Reading #:"
+        Me.Label270.Text = "Step #:"
         '
         'Cal3245status
         '
@@ -7000,7 +7038,7 @@ Partial Class Formtest
         'Label273
         '
         Me.Label273.AutoSize = True
-        Me.Label273.Location = New System.Drawing.Point(8, 99)
+        Me.Label273.Location = New System.Drawing.Point(12, 99)
         Me.Label273.Name = "Label273"
         Me.Label273.Size = New System.Drawing.Size(283, 13)
         Me.Label273.TabIndex = 596
@@ -7018,7 +7056,7 @@ Partial Class Formtest
         'Label272
         '
         Me.Label272.AutoSize = True
-        Me.Label272.Location = New System.Drawing.Point(8, 81)
+        Me.Label272.Location = New System.Drawing.Point(12, 81)
         Me.Label272.Name = "Label272"
         Me.Label272.Size = New System.Drawing.Size(278, 13)
         Me.Label272.TabIndex = 595
@@ -7027,9 +7065,9 @@ Partial Class Formtest
         'Label267
         '
         Me.Label267.AutoSize = True
-        Me.Label267.Location = New System.Drawing.Point(679, 63)
+        Me.Label267.Location = New System.Drawing.Point(679, 37)
         Me.Label267.Name = "Label267"
-        Me.Label267.Size = New System.Drawing.Size(351, 156)
+        Me.Label267.Size = New System.Drawing.Size(341, 182)
         Me.Label267.TabIndex = 610
         Me.Label267.Text = resources.GetString("Label267.Text")
         '
@@ -7056,23 +7094,14 @@ Partial Class Formtest
         Me.ButtonCal3245A.Text = "Run 3245A" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Calibration Adjustments"
         Me.ButtonCal3245A.UseVisualStyleBackColor = True
         '
-        'Label265
-        '
-        Me.Label265.AutoSize = True
-        Me.Label265.Location = New System.Drawing.Point(679, 41)
-        Me.Label265.Name = "Label265"
-        Me.Label265.Size = New System.Drawing.Size(334, 13)
-        Me.Label265.TabIndex = 596
-        Me.Label265.Text = "3245A Security code only req'd if hardware lockout jumper is in place."
-        '
         'Label268
         '
         Me.Label268.AutoSize = True
         Me.Label268.Location = New System.Drawing.Point(679, 17)
         Me.Label268.Name = "Label268"
-        Me.Label268.Size = New System.Drawing.Size(28, 13)
+        Me.Label268.Size = New System.Drawing.Size(38, 13)
         Me.Label268.TabIndex = 590
-        Me.Label268.Text = "Info:"
+        Me.Label268.Text = "Notes:"
         '
         'Label271
         '
@@ -10391,46 +10420,6 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
-        'TextBoxNPLC
-        '
-        Me.TextBoxNPLC.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TextBoxNPLC.Location = New System.Drawing.Point(190, 74)
-        Me.TextBoxNPLC.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
-        Me.TextBoxNPLC.MaxLength = 8
-        Me.TextBoxNPLC.Name = "TextBoxNPLC"
-        Me.TextBoxNPLC.Size = New System.Drawing.Size(46, 22)
-        Me.TextBoxNPLC.TabIndex = 696
-        Me.TextBoxNPLC.Text = "100"
-        '
-        'Label142
-        '
-        Me.Label142.AutoSize = True
-        Me.Label142.Location = New System.Drawing.Point(239, 78)
-        Me.Label142.Name = "Label142"
-        Me.Label142.Size = New System.Drawing.Size(142, 13)
-        Me.Label142.TabIndex = 695
-        Me.Label142.Text = "DMM NPLC during DCV Cal."
-        '
-        'TextBoxNPLCDCI
-        '
-        Me.TextBoxNPLCDCI.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TextBoxNPLCDCI.Location = New System.Drawing.Point(190, 102)
-        Me.TextBoxNPLCDCI.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
-        Me.TextBoxNPLCDCI.MaxLength = 8
-        Me.TextBoxNPLCDCI.Name = "TextBoxNPLCDCI"
-        Me.TextBoxNPLCDCI.Size = New System.Drawing.Size(46, 22)
-        Me.TextBoxNPLCDCI.TabIndex = 698
-        Me.TextBoxNPLCDCI.Text = "10"
-        '
-        'Label148
-        '
-        Me.Label148.AutoSize = True
-        Me.Label148.Location = New System.Drawing.Point(239, 106)
-        Me.Label148.Name = "Label148"
-        Me.Label148.Size = New System.Drawing.Size(138, 13)
-        Me.Label148.TabIndex = 697
-        Me.Label148.Text = "DMM NPLC during DCI Cal."
-        '
         'OnOffLed2
         '
         Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
@@ -11033,7 +11022,6 @@ Partial Class Formtest
     Friend WithEvents GroupBox5 As GroupBox
     Friend WithEvents Label3458ARDG As Label
     Friend WithEvents ButtonCal3245A As Button
-    Friend WithEvents Label265 As Label
     Friend WithEvents Label268 As Label
     Friend WithEvents RadioButton3245ADCV As RadioButton
     Friend WithEvents LabelRDG As Label
