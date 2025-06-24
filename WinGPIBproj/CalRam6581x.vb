@@ -552,22 +552,22 @@ Partial Class Formtest
             System.Threading.Thread.Sleep(500) ' 500ms delay
             Me.Refresh()
 
-            'dev1.SendAsync("*RST", True) ' NPLC 0
+            dev1.SendAsync("*RST", True) ' NPLC 0
             CalramStatus6581upload.Text = "*RST"
             System.Threading.Thread.Sleep(3000) ' 3sec delay
             Me.Refresh()
 
-            'dev1.SendAsync(":VOLT:DC:DIG MAX", True) ' NPLC 0
+            dev1.SendAsync(":VOLT:DC:DIG MAX", True) ' NPLC 0
             CalramStatus6581upload.Text = "VOLT:DC:DIG MAX"
             System.Threading.Thread.Sleep(250) ' 250ms delay
             Me.Refresh()
 
-            'dev1.SendAsync(":SENS:VOLT:DC:RANG 10", True) ' NPLC 0
+            dev1.SendAsync(":SENS:VOLT:DC:RANG 10", True) ' NPLC 0
             CalramStatus6581upload.Text = "SENS:VOLT:DC:RANG 10"
             System.Threading.Thread.Sleep(250) ' 250ms delay
             Me.Refresh()
 
-            'dev1.SendAsync(":VOLT:DC:NPLC 1", True) ' NPLC 1
+            dev1.SendAsync(":VOLT:DC:NPLC 1", True) ' NPLC 1
             CalramStatus6581upload.Text = "VOLT:DC:NPLC 1"
             System.Threading.Thread.Sleep(250) ' 250ms delay
             Me.Refresh()
@@ -617,7 +617,7 @@ Partial Class Formtest
             ' Assuming the calibration sections are structured under "Sections"
             If calibrationData.ContainsKey("Sections") Then
                 ' Enable service EXT protection mode if needed
-                ' dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 1", True)
+                dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 1", True)
 
                 Dim sections As JObject = calibrationData("Sections")
 
@@ -667,7 +667,7 @@ Partial Class Formtest
                             ' Force the UI to update and process pending events
                             Application.DoEvents()
 
-                            ' dev1.SendAsync(command, True)
+                            dev1.SendAsync(command, True)
 
                             ' Add a sizeable delay after each command to give the R6581 time
                             Threading.Thread.Sleep(200)
@@ -688,17 +688,17 @@ Partial Class Formtest
                 End If
 
                 ' Disable service EXT protection mode if needed
-                ' dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)
+                dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)
 
             Else
                 MessageBox.Show("Sections key not found in the JSON file.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                ' dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)
+                dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)
             End If
 
         Catch ex As Exception
             ' Handle JSON parsing errors or other issues
             MessageBox.Show("An error occurred while reading or processing the JSON file: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            ' dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)
+            dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)
         End Try
     End Sub
 
@@ -716,7 +716,7 @@ Partial Class Formtest
                 ButtonR6581upload.Enabled = False
                 ButtonR6581commitEEprom.Enabled = False
 
-                'dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 1", True)         ' Enable Service EXT protection mode.....not required for INT commands
+                dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 1", True)         ' Enable Service EXT protection mode.....not required for INT commands
 
                 TextBoxR6581GPIBlist.AppendText("CAL:EXT:EEPROM:PROTECTION 1" & Environment.NewLine)                        ' Add the command to the TextBox for logging
 
@@ -726,7 +726,7 @@ Partial Class Formtest
                 If CheckBoxR6581Upload1.Checked = True Or CheckBoxR6581Upload2.Checked = True Or CheckBoxR6581Upload3.Checked = True Or CheckBoxR6581Upload4.Checked = True Or CheckBoxR6581Upload5.Checked = True Or CheckBoxR6581Upload6.Checked = True Or CheckBoxR6581Upload7.Checked = True Then
                     ' Send GPIB command to commit RAM to EEPROM
                     Dim commandon As String = "CAL:EXT:EEPROM:STORE 1"
-                    'dev1.SendAsync(commandon, True)
+                    dev1.SendAsync(commandon, True)
                     TextBoxR6581GPIBlist.AppendText("CAL:EXT:EEPROM:STORE 1" & Environment.NewLine)                            ' Add the command to the TextBox for logging
 
                     CalramStatus6581upload.Text = "Regular RAM contents have been committed to EEPROM"
@@ -740,7 +740,7 @@ Partial Class Formtest
                 If CheckBoxR6581Upload8.Checked = True Then
                     ' Send GPIB command to commit RAM to EEPROM
                     Dim command8on As String = "CAL:INT:DCV:HOSEI:STORE 1"
-                    'dev1.SendAsync(command8on, True)
+                    dev1.SendAsync(command8on, True)
                     TextBoxR6581GPIBlist.AppendText("CAL:INT:DCV:HOSEI:STORE 1" & Environment.NewLine)                            ' Add the command to the TextBox for logging
 
                     CalramStatus6581upload.Text = "Factory DCV RAM contents have been committed to EEPROM"
@@ -754,7 +754,7 @@ Partial Class Formtest
                 If CheckBoxR6581Upload9.Checked = True Then
                     ' Send GPIB command to commit RAM to EEPROM
                     Dim command9on As String = "CAL:INT:AC:HOSEI:STORE 1"
-                    'dev1.SendAsync(command9on, True)
+                    dev1.SendAsync(command9on, True)
                     TextBoxR6581GPIBlist.AppendText("CAL:INT:AC:HOSEI:STORE 1" & Environment.NewLine)                            ' Add the command to the TextBox for logging
 
                     CalramStatus6581upload.Text = "Factory AC RAM contents have been committed to EEPROM"
@@ -765,16 +765,16 @@ Partial Class Formtest
 
                 ' FINISH UP
 
-                'dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)         ' Disable Service EXT protection mode.....not required for INT commands
+                dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)         ' Disable Service EXT protection mode.....not required for INT commands
                 TextBoxR6581GPIBlist.AppendText("CAL:EXT:EEPROM:PROTECTION 0" & Environment.NewLine)                        ' Add the command to the TextBox for logging
 
                 Threading.Thread.Sleep(100)
 
-                'dev1.SendAsync(":VOLT:DC:NPLC 30", True)                    ' Reset NPLC to 30
+                dev1.SendAsync(":VOLT:DC:NPLC 30", True)                    ' Reset NPLC to 30
                 CalramStatus6581upload.Text = "VOLT:DC:NPLC 30"
 
                 ' Pause for 2000ms without freezing the GUI - Delay to give the R6581 time to mass copy EEprom contents
-                'Threading.Thread.Sleep(2000)    ' delay to give the R6581 time to mass copy EEprom contents
+                Threading.Thread.Sleep(2000)    ' delay to give the R6581 time to mass copy EEprom contents
                 stopTime = DateTime.Now.AddMilliseconds(2500)
                 Do While DateTime.Now < stopTime
                     Application.DoEvents()
@@ -785,7 +785,7 @@ Partial Class Formtest
 
             Else
 
-                'dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)         ' Disable Service EXT protection mode.....not required for INT commands
+                dev1.SendAsync("CAL:EXT:EEPROM:PROTECTION 0", True)         ' Disable Service EXT protection mode.....not required for INT commands
 
             End If
 
