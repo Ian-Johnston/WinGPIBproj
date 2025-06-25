@@ -172,16 +172,16 @@ Partial Class Formtest
         End If
         If RadioButton344XXA.Checked = True Then
             dev1.SendAsync("*RST", True)                   ' DCV
-            Cal3245status.Text = "344XXA - *RST"
+            Cal3245status.Text = "344xxA - *RST"
             System.Threading.Thread.Sleep(500)          ' delay
             dev1.SendAsync("VOLT:DC:NPLC " & TextBoxNPLC.Text, True)                ' DCV
-            Cal3245status.Text = "344XXA - VOLT:DC:NPLC " & TextBoxNPLC.Text
+            Cal3245status.Text = "344xxA - VOLT:DC:NPLC " & TextBoxNPLC.Text
             System.Threading.Thread.Sleep(500)          ' delay
             dev1.SendAsync("VOLT:DC:RANG:AUTO ON", True)              ' RANGE AUTO
-            Cal3245status.Text = "344XXA - AUTO RANGE"
+            Cal3245status.Text = "344xxA - AUTO RANGE"
             System.Threading.Thread.Sleep(500)
             dev1.SendAsync("VOLT:IMP:AUTO ON", True)              ' INPUT Z AUTO
-            Cal3245status.Text = "344XXA - Input Z AUTO"
+            Cal3245status.Text = "344xxA - Input Z AUTO"
             System.Threading.Thread.Sleep(500)              ' delay
         End If
         If RadioButtonR6581.Checked = True Then
@@ -205,12 +205,12 @@ Partial Class Formtest
             End If
             If RadioButton344XXA.Checked = True Then
                 dev1.SendAsync("VOLT:DC:ZERO:AUTO OFF", True)
-                Cal3245status.Text = "344XXA - AUTO ZERO OFF"
+                Cal3245status.Text = "344xxA - AUTO ZERO OFF"
                 System.Threading.Thread.Sleep(500)          ' delay
             End If
             If RadioButtonR6581.Checked = True Then
                 dev1.SendAsync("ZERO:AUTO OFF", True)
-                Cal3245status.Text = "344XXA - AUTO ZERO OFF"
+                Cal3245status.Text = "344xxA - AUTO ZERO OFF"
                 System.Threading.Thread.Sleep(500)          ' delay
             End If
 
@@ -223,7 +223,7 @@ Partial Class Formtest
             End If
             If RadioButton344XXA.Checked = True Then
                 dev1.SendAsync("VOLT:DC:ZERO:AUTO ON", True)
-                Cal3245status.Text = "344XXA - AUTO ZERO ON"
+                Cal3245status.Text = "344xxA - AUTO ZERO ON"
                 System.Threading.Thread.Sleep(500)          ' delay
             End If
             If RadioButtonR6581.Checked = True Then
@@ -323,7 +323,7 @@ Partial Class Formtest
                 End If
                 If RadioButton344XXA.Checked = True Then
                     dev1.SendAsync("VOLT:DC:RANG:AUTO ON", True)
-                    Cal3245status.Text = "344XXA - AUTO RANGE"
+                    Cal3245status.Text = "344xxA - AUTO RANGE"
                     Me.Refresh()
                     Thread.Sleep(500)     ' delay
                 End If
@@ -386,10 +386,10 @@ Partial Class Formtest
             End If
             If RadioButton344XXA.Checked = True Then
                 dev1.SendAsync("CONF:CURR:DC", True)       ' DCI
-                Cal3245status.Text = "344XXA - DCI OPERATION"
+                Cal3245status.Text = "344xxA - DCI OPERATION"
                 System.Threading.Thread.Sleep(500)          ' delay
                 dev1.SendAsync("CURR:DC:NPLC " & TextBoxNPLCDCI.Text, True)       ' DCI NPLC 10
-                Cal3245status.Text = "344XXA - NPLC " & TextBoxNPLCDCI.Text
+                Cal3245status.Text = "344xxA - NPLC " & TextBoxNPLCDCI.Text
             End If
             If RadioButtonR6581.Checked = True Then
                 dev1.SendAsync("CURR:DC:NPLC " & TextBoxNPLCDCI.Text, True)       ' DCI
@@ -572,7 +572,7 @@ Partial Class Formtest
             PictureBox8.Visible = False
             PictureBox7.Visible = True
             PictureBox2.Visible = False
-            Label274.Text = "344XXA Read"
+            Label274.Text = "344xxA Read"
             Me.Refresh()
         End If
     End Sub

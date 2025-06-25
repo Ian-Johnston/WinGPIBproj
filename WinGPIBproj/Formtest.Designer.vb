@@ -23,10 +23,10 @@ Partial Class Formtest
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
+        Dim ChartArea5 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend5 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series5 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -2544,9 +2544,9 @@ Partial Class Formtest
         Me.RadioButton344XXA.AutoSize = True
         Me.RadioButton344XXA.Location = New System.Drawing.Point(15, 39)
         Me.RadioButton344XXA.Name = "RadioButton344XXA"
-        Me.RadioButton344XXA.Size = New System.Drawing.Size(64, 17)
+        Me.RadioButton344XXA.Size = New System.Drawing.Size(60, 17)
         Me.RadioButton344XXA.TabIndex = 1
-        Me.RadioButton344XXA.Text = "344XXA"
+        Me.RadioButton344XXA.Text = "344xxA"
         Me.ToolTip1.SetToolTip(Me.RadioButton344XXA, "Agilent/Keysight 34461A, 34465A, 34470A DMM")
         Me.RadioButton344XXA.UseVisualStyleBackColor = True
         '
@@ -5614,22 +5614,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea1.BackColor = System.Drawing.Color.Black
-        ChartArea1.BorderColor = System.Drawing.Color.White
-        ChartArea1.BorderWidth = 2
-        ChartArea1.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea1)
-        Legend1.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend1)
+        ChartArea5.BackColor = System.Drawing.Color.Black
+        ChartArea5.BorderColor = System.Drawing.Color.White
+        ChartArea5.BorderWidth = 2
+        ChartArea5.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea5)
+        Legend5.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend5)
         Me.Chart1.Location = New System.Drawing.Point(-32, 140)
         Me.Chart1.Name = "Chart1"
-        Series1.ChartArea = "ChartArea1"
-        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series1.Color = System.Drawing.Color.Yellow
-        Series1.Enabled = False
-        Series1.Legend = "Legend1"
-        Series1.Name = "Series1"
-        Me.Chart1.Series.Add(Series1)
+        Series5.ChartArea = "ChartArea1"
+        Series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series5.Color = System.Drawing.Color.Yellow
+        Series5.Enabled = False
+        Series5.Legend = "Legend1"
+        Series5.Name = "Series1"
+        Me.Chart1.Series.Add(Series5)
         Me.Chart1.Size = New System.Drawing.Size(1120, 462)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -5668,7 +5668,7 @@ Partial Class Formtest
         Me.TabPage7.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage7.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage7.TabIndex = 6
-        Me.TabPage7.Text = "345xA Cal Extract  "
+        Me.TabPage7.Text = "345xA Cal  "
         '
         'AddressRangeF
         '
@@ -6249,7 +6249,7 @@ Partial Class Formtest
         Me.TabPage11.Name = "TabPage11"
         Me.TabPage11.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage11.TabIndex = 12
-        Me.TabPage11.Text = "R6581 Cal Extract  "
+        Me.TabPage11.Text = "R6581(T) Cal  "
         '
         'GroupBox10
         '
@@ -6322,9 +6322,9 @@ Partial Class Formtest
         Me.Label111.AutoSize = True
         Me.Label111.Location = New System.Drawing.Point(540, 423)
         Me.Label111.Name = "Label111"
-        Me.Label111.Size = New System.Drawing.Size(183, 13)
+        Me.Label111.Size = New System.Drawing.Size(196, 13)
         Me.Label111.TabIndex = 636
-        Me.Label111.Text = "Calibration commands sent to R6581:"
+        Me.Label111.Text = "Calibration commands sent to R6581(T):"
         '
         'CheckBoxR6581Upload9
         '
@@ -6400,7 +6400,7 @@ Partial Class Formtest
         Me.Label243.AutoSize = True
         Me.Label243.Location = New System.Drawing.Point(541, 298)
         Me.Label243.Name = "Label243"
-        Me.Label243.Size = New System.Drawing.Size(362, 117)
+        Me.Label243.Size = New System.Drawing.Size(364, 117)
         Me.Label243.TabIndex = 625
         Me.Label243.Text = resources.GetString("Label243.Text")
         '
@@ -6518,19 +6518,19 @@ Partial Class Formtest
         Me.Label241.AutoSize = True
         Me.Label241.Location = New System.Drawing.Point(8, 321)
         Me.Label241.Name = "Label241"
-        Me.Label241.Size = New System.Drawing.Size(283, 13)
+        Me.Label241.Size = New System.Drawing.Size(296, 13)
         Me.Label241.TabIndex = 612
-        Me.Label241.Text = "Connect Device 1 to your R6581 (leave in STOP position)."
+        Me.Label241.Text = "Connect Device 1 to your R6581(T) - leave in STOP position."
         '
         'Label242
         '
         Me.Label242.AutoSize = True
         Me.Label242.Location = New System.Drawing.Point(8, 304)
         Me.Label242.Name = "Label242"
-        Me.Label242.Size = New System.Drawing.Size(478, 13)
+        Me.Label242.Size = New System.Drawing.Size(491, 13)
         Me.Label242.TabIndex = 611
-        Me.Label242.Text = "This utility will upload the Json file contents to R6581 Ram. Select the section(" &
-    "s) you want to upload."
+        Me.Label242.Text = "This utility will upload the Json file contents to R6581(T) Ram. Select the secti" &
+    "on(s) you want to upload."
         '
         'SendRegularConstantsReadR6581
         '
@@ -6550,9 +6550,9 @@ Partial Class Formtest
         Me.Label59.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label59.Location = New System.Drawing.Point(8, 281)
         Me.Label59.Name = "Label59"
-        Me.Label59.Size = New System.Drawing.Size(371, 15)
+        Me.Label59.Size = New System.Drawing.Size(389, 15)
         Me.Label59.TabIndex = 609
-        Me.Label59.Text = "ADVANTEST R6581 CALIBRATION CONSTANTS UPLOAD:"
+        Me.Label59.Text = "ADVANTEST R6581(T) CALIBRATION CONSTANTS UPLOAD:"
         '
         'TextBoxCalRamFileJson6581
         '
@@ -6585,18 +6585,18 @@ Partial Class Formtest
         Me.Label309.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label309.Location = New System.Drawing.Point(8, 12)
         Me.Label309.Name = "Label309"
-        Me.Label309.Size = New System.Drawing.Size(394, 15)
+        Me.Label309.Size = New System.Drawing.Size(412, 15)
         Me.Label309.TabIndex = 602
-        Me.Label309.Text = "ADVANTEST R6581 CALIBRATION CONSTANTS DOWNLOAD:"
+        Me.Label309.Text = "ADVANTEST R6581(T) CALIBRATION CONSTANTS DOWNLOAD:"
         '
         'Label310
         '
         Me.Label310.AutoSize = True
         Me.Label310.Location = New System.Drawing.Point(8, 53)
         Me.Label310.Name = "Label310"
-        Me.Label310.Size = New System.Drawing.Size(283, 13)
+        Me.Label310.Size = New System.Drawing.Size(296, 13)
         Me.Label310.TabIndex = 601
-        Me.Label310.Text = "Connect Device 1 to your R6581 (leave in STOP position)."
+        Me.Label310.Text = "Connect Device 1 to your R6581(T) - leave in STOP position."
         '
         'Label311
         '
@@ -6611,12 +6611,12 @@ Partial Class Formtest
         'ButtonCalramDumpR6581
         '
         Me.ButtonCalramDumpR6581.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonCalramDumpR6581.Location = New System.Drawing.Point(11, 148)
+        Me.ButtonCalramDumpR6581.Location = New System.Drawing.Point(13, 148)
         Me.ButtonCalramDumpR6581.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.ButtonCalramDumpR6581.Name = "ButtonCalramDumpR6581"
         Me.ButtonCalramDumpR6581.Size = New System.Drawing.Size(100, 37)
         Me.ButtonCalramDumpR6581.TabIndex = 591
-        Me.ButtonCalramDumpR6581.Text = "R6581 Read"
+        Me.ButtonCalramDumpR6581.Text = "R6581(T) Read"
         Me.ButtonCalramDumpR6581.UseVisualStyleBackColor = True
         '
         'Label245
@@ -6672,7 +6672,7 @@ Partial Class Formtest
         'Label304
         '
         Me.Label304.AutoSize = True
-        Me.Label304.Location = New System.Drawing.Point(131, 171)
+        Me.Label304.Location = New System.Drawing.Point(133, 171)
         Me.Label304.Name = "Label304"
         Me.Label304.Size = New System.Drawing.Size(51, 13)
         Me.Label304.TabIndex = 559
@@ -6681,7 +6681,7 @@ Partial Class Formtest
         'Label306
         '
         Me.Label306.AutoSize = True
-        Me.Label306.Location = New System.Drawing.Point(131, 150)
+        Me.Label306.Location = New System.Drawing.Point(133, 150)
         Me.Label306.Name = "Label306"
         Me.Label306.Size = New System.Drawing.Size(40, 13)
         Me.Label306.TabIndex = 548
@@ -6691,7 +6691,7 @@ Partial Class Formtest
         '
         Me.LabelCalRamByte6581.AutoSize = True
         Me.LabelCalRamByte6581.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelCalRamByte6581.Location = New System.Drawing.Point(187, 171)
+        Me.LabelCalRamByte6581.Location = New System.Drawing.Point(189, 171)
         Me.LabelCalRamByte6581.Name = "LabelCalRamByte6581"
         Me.LabelCalRamByte6581.Size = New System.Drawing.Size(14, 13)
         Me.LabelCalRamByte6581.TabIndex = 560
@@ -6701,7 +6701,7 @@ Partial Class Formtest
         '
         Me.CalramStatus6581.AutoSize = True
         Me.CalramStatus6581.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CalramStatus6581.Location = New System.Drawing.Point(187, 150)
+        Me.CalramStatus6581.Location = New System.Drawing.Point(189, 150)
         Me.CalramStatus6581.Name = "CalramStatus6581"
         Me.CalramStatus6581.Size = New System.Drawing.Size(14, 13)
         Me.CalramStatus6581.TabIndex = 551
