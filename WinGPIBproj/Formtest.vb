@@ -148,7 +148,6 @@ Public Class Formtest
 
     End Sub
 
-
     'Sub formtest_close()
     '    IODevice.DisposeAll()
     'End Sub
