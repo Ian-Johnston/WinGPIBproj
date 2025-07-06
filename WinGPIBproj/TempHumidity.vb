@@ -614,6 +614,7 @@ Partial Class Formtest
 
 
     Private Sub ValidateFloatingPointInput(textBox As TextBox)
+
         Dim regex As New Regex("^\d*\.?\d*$") ' This regex allows digits and a single decimal point
         If Not regex.IsMatch(textBox.Text) Then
             MessageBox.Show("Please enter a valid number.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -637,6 +638,14 @@ Partial Class Formtest
         TempOffset.Enabled = False
 
         DevTemp = Me.lstIntf3.Text
+
+        If Val(TextBoxTempHumSample.Text) < 0.01 Then
+            TextBoxTempHumSample.Text = 0.01
+        End If
+
+        If Val(TextBoxTempHumSample.Text) > 86400 Then
+            TextBoxTempHumSample.Text = 86400
+        End If
 
         Me.Timer1.Interval = Val(TextBoxTempHumSample.Text) * 1000      ' mS
         Me.Timer1.Start()
