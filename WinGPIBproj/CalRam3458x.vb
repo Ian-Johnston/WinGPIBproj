@@ -174,8 +174,8 @@ Partial Class Formtest
         Dim bytes() As Byte = System.IO.File.ReadAllBytes(binPath)
 
         Dim entries As New List(Of Tuple(Of Integer, String, String)) From {
-        Tuple.Create(&H60000, "40K reference", "pair_float64"),
-        Tuple.Create(&H60008, "7V reference", "pair_float64"),
+        Tuple.Create(&H60000, "40Kohm reference", "pair_float64"),
+        Tuple.Create(&H60008, "7Vdc reference", "pair_float64"),
         Tuple.Create(&H60010, "dcv zero front 100mV", "pair_float64"),
         Tuple.Create(&H60018, "dcv zero rear 100mV", "pair_float64"),
         Tuple.Create(&H60020, "dcv zero front 1V", "pair_float64"),
@@ -457,6 +457,7 @@ Partial Class Formtest
 
             Dim curStr As String = ""
             Dim facStr As String = ""
+            Dim entryByteCount As Integer = 0  ' <-- NEW
 
             Select Case kind
                 Case "pair_float64"
@@ -464,24 +465,39 @@ Partial Class Formtest
                     Dim fac# = ReadFloat64BE(bytes, addr + 8)
                     curStr = cur.ToString("E10", CultureInfo.InvariantCulture)
                     facStr = fac.ToString("E10", CultureInfo.InvariantCulture)
+                    entryByteCount = 16   ' 8 + 8 bytes
+
                 Case "pair_uint32"
                     Dim cur32 As UInteger = ReadUInt32BE(bytes, addr)
                     Dim fac32 As UInteger = ReadUInt32BE(bytes, addr + 4)
                     curStr = cur32.ToString("N0", CultureInfo.InvariantCulture)
                     facStr = fac32.ToString("N0", CultureInfo.InvariantCulture)
+                    entryByteCount = 8    ' 4 + 4 bytes
+
                 Case "pair_uint16"
                     Dim cur16 As UInteger = ReadUInt16BE(bytes, addr)
                     Dim fac16 As UInteger = ReadUInt16BE(bytes, addr + 2)
                     curStr = cur16.ToString("N0", CultureInfo.InvariantCulture)
                     facStr = fac16.ToString("N0", CultureInfo.InvariantCulture)
+                    entryByteCount = 4    ' 2 + 2 bytes
+
                 Case "pair_uint8"
                     Dim curB As UInteger = ReadUInt8(bytes, addr)
                     Dim facB As UInteger = ReadUInt8(bytes, addr + 1)
                     curStr = curB.ToString("N0", CultureInfo.InvariantCulture)
                     facStr = facB.ToString("N0", CultureInfo.InvariantCulture)
+                    entryByteCount = 2    ' 1 + 1 byte
             End Select
 
-            sb.AppendLine($"{ts} {addr:X5} - {curStr} ({facStr}) - {label}")
+            ' Build hex for the whole pair (current + factory)
+            Dim avail As Integer = Math.Max(0, Math.Min(entryByteCount, bytes.Length - (addr - BASE)))
+            Dim hexData As String = If(avail > 0, BitConverter.ToString(bytes, addr - BASE, avail).Replace("-", " "), "")
+
+            'sb.AppendLine($"{ts} {addr:X5} - {curStr} ({facStr}) - {label}")
+            'sb.AppendLine($"{ts} {addr:X5} - {curStr} - {label}")
+            sb.AppendLine($"{ts} {addr:X5} [{hexData}] - {curStr} - {label}")
+
+
         Next
 
         System.IO.File.WriteAllText(txtPath, sb.ToString())
