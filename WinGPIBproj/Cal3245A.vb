@@ -210,7 +210,7 @@ Partial Class Formtest
             End If
             If RadioButtonR6581.Checked = True Then
                 dev1.SendAsync("ZERO:AUTO OFF", True)
-                Cal3245status.Text = "344xxA - AUTO ZERO OFF"
+                Cal3245status.Text = "R6581 - AUTO ZERO OFF"
                 System.Threading.Thread.Sleep(500)          ' delay
             End If
 

@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea3 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend3 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series3 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -899,6 +899,7 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
+        Me.ButtonReadCalBin = New System.Windows.Forms.Button()
         Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
@@ -4295,9 +4296,9 @@ Partial Class Formtest
         Me.Label231.AutoSize = True
         Me.Label231.Location = New System.Drawing.Point(200, 208)
         Me.Label231.Name = "Label231"
-        Me.Label231.Size = New System.Drawing.Size(106, 13)
+        Me.Label231.Size = New System.Drawing.Size(109, 13)
         Me.Label231.TabIndex = 711
-        Me.Label231.Text = "Secs (0.01 to 86400)"
+        Me.Label231.Text = "Secs  (0.01 to 86400)"
         '
         'Label230
         '
@@ -5594,22 +5595,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea1.BackColor = System.Drawing.Color.Black
-        ChartArea1.BorderColor = System.Drawing.Color.White
-        ChartArea1.BorderWidth = 2
-        ChartArea1.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea1)
-        Legend1.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend1)
+        ChartArea3.BackColor = System.Drawing.Color.Black
+        ChartArea3.BorderColor = System.Drawing.Color.White
+        ChartArea3.BorderWidth = 2
+        ChartArea3.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea3)
+        Legend3.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend3)
         Me.Chart1.Location = New System.Drawing.Point(-32, 140)
         Me.Chart1.Name = "Chart1"
-        Series1.ChartArea = "ChartArea1"
-        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series1.Color = System.Drawing.Color.Yellow
-        Series1.Enabled = False
-        Series1.Legend = "Legend1"
-        Series1.Name = "Series1"
-        Me.Chart1.Series.Add(Series1)
+        Series3.ChartArea = "ChartArea1"
+        Series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series3.Color = System.Drawing.Color.Yellow
+        Series3.Enabled = False
+        Series3.Legend = "Legend1"
+        Series3.Name = "Series1"
+        Me.Chart1.Series.Add(Series3)
         Me.Chart1.Size = New System.Drawing.Size(1120, 462)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -5653,7 +5654,7 @@ Partial Class Formtest
         'AddressRangeF
         '
         Me.AddressRangeF.AutoSize = True
-        Me.AddressRangeF.Location = New System.Drawing.Point(19, 442)
+        Me.AddressRangeF.Location = New System.Drawing.Point(19, 437)
         Me.AddressRangeF.Name = "AddressRangeF"
         Me.AddressRangeF.Size = New System.Drawing.Size(148, 17)
         Me.AddressRangeF.TabIndex = 590
@@ -5663,7 +5664,7 @@ Partial Class Formtest
         'AddressRangeB
         '
         Me.AddressRangeB.AutoSize = True
-        Me.AddressRangeB.Location = New System.Drawing.Point(19, 420)
+        Me.AddressRangeB.Location = New System.Drawing.Point(19, 415)
         Me.AddressRangeB.Name = "AddressRangeB"
         Me.AddressRangeB.Size = New System.Drawing.Size(362, 17)
         Me.AddressRangeB.TabIndex = 584
@@ -5674,7 +5675,7 @@ Partial Class Formtest
         '
         Me.AddressRangeA.AutoSize = True
         Me.AddressRangeA.Checked = True
-        Me.AddressRangeA.Location = New System.Drawing.Point(19, 398)
+        Me.AddressRangeA.Location = New System.Drawing.Point(19, 393)
         Me.AddressRangeA.Name = "AddressRangeA"
         Me.AddressRangeA.Size = New System.Drawing.Size(308, 17)
         Me.AddressRangeA.TabIndex = 583
@@ -5693,7 +5694,7 @@ Partial Class Formtest
         'Label125
         '
         Me.Label125.AutoSize = True
-        Me.Label125.Location = New System.Drawing.Point(19, 523)
+        Me.Label125.Location = New System.Drawing.Point(19, 525)
         Me.Label125.Name = "Label125"
         Me.Label125.Size = New System.Drawing.Size(92, 13)
         Me.Label125.TabIndex = 580
@@ -5702,10 +5703,10 @@ Partial Class Formtest
         'ButtonCalramDump3457A
         '
         Me.ButtonCalramDump3457A.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonCalramDump3457A.Location = New System.Drawing.Point(19, 473)
+        Me.ButtonCalramDump3457A.Location = New System.Drawing.Point(19, 468)
         Me.ButtonCalramDump3457A.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.ButtonCalramDump3457A.Name = "ButtonCalramDump3457A"
-        Me.ButtonCalramDump3457A.Size = New System.Drawing.Size(100, 37)
+        Me.ButtonCalramDump3457A.Size = New System.Drawing.Size(100, 35)
         Me.ButtonCalramDump3457A.TabIndex = 571
         Me.ButtonCalramDump3457A.Text = "3457A Read"
         Me.ButtonCalramDump3457A.UseVisualStyleBackColor = True
@@ -5749,7 +5750,7 @@ Partial Class Formtest
         'Label62
         '
         Me.Label62.AutoSize = True
-        Me.Label62.Location = New System.Drawing.Point(19, 225)
+        Me.Label62.Location = New System.Drawing.Point(19, 227)
         Me.Label62.Name = "Label62"
         Me.Label62.Size = New System.Drawing.Size(93, 13)
         Me.Label62.TabIndex = 555
@@ -5785,6 +5786,7 @@ Partial Class Formtest
         '
         'GroupBox6
         '
+        Me.GroupBox6.Controls.Add(Me.ButtonReadCalBin)
         Me.GroupBox6.Controls.Add(Me.BtnSave3458A)
         Me.GroupBox6.Controls.Add(Me.Label318)
         Me.GroupBox6.Controls.Add(Me.Label315)
@@ -5853,10 +5855,10 @@ Partial Class Formtest
         'ButtonCalramDump3458A
         '
         Me.ButtonCalramDump3458A.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonCalramDump3458A.Location = New System.Drawing.Point(11, 148)
+        Me.ButtonCalramDump3458A.Location = New System.Drawing.Point(11, 139)
         Me.ButtonCalramDump3458A.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.ButtonCalramDump3458A.Name = "ButtonCalramDump3458A"
-        Me.ButtonCalramDump3458A.Size = New System.Drawing.Size(100, 37)
+        Me.ButtonCalramDump3458A.Size = New System.Drawing.Size(100, 35)
         Me.ButtonCalramDump3458A.TabIndex = 591
         Me.ButtonCalramDump3458A.Text = "3458A Read"
         Me.ButtonCalramDump3458A.UseVisualStyleBackColor = True
@@ -5864,7 +5866,7 @@ Partial Class Formtest
         'Label249
         '
         Me.Label249.AutoSize = True
-        Me.Label249.Location = New System.Drawing.Point(28, 121)
+        Me.Label249.Location = New System.Drawing.Point(28, 116)
         Me.Label249.Name = "Label249"
         Me.Label249.Size = New System.Drawing.Size(216, 13)
         Me.Label249.TabIndex = 591
@@ -5873,10 +5875,10 @@ Partial Class Formtest
         'Button3458Aabort
         '
         Me.Button3458Aabort.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Button3458Aabort.Location = New System.Drawing.Point(126, 148)
+        Me.Button3458Aabort.Location = New System.Drawing.Point(126, 139)
         Me.Button3458Aabort.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.Button3458Aabort.Name = "Button3458Aabort"
-        Me.Button3458Aabort.Size = New System.Drawing.Size(48, 37)
+        Me.Button3458Aabort.Size = New System.Drawing.Size(48, 35)
         Me.Button3458Aabort.TabIndex = 590
         Me.Button3458Aabort.Text = "Abort"
         Me.Button3458Aabort.UseVisualStyleBackColor = True
@@ -5911,7 +5913,7 @@ Partial Class Formtest
         'AddressRangeD
         '
         Me.AddressRangeD.AutoSize = True
-        Me.AddressRangeD.Location = New System.Drawing.Point(11, 102)
+        Me.AddressRangeD.Location = New System.Drawing.Point(11, 97)
         Me.AddressRangeD.Name = "AddressRangeD"
         Me.AddressRangeD.Size = New System.Drawing.Size(321, 17)
         Me.AddressRangeD.TabIndex = 592
@@ -5922,7 +5924,7 @@ Partial Class Formtest
         '
         Me.AddressRangeC.AutoSize = True
         Me.AddressRangeC.Checked = True
-        Me.AddressRangeC.Location = New System.Drawing.Point(11, 80)
+        Me.AddressRangeC.Location = New System.Drawing.Point(11, 75)
         Me.AddressRangeC.Name = "AddressRangeC"
         Me.AddressRangeC.Size = New System.Drawing.Size(244, 17)
         Me.AddressRangeC.TabIndex = 591
@@ -6038,7 +6040,7 @@ Partial Class Formtest
         '
         'TextBox3457ATo
         '
-        Me.TextBox3457ATo.Location = New System.Drawing.Point(367, 126)
+        Me.TextBox3457ATo.Location = New System.Drawing.Point(367, 121)
         Me.TextBox3457ATo.Name = "TextBox3457ATo"
         Me.TextBox3457ATo.Size = New System.Drawing.Size(41, 20)
         Me.TextBox3457ATo.TabIndex = 603
@@ -6047,7 +6049,7 @@ Partial Class Formtest
         'Label147
         '
         Me.Label147.AutoSize = True
-        Me.Label147.Location = New System.Drawing.Point(342, 128)
+        Me.Label147.Location = New System.Drawing.Point(342, 123)
         Me.Label147.Name = "Label147"
         Me.Label147.Size = New System.Drawing.Size(23, 13)
         Me.Label147.TabIndex = 602
@@ -6056,7 +6058,7 @@ Partial Class Formtest
         'Label146
         '
         Me.Label146.AutoSize = True
-        Me.Label146.Location = New System.Drawing.Point(170, 128)
+        Me.Label146.Location = New System.Drawing.Point(170, 123)
         Me.Label146.Name = "Label146"
         Me.Label146.Size = New System.Drawing.Size(118, 13)
         Me.Label146.TabIndex = 601
@@ -6064,7 +6066,7 @@ Partial Class Formtest
         '
         'TextBox3457AFrom
         '
-        Me.TextBox3457AFrom.Location = New System.Drawing.Point(289, 126)
+        Me.TextBox3457AFrom.Location = New System.Drawing.Point(289, 121)
         Me.TextBox3457AFrom.Name = "TextBox3457AFrom"
         Me.TextBox3457AFrom.Size = New System.Drawing.Size(41, 20)
         Me.TextBox3457AFrom.TabIndex = 590
@@ -6073,10 +6075,10 @@ Partial Class Formtest
         'Button3457Aabort
         '
         Me.Button3457Aabort.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Button3457Aabort.Location = New System.Drawing.Point(126, 156)
+        Me.Button3457Aabort.Location = New System.Drawing.Point(126, 151)
         Me.Button3457Aabort.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.Button3457Aabort.Name = "Button3457Aabort"
-        Me.Button3457Aabort.Size = New System.Drawing.Size(48, 37)
+        Me.Button3457Aabort.Size = New System.Drawing.Size(48, 35)
         Me.Button3457Aabort.TabIndex = 590
         Me.Button3457Aabort.Text = "Abort"
         Me.Button3457Aabort.UseVisualStyleBackColor = True
@@ -7065,7 +7067,7 @@ Partial Class Formtest
         Me.Label267.AutoSize = True
         Me.Label267.Location = New System.Drawing.Point(679, 37)
         Me.Label267.Name = "Label267"
-        Me.Label267.Size = New System.Drawing.Size(341, 182)
+        Me.Label267.Size = New System.Drawing.Size(336, 156)
         Me.Label267.TabIndex = 610
         Me.Label267.Text = resources.GetString("Label267.Text")
         '
@@ -10418,6 +10420,18 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
+        'ButtonReadCalBin
+        '
+        Me.ButtonReadCalBin.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonReadCalBin.Location = New System.Drawing.Point(11, 183)
+        Me.ButtonReadCalBin.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.ButtonReadCalBin.Name = "ButtonReadCalBin"
+        Me.ButtonReadCalBin.Size = New System.Drawing.Size(100, 35)
+        Me.ButtonReadCalBin.TabIndex = 706
+        Me.ButtonReadCalBin.Text = "Decode" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "CALRAM .bin"
+        Me.ToolTip1.SetToolTip(Me.ButtonReadCalBin, "Select .bin file and extract Cal data")
+        Me.ButtonReadCalBin.UseVisualStyleBackColor = True
+        '
         'OnOffLed2
         '
         Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
@@ -11419,4 +11433,5 @@ Partial Class Formtest
     Friend WithEvents Label142 As Label
     Friend WithEvents TextBoxNPLCDCI As TextBox
     Friend WithEvents Label148 As Label
+    Friend WithEvents ButtonReadCalBin As Button
 End Class
