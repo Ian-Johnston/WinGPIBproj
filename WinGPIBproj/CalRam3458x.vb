@@ -79,6 +79,90 @@ Partial Class Formtest
         Return CUInt(bytes(off))
     End Function
 
+    ' --- NEW: read zero-terminated ASCII at an address ---
+    Private Function ReadAsciiAt(bytes() As Byte, addr As Integer, maxLen As Integer) As String
+        Dim off As Integer = addr - BASE
+        If off < 0 OrElse off >= bytes.Length Then Return String.Empty
+        Dim n As Integer = Math.Min(maxLen, bytes.Length - off)
+        Dim raw As String = Encoding.ASCII.GetString(bytes, off, n)
+        Dim zero As Integer = raw.IndexOf(ChrW(0))
+        If zero >= 0 Then raw = raw.Substring(0, zero)
+        ' Keep only printable ASCII to be safe
+        Dim sb As New StringBuilder()
+        For Each ch As Char In raw
+            If AscW(ch) >= 32 AndAlso AscW(ch) <= 126 Then sb.Append(ch)
+        Next
+        Return sb.ToString().Trim()
+    End Function
+
+    ' --- NEW: parse Calstr (timestamp, temp, serial) and write a header line ---
+    Private Sub ParseAndEmitCalStr(bytes() As Byte, sb As StringBuilder)
+        ' In many dumps Calstr shows up at 0x605CA (example you shared).
+        ' We’ll read ~64 bytes starting there.
+        Dim raw As String = ReadAsciiAt(bytes, &H605CA, 64)
+
+        If String.IsNullOrWhiteSpace(raw) Then
+            ' Try a nearby offset (some variants place the string a tad earlier)
+            raw = ReadAsciiAt(bytes, &H605C8, 64)
+        End If
+
+        If String.IsNullOrWhiteSpace(raw) Then Exit Sub
+
+        ' Strip any surrounding single quotes the meter might have stored (e.g., '36.7')
+        If raw.StartsWith("'") AndAlso raw.EndsWith("'") AndAlso raw.Length >= 2 Then
+            raw = raw.Substring(1, raw.Length - 2)
+        End If
+
+        Dim tsOut As String = ""
+        Dim tempOut As String = ""
+        Dim serialOut As String = ""
+
+        If raw.Contains("~"c) Then
+            ' Expected form: YYYYMMDDHHMMSS~TEMP~SERIAL
+            Dim parts = raw.Split("~"c)
+            If parts.Length >= 3 Then
+                Dim dt = parts(0).Trim()
+                If dt.Length = 14 AndAlso dt.All(AddressOf Char.IsDigit) Then
+                    tsOut = $"{dt.Substring(0, 4)}-{dt.Substring(4, 2)}-{dt.Substring(6, 2)} {dt.Substring(8, 2)}:{dt.Substring(10, 2)}:{dt.Substring(12, 2)}"
+                End If
+                Dim tstr = parts(1).Trim()
+                Dim tv As Double
+                If Double.TryParse(tstr, NumberStyles.Float, CultureInfo.InvariantCulture, tv) Then
+                    tempOut = tv.ToString("0.0", CultureInfo.InvariantCulture) & " °C"
+                Else
+                    tempOut = tstr
+                End If
+                serialOut = parts(2).Trim()
+            End If
+        Else
+            ' Could be just a temperature like 36.7
+            Dim tv As Double
+            If Double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, tv) Then
+                tempOut = tv.ToString("0.0", CultureInfo.InvariantCulture) & " °C"
+            Else
+                ' Unknown text, show raw
+                tempOut = raw
+            End If
+        End If
+
+        Dim header As New StringBuilder()
+        header.Append("Cal record")
+        Dim first As Boolean = True
+        If tsOut <> "" Then
+            header.Append(": ").Append(tsOut)
+            first = False
+        End If
+        If tempOut <> "" Then
+            header.Append(If(first, ": ", " @ ")).Append(tempOut)
+            first = False
+        End If
+        If serialOut <> "" Then
+            header.Append(If(first, ": ", " | ")).Append("Serial: ").Append(serialOut)
+        End If
+
+        sb.AppendLine(header.ToString())
+    End Sub
+
     Private Sub ButtonReadCalBin_Click(sender As Object, e As EventArgs) Handles ButtonReadCalBin.Click
         Dim ofd As New OpenFileDialog()
         ofd.Filter = "Binary files (*.bin)|*.bin|All files (*.*)|*.*"
@@ -358,6 +442,10 @@ Partial Class Formtest
     }
 
         Dim sb As New StringBuilder()
+
+        ' --- NEW: emit Calstr header line if present ---
+        ParseAndEmitCalStr(bytes, sb)
+
         Dim ts As String = Date.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture)
 
         For Each t In entries
