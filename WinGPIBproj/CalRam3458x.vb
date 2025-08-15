@@ -2,13 +2,14 @@
 ' CalRam HP 3458A
 ' CalRam HP 3457A
 
+'Imports System.Threading
+'Imports System.Runtime.InteropServices
+Imports System.Collections.Generic
 Imports System.Globalization
 Imports System.IO
 Imports System.Text
 Imports IODevices
-'Imports System.Threading
-'Imports System.Runtime.InteropServices
-Imports System.Collections.Generic
+Imports PdfSharp.Pdf.Content.Objects
 
 Partial Class Formtest
 
@@ -433,7 +434,7 @@ Partial Class Formtest
         Tuple.Create(&H605C5, "amplifier high frequency dac 1KV", "pair_uint8"),
         Tuple.Create(&H605C6, "interpolator", "pair_uint8"),
         Tuple.Create(&H605C8, "Cal_Sum2", "pair_uint16"),
-        Tuple.Create(&H6061A, "Calnum", "pair_uint8"),
+        Tuple.Create(&H6061A, "Calnum", "uint32"),
         Tuple.Create(&H6061E, "Cal_SecureCode", "pair_uint16"),
         Tuple.Create(&H60622, "Cal_AcalSecure", "pair_uint16"),
         Tuple.Create(&H60624, "Cal_Sum3", "pair_uint16"),
@@ -445,8 +446,13 @@ Partial Class Formtest
 
         ' --- NEW: emit Calstr header line if present ---
         ParseAndEmitCalStr(bytes, sb)
-
+        ' --- NEW: CALNUM (32-bit big-endian) at base+0x615 and base+0x61A ---
         Dim ts As String = Date.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture)
+
+        'Dim calnum As UInteger = ReadUInt32BE(bytes, &H6061A)
+        'Dim off1 As Integer = &H6061A - BASE
+        'Dim hexCal As String = BitConverter.ToString(bytes, off1, 4).Replace("-", " ")
+        'sb.AppendLine($"{ts} 6061A [{hexCal}] - {calnum} - Calnum")
 
         For Each t In entries
             Dim addr As Integer = t.Item1
@@ -487,6 +493,10 @@ Partial Class Formtest
                     curStr = curB.ToString("N0", CultureInfo.InvariantCulture)
                     facStr = facB.ToString("N0", CultureInfo.InvariantCulture)
                     entryByteCount = 2    ' 1 + 1 byte
+                Case "uint32"
+                    Dim curVal As UInteger = ReadUInt32BE(bytes, addr)
+                    curStr = curVal.ToString()
+                    entryByteCount = 4
             End Select
 
             ' Build hex for the whole pair (current + factory)
