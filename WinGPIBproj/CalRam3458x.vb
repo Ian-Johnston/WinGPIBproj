@@ -162,6 +162,7 @@ Partial Class Formtest
         End If
 
         sb.AppendLine(header.ToString())
+        sb.AppendLine()     ' blank line
     End Sub
 
     Private Sub ButtonReadCalBin_Click(sender As Object, e As EventArgs) Handles ButtonReadCalBin.Click
@@ -434,6 +435,7 @@ Partial Class Formtest
         Tuple.Create(&H605C5, "amplifier high frequency dac 1KV", "pair_uint8"),
         Tuple.Create(&H605C6, "interpolator", "pair_uint8"),
         Tuple.Create(&H605C8, "Cal_Sum2", "pair_uint16"),
+        Tuple.Create(&H605CA, "Calstr", "string30"),
         Tuple.Create(&H6061A, "Calnum", "uint32"),
         Tuple.Create(&H6061E, "Cal_SecureCode", "pair_uint16"),
         Tuple.Create(&H60622, "Cal_AcalSecure", "pair_uint16"),
@@ -496,6 +498,14 @@ Partial Class Formtest
                 Case "uint32"
                     Dim curVal As UInteger = ReadUInt32BE(bytes, addr)
                     curStr = curVal.ToString()
+                    entryByteCount = 4
+                Case "string30"
+                    Dim txt As String = Encoding.ASCII.GetString(bytes, addr - BASE, 30).TrimEnd(ChrW(0))
+                    curStr = txt
+                    entryByteCount = 30
+                Case "uint32"
+                    Dim val32 As UInteger = ReadUInt32BE(bytes, addr)
+                    curStr = val32.ToString()
                     entryByteCount = 4
             End Select
 
