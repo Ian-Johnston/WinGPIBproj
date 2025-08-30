@@ -183,6 +183,7 @@ Partial Class Formtest
         Me.RadioButton3458A = New System.Windows.Forms.RadioButton()
         Me.RadioButtonR6581 = New System.Windows.Forms.RadioButton()
         Me.ButtonReadCalBin = New System.Windows.Forms.Button()
+        Me.ButtonCheckUpdates = New System.Windows.Forms.Button()
         Me.CheckBoxR6581RetrieveREF = New System.Windows.Forms.CheckBox()
         Me.SerialPort1 = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer6 = New System.Windows.Forms.Timer(Me.components)
@@ -349,8 +350,6 @@ Partial Class Formtest
         Me.Label215 = New System.Windows.Forms.Label()
         Me.Label214 = New System.Windows.Forms.Label()
         Me.Label213 = New System.Windows.Forms.Label()
-        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.Label212 = New System.Windows.Forms.Label()
         Me.Label211 = New System.Windows.Forms.Label()
         Me.Label210 = New System.Windows.Forms.Label()
@@ -485,6 +484,7 @@ Partial Class Formtest
         Me.Label60 = New System.Windows.Forms.Label()
         Me.Label38 = New System.Windows.Forms.Label()
         Me.GroupBox6 = New System.Windows.Forms.GroupBox()
+        Me.Label265 = New System.Windows.Forms.Label()
         Me.Label318 = New System.Windows.Forms.Label()
         Me.Label315 = New System.Windows.Forms.Label()
         Me.LabelCalRamAddressHex = New System.Windows.Forms.Label()
@@ -611,7 +611,6 @@ Partial Class Formtest
         Me.Label269 = New System.Windows.Forms.Label()
         Me.PictureBox9 = New System.Windows.Forms.PictureBox()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
-        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.Label145 = New System.Windows.Forms.Label()
         Me.Label79 = New System.Windows.Forms.Label()
         Me.Label81 = New System.Windows.Forms.Label()
@@ -867,7 +866,6 @@ Partial Class Formtest
         Me.CalAccuracyFinal = New System.Windows.Forms.TextBox()
         Me.Label117 = New System.Windows.Forms.Label()
         Me.Label121 = New System.Windows.Forms.Label()
-        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage13 = New System.Windows.Forms.TabPage()
         Me.GroupBox11 = New System.Windows.Forms.GroupBox()
         Me.Label314 = New System.Windows.Forms.Label()
@@ -904,7 +902,12 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
-        Me.Label265 = New System.Windows.Forms.Label()
+        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
+        Me.Label276 = New System.Windows.Forms.Label()
+        Me.Label317 = New System.Windows.Forms.Label()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.Panel2.SuspendLayout
@@ -2587,6 +2590,17 @@ Partial Class Formtest
         Me.ButtonReadCalBin.Text = "Decode" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "CALRAM .bin"
         Me.ToolTip1.SetToolTip(Me.ButtonReadCalBin, "Select .bin file and extract Cal data")
         Me.ButtonReadCalBin.UseVisualStyleBackColor = True
+        '
+        'ButtonCheckUpdates
+        '
+        Me.ButtonCheckUpdates.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.ButtonCheckUpdates.Location = New System.Drawing.Point(11, 243)
+        Me.ButtonCheckUpdates.Name = "ButtonCheckUpdates"
+        Me.ButtonCheckUpdates.Size = New System.Drawing.Size(112, 22)
+        Me.ButtonCheckUpdates.TabIndex = 606
+        Me.ButtonCheckUpdates.Text = "Check for Updates"
+        Me.ToolTip1.SetToolTip(Me.ButtonCheckUpdates, "Check for updates")
+        Me.ButtonCheckUpdates.UseVisualStyleBackColor = True
         '
         'CheckBoxR6581RetrieveREF
         '
@@ -4421,26 +4435,6 @@ Partial Class Formtest
         Me.Label213.TabIndex = 537
         Me.Label213.Text = "Tx"
         '
-        'OnOffLed2
-        '
-        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
-        Me.OnOffLed2.Name = "OnOffLed2"
-        Me.OnOffLed2.OffText = Nothing
-        Me.OnOffLed2.OnText = Nothing
-        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed2.TabIndex = 536
-        '
-        'OnOffLed1
-        '
-        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
-        Me.OnOffLed1.Name = "OnOffLed1"
-        Me.OnOffLed1.OffText = Nothing
-        Me.OnOffLed1.OnText = Nothing
-        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed1.TabIndex = 535
-        '
         'Label212
         '
         Me.Label212.AutoSize = True
@@ -5848,6 +5842,16 @@ Partial Class Formtest
         Me.GroupBox6.Size = New System.Drawing.Size(913, 307)
         Me.GroupBox6.TabIndex = 588
         Me.GroupBox6.TabStop = False
+        '
+        'Label265
+        '
+        Me.Label265.AutoSize = True
+        Me.Label265.Location = New System.Drawing.Point(676, 169)
+        Me.Label265.Name = "Label265"
+        Me.Label265.Size = New System.Drawing.Size(221, 26)
+        Me.Label265.TabIndex = 707
+        Me.Label265.Text = "'Decode CALRAM .bin' will decode the binary" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "file and write readable data to a .t" &
+    "xt file."
         '
         'Label318
         '
@@ -7284,16 +7288,6 @@ Partial Class Formtest
         Me.TabPage5.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "PDVS2mini  "
-        '
-        'OnOffLed4
-        '
-        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
-        Me.OnOffLed4.Name = "OnOffLed4"
-        Me.OnOffLed4.OffText = Nothing
-        Me.OnOffLed4.OnText = Nothing
-        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed4.TabIndex = 797
         '
         'Label145
         '
@@ -10120,16 +10114,6 @@ Partial Class Formtest
         Me.Label121.TabIndex = 554
         Me.Label121.Text = "Comms Delay (mS)"
         '
-        'OnOffLed3
-        '
-        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
-        Me.OnOffLed3.Name = "OnOffLed3"
-        Me.OnOffLed3.OffText = Nothing
-        Me.OnOffLed3.OnText = Nothing
-        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed3.TabIndex = 796
-        '
         'TabPage13
         '
         Me.TabPage13.BackColor = System.Drawing.Color.WhiteSmoke
@@ -10142,6 +10126,9 @@ Partial Class Formtest
         '
         'GroupBox11
         '
+        Me.GroupBox11.Controls.Add(Me.Label317)
+        Me.GroupBox11.Controls.Add(Me.Label276)
+        Me.GroupBox11.Controls.Add(Me.ButtonCheckUpdates)
         Me.GroupBox11.Controls.Add(Me.Label314)
         Me.GroupBox11.Controls.Add(Me.Label307)
         Me.GroupBox11.Controls.Add(Me.btnRestore)
@@ -10474,15 +10461,64 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
-        'Label265
+        'OnOffLed2
         '
-        Me.Label265.AutoSize = True
-        Me.Label265.Location = New System.Drawing.Point(676, 169)
-        Me.Label265.Name = "Label265"
-        Me.Label265.Size = New System.Drawing.Size(221, 26)
-        Me.Label265.TabIndex = 707
-        Me.Label265.Text = "'Decode CALRAM .bin' will decode the binary" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "file and write readable data to a .t" &
-    "xt file."
+        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
+        Me.OnOffLed2.Name = "OnOffLed2"
+        Me.OnOffLed2.OffText = Nothing
+        Me.OnOffLed2.OnText = Nothing
+        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed2.TabIndex = 536
+        '
+        'OnOffLed1
+        '
+        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
+        Me.OnOffLed1.Name = "OnOffLed1"
+        Me.OnOffLed1.OffText = Nothing
+        Me.OnOffLed1.OnText = Nothing
+        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed1.TabIndex = 535
+        '
+        'OnOffLed4
+        '
+        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
+        Me.OnOffLed4.Name = "OnOffLed4"
+        Me.OnOffLed4.OffText = Nothing
+        Me.OnOffLed4.OnText = Nothing
+        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed4.TabIndex = 797
+        '
+        'OnOffLed3
+        '
+        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
+        Me.OnOffLed3.Name = "OnOffLed3"
+        Me.OnOffLed3.OffText = Nothing
+        Me.OnOffLed3.OnText = Nothing
+        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed3.TabIndex = 796
+        '
+        'Label276
+        '
+        Me.Label276.AutoSize = True
+        Me.Label276.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label276.Location = New System.Drawing.Point(8, 214)
+        Me.Label276.Name = "Label276"
+        Me.Label276.Size = New System.Drawing.Size(134, 15)
+        Me.Label276.TabIndex = 607
+        Me.Label276.Text = "WinGPIB UPDATES:"
+        '
+        'Label317
+        '
+        Me.Label317.AutoSize = True
+        Me.Label317.Location = New System.Drawing.Point(129, 248)
+        Me.Label317.Name = "Label317"
+        Me.Label317.Size = New System.Drawing.Size(200, 13)
+        Me.Label317.TabIndex = 608
+        Me.Label317.Text = "Check for updates and download ZIP file"
         '
         'Formtest
         '
@@ -11447,4 +11483,7 @@ Partial Class Formtest
     Friend WithEvents Label148 As Label
     Friend WithEvents ButtonReadCalBin As Button
     Friend WithEvents Label265 As Label
+    Friend WithEvents ButtonCheckUpdates As Button
+    Friend WithEvents Label317 As Label
+    Friend WithEvents Label276 As Label
 End Class

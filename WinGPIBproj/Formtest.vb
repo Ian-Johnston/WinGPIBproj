@@ -17,11 +17,13 @@
 '
 
 
-Imports IODevices
-'Imports System
-Imports System.IO.Ports
 'Imports System.Threading
 Imports System.IO
+'Imports System
+Imports System.IO.Ports
+'Imports System.Drawing
+Imports System.Management
+Imports System.Net
 'Imports System.Xml.Serialization
 'Imports System.Configuration
 'Imports System.Text.RegularExpressions
@@ -29,8 +31,7 @@ Imports System.IO
 'Imports WinGPIBproj.Formtest
 Imports System.Text
 Imports System.Text.RegularExpressions
-'Imports System.Drawing
-Imports System.Management
+Imports IODevices
 'Imports System.Runtime.InteropServices
 
 
@@ -162,7 +163,7 @@ Public Class Formtest
         Try
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V3.283"
+            BannerText1 = "WinGPIB   V3.284"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
             ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -2442,6 +2443,103 @@ Public Class Formtest
         ' Set combined tooltips as the tooltip for IODeviceLabel
         ToolTip1.SetToolTip(IODeviceLabel2, String.Join(Environment.NewLine, allTooltips))
     End Sub
+
+
+
+
+
+
+    ' Check for program updates and download
+
+    Private Const UpdateInfoUrl As String = "https://www.ianjohnston.com/WinGPIB/WinGPIBupdate.txt"
+    Private Const DownloadBaseUrl As String = "https://www.ianjohnston.com/WinGPIB/"
+
+    Private Sub ButtonCheckUpdates_Click(sender As Object, e As EventArgs) Handles ButtonCheckUpdates.Click
+        Try
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12
+
+            Dim raw As String
+            Using wc As New WebClient()
+                wc.Headers(HttpRequestHeader.UserAgent) = "WinGPIB-Updater"
+                wc.Encoding = Encoding.UTF8
+                raw = wc.DownloadString(UpdateInfoUrl)
+            End Using
+
+            ' Parse simple key=value lines
+            Dim kv = New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+            For Each line In raw.Split({vbCrLf, vbLf}, StringSplitOptions.RemoveEmptyEntries)
+                Dim idx = line.IndexOf("="c)
+                If idx > 0 Then
+                    Dim k = line.Substring(0, idx).Trim()
+                    Dim v = line.Substring(idx + 1).Trim()
+                    kv(k) = v
+                End If
+            Next
+            If Not kv.ContainsKey("version") Then
+                MessageBox.Show(Me, "Update file missing 'version'.", "Check for Updates", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                Exit Sub
+            End If
+
+            Dim latest As Version = ParseLooseVersion(kv("version"))
+            Dim current As Version = CurrentVersionFromBanner(BannerText1)
+
+            If latest > current Then
+                Dim zipUrl As String = BuildZipUrlFromVersion(latest) ' e.g. .../WinGPIB_V3_284.zip
+                Dim sb As New StringBuilder()
+                sb.AppendLine($"A new version is available: V{latest.Major}.{latest.Minor}")
+                sb.AppendLine($"You have: V{current.Major}.{current.Minor}")
+                sb.AppendLine($"")
+                sb.AppendLine($"Download ZIP file ?")
+                If kv.ContainsKey("notes") AndAlso kv("notes").Length > 0 Then
+                    sb.AppendLine().AppendLine("What's new:")
+                    sb.AppendLine(kv("notes"))
+                End If
+
+                If MessageBox.Show(Me, sb.ToString(), "Update Available", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+                    Process.Start(New ProcessStartInfo(zipUrl) With {.UseShellExecute = True})
+                End If
+            Else
+                MessageBox.Show(Me, $"You're up to date. (V{current.Major}.{current.Minor})", "Check for Updates", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            End If
+
+        Catch ex As Exception
+            MessageBox.Show(Me, "Couldn't check for updates: " & ex.Message, "Check for Updates", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+        End Try
+    End Sub
+
+    ' Extracts version from your banner string (e.g., "WinGPIB   V3.283")
+    Private Shared Function CurrentVersionFromBanner(banner As String) As Version
+        If String.IsNullOrWhiteSpace(banner) Then Return New Version(0, 0)
+        Dim i As Integer = banner.LastIndexOf("V"c)
+        Dim s As String = If(i >= 0, banner.Substring(i + 1), banner)
+        Return ParseLooseVersion(s)
+    End Function
+
+    ' Accepts "3.284", "V3.284", "3.284.0.0", etc.
+    Private Shared Function ParseLooseVersion(s As String) As Version
+        If String.IsNullOrWhiteSpace(s) Then Return New Version(0, 0)
+        s = s.Trim()
+        If s.StartsWith("v", StringComparison.OrdinalIgnoreCase) Then s = s.Substring(1)
+        s = s.Replace("_", ".")
+        Dim parts = s.Split("."c)
+        Dim nums As New List(Of Integer)
+        For Each p In parts
+            Dim n As Integer
+            If Integer.TryParse(p, n) Then nums.Add(n) Else nums.Add(0)
+        Next
+        While nums.Count < 2 : nums.Add(0) : End While
+        While nums.Count < 4 : nums.Add(0) : End While
+        Return New Version(nums(0), nums(1), nums(2), nums(3))
+    End Function
+
+    ' Builds "WinGPIB_V<major>_<minor>.zip"
+    Private Shared Function BuildZipUrlFromVersion(ver As Version) As String
+        Return $"{DownloadBaseUrl}WinGPIB_V{ver.Major}_{ver.Minor}.zip"
+    End Function
+
+
+
+
 
 End Class
 
