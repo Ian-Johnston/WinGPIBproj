@@ -163,7 +163,7 @@ Public Class Formtest
         Try
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V3.284"
+            BannerText1 = "WinGPIB   V3.285"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
             ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -2447,8 +2447,6 @@ Public Class Formtest
 
 
 
-
-
     ' Check for program updates and download
 
     Private Const UpdateInfoUrl As String = "https://www.ianjohnston.com/WinGPIB/WinGPIBupdate.txt"
@@ -2465,22 +2463,11 @@ Public Class Formtest
                 raw = wc.DownloadString(UpdateInfoUrl)
             End Using
 
-            ' Parse simple key=value lines
-            Dim kv = New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
-            For Each line In raw.Split({vbCrLf, vbLf}, StringSplitOptions.RemoveEmptyEntries)
-                Dim idx = line.IndexOf("="c)
-                If idx > 0 Then
-                    Dim k = line.Substring(0, idx).Trim()
-                    Dim v = line.Substring(idx + 1).Trim()
-                    kv(k) = v
-                End If
-            Next
-            If Not kv.ContainsKey("version") Then
-                MessageBox.Show(Me, "Update file missing 'version'.", "Check for Updates", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
-                Exit Sub
-            End If
+            ' NEW: parse version + multi-line NOTES
+            Dim parsed = ParseUpdateTxt(raw)
+            Dim latest As Version = parsed.Item1
+            Dim notesText As String = parsed.Item2
 
-            Dim latest As Version = ParseLooseVersion(kv("version"))
             Dim current As Version = CurrentVersionFromBanner(BannerText1)
 
             If latest > current Then
@@ -2488,12 +2475,13 @@ Public Class Formtest
                 Dim sb As New StringBuilder()
                 sb.AppendLine($"A new version is available: V{latest.Major}.{latest.Minor}")
                 sb.AppendLine($"You have: V{current.Major}.{current.Minor}")
-                sb.AppendLine($"")
-                sb.AppendLine($"Download ZIP file ?")
-                If kv.ContainsKey("notes") AndAlso kv("notes").Length > 0 Then
-                    sb.AppendLine().AppendLine("What's new:")
-                    sb.AppendLine(kv("notes"))
+
+                If Not String.IsNullOrWhiteSpace(notesText) Then
+                    sb.AppendLine().AppendLine("Notes:")
+                    sb.AppendLine(notesText) ' <- quotes NOTES exactly, multi-line preserved
                 End If
+
+                sb.AppendLine().AppendLine("Download ZIP file ?")
 
                 If MessageBox.Show(Me, sb.ToString(), "Update Available", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
                     Process.Start(New ProcessStartInfo(zipUrl) With {.UseShellExecute = True})
@@ -2536,6 +2524,39 @@ Public Class Formtest
     Private Shared Function BuildZipUrlFromVersion(ver As Version) As String
         Return $"{DownloadBaseUrl}WinGPIB_V{ver.Major}_{ver.Minor}.zip"
     End Function
+
+    ' NEW: Parse version + multi-line NOTES (supports "notes=" or "NOTES=")
+    Private Shared Function ParseUpdateTxt(raw As String) As (Version, String)
+        If raw Is Nothing Then Return (New Version(0, 0), "")
+        Dim text As String = raw.Replace(vbCrLf, vbLf)
+        Dim lines = text.Split(vbLf)
+        Dim latest As New Version(0, 0)
+        Dim notes As New StringBuilder()
+        Dim inNotes As Boolean = False
+
+        For Each line In lines
+            If line Is Nothing Then Continue For
+            If Not inNotes Then
+                Dim idx = line.IndexOf("="c)
+                If idx > 0 Then
+                    Dim key = line.Substring(0, idx).Trim()
+                    Dim val = line.Substring(idx + 1) ' keep original spacing/formatting
+                    If key.Equals("version", StringComparison.OrdinalIgnoreCase) Then
+                        latest = ParseLooseVersion(val)
+                    ElseIf key.Equals("notes", StringComparison.OrdinalIgnoreCase) OrElse key.Equals("NOTES", StringComparison.OrdinalIgnoreCase) Then
+                        inNotes = True
+                        notes.AppendLine(val)
+                    End If
+                End If
+            Else
+                ' Everything after the first notes= line is part of notes
+                notes.AppendLine(line)
+            End If
+        Next
+
+        Return (latest, notes.ToString().Trim())
+    End Function
+
 
 
 
