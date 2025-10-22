@@ -163,7 +163,7 @@ Public Class Formtest
         Try
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V3.285"
+            BannerText1 = "WinGPIB   V3.286"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
             ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -2525,7 +2525,7 @@ Public Class Formtest
         Return $"{DownloadBaseUrl}WinGPIB_V{ver.Major}_{ver.Minor}.zip"
     End Function
 
-    ' NEW: Parse version + multi-line NOTES (supports "notes=" or "NOTES=")
+    ' Parse version + multi-line NOTES (supports "notes=" or "NOTES=")
     Private Shared Function ParseUpdateTxt(raw As String) As (Version, String)
         If raw Is Nothing Then Return (New Version(0, 0), "")
         Dim text As String = raw.Replace(vbCrLf, vbLf)
@@ -2557,10 +2557,8 @@ Public Class Formtest
         Return (latest, notes.ToString().Trim())
     End Function
 
-
-
-
-
-
 End Class
+
+
+
 

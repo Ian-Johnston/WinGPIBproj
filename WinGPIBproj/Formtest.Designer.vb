@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -155,7 +155,6 @@ Partial Class Formtest
         Me.WryTech = New System.Windows.Forms.CheckBox()
         Me.btncreate2 = New System.Windows.Forms.Button()
         Me.btncreate3 = New System.Windows.Forms.Button()
-        Me.btncreate = New System.Windows.Forms.Button()
         Me.noEOI = New System.Windows.Forms.CheckBox()
         Me.TextBoxTempHumSample = New System.Windows.Forms.TextBox()
         Me.txtname3 = New System.Windows.Forms.TextBox()
@@ -184,17 +183,16 @@ Partial Class Formtest
         Me.RadioButtonR6581 = New System.Windows.Forms.RadioButton()
         Me.ButtonReadCalBin = New System.Windows.Forms.Button()
         Me.ButtonCheckUpdates = New System.Windows.Forms.Button()
+        Me.btncreate = New System.Windows.Forms.Button()
+        Me.CheckBoxTheme = New System.Windows.Forms.CheckBox()
         Me.CheckBoxR6581RetrieveREF = New System.Windows.Forms.CheckBox()
         Me.SerialPort1 = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer6 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer7 = New System.Windows.Forms.Timer(Me.components)
         Me.TabControl1 = New System.Windows.Forms.TabControl()
         Me.TabPage1 = New System.Windows.Forms.TabPage()
-        Me.Panel2 = New System.Windows.Forms.Panel()
-        Me.Panel1 = New System.Windows.Forms.Panel()
         Me.Label133 = New System.Windows.Forms.Label()
         Me.GroupBox9 = New System.Windows.Forms.GroupBox()
-        Me.Panel4 = New System.Windows.Forms.Panel()
         Me.ProfDev2_8 = New System.Windows.Forms.CheckBox()
         Me.ProfDev2_7 = New System.Windows.Forms.CheckBox()
         Me.ProfDev2_6 = New System.Windows.Forms.CheckBox()
@@ -212,7 +210,6 @@ Partial Class Formtest
         Me.txtaddr2 = New System.Windows.Forms.TextBox()
         Me.Label2 = New System.Windows.Forms.Label()
         Me.GroupBox8 = New System.Windows.Forms.GroupBox()
-        Me.Panel3 = New System.Windows.Forms.Panel()
         Me.ProfDev1_8 = New System.Windows.Forms.CheckBox()
         Me.ProfDev1_7 = New System.Windows.Forms.CheckBox()
         Me.ProfDev1_6 = New System.Windows.Forms.CheckBox()
@@ -350,6 +347,8 @@ Partial Class Formtest
         Me.Label215 = New System.Windows.Forms.Label()
         Me.Label214 = New System.Windows.Forms.Label()
         Me.Label213 = New System.Windows.Forms.Label()
+        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.Label212 = New System.Windows.Forms.Label()
         Me.Label211 = New System.Windows.Forms.Label()
         Me.Label210 = New System.Windows.Forms.Label()
@@ -611,6 +610,7 @@ Partial Class Formtest
         Me.Label269 = New System.Windows.Forms.Label()
         Me.PictureBox9 = New System.Windows.Forms.PictureBox()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
+        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.Label145 = New System.Windows.Forms.Label()
         Me.Label79 = New System.Windows.Forms.Label()
         Me.Label81 = New System.Windows.Forms.Label()
@@ -866,8 +866,11 @@ Partial Class Formtest
         Me.CalAccuracyFinal = New System.Windows.Forms.TextBox()
         Me.Label117 = New System.Windows.Forms.Label()
         Me.Label121 = New System.Windows.Forms.Label()
+        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage13 = New System.Windows.Forms.TabPage()
         Me.GroupBox11 = New System.Windows.Forms.GroupBox()
+        Me.Label317 = New System.Windows.Forms.Label()
+        Me.Label276 = New System.Windows.Forms.Label()
         Me.Label314 = New System.Windows.Forms.Label()
         Me.Label307 = New System.Windows.Forms.Label()
         Me.TextBox2 = New System.Windows.Forms.TextBox()
@@ -902,16 +905,8 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
-        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
-        Me.Label276 = New System.Windows.Forms.Label()
-        Me.Label317 = New System.Windows.Forms.Label()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
-        Me.Panel2.SuspendLayout
-        Me.Panel1.SuspendLayout
         Me.GroupBox9.SuspendLayout
         Me.GroupBox8.SuspendLayout
         CType(Me.PictureBox5, System.ComponentModel.ISupportInitialize).BeginInit
@@ -990,7 +985,7 @@ Partial Class Formtest
         'ButtonReset
         '
         Me.ButtonReset.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.ButtonReset.Location = New System.Drawing.Point(0, 0)
+        Me.ButtonReset.Location = New System.Drawing.Point(951, 55)
         Me.ButtonReset.Name = "ButtonReset"
         Me.ButtonReset.Size = New System.Drawing.Size(90, 40)
         Me.ButtonReset.TabIndex = 75
@@ -1042,7 +1037,7 @@ Partial Class Formtest
         '
         'btns2c
         '
-        Me.btns2c.Location = New System.Drawing.Point(262, 194)
+        Me.btns2c.Location = New System.Drawing.Point(262, 195)
         Me.btns2c.Name = "btns2c"
         Me.btns2c.Size = New System.Drawing.Size(199, 22)
         Me.btns2c.TabIndex = 70
@@ -1140,7 +1135,7 @@ Partial Class Formtest
         '
         'btns1c
         '
-        Me.btns1c.Location = New System.Drawing.Point(263, 194)
+        Me.btns1c.Location = New System.Drawing.Point(263, 195)
         Me.btns1c.Name = "btns1c"
         Me.btns1c.Size = New System.Drawing.Size(199, 22)
         Me.btns1c.TabIndex = 69
@@ -2115,7 +2110,7 @@ Partial Class Formtest
         '
         'ButtonDev1PreRun
         '
-        Me.ButtonDev1PreRun.Location = New System.Drawing.Point(347, 220)
+        Me.ButtonDev1PreRun.Location = New System.Drawing.Point(347, 218)
         Me.ButtonDev1PreRun.Name = "ButtonDev1PreRun"
         Me.ButtonDev1PreRun.Size = New System.Drawing.Size(115, 21)
         Me.ButtonDev1PreRun.TabIndex = 119
@@ -2125,7 +2120,7 @@ Partial Class Formtest
         '
         'ButtonDev2PreRun
         '
-        Me.ButtonDev2PreRun.Location = New System.Drawing.Point(346, 220)
+        Me.ButtonDev2PreRun.Location = New System.Drawing.Point(346, 218)
         Me.ButtonDev2PreRun.Name = "ButtonDev2PreRun"
         Me.ButtonDev2PreRun.Size = New System.Drawing.Size(115, 21)
         Me.ButtonDev2PreRun.TabIndex = 123
@@ -2276,17 +2271,6 @@ Partial Class Formtest
         Me.ToolTip1.SetToolTip(Me.btncreate3, "Connect to Device 2 only")
         Me.btncreate3.UseVisualStyleBackColor = True
         '
-        'btncreate
-        '
-        Me.btncreate.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.btncreate.Location = New System.Drawing.Point(0, 0)
-        Me.btncreate.Name = "btncreate"
-        Me.btncreate.Size = New System.Drawing.Size(90, 40)
-        Me.btncreate.TabIndex = 506
-        Me.btncreate.Text = "Connect to I/O" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Devices 1 && 2"
-        Me.ToolTip1.SetToolTip(Me.btncreate, "Connect to Device 1 & Device 2")
-        Me.btncreate.UseVisualStyleBackColor = True
-        '
         'noEOI
         '
         Me.noEOI.AutoSize = True
@@ -2405,7 +2389,7 @@ Partial Class Formtest
         'btnRestore
         '
         Me.btnRestore.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.btnRestore.Location = New System.Drawing.Point(10, 156)
+        Me.btnRestore.Location = New System.Drawing.Point(10, 181)
         Me.btnRestore.Name = "btnRestore"
         Me.btnRestore.Size = New System.Drawing.Size(90, 22)
         Me.btnRestore.TabIndex = 603
@@ -2416,7 +2400,7 @@ Partial Class Formtest
         'btnBackup
         '
         Me.btnBackup.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.btnBackup.Location = New System.Drawing.Point(10, 125)
+        Me.btnBackup.Location = New System.Drawing.Point(10, 150)
         Me.btnBackup.Name = "btnBackup"
         Me.btnBackup.Size = New System.Drawing.Size(90, 22)
         Me.btnBackup.TabIndex = 602
@@ -2594,13 +2578,37 @@ Partial Class Formtest
         'ButtonCheckUpdates
         '
         Me.ButtonCheckUpdates.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.ButtonCheckUpdates.Location = New System.Drawing.Point(11, 243)
+        Me.ButtonCheckUpdates.Location = New System.Drawing.Point(11, 268)
         Me.ButtonCheckUpdates.Name = "ButtonCheckUpdates"
         Me.ButtonCheckUpdates.Size = New System.Drawing.Size(112, 22)
         Me.ButtonCheckUpdates.TabIndex = 606
         Me.ButtonCheckUpdates.Text = "Check for Updates"
         Me.ToolTip1.SetToolTip(Me.ButtonCheckUpdates, "Check for updates")
         Me.ButtonCheckUpdates.UseVisualStyleBackColor = True
+        '
+        'btncreate
+        '
+        Me.btncreate.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.btncreate.Location = New System.Drawing.Point(951, 13)
+        Me.btncreate.Name = "btncreate"
+        Me.btncreate.Size = New System.Drawing.Size(90, 40)
+        Me.btncreate.TabIndex = 506
+        Me.btncreate.Text = "Connect to I/O" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Devices 1 && 2"
+        Me.ToolTip1.SetToolTip(Me.btncreate, "Connect to Device 1 & Device 2")
+        Me.btncreate.UseVisualStyleBackColor = True
+        '
+        'CheckBoxTheme
+        '
+        Me.CheckBoxTheme.AutoSize = True
+        Me.CheckBoxTheme.Location = New System.Drawing.Point(11, 92)
+        Me.CheckBoxTheme.Name = "CheckBoxTheme"
+        Me.CheckBoxTheme.Size = New System.Drawing.Size(112, 17)
+        Me.CheckBoxTheme.TabIndex = 609
+        Me.CheckBoxTheme.Text = "Alternative Theme"
+        Me.ToolTip1.SetToolTip(Me.CheckBoxTheme, "Checked, hovering over boxes/buttons will" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "offer hints, tips or info on function/" &
+        "use.")
+        Me.CheckBoxTheme.UseVisualStyleBackColor = True
+        Me.CheckBoxTheme.Visible = False
         '
         'CheckBoxR6581RetrieveREF
         '
@@ -2653,9 +2661,9 @@ Partial Class Formtest
         'TabPage1
         '
         Me.TabPage1.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.TabPage1.Controls.Add(Me.ButtonReset)
+        Me.TabPage1.Controls.Add(Me.btncreate)
         Me.TabPage1.Controls.Add(Me.ButtonAvailableComPorts)
-        Me.TabPage1.Controls.Add(Me.Panel2)
-        Me.TabPage1.Controls.Add(Me.Panel1)
         Me.TabPage1.Controls.Add(Me.Label133)
         Me.TabPage1.Controls.Add(Me.GroupBox9)
         Me.TabPage1.Controls.Add(Me.noEOI)
@@ -2680,24 +2688,6 @@ Partial Class Formtest
         Me.TabPage1.TabIndex = 0
         Me.TabPage1.Text = "Devices  "
         '
-        'Panel2
-        '
-        Me.Panel2.BackColor = System.Drawing.Color.Lime
-        Me.Panel2.Controls.Add(Me.btncreate)
-        Me.Panel2.Location = New System.Drawing.Point(951, 12)
-        Me.Panel2.Name = "Panel2"
-        Me.Panel2.Size = New System.Drawing.Size(90, 40)
-        Me.Panel2.TabIndex = 126
-        '
-        'Panel1
-        '
-        Me.Panel1.BackColor = System.Drawing.Color.Red
-        Me.Panel1.Controls.Add(Me.ButtonReset)
-        Me.Panel1.Location = New System.Drawing.Point(951, 57)
-        Me.Panel1.Name = "Panel1"
-        Me.Panel1.Size = New System.Drawing.Size(90, 40)
-        Me.Panel1.TabIndex = 125
-        '
         'Label133
         '
         Me.Label133.AutoSize = True
@@ -2710,7 +2700,6 @@ Partial Class Formtest
         'GroupBox9
         '
         Me.GroupBox9.Controls.Add(Me.btncreate3)
-        Me.GroupBox9.Controls.Add(Me.Panel4)
         Me.GroupBox9.Controls.Add(Me.ProfDev2_8)
         Me.GroupBox9.Controls.Add(Me.ProfDev2_7)
         Me.GroupBox9.Controls.Add(Me.ProfDev2_6)
@@ -2732,14 +2721,6 @@ Partial Class Formtest
         Me.GroupBox9.Size = New System.Drawing.Size(465, 123)
         Me.GroupBox9.TabIndex = 121
         Me.GroupBox9.TabStop = False
-        '
-        'Panel4
-        '
-        Me.Panel4.BackColor = System.Drawing.Color.Lime
-        Me.Panel4.Location = New System.Drawing.Point(323, 37)
-        Me.Panel4.Name = "Panel4"
-        Me.Panel4.Size = New System.Drawing.Size(92, 42)
-        Me.Panel4.TabIndex = 127
         '
         'ProfDev2_8
         '
@@ -2896,7 +2877,6 @@ Partial Class Formtest
         'GroupBox8
         '
         Me.GroupBox8.Controls.Add(Me.btncreate2)
-        Me.GroupBox8.Controls.Add(Me.Panel3)
         Me.GroupBox8.Controls.Add(Me.ProfDev1_8)
         Me.GroupBox8.Controls.Add(Me.ProfDev1_7)
         Me.GroupBox8.Controls.Add(Me.ProfDev1_6)
@@ -2918,14 +2898,6 @@ Partial Class Formtest
         Me.GroupBox8.Size = New System.Drawing.Size(466, 123)
         Me.GroupBox8.TabIndex = 493
         Me.GroupBox8.TabStop = False
-        '
-        'Panel3
-        '
-        Me.Panel3.BackColor = System.Drawing.Color.Lime
-        Me.Panel3.Location = New System.Drawing.Point(323, 39)
-        Me.Panel3.Name = "Panel3"
-        Me.Panel3.Size = New System.Drawing.Size(92, 42)
-        Me.Panel3.TabIndex = 127
         '
         'ProfDev1_8
         '
@@ -3381,7 +3353,7 @@ Partial Class Formtest
         '
         'txtq2c
         '
-        Me.txtq2c.Location = New System.Drawing.Point(72, 195)
+        Me.txtq2c.Location = New System.Drawing.Point(72, 196)
         Me.txtq2c.Name = "txtq2c"
         Me.txtq2c.Size = New System.Drawing.Size(186, 20)
         Me.txtq2c.TabIndex = 68
@@ -3410,7 +3382,7 @@ Partial Class Formtest
         '
         'txtr2a
         '
-        Me.txtr2a.Location = New System.Drawing.Point(72, 171)
+        Me.txtr2a.Location = New System.Drawing.Point(72, 172)
         Me.txtr2a.Name = "txtr2a"
         Me.txtr2a.ReadOnly = True
         Me.txtr2a.Size = New System.Drawing.Size(186, 20)
@@ -3419,7 +3391,7 @@ Partial Class Formtest
         'Label45
         '
         Me.Label45.AutoSize = True
-        Me.Label45.Location = New System.Drawing.Point(7, 199)
+        Me.Label45.Location = New System.Drawing.Point(7, 200)
         Me.Label45.Name = "Label45"
         Me.Label45.Size = New System.Drawing.Size(63, 13)
         Me.Label45.TabIndex = 69
@@ -3514,7 +3486,7 @@ Partial Class Formtest
         'Label11
         '
         Me.Label11.AutoSize = True
-        Me.Label11.Location = New System.Drawing.Point(4, 175)
+        Me.Label11.Location = New System.Drawing.Point(4, 176)
         Me.Label11.Name = "Label11"
         Me.Label11.Size = New System.Drawing.Size(66, 13)
         Me.Label11.TabIndex = 15
@@ -3759,14 +3731,14 @@ Partial Class Formtest
         '
         'txtq1c
         '
-        Me.txtq1c.Location = New System.Drawing.Point(73, 195)
+        Me.txtq1c.Location = New System.Drawing.Point(73, 196)
         Me.txtq1c.Name = "txtq1c"
         Me.txtq1c.Size = New System.Drawing.Size(186, 20)
         Me.txtq1c.TabIndex = 67
         '
         'txtr1a
         '
-        Me.txtr1a.Location = New System.Drawing.Point(73, 171)
+        Me.txtr1a.Location = New System.Drawing.Point(73, 172)
         Me.txtr1a.Name = "txtr1a"
         Me.txtr1a.ReadOnly = True
         Me.txtr1a.Size = New System.Drawing.Size(186, 20)
@@ -3790,7 +3762,7 @@ Partial Class Formtest
         'Label43
         '
         Me.Label43.AutoSize = True
-        Me.Label43.Location = New System.Drawing.Point(8, 199)
+        Me.Label43.Location = New System.Drawing.Point(8, 200)
         Me.Label43.Name = "Label43"
         Me.Label43.Size = New System.Drawing.Size(63, 13)
         Me.Label43.TabIndex = 68
@@ -3867,7 +3839,7 @@ Partial Class Formtest
         'Label7
         '
         Me.Label7.AutoSize = True
-        Me.Label7.Location = New System.Drawing.Point(5, 175)
+        Me.Label7.Location = New System.Drawing.Point(5, 176)
         Me.Label7.Name = "Label7"
         Me.Label7.Size = New System.Drawing.Size(66, 13)
         Me.Label7.TabIndex = 13
@@ -4434,6 +4406,26 @@ Partial Class Formtest
         Me.Label213.Size = New System.Drawing.Size(19, 13)
         Me.Label213.TabIndex = 537
         Me.Label213.Text = "Tx"
+        '
+        'OnOffLed2
+        '
+        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
+        Me.OnOffLed2.Name = "OnOffLed2"
+        Me.OnOffLed2.OffText = Nothing
+        Me.OnOffLed2.OnText = Nothing
+        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed2.TabIndex = 536
+        '
+        'OnOffLed1
+        '
+        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
+        Me.OnOffLed1.Name = "OnOffLed1"
+        Me.OnOffLed1.OffText = Nothing
+        Me.OnOffLed1.OnText = Nothing
+        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed1.TabIndex = 535
         '
         'Label212
         '
@@ -5622,22 +5614,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea1.BackColor = System.Drawing.Color.Black
-        ChartArea1.BorderColor = System.Drawing.Color.White
-        ChartArea1.BorderWidth = 2
-        ChartArea1.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea1)
-        Legend1.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend1)
+        ChartArea2.BackColor = System.Drawing.Color.Black
+        ChartArea2.BorderColor = System.Drawing.Color.White
+        ChartArea2.BorderWidth = 2
+        ChartArea2.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea2)
+        Legend2.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend2)
         Me.Chart1.Location = New System.Drawing.Point(-32, 140)
         Me.Chart1.Name = "Chart1"
-        Series1.ChartArea = "ChartArea1"
-        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series1.Color = System.Drawing.Color.Yellow
-        Series1.Enabled = False
-        Series1.Legend = "Legend1"
-        Series1.Name = "Series1"
-        Me.Chart1.Series.Add(Series1)
+        Series2.ChartArea = "ChartArea1"
+        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series2.Color = System.Drawing.Color.Yellow
+        Series2.Enabled = False
+        Series2.Legend = "Legend1"
+        Series2.Name = "Series1"
+        Me.Chart1.Series.Add(Series2)
         Me.Chart1.Size = New System.Drawing.Size(1120, 462)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -7288,6 +7280,16 @@ Partial Class Formtest
         Me.TabPage5.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "PDVS2mini  "
+        '
+        'OnOffLed4
+        '
+        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
+        Me.OnOffLed4.Name = "OnOffLed4"
+        Me.OnOffLed4.OffText = Nothing
+        Me.OnOffLed4.OnText = Nothing
+        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed4.TabIndex = 797
         '
         'Label145
         '
@@ -10114,6 +10116,16 @@ Partial Class Formtest
         Me.Label121.TabIndex = 554
         Me.Label121.Text = "Comms Delay (mS)"
         '
+        'OnOffLed3
+        '
+        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
+        Me.OnOffLed3.Name = "OnOffLed3"
+        Me.OnOffLed3.OffText = Nothing
+        Me.OnOffLed3.OnText = Nothing
+        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed3.TabIndex = 796
+        '
         'TabPage13
         '
         Me.TabPage13.BackColor = System.Drawing.Color.WhiteSmoke
@@ -10126,6 +10138,7 @@ Partial Class Formtest
         '
         'GroupBox11
         '
+        Me.GroupBox11.Controls.Add(Me.CheckBoxTheme)
         Me.GroupBox11.Controls.Add(Me.Label317)
         Me.GroupBox11.Controls.Add(Me.Label276)
         Me.GroupBox11.Controls.Add(Me.ButtonCheckUpdates)
@@ -10148,10 +10161,29 @@ Partial Class Formtest
         Me.GroupBox11.TabIndex = 589
         Me.GroupBox11.TabStop = False
         '
+        'Label317
+        '
+        Me.Label317.AutoSize = True
+        Me.Label317.Location = New System.Drawing.Point(129, 273)
+        Me.Label317.Name = "Label317"
+        Me.Label317.Size = New System.Drawing.Size(200, 13)
+        Me.Label317.TabIndex = 608
+        Me.Label317.Text = "Check for updates and download ZIP file"
+        '
+        'Label276
+        '
+        Me.Label276.AutoSize = True
+        Me.Label276.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label276.Location = New System.Drawing.Point(8, 239)
+        Me.Label276.Name = "Label276"
+        Me.Label276.Size = New System.Drawing.Size(134, 15)
+        Me.Label276.TabIndex = 607
+        Me.Label276.Text = "WinGPIB UPDATES:"
+        '
         'Label314
         '
         Me.Label314.AutoSize = True
-        Me.Label314.Location = New System.Drawing.Point(106, 161)
+        Me.Label314.Location = New System.Drawing.Point(106, 186)
         Me.Label314.Name = "Label314"
         Me.Label314.Size = New System.Drawing.Size(303, 13)
         Me.Label314.TabIndex = 605
@@ -10160,7 +10192,7 @@ Partial Class Formtest
         'Label307
         '
         Me.Label307.AutoSize = True
-        Me.Label307.Location = New System.Drawing.Point(106, 130)
+        Me.Label307.Location = New System.Drawing.Point(106, 155)
         Me.Label307.Name = "Label307"
         Me.Label307.Size = New System.Drawing.Size(394, 13)
         Me.Label307.TabIndex = 604
@@ -10170,7 +10202,7 @@ Partial Class Formtest
         'TextBox2
         '
         Me.TextBox2.BorderStyle = System.Windows.Forms.BorderStyle.None
-        Me.TextBox2.Location = New System.Drawing.Point(594, 113)
+        Me.TextBox2.Location = New System.Drawing.Point(594, 138)
         Me.TextBox2.Name = "TextBox2"
         Me.TextBox2.ReadOnly = True
         Me.TextBox2.Size = New System.Drawing.Size(251, 13)
@@ -10180,7 +10212,7 @@ Partial Class Formtest
         'TextBox1
         '
         Me.TextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None
-        Me.TextBox1.Location = New System.Drawing.Point(594, 96)
+        Me.TextBox1.Location = New System.Drawing.Point(594, 121)
         Me.TextBox1.Name = "TextBox1"
         Me.TextBox1.ReadOnly = True
         Me.TextBox1.Size = New System.Drawing.Size(251, 13)
@@ -10199,7 +10231,7 @@ Partial Class Formtest
         'Label247
         '
         Me.Label247.AutoSize = True
-        Me.Label247.Location = New System.Drawing.Point(532, 96)
+        Me.Label247.Location = New System.Drawing.Point(532, 121)
         Me.Label247.Name = "Label247"
         Me.Label247.Size = New System.Drawing.Size(55, 13)
         Me.Label247.TabIndex = 596
@@ -10208,7 +10240,7 @@ Partial Class Formtest
         'Label10
         '
         Me.Label10.AutoSize = True
-        Me.Label10.Location = New System.Drawing.Point(290, 96)
+        Me.Label10.Location = New System.Drawing.Point(290, 121)
         Me.Label10.Name = "Label10"
         Me.Label10.Size = New System.Drawing.Size(225, 13)
         Me.Label10.TabIndex = 595
@@ -10216,7 +10248,7 @@ Partial Class Formtest
         '
         'TextBoxTextEditor
         '
-        Me.TextBoxTextEditor.Location = New System.Drawing.Point(11, 93)
+        Me.TextBoxTextEditor.Location = New System.Drawing.Point(11, 118)
         Me.TextBoxTextEditor.Name = "TextBoxTextEditor"
         Me.TextBoxTextEditor.Size = New System.Drawing.Size(273, 20)
         Me.TextBoxTextEditor.TabIndex = 594
@@ -10461,65 +10493,6 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
-        'OnOffLed2
-        '
-        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
-        Me.OnOffLed2.Name = "OnOffLed2"
-        Me.OnOffLed2.OffText = Nothing
-        Me.OnOffLed2.OnText = Nothing
-        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed2.TabIndex = 536
-        '
-        'OnOffLed1
-        '
-        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
-        Me.OnOffLed1.Name = "OnOffLed1"
-        Me.OnOffLed1.OffText = Nothing
-        Me.OnOffLed1.OnText = Nothing
-        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed1.TabIndex = 535
-        '
-        'OnOffLed4
-        '
-        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
-        Me.OnOffLed4.Name = "OnOffLed4"
-        Me.OnOffLed4.OffText = Nothing
-        Me.OnOffLed4.OnText = Nothing
-        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed4.TabIndex = 797
-        '
-        'OnOffLed3
-        '
-        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
-        Me.OnOffLed3.Name = "OnOffLed3"
-        Me.OnOffLed3.OffText = Nothing
-        Me.OnOffLed3.OnText = Nothing
-        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed3.TabIndex = 796
-        '
-        'Label276
-        '
-        Me.Label276.AutoSize = True
-        Me.Label276.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label276.Location = New System.Drawing.Point(8, 214)
-        Me.Label276.Name = "Label276"
-        Me.Label276.Size = New System.Drawing.Size(134, 15)
-        Me.Label276.TabIndex = 607
-        Me.Label276.Text = "WinGPIB UPDATES:"
-        '
-        'Label317
-        '
-        Me.Label317.AutoSize = True
-        Me.Label317.Location = New System.Drawing.Point(129, 248)
-        Me.Label317.Name = "Label317"
-        Me.Label317.Size = New System.Drawing.Size(200, 13)
-        Me.Label317.TabIndex = 608
-        Me.Label317.Text = "Check for updates and download ZIP file"
-        '
         'Formtest
         '
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None
@@ -10532,8 +10505,6 @@ Partial Class Formtest
         Me.TabControl1.ResumeLayout(False)
         Me.TabPage1.ResumeLayout(False)
         Me.TabPage1.PerformLayout
-        Me.Panel2.ResumeLayout(False)
-        Me.Panel1.ResumeLayout(False)
         Me.GroupBox9.ResumeLayout(False)
         Me.GroupBox9.PerformLayout
         Me.GroupBox8.ResumeLayout(False)
@@ -11373,15 +11344,10 @@ Partial Class Formtest
     Friend WithEvents Label2 As Label
     Friend WithEvents Label133 As Label
     Friend WithEvents noEOI As CheckBox
-    Friend WithEvents btncreate As Button
     Friend WithEvents TextBoxTempHumSample As TextBox
     Friend WithEvents Label230 As Label
     Friend WithEvents Label231 As Label
     Friend WithEvents Label234 As Label
-    Friend WithEvents Panel1 As Panel
-    Friend WithEvents Panel2 As Panel
-    Friend WithEvents Panel4 As Panel
-    Friend WithEvents Panel3 As Panel
     Friend WithEvents Label238 As Label
     Friend WithEvents Label237 As Label
     Friend WithEvents Label236 As Label
@@ -11486,4 +11452,6 @@ Partial Class Formtest
     Friend WithEvents ButtonCheckUpdates As Button
     Friend WithEvents Label317 As Label
     Friend WithEvents Label276 As Label
+    Friend WithEvents btncreate As Button
+    Friend WithEvents CheckBoxTheme As CheckBox
 End Class

@@ -79,6 +79,7 @@ Public Class Chart
 
     Private Sub Formtest_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
 
+
         ' Set Timer1 duration - Used for refresh of auto-Playback chart, i.e. auto reload of CSV
         Me.Timer1.Interval = 5000  ' 5secs
         Me.Timer1.Stop()

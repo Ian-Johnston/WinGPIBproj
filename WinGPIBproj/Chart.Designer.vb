@@ -213,7 +213,7 @@ Partial Class Chart
         '
         'ButtonScrollLeft
         '
-        Me.ButtonScrollLeft.Location = New System.Drawing.Point(273, 112)
+        Me.ButtonScrollLeft.Location = New System.Drawing.Point(272, 112)
         Me.ButtonScrollLeft.Name = "ButtonScrollLeft"
         Me.ButtonScrollLeft.Size = New System.Drawing.Size(73, 30)
         Me.ButtonScrollLeft.TabIndex = 54
@@ -223,7 +223,7 @@ Partial Class Chart
         '
         'ButtonScrollRight
         '
-        Me.ButtonScrollRight.Location = New System.Drawing.Point(421, 112)
+        Me.ButtonScrollRight.Location = New System.Drawing.Point(422, 112)
         Me.ButtonScrollRight.Name = "ButtonScrollRight"
         Me.ButtonScrollRight.Size = New System.Drawing.Size(73, 30)
         Me.ButtonScrollRight.TabIndex = 55
@@ -369,9 +369,9 @@ Partial Class Chart
         '
         'ButtonZoomOut
         '
-        Me.ButtonZoomOut.Location = New System.Drawing.Point(347, 153)
+        Me.ButtonZoomOut.Location = New System.Drawing.Point(346, 153)
         Me.ButtonZoomOut.Name = "ButtonZoomOut"
-        Me.ButtonZoomOut.Size = New System.Drawing.Size(73, 30)
+        Me.ButtonZoomOut.Size = New System.Drawing.Size(75, 30)
         Me.ButtonZoomOut.TabIndex = 78
         Me.ButtonZoomOut.Text = "ZOOM OUT"
         Me.ToolTip1.SetToolTip(Me.ButtonZoomOut, "Zoom out Y-axis on centre line")
@@ -379,7 +379,7 @@ Partial Class Chart
         '
         'ButtonZoomIn
         '
-        Me.ButtonZoomIn.Location = New System.Drawing.Point(273, 153)
+        Me.ButtonZoomIn.Location = New System.Drawing.Point(272, 153)
         Me.ButtonZoomIn.Name = "ButtonZoomIn"
         Me.ButtonZoomIn.Size = New System.Drawing.Size(73, 30)
         Me.ButtonZoomIn.TabIndex = 79
@@ -439,7 +439,7 @@ Partial Class Chart
         '
         'ButtonDisplayAll
         '
-        Me.ButtonDisplayAll.Location = New System.Drawing.Point(421, 153)
+        Me.ButtonDisplayAll.Location = New System.Drawing.Point(422, 153)
         Me.ButtonDisplayAll.Name = "ButtonDisplayAll"
         Me.ButtonDisplayAll.Size = New System.Drawing.Size(73, 30)
         Me.ButtonDisplayAll.TabIndex = 85
