@@ -163,7 +163,7 @@ Public Class Formtest
         Try
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V3.286"
+            BannerText1 = "WinGPIB   V3.287"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
             ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -263,6 +263,8 @@ Public Class Formtest
             CSVdelimit = My.Settings.data29
 
             TempOffset.Text = My.Settings.data78
+
+            TextBoxAvgWindow.Text = My.Settings.data525
 
             ' Load Device 1 default profile 1
             lstIntf1.SelectedIndex = My.Settings.data33
@@ -751,6 +753,9 @@ Public Class Formtest
             ToolTip1.AutoPopDelay = 10000   ' Time in milliseconds tooltip stays visible
             ToolTip1.InitialDelay = 100     ' Delay before tooltip appears
             ToolTip1.ReshowDelay = 100      ' Delay before tooltip reappears if user moves away and back
+
+            Dev1ChartValue.Text = ""
+            Dev2ChartValue.Text = ""
 
         Catch ex As Exception
             MessageBox.Show($"Error during load: {ex.Message}")

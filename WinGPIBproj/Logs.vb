@@ -65,6 +65,35 @@ Partial Class Formtest
     ' Create a list to store log entries
     Private EventlogEntries As New List(Of String)
 
+    ' === NEW: lightweight rolling average state ===
+    Private q1 As New Queue(Of Double)  ' Dev1 samples
+    Private q2 As New Queue(Of Double)  ' Dev2 samples
+    Private sum1 As Double = 0          ' Dev1 running sum
+    Private sum2 As Double = 0          ' Dev2 running sum
+
+    ' Expect these controls to exist on the form:
+    ' CheckBoxAvgEnable  (checkbox to enable averaging)
+    ' TextBoxAvgWindow   (N value for rolling window)
+
+    ' === NEW: returns averaged value if enabled, else raw ===
+    Private Function AvgVal(v As Double, dev As Integer) As Double
+        If Not CheckBoxAvgEnable.Checked Then Return v
+
+        Dim n As Integer
+        If Not Integer.TryParse(TextBoxAvgWindow.Text, n) OrElse n <= 1 Then Return v
+
+        If dev = 1 Then
+            q1.Enqueue(v) : sum1 += v
+            If q1.Count > n Then sum1 -= q1.Dequeue()
+            Return sum1 / q1.Count
+        Else
+            q2.Enqueue(v) : sum2 += v
+            If q2.Count > n Then sum2 -= q2.Dequeue()
+            Return sum2 / q2.Count
+        End If
+    End Function
+
+
 
     Private Sub Log(ByVal str As String)
 
@@ -97,6 +126,8 @@ Partial Class Formtest
         If (EnableChart1.Checked = True And EnableChart2.Checked = False And RunChart = True And Dev1GPIBActivity = True) Then
 
             inst_value1FChart = CDbl(Val(txtr1a.Text))
+            inst_value1FChart = AvgVal(inst_value1FChart, 1)
+            Dev1ChartValue.Text = Format(inst_value1FChart, "0.#########")
             txtr1achart = Format(inst_value1FChart, "#0.00000000")
 
             ' plot to chart Device 1
@@ -147,6 +178,8 @@ Partial Class Formtest
         If (EnableChart2.Checked = True And EnableChart1.Checked = False And RunChart = True And Dev2GPIBActivity = True) Then
 
             inst_value2FChart = CDbl(Val(txtr2a.Text))
+            inst_value2FChart = AvgVal(inst_value2FChart, 2)
+            Dev2ChartValue.Text = Format(inst_value2FChart, "0.#########")
             txtr2achart = Format(inst_value2FChart, "#0.00000000")
 
             ' plot to chart Device 2
@@ -199,7 +232,11 @@ Partial Class Formtest
         If (EnableChart1.Checked = True And EnableChart2.Checked = True And RunChart = True And Dev2GPIBActivity = True) Then
 
             inst_value1FChart = CDbl(Val(txtr1a.Text))
+            inst_value1FChart = AvgVal(inst_value1FChart, 1)
+            Dev1ChartValue.Text = Format(inst_value1FChart, "0.#########")
             inst_value2FChart = CDbl(Val(txtr2a.Text))
+            inst_value2FChart = AvgVal(inst_value2FChart, 2)
+            Dev2ChartValue.Text = Format(inst_value2FChart, "0.#########")
             txtr1achart = Format(inst_value1FChart, "#0.00000000")
             txtr2achart = Format(inst_value2FChart, "#0.00000000")
 
@@ -532,6 +569,8 @@ Partial Class Formtest
         LabelChartPoints1.Text = "0"
         ChartPoints2 = 0
         LabelChartPoints2.Text = "0"
+
+        q1.Clear() : q2.Clear() : sum1 = 0 : sum2 = 0
 
         RunChart = False
 

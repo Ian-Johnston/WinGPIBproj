@@ -64,6 +64,7 @@ Partial Class Formtest
         My.Settings.data257 = Dev1Min.Text
         My.Settings.data258 = LCTempMax.Text
         My.Settings.data259 = LCTempMin.Text
+        My.Settings.data525 = TextBoxAvgWindow.Text
 
     End Sub
 

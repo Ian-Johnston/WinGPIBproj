@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea7 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend7 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series7 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -347,8 +347,6 @@ Partial Class Formtest
         Me.Label215 = New System.Windows.Forms.Label()
         Me.Label214 = New System.Windows.Forms.Label()
         Me.Label213 = New System.Windows.Forms.Label()
-        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.Label212 = New System.Windows.Forms.Label()
         Me.Label211 = New System.Windows.Forms.Label()
         Me.Label210 = New System.Windows.Forms.Label()
@@ -426,7 +424,6 @@ Partial Class Formtest
         Me.Label26 = New System.Windows.Forms.Label()
         Me.ListBoxData = New System.Windows.Forms.ListBox()
         Me.TabPage4 = New System.Windows.Forms.TabPage()
-        Me.Label313 = New System.Windows.Forms.Label()
         Me.Label238 = New System.Windows.Forms.Label()
         Me.Label237 = New System.Windows.Forms.Label()
         Me.Label236 = New System.Windows.Forms.Label()
@@ -610,7 +607,6 @@ Partial Class Formtest
         Me.Label269 = New System.Windows.Forms.Label()
         Me.PictureBox9 = New System.Windows.Forms.PictureBox()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
-        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.Label145 = New System.Windows.Forms.Label()
         Me.Label79 = New System.Windows.Forms.Label()
         Me.Label81 = New System.Windows.Forms.Label()
@@ -866,7 +862,6 @@ Partial Class Formtest
         Me.CalAccuracyFinal = New System.Windows.Forms.TextBox()
         Me.Label117 = New System.Windows.Forms.Label()
         Me.Label121 = New System.Windows.Forms.Label()
-        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage13 = New System.Windows.Forms.TabPage()
         Me.GroupBox11 = New System.Windows.Forms.GroupBox()
         Me.Label317 = New System.Windows.Forms.Label()
@@ -905,6 +900,17 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
+        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
+        Me.CheckBoxAvgEnable = New System.Windows.Forms.CheckBox()
+        Me.TextBoxAvgWindow = New System.Windows.Forms.TextBox()
+        Me.Label319 = New System.Windows.Forms.Label()
+        Me.Dev1ChartValue = New System.Windows.Forms.Label()
+        Me.Dev2ChartValue = New System.Windows.Forms.Label()
+        Me.Label320 = New System.Windows.Forms.Label()
+        Me.Label321 = New System.Windows.Forms.Label()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.GroupBox9.SuspendLayout
@@ -1788,9 +1794,9 @@ Partial Class Formtest
         'ButtonSaveLiveSettings
         '
         Me.ButtonSaveLiveSettings.BackColor = System.Drawing.Color.PaleGreen
-        Me.ButtonSaveLiveSettings.Location = New System.Drawing.Point(11, 113)
+        Me.ButtonSaveLiveSettings.Location = New System.Drawing.Point(11, 141)
         Me.ButtonSaveLiveSettings.Name = "ButtonSaveLiveSettings"
-        Me.ButtonSaveLiveSettings.Size = New System.Drawing.Size(132, 29)
+        Me.ButtonSaveLiveSettings.Size = New System.Drawing.Size(140, 29)
         Me.ButtonSaveLiveSettings.TabIndex = 703
         Me.ButtonSaveLiveSettings.Text = "Save Live Chart Settings"
         Me.ToolTip1.SetToolTip(Me.ButtonSaveLiveSettings, "Save Live Chart Settings")
@@ -4407,26 +4413,6 @@ Partial Class Formtest
         Me.Label213.TabIndex = 537
         Me.Label213.Text = "Tx"
         '
-        'OnOffLed2
-        '
-        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
-        Me.OnOffLed2.Name = "OnOffLed2"
-        Me.OnOffLed2.OffText = Nothing
-        Me.OnOffLed2.OnText = Nothing
-        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed2.TabIndex = 536
-        '
-        'OnOffLed1
-        '
-        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
-        Me.OnOffLed1.Name = "OnOffLed1"
-        Me.OnOffLed1.OffText = Nothing
-        Me.OnOffLed1.OnText = Nothing
-        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed1.TabIndex = 535
-        '
         'Label212
         '
         Me.Label212.AutoSize = True
@@ -5188,7 +5174,13 @@ Partial Class Formtest
         'TabPage4
         '
         Me.TabPage4.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.TabPage4.Controls.Add(Me.Label313)
+        Me.TabPage4.Controls.Add(Me.Label321)
+        Me.TabPage4.Controls.Add(Me.Label320)
+        Me.TabPage4.Controls.Add(Me.Dev2ChartValue)
+        Me.TabPage4.Controls.Add(Me.Dev1ChartValue)
+        Me.TabPage4.Controls.Add(Me.Label319)
+        Me.TabPage4.Controls.Add(Me.TextBoxAvgWindow)
+        Me.TabPage4.Controls.Add(Me.CheckBoxAvgEnable)
         Me.TabPage4.Controls.Add(Me.Label238)
         Me.TabPage4.Controls.Add(Me.Label237)
         Me.TabPage4.Controls.Add(Me.Label236)
@@ -5242,15 +5234,6 @@ Partial Class Formtest
         Me.TabPage4.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage4.TabIndex = 3
         Me.TabPage4.Text = "Live Chart  "
-        '
-        'Label313
-        '
-        Me.Label313.AutoSize = True
-        Me.Label313.Location = New System.Drawing.Point(108, 95)
-        Me.Label313.Name = "Label313"
-        Me.Label313.Size = New System.Drawing.Size(157, 13)
-        Me.Label313.TabIndex = 714
-        Me.Label313.Text = "(Enable Dev1/Dev2 after RUN)"
         '
         'Label238
         '
@@ -5334,7 +5317,7 @@ Partial Class Formtest
         'CheckBoxDevice2Hide
         '
         Me.CheckBoxDevice2Hide.AutoSize = True
-        Me.CheckBoxDevice2Hide.Location = New System.Drawing.Point(560, 130)
+        Me.CheckBoxDevice2Hide.Location = New System.Drawing.Point(560, 141)
         Me.CheckBoxDevice2Hide.Name = "CheckBoxDevice2Hide"
         Me.CheckBoxDevice2Hide.Size = New System.Drawing.Size(139, 17)
         Me.CheckBoxDevice2Hide.TabIndex = 707
@@ -5373,7 +5356,7 @@ Partial Class Formtest
         '
         Me.LabelChartPoints1.AutoSize = True
         Me.LabelChartPoints1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelChartPoints1.Location = New System.Drawing.Point(700, 44)
+        Me.LabelChartPoints1.Location = New System.Drawing.Point(700, 45)
         Me.LabelChartPoints1.Name = "LabelChartPoints1"
         Me.LabelChartPoints1.Size = New System.Drawing.Size(14, 15)
         Me.LabelChartPoints1.TabIndex = 699
@@ -5392,7 +5375,7 @@ Partial Class Formtest
         '
         Me.LabelChartPoints2.AutoSize = True
         Me.LabelChartPoints2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelChartPoints2.Location = New System.Drawing.Point(701, 111)
+        Me.LabelChartPoints2.Location = New System.Drawing.Point(700, 123)
         Me.LabelChartPoints2.Name = "LabelChartPoints2"
         Me.LabelChartPoints2.Size = New System.Drawing.Size(14, 15)
         Me.LabelChartPoints2.TabIndex = 697
@@ -5401,7 +5384,7 @@ Partial Class Formtest
         'Label257
         '
         Me.Label257.AutoSize = True
-        Me.Label257.Location = New System.Drawing.Point(558, 113)
+        Me.Label257.Location = New System.Drawing.Point(558, 124)
         Me.Label257.Name = "Label257"
         Me.Label257.Size = New System.Drawing.Size(146, 13)
         Me.Label257.TabIndex = 696
@@ -5524,7 +5507,7 @@ Partial Class Formtest
         '
         'ButtonDiffRecorded2Reset
         '
-        Me.ButtonDiffRecorded2Reset.Location = New System.Drawing.Point(772, 90)
+        Me.ButtonDiffRecorded2Reset.Location = New System.Drawing.Point(772, 101)
         Me.ButtonDiffRecorded2Reset.Name = "ButtonDiffRecorded2Reset"
         Me.ButtonDiffRecorded2Reset.Size = New System.Drawing.Size(44, 20)
         Me.ButtonDiffRecorded2Reset.TabIndex = 105
@@ -5566,7 +5549,7 @@ Partial Class Formtest
         '
         Me.inst_value2FDiffRecorded.AutoSize = True
         Me.inst_value2FDiffRecorded.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.inst_value2FDiffRecorded.Location = New System.Drawing.Point(700, 94)
+        Me.inst_value2FDiffRecorded.Location = New System.Drawing.Point(700, 105)
         Me.inst_value2FDiffRecorded.Name = "inst_value2FDiffRecorded"
         Me.inst_value2FDiffRecorded.Size = New System.Drawing.Size(70, 13)
         Me.inst_value2FDiffRecorded.TabIndex = 100
@@ -5585,7 +5568,7 @@ Partial Class Formtest
         'Label44
         '
         Me.Label44.AutoSize = True
-        Me.Label44.Location = New System.Drawing.Point(558, 94)
+        Me.Label44.Location = New System.Drawing.Point(558, 105)
         Me.Label44.Name = "Label44"
         Me.Label44.Size = New System.Drawing.Size(146, 13)
         Me.Label44.TabIndex = 99
@@ -5614,23 +5597,23 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea2.BackColor = System.Drawing.Color.Black
-        ChartArea2.BorderColor = System.Drawing.Color.White
-        ChartArea2.BorderWidth = 2
-        ChartArea2.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea2)
-        Legend2.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend2)
-        Me.Chart1.Location = New System.Drawing.Point(-32, 140)
+        ChartArea7.BackColor = System.Drawing.Color.Black
+        ChartArea7.BorderColor = System.Drawing.Color.White
+        ChartArea7.BorderWidth = 2
+        ChartArea7.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea7)
+        Legend7.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend7)
+        Me.Chart1.Location = New System.Drawing.Point(-32, 168)
         Me.Chart1.Name = "Chart1"
-        Series2.ChartArea = "ChartArea1"
-        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series2.Color = System.Drawing.Color.Yellow
-        Series2.Enabled = False
-        Series2.Legend = "Legend1"
-        Series2.Name = "Series1"
-        Me.Chart1.Series.Add(Series2)
-        Me.Chart1.Size = New System.Drawing.Size(1120, 462)
+        Series7.ChartArea = "ChartArea1"
+        Series7.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series7.Color = System.Drawing.Color.Yellow
+        Series7.Enabled = False
+        Series7.Legend = "Legend1"
+        Series7.Name = "Series1"
+        Me.Chart1.Series.Add(Series7)
+        Me.Chart1.Size = New System.Drawing.Size(1120, 434)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
         '
@@ -7280,16 +7263,6 @@ Partial Class Formtest
         Me.TabPage5.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "PDVS2mini  "
-        '
-        'OnOffLed4
-        '
-        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
-        Me.OnOffLed4.Name = "OnOffLed4"
-        Me.OnOffLed4.OffText = Nothing
-        Me.OnOffLed4.OnText = Nothing
-        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed4.TabIndex = 797
         '
         'Label145
         '
@@ -10116,16 +10089,6 @@ Partial Class Formtest
         Me.Label121.TabIndex = 554
         Me.Label121.Text = "Comms Delay (mS)"
         '
-        'OnOffLed3
-        '
-        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
-        Me.OnOffLed3.Name = "OnOffLed3"
-        Me.OnOffLed3.OffText = Nothing
-        Me.OnOffLed3.OnText = Nothing
-        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed3.TabIndex = 796
-        '
         'TabPage13
         '
         Me.TabPage13.BackColor = System.Drawing.Color.WhiteSmoke
@@ -10492,6 +10455,114 @@ Partial Class Formtest
         'Timer14
         '
         Me.Timer14.Interval = 50
+        '
+        'OnOffLed2
+        '
+        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
+        Me.OnOffLed2.Name = "OnOffLed2"
+        Me.OnOffLed2.OffText = Nothing
+        Me.OnOffLed2.OnText = Nothing
+        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed2.TabIndex = 536
+        '
+        'OnOffLed1
+        '
+        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
+        Me.OnOffLed1.Name = "OnOffLed1"
+        Me.OnOffLed1.OffText = Nothing
+        Me.OnOffLed1.OnText = Nothing
+        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed1.TabIndex = 535
+        '
+        'OnOffLed4
+        '
+        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
+        Me.OnOffLed4.Name = "OnOffLed4"
+        Me.OnOffLed4.OffText = Nothing
+        Me.OnOffLed4.OnText = Nothing
+        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed4.TabIndex = 797
+        '
+        'OnOffLed3
+        '
+        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
+        Me.OnOffLed3.Name = "OnOffLed3"
+        Me.OnOffLed3.OffText = Nothing
+        Me.OnOffLed3.OnText = Nothing
+        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed3.TabIndex = 796
+        '
+        'CheckBoxAvgEnable
+        '
+        Me.CheckBoxAvgEnable.AutoSize = True
+        Me.CheckBoxAvgEnable.Location = New System.Drawing.Point(110, 95)
+        Me.CheckBoxAvgEnable.Name = "CheckBoxAvgEnable"
+        Me.CheckBoxAvgEnable.Size = New System.Drawing.Size(109, 17)
+        Me.CheckBoxAvgEnable.TabIndex = 715
+        Me.CheckBoxAvgEnable.Text = "Rolling Averaging"
+        Me.ToolTip1.SetToolTip(Me.CheckBoxAvgEnable, "Enable rolling averaging for the chart only. Both Dev1 & Dev2.")
+        Me.CheckBoxAvgEnable.UseVisualStyleBackColor = True
+        '
+        'TextBoxAvgWindow
+        '
+        Me.TextBoxAvgWindow.Location = New System.Drawing.Point(219, 93)
+        Me.TextBoxAvgWindow.Name = "TextBoxAvgWindow"
+        Me.TextBoxAvgWindow.Size = New System.Drawing.Size(34, 20)
+        Me.TextBoxAvgWindow.TabIndex = 716
+        Me.TextBoxAvgWindow.Text = "10"
+        Me.ToolTip1.SetToolTip(Me.TextBoxAvgWindow, "Number of recent samples to average before plotting. Enter N ≥ 2. N ≤ 1 disables " &
+        "averaging. This does not affect the GPIB data.")
+        '
+        'Label319
+        '
+        Me.Label319.AutoSize = True
+        Me.Label319.Location = New System.Drawing.Point(256, 97)
+        Me.Label319.Name = "Label319"
+        Me.Label319.Size = New System.Drawing.Size(65, 13)
+        Me.Label319.TabIndex = 717
+        Me.Label319.Text = "No. samples"
+        '
+        'Dev1ChartValue
+        '
+        Me.Dev1ChartValue.AutoSize = True
+        Me.Dev1ChartValue.BackColor = System.Drawing.Color.Yellow
+        Me.Dev1ChartValue.Location = New System.Drawing.Point(609, 81)
+        Me.Dev1ChartValue.Name = "Dev1ChartValue"
+        Me.Dev1ChartValue.Size = New System.Drawing.Size(63, 13)
+        Me.Dev1ChartValue.TabIndex = 718
+        Me.Dev1ChartValue.Text = "########"
+        '
+        'Dev2ChartValue
+        '
+        Me.Dev2ChartValue.AutoSize = True
+        Me.Dev2ChartValue.BackColor = System.Drawing.Color.Cyan
+        Me.Dev2ChartValue.Location = New System.Drawing.Point(609, 159)
+        Me.Dev2ChartValue.Name = "Dev2ChartValue"
+        Me.Dev2ChartValue.Size = New System.Drawing.Size(63, 13)
+        Me.Dev2ChartValue.TabIndex = 719
+        Me.Dev2ChartValue.Text = "########"
+        '
+        'Label320
+        '
+        Me.Label320.AutoSize = True
+        Me.Label320.Location = New System.Drawing.Point(558, 81)
+        Me.Label320.Name = "Label320"
+        Me.Label320.Size = New System.Drawing.Size(45, 13)
+        Me.Label320.TabIndex = 720
+        Me.Label320.Text = "Dev 1 ="
+        '
+        'Label321
+        '
+        Me.Label321.AutoSize = True
+        Me.Label321.Location = New System.Drawing.Point(557, 159)
+        Me.Label321.Name = "Label321"
+        Me.Label321.Size = New System.Drawing.Size(45, 13)
+        Me.Label321.TabIndex = 721
+        Me.Label321.Text = "Dev 2 ="
         '
         'Formtest
         '
@@ -11415,7 +11486,6 @@ Partial Class Formtest
     Friend WithEvents TextBoxTextEditor As TextBox
     Friend WithEvents Label247 As Label
     Friend WithEvents Label308 As Label
-    Friend WithEvents Label313 As Label
     Friend WithEvents TextBox1 As TextBox
     Friend WithEvents TextBox2 As TextBox
     Friend WithEvents CheckBoxEnableTooltips As CheckBox
@@ -11454,4 +11524,11 @@ Partial Class Formtest
     Friend WithEvents Label276 As Label
     Friend WithEvents btncreate As Button
     Friend WithEvents CheckBoxTheme As CheckBox
+    Friend WithEvents CheckBoxAvgEnable As CheckBox
+    Friend WithEvents TextBoxAvgWindow As TextBox
+    Friend WithEvents Label319 As Label
+    Friend WithEvents Dev2ChartValue As Label
+    Friend WithEvents Dev1ChartValue As Label
+    Friend WithEvents Label320 As Label
+    Friend WithEvents Label321 As Label
 End Class
