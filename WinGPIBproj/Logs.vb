@@ -667,10 +667,11 @@ Partial Class Formtest
             LabelChartPoints1.Text = ChartPoints1
 
             Dim totalChartSamples As Integer = Val(Dev1SampleRate.Text) * Val(LabelChartPoints1.Text)
-            Dim totalMinutes As Double = totalChartSamples / 60
-            Dim hours As Integer = CInt(totalMinutes \ 60)
-            Dim minutes As Integer = CInt(totalMinutes Mod 60)
-            Dim seconds As Integer = CInt((totalMinutes - Math.Floor(totalMinutes)) * 60)
+            Dim totalSeconds As Integer = totalChartSamples
+            Dim hours As Integer = totalSeconds \ 3600
+            Dim minutes As Integer = (totalSeconds Mod 3600) \ 60
+            Dim seconds As Integer = totalSeconds Mod 60
+
             LabeChartMinutes.Text = $"{hours}hrs {minutes:00}mins {seconds:00}secs"
 
         End If
@@ -681,10 +682,11 @@ Partial Class Formtest
             LabelChartPoints1.Text = Math.Floor(ChartPoints1).ToString()
 
             Dim totalChartSamples As Integer = Val(Dev1SampleRate.Text) * Val(LabelChartPoints1.Text)
-            Dim totalMinutes As Double = totalChartSamples / 60
-            Dim hours As Integer = CInt(totalMinutes \ 60)
-            Dim minutes As Integer = CInt(totalMinutes Mod 60)
-            Dim seconds As Integer = CInt((totalMinutes - Math.Floor(totalMinutes)) * 60)
+            Dim totalSeconds As Integer = totalChartSamples
+            Dim hours As Integer = totalSeconds \ 3600
+            Dim minutes As Integer = (totalSeconds Mod 3600) \ 60
+            Dim seconds As Integer = totalSeconds Mod 60
+
             LabeChartMinutes.Text = $"{hours}hrs {minutes:00}mins {seconds:00}secs"
 
         End If
@@ -694,10 +696,11 @@ Partial Class Formtest
             LabelChartPoints2.Text = ChartPoints2
 
             Dim totalChartSamples As Integer = Val(Dev2SampleRate.Text) * Val(LabelChartPoints2.Text)
-            Dim totalMinutes As Double = totalChartSamples / 60
-            Dim hours As Integer = CInt(totalMinutes \ 60)
-            Dim minutes As Integer = CInt(totalMinutes Mod 60)
-            Dim seconds As Integer = CInt((totalMinutes - Math.Floor(totalMinutes)) * 60)
+            Dim totalSeconds As Integer = totalChartSamples
+            Dim hours As Integer = totalSeconds \ 3600
+            Dim minutes As Integer = (totalSeconds Mod 3600) \ 60
+            Dim seconds As Integer = totalSeconds Mod 60
+
             LabeChartMinutes.Text = $"{hours}hrs {minutes:00}mins {seconds:00}secs"
 
         End If
@@ -708,10 +711,11 @@ Partial Class Formtest
             LabelChartPoints2.Text = Math.Floor(ChartPoints2).ToString()
 
             Dim totalChartSamples As Integer = Val(Dev2SampleRate.Text) * Val(LabelChartPoints2.Text)
-            Dim totalMinutes As Double = totalChartSamples / 60
-            Dim hours As Integer = CInt(totalMinutes \ 60)
-            Dim minutes As Integer = CInt(totalMinutes Mod 60)
-            Dim seconds As Integer = CInt((totalMinutes - Math.Floor(totalMinutes)) * 60)
+            Dim totalSeconds As Integer = totalChartSamples
+            Dim hours As Integer = totalSeconds \ 3600
+            Dim minutes As Integer = (totalSeconds Mod 3600) \ 60
+            Dim seconds As Integer = totalSeconds Mod 60
+
             LabeChartMinutes.Text = $"{hours}hrs {minutes:00}mins {seconds:00}secs"
 
         End If
@@ -723,10 +727,11 @@ Partial Class Formtest
             LabelChartPoints2.Text = Math.Floor(ChartPoints2).ToString()
 
             Dim totalChartSamples As Integer = Val(Dev12SampleRate.Text) * Val(LabelChartPoints1.Text)
-            Dim totalMinutes As Double = totalChartSamples / 60
-            Dim hours As Integer = CInt(totalMinutes \ 60)
-            Dim minutes As Integer = CInt(totalMinutes Mod 60)
-            Dim seconds As Integer = CInt((totalMinutes - Math.Floor(totalMinutes)) * 60)
+            Dim totalSeconds As Integer = totalChartSamples
+            Dim hours As Integer = totalSeconds \ 3600
+            Dim minutes As Integer = (totalSeconds Mod 3600) \ 60
+            Dim seconds As Integer = totalSeconds Mod 60
+
             LabeChartMinutes.Text = $"{hours}hrs {minutes:00}mins {seconds:00}secs"
 
         End If
