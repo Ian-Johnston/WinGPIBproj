@@ -659,83 +659,59 @@ Partial Class Formtest
         ' This sub called by 100mS permanent timer4
 
         ' Chart sample counters
-        ChartPoints1 = Chart1.Series(0).Points.Count
-        ChartPoints2 = Chart1.Series(1).Points.Count
+        Dim chartPoints1 As Integer = Chart1.Series(0).Points.Count
+        Dim chartPoints2 As Integer = Chart1.Series(1).Points.Count
 
-        ' Dev1 live chart and Dev1 GPIB
-        If (EnableChart1.Checked = True And EnableChart2.Checked = False And ButtonDev1Run.Text = "Stop") Then      ' Dev1 only, using Dev1 channel
-            LabelChartPoints1.Text = ChartPoints1
+        Dim points As Integer = 0
+        Dim sampleRateText As String = ""
+        Dim pointsLabel As Label = Nothing
 
-            Dim totalChartSamples As Integer = Val(Dev1SampleRate.Text) * Val(LabelChartPoints1.Text)
-            Dim totalSeconds As Integer = totalChartSamples
+        ' Dev1 only
+        If EnableChart1.Checked And Not EnableChart2.Checked And ButtonDev1Run.Text = "Stop" Then
+            points = chartPoints1
+            pointsLabel = LabelChartPoints1
+            sampleRateText = Dev1SampleRate.Text
+        End If
+
+        ' Dev1 only but Dev1/2 channel active
+        If EnableChart1.Checked And Not EnableChart2.Checked And ButtonDev12Run.Text = "Stop" Then
+            points = chartPoints1
+            pointsLabel = LabelChartPoints1
+            sampleRateText = Dev1SampleRate.Text
+        End If
+
+        ' Dev2 only
+        If Not EnableChart1.Checked And EnableChart2.Checked And ButtonDev2Run.Text = "Stop" Then
+            points = chartPoints2
+            pointsLabel = LabelChartPoints2
+            sampleRateText = Dev2SampleRate.Text
+        End If
+
+        ' Dev2 only but Dev1/2 channel active
+        If Not EnableChart1.Checked And EnableChart2.Checked And ButtonDev12Run.Text = "Stop" Then
+            points = chartPoints2
+            pointsLabel = LabelChartPoints2
+            sampleRateText = Dev2SampleRate.Text
+        End If
+
+        ' Both charts active
+        If EnableChart1.Checked And EnableChart2.Checked Then
+            points = chartPoints1
+            pointsLabel = LabelChartPoints1
+            sampleRateText = Dev12SampleRate.Text
+        End If
+
+        ' Final calcs
+        If sampleRateText <> "" AndAlso pointsLabel IsNot Nothing Then
+            pointsLabel.Text = points.ToString()
+
+            Dim totalSeconds As Integer = CInt(Val(sampleRateText) * points)
             Dim hours As Integer = totalSeconds \ 3600
             Dim minutes As Integer = (totalSeconds Mod 3600) \ 60
             Dim seconds As Integer = totalSeconds Mod 60
 
             LabeChartMinutes.Text = $"{hours}hrs {minutes:00}mins {seconds:00}secs"
-
         End If
-
-        ' Dev1 live chart and Dev1/2 GPIB
-        If (EnableChart1.Checked = True And EnableChart2.Checked = False And ButtonDev12Run.Text = "Stop") Then     ' Dev1 only but Dev1/2 channel active
-
-            LabelChartPoints1.Text = Math.Floor(ChartPoints1).ToString()
-
-            Dim totalChartSamples As Integer = Val(Dev1SampleRate.Text) * Val(LabelChartPoints1.Text)
-            Dim totalSeconds As Integer = totalChartSamples
-            Dim hours As Integer = totalSeconds \ 3600
-            Dim minutes As Integer = (totalSeconds Mod 3600) \ 60
-            Dim seconds As Integer = totalSeconds Mod 60
-
-            LabeChartMinutes.Text = $"{hours}hrs {minutes:00}mins {seconds:00}secs"
-
-        End If
-
-        ' Dev2 live chart and Dev2 GPIB
-        If (EnableChart1.Checked = False And EnableChart2.Checked = True And ButtonDev2Run.Text = "Stop") Then     ' Dev2 only, using Dev2 channel
-            LabelChartPoints2.Text = ChartPoints2
-
-            Dim totalChartSamples As Integer = Val(Dev2SampleRate.Text) * Val(LabelChartPoints2.Text)
-            Dim totalSeconds As Integer = totalChartSamples
-            Dim hours As Integer = totalSeconds \ 3600
-            Dim minutes As Integer = (totalSeconds Mod 3600) \ 60
-            Dim seconds As Integer = totalSeconds Mod 60
-
-            LabeChartMinutes.Text = $"{hours}hrs {minutes:00}mins {seconds:00}secs"
-
-        End If
-
-        ' Dev2 live chart and Dev1/2 GPIB
-        If (EnableChart1.Checked = False And EnableChart2.Checked = True And ButtonDev12Run.Text = "Stop") Then      ' Dev2 only but Dev1/2 channel active
-
-            LabelChartPoints2.Text = Math.Floor(ChartPoints2).ToString()
-
-            Dim totalChartSamples As Integer = Val(Dev2SampleRate.Text) * Val(LabelChartPoints2.Text)
-            Dim totalSeconds As Integer = totalChartSamples
-            Dim hours As Integer = totalSeconds \ 3600
-            Dim minutes As Integer = (totalSeconds Mod 3600) \ 60
-            Dim seconds As Integer = totalSeconds Mod 60
-
-            LabeChartMinutes.Text = $"{hours}hrs {minutes:00}mins {seconds:00}secs"
-
-        End If
-
-        ' Dev1 live chart and Dev1 live chart
-        If (EnableChart1.Checked = True And EnableChart2.Checked = True) Then
-
-            LabelChartPoints1.Text = Math.Floor(ChartPoints1).ToString()
-            LabelChartPoints2.Text = Math.Floor(ChartPoints2).ToString()
-
-            Dim totalChartSamples As Integer = Val(Dev12SampleRate.Text) * Val(LabelChartPoints1.Text)
-            Dim totalSeconds As Integer = totalChartSamples
-            Dim hours As Integer = totalSeconds \ 3600
-            Dim minutes As Integer = (totalSeconds Mod 3600) \ 60
-            Dim seconds As Integer = totalSeconds Mod 60
-
-            LabeChartMinutes.Text = $"{hours}hrs {minutes:00}mins {seconds:00}secs"
-
-        End If
-
 
         ' Chart controls
         If (EnableChart1.Checked = True Or EnableChart2.Checked = True Or EnableChart3.Checked = True) Then
