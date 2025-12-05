@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea4 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend4 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series4 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -597,6 +597,16 @@ Partial Class Formtest
         Me.Label261 = New System.Windows.Forms.Label()
         Me.GroupBox5 = New System.Windows.Forms.GroupBox()
         Me.GroupBox15 = New System.Windows.Forms.GroupBox()
+        Me.Label334 = New System.Windows.Forms.Label()
+        Me.Label333 = New System.Windows.Forms.Label()
+        Me.Label332 = New System.Windows.Forms.Label()
+        Me.Label331 = New System.Windows.Forms.Label()
+        Me.Label330 = New System.Windows.Forms.Label()
+        Me.Label329 = New System.Windows.Forms.Label()
+        Me.Label328 = New System.Windows.Forms.Label()
+        Me.Label327 = New System.Windows.Forms.Label()
+        Me.Label326 = New System.Windows.Forms.Label()
+        Me.Label325 = New System.Windows.Forms.Label()
         Me.Label324 = New System.Windows.Forms.Label()
         Me.Label322 = New System.Windows.Forms.Label()
         Me.Cmd3245sent = New System.Windows.Forms.Label()
@@ -627,6 +637,7 @@ Partial Class Formtest
         Me.Label3245AWRI = New System.Windows.Forms.Label()
         Me.ButtonCal3245A = New System.Windows.Forms.Button()
         Me.Button3245Aabort = New System.Windows.Forms.Button()
+        Me.Label271 = New System.Windows.Forms.Label()
         Me.GroupBox12 = New System.Windows.Forms.GroupBox()
         Me.PictureBox7 = New System.Windows.Forms.PictureBox()
         Me.Label273 = New System.Windows.Forms.Label()
@@ -634,7 +645,6 @@ Partial Class Formtest
         Me.Label272 = New System.Windows.Forms.Label()
         Me.Label267 = New System.Windows.Forms.Label()
         Me.Label268 = New System.Windows.Forms.Label()
-        Me.Label271 = New System.Windows.Forms.Label()
         Me.Label255 = New System.Windows.Forms.Label()
         Me.Label269 = New System.Windows.Forms.Label()
         Me.PictureBox9 = New System.Windows.Forms.PictureBox()
@@ -934,16 +944,6 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
-        Me.Label325 = New System.Windows.Forms.Label()
-        Me.Label326 = New System.Windows.Forms.Label()
-        Me.Label327 = New System.Windows.Forms.Label()
-        Me.Label328 = New System.Windows.Forms.Label()
-        Me.Label329 = New System.Windows.Forms.Label()
-        Me.Label330 = New System.Windows.Forms.Label()
-        Me.Label331 = New System.Windows.Forms.Label()
-        Me.Label332 = New System.Windows.Forms.Label()
-        Me.Label333 = New System.Windows.Forms.Label()
-        Me.Label334 = New System.Windows.Forms.Label()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.GroupBox9.SuspendLayout
@@ -2777,7 +2777,7 @@ Partial Class Formtest
         Me.Button3245A_ACI.Size = New System.Drawing.Size(48, 37)
         Me.Button3245A_ACI.TabIndex = 713
         Me.Button3245A_ACI.Text = "ACI"
-        Me.ToolTip1.SetToolTip(Me.Button3245A_ACI, "DC Current")
+        Me.ToolTip1.SetToolTip(Me.Button3245A_ACI, "AC Current")
         Me.Button3245A_ACI.UseVisualStyleBackColor = True
         '
         'Button3245A_SQI
@@ -2789,7 +2789,7 @@ Partial Class Formtest
         Me.Button3245A_SQI.Size = New System.Drawing.Size(48, 37)
         Me.Button3245A_SQI.TabIndex = 714
         Me.Button3245A_SQI.Text = "SQI"
-        Me.ToolTip1.SetToolTip(Me.Button3245A_SQI, "DC Current")
+        Me.ToolTip1.SetToolTip(Me.Button3245A_SQI, "Square Wave Current")
         Me.Button3245A_SQI.UseVisualStyleBackColor = True
         '
         'Button3245A_RPI
@@ -2801,7 +2801,7 @@ Partial Class Formtest
         Me.Button3245A_RPI.Size = New System.Drawing.Size(48, 37)
         Me.Button3245A_RPI.TabIndex = 715
         Me.Button3245A_RPI.Text = "RPI"
-        Me.ToolTip1.SetToolTip(Me.Button3245A_RPI, "DC Current")
+        Me.ToolTip1.SetToolTip(Me.Button3245A_RPI, "Ramp Current")
         Me.Button3245A_RPI.UseVisualStyleBackColor = True
         '
         'Button3245A_LORES
@@ -2825,7 +2825,7 @@ Partial Class Formtest
         Me.Button3245A_FREQ.Size = New System.Drawing.Size(48, 37)
         Me.Button3245A_FREQ.TabIndex = 711
         Me.Button3245A_FREQ.Text = "FREQ"
-        Me.ToolTip1.SetToolTip(Me.Button3245A_FREQ, "DC Voltage")
+        Me.ToolTip1.SetToolTip(Me.Button3245A_FREQ, "Frequency")
         Me.Button3245A_FREQ.UseVisualStyleBackColor = True
         '
         'Button3245A_DUTY
@@ -2837,7 +2837,7 @@ Partial Class Formtest
         Me.Button3245A_DUTY.Size = New System.Drawing.Size(48, 37)
         Me.Button3245A_DUTY.TabIndex = 717
         Me.Button3245A_DUTY.Text = "DUTY"
-        Me.ToolTip1.SetToolTip(Me.Button3245A_DUTY, "DC Voltage")
+        Me.ToolTip1.SetToolTip(Me.Button3245A_DUTY, "Duty Cycle")
         Me.Button3245A_DUTY.UseVisualStyleBackColor = True
         '
         'Button3245A_RESET
@@ -5924,22 +5924,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea4.BackColor = System.Drawing.Color.Black
-        ChartArea4.BorderColor = System.Drawing.Color.White
-        ChartArea4.BorderWidth = 2
-        ChartArea4.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea4)
-        Legend4.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend4)
+        ChartArea1.BackColor = System.Drawing.Color.Black
+        ChartArea1.BorderColor = System.Drawing.Color.White
+        ChartArea1.BorderWidth = 2
+        ChartArea1.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea1)
+        Legend1.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend1)
         Me.Chart1.Location = New System.Drawing.Point(-32, 168)
         Me.Chart1.Name = "Chart1"
-        Series4.ChartArea = "ChartArea1"
-        Series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series4.Color = System.Drawing.Color.Yellow
-        Series4.Enabled = False
-        Series4.Legend = "Legend1"
-        Series4.Name = "Series1"
-        Me.Chart1.Series.Add(Series4)
+        Series1.ChartArea = "ChartArea1"
+        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series1.Color = System.Drawing.Color.Yellow
+        Series1.Enabled = False
+        Series1.Legend = "Legend1"
+        Series1.Name = "Series1"
+        Me.Chart1.Series.Add(Series1)
         Me.Chart1.Size = New System.Drawing.Size(1120, 434)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -7146,6 +7146,116 @@ Partial Class Formtest
         Me.GroupBox15.TabStop = False
         Me.GroupBox15.Text = "FUNCTIONS/VALUE"
         '
+        'Label334
+        '
+        Me.Label334.AutoSize = True
+        Me.Label334.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label334.Location = New System.Drawing.Point(427, 85)
+        Me.Label334.Name = "Label334"
+        Me.Label334.Size = New System.Drawing.Size(39, 36)
+        Me.Label334.TabIndex = 728
+        Me.Label334.Text = "10 µA to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "200 mA" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(P-P)"
+        Me.Label334.TextAlign = System.Drawing.ContentAlignment.TopCenter
+        '
+        'Label333
+        '
+        Me.Label333.AutoSize = True
+        Me.Label333.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label333.Location = New System.Drawing.Point(374, 85)
+        Me.Label333.Name = "Label333"
+        Me.Label333.Size = New System.Drawing.Size(39, 36)
+        Me.Label333.TabIndex = 727
+        Me.Label333.Text = "10 µA to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "200 mA" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(P-P)"
+        Me.Label333.TextAlign = System.Drawing.ContentAlignment.TopCenter
+        '
+        'Label332
+        '
+        Me.Label332.AutoSize = True
+        Me.Label332.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label332.Location = New System.Drawing.Point(570, 85)
+        Me.Label332.Name = "Label332"
+        Me.Label332.Size = New System.Drawing.Size(30, 24)
+        Me.Label332.TabIndex = 726
+        Me.Label332.Text = "0 % to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "100 %"
+        Me.Label332.TextAlign = System.Drawing.ContentAlignment.TopCenter
+        '
+        'Label331
+        '
+        Me.Label331.AutoSize = True
+        Me.Label331.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label331.Location = New System.Drawing.Point(513, 85)
+        Me.Label331.Name = "Label331"
+        Me.Label331.Size = New System.Drawing.Size(34, 24)
+        Me.Label331.TabIndex = 725
+        Me.Label331.Text = "0 Hz to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "1 MHz"
+        Me.Label331.TextAlign = System.Drawing.ContentAlignment.TopCenter
+        '
+        'Label330
+        '
+        Me.Label330.AutoSize = True
+        Me.Label330.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label330.Location = New System.Drawing.Point(180, 85)
+        Me.Label330.Name = "Label330"
+        Me.Label330.Size = New System.Drawing.Size(41, 24)
+        Me.Label330.TabIndex = 724
+        Me.Label330.Text = "0 to 10 V" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(P-P)"
+        Me.Label330.TextAlign = System.Drawing.ContentAlignment.TopCenter
+        '
+        'Label329
+        '
+        Me.Label329.AutoSize = True
+        Me.Label329.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label329.Location = New System.Drawing.Point(126, 85)
+        Me.Label329.Name = "Label329"
+        Me.Label329.Size = New System.Drawing.Size(41, 24)
+        Me.Label329.TabIndex = 723
+        Me.Label329.Text = "0 to 10 V" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(P-P)"
+        Me.Label329.TextAlign = System.Drawing.ContentAlignment.TopCenter
+        '
+        'Label328
+        '
+        Me.Label328.AutoSize = True
+        Me.Label328.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label328.Location = New System.Drawing.Point(320, 85)
+        Me.Label328.Name = "Label328"
+        Me.Label328.Size = New System.Drawing.Size(39, 36)
+        Me.Label328.TabIndex = 722
+        Me.Label328.Text = "10 µA to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "200 mA" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(P-P)"
+        Me.Label328.TextAlign = System.Drawing.ContentAlignment.TopCenter
+        '
+        'Label327
+        '
+        Me.Label327.AutoSize = True
+        Me.Label327.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label327.Location = New System.Drawing.Point(266, 85)
+        Me.Label327.Name = "Label327"
+        Me.Label327.Size = New System.Drawing.Size(38, 12)
+        Me.Label327.TabIndex = 721
+        Me.Label327.Text = "+/–0.1 A"
+        Me.Label327.TextAlign = System.Drawing.ContentAlignment.TopCenter
+        '
+        'Label326
+        '
+        Me.Label326.AutoSize = True
+        Me.Label326.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label326.Location = New System.Drawing.Point(69, 85)
+        Me.Label326.Name = "Label326"
+        Me.Label326.Size = New System.Drawing.Size(48, 24)
+        Me.Label326.TabIndex = 720
+        Me.Label326.Text = "0.032 V to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "20 V RMS"
+        Me.Label326.TextAlign = System.Drawing.ContentAlignment.TopCenter
+        '
+        'Label325
+        '
+        Me.Label325.AutoSize = True
+        Me.Label325.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label325.Location = New System.Drawing.Point(21, 85)
+        Me.Label325.Name = "Label325"
+        Me.Label325.Size = New System.Drawing.Size(35, 12)
+        Me.Label325.TabIndex = 608
+        Me.Label325.Text = "+/–10 V"
+        Me.Label325.TextAlign = System.Drawing.ContentAlignment.TopCenter
+        '
         'Label324
         '
         Me.Label324.AutoSize = True
@@ -7467,6 +7577,17 @@ Partial Class Formtest
         Me.Button3245Aabort.Text = "Abort"
         Me.Button3245Aabort.UseVisualStyleBackColor = True
         '
+        'Label271
+        '
+        Me.Label271.AutoSize = True
+        Me.Label271.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label271.ForeColor = System.Drawing.Color.Red
+        Me.Label271.Location = New System.Drawing.Point(260, 120)
+        Me.Label271.Name = "Label271"
+        Me.Label271.Size = New System.Drawing.Size(174, 32)
+        Me.Label271.TabIndex = 565
+        Me.Label271.Text = "This is experimental, please" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "use at your own risk."
+        '
         'GroupBox12
         '
         Me.GroupBox12.Controls.Add(Me.RadioButtonR6581)
@@ -7532,17 +7653,6 @@ Partial Class Formtest
         Me.Label268.Size = New System.Drawing.Size(38, 13)
         Me.Label268.TabIndex = 590
         Me.Label268.Text = "Notes:"
-        '
-        'Label271
-        '
-        Me.Label271.AutoSize = True
-        Me.Label271.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label271.ForeColor = System.Drawing.Color.Red
-        Me.Label271.Location = New System.Drawing.Point(260, 120)
-        Me.Label271.Name = "Label271"
-        Me.Label271.Size = New System.Drawing.Size(174, 32)
-        Me.Label271.TabIndex = 565
-        Me.Label271.Text = "This is experimental, please" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "use at your own risk."
         '
         'Label255
         '
@@ -10892,116 +11002,6 @@ Partial Class Formtest
         'Timer14
         '
         Me.Timer14.Interval = 50
-        '
-        'Label325
-        '
-        Me.Label325.AutoSize = True
-        Me.Label325.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label325.Location = New System.Drawing.Point(21, 85)
-        Me.Label325.Name = "Label325"
-        Me.Label325.Size = New System.Drawing.Size(35, 12)
-        Me.Label325.TabIndex = 608
-        Me.Label325.Text = "+/–10 V"
-        Me.Label325.TextAlign = System.Drawing.ContentAlignment.TopCenter
-        '
-        'Label326
-        '
-        Me.Label326.AutoSize = True
-        Me.Label326.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label326.Location = New System.Drawing.Point(69, 85)
-        Me.Label326.Name = "Label326"
-        Me.Label326.Size = New System.Drawing.Size(48, 24)
-        Me.Label326.TabIndex = 720
-        Me.Label326.Text = "0.032 V to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "20 V RMS"
-        Me.Label326.TextAlign = System.Drawing.ContentAlignment.TopCenter
-        '
-        'Label327
-        '
-        Me.Label327.AutoSize = True
-        Me.Label327.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label327.Location = New System.Drawing.Point(266, 85)
-        Me.Label327.Name = "Label327"
-        Me.Label327.Size = New System.Drawing.Size(38, 12)
-        Me.Label327.TabIndex = 721
-        Me.Label327.Text = "+/–0.1 A"
-        Me.Label327.TextAlign = System.Drawing.ContentAlignment.TopCenter
-        '
-        'Label328
-        '
-        Me.Label328.AutoSize = True
-        Me.Label328.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label328.Location = New System.Drawing.Point(320, 85)
-        Me.Label328.Name = "Label328"
-        Me.Label328.Size = New System.Drawing.Size(39, 36)
-        Me.Label328.TabIndex = 722
-        Me.Label328.Text = "10 µA to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "200 mA" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(P-P)"
-        Me.Label328.TextAlign = System.Drawing.ContentAlignment.TopCenter
-        '
-        'Label329
-        '
-        Me.Label329.AutoSize = True
-        Me.Label329.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label329.Location = New System.Drawing.Point(126, 85)
-        Me.Label329.Name = "Label329"
-        Me.Label329.Size = New System.Drawing.Size(41, 24)
-        Me.Label329.TabIndex = 723
-        Me.Label329.Text = "0 to 10 V" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(P-P)"
-        Me.Label329.TextAlign = System.Drawing.ContentAlignment.TopCenter
-        '
-        'Label330
-        '
-        Me.Label330.AutoSize = True
-        Me.Label330.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label330.Location = New System.Drawing.Point(180, 85)
-        Me.Label330.Name = "Label330"
-        Me.Label330.Size = New System.Drawing.Size(41, 24)
-        Me.Label330.TabIndex = 724
-        Me.Label330.Text = "0 to 10 V" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(P-P)"
-        Me.Label330.TextAlign = System.Drawing.ContentAlignment.TopCenter
-        '
-        'Label331
-        '
-        Me.Label331.AutoSize = True
-        Me.Label331.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label331.Location = New System.Drawing.Point(513, 85)
-        Me.Label331.Name = "Label331"
-        Me.Label331.Size = New System.Drawing.Size(34, 24)
-        Me.Label331.TabIndex = 725
-        Me.Label331.Text = "0 Hz to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "1 MHz"
-        Me.Label331.TextAlign = System.Drawing.ContentAlignment.TopCenter
-        '
-        'Label332
-        '
-        Me.Label332.AutoSize = True
-        Me.Label332.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label332.Location = New System.Drawing.Point(570, 85)
-        Me.Label332.Name = "Label332"
-        Me.Label332.Size = New System.Drawing.Size(30, 24)
-        Me.Label332.TabIndex = 726
-        Me.Label332.Text = "0 % to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "100 %"
-        Me.Label332.TextAlign = System.Drawing.ContentAlignment.TopCenter
-        '
-        'Label333
-        '
-        Me.Label333.AutoSize = True
-        Me.Label333.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label333.Location = New System.Drawing.Point(374, 85)
-        Me.Label333.Name = "Label333"
-        Me.Label333.Size = New System.Drawing.Size(39, 36)
-        Me.Label333.TabIndex = 727
-        Me.Label333.Text = "10 µA to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "200 mA" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(P-P)"
-        Me.Label333.TextAlign = System.Drawing.ContentAlignment.TopCenter
-        '
-        'Label334
-        '
-        Me.Label334.AutoSize = True
-        Me.Label334.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label334.Location = New System.Drawing.Point(427, 85)
-        Me.Label334.Name = "Label334"
-        Me.Label334.Size = New System.Drawing.Size(39, 36)
-        Me.Label334.TabIndex = 728
-        Me.Label334.Text = "10 µA to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "200 mA" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(P-P)"
-        Me.Label334.TextAlign = System.Drawing.ContentAlignment.TopCenter
         '
         'Formtest
         '
