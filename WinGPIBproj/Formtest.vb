@@ -198,6 +198,7 @@ Public Class Formtest
             GroupBox6.Enabled = True
             GroupBox7.Enabled = True
             GroupBox10.Enabled = True
+            GroupBox15.Enabled = True
 
             ' Initially enable all controls on 3245A Cal groupbox
             GroupBox5.Enabled = True
@@ -757,6 +758,9 @@ Public Class Formtest
             Dev1ChartValue.Text = ""
             Dev2ChartValue.Text = ""
 
+            ' 3245A Dev2
+            Disable3245AControls()
+
         Catch ex As Exception
             MessageBox.Show($"Error during load: {ex.Message}")
         End Try
@@ -990,6 +994,8 @@ Public Class Formtest
             txtaddr2.Enabled = False
             lstIntf2.Enabled = False
 
+            Enable3245AControls()
+
         End If
 
         IODevice.ShowDevices()
@@ -1003,6 +1009,21 @@ Public Class Formtest
         ButtonReset.Enabled = True
 
         Dev2SampleRate.Enabled = True
+
+        Button3245A_DCV.Enabled = Enabled
+        Button3245A_ACV.Enabled = Enabled
+        Button3245A_DCI.Enabled = Enabled
+        Button3245A_SQV.Enabled = Enabled
+        Button3245A_RPV.Enabled = Enabled
+        Button3245A_HIRES.Enabled = Enabled
+        Button3245A_LORES.Enabled = Enabled
+        Button3245A_SCRATCH.Enabled = Enabled
+        Button3245A_ACI.Enabled = Enabled
+        Button3245A_SQI.Enabled = Enabled
+        Button3245A_RPI.Enabled = Enabled
+        Button3245A_FREQ.Enabled = Enabled
+        Button3245A_DUTY.Enabled = Enabled
+        Button3245A_RESET.Enabled = Enabled
 
         Log(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") & " Dev.2 Created")
 
@@ -2049,6 +2070,9 @@ Public Class Formtest
         CheckBoxDevice1Hide.Enabled = False
         CheckBoxDevice2Hide.Enabled = False
 
+        ' 3245A Dev2
+        Disable3245AControls()
+
     End Sub
 
     Private Sub ShowFiles_Click(sender As Object, e As EventArgs) Handles ShowFiles.Click
@@ -2561,6 +2585,7 @@ Public Class Formtest
 
         Return (latest, notes.ToString().Trim())
     End Function
+
 
 End Class
 

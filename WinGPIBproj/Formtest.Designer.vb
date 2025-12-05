@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea7 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend7 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series7 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea4 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend4 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series4 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -185,6 +185,25 @@ Partial Class Formtest
         Me.ButtonCheckUpdates = New System.Windows.Forms.Button()
         Me.btncreate = New System.Windows.Forms.Button()
         Me.CheckBoxTheme = New System.Windows.Forms.CheckBox()
+        Me.CheckBoxAvgEnable = New System.Windows.Forms.CheckBox()
+        Me.TextBoxAvgWindow = New System.Windows.Forms.TextBox()
+        Me.Button3245A_DCV = New System.Windows.Forms.Button()
+        Me.Button3245A_ACV = New System.Windows.Forms.Button()
+        Me.Button3245A_SQV = New System.Windows.Forms.Button()
+        Me.Button3245A_DCI = New System.Windows.Forms.Button()
+        Me.Button3245A_RPV = New System.Windows.Forms.Button()
+        Me.textbox3245A_VALUE = New System.Windows.Forms.TextBox()
+        Me.Button3245A_HIRES = New System.Windows.Forms.Button()
+        Me.Button3245A_SCRATCH = New System.Windows.Forms.Button()
+        Me.Button3245A_ACI = New System.Windows.Forms.Button()
+        Me.Button3245A_SQI = New System.Windows.Forms.Button()
+        Me.Button3245A_RPI = New System.Windows.Forms.Button()
+        Me.Button3245A_LORES = New System.Windows.Forms.Button()
+        Me.Button3245A_FREQ = New System.Windows.Forms.Button()
+        Me.Button3245A_DUTY = New System.Windows.Forms.Button()
+        Me.Button3245A_RESET = New System.Windows.Forms.Button()
+        Me.Button3245A_CHA = New System.Windows.Forms.Button()
+        Me.Button3245A_CHB = New System.Windows.Forms.Button()
         Me.CheckBoxR6581RetrieveREF = New System.Windows.Forms.CheckBox()
         Me.SerialPort1 = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer6 = New System.Windows.Forms.Timer(Me.components)
@@ -347,6 +366,8 @@ Partial Class Formtest
         Me.Label215 = New System.Windows.Forms.Label()
         Me.Label214 = New System.Windows.Forms.Label()
         Me.Label213 = New System.Windows.Forms.Label()
+        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.Label212 = New System.Windows.Forms.Label()
         Me.Label211 = New System.Windows.Forms.Label()
         Me.Label210 = New System.Windows.Forms.Label()
@@ -424,6 +445,11 @@ Partial Class Formtest
         Me.Label26 = New System.Windows.Forms.Label()
         Me.ListBoxData = New System.Windows.Forms.ListBox()
         Me.TabPage4 = New System.Windows.Forms.TabPage()
+        Me.Label321 = New System.Windows.Forms.Label()
+        Me.Label320 = New System.Windows.Forms.Label()
+        Me.Dev2ChartValue = New System.Windows.Forms.Label()
+        Me.Dev1ChartValue = New System.Windows.Forms.Label()
+        Me.Label319 = New System.Windows.Forms.Label()
         Me.Label238 = New System.Windows.Forms.Label()
         Me.Label237 = New System.Windows.Forms.Label()
         Me.Label236 = New System.Windows.Forms.Label()
@@ -570,6 +596,12 @@ Partial Class Formtest
         Me.Label260 = New System.Windows.Forms.Label()
         Me.Label261 = New System.Windows.Forms.Label()
         Me.GroupBox5 = New System.Windows.Forms.GroupBox()
+        Me.GroupBox15 = New System.Windows.Forms.GroupBox()
+        Me.Label324 = New System.Windows.Forms.Label()
+        Me.Label322 = New System.Windows.Forms.Label()
+        Me.Cmd3245sent = New System.Windows.Forms.Label()
+        Me.Label323 = New System.Windows.Forms.Label()
+        Me.Label313 = New System.Windows.Forms.Label()
         Me.PictureBox2 = New System.Windows.Forms.PictureBox()
         Me.GroupBox14 = New System.Windows.Forms.GroupBox()
         Me.TextBoxNPLCDCI = New System.Windows.Forms.TextBox()
@@ -593,20 +625,21 @@ Partial Class Formtest
         Me.Label264 = New System.Windows.Forms.Label()
         Me.Label266 = New System.Windows.Forms.Label()
         Me.Label3245AWRI = New System.Windows.Forms.Label()
+        Me.ButtonCal3245A = New System.Windows.Forms.Button()
+        Me.Button3245Aabort = New System.Windows.Forms.Button()
         Me.GroupBox12 = New System.Windows.Forms.GroupBox()
         Me.PictureBox7 = New System.Windows.Forms.PictureBox()
         Me.Label273 = New System.Windows.Forms.Label()
         Me.PictureBox8 = New System.Windows.Forms.PictureBox()
         Me.Label272 = New System.Windows.Forms.Label()
         Me.Label267 = New System.Windows.Forms.Label()
-        Me.Button3245Aabort = New System.Windows.Forms.Button()
-        Me.ButtonCal3245A = New System.Windows.Forms.Button()
         Me.Label268 = New System.Windows.Forms.Label()
         Me.Label271 = New System.Windows.Forms.Label()
         Me.Label255 = New System.Windows.Forms.Label()
         Me.Label269 = New System.Windows.Forms.Label()
         Me.PictureBox9 = New System.Windows.Forms.PictureBox()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
+        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.Label145 = New System.Windows.Forms.Label()
         Me.Label79 = New System.Windows.Forms.Label()
         Me.Label81 = New System.Windows.Forms.Label()
@@ -862,6 +895,7 @@ Partial Class Formtest
         Me.CalAccuracyFinal = New System.Windows.Forms.TextBox()
         Me.Label117 = New System.Windows.Forms.Label()
         Me.Label121 = New System.Windows.Forms.Label()
+        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage13 = New System.Windows.Forms.TabPage()
         Me.GroupBox11 = New System.Windows.Forms.GroupBox()
         Me.Label317 = New System.Windows.Forms.Label()
@@ -900,17 +934,16 @@ Partial Class Formtest
         Me.Timer12 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer13 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer14 = New System.Windows.Forms.Timer(Me.components)
-        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
-        Me.CheckBoxAvgEnable = New System.Windows.Forms.CheckBox()
-        Me.TextBoxAvgWindow = New System.Windows.Forms.TextBox()
-        Me.Label319 = New System.Windows.Forms.Label()
-        Me.Dev1ChartValue = New System.Windows.Forms.Label()
-        Me.Dev2ChartValue = New System.Windows.Forms.Label()
-        Me.Label320 = New System.Windows.Forms.Label()
-        Me.Label321 = New System.Windows.Forms.Label()
+        Me.Label325 = New System.Windows.Forms.Label()
+        Me.Label326 = New System.Windows.Forms.Label()
+        Me.Label327 = New System.Windows.Forms.Label()
+        Me.Label328 = New System.Windows.Forms.Label()
+        Me.Label329 = New System.Windows.Forms.Label()
+        Me.Label330 = New System.Windows.Forms.Label()
+        Me.Label331 = New System.Windows.Forms.Label()
+        Me.Label332 = New System.Windows.Forms.Label()
+        Me.Label333 = New System.Windows.Forms.Label()
+        Me.Label334 = New System.Windows.Forms.Label()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.GroupBox9.SuspendLayout
@@ -939,6 +972,7 @@ Partial Class Formtest
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit
         Me.TabPage12.SuspendLayout
         Me.GroupBox5.SuspendLayout
+        Me.GroupBox15.SuspendLayout
         CType(Me.PictureBox2, System.ComponentModel.ISupportInitialize).BeginInit
         Me.GroupBox14.SuspendLayout
         Me.GroupBox13.SuspendLayout
@@ -2615,6 +2649,232 @@ Partial Class Formtest
         "use.")
         Me.CheckBoxTheme.UseVisualStyleBackColor = True
         Me.CheckBoxTheme.Visible = False
+        '
+        'CheckBoxAvgEnable
+        '
+        Me.CheckBoxAvgEnable.AutoSize = True
+        Me.CheckBoxAvgEnable.Location = New System.Drawing.Point(110, 95)
+        Me.CheckBoxAvgEnable.Name = "CheckBoxAvgEnable"
+        Me.CheckBoxAvgEnable.Size = New System.Drawing.Size(109, 17)
+        Me.CheckBoxAvgEnable.TabIndex = 715
+        Me.CheckBoxAvgEnable.Text = "Rolling Averaging"
+        Me.ToolTip1.SetToolTip(Me.CheckBoxAvgEnable, "Enable rolling averaging for the chart only. Both Dev1 & Dev2.")
+        Me.CheckBoxAvgEnable.UseVisualStyleBackColor = True
+        '
+        'TextBoxAvgWindow
+        '
+        Me.TextBoxAvgWindow.Location = New System.Drawing.Point(219, 93)
+        Me.TextBoxAvgWindow.Name = "TextBoxAvgWindow"
+        Me.TextBoxAvgWindow.Size = New System.Drawing.Size(34, 20)
+        Me.TextBoxAvgWindow.TabIndex = 716
+        Me.TextBoxAvgWindow.Text = "10"
+        Me.ToolTip1.SetToolTip(Me.TextBoxAvgWindow, "Number of recent samples to average before plotting. Enter N ≥ 2. N ≤ 1 disables " &
+        "averaging. This does not affect the GPIB data.")
+        '
+        'Button3245A_DCV
+        '
+        Me.Button3245A_DCV.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button3245A_DCV.Location = New System.Drawing.Point(25, 448)
+        Me.Button3245A_DCV.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.Button3245A_DCV.Name = "Button3245A_DCV"
+        Me.Button3245A_DCV.Size = New System.Drawing.Size(48, 37)
+        Me.Button3245A_DCV.TabIndex = 703
+        Me.Button3245A_DCV.Text = "DCV"
+        Me.ToolTip1.SetToolTip(Me.Button3245A_DCV, "DC Voltage")
+        Me.Button3245A_DCV.UseVisualStyleBackColor = True
+        '
+        'Button3245A_ACV
+        '
+        Me.Button3245A_ACV.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button3245A_ACV.Location = New System.Drawing.Point(79, 448)
+        Me.Button3245A_ACV.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.Button3245A_ACV.Name = "Button3245A_ACV"
+        Me.Button3245A_ACV.Size = New System.Drawing.Size(48, 37)
+        Me.Button3245A_ACV.TabIndex = 704
+        Me.Button3245A_ACV.Text = "ACV"
+        Me.ToolTip1.SetToolTip(Me.Button3245A_ACV, "AC Voltage")
+        Me.Button3245A_ACV.UseVisualStyleBackColor = True
+        '
+        'Button3245A_SQV
+        '
+        Me.Button3245A_SQV.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button3245A_SQV.Location = New System.Drawing.Point(122, 45)
+        Me.Button3245A_SQV.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.Button3245A_SQV.Name = "Button3245A_SQV"
+        Me.Button3245A_SQV.Size = New System.Drawing.Size(48, 37)
+        Me.Button3245A_SQV.TabIndex = 705
+        Me.Button3245A_SQV.Text = "SQV"
+        Me.ToolTip1.SetToolTip(Me.Button3245A_SQV, "Square Wave (Vpp)")
+        Me.Button3245A_SQV.UseVisualStyleBackColor = True
+        '
+        'Button3245A_DCI
+        '
+        Me.Button3245A_DCI.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button3245A_DCI.Location = New System.Drawing.Point(261, 45)
+        Me.Button3245A_DCI.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.Button3245A_DCI.Name = "Button3245A_DCI"
+        Me.Button3245A_DCI.Size = New System.Drawing.Size(48, 37)
+        Me.Button3245A_DCI.TabIndex = 706
+        Me.Button3245A_DCI.Text = "DCI"
+        Me.ToolTip1.SetToolTip(Me.Button3245A_DCI, "DC Current")
+        Me.Button3245A_DCI.UseVisualStyleBackColor = True
+        '
+        'Button3245A_RPV
+        '
+        Me.Button3245A_RPV.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button3245A_RPV.Location = New System.Drawing.Point(176, 45)
+        Me.Button3245A_RPV.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.Button3245A_RPV.Name = "Button3245A_RPV"
+        Me.Button3245A_RPV.Size = New System.Drawing.Size(48, 37)
+        Me.Button3245A_RPV.TabIndex = 707
+        Me.Button3245A_RPV.Text = "RPV"
+        Me.ToolTip1.SetToolTip(Me.Button3245A_RPV, "Ramp/Sawtooth (Vpp)")
+        Me.Button3245A_RPV.UseVisualStyleBackColor = True
+        '
+        'textbox3245A_VALUE
+        '
+        Me.textbox3245A_VALUE.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.textbox3245A_VALUE.Location = New System.Drawing.Point(15, 126)
+        Me.textbox3245A_VALUE.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.textbox3245A_VALUE.MaxLength = 10
+        Me.textbox3245A_VALUE.Name = "textbox3245A_VALUE"
+        Me.textbox3245A_VALUE.Size = New System.Drawing.Size(596, 22)
+        Me.textbox3245A_VALUE.TabIndex = 699
+        Me.textbox3245A_VALUE.Text = "0.0000"
+        Me.textbox3245A_VALUE.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
+        Me.ToolTip1.SetToolTip(Me.textbox3245A_VALUE, "Value to send")
+        '
+        'Button3245A_HIRES
+        '
+        Me.Button3245A_HIRES.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button3245A_HIRES.Location = New System.Drawing.Point(647, 45)
+        Me.Button3245A_HIRES.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.Button3245A_HIRES.Name = "Button3245A_HIRES"
+        Me.Button3245A_HIRES.Size = New System.Drawing.Size(48, 37)
+        Me.Button3245A_HIRES.TabIndex = 711
+        Me.Button3245A_HIRES.Text = "HiRes"
+        Me.ToolTip1.SetToolTip(Me.Button3245A_HIRES, "High Resolution mode")
+        Me.Button3245A_HIRES.UseVisualStyleBackColor = True
+        '
+        'Button3245A_SCRATCH
+        '
+        Me.Button3245A_SCRATCH.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button3245A_SCRATCH.Location = New System.Drawing.Point(788, 45)
+        Me.Button3245A_SCRATCH.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.Button3245A_SCRATCH.Name = "Button3245A_SCRATCH"
+        Me.Button3245A_SCRATCH.Size = New System.Drawing.Size(75, 37)
+        Me.Button3245A_SCRATCH.TabIndex = 712
+        Me.Button3245A_SCRATCH.Text = "Scratch"
+        Me.ToolTip1.SetToolTip(Me.Button3245A_SCRATCH, "Clear 3245A memory")
+        Me.Button3245A_SCRATCH.UseVisualStyleBackColor = True
+        '
+        'Button3245A_ACI
+        '
+        Me.Button3245A_ACI.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button3245A_ACI.Location = New System.Drawing.Point(315, 45)
+        Me.Button3245A_ACI.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.Button3245A_ACI.Name = "Button3245A_ACI"
+        Me.Button3245A_ACI.Size = New System.Drawing.Size(48, 37)
+        Me.Button3245A_ACI.TabIndex = 713
+        Me.Button3245A_ACI.Text = "ACI"
+        Me.ToolTip1.SetToolTip(Me.Button3245A_ACI, "DC Current")
+        Me.Button3245A_ACI.UseVisualStyleBackColor = True
+        '
+        'Button3245A_SQI
+        '
+        Me.Button3245A_SQI.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button3245A_SQI.Location = New System.Drawing.Point(369, 45)
+        Me.Button3245A_SQI.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.Button3245A_SQI.Name = "Button3245A_SQI"
+        Me.Button3245A_SQI.Size = New System.Drawing.Size(48, 37)
+        Me.Button3245A_SQI.TabIndex = 714
+        Me.Button3245A_SQI.Text = "SQI"
+        Me.ToolTip1.SetToolTip(Me.Button3245A_SQI, "DC Current")
+        Me.Button3245A_SQI.UseVisualStyleBackColor = True
+        '
+        'Button3245A_RPI
+        '
+        Me.Button3245A_RPI.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button3245A_RPI.Location = New System.Drawing.Point(423, 45)
+        Me.Button3245A_RPI.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.Button3245A_RPI.Name = "Button3245A_RPI"
+        Me.Button3245A_RPI.Size = New System.Drawing.Size(48, 37)
+        Me.Button3245A_RPI.TabIndex = 715
+        Me.Button3245A_RPI.Text = "RPI"
+        Me.ToolTip1.SetToolTip(Me.Button3245A_RPI, "DC Current")
+        Me.Button3245A_RPI.UseVisualStyleBackColor = True
+        '
+        'Button3245A_LORES
+        '
+        Me.Button3245A_LORES.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button3245A_LORES.Location = New System.Drawing.Point(647, 90)
+        Me.Button3245A_LORES.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.Button3245A_LORES.Name = "Button3245A_LORES"
+        Me.Button3245A_LORES.Size = New System.Drawing.Size(48, 37)
+        Me.Button3245A_LORES.TabIndex = 716
+        Me.Button3245A_LORES.Text = "LoRes"
+        Me.ToolTip1.SetToolTip(Me.Button3245A_LORES, "Low Resolution mode")
+        Me.Button3245A_LORES.UseVisualStyleBackColor = True
+        '
+        'Button3245A_FREQ
+        '
+        Me.Button3245A_FREQ.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button3245A_FREQ.Location = New System.Drawing.Point(506, 45)
+        Me.Button3245A_FREQ.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.Button3245A_FREQ.Name = "Button3245A_FREQ"
+        Me.Button3245A_FREQ.Size = New System.Drawing.Size(48, 37)
+        Me.Button3245A_FREQ.TabIndex = 711
+        Me.Button3245A_FREQ.Text = "FREQ"
+        Me.ToolTip1.SetToolTip(Me.Button3245A_FREQ, "DC Voltage")
+        Me.Button3245A_FREQ.UseVisualStyleBackColor = True
+        '
+        'Button3245A_DUTY
+        '
+        Me.Button3245A_DUTY.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button3245A_DUTY.Location = New System.Drawing.Point(563, 45)
+        Me.Button3245A_DUTY.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.Button3245A_DUTY.Name = "Button3245A_DUTY"
+        Me.Button3245A_DUTY.Size = New System.Drawing.Size(48, 37)
+        Me.Button3245A_DUTY.TabIndex = 717
+        Me.Button3245A_DUTY.Text = "DUTY"
+        Me.ToolTip1.SetToolTip(Me.Button3245A_DUTY, "DC Voltage")
+        Me.Button3245A_DUTY.UseVisualStyleBackColor = True
+        '
+        'Button3245A_RESET
+        '
+        Me.Button3245A_RESET.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button3245A_RESET.Location = New System.Drawing.Point(814, 90)
+        Me.Button3245A_RESET.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.Button3245A_RESET.Name = "Button3245A_RESET"
+        Me.Button3245A_RESET.Size = New System.Drawing.Size(49, 37)
+        Me.Button3245A_RESET.TabIndex = 708
+        Me.Button3245A_RESET.Text = "Reset"
+        Me.ToolTip1.SetToolTip(Me.Button3245A_RESET, "Reset 3245A")
+        Me.Button3245A_RESET.UseVisualStyleBackColor = True
+        '
+        'Button3245A_CHA
+        '
+        Me.Button3245A_CHA.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button3245A_CHA.Location = New System.Drawing.Point(701, 45)
+        Me.Button3245A_CHA.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.Button3245A_CHA.Name = "Button3245A_CHA"
+        Me.Button3245A_CHA.Size = New System.Drawing.Size(48, 37)
+        Me.Button3245A_CHA.TabIndex = 718
+        Me.Button3245A_CHA.Text = "Ch.A"
+        Me.ToolTip1.SetToolTip(Me.Button3245A_CHA, "Use 3245A CH.A")
+        Me.Button3245A_CHA.UseVisualStyleBackColor = True
+        '
+        'Button3245A_CHB
+        '
+        Me.Button3245A_CHB.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button3245A_CHB.Location = New System.Drawing.Point(701, 90)
+        Me.Button3245A_CHB.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.Button3245A_CHB.Name = "Button3245A_CHB"
+        Me.Button3245A_CHB.Size = New System.Drawing.Size(48, 37)
+        Me.Button3245A_CHB.TabIndex = 719
+        Me.Button3245A_CHB.Text = "CH.B"
+        Me.ToolTip1.SetToolTip(Me.Button3245A_CHB, "Use 3245A CH.B")
+        Me.Button3245A_CHB.UseVisualStyleBackColor = True
         '
         'CheckBoxR6581RetrieveREF
         '
@@ -4413,6 +4673,26 @@ Partial Class Formtest
         Me.Label213.TabIndex = 537
         Me.Label213.Text = "Tx"
         '
+        'OnOffLed2
+        '
+        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
+        Me.OnOffLed2.Name = "OnOffLed2"
+        Me.OnOffLed2.OffText = Nothing
+        Me.OnOffLed2.OnText = Nothing
+        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed2.TabIndex = 536
+        '
+        'OnOffLed1
+        '
+        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
+        Me.OnOffLed1.Name = "OnOffLed1"
+        Me.OnOffLed1.OffText = Nothing
+        Me.OnOffLed1.OnText = Nothing
+        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed1.TabIndex = 535
+        '
         'Label212
         '
         Me.Label212.AutoSize = True
@@ -5235,6 +5515,53 @@ Partial Class Formtest
         Me.TabPage4.TabIndex = 3
         Me.TabPage4.Text = "Live Chart  "
         '
+        'Label321
+        '
+        Me.Label321.AutoSize = True
+        Me.Label321.Location = New System.Drawing.Point(557, 159)
+        Me.Label321.Name = "Label321"
+        Me.Label321.Size = New System.Drawing.Size(45, 13)
+        Me.Label321.TabIndex = 721
+        Me.Label321.Text = "Dev 2 ="
+        '
+        'Label320
+        '
+        Me.Label320.AutoSize = True
+        Me.Label320.Location = New System.Drawing.Point(558, 81)
+        Me.Label320.Name = "Label320"
+        Me.Label320.Size = New System.Drawing.Size(45, 13)
+        Me.Label320.TabIndex = 720
+        Me.Label320.Text = "Dev 1 ="
+        '
+        'Dev2ChartValue
+        '
+        Me.Dev2ChartValue.AutoSize = True
+        Me.Dev2ChartValue.BackColor = System.Drawing.Color.Cyan
+        Me.Dev2ChartValue.Location = New System.Drawing.Point(609, 159)
+        Me.Dev2ChartValue.Name = "Dev2ChartValue"
+        Me.Dev2ChartValue.Size = New System.Drawing.Size(63, 13)
+        Me.Dev2ChartValue.TabIndex = 719
+        Me.Dev2ChartValue.Text = "########"
+        '
+        'Dev1ChartValue
+        '
+        Me.Dev1ChartValue.AutoSize = True
+        Me.Dev1ChartValue.BackColor = System.Drawing.Color.Yellow
+        Me.Dev1ChartValue.Location = New System.Drawing.Point(609, 81)
+        Me.Dev1ChartValue.Name = "Dev1ChartValue"
+        Me.Dev1ChartValue.Size = New System.Drawing.Size(63, 13)
+        Me.Dev1ChartValue.TabIndex = 718
+        Me.Dev1ChartValue.Text = "########"
+        '
+        'Label319
+        '
+        Me.Label319.AutoSize = True
+        Me.Label319.Location = New System.Drawing.Point(256, 97)
+        Me.Label319.Name = "Label319"
+        Me.Label319.Size = New System.Drawing.Size(65, 13)
+        Me.Label319.TabIndex = 717
+        Me.Label319.Text = "No. samples"
+        '
         'Label238
         '
         Me.Label238.AutoSize = True
@@ -5597,22 +5924,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea7.BackColor = System.Drawing.Color.Black
-        ChartArea7.BorderColor = System.Drawing.Color.White
-        ChartArea7.BorderWidth = 2
-        ChartArea7.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea7)
-        Legend7.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend7)
+        ChartArea4.BackColor = System.Drawing.Color.Black
+        ChartArea4.BorderColor = System.Drawing.Color.White
+        ChartArea4.BorderWidth = 2
+        ChartArea4.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea4)
+        Legend4.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend4)
         Me.Chart1.Location = New System.Drawing.Point(-32, 168)
         Me.Chart1.Name = "Chart1"
-        Series7.ChartArea = "ChartArea1"
-        Series7.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series7.Color = System.Drawing.Color.Yellow
-        Series7.Enabled = False
-        Series7.Legend = "Legend1"
-        Series7.Name = "Series1"
-        Me.Chart1.Series.Add(Series7)
+        Series4.ChartArea = "ChartArea1"
+        Series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series4.Color = System.Drawing.Color.Yellow
+        Series4.Enabled = False
+        Series4.Legend = "Legend1"
+        Series4.Name = "Series1"
+        Me.Chart1.Series.Add(Series4)
         Me.Chart1.Size = New System.Drawing.Size(1120, 434)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -6724,7 +7051,7 @@ Partial Class Formtest
         Me.TabPage12.Name = "TabPage12"
         Me.TabPage12.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage12.TabIndex = 11
-        Me.TabPage12.Text = "3245A Cal  "
+        Me.TabPage12.Text = "3245A Cal/Func  "
         '
         'Label259
         '
@@ -6739,7 +7066,7 @@ Partial Class Formtest
         'Label260
         '
         Me.Label260.AutoSize = True
-        Me.Label260.Location = New System.Drawing.Point(20, 66)
+        Me.Label260.Location = New System.Drawing.Point(20, 52)
         Me.Label260.Name = "Label260"
         Me.Label260.Size = New System.Drawing.Size(64, 13)
         Me.Label260.TabIndex = 590
@@ -6748,7 +7075,7 @@ Partial Class Formtest
         'Label261
         '
         Me.Label261.AutoSize = True
-        Me.Label261.Location = New System.Drawing.Point(16, 40)
+        Me.Label261.Location = New System.Drawing.Point(16, 34)
         Me.Label261.Name = "Label261"
         Me.Label261.Size = New System.Drawing.Size(407, 13)
         Me.Label261.TabIndex = 589
@@ -6757,6 +7084,10 @@ Partial Class Formtest
         '
         'GroupBox5
         '
+        Me.GroupBox5.Controls.Add(Me.Button3245A_ACV)
+        Me.GroupBox5.Controls.Add(Me.Button3245A_DCV)
+        Me.GroupBox5.Controls.Add(Me.GroupBox15)
+        Me.GroupBox5.Controls.Add(Me.Label313)
         Me.GroupBox5.Controls.Add(Me.PictureBox2)
         Me.GroupBox5.Controls.Add(Me.GroupBox14)
         Me.GroupBox5.Controls.Add(Me.GroupBox13)
@@ -6766,10 +7097,7 @@ Partial Class Formtest
         Me.GroupBox5.Controls.Add(Me.PictureBox8)
         Me.GroupBox5.Controls.Add(Me.Label272)
         Me.GroupBox5.Controls.Add(Me.Label267)
-        Me.GroupBox5.Controls.Add(Me.Button3245Aabort)
-        Me.GroupBox5.Controls.Add(Me.ButtonCal3245A)
         Me.GroupBox5.Controls.Add(Me.Label268)
-        Me.GroupBox5.Controls.Add(Me.Label271)
         Me.GroupBox5.Controls.Add(Me.Label255)
         Me.GroupBox5.Controls.Add(Me.Label269)
         Me.GroupBox5.Controls.Add(Me.PictureBox9)
@@ -6779,6 +7107,92 @@ Partial Class Formtest
         Me.GroupBox5.Size = New System.Drawing.Size(1036, 588)
         Me.GroupBox5.TabIndex = 594
         Me.GroupBox5.TabStop = False
+        '
+        'GroupBox15
+        '
+        Me.GroupBox15.Controls.Add(Me.Label334)
+        Me.GroupBox15.Controls.Add(Me.Label333)
+        Me.GroupBox15.Controls.Add(Me.Label332)
+        Me.GroupBox15.Controls.Add(Me.Label331)
+        Me.GroupBox15.Controls.Add(Me.Label330)
+        Me.GroupBox15.Controls.Add(Me.Label329)
+        Me.GroupBox15.Controls.Add(Me.Label328)
+        Me.GroupBox15.Controls.Add(Me.Label327)
+        Me.GroupBox15.Controls.Add(Me.Label326)
+        Me.GroupBox15.Controls.Add(Me.Label325)
+        Me.GroupBox15.Controls.Add(Me.Button3245A_CHB)
+        Me.GroupBox15.Controls.Add(Me.Button3245A_CHA)
+        Me.GroupBox15.Controls.Add(Me.Label324)
+        Me.GroupBox15.Controls.Add(Me.Label322)
+        Me.GroupBox15.Controls.Add(Me.Cmd3245sent)
+        Me.GroupBox15.Controls.Add(Me.Button3245A_DUTY)
+        Me.GroupBox15.Controls.Add(Me.Label323)
+        Me.GroupBox15.Controls.Add(Me.Button3245A_FREQ)
+        Me.GroupBox15.Controls.Add(Me.Button3245A_LORES)
+        Me.GroupBox15.Controls.Add(Me.Button3245A_RPI)
+        Me.GroupBox15.Controls.Add(Me.Button3245A_SQI)
+        Me.GroupBox15.Controls.Add(Me.Button3245A_ACI)
+        Me.GroupBox15.Controls.Add(Me.Button3245A_DCI)
+        Me.GroupBox15.Controls.Add(Me.textbox3245A_VALUE)
+        Me.GroupBox15.Controls.Add(Me.Button3245A_RPV)
+        Me.GroupBox15.Controls.Add(Me.Button3245A_SCRATCH)
+        Me.GroupBox15.Controls.Add(Me.Button3245A_HIRES)
+        Me.GroupBox15.Controls.Add(Me.Button3245A_SQV)
+        Me.GroupBox15.Controls.Add(Me.Button3245A_RESET)
+        Me.GroupBox15.Location = New System.Drawing.Point(11, 403)
+        Me.GroupBox15.Name = "GroupBox15"
+        Me.GroupBox15.Size = New System.Drawing.Size(1019, 179)
+        Me.GroupBox15.TabIndex = 710
+        Me.GroupBox15.TabStop = False
+        Me.GroupBox15.Text = "FUNCTIONS/VALUE"
+        '
+        'Label324
+        '
+        Me.Label324.AutoSize = True
+        Me.Label324.Location = New System.Drawing.Point(877, 45)
+        Me.Label324.Name = "Label324"
+        Me.Label324.Size = New System.Drawing.Size(137, 52)
+        Me.Label324.TabIndex = 711
+        Me.Label324.Text = "Notes:" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Values sent can be decimal" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "or scientific notation, i.e." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "12.345 or 1.234" &
+    "5E1"
+        '
+        'Label322
+        '
+        Me.Label322.AutoSize = True
+        Me.Label322.Location = New System.Drawing.Point(7, 21)
+        Me.Label322.Name = "Label322"
+        Me.Label322.Size = New System.Drawing.Size(283, 13)
+        Me.Label322.TabIndex = 711
+        Me.Label322.Text = "Connect Device 2 to your 3245A - Leave in STOP position"
+        '
+        'Cmd3245sent
+        '
+        Me.Cmd3245sent.AutoSize = True
+        Me.Cmd3245sent.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Cmd3245sent.Location = New System.Drawing.Point(113, 153)
+        Me.Cmd3245sent.Name = "Cmd3245sent"
+        Me.Cmd3245sent.Size = New System.Drawing.Size(14, 13)
+        Me.Cmd3245sent.TabIndex = 609
+        Me.Cmd3245sent.Text = "#"
+        '
+        'Label323
+        '
+        Me.Label323.AutoSize = True
+        Me.Label323.Location = New System.Drawing.Point(12, 153)
+        Me.Label323.Name = "Label323"
+        Me.Label323.Size = New System.Drawing.Size(82, 13)
+        Me.Label323.TabIndex = 608
+        Me.Label323.Text = "Command Sent:"
+        '
+        'Label313
+        '
+        Me.Label313.AutoSize = True
+        Me.Label313.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label313.Location = New System.Drawing.Point(8, 380)
+        Me.Label313.Name = "Label313"
+        Me.Label313.Size = New System.Drawing.Size(156, 15)
+        Me.Label313.TabIndex = 596
+        Me.Label313.Text = "HP 3245A FUNCTIONS:"
         '
         'PictureBox2
         '
@@ -6804,7 +7218,7 @@ Partial Class Formtest
         Me.GroupBox14.Controls.Add(Me.CheckBoxChB)
         Me.GroupBox14.Controls.Add(Me.Label263)
         Me.GroupBox14.Controls.Add(Me.CheckBoxChA)
-        Me.GroupBox14.Location = New System.Drawing.Point(11, 241)
+        Me.GroupBox14.Location = New System.Drawing.Point(11, 198)
         Me.GroupBox14.Name = "GroupBox14"
         Me.GroupBox14.Size = New System.Drawing.Size(464, 165)
         Me.GroupBox14.TabIndex = 701
@@ -6925,12 +7339,15 @@ Partial Class Formtest
         Me.GroupBox13.Controls.Add(Me.Label264)
         Me.GroupBox13.Controls.Add(Me.Label266)
         Me.GroupBox13.Controls.Add(Me.Label3245AWRI)
-        Me.GroupBox13.Location = New System.Drawing.Point(506, 241)
+        Me.GroupBox13.Controls.Add(Me.ButtonCal3245A)
+        Me.GroupBox13.Controls.Add(Me.Button3245Aabort)
+        Me.GroupBox13.Controls.Add(Me.Label271)
+        Me.GroupBox13.Location = New System.Drawing.Point(506, 198)
         Me.GroupBox13.Name = "GroupBox13"
-        Me.GroupBox13.Size = New System.Drawing.Size(440, 115)
+        Me.GroupBox13.Size = New System.Drawing.Size(440, 165)
         Me.GroupBox13.TabIndex = 700
         Me.GroupBox13.TabStop = False
-        Me.GroupBox13.Text = "STATUS"
+        Me.GroupBox13.Text = "OPERATION"
         '
         'Label270
         '
@@ -7027,12 +7444,35 @@ Partial Class Formtest
         Me.Label3245AWRI.TabIndex = 607
         Me.Label3245AWRI.Text = "#"
         '
+        'ButtonCal3245A
+        '
+        Me.ButtonCal3245A.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonCal3245A.Location = New System.Drawing.Point(19, 115)
+        Me.ButtonCal3245A.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.ButtonCal3245A.Name = "ButtonCal3245A"
+        Me.ButtonCal3245A.Size = New System.Drawing.Size(130, 37)
+        Me.ButtonCal3245A.TabIndex = 591
+        Me.ButtonCal3245A.Text = "Run 3245A" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Calibration Adjustments"
+        Me.ButtonCal3245A.UseVisualStyleBackColor = True
+        '
+        'Button3245Aabort
+        '
+        Me.Button3245Aabort.Enabled = False
+        Me.Button3245Aabort.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button3245Aabort.Location = New System.Drawing.Point(162, 115)
+        Me.Button3245Aabort.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
+        Me.Button3245Aabort.Name = "Button3245Aabort"
+        Me.Button3245Aabort.Size = New System.Drawing.Size(48, 37)
+        Me.Button3245Aabort.TabIndex = 605
+        Me.Button3245Aabort.Text = "Abort"
+        Me.Button3245Aabort.UseVisualStyleBackColor = True
+        '
         'GroupBox12
         '
         Me.GroupBox12.Controls.Add(Me.RadioButtonR6581)
         Me.GroupBox12.Controls.Add(Me.RadioButton344XXA)
         Me.GroupBox12.Controls.Add(Me.RadioButton3458A)
-        Me.GroupBox12.Location = New System.Drawing.Point(11, 128)
+        Me.GroupBox12.Location = New System.Drawing.Point(11, 106)
         Me.GroupBox12.Name = "GroupBox12"
         Me.GroupBox12.Size = New System.Drawing.Size(153, 89)
         Me.GroupBox12.TabIndex = 699
@@ -7051,7 +7491,7 @@ Partial Class Formtest
         'Label273
         '
         Me.Label273.AutoSize = True
-        Me.Label273.Location = New System.Drawing.Point(12, 99)
+        Me.Label273.Location = New System.Drawing.Point(12, 85)
         Me.Label273.Name = "Label273"
         Me.Label273.Size = New System.Drawing.Size(283, 13)
         Me.Label273.TabIndex = 596
@@ -7069,7 +7509,7 @@ Partial Class Formtest
         'Label272
         '
         Me.Label272.AutoSize = True
-        Me.Label272.Location = New System.Drawing.Point(12, 81)
+        Me.Label272.Location = New System.Drawing.Point(12, 67)
         Me.Label272.Name = "Label272"
         Me.Label272.Size = New System.Drawing.Size(278, 13)
         Me.Label272.TabIndex = 595
@@ -7078,34 +7518,11 @@ Partial Class Formtest
         'Label267
         '
         Me.Label267.AutoSize = True
-        Me.Label267.Location = New System.Drawing.Point(679, 37)
+        Me.Label267.Location = New System.Drawing.Point(679, 31)
         Me.Label267.Name = "Label267"
         Me.Label267.Size = New System.Drawing.Size(336, 156)
         Me.Label267.TabIndex = 610
         Me.Label267.Text = resources.GetString("Label267.Text")
-        '
-        'Button3245Aabort
-        '
-        Me.Button3245Aabort.Enabled = False
-        Me.Button3245Aabort.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Button3245Aabort.Location = New System.Drawing.Point(168, 498)
-        Me.Button3245Aabort.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
-        Me.Button3245Aabort.Name = "Button3245Aabort"
-        Me.Button3245Aabort.Size = New System.Drawing.Size(48, 37)
-        Me.Button3245Aabort.TabIndex = 605
-        Me.Button3245Aabort.Text = "Abort"
-        Me.Button3245Aabort.UseVisualStyleBackColor = True
-        '
-        'ButtonCal3245A
-        '
-        Me.ButtonCal3245A.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonCal3245A.Location = New System.Drawing.Point(18, 498)
-        Me.ButtonCal3245A.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
-        Me.ButtonCal3245A.Name = "ButtonCal3245A"
-        Me.ButtonCal3245A.Size = New System.Drawing.Size(130, 37)
-        Me.ButtonCal3245A.TabIndex = 591
-        Me.ButtonCal3245A.Text = "Run 3245A" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Calibration Adjustments"
-        Me.ButtonCal3245A.UseVisualStyleBackColor = True
         '
         'Label268
         '
@@ -7121,11 +7538,11 @@ Partial Class Formtest
         Me.Label271.AutoSize = True
         Me.Label271.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label271.ForeColor = System.Drawing.Color.Red
-        Me.Label271.Location = New System.Drawing.Point(5, 566)
+        Me.Label271.Location = New System.Drawing.Point(260, 120)
         Me.Label271.Name = "Label271"
-        Me.Label271.Size = New System.Drawing.Size(296, 16)
+        Me.Label271.Size = New System.Drawing.Size(174, 32)
         Me.Label271.TabIndex = 565
-        Me.Label271.Text = "This is experimental, please use at your own risk."
+        Me.Label271.Text = "This is experimental, please" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "use at your own risk."
         '
         'Label255
         '
@@ -7263,6 +7680,16 @@ Partial Class Formtest
         Me.TabPage5.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "PDVS2mini  "
+        '
+        'OnOffLed4
+        '
+        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
+        Me.OnOffLed4.Name = "OnOffLed4"
+        Me.OnOffLed4.OffText = Nothing
+        Me.OnOffLed4.OnText = Nothing
+        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed4.TabIndex = 797
         '
         'Label145
         '
@@ -10089,6 +10516,16 @@ Partial Class Formtest
         Me.Label121.TabIndex = 554
         Me.Label121.Text = "Comms Delay (mS)"
         '
+        'OnOffLed3
+        '
+        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
+        Me.OnOffLed3.Name = "OnOffLed3"
+        Me.OnOffLed3.OffText = Nothing
+        Me.OnOffLed3.OnText = Nothing
+        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed3.TabIndex = 796
+        '
         'TabPage13
         '
         Me.TabPage13.BackColor = System.Drawing.Color.WhiteSmoke
@@ -10456,113 +10893,115 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
-        'OnOffLed2
+        'Label325
         '
-        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
-        Me.OnOffLed2.Name = "OnOffLed2"
-        Me.OnOffLed2.OffText = Nothing
-        Me.OnOffLed2.OnText = Nothing
-        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed2.TabIndex = 536
+        Me.Label325.AutoSize = True
+        Me.Label325.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label325.Location = New System.Drawing.Point(21, 85)
+        Me.Label325.Name = "Label325"
+        Me.Label325.Size = New System.Drawing.Size(35, 12)
+        Me.Label325.TabIndex = 608
+        Me.Label325.Text = "+/–10 V"
+        Me.Label325.TextAlign = System.Drawing.ContentAlignment.TopCenter
         '
-        'OnOffLed1
+        'Label326
         '
-        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
-        Me.OnOffLed1.Name = "OnOffLed1"
-        Me.OnOffLed1.OffText = Nothing
-        Me.OnOffLed1.OnText = Nothing
-        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed1.TabIndex = 535
+        Me.Label326.AutoSize = True
+        Me.Label326.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label326.Location = New System.Drawing.Point(69, 85)
+        Me.Label326.Name = "Label326"
+        Me.Label326.Size = New System.Drawing.Size(48, 24)
+        Me.Label326.TabIndex = 720
+        Me.Label326.Text = "0.032 V to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "20 V RMS"
+        Me.Label326.TextAlign = System.Drawing.ContentAlignment.TopCenter
         '
-        'OnOffLed4
+        'Label327
         '
-        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
-        Me.OnOffLed4.Name = "OnOffLed4"
-        Me.OnOffLed4.OffText = Nothing
-        Me.OnOffLed4.OnText = Nothing
-        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed4.TabIndex = 797
+        Me.Label327.AutoSize = True
+        Me.Label327.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label327.Location = New System.Drawing.Point(266, 85)
+        Me.Label327.Name = "Label327"
+        Me.Label327.Size = New System.Drawing.Size(38, 12)
+        Me.Label327.TabIndex = 721
+        Me.Label327.Text = "+/–0.1 A"
+        Me.Label327.TextAlign = System.Drawing.ContentAlignment.TopCenter
         '
-        'OnOffLed3
+        'Label328
         '
-        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
-        Me.OnOffLed3.Name = "OnOffLed3"
-        Me.OnOffLed3.OffText = Nothing
-        Me.OnOffLed3.OnText = Nothing
-        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed3.TabIndex = 796
+        Me.Label328.AutoSize = True
+        Me.Label328.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label328.Location = New System.Drawing.Point(320, 85)
+        Me.Label328.Name = "Label328"
+        Me.Label328.Size = New System.Drawing.Size(39, 36)
+        Me.Label328.TabIndex = 722
+        Me.Label328.Text = "10 µA to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "200 mA" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(P-P)"
+        Me.Label328.TextAlign = System.Drawing.ContentAlignment.TopCenter
         '
-        'CheckBoxAvgEnable
+        'Label329
         '
-        Me.CheckBoxAvgEnable.AutoSize = True
-        Me.CheckBoxAvgEnable.Location = New System.Drawing.Point(110, 95)
-        Me.CheckBoxAvgEnable.Name = "CheckBoxAvgEnable"
-        Me.CheckBoxAvgEnable.Size = New System.Drawing.Size(109, 17)
-        Me.CheckBoxAvgEnable.TabIndex = 715
-        Me.CheckBoxAvgEnable.Text = "Rolling Averaging"
-        Me.ToolTip1.SetToolTip(Me.CheckBoxAvgEnable, "Enable rolling averaging for the chart only. Both Dev1 & Dev2.")
-        Me.CheckBoxAvgEnable.UseVisualStyleBackColor = True
+        Me.Label329.AutoSize = True
+        Me.Label329.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label329.Location = New System.Drawing.Point(126, 85)
+        Me.Label329.Name = "Label329"
+        Me.Label329.Size = New System.Drawing.Size(41, 24)
+        Me.Label329.TabIndex = 723
+        Me.Label329.Text = "0 to 10 V" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(P-P)"
+        Me.Label329.TextAlign = System.Drawing.ContentAlignment.TopCenter
         '
-        'TextBoxAvgWindow
+        'Label330
         '
-        Me.TextBoxAvgWindow.Location = New System.Drawing.Point(219, 93)
-        Me.TextBoxAvgWindow.Name = "TextBoxAvgWindow"
-        Me.TextBoxAvgWindow.Size = New System.Drawing.Size(34, 20)
-        Me.TextBoxAvgWindow.TabIndex = 716
-        Me.TextBoxAvgWindow.Text = "10"
-        Me.ToolTip1.SetToolTip(Me.TextBoxAvgWindow, "Number of recent samples to average before plotting. Enter N ≥ 2. N ≤ 1 disables " &
-        "averaging. This does not affect the GPIB data.")
+        Me.Label330.AutoSize = True
+        Me.Label330.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label330.Location = New System.Drawing.Point(180, 85)
+        Me.Label330.Name = "Label330"
+        Me.Label330.Size = New System.Drawing.Size(41, 24)
+        Me.Label330.TabIndex = 724
+        Me.Label330.Text = "0 to 10 V" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(P-P)"
+        Me.Label330.TextAlign = System.Drawing.ContentAlignment.TopCenter
         '
-        'Label319
+        'Label331
         '
-        Me.Label319.AutoSize = True
-        Me.Label319.Location = New System.Drawing.Point(256, 97)
-        Me.Label319.Name = "Label319"
-        Me.Label319.Size = New System.Drawing.Size(65, 13)
-        Me.Label319.TabIndex = 717
-        Me.Label319.Text = "No. samples"
+        Me.Label331.AutoSize = True
+        Me.Label331.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label331.Location = New System.Drawing.Point(513, 85)
+        Me.Label331.Name = "Label331"
+        Me.Label331.Size = New System.Drawing.Size(34, 24)
+        Me.Label331.TabIndex = 725
+        Me.Label331.Text = "0 Hz to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "1 MHz"
+        Me.Label331.TextAlign = System.Drawing.ContentAlignment.TopCenter
         '
-        'Dev1ChartValue
+        'Label332
         '
-        Me.Dev1ChartValue.AutoSize = True
-        Me.Dev1ChartValue.BackColor = System.Drawing.Color.Yellow
-        Me.Dev1ChartValue.Location = New System.Drawing.Point(609, 81)
-        Me.Dev1ChartValue.Name = "Dev1ChartValue"
-        Me.Dev1ChartValue.Size = New System.Drawing.Size(63, 13)
-        Me.Dev1ChartValue.TabIndex = 718
-        Me.Dev1ChartValue.Text = "########"
+        Me.Label332.AutoSize = True
+        Me.Label332.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label332.Location = New System.Drawing.Point(570, 85)
+        Me.Label332.Name = "Label332"
+        Me.Label332.Size = New System.Drawing.Size(30, 24)
+        Me.Label332.TabIndex = 726
+        Me.Label332.Text = "0 % to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "100 %"
+        Me.Label332.TextAlign = System.Drawing.ContentAlignment.TopCenter
         '
-        'Dev2ChartValue
+        'Label333
         '
-        Me.Dev2ChartValue.AutoSize = True
-        Me.Dev2ChartValue.BackColor = System.Drawing.Color.Cyan
-        Me.Dev2ChartValue.Location = New System.Drawing.Point(609, 159)
-        Me.Dev2ChartValue.Name = "Dev2ChartValue"
-        Me.Dev2ChartValue.Size = New System.Drawing.Size(63, 13)
-        Me.Dev2ChartValue.TabIndex = 719
-        Me.Dev2ChartValue.Text = "########"
+        Me.Label333.AutoSize = True
+        Me.Label333.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label333.Location = New System.Drawing.Point(374, 85)
+        Me.Label333.Name = "Label333"
+        Me.Label333.Size = New System.Drawing.Size(39, 36)
+        Me.Label333.TabIndex = 727
+        Me.Label333.Text = "10 µA to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "200 mA" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(P-P)"
+        Me.Label333.TextAlign = System.Drawing.ContentAlignment.TopCenter
         '
-        'Label320
+        'Label334
         '
-        Me.Label320.AutoSize = True
-        Me.Label320.Location = New System.Drawing.Point(558, 81)
-        Me.Label320.Name = "Label320"
-        Me.Label320.Size = New System.Drawing.Size(45, 13)
-        Me.Label320.TabIndex = 720
-        Me.Label320.Text = "Dev 1 ="
-        '
-        'Label321
-        '
-        Me.Label321.AutoSize = True
-        Me.Label321.Location = New System.Drawing.Point(557, 159)
-        Me.Label321.Name = "Label321"
-        Me.Label321.Size = New System.Drawing.Size(45, 13)
-        Me.Label321.TabIndex = 721
-        Me.Label321.Text = "Dev 2 ="
+        Me.Label334.AutoSize = True
+        Me.Label334.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label334.Location = New System.Drawing.Point(427, 85)
+        Me.Label334.Name = "Label334"
+        Me.Label334.Size = New System.Drawing.Size(39, 36)
+        Me.Label334.TabIndex = 728
+        Me.Label334.Text = "10 µA to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "200 mA" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(P-P)"
+        Me.Label334.TextAlign = System.Drawing.ContentAlignment.TopCenter
         '
         'Formtest
         '
@@ -10621,6 +11060,8 @@ Partial Class Formtest
         Me.TabPage12.PerformLayout
         Me.GroupBox5.ResumeLayout(False)
         Me.GroupBox5.PerformLayout
+        Me.GroupBox15.ResumeLayout(False)
+        Me.GroupBox15.PerformLayout
         CType(Me.PictureBox2, System.ComponentModel.ISupportInitialize).EndInit
         Me.GroupBox14.ResumeLayout(False)
         Me.GroupBox14.PerformLayout
@@ -11531,4 +11972,37 @@ Partial Class Formtest
     Friend WithEvents Dev1ChartValue As Label
     Friend WithEvents Label320 As Label
     Friend WithEvents Label321 As Label
+    Friend WithEvents Label313 As Label
+    Friend WithEvents Button3245A_DCI As Button
+    Friend WithEvents Button3245A_SQV As Button
+    Friend WithEvents Button3245A_ACV As Button
+    Friend WithEvents Button3245A_DCV As Button
+    Friend WithEvents Button3245A_RPV As Button
+    Friend WithEvents textbox3245A_VALUE As TextBox
+    Friend WithEvents GroupBox15 As GroupBox
+    Friend WithEvents Button3245A_HIRES As Button
+    Friend WithEvents Button3245A_SCRATCH As Button
+    Friend WithEvents Button3245A_SQI As Button
+    Friend WithEvents Button3245A_ACI As Button
+    Friend WithEvents Button3245A_RPI As Button
+    Friend WithEvents Button3245A_LORES As Button
+    Friend WithEvents Button3245A_FREQ As Button
+    Friend WithEvents Button3245A_DUTY As Button
+    Friend WithEvents Cmd3245sent As Label
+    Friend WithEvents Label323 As Label
+    Friend WithEvents Button3245A_RESET As Button
+    Friend WithEvents Label322 As Label
+    Friend WithEvents Label324 As Label
+    Friend WithEvents Button3245A_CHA As Button
+    Friend WithEvents Button3245A_CHB As Button
+    Friend WithEvents Label325 As Label
+    Friend WithEvents Label330 As Label
+    Friend WithEvents Label329 As Label
+    Friend WithEvents Label328 As Label
+    Friend WithEvents Label327 As Label
+    Friend WithEvents Label326 As Label
+    Friend WithEvents Label334 As Label
+    Friend WithEvents Label333 As Label
+    Friend WithEvents Label332 As Label
+    Friend WithEvents Label331 As Label
 End Class

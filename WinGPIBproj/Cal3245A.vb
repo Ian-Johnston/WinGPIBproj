@@ -588,4 +588,167 @@ Partial Class Formtest
     End Sub
 
 
+    ' 3245A Function and Value setting
+
+    Private Sub Disable3245AControls()
+        Button3245A_DCV.Enabled = False
+        Button3245A_ACV.Enabled = False
+        Button3245A_DCI.Enabled = False
+        Button3245A_SQV.Enabled = False
+        Button3245A_RPV.Enabled = False
+        Button3245A_HIRES.Enabled = False
+        Button3245A_LORES.Enabled = False
+        Button3245A_SCRATCH.Enabled = False
+        Button3245A_ACI.Enabled = False
+        Button3245A_SQI.Enabled = False
+        Button3245A_RPI.Enabled = False
+        Button3245A_FREQ.Enabled = False
+        Button3245A_DUTY.Enabled = False
+        Button3245A_RESET.Enabled = False
+        textbox3245A_VALUE.Enabled = False
+    End Sub
+
+    Private Sub Enable3245AControls()
+        Button3245A_DCV.Enabled = True
+        Button3245A_ACV.Enabled = True
+        Button3245A_DCI.Enabled = True
+        Button3245A_SQV.Enabled = True
+        Button3245A_RPV.Enabled = True
+        Button3245A_HIRES.Enabled = True
+        Button3245A_LORES.Enabled = True
+        Button3245A_SCRATCH.Enabled = True
+        Button3245A_ACI.Enabled = True
+        Button3245A_SQI.Enabled = True
+        Button3245A_RPI.Enabled = True
+        Button3245A_FREQ.Enabled = True
+        Button3245A_DUTY.Enabled = True
+        Button3245A_RESET.Enabled = True
+        textbox3245A_VALUE.Enabled = True
+    End Sub
+
+    Private Function GetValidatedValueRanged(min As Double, max As Double,
+                                             modeLabel As String,
+                                             Optional allowNegative As Boolean = True) As String
+        Dim t = textbox3245A_VALUE.Text.Trim()
+        Dim d As Double
+        If Not Double.TryParse(t, Globalization.NumberStyles.Float,
+                               Globalization.CultureInfo.InvariantCulture, d) Then
+            MessageBox.Show("Invalid numeric format.", "Input Error")
+            Return Nothing
+        End If
+
+        If Not allowNegative AndAlso d < 0 Then
+            MessageBox.Show($"Value must be positive for {modeLabel}.",
+                            "Range Error")
+            Return Nothing
+        End If
+
+        If d < min OrElse d > max Then
+            MessageBox.Show(
+                $"Value out of range for {modeLabel}.{Environment.NewLine}" &
+                $"Allowed range: {min} to {max}",
+                "Range Error")
+            Return Nothing
+        End If
+
+        Return d.ToString("G", Globalization.CultureInfo.InvariantCulture)
+    End Function
+
+    Private Sub Send3245Command(cmd As String)
+        dev2.SendAsync(cmd, True)
+        Cmd3245sent.Text = cmd
+    End Sub
+
+    Private Sub Button3245A_DCV_Click(sender As Object, e As EventArgs) Handles Button3245A_DCV.Click
+        ' DCV range: ±10 V
+        Dim v = GetValidatedValueRanged(-10.0R, 10.0R, "DCV") : If v Is Nothing Then Exit Sub
+        Send3245Command("APPLY DCV " & v)
+    End Sub
+
+    Private Sub Button3245A_ACV_Click(sender As Object, e As EventArgs) Handles Button3245A_ACV.Click
+        ' ACV (RMS) range: 0.032 VAC to 20 VAC (datasheet)
+        Dim v = GetValidatedValueRanged(0.032R, 20.0R, "ACV", allowNegative:=False) : If v Is Nothing Then Exit Sub
+        Send3245Command("APPLY ACV " & v)
+    End Sub
+
+    Private Sub Button3245A_DCI_Click(sender As Object, e As EventArgs) Handles Button3245A_DCI.Click
+        ' DCI range: ±0.1 A (±100 mA)
+        Dim v = GetValidatedValueRanged(-0.1R, 0.1R, "DCI") : If v Is Nothing Then Exit Sub
+        Send3245Command("APPLY DCI " & v)
+    End Sub
+
+    Private Sub Button3245A_SQV_Click(sender As Object, e As EventArgs) Handles Button3245A_SQV.Click
+        ' SQV amplitude in Vpp: 0…10 Vpp (engineering choice; can tighten later if needed)
+        Dim v = GetValidatedValueRanged(0.0R, 10.0R, "SQV", allowNegative:=False) : If v Is Nothing Then Exit Sub
+        Send3245Command("APPLY SQV " & v)
+    End Sub
+
+    Private Sub Button3245A_RPV_Click(sender As Object, e As EventArgs) Handles Button3245A_RPV.Click
+        ' RPV amplitude in Vpp: 0…10 Vpp
+        Dim v = GetValidatedValueRanged(0.0R, 10.0R, "RPV", allowNegative:=False) : If v Is Nothing Then Exit Sub
+        Send3245Command("APPLY RPV " & v)
+    End Sub
+
+    Private Sub Button3245A_HIRES_Click(sender As Object, e As EventArgs) Handles Button3245A_HIRES.Click
+        Send3245Command("DCRES HIGH")
+    End Sub
+
+    Private Sub Button3245A_LORES_Click(sender As Object, e As EventArgs) Handles Button3245A_LORES.Click
+        Send3245Command("DCRES LOW")
+    End Sub
+
+    Private Sub Button3245A_SCRATCH_Click(sender As Object, e As EventArgs) Handles Button3245A_SCRATCH.Click
+        Send3245Command("SCRATCH")
+    End Sub
+
+    Private Sub Button3245A_ACI_Click(sender As Object, e As EventArgs) Handles Button3245A_ACI.Click
+        ' ACI: peak-to-peak current 0.00001 A to 0.2 A (keep as-is unless you refine from manual)
+        Dim v = GetValidatedValueRanged(0.00001R, 0.2R, "ACI", allowNegative:=False)
+        If v Is Nothing Then Exit Sub
+        Send3245Command("APPLY ACI " & v)
+    End Sub
+
+    Private Sub Button3245A_SQI_Click(sender As Object, e As EventArgs) Handles Button3245A_SQI.Click
+        ' SQI: peak-to-peak current 0.00001 A to 0.2 A
+        Dim v = GetValidatedValueRanged(0.00001R, 0.2R, "SQI", allowNegative:=False)
+        If v Is Nothing Then Exit Sub
+        Send3245Command("APPLY SQI " & v)
+    End Sub
+
+    Private Sub Button3245A_RPI_Click(sender As Object, e As EventArgs) Handles Button3245A_RPI.Click
+        ' RPI: peak-to-peak current 0.00001 A to 0.2 A
+        Dim v = GetValidatedValueRanged(0.00001R, 0.2R, "RPI", allowNegative:=False)
+        If v Is Nothing Then Exit Sub
+        Send3245Command("APPLY RPI " & v)
+    End Sub
+
+    Private Sub Button3245A_FREQ_Click(sender As Object, e As EventArgs) Handles Button3245A_FREQ.Click
+        ' Frequency: ~0 to 1 MHz, positive only (use small non-zero min if needed)
+        Dim v = GetValidatedValueRanged(0.0R, 1000000.0R, "FREQ", allowNegative:=False)
+        If v Is Nothing Then Exit Sub
+        Send3245Command("FREQ " & v)
+    End Sub
+
+    Private Sub Button3245A_DUTY_Click(sender As Object, e As EventArgs) Handles Button3245A_DUTY.Click
+        ' Duty cycle range: 0% to 100%
+        Dim v = GetValidatedValueRanged(0.0R, 100.0R, "DUTY", allowNegative:=False)
+        If v Is Nothing Then Exit Sub
+        Send3245Command("DUTY " & v)
+    End Sub
+
+    Private Sub Button3245A_RESET_Click(sender As Object, e As EventArgs) Handles Button3245A_RESET.Click
+        Send3245Command("RESET")
+    End Sub
+
+    Private Sub Button3245A_CHA_Click(sender As Object, e As EventArgs) Handles Button3245A_CHA.Click
+        Send3245Command("USE 0")
+    End Sub
+
+    Private Sub Button3245A_CHB_Click(sender As Object, e As EventArgs) Handles Button3245A_CHB.Click
+        Send3245Command("USE 1")
+    End Sub
+
+
+
+
 End Class
