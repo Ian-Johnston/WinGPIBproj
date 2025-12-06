@@ -537,7 +537,6 @@ Partial Class Formtest
             Dev1PollingEnable.Checked = False
         End If
 
-        'result = dev1.QueryBlocking(txtq1b.Text & TermStr2(), q, True)      'standard version with IOQuery parameter
         result = dev1.QueryBlocking(txtq1b.Text & TermStr2(), q, False)      'standard version with IOQuery parameter       PDVS2mini sub uses TRUE
 
         s = "blocking command:'" & q.cmd & "'" & vbCrLf

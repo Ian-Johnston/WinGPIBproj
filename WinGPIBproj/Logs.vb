@@ -71,6 +71,20 @@ Partial Class Formtest
     Private sum1 As Double = 0          ' Dev1 running sum
     Private sum2 As Double = 0          ' Dev2 running sum
 
+    Private Sub ButtonLoadIni_Click(sender As Object, e As EventArgs) Handles ButtonLoadIni.Click
+
+        Using dlg As New OpenFileDialog()
+            dlg.Title = "Select Custom INI File"
+            dlg.Filter = "INI Files (*.ini)|*.ini|Text Files (*.txt)|*.txt|All Files (*.*)|*.*"
+
+            If dlg.ShowDialog() = DialogResult.OK Then
+                LoadCustomGuiFromFile(dlg.FileName)
+            End If
+        End Using
+
+    End Sub
+
+
     ' Expect these controls to exist on the form:
     ' CheckBoxAvgEnable  (checkbox to enable averaging)
     ' TextBoxAvgWindow   (N value for rolling window)
