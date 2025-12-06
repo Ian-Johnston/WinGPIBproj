@@ -71,14 +71,18 @@ Partial Class Formtest
     Private sum1 As Double = 0          ' Dev1 running sum
     Private sum2 As Double = 0          ' Dev2 running sum
 
-    Private Sub ButtonLoadIni_Click(sender As Object, e As EventArgs) Handles ButtonLoadIni.Click
+    Private Sub ButtonLoadTxt_Click(sender As Object, e As EventArgs) Handles ButtonLoadTxt.Click
 
         Using dlg As New OpenFileDialog()
-            dlg.Title = "Select Custom INI File"
-            dlg.Filter = "INI Files (*.ini)|*.ini|Text Files (*.txt)|*.txt|All Files (*.*)|*.*"
+            dlg.Title = "Select Custom GUI Layout File"
+            dlg.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*"
 
             If dlg.ShowDialog() = DialogResult.OK Then
-                LoadCustomGuiFromFile(dlg.FileName)
+                Try
+                    LoadCustomGuiFromFile(dlg.FileName)
+                Catch ex As Exception
+                    MessageBox.Show("Error loading layout file: " & ex.Message)
+                End Try
             End If
         End Using
 

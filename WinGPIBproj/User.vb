@@ -7,7 +7,13 @@ Imports System.IO
 
 Partial Class Formtest
 
-    ' INI Format:
+    ' Auto-read state
+    Private AutoReadDeviceName As String
+    Private AutoReadCommand As String
+    Private AutoReadResultControl As String
+    Dim intervalMs As Integer = 2000
+
+    ' TXT Format:
     ' BUTTON;Caption;Action;Device;CommandOrPrefix;ValueControl;ResultControl
     '
     ' Action:
@@ -48,7 +54,7 @@ Partial Class Formtest
                     Continue For
 
             ' ======================================
-            '   CREATE A LABELED TEXTBOX FROM INI
+            '   CREATE A LABELED TEXTBOX FROM TXT
             '   TEXTBOX;Name;Label text;X;Y
             ' ======================================
                 Case "TEXTBOX"
@@ -132,6 +138,36 @@ Partial Class Formtest
                         autoY += b.Height + 5      ' uses final height (after any override)
                     End If
 
+                Case "CHECKBOX"
+                    ' CHECKBOX;ResultControlName;Caption;FunctionKey;Param;X;Y
+                    ' e.g. CHECKBOX;TextBoxResult;Decimal:;FuncDecimal;;430;440
+                    '      CHECKBOX;TextBoxResult;Auto 2secs:;FuncAuto;2secs;430;465
+
+                    If parts.Length >= 7 Then
+
+                        Dim resultName = parts(1).Trim()    ' e.g. "TextBoxResult"
+                        Dim caption = parts(2).Trim()       ' e.g. "Decimal:"
+                        Dim funcKey = parts(3).Trim()       ' e.g. "FuncDecimal" / "FuncAuto"
+                        Dim param = parts(4).Trim()         ' e.g. "" or "2secs"
+
+                        Dim x As Integer
+                        Dim y As Integer
+                        Integer.TryParse(parts(5).Trim(), x)
+                        Integer.TryParse(parts(6).Trim(), y)
+
+                        Dim cb As New CheckBox()
+                        cb.Text = caption
+                        cb.AutoSize = True
+                        cb.Location = New Point(x, y)
+
+                        ' Tag encodes: resultName|FUNCXXX|param
+                        cb.Tag = resultName & "|" & funcKey.ToUpperInvariant() & "|" & param
+                        cb.Name = "Chk_" & resultName & "_" & funcKey
+
+                        GroupBoxCustom.Controls.Add(cb)
+
+                    End If
+
 
             End Select
 
@@ -153,7 +189,7 @@ Partial Class Formtest
     Private Function GetControlByName(name As String) As Control
         If String.IsNullOrWhiteSpace(name) Then Return Nothing
 
-        ' 1) First look inside PanelCustom (INI-generated stuff)
+        ' 1) First look inside PanelCustom (TXT-generated stuff)
         Dim matches = GroupBoxCustom.Controls.Find(name, True)
         If matches IsNot Nothing AndAlso matches.Length > 0 Then
             Return matches(0)
@@ -178,6 +214,123 @@ Partial Class Formtest
     End Function
 
 
+    Private Function GetCheckboxFor(resultName As String, funcKey As String) As CheckBox
+        If String.IsNullOrWhiteSpace(resultName) OrElse String.IsNullOrWhiteSpace(funcKey) Then
+            Return Nothing
+        End If
+
+        Dim funcKeyUpper = funcKey.ToUpperInvariant()
+
+        For Each c As Control In GroupBoxCustom.Controls
+            If TypeOf c Is CheckBox Then
+                Dim cb = DirectCast(c, CheckBox)
+                Dim tagStr = TryCast(cb.Tag, String)
+                If String.IsNullOrEmpty(tagStr) Then Continue For
+
+                Dim parts = tagStr.Split("|"c)
+                If parts.Length >= 2 Then
+                    Dim tagResult = parts(0)
+                    Dim tagFunc = parts(1).ToUpperInvariant()
+
+                    If String.Equals(tagResult, resultName, StringComparison.OrdinalIgnoreCase) AndAlso
+                   tagFunc = funcKeyUpper Then
+                        Return cb
+                    End If
+                End If
+            End If
+        Next
+
+        Return Nothing
+    End Function
+
+
+    Private Sub RunQueryToResult(deviceName As String,
+                             commandOrPrefix As String,
+                             resultControlName As String)
+
+        Dim target = GetControlByName(resultControlName)
+        If target Is Nothing Then
+            MessageBox.Show("Result control not found: " & resultControlName)
+            Exit Sub
+        End If
+
+        ' Resolve device name (dev1, dev2, ...)
+        ' IMPORTANT: dev must NOT be Object – it must be the same type as dev1/dev2.
+        ' Assuming dev1/dev2 are IODevices.IODevice (or similar), type it accordingly.
+        Dim dev As IODevices.IODevice = Nothing
+
+        Select Case deviceName.ToLowerInvariant()
+            Case "dev1"
+                dev = dev1
+            Case "dev2"
+                dev = dev2
+                ' add more devices here if you have them
+        End Select
+
+        If dev Is Nothing Then
+            MessageBox.Show("Unknown device: " & deviceName)
+            Exit Sub
+        End If
+
+        Dim q As IODevices.IOQuery = Nothing
+        Dim status As Integer
+
+        Dim fullCmd As String = commandOrPrefix & TermStr2()
+        status = dev.QueryBlocking(fullCmd, q, False)   ' now a strongly-typed call
+
+        Dim raw As String = ""
+        Dim outText As String = ""
+
+        If status = 0 AndAlso q IsNot Nothing Then
+            raw = q.ResponseAsString.Trim()
+
+            ' Optional decimal formatting via FuncDecimal checkbox
+            Dim decCb As CheckBox = GetCheckboxFor(resultControlName, "FuncDecimal")
+
+            If decCb IsNot Nothing AndAlso decCb.Checked Then
+                Dim d As Double
+                If Double.TryParse(raw,
+                               Globalization.NumberStyles.Float,
+                               Globalization.CultureInfo.InvariantCulture,
+                               d) Then
+                    outText = d.ToString("0.###############",
+                                     Globalization.CultureInfo.InvariantCulture)
+                Else
+                    outText = raw
+                End If
+            Else
+                outText = raw
+            End If
+
+        ElseIf q IsNot Nothing Then
+            outText = "ERR " & status & ": " & q.errmsg
+        Else
+            outText = "ERR " & status & " (no IOQuery)"
+        End If
+
+        If TypeOf target Is TextBox Then
+            DirectCast(target, TextBox).Text = outText
+        ElseIf TypeOf target Is Label Then
+            DirectCast(target, Label).Text = outText
+        End If
+    End Sub
+
+
+
+    Private Function GetCheckboxParam(cb As CheckBox) As String
+        If cb Is Nothing Then Return ""
+        Dim tagStr = TryCast(cb.Tag, String)
+        If String.IsNullOrEmpty(tagStr) Then Return ""
+        Dim parts = tagStr.Split("|"c)
+        If parts.Length >= 3 Then
+            Return parts(2)
+        Else
+            Return ""
+        End If
+    End Function
+
+
+
     Private Sub CustomButton_Click(sender As Object, e As EventArgs)
 
         Dim b = DirectCast(sender, Button)
@@ -197,8 +350,6 @@ Partial Class Formtest
             Exit Sub
         End If
 
-
-
         Select Case action
 
             Case "SEND"
@@ -217,45 +368,76 @@ Partial Class Formtest
 
             Case "QUERY"
 
-                Dim target = GetControlByName(resultControlName)
-                If target Is Nothing Then
-                    MessageBox.Show("Result control not found: " & resultControlName)
-                    Exit Sub
-                End If
+                ' Single immediate query
+                RunQueryToResult(deviceName, commandOrPrefix, resultControlName)
 
-                Dim q As IOQuery = Nothing
-                Dim status As Integer
+                ' Check for an Auto checkbox (FuncAuto) for this result control
+                Dim autoCb As CheckBox = GetCheckboxFor(resultControlName, "FuncAuto")
 
-                Dim fullCmd As String = commandOrPrefix & TermStr2()   ' e.g. "USE?" + terminator
+                If autoCb IsNot Nothing AndAlso autoCb.Checked Then
+                    ' Default interval: 2000 ms
+                    Dim intervalMs As Integer = 2000
 
-                status = dev.QueryBlocking(fullCmd, q, False)
+                    Dim param As String = GetCheckboxParam(autoCb)   ' e.g. "2secs", "0.5", "0.5secs"
+                    If Not String.IsNullOrEmpty(param) Then
 
-                ' Always show RAW response in txtr2b for debugging
-                If q IsNot Nothing Then
-                    txtr2b.Text = q.ResponseAsString
+                        ' Extract a numeric string allowing digits and decimal point
+                        Dim numeric As String = ""
+                        For Each ch As Char In param
+                            If Char.IsDigit(ch) OrElse ch = "."c Then
+                                numeric &= ch
+                            End If
+                        Next
+
+                        Dim secs As Double
+                        If Double.TryParse(numeric,
+                       Globalization.NumberStyles.Float,
+                       Globalization.CultureInfo.InvariantCulture,
+                       secs) AndAlso secs > 0.0R Then
+
+                            intervalMs = CInt(secs * 1000.0R)
+                            Timer5.Interval = intervalMs
+                        Else
+                            ' fallback: keep existing intervalMs (e.g. default 2000ms)
+                        End If
+                    Else
+                        ' no param → leave intervalMs as the default (e.g. 2000ms)
+                    End If
+
+                    AutoReadDeviceName = deviceName
+                    AutoReadCommand = commandOrPrefix
+                    AutoReadResultControl = resultControlName
+
+                    Timer5.Interval = intervalMs
+                    Timer5.Enabled = True
                 Else
-                    txtr2b.Text = "[no IOQuery]"
-                End If
-
-                Dim outText As String
-                If status = 0 AndAlso q IsNot Nothing Then
-                    ' Trim so "     0" becomes "0"
-                    outText = q.ResponseAsString.Trim()
-                ElseIf q IsNot Nothing Then
-                    outText = "ERR " & status & ": " & q.errmsg
-                Else
-                    outText = "ERR " & status & " (no IOQuery)"
-                End If
-
-                ' Now write to the INI-created target control
-                If TypeOf target Is TextBox Then
-                    DirectCast(target, TextBox).Text = outText
-                ElseIf TypeOf target Is Label Then
-                    DirectCast(target, Label).Text = outText
+                    ' No auto-read requested - ensure timer is off for this path
+                    Timer5.Enabled = False
                 End If
 
         End Select
 
+    End Sub
+
+
+    Private Sub Timer5_Tick(sender As Object, e As EventArgs) Handles Timer5.Tick
+
+        ' If Auto checkbox is no longer present or unchecked, stop auto-read
+        Dim autoCb As CheckBox = GetCheckboxFor(AutoReadResultControl, "FuncAuto")
+        If autoCb Is Nothing OrElse Not autoCb.Checked Then
+            Timer5.Enabled = False
+            Exit Sub
+        End If
+
+        ' Re-run the last query definition
+        If Not String.IsNullOrEmpty(AutoReadDeviceName) AndAlso
+       Not String.IsNullOrEmpty(AutoReadCommand) AndAlso
+       Not String.IsNullOrEmpty(AutoReadResultControl) Then
+
+            RunQueryToResult(AutoReadDeviceName, AutoReadCommand, AutoReadResultControl)
+        Else
+            Timer5.Enabled = False
+        End If
     End Sub
 
 
