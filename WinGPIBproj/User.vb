@@ -55,10 +55,14 @@ Partial Class Formtest
                     GroupBoxCustom.Text = title   ' <-- your custom GroupBox
                     Continue For
 
-            ' ======================================
-            '   CREATE A LABELED TEXTBOX FROM TXT
-            '   TEXTBOX;Name;Label text;X;Y
-            ' ======================================
+' ======================================
+'   CREATE A LABELED TEXTBOX FROM TXT
+'   TEXTBOX;Name;Label text;X;Y
+'   or with extras:
+'   TEXTBOX;Name;Label text;X;Y;W;H;readonly=true
+'   or token form:
+'   TEXTBOX;Name;Label text;x=..;y=..;w=..;h=..;readonly=true
+' ======================================
                 Case "TEXTBOX"
                     If parts.Length < 3 Then Continue For
 
@@ -67,10 +71,54 @@ Partial Class Formtest
 
                     Dim x As Integer = 10
                     Dim y As Integer = autoY
+                    Dim w As Integer = 120
+                    Dim h As Integer = 22
+                    Dim isReadOnly As Boolean = False
+                    Dim hasExplicitCoords As Boolean = False
 
-                    If parts.Length >= 5 Then
+                    ' ---------- positional form ----------
+                    ' TEXTBOX;Name;Caption;X;Y[;W;H;readonly=..]
+                    If parts.Length >= 5 AndAlso Not parts(3).Contains("="c) Then
                         ParseIntField(parts(3), x)
                         ParseIntField(parts(4), y)
+                        hasExplicitCoords = True
+
+                        If parts.Length >= 7 Then ParseIntField(parts(5), w)
+                        If parts.Length >= 8 Then ParseIntField(parts(6), h)
+
+                        ' optional readonly in positional form
+                        If parts.Length >= 9 Then
+                            ParseBoolField(parts(7), isReadOnly)
+                        End If
+
+                    Else
+                        ' ---------- token form ----------
+                        ' TEXTBOX;Name;Caption;x=..;y=..;w=..;h=..;readonly=true
+                        For i As Integer = 3 To parts.Length - 1
+                            Dim token = parts(i).Trim()
+                            If Not token.Contains("="c) Then Continue For
+
+                            Dim kv = token.Split("="c)
+                            If kv.Length <> 2 Then Continue For
+
+                            Dim key = kv(0).Trim().ToLower()
+                            Dim val = kv(1).Trim()
+
+                            Select Case key
+                                Case "x"
+                                    ParseIntField(val, x)
+                                    hasExplicitCoords = True
+                                Case "y"
+                                    ParseIntField(val, y)
+                                    hasExplicitCoords = True
+                                Case "w"
+                                    ParseIntField(val, w)
+                                Case "h"
+                                    ParseIntField(val, h)
+                                Case "readonly"
+                                    ParseBoolField(val, isReadOnly)
+                            End Select
+                        Next
                     End If
 
                     ' Label
@@ -83,16 +131,19 @@ Partial Class Formtest
                     ' TextBox to the right of label
                     Dim tb As New TextBox()
                     tb.Name = tbName
-                    tb.Width = 120
                     tb.Location = New Point(lbl.Right + 5, y - 2)
+                    tb.Size = New Size(w, h)
+                    tb.ReadOnly = isReadOnly
+
                     GroupBoxCustom.Controls.Add(tb)
 
                     ' Only advance autoY if coordinates not explicitly given
-                    If parts.Length < 5 Then
+                    If Not hasExplicitCoords Then
                         autoY += Math.Max(lbl.Height, tb.Height) + 5
                     End If
 
                     Continue For
+
 
             ' ======================================
             '   BUTTON LINES
@@ -670,13 +721,21 @@ Partial Class Formtest
                         nud.Increment = stepVal
                         nud.DecimalPlaces = 0   ' using scale for fractional output
 
+                        ' Start at min internally, but show blank
+                        nud.Value = minVal
+                        nud.Text = ""
+
+                        ' Tag = DEVICE|COMMAND|SCALE|INITFLAG|MIN
                         nud.Tag = deviceName & "|" &
-                  commandPrefix & "|" &
-                  scale.ToString(Globalization.CultureInfo.InvariantCulture)
+                                  commandPrefix & "|" &
+                                  scale.ToString(Globalization.CultureInfo.InvariantCulture) & "|" &
+                                  "0" & "|" &
+                                  minVal.ToString(Globalization.CultureInfo.InvariantCulture)
 
                         AddHandler nud.ValueChanged, AddressOf Spinner_ValueChanged
 
                         GroupBoxCustom.Controls.Add(nud)
+
                     End If
 
 
@@ -1296,36 +1355,99 @@ Partial Class Formtest
     End Sub
 
 
-    Private Sub Spinner_ValueChanged(sender As Object, e As EventArgs)
-        Dim nud = TryCast(sender, NumericUpDown)
-        If nud Is Nothing Then Exit Sub
+    Private Sub ParseBoolField(token As String, ByRef target As Boolean)
+        token = token.Trim()
 
-        Dim meta = TryCast(nud.Tag, String)
-        If String.IsNullOrEmpty(meta) Then Exit Sub
-
-        Dim p = meta.Split("|"c)
-        If p.Length < 3 Then Exit Sub
-
-        Dim deviceName = p(0)
-        Dim commandPrefix = p(1)
-        Dim scale As Double = 1.0
-        Double.TryParse(p(2), Globalization.NumberStyles.Float,
-                    Globalization.CultureInfo.InvariantCulture, scale)
-
-        Dim valReal As Double = CDbl(nud.Value) * scale
-        Dim valStr As String = valReal.ToString("G", Globalization.CultureInfo.InvariantCulture)
-
-        Dim cmd As String = commandPrefix & " " & valStr
-
-        Dim dev As Object = Nothing
-        If deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
-            dev = dev1
-        ElseIf deviceName.Equals("dev2", StringComparison.OrdinalIgnoreCase) Then
-            dev = dev2
+        ' Allow forms: "true", "false", "readonly=true", etc.
+        If token.Contains("="c) Then
+            token = token.Split("="c)(1).Trim()
         End If
-        If dev Is Nothing Then Exit Sub
 
-        dev.SendAsync(cmd, True)
+        Select Case token.ToLower()
+            Case "1", "true", "yes", "on"
+                target = True
+            Case "0", "false", "no", "off"
+                target = False
+        End Select
+    End Sub
+
+
+    Private Sub Spinner_ValueChanged(sender As Object, e As EventArgs)
+        Dim nud = DirectCast(sender, NumericUpDown)
+        Dim tagStr = TryCast(nud.Tag, String)
+        If String.IsNullOrEmpty(tagStr) Then Exit Sub
+
+        Dim parts = tagStr.Split("|"c)
+        If parts.Length < 3 Then Exit Sub
+
+        Dim deviceName = parts(0)
+        Dim commandPrefix = parts(1)
+
+        Dim scale As Double = 1.0
+        Double.TryParse(parts(2),
+                    Globalization.NumberStyles.Float,
+                    Globalization.CultureInfo.InvariantCulture,
+                    scale)
+
+        Dim initFlag As String = If(parts.Length >= 4, parts(3), "1")
+        Dim minValFromTag As Decimal = nud.Minimum
+        If parts.Length >= 5 Then
+            Decimal.TryParse(parts(4),
+                         Globalization.NumberStyles.Float,
+                         Globalization.CultureInfo.InvariantCulture,
+                         minValFromTag)
+        End If
+
+        ' === FIRST USER CHANGE ===
+        If initFlag = "0" Then
+            ' Mark as initialised
+            parts(3) = "1"
+            nud.Tag = String.Join("|", parts)
+
+            ' Force value to MIN on first change
+            nud.Value = minValFromTag
+
+            Dim scaledFirst As Double = CDbl(minValFromTag) * scale
+            Dim firstStr As String = scaledFirst.ToString("G", Globalization.CultureInfo.InvariantCulture)
+            Dim firstCmd As String = commandPrefix & " " & firstStr
+
+            Dim dev As Object = Nothing
+            Select Case deviceName.ToLowerInvariant()
+                Case "dev1" : dev = dev1
+                Case "dev2" : dev = dev2
+            End Select
+
+            If dev IsNot Nothing Then
+                dev.SendAsync(firstCmd, True)
+            End If
+
+            Exit Sub
+        End If
+
+        ' === NORMAL CHANGES AFTER FIRST ===
+        Dim scaledValue As Double = CDbl(nud.Value) * scale
+        Dim valueStr As String = scaledValue.ToString("G", Globalization.CultureInfo.InvariantCulture)
+        Dim cmd As String = commandPrefix & " " & valueStr
+
+        Dim devNorm As Object = Nothing
+        Select Case deviceName.ToLowerInvariant()
+            Case "dev1" : devNorm = dev1
+            Case "dev2" : devNorm = dev2
+        End Select
+
+        If devNorm IsNot Nothing Then
+            devNorm.SendAsync(cmd, True)
+        End If
+    End Sub
+
+
+    Private Sub Spinner_KeepBlank(sender As Object, e As EventArgs)
+        Dim nud As NumericUpDown = DirectCast(sender, NumericUpDown)
+
+        ' If spinner is tagged blank, keep it blank until the user changes it
+        If nud.Tag IsNot Nothing AndAlso nud.Tag.ToString().Contains("|BLANK") Then
+            nud.Text = ""
+        End If
     End Sub
 
 
