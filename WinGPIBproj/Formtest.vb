@@ -164,7 +164,7 @@ Public Class Formtest
         Try
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.002"
+            BannerText1 = "WinGPIB   V4.003"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
             ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -761,6 +761,7 @@ Public Class Formtest
 
             ' 3245A Dev2
             Disable3245AControls()
+
 
         Catch ex As Exception
             MessageBox.Show($"Error during load: {ex.Message}")
