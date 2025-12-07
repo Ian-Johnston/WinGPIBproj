@@ -496,6 +496,328 @@ Partial Class Formtest
 
                     End If
 
+                Case "HR"
+                    ' Supports:
+                    ' HR;X;Y;Width
+                    ' HR;x=..;y=..;w=..
+
+                    Dim x As Integer = 0
+                    Dim y As Integer = 0
+                    Dim w As Integer = 200   ' default width
+
+                    ' ---------- Positional format ----------
+                    If parts.Length >= 4 AndAlso Not parts(1).Contains("=") Then
+                        ParseIntField(parts(1), x)
+                        ParseIntField(parts(2), y)
+                        ParseIntField(parts(3), w)
+
+                    Else
+                        ' ---------- Token format ----------
+                        For i As Integer = 1 To parts.Length - 1
+                            Dim p = parts(i).Trim()
+                            If p.Contains("=") Then
+                                Dim kv = p.Split("="c)
+                                If kv.Length = 2 Then
+                                    Dim key = kv(0).Trim().ToLower()
+                                    Dim val = kv(1).Trim()
+
+                                    Select Case key
+                                        Case "x" : ParseIntField(val, x)
+                                        Case "y" : ParseIntField(val, y)
+                                        Case "w" : ParseIntField(val, w)
+                                    End Select
+                                End If
+                            End If
+                        Next
+                    End If
+
+                    ' ---------- Draw the horizontal rule ----------
+                    Dim hrLine As New Label()
+                    hrLine.AutoSize = False
+                    hrLine.BorderStyle = BorderStyle.Fixed3D
+                    hrLine.Height = 2
+                    hrLine.Width = w
+                    hrLine.Location = New Point(x, y)
+
+                    GroupBoxCustom.Controls.Add(hrLine)
+
+
+                Case "VR"
+                    ' VR;X;Y;Height
+                    ' VR;x=20;y=200;h=150
+
+                    Dim x As Integer = 10
+                    Dim y As Integer = 10
+                    Dim h As Integer = 100
+
+                    ' Positional format?
+                    If parts.Length >= 4 AndAlso Not parts(1).Contains("=") Then
+                        ParseIntField(parts(1), x)
+                        ParseIntField(parts(2), y)
+                        ParseIntField(parts(3), h)
+                    Else
+                        ' Token format
+                        For i As Integer = 1 To parts.Length - 1
+                            Dim tok = parts(i).Trim()
+                            Dim kv = tok.Split("="c)
+                            If kv.Length <> 2 Then Continue For
+                            Dim key = kv(0).Trim().ToLower()
+                            Dim val = kv(1).Trim()
+
+                            Select Case key
+                                Case "x" : ParseIntField(val, x)
+                                Case "y" : ParseIntField(val, y)
+                                Case "h" : ParseIntField(val, h)
+                            End Select
+                        Next
+                    End If
+
+                    ' Create vertical line
+                    Dim ln As New Label()
+                    ln.BorderStyle = BorderStyle.Fixed3D
+                    ln.AutoSize = False
+                    ln.Width = 2
+                    ln.Height = h
+                    ln.Location = New Point(x, y)
+
+                    GroupBoxCustom.Controls.Add(ln)
+
+
+                Case "SPINNER"
+                    ' Supports:
+                    ' SPINNER;Name;Caption;Device;Command;X;Y;W;Min;Max;Step;Scale
+                    ' or
+                    ' SPINNER;Name;Caption;Device;Command;x=..;y=..;w=..;min=..;max=..;step=..;scale=..
+
+                    If parts.Length >= 5 Then
+
+                        Dim controlName As String = parts(1).Trim()
+                        Dim caption As String = parts(2).Trim()
+                        Dim deviceName As String = parts(3).Trim()
+                        Dim commandPrefix As String = parts(4).Trim()
+
+                        Dim x As Integer = 20
+                        Dim y As Integer = 20
+                        Dim width As Integer = 80
+                        Dim minVal As Integer = 0
+                        Dim maxVal As Integer = 100
+                        Dim stepVal As Integer = 1
+                        Dim scale As Double = 1.0
+
+                        Dim usedPositional As Boolean = False
+
+                        ' Positional form
+                        If parts.Length >= 12 AndAlso Not parts(5).Contains("="c) Then
+                            ParseIntField(parts(5), x)
+                            ParseIntField(parts(6), y)
+                            ParseIntField(parts(7), width)
+                            ParseIntField(parts(8), minVal)
+                            ParseIntField(parts(9), maxVal)
+                            ParseIntField(parts(10), stepVal)
+                            Double.TryParse(
+                parts(11).Trim(),
+                Globalization.NumberStyles.Float,
+                Globalization.CultureInfo.InvariantCulture,
+                scale
+            )
+                            usedPositional = True
+                        End If
+
+                        ' Token form
+                        If Not usedPositional Then
+                            For i As Integer = 5 To parts.Length - 1
+                                Dim p = parts(i).Trim()
+                                If p.Contains("="c) Then
+                                    Dim kv = p.Split("="c)
+                                    If kv.Length = 2 Then
+                                        Dim key = kv(0).Trim().ToLower()
+                                        Dim val = kv(1).Trim()
+                                        Select Case key
+                                            Case "x" : ParseIntField(val, x)
+                                            Case "y" : ParseIntField(val, y)
+                                            Case "w" : ParseIntField(val, width)
+                                            Case "min" : ParseIntField(val, minVal)
+                                            Case "max" : ParseIntField(val, maxVal)
+                                            Case "step" : ParseIntField(val, stepVal)
+                                            Case "scale"
+                                                Double.TryParse(
+                                    val,
+                                    Globalization.NumberStyles.Float,
+                                    Globalization.CultureInfo.InvariantCulture,
+                                    scale
+                                )
+                                        End Select
+                                    End If
+                                End If
+                            Next
+                        End If
+
+                        ' Label
+                        Dim lbl As New Label()
+                        lbl.Text = caption
+                        lbl.AutoSize = True
+                        lbl.Location = New Point(x, y + 3)
+                        GroupBoxCustom.Controls.Add(lbl)
+
+                        ' Spinner (NumericUpDown)
+                        Dim nud As New NumericUpDown()
+                        nud.Name = controlName
+                        nud.Location = New Point(x + lbl.PreferredWidth + 5, y)
+                        nud.Width = width
+
+                        nud.Minimum = minVal
+                        nud.Maximum = maxVal
+                        nud.Increment = stepVal
+                        nud.DecimalPlaces = 0   ' using scale for fractional output
+
+                        nud.Tag = deviceName & "|" &
+                  commandPrefix & "|" &
+                  scale.ToString(Globalization.CultureInfo.InvariantCulture)
+
+                        AddHandler nud.ValueChanged, AddressOf Spinner_ValueChanged
+
+                        GroupBoxCustom.Controls.Add(nud)
+                    End If
+
+
+                Case "LED"
+                    ' LED;Name;Caption;X;Y;Size
+                    ' or LED;Name;Caption;x=..;y=..;s=..;on=..;off=..;bad=..
+
+                    If parts.Length >= 3 Then
+
+                        Dim ledName As String = parts(1).Trim()
+                        Dim caption As String = parts(2).Trim()
+
+                        Dim x As Integer = 10
+                        Dim y As Integer = 10
+                        Dim size As Integer = 12
+
+                        ' Default colours
+                        Dim onColor As Color = Color.LimeGreen
+                        Dim offColor As Color = Color.DarkGray
+                        Dim badColor As Color = Color.Gold
+
+                        ' --- positional X,Y,Size: LED;Name;Caption;X;Y;Size ---
+                        If parts.Length >= 6 AndAlso Not parts(3).Contains("="c) Then
+                            ParseIntField(parts(3), x)
+                            ParseIntField(parts(4), y)
+                            ParseIntField(parts(5), size)
+                        End If
+
+                        ' --- token style: x=..;y=..;s=..;on=..;off=..;bad=.. ---
+                        For i As Integer = 3 To parts.Length - 1
+                            Dim p = parts(i).Trim()
+                            If p.Contains("="c) Then
+                                Dim kv = p.Split("="c)
+                                If kv.Length = 2 Then
+                                    Dim key = kv(0).Trim().ToLower()
+                                    Dim val = kv(1).Trim()
+                                    Select Case key
+                                        Case "x" : ParseIntField(val, x)
+                                        Case "y" : ParseIntField(val, y)
+                                        Case "s" : ParseIntField(val, size)
+                                        Case "on"
+                                            Dim c = Color.FromName(val)
+                                            If c.ToArgb() <> 0 Then onColor = c
+                                        Case "off"
+                                            Dim c = Color.FromName(val)
+                                            If c.ToArgb() <> 0 Then offColor = c
+                                        Case "bad"
+                                            Dim c = Color.FromName(val)
+                                            If c.ToArgb() <> 0 Then badColor = c
+                                    End Select
+                                End If
+                            End If
+                        Next
+
+                        ' Caption label
+                        Dim lbl As New Label()
+                        lbl.Text = caption
+                        lbl.AutoSize = True
+                        lbl.Location = New Point(x, y + 2)
+                        GroupBoxCustom.Controls.Add(lbl)
+
+                        ' LED panel
+                        Dim led As New Panel()
+                        led.Name = ledName
+                        led.Size = New Size(size, size)
+                        led.Location = New Point(lbl.Right + 5, y)
+                        led.BorderStyle = BorderStyle.FixedSingle
+                        led.BackColor = offColor    ' start OFF
+
+                        ' Tag: marker + colours
+                        led.Tag = $"LED|{onColor.ToArgb}|{offColor.ToArgb}|{badColor.ToArgb}"
+
+                        GroupBoxCustom.Controls.Add(led)
+
+                    End If
+
+
+                Case "BIGTEXT"
+                    ' BIGTEXT;ControlName;Caption(optional);x=..;y=..;f=..;w=..;h=..
+                    If parts.Length >= 2 Then
+
+                        Dim controlName As String = parts(1).Trim()
+                        Dim caption As String = If(parts.Length > 2, parts(2).Trim(), "")
+
+                        Dim x As Integer = 20
+                        Dim y As Integer = 20
+                        Dim fontSize As Single = 28.0F
+                        Dim w As Integer = 200     ' default width
+                        Dim h As Integer = 60      ' default height
+
+                        ' Parse named tokens
+                        For i As Integer = 3 To parts.Length - 1
+                            Dim p = parts(i).Trim()
+                            If p.Contains("=") Then
+                                Dim kv = p.Split("="c)
+                                If kv.Length = 2 Then
+                                    Dim key = kv(0).Trim().ToLower()
+                                    Dim val = kv(1).Trim()
+
+                                    Select Case key
+                                        Case "x" : Integer.TryParse(val, x)
+                                        Case "y" : Integer.TryParse(val, y)
+                                        Case "f" : Single.TryParse(val, fontSize)
+                                        Case "w" : Integer.TryParse(val, w)
+                                        Case "h" : Integer.TryParse(val, h)
+                                    End Select
+                                End If
+                            End If
+                        Next
+
+                        ' --- Outer panel (the "box") ---
+                        Dim panel As New Panel()
+                        panel.Location = New Point(x, y)
+                        panel.Size = New Size(w, h)
+                        panel.BorderStyle = BorderStyle.FixedSingle
+                        panel.Name = "Panel_" & controlName
+
+                        GroupBoxCustom.Controls.Add(panel)
+
+                        ' --- BIG TEXT LABEL ---
+                        Dim lbl As New Label()
+                        lbl.Name = controlName
+                        lbl.Text = ""
+                        lbl.AutoSize = False
+                        lbl.TextAlign = ContentAlignment.MiddleCenter
+                        lbl.Font = New Font(lbl.Font.FontFamily, fontSize, FontStyle.Bold)
+                        lbl.Dock = DockStyle.Fill
+
+                        panel.Controls.Add(lbl)
+                    End If
+
+
+
+
+
+
+
+
+
+
+
             End Select
 
         Next
@@ -635,11 +957,27 @@ Partial Class Formtest
             outText = "ERR " & status & " (no IOQuery)"
         End If
 
-        If TypeOf target Is TextBox Then
-            DirectCast(target, TextBox).Text = outText
-        ElseIf TypeOf target Is Label Then
-            DirectCast(target, Label).Text = outText
-        End If
+
+        ' Find ALL controls with that name (textbox + BIGTEXT label + LED etc.)
+        Dim targets = Me.Controls.Find(resultControlName, True)
+
+        For Each target In targets
+            If TypeOf target Is TextBox Then
+                DirectCast(target, TextBox).Text = outText
+
+            ElseIf TypeOf target Is Label Then
+                DirectCast(target, Label).Text = outText
+
+            ElseIf TypeOf target Is Panel Then
+                Dim tagStr = TryCast(target.Tag, String)
+                If Not String.IsNullOrEmpty(tagStr) AndAlso tagStr.StartsWith("LED", StringComparison.OrdinalIgnoreCase) Then
+                    SetLedStateFromText(DirectCast(target, Panel), outText)
+                End If
+            End If
+        Next
+
+
+
     End Sub
 
 
@@ -956,6 +1294,83 @@ Partial Class Formtest
             target = v
         End If
     End Sub
+
+
+    Private Sub Spinner_ValueChanged(sender As Object, e As EventArgs)
+        Dim nud = TryCast(sender, NumericUpDown)
+        If nud Is Nothing Then Exit Sub
+
+        Dim meta = TryCast(nud.Tag, String)
+        If String.IsNullOrEmpty(meta) Then Exit Sub
+
+        Dim p = meta.Split("|"c)
+        If p.Length < 3 Then Exit Sub
+
+        Dim deviceName = p(0)
+        Dim commandPrefix = p(1)
+        Dim scale As Double = 1.0
+        Double.TryParse(p(2), Globalization.NumberStyles.Float,
+                    Globalization.CultureInfo.InvariantCulture, scale)
+
+        Dim valReal As Double = CDbl(nud.Value) * scale
+        Dim valStr As String = valReal.ToString("G", Globalization.CultureInfo.InvariantCulture)
+
+        Dim cmd As String = commandPrefix & " " & valStr
+
+        Dim dev As Object = Nothing
+        If deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
+            dev = dev1
+        ElseIf deviceName.Equals("dev2", StringComparison.OrdinalIgnoreCase) Then
+            dev = dev2
+        End If
+        If dev Is Nothing Then Exit Sub
+
+        dev.SendAsync(cmd, True)
+    End Sub
+
+
+    Private Sub SetLedStateFromText(led As Control, reply As String)
+        If led Is Nothing Then Exit Sub
+
+        ' Defaults
+        Dim onColor As Color = Color.LimeGreen
+        Dim offColor As Color = Color.DarkGray
+        Dim badColor As Color = Color.Gold
+
+        ' Try to read colours from Tag: "LED|on|off|bad"
+        Dim tagStr = TryCast(led.Tag, String)
+        If Not String.IsNullOrEmpty(tagStr) Then
+            Dim p = tagStr.Split("|"c)
+            If p.Length = 4 AndAlso p(0) = "LED" Then
+                Dim argb As Integer
+                If Integer.TryParse(p(1), argb) Then onColor = Color.FromArgb(argb)
+                If Integer.TryParse(p(2), argb) Then offColor = Color.FromArgb(argb)
+                If Integer.TryParse(p(3), argb) Then badColor = Color.FromArgb(argb)
+            End If
+        End If
+
+        Dim t As String = If(reply, "").Trim().ToUpperInvariant()
+        Dim newColor As Color
+
+        Select Case t
+            Case "1", "ON", "TRUE", "HIGH"
+                newColor = onColor
+            Case "0", "OFF", "FALSE", "LOW", ""
+                newColor = offColor
+            Case Else
+                Dim v As Double
+                If Double.TryParse(t, Globalization.NumberStyles.Float,
+                                   Globalization.CultureInfo.InvariantCulture, v) Then
+                    newColor = If(v <> 0, onColor, offColor)
+                Else
+                    newColor = badColor
+                End If
+        End Select
+
+        DirectCast(led, Panel).BackColor = newColor
+    End Sub
+
+
 
 
 
