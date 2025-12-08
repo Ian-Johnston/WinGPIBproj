@@ -32,9 +32,15 @@ Partial Class Formtest
 
     Private Sub BuildCustomGuiFromText(def As String)
 
+        ' Reset per-config runtime state
+        Timer5.Enabled = False
+        AutoReadDeviceName = ""
+        AutoReadCommand = ""
+        AutoReadResultControl = ""
+
         GroupBoxCustom.Controls.Clear()
 
-        Dim autoY As Integer = 10   ' fallback vertical stacking
+        Dim autoY As Integer = 10
 
         For Each rawLine In def.Split({vbCrLf, vbLf}, StringSplitOptions.RemoveEmptyEntries)
 
@@ -816,7 +822,7 @@ Partial Class Formtest
 
 
                 Case "BIGTEXT"
-                    ' BIGTEXT;ControlName;Caption(optional);x=..;y=..;f=..;w=..;h=..
+                    ' BIGTEXT;ControlName;Caption(optional);x=..;y=..;f=..;w=..;h=..;border=on/off
                     If parts.Length >= 2 Then
 
                         Dim controlName As String = parts(1).Trim()
@@ -828,10 +834,13 @@ Partial Class Formtest
                         Dim w As Integer = 200     ' default width
                         Dim h As Integer = 60      ' default height
 
+                        ' NEW: border flag (default = ON, same as your original code)
+                        Dim borderOn As Boolean = True
+
                         ' Parse named tokens
                         For i As Integer = 3 To parts.Length - 1
                             Dim p = parts(i).Trim()
-                            If p.Contains("=") Then
+                            If p.Contains("="c) Then
                                 Dim kv = p.Split("="c)
                                 If kv.Length = 2 Then
                                     Dim key = kv(0).Trim().ToLower()
@@ -843,6 +852,15 @@ Partial Class Formtest
                                         Case "f" : Single.TryParse(val, fontSize)
                                         Case "w" : Integer.TryParse(val, w)
                                         Case "h" : Integer.TryParse(val, h)
+
+                                        Case "border"
+                                            Dim vLower = val.ToLower()
+                                            Select Case vLower
+                                                Case "0", "off", "false", "no", "none"
+                                                    borderOn = False
+                                                Case Else
+                                                    borderOn = True
+                                            End Select
                                     End Select
                                 End If
                             End If
@@ -852,8 +870,10 @@ Partial Class Formtest
                         Dim panel As New Panel()
                         panel.Location = New Point(x, y)
                         panel.Size = New Size(w, h)
-                        panel.BorderStyle = BorderStyle.FixedSingle
                         panel.Name = "Panel_" & controlName
+
+                        panel.BorderStyle = If(borderOn, BorderStyle.FixedSingle, BorderStyle.None)
+                        panel.BackColor = GroupBoxCustom.BackColor
 
                         GroupBoxCustom.Controls.Add(panel)
 
@@ -866,8 +886,12 @@ Partial Class Formtest
                         lbl.Font = New Font(lbl.Font.FontFamily, fontSize, FontStyle.Bold)
                         lbl.Dock = DockStyle.Fill
 
+                        lbl.Text = "#####" ' default text
+
                         panel.Controls.Add(lbl)
                     End If
+
+
 
 
                 ' ======================================
@@ -2014,6 +2038,9 @@ Partial Class Formtest
 
         ch.Invalidate()
     End Sub
+
+
+
 
 
 
