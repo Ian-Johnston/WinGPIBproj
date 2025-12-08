@@ -868,6 +868,157 @@ Partial Class Formtest
                     End If
 
 
+                ' ======================================
+                '   MULTILINE TEXT AREA
+                '   TEXTAREA;Name;Caption;X;Y;W;H
+                '   or token form:
+                '   TEXTAREA;Name;Caption;x=..;y=..;w=..;h=..;init=line1|line2|...
+                ' ======================================
+                Case "TEXTAREA"
+                    If parts.Length < 3 Then Continue For
+
+                    Dim tbName = parts(1).Trim()
+                    Dim labelText = parts(2).Trim()
+
+                    Dim x As Integer = 10
+                    Dim y As Integer = autoY
+                    Dim w As Integer = 300
+                    Dim h As Integer = 100
+                    Dim hasExplicitCoords As Boolean = False
+                    Dim initLines As String() = Nothing
+
+                    ' ----- positional form? (X,Y[,W,H]) -----
+                    If parts.Length >= 5 AndAlso Not parts(3).Contains("="c) Then
+                        ParseIntField(parts(3), x)
+                        ParseIntField(parts(4), y)
+                        hasExplicitCoords = True
+
+                        If parts.Length >= 7 Then ParseIntField(parts(5), w)
+                        If parts.Length >= 8 Then ParseIntField(parts(6), h)
+
+                        ' extra tokens may include init=
+                        For i2 As Integer = 7 To parts.Length - 1
+                            Dim p2 = parts(i2).Trim()
+                            If p2.StartsWith("init=", StringComparison.OrdinalIgnoreCase) Then
+                                Dim val = p2.Substring(5).Trim()
+                                If val <> "" Then initLines = val.Split("|"c)
+                            End If
+                        Next
+
+                    Else
+                        ' ----- token form: x=..;y=..;w=..;h=..;init=... -----
+                        For i2 As Integer = 3 To parts.Length - 1
+                            Dim p2 = parts(i2).Trim()
+                            If Not p2.Contains("="c) Then Continue For
+
+                            Dim kv = p2.Split("="c)
+                            If kv.Length <> 2 Then Continue For
+
+                            Dim key = kv(0).Trim().ToLower()
+                            Dim val = kv(1).Trim()
+
+                            Select Case key
+                                Case "x" : ParseIntField(val, x) : hasExplicitCoords = True
+                                Case "y" : ParseIntField(val, y) : hasExplicitCoords = True
+                                Case "w" : ParseIntField(val, w)
+                                Case "h" : ParseIntField(val, h)
+                                Case "init"
+                                    If val <> "" Then initLines = val.Split("|"c)
+                            End Select
+                        Next
+                    End If
+
+                    ' Label
+                    Dim lbl As New Label()
+                    lbl.Text = labelText
+                    lbl.AutoSize = True
+                    lbl.Location = New Point(x, y)
+                    GroupBoxCustom.Controls.Add(lbl)
+
+                    ' Multiline TextBox below the label
+                    Dim tb As New TextBox()
+                    tb.Name = tbName
+                    tb.Multiline = True
+                    tb.ScrollBars = ScrollBars.Vertical
+                    tb.Location = New Point(x, y + lbl.Height + 3)
+                    tb.Size = New Size(w, h)
+
+                    ' apply init contents if provided
+                    If initLines IsNot Nothing Then
+                        tb.Lines = initLines
+                    End If
+
+                    GroupBoxCustom.Controls.Add(tb)
+
+                    If Not hasExplicitCoords Then
+                        autoY += lbl.Height + h + 8
+                    End If
+
+                    Continue For
+
+                ' ======================================
+                '   TOGGLE BUTTON
+                '   TOGGLE;Name;Caption;Device;CommandOn;CommandOff;X;Y;W;H
+                '   or token form:
+                '   TOGGLE;Name;Caption;Device;CommandOn;CommandOff;x=..;y=..;w=..;h=..
+                ' ======================================
+
+                Case "TOGGLE"
+                    ' TOGGLE;Name;Caption;Device;OnCmd;OffCmd;X;Y;W;H
+                    ' OR token form: x=..;y=..;w=..;h=..
+
+                    If parts.Length >= 6 Then
+
+                        Dim name As String = parts(1).Trim()
+                        Dim caption As String = parts(2).Trim()
+                        Dim device As String = parts(3).Trim()
+                        Dim cmdOn As String = parts(4).Trim()
+                        Dim cmdOff As String = parts(5).Trim()
+
+                        Dim x As Integer = 20, y As Integer = 20, w As Integer = 120, h As Integer = 35
+                        Dim usedPositional As Boolean = False
+
+                        ' Positional
+                        If parts.Length >= 10 AndAlso Not parts(6).Contains("="c) Then
+                            ParseIntField(parts(6), x)
+                            ParseIntField(parts(7), y)
+                            ParseIntField(parts(8), w)
+                            ParseIntField(parts(9), h)
+                            usedPositional = True
+                        End If
+
+                        ' Token format
+                        If Not usedPositional Then
+                            For i As Integer = 6 To parts.Length - 1
+                                Dim p = parts(i).Trim()
+                                If p.Contains("="c) Then
+                                    Dim kv = p.Split("="c)
+                                    If kv.Length = 2 Then
+                                        Select Case kv(0).Trim().ToLower()
+                                            Case "x" : ParseIntField(kv(1), x)
+                                            Case "y" : ParseIntField(kv(1), y)
+                                            Case "w" : ParseIntField(kv(1), w)
+                                            Case "h" : ParseIntField(kv(1), h)
+                                        End Select
+                                    End If
+                                End If
+                            Next
+                        End If
+
+                        ' Create toggle button
+                        Dim b As New Button()
+                        b.Name = name
+                        b.Text = caption
+                        b.Location = New Point(x, y)
+                        b.Size = New Size(w, h)
+
+                        ' Tag holds: DEVICE|ONCMD|OFFCMD|STATE
+                        b.Tag = device & "|" & cmdOn & "|" & cmdOff & "|0"   ' state 0 = OFF
+
+                        AddHandler b.Click, AddressOf ToggleButton_Click
+
+                        GroupBoxCustom.Controls.Add(b)
+                    End If
 
 
 
@@ -1139,6 +1290,32 @@ Partial Class Formtest
                     Timer5.Enabled = False
                 End If
 
+
+            Case "SENDLINES"
+                If dev Is Nothing Then Exit Sub
+
+                Dim valCtrl = TryCast(GetControlByName(valueControlName), TextBox)
+                If valCtrl Is Nothing Then
+                    MessageBox.Show("TEXTAREA not found: " & valueControlName)
+                    Exit Sub
+                End If
+
+                For Each raw In valCtrl.Lines
+                    Dim line = raw.Trim()
+                    If line = "" Then Continue For
+                    If line.StartsWith(";"c) Then Continue For   ' allow comments
+
+                    ' commandOrPrefix may be blank or may include something like "APPLY DCV "
+                    Dim cmd As String
+                    If String.IsNullOrWhiteSpace(commandOrPrefix) Then
+                        cmd = line
+                    Else
+                        cmd = commandOrPrefix & line
+                    End If
+
+                    dev.SendAsync(cmd & TermStr2(), True)
+                Next
+
         End Select
 
     End Sub
@@ -1152,6 +1329,44 @@ Partial Class Formtest
         ' Reset the title text
         GroupBoxCustom.Text = "User Defineable"
 
+    End Sub
+
+
+    Private Sub ToggleButton_Click(sender As Object, e As EventArgs)
+        Dim b As Button = DirectCast(sender, Button)
+
+        Dim tagParts = CStr(b.Tag).Split("|"c)
+        If tagParts.Length < 4 Then Exit Sub
+
+        Dim device = tagParts(0)
+        Dim cmdOn = tagParts(1)
+        Dim cmdOff = tagParts(2)
+        Dim state = CInt(tagParts(3))   ' 0 = OFF, 1 = ON
+
+        ' Pick dev1/dev2
+        Dim dev As Object = Nothing
+        Select Case device.ToLower()
+            Case "dev1" : dev = dev1
+            Case "dev2" : dev = dev2
+        End Select
+        If dev Is Nothing Then Exit Sub
+
+        If state = 0 Then
+            ' Turn ON
+            dev.SendAsync(cmdOn, True)
+            b.BackColor = Color.LimeGreen
+            b.ForeColor = Color.Black
+            state = 1
+        Else
+            ' Turn OFF
+            dev.SendAsync(cmdOff, True)
+            b.BackColor = SystemColors.Control
+            b.ForeColor = SystemColors.ControlText
+            state = 0
+        End If
+
+        ' Update Tag with new state
+        b.Tag = device & "|" & cmdOn & "|" & cmdOff & "|" & state
     End Sub
 
 
@@ -1493,6 +1708,38 @@ Partial Class Formtest
     End Sub
 
 
+    Private Sub SendLinesButton_Click(sender As Object, e As EventArgs)
+        Dim b As Button = DirectCast(sender, Button)
+        Dim meta = CStr(b.Tag).Split("|"c)
+
+        If meta.Length < 2 Then Exit Sub
+
+        Dim areaName = meta(0)
+        Dim deviceName = meta(1)
+
+        Dim tb As TextBox = TryCast(GetControlByName(areaName), TextBox)
+        If tb Is Nothing Then
+            MessageBox.Show("TEXTAREA not found: " & areaName)
+            Exit Sub
+        End If
+
+        ' Get device object
+        Dim dev = If(deviceName = "dev1", dev1, If(deviceName = "dev2", dev2, Nothing))
+        If dev Is Nothing Then
+            MessageBox.Show("Invalid device: " & deviceName)
+            Exit Sub
+        End If
+
+        ' Process each line
+        For Each rawLine In tb.Lines
+            Dim line = rawLine.Trim()
+
+            If line = "" Then Continue For          ' skip blanks
+            If line.StartsWith(";") Then Continue For ' skip comments
+
+            dev.SendAsync(line & TermStr2(), True)
+        Next
+    End Sub
 
 
 
