@@ -4,6 +4,8 @@ Imports IODevices
 Imports System.Threading
 Imports System.Runtime.InteropServices
 Imports System.IO
+Imports System.Windows.Forms.DataVisualization.Charting
+
 
 Partial Class Formtest
 
@@ -1021,6 +1023,166 @@ Partial Class Formtest
                     End If
 
 
+                Case "CHART"
+                    ' CHART;ChartName;Caption;ResultTarget;
+                    '       x=..;y=..;w=..;h=..;ymin=..;ymax=..;xstep=..;maxpoints=..;color=..
+
+                    If parts.Length < 4 Then Continue For
+
+                    Dim chartName As String = parts(1).Trim()
+                    Dim caption As String = parts(2).Trim()
+                    Dim resultTarget As String = parts(3).Trim()
+
+                    ' ---- defaults ----
+                    Dim x As Integer = 20
+                    Dim y As Integer = 20
+                    Dim w As Integer = 250
+                    Dim h As Integer = 120
+                    Dim yMin As Double? = Nothing
+                    Dim yMax As Double? = Nothing
+                    Dim xStep As Double = 1.0R
+                    Dim maxPoints As Integer = 100   ' rolling window length
+                    Dim plotColor As Color = Color.Yellow   ' default trace colour
+
+                    ' ---- parse named tokens ----
+                    For i As Integer = 4 To parts.Length - 1
+                        Dim p = parts(i).Trim()
+                        If Not p.Contains("="c) Then Continue For
+
+                        Dim kv = p.Split("="c)
+                        If kv.Length <> 2 Then Continue For
+
+                        Dim key = kv(0).Trim().ToLower()
+                        Dim val = kv(1).Trim()
+
+                        Select Case key
+                            Case "x" : ParseIntField(val, x)
+                            Case "y" : ParseIntField(val, y)
+                            Case "w" : ParseIntField(val, w)
+                            Case "h" : ParseIntField(val, h)
+
+                            Case "ymin"
+                                Dim d As Double
+                                If Double.TryParse(val, Globalization.NumberStyles.Float,
+                                   Globalization.CultureInfo.InvariantCulture, d) Then
+                                    yMin = d
+                                End If
+
+                            Case "ymax"
+                                Dim d As Double
+                                If Double.TryParse(val, Globalization.NumberStyles.Float,
+                                   Globalization.CultureInfo.InvariantCulture, d) Then
+                                    yMax = d
+                                End If
+
+                            Case "xstep"
+                                Double.TryParse(val, Globalization.NumberStyles.Float,
+                                Globalization.CultureInfo.InvariantCulture, xStep)
+
+                            Case "maxpoints"
+                                Dim mp As Integer
+                                If Integer.TryParse(val, mp) AndAlso mp > 0 Then maxPoints = mp
+
+                            Case "color"
+                                Dim c As Color = Color.FromName(val)
+                                ' FromName returns Empty if invalid
+                                If c.ToArgb() <> Color.Empty.ToArgb() Then
+                                    plotColor = c
+                                End If
+                        End Select
+                    Next
+
+                    ' ---- Caption label above chart ----
+                    Dim lblCap As New Label()
+                    lblCap.Text = caption
+                    lblCap.AutoSize = True
+                    lblCap.Location = New Point(x, y)
+                    GroupBoxCustom.Controls.Add(lblCap)
+
+                    Dim chartTop As Integer = y + lblCap.Height + 3
+
+                    ' ---- Create chart ----
+                    Dim ch As New DataVisualization.Charting.Chart()
+                    ch.Name = chartName
+                    ch.Location = New Point(x, chartTop)
+                    ch.Size = New Size(w, h)
+
+                    Dim ca As New DataVisualization.Charting.ChartArea("Default")
+                    ch.ChartAreas.Add(ca)
+
+                    Dim s As New DataVisualization.Charting.Series("S1")
+                    s.ChartType = DataVisualization.Charting.SeriesChartType.Line
+                    s.BorderWidth = 2
+                    ch.Series.Add(s)
+
+                    ' ---- Apply Y range if specified ----
+                    If yMin.HasValue Then
+                        ca.AxisY.Minimum = yMin.Value
+                    Else
+                        ca.AxisY.Minimum = Double.NaN
+                    End If
+
+                    If yMax.HasValue Then
+                        ca.AxisY.Maximum = yMax.Value
+                    Else
+                        ca.AxisY.Maximum = Double.NaN
+                    End If
+
+                    ' ================================
+                    '   Dark theme, fixed-style grid
+                    ' ================================
+                    ca.BackColor = Color.Black
+                    ch.BackColor = Color.Black
+
+                    ' X-axis: vertical grid ON, but no labels
+                    ca.AxisX.LabelStyle.Enabled = False
+                    ca.AxisX.MajorTickMark.Enabled = False
+                    ca.AxisX.MinorTickMark.Enabled = False
+
+                    ca.AxisX.MajorGrid.Enabled = True
+                    ca.AxisX.MajorGrid.LineColor = Color.FromArgb(60, 60, 60)
+                    ca.AxisX.MajorGrid.LineDashStyle = DataVisualization.Charting.ChartDashStyle.Dot
+                    ca.AxisX.MinorGrid.Enabled = False
+
+                    ' Y-axis: horizontal grid + smaller font
+                    ca.AxisY.MajorGrid.Enabled = True
+                    ca.AxisY.MajorGrid.LineColor = Color.FromArgb(80, 80, 80)
+                    ca.AxisY.MinorGrid.Enabled = False
+                    ca.AxisY.LabelStyle.ForeColor = Color.White
+                    ca.AxisY.LabelStyle.Font = New Font("Segoe UI", 7.0F)
+                    ca.AxisY.MajorTickMark.Enabled = False
+
+                    ' Series styling with INI colour
+                    If ch.Series.Count > 0 Then
+                        Dim s0 = ch.Series(0)
+                        s0.Color = plotColor
+                        s0.BorderWidth = 2
+                        s0.MarkerStyle = DataVisualization.Charting.MarkerStyle.Circle
+                        s0.MarkerSize = 3
+                        s0.MarkerColor = plotColor
+                    End If
+
+                    GroupBoxCustom.Controls.Add(ch)
+
+                    ' ---- Wire chart to the textbox that holds numeric data ----
+                    Dim src = TryCast(GetControlByName(resultTarget), TextBox)
+                    If src IsNot Nothing Then
+                        ' Initial draw
+                        UpdateChartFromText(ch, src.Text, yMin, yMax, xStep, maxPoints)
+
+                        ' Update on every text change
+                        AddHandler src.TextChanged,
+            Sub(senderSrc As Object, eSrc As EventArgs)
+                Dim tbSrc = DirectCast(senderSrc, TextBox)
+                UpdateChartFromText(ch, tbSrc.Text, yMin, yMax, xStep, maxPoints)
+            End Sub
+                    End If
+
+
+
+
+
+
 
 
 
@@ -1740,6 +1902,124 @@ Partial Class Formtest
             dev.SendAsync(line & TermStr2(), True)
         Next
     End Sub
+
+
+    Private Sub UpdateChartFromText(ch As DataVisualization.Charting.Chart,
+                                text As String,
+                                yMin As Double?,
+                                yMax As Double?,
+                                xStepMinutes As Double,
+                                maxPoints As Integer)
+
+        If ch Is Nothing Then Exit Sub
+        If maxPoints <= 0 Then maxPoints = 100
+        If xStepMinutes <= 0 Then xStepMinutes = 1.0R
+
+        ' Ensure a series exists
+        If ch.Series Is Nothing OrElse ch.Series.Count = 0 Then
+            Dim sNew As New DataVisualization.Charting.Series("S1")
+            sNew.ChartType = DataVisualization.Charting.SeriesChartType.Line
+            sNew.BorderWidth = 2
+            sNew.MarkerStyle = DataVisualization.Charting.MarkerStyle.Circle
+            sNew.MarkerSize = 3
+            sNew.MarkerColor = Color.Yellow   ' fallback
+            ch.Series.Add(sNew)
+        End If
+
+        Dim s = ch.Series(0)
+
+        If String.IsNullOrWhiteSpace(text) Then
+            ch.Invalidate()
+            Exit Sub
+        End If
+
+        ' ---- Extract numeric values from textbox text ----
+        Dim tokens = text.Split({","c, ";"c, " "c, ControlChars.Cr, ControlChars.Lf},
+                                StringSplitOptions.RemoveEmptyEntries)
+
+        Dim values As New List(Of Double)
+        For Each tok In tokens
+            Dim d As Double
+            If Double.TryParse(tok.Trim(),
+                               Globalization.NumberStyles.Float,
+                               Globalization.CultureInfo.InvariantCulture,
+                               d) Then
+                values.Add(d)
+            End If
+        Next
+
+        If values.Count = 0 Then
+            ch.Invalidate()
+            Exit Sub
+        End If
+
+        Dim ca = ch.ChartAreas(0)
+
+        ' ---- APPEND if single value, REPLACE if multiple values ----
+        If values.Count = 1 Then
+            ' Streaming DMM behaviour: append one new point
+            Dim lastX As Double
+            If s.Points.Count = 0 Then
+                lastX = 0.0R
+            Else
+                lastX = s.Points(s.Points.Count - 1).XValue
+            End If
+
+            Dim newX As Double = lastX + xStepMinutes
+            s.Points.AddXY(newX, values(0))
+
+        Else
+            ' Multi-value: treat as full history, then trim to last maxPoints
+            s.Points.Clear()
+            For i As Integer = 0 To values.Count - 1
+                Dim xVal As Double = i * xStepMinutes
+                s.Points.AddXY(xVal, values(i))
+            Next
+        End If
+
+        ' ---- ROLLING BUFFER: keep only last maxPoints ----
+        While s.Points.Count > maxPoints
+            s.Points.RemoveAt(0)   ' drop oldest
+        End While
+
+        ' ---- Sliding X window so trace doesn’t squash or vanish ----
+        If s.Points.Count > 0 Then
+            Dim lastX As Double = s.Points(s.Points.Count - 1).XValue
+            Dim window As Double = (maxPoints - 1) * xStepMinutes
+
+            Dim xmin As Double = lastX - window
+            If xmin < 0 Then xmin = 0
+
+            ca.AxisX.Minimum = xmin
+            ca.AxisX.Maximum = lastX
+
+            ' Set a reasonable vertical grid spacing
+            Dim domain As Double = ca.AxisX.Maximum - ca.AxisX.Minimum
+            If domain <= 0 Then domain = xStepMinutes * 10
+            ca.AxisX.Interval = domain / 10.0R
+        End If
+
+        ' ---- Y axis limits (only thing we touch vertically) ----
+        If yMin.HasValue Then
+            ca.AxisY.Minimum = yMin.Value
+        Else
+            ca.AxisY.Minimum = Double.NaN
+        End If
+
+        If yMax.HasValue Then
+            ca.AxisY.Maximum = yMax.Value
+        Else
+            ca.AxisY.Maximum = Double.NaN
+        End If
+
+        ch.Invalidate()
+    End Sub
+
+
+
+
+
+
 
 
 
