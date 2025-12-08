@@ -892,8 +892,6 @@ Partial Class Formtest
                     End If
 
 
-
-
                 ' ======================================
                 '   MULTILINE TEXT AREA
                 '   TEXTAREA;Name;Caption;X;Y;W;H
@@ -1289,9 +1287,7 @@ Partial Class Formtest
     End Function
 
 
-    Private Sub RunQueryToResult(deviceName As String,
-                             commandOrPrefix As String,
-                             resultControlName As String)
+    Private Sub RunQueryToResult(deviceName As String, commandOrPrefix As String, resultControlName As String)
 
         Dim target = GetControlByName(resultControlName)
         If target Is Nothing Then
@@ -1347,12 +1343,16 @@ Partial Class Formtest
                 outText = raw
             End If
 
+        ElseIf status = -1 Then
+            ' Instrument/driver reports "blocking" / busy.
+            ' Just skip this cycle and leave existing display as-is.
+            Exit Sub
+
         ElseIf q IsNot Nothing Then
             outText = "ERR " & status & ": " & q.errmsg
         Else
             outText = "ERR " & status & " (no IOQuery)"
         End If
-
 
         ' Find ALL controls with that name (textbox + BIGTEXT label + LED etc.)
         Dim targets = Me.Controls.Find(resultControlName, True)
