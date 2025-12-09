@@ -225,9 +225,15 @@ Partial Class Formtest
                         cb.Tag = resultName & "|" & funcKey.ToUpperInvariant() & "|" & param
                         cb.Name = "Chk_" & resultName & "_" & funcKey
 
+                        ' Only FuncAuto needs special behaviour when (un)checked
+                        If funcKey.Equals("FuncAuto", StringComparison.OrdinalIgnoreCase) Then
+                            AddHandler cb.CheckedChanged, AddressOf FuncAutoCheckbox_CheckedChanged
+                        End If
+
                         GroupBoxCustom.Controls.Add(cb)
 
                     End If
+
 
                 Case "LABEL"
                     ' LABEL;Caption;x=..;y=..;f=..
@@ -2127,6 +2133,51 @@ Partial Class Formtest
     End Sub
 
 
+    Private Sub FuncAutoCheckbox_CheckedChanged(sender As Object, e As EventArgs)
+        Dim cb = TryCast(sender, CheckBox)
+        If cb Is Nothing Then Exit Sub
+
+        Dim tagStr = TryCast(cb.Tag, String)
+        If String.IsNullOrEmpty(tagStr) Then Exit Sub
+
+        Dim parts = tagStr.Split("|"c)
+        If parts.Length < 2 Then Exit Sub
+
+        Dim resultName As String = parts(0).Trim()
+
+        ' If unchecked → stop auto-read for this result (if it's the active one)
+        If Not cb.Checked Then
+            If String.Equals(AutoReadResultControl, resultName, StringComparison.OrdinalIgnoreCase) Then
+                Timer5.Enabled = False
+            End If
+            Exit Sub
+        End If
+
+        ' Checked: find the QUERY button that feeds this result textbox
+        For Each ctrl As Control In GroupBoxCustom.Controls
+            Dim btn = TryCast(ctrl, Button)
+            If btn Is Nothing Then Continue For
+
+            Dim meta = TryCast(btn.Tag, String)
+            If String.IsNullOrEmpty(meta) Then Continue For
+
+            Dim bp = meta.Split("|"c)
+            If bp.Length < 5 Then Continue For
+
+            Dim action = bp(0)
+            Dim deviceName = bp(1)
+            Dim commandOrPrefix = bp(2)
+            Dim resultControlName = bp(4)
+
+            If String.Equals(action, "QUERY", StringComparison.OrdinalIgnoreCase) AndAlso
+           String.Equals(resultControlName, resultName, StringComparison.OrdinalIgnoreCase) Then
+
+                ' Simulate a click on this QUERY button
+                CustomButton_Click(btn, EventArgs.Empty)
+                Exit For
+            End If
+        Next
+    End Sub
 
 
 
