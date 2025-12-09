@@ -1047,7 +1047,7 @@ Partial Class Formtest
 
                 Case "CHART"
                     ' CHART;ChartName;Caption;ResultTarget;
-                    '       x=..;y=..;w=..;h=..;ymin=..;ymax=..;xstep=..;maxpoints=..;color=..;autoscale=..
+                    '       x=..;y=..;w=..;h=..;ymin=..;ymax=..;xstep=..;maxpoints=..;color=..;autoscale=..;linewidth=..
 
                     If parts.Length < 4 Then Continue For
 
@@ -1063,9 +1063,10 @@ Partial Class Formtest
                     Dim yMin As Double? = Nothing
                     Dim yMax As Double? = Nothing
                     Dim xStep As Double = 1.0R
-                    Dim maxPoints As Integer = 100   ' rolling window length
-                    Dim plotColor As Color = Color.Yellow   ' default trace colour
-                    Dim autoScaleY As Boolean = False       ' NEW: default off
+                    Dim maxPoints As Integer = 100           ' rolling window length
+                    Dim plotColor As Color = Color.Yellow    ' default trace colour
+                    Dim autoScaleY As Boolean = False        ' default off
+                    Dim lineWidth As Integer = 2             ' NEW: default trace width
 
                     ' ---- parse named tokens ----
                     For i As Integer = 4 To parts.Length - 1
@@ -1087,14 +1088,14 @@ Partial Class Formtest
                             Case "ymin"
                                 Dim d As Double
                                 If Double.TryParse(val, Globalization.NumberStyles.Float,
-                                   Globalization.CultureInfo.InvariantCulture, d) Then
+                                                   Globalization.CultureInfo.InvariantCulture, d) Then
                                     yMin = d
                                 End If
 
                             Case "ymax"
                                 Dim d As Double
                                 If Double.TryParse(val, Globalization.NumberStyles.Float,
-                                   Globalization.CultureInfo.InvariantCulture, d) Then
+                                                   Globalization.CultureInfo.InvariantCulture, d) Then
                                     yMax = d
                                 End If
 
@@ -1116,6 +1117,12 @@ Partial Class Formtest
                             Case "autoscale"
                                 Dim v = val.ToLower()
                                 autoScaleY = (v = "yes" OrElse v = "true" OrElse v = "on" OrElse v = "1")
+
+                            Case "linewidth"
+                                Dim lw As Integer
+                                If Integer.TryParse(val, lw) AndAlso lw >= 1 AndAlso lw <= 10 Then
+                                    lineWidth = lw
+                                End If
                         End Select
                     Next
 
@@ -1139,7 +1146,7 @@ Partial Class Formtest
 
                     Dim s As New DataVisualization.Charting.Series("S1")
                     s.ChartType = DataVisualization.Charting.SeriesChartType.Line
-                    s.BorderWidth = 2
+                    s.BorderWidth = lineWidth   ' use configured line width
                     ch.Series.Add(s)
 
                     ' ---- Apply Y range if specified (fixed mode only) ----
@@ -1189,7 +1196,7 @@ Partial Class Formtest
                     If ch.Series.Count > 0 Then
                         Dim s0 = ch.Series(0)
                         s0.Color = plotColor
-                        s0.BorderWidth = 2
+                        s0.BorderWidth = lineWidth   ' use configured line width
                         s0.MarkerStyle = DataVisualization.Charting.MarkerStyle.Circle
                         s0.MarkerSize = 3
                         s0.MarkerColor = plotColor
@@ -1210,6 +1217,7 @@ Partial Class Formtest
                                 UpdateChartFromText(ch, tbSrc.Text, yMin, yMax, xStep, maxPoints, autoScaleY)
                             End Sub
                     End If
+
 
 
 
@@ -1403,7 +1411,6 @@ Partial Class Formtest
     End Function
 
 
-
     Private Sub CustomButton_Click(sender As Object, e As EventArgs)
 
         Dim b = DirectCast(sender, Button)
@@ -1411,16 +1418,20 @@ Partial Class Formtest
         Dim parts = meta.Split("|"c)
         If parts.Length < 3 Then Exit Sub
 
-        Dim action = parts(0)                 ' SEND / SENDVALUE / QUERY
-        Dim deviceName = parts(1)             ' "dev1" / "dev2"
+        Dim action = parts(0)                 ' SEND / SENDVALUE / QUERY / SENDLINES / CLEARCHART
+        Dim deviceName = parts(1)             ' "dev1" / "dev2" / or ChartName for CLEARCHART
         Dim commandOrPrefix = parts(2)
         Dim valueControlName = If(parts.Length > 3, parts(3), "")
         Dim resultControlName = If(parts.Length > 4, parts(4), "")
 
-        Dim dev = GetDeviceByName(deviceName)
-        If dev Is Nothing Then
-            MessageBox.Show("Device not available: " & deviceName)
-            Exit Sub
+        ' Only resolve a GPIB device for actions that actually need one
+        Dim dev As IODevices.IODevice = Nothing
+        If Not String.Equals(action, "CLEARCHART", StringComparison.OrdinalIgnoreCase) Then
+            dev = GetDeviceByName(deviceName)
+            If dev Is Nothing Then
+                MessageBox.Show("Device not available: " & deviceName)
+                Exit Sub
+            End If
         End If
 
         Select Case action
@@ -1437,7 +1448,6 @@ Partial Class Formtest
 
                 Dim cmd = commandOrPrefix & valCtrl.Text.Trim()
                 dev.SendAsync(cmd, True)
-
 
             Case "QUERY"
 
@@ -1464,9 +1474,9 @@ Partial Class Formtest
 
                         Dim secs As Double
                         If Double.TryParse(numeric,
-                       Globalization.NumberStyles.Float,
-                       Globalization.CultureInfo.InvariantCulture,
-                       secs) AndAlso secs > 0.0R Then
+                                       Globalization.NumberStyles.Float,
+                                       Globalization.CultureInfo.InvariantCulture,
+                                       secs) AndAlso secs > 0.0R Then
 
                             intervalMs = CInt(secs * 1000.0R)
                             Timer5.Interval = intervalMs
@@ -1487,7 +1497,6 @@ Partial Class Formtest
                     ' No auto-read requested - ensure timer is off for this path
                     Timer5.Enabled = False
                 End If
-
 
             Case "SENDLINES"
                 If dev Is Nothing Then Exit Sub
@@ -1513,6 +1522,13 @@ Partial Class Formtest
 
                     dev.SendAsync(cmd & TermStr2(), True)
                 Next
+
+            Case "CLEARCHART"
+                ' deviceName here is actually the ChartName (e.g. "ChartDMM")
+                Dim ch = TryCast(GetControlByName(deviceName), DataVisualization.Charting.Chart)
+                If ch IsNot Nothing AndAlso ch.Series.Count > 0 Then
+                    ch.Series(0).Points.Clear()
+                End If
 
         End Select
 
@@ -1972,15 +1988,15 @@ Partial Class Formtest
 
         ' ---- Extract numeric values from textbox text ----
         Dim tokens = text.Split({","c, ";"c, " "c, ControlChars.Cr, ControlChars.Lf},
-                            StringSplitOptions.RemoveEmptyEntries)
+                                StringSplitOptions.RemoveEmptyEntries)
 
         Dim values As New List(Of Double)
         For Each tok In tokens
             Dim d As Double
             If Double.TryParse(tok.Trim(),
-                           Globalization.NumberStyles.Float,
-                           Globalization.CultureInfo.InvariantCulture,
-                           d) Then
+                               Globalization.NumberStyles.Float,
+                               Globalization.CultureInfo.InvariantCulture,
+                               d) Then
                 values.Add(d)
             End If
         Next
@@ -2038,32 +2054,55 @@ Partial Class Formtest
 
         ' ---- Y axis limits ----
         If autoScaleY Then
-            ' Compute min/max from current points
+            ' Compute min/max from current points, ignoring crazy values
             If s.Points.Count > 0 Then
+                Const AXIS_LIMIT As Double = 1.0E+28  ' safe range for Decimal
+
+                Dim anyValid As Boolean = False
                 Dim minY As Double = Double.MaxValue
                 Dim maxY As Double = Double.MinValue
 
                 For Each pt As DataVisualization.Charting.DataPoint In s.Points
-                    If pt.YValues IsNot Nothing AndAlso pt.YValues.Length > 0 Then
-                        Dim v As Double = pt.YValues(0)
-                        If v < minY Then minY = v
-                        If v > maxY Then maxY = v
-                    End If
+                    If pt.YValues Is Nothing OrElse pt.YValues.Length = 0 Then Continue For
+
+                    Dim v As Double = pt.YValues(0)
+
+                    ' Ignore NaN / Infinity / values outside Decimal-safe range
+                    If Double.IsNaN(v) OrElse Double.IsInfinity(v) Then Continue For
+                    If Math.Abs(v) > AXIS_LIMIT Then Continue For
+
+                    anyValid = True
+                    If v < minY Then minY = v
+                    If v > maxY Then maxY = v
                 Next
 
-                If minY = Double.MaxValue OrElse maxY = Double.MinValue Then
+                If Not anyValid Then
                     ca.AxisY.Minimum = Double.NaN
                     ca.AxisY.Maximum = Double.NaN
                 ElseIf minY = maxY Then
                     ' Flat line: add a small pad
                     Dim pad As Double = If(Math.Abs(minY) < 1.0R, 0.1R, Math.Abs(minY) * 0.1R)
-                    ca.AxisY.Minimum = minY - pad
-                    ca.AxisY.Maximum = maxY + pad
+                    Dim yLo As Double = minY - pad
+                    Dim yHi As Double = maxY + pad
+
+                    ' Clamp to safe range
+                    If yLo < -AXIS_LIMIT Then yLo = -AXIS_LIMIT
+                    If yHi > AXIS_LIMIT Then yHi = AXIS_LIMIT
+
+                    ca.AxisY.Minimum = yLo
+                    ca.AxisY.Maximum = yHi
                 Else
                     Dim range As Double = maxY - minY
                     Dim pad As Double = range * 0.05R
-                    ca.AxisY.Minimum = minY - pad
-                    ca.AxisY.Maximum = maxY + pad
+                    Dim yLo As Double = minY - pad
+                    Dim yHi As Double = maxY + pad
+
+                    ' Clamp to safe range
+                    If yLo < -AXIS_LIMIT Then yLo = -AXIS_LIMIT
+                    If yHi > AXIS_LIMIT Then yHi = AXIS_LIMIT
+
+                    ca.AxisY.Minimum = yLo
+                    ca.AxisY.Maximum = yHi
                 End If
             Else
                 ca.AxisY.Minimum = Double.NaN
@@ -2086,6 +2125,7 @@ Partial Class Formtest
 
         ch.Invalidate()
     End Sub
+
 
 
 
