@@ -306,7 +306,65 @@ Partial Class Formtest
 
         End If
 
+
+        ' ============================
+        ' Fixed X window so trace appears
+        ' at the right and scrolls left
+        ' ============================
+        If DisableRollingChart.Checked = False Then
+
+            If Chart1.ChartAreas.Count > 0 Then
+                Dim ca = Chart1.ChartAreas(0)
+
+                ' How many points wide should the visible window be?
+                Dim windowN As Integer
+                If Not Integer.TryParse(XaxisPoints.Text, windowN) OrElse windowN < 2 Then
+                    windowN = 100
+                End If
+
+                ' Pick the first series that actually has data
+                Dim sRef As DataVisualization.Charting.Series = Nothing
+                For si As Integer = 0 To Chart1.Series.Count - 1
+                    If Chart1.Series(si).Points.Count > 0 Then
+                        sRef = Chart1.Series(si)
+                        Exit For
+                    End If
+                Next
+
+                If sRef IsNot Nothing Then
+                    ' Use the point index as X (0,1,2,...) instead of XValue
+                    Dim lastIndex As Integer = sRef.Points.Count - 1
+                    Dim window As Integer = windowN - 1
+
+                    Dim xmin As Double = lastIndex - window
+                    Dim xmax As Double = lastIndex
+
+                    ca.AxisX.Minimum = xmin
+                    ca.AxisX.Maximum = xmax
+
+                    Dim domain As Double = window
+                    If domain <= 0 Then domain = 10.0R
+                    ca.AxisX.Interval = domain / 10.0R
+                Else
+                    ' No points yet – let chart decide
+                    ca.AxisX.Minimum = Double.NaN
+                    ca.AxisX.Maximum = Double.NaN
+                    ca.AxisX.Interval = Double.NaN
+                End If
+            End If
+
+        Else
+            ' Rolling disabled – let chart auto-manage X axis
+            If Chart1.ChartAreas.Count > 0 Then
+                Dim ca = Chart1.ChartAreas(0)
+                ca.AxisX.Minimum = Double.NaN
+                ca.AxisX.Maximum = Double.NaN
+                ca.AxisX.Interval = Double.NaN
+            End If
+        End If
+
     End Sub
+
 
 
     ' Create a list to store log entries

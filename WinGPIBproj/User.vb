@@ -1963,12 +1963,12 @@ Partial Class Formtest
 
 
     Private Sub UpdateChartFromText(ch As DataVisualization.Charting.Chart,
-                            text As String,
-                            yMin As Double?,
-                            yMax As Double?,
-                            xStepMinutes As Double,
-                            maxPoints As Integer,
-                            autoScaleY As Boolean)
+                        text As String,
+                        yMin As Double?,
+                        yMax As Double?,
+                        xStepMinutes As Double,
+                        maxPoints As Integer,
+                        autoScaleY As Boolean)
 
         If ch Is Nothing Then Exit Sub
         If maxPoints <= 0 Then maxPoints = 100
@@ -1994,15 +1994,15 @@ Partial Class Formtest
 
         ' ---- Extract numeric values from textbox text ----
         Dim tokens = text.Split({","c, ";"c, " "c, ControlChars.Cr, ControlChars.Lf},
-                                StringSplitOptions.RemoveEmptyEntries)
+                            StringSplitOptions.RemoveEmptyEntries)
 
         Dim values As New List(Of Double)
         For Each tok In tokens
             Dim d As Double
             If Double.TryParse(tok.Trim(),
-                               Globalization.NumberStyles.Float,
-                               Globalization.CultureInfo.InvariantCulture,
-                               d) Then
+                           Globalization.NumberStyles.Float,
+                           Globalization.CultureInfo.InvariantCulture,
+                           d) Then
                 values.Add(d)
             End If
         Next
@@ -2041,19 +2041,19 @@ Partial Class Formtest
             s.Points.RemoveAt(0)   ' drop oldest
         End While
 
-        ' ---- Sliding X window so trace doesn’t squash or vanish ----
+        ' ---- Sliding X window with fixed width (new points enter from the right) ----
         If s.Points.Count > 0 Then
             Dim lastX As Double = s.Points(s.Points.Count - 1).XValue
             Dim window As Double = (maxPoints - 1) * xStepMinutes
 
             Dim xmin As Double = lastX - window
-            If xmin < 0 Then xmin = 0
+            Dim xmax As Double = lastX
 
             ca.AxisX.Minimum = xmin
-            ca.AxisX.Maximum = lastX
+            ca.AxisX.Maximum = xmax
 
-            ' Set a reasonable vertical grid spacing
-            Dim domain As Double = ca.AxisX.Maximum - ca.AxisX.Minimum
+            ' Use the window for grid spacing
+            Dim domain As Double = window
             If domain <= 0 Then domain = xStepMinutes * 10
             ca.AxisX.Interval = domain / 10.0R
         End If
@@ -2131,6 +2131,7 @@ Partial Class Formtest
 
         ch.Invalidate()
     End Sub
+
 
 
     Private Sub FuncAutoCheckbox_CheckedChanged(sender As Object, e As EventArgs)
