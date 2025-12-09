@@ -1047,7 +1047,7 @@ Partial Class Formtest
 
                 Case "CHART"
                     ' CHART;ChartName;Caption;ResultTarget;
-                    '       x=..;y=..;w=..;h=..;ymin=..;ymax=..;xstep=..;maxpoints=..;color=..
+                    '       x=..;y=..;w=..;h=..;ymin=..;ymax=..;xstep=..;maxpoints=..;color=..;autoscale=..
 
                     If parts.Length < 4 Then Continue For
 
@@ -1065,6 +1065,7 @@ Partial Class Formtest
                     Dim xStep As Double = 1.0R
                     Dim maxPoints As Integer = 100   ' rolling window length
                     Dim plotColor As Color = Color.Yellow   ' default trace colour
+                    Dim autoScaleY As Boolean = False       ' NEW: default off
 
                     ' ---- parse named tokens ----
                     For i As Integer = 4 To parts.Length - 1
@@ -1099,7 +1100,7 @@ Partial Class Formtest
 
                             Case "xstep"
                                 Double.TryParse(val, Globalization.NumberStyles.Float,
-                                Globalization.CultureInfo.InvariantCulture, xStep)
+                                                Globalization.CultureInfo.InvariantCulture, xStep)
 
                             Case "maxpoints"
                                 Dim mp As Integer
@@ -1111,6 +1112,10 @@ Partial Class Formtest
                                 If c.ToArgb() <> Color.Empty.ToArgb() Then
                                     plotColor = c
                                 End If
+
+                            Case "autoscale"
+                                Dim v = val.ToLower()
+                                autoScaleY = (v = "yes" OrElse v = "true" OrElse v = "on" OrElse v = "1")
                         End Select
                     Next
 
@@ -1137,16 +1142,22 @@ Partial Class Formtest
                     s.BorderWidth = 2
                     ch.Series.Add(s)
 
-                    ' ---- Apply Y range if specified ----
-                    If yMin.HasValue Then
-                        ca.AxisY.Minimum = yMin.Value
-                    Else
-                        ca.AxisY.Minimum = Double.NaN
-                    End If
+                    ' ---- Apply Y range if specified (fixed mode only) ----
+                    If Not autoScaleY Then
+                        If yMin.HasValue Then
+                            ca.AxisY.Minimum = yMin.Value
+                        Else
+                            ca.AxisY.Minimum = Double.NaN
+                        End If
 
-                    If yMax.HasValue Then
-                        ca.AxisY.Maximum = yMax.Value
+                        If yMax.HasValue Then
+                            ca.AxisY.Maximum = yMax.Value
+                        Else
+                            ca.AxisY.Maximum = Double.NaN
+                        End If
                     Else
+                        ' Let UpdateChartFromText handle Y limits
+                        ca.AxisY.Minimum = Double.NaN
                         ca.AxisY.Maximum = Double.NaN
                     End If
 
@@ -1190,15 +1201,16 @@ Partial Class Formtest
                     Dim src = TryCast(GetControlByName(resultTarget), TextBox)
                     If src IsNot Nothing Then
                         ' Initial draw
-                        UpdateChartFromText(ch, src.Text, yMin, yMax, xStep, maxPoints)
+                        UpdateChartFromText(ch, src.Text, yMin, yMax, xStep, maxPoints, autoScaleY)
 
                         ' Update on every text change
                         AddHandler src.TextChanged,
-            Sub(senderSrc As Object, eSrc As EventArgs)
-                Dim tbSrc = DirectCast(senderSrc, TextBox)
-                UpdateChartFromText(ch, tbSrc.Text, yMin, yMax, xStep, maxPoints)
-            End Sub
+                            Sub(senderSrc As Object, eSrc As EventArgs)
+                                Dim tbSrc = DirectCast(senderSrc, TextBox)
+                                UpdateChartFromText(ch, tbSrc.Text, yMin, yMax, xStep, maxPoints, autoScaleY)
+                            End Sub
                     End If
+
 
 
 
@@ -1929,11 +1941,12 @@ Partial Class Formtest
 
 
     Private Sub UpdateChartFromText(ch As DataVisualization.Charting.Chart,
-                                text As String,
-                                yMin As Double?,
-                                yMax As Double?,
-                                xStepMinutes As Double,
-                                maxPoints As Integer)
+                            text As String,
+                            yMin As Double?,
+                            yMax As Double?,
+                            xStepMinutes As Double,
+                            maxPoints As Integer,
+                            autoScaleY As Boolean)
 
         If ch Is Nothing Then Exit Sub
         If maxPoints <= 0 Then maxPoints = 100
@@ -1959,15 +1972,15 @@ Partial Class Formtest
 
         ' ---- Extract numeric values from textbox text ----
         Dim tokens = text.Split({","c, ";"c, " "c, ControlChars.Cr, ControlChars.Lf},
-                                StringSplitOptions.RemoveEmptyEntries)
+                            StringSplitOptions.RemoveEmptyEntries)
 
         Dim values As New List(Of Double)
         For Each tok In tokens
             Dim d As Double
             If Double.TryParse(tok.Trim(),
-                               Globalization.NumberStyles.Float,
-                               Globalization.CultureInfo.InvariantCulture,
-                               d) Then
+                           Globalization.NumberStyles.Float,
+                           Globalization.CultureInfo.InvariantCulture,
+                           d) Then
                 values.Add(d)
             End If
         Next
@@ -2023,17 +2036,52 @@ Partial Class Formtest
             ca.AxisX.Interval = domain / 10.0R
         End If
 
-        ' ---- Y axis limits (only thing we touch vertically) ----
-        If yMin.HasValue Then
-            ca.AxisY.Minimum = yMin.Value
-        Else
-            ca.AxisY.Minimum = Double.NaN
-        End If
+        ' ---- Y axis limits ----
+        If autoScaleY Then
+            ' Compute min/max from current points
+            If s.Points.Count > 0 Then
+                Dim minY As Double = Double.MaxValue
+                Dim maxY As Double = Double.MinValue
 
-        If yMax.HasValue Then
-            ca.AxisY.Maximum = yMax.Value
+                For Each pt As DataVisualization.Charting.DataPoint In s.Points
+                    If pt.YValues IsNot Nothing AndAlso pt.YValues.Length > 0 Then
+                        Dim v As Double = pt.YValues(0)
+                        If v < minY Then minY = v
+                        If v > maxY Then maxY = v
+                    End If
+                Next
+
+                If minY = Double.MaxValue OrElse maxY = Double.MinValue Then
+                    ca.AxisY.Minimum = Double.NaN
+                    ca.AxisY.Maximum = Double.NaN
+                ElseIf minY = maxY Then
+                    ' Flat line: add a small pad
+                    Dim pad As Double = If(Math.Abs(minY) < 1.0R, 0.1R, Math.Abs(minY) * 0.1R)
+                    ca.AxisY.Minimum = minY - pad
+                    ca.AxisY.Maximum = maxY + pad
+                Else
+                    Dim range As Double = maxY - minY
+                    Dim pad As Double = range * 0.05R
+                    ca.AxisY.Minimum = minY - pad
+                    ca.AxisY.Maximum = maxY + pad
+                End If
+            Else
+                ca.AxisY.Minimum = Double.NaN
+                ca.AxisY.Maximum = Double.NaN
+            End If
         Else
-            ca.AxisY.Maximum = Double.NaN
+            ' Fixed/manual Y range (existing behaviour)
+            If yMin.HasValue Then
+                ca.AxisY.Minimum = yMin.Value
+            Else
+                ca.AxisY.Minimum = Double.NaN
+            End If
+
+            If yMax.HasValue Then
+                ca.AxisY.Maximum = yMax.Value
+            Else
+                ca.AxisY.Maximum = Double.NaN
+            End If
         End If
 
         ch.Invalidate()
