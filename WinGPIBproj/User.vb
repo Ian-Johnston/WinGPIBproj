@@ -16,6 +16,9 @@ Partial Class Formtest
     Dim intervalMs As Integer = 2000
     Private originalCustomControls As List(Of Control)
 
+    ' Current engineering unit (e.g. Ω, kΩ, MΩ, mA, µA) taken from the selected RADIO
+    Private CurrentUserUnit As String = ""
+
     ' Current scale factor for USER-tab numeric result (e.g. Ω → kΩ)
     Private CurrentUserScale As Double = 1.0
 
@@ -495,7 +498,6 @@ Partial Class Formtest
                     End If
 
 
-
                 Case "SLIDER"
                     ' Supports:
                     ' SLIDER;Name;Caption;Device;Command;X;Y;W;Min;Max;Step;Scale
@@ -624,6 +626,7 @@ Partial Class Formtest
                         End If
 
                     End If
+
 
                 Case "HR"
                     ' Supports:
@@ -892,7 +895,7 @@ Partial Class Formtest
 
 
                 Case "BIGTEXT"
-                    ' BIGTEXT;ControlName;Caption(optional);x=..;y=..;f=..;w=..;h=..;border=on/off
+                    ' BIGTEXT;ControlName;Caption(optional);x=..;y=..;f=..;w=..;h=..;border=on/off;units=on/off
                     If parts.Length >= 2 Then
 
                         Dim controlName As String = parts(1).Trim()
@@ -904,8 +907,9 @@ Partial Class Formtest
                         Dim w As Integer = 200     ' default width
                         Dim h As Integer = 60      ' default height
 
-                        ' NEW: border flag (default = ON, same as your original code)
+                        ' Defaults:
                         Dim borderOn As Boolean = True
+                        Dim unitsOn As Boolean = True
 
                         ' Parse named tokens
                         For i As Integer = 3 To parts.Length - 1
@@ -924,12 +928,19 @@ Partial Class Formtest
                                         Case "h" : Integer.TryParse(val, h)
 
                                         Case "border"
-                                            Dim vLower = val.ToLower()
-                                            Select Case vLower
+                                            Select Case val.Trim().ToLower()
                                                 Case "0", "off", "false", "no", "none"
                                                     borderOn = False
                                                 Case Else
                                                     borderOn = True
+                                            End Select
+
+                                        Case "units"
+                                            Select Case val.Trim().ToLower()
+                                                Case "0", "off", "false", "no", "none"
+                                                    unitsOn = False
+                                                Case Else
+                                                    unitsOn = True
                                             End Select
                                     End Select
                                 End If
@@ -941,7 +952,6 @@ Partial Class Formtest
                         panel.Location = New Point(x, y)
                         panel.Size = New Size(w, h)
                         panel.Name = "Panel_" & controlName
-
                         panel.BorderStyle = If(borderOn, BorderStyle.FixedSingle, BorderStyle.None)
                         panel.BackColor = GroupBoxCustom.BackColor
 
@@ -956,10 +966,16 @@ Partial Class Formtest
                         lbl.Font = New Font(lbl.Font.FontFamily, fontSize, FontStyle.Bold)
                         lbl.Dock = DockStyle.Fill
 
-                        lbl.Text = "#####" ' default text
+                        lbl.Text = "#####"
+
+                        ' NEW: mark BIGTEXT labels that should NOT show units
+                        If Not unitsOn Then
+                            lbl.Tag = "BIGTEXT_UNITS_OFF"
+                        End If
 
                         panel.Controls.Add(lbl)
                     End If
+
 
 
                 ' ======================================
@@ -1378,8 +1394,8 @@ Partial Class Formtest
 
 
     Private Sub RunQueryToResult(deviceName As String,
-                             commandOrPrefix As String,
-                             resultControlName As String)
+                          commandOrPrefix As String,
+                          resultControlName As String)
 
         Dim target = GetControlByName(resultControlName)
         If target Is Nothing Then
@@ -1390,10 +1406,8 @@ Partial Class Formtest
         ' Resolve device name
         Dim dev As IODevices.IODevice = Nothing
         Select Case deviceName.ToLowerInvariant()
-            Case "dev1"
-                dev = dev1
-            Case "dev2"
-                dev = dev2
+            Case "dev1" : dev = dev1
+            Case "dev2" : dev = dev2
         End Select
 
         If dev Is Nothing Then
@@ -1410,16 +1424,19 @@ Partial Class Formtest
         Dim raw As String = ""
         Dim outText As String = ""
 
+        ' Extra: keep both numeric-only and numeric+unit text if we have them
+        Dim numericText As String = ""
+        Dim numericWithUnitText As String = ""
+
         If status = 0 AndAlso q IsNot Nothing Then
+
             raw = q.ResponseAsString.Trim()
 
-            ' Optional decimal formatting via FuncDecimal checkbox
             Dim decCb As CheckBox = GetCheckboxFor(resultControlName, "FuncDecimal")
 
-            ' Per-range scale (set by RADIO scale=...)
             Dim scale As Double = CurrentUserScale
-
             Dim d As Double
+
             If Double.TryParse(raw,
                            Globalization.NumberStyles.Float,
                            Globalization.CultureInfo.InvariantCulture,
@@ -1427,17 +1444,19 @@ Partial Class Formtest
 
                 Dim v As Double = d
 
-                ' AUTO-SCALE MODE:
-                ' If a RADIO with scale=auto or scale=auto|... is active,
-                ' optionally query the current range and compute a dynamic scale.
-                If CurrentUserScaleIsAuto AndAlso dev IsNot Nothing AndAlso
-                   Not String.IsNullOrWhiteSpace(CurrentUserRangeQuery) Then
+                ' ============================
+                '    AUTO SCALE MODE LOGIC
+                ' ============================
+                If CurrentUserScaleIsAuto AndAlso
+               dev IsNot Nothing AndAlso
+               Not String.IsNullOrWhiteSpace(CurrentUserRangeQuery) Then
 
                     Try
                         Dim rq As IODevices.IOQuery = Nothing
                         Dim st2 As Integer = dev.QueryBlocking(CurrentUserRangeQuery & TermStr2(), rq, False)
 
                         If st2 = 0 AndAlso rq IsNot Nothing Then
+
                             Dim rngStr As String = rq.ResponseAsString.Trim()
                             Dim rngVal As Double
 
@@ -1449,42 +1468,50 @@ Partial Class Formtest
                                 Dim dynScale As Double = ComputeAutoScaleFromRange(rngVal)
                                 v = d * dynScale
                             Else
-                                ' Fallback: keep existing numeric scale
-                                v = d * scale
+                                v = d * scale    ' fallback
                             End If
                         Else
-                            ' Fallback if range query fails
-                            v = d * scale
+                            v = d * scale        ' fallback
                         End If
 
                     Catch
-                        ' On any exception, fall back to normal scaling
-                        v = d * scale
+                        v = d * scale            ' fallback
                     End Try
 
                 Else
-                    ' Normal fixed scale path
+                    ' FIXED SCALE MODE
                     v = d * scale
                 End If
 
-                If decCb IsNot Nothing AndAlso decCb.Checked Then
-                    ' Decimal view, nicely formatted
-                    outText = v.ToString("0.###############",
-                                     Globalization.CultureInfo.InvariantCulture)
-                ElseIf Math.Abs(v - d) > 0.0000000001R OrElse
-                       Math.Abs(scale - 1.0R) > 0.0000000001R OrElse
-                       CurrentUserScaleIsAuto Then
+                ' ============================
+                '      OUTPUT FORMATTING
+                ' ============================
+                Dim valueStr As String
 
-                    ' If scaled in any way → generic numeric format
-                    outText = v.ToString("G",
-                                     Globalization.CultureInfo.InvariantCulture)
+                If decCb IsNot Nothing AndAlso decCb.Checked Then
+                    valueStr = v.ToString("0.###############",
+                                      Globalization.CultureInfo.InvariantCulture)
+                ElseIf Math.Abs(v - d) > 0.0000000001R OrElse
+                   Math.Abs(scale - 1.0R) > 0.0000000001R OrElse
+                   CurrentUserScaleIsAuto Then
+
+                    valueStr = v.ToString("G",
+                                      Globalization.CultureInfo.InvariantCulture)
                 Else
-                    ' No scaling & no decimal formatting → preserve raw string
-                    outText = raw
+                    valueStr = raw
                 End If
 
+                numericText = valueStr
+
+                If Not String.IsNullOrEmpty(CurrentUserUnit) Then
+                    numericWithUnitText = valueStr & " " & CurrentUserUnit
+                Else
+                    numericWithUnitText = valueStr
+                End If
+
+                outText = numericWithUnitText
+
             Else
-                ' Not numeric, just pass through
                 outText = raw
             End If
 
@@ -1494,22 +1521,43 @@ Partial Class Formtest
             outText = "ERR " & status & " (no IOQuery)"
         End If
 
-        ' Fan-out to all controls with that name (textbox + BIGTEXT label + LED etc.)
+        ' ============================
+        '      FAN-OUT TO CONTROLS
+        ' ============================
         Dim targets = Me.Controls.Find(resultControlName, True)
 
         For Each targetCtrl In targets
+
             If TypeOf targetCtrl Is TextBox Then
-                DirectCast(targetCtrl, TextBox).Text = outText
+                ' TextBox always gets value WITH units if we have it
+                If numericWithUnitText <> "" Then
+                    DirectCast(targetCtrl, TextBox).Text = numericWithUnitText
+                Else
+                    DirectCast(targetCtrl, TextBox).Text = outText
+                End If
 
             ElseIf TypeOf targetCtrl Is Label Then
-                DirectCast(targetCtrl, Label).Text = outText
+                Dim lbl = DirectCast(targetCtrl, Label)
+                Dim tagStr = TryCast(lbl.Tag, String)
+
+                ' BIGTEXT with units=off → numeric only
+                If tagStr IsNot Nothing AndAlso tagStr = "BIGTEXT_UNITS_OFF" AndAlso numericText <> "" Then
+                    lbl.Text = numericText
+                ElseIf numericWithUnitText <> "" Then
+                    lbl.Text = numericWithUnitText
+                Else
+                    lbl.Text = outText
+                End If
 
             ElseIf TypeOf targetCtrl Is Panel Then
                 Dim tagStr = TryCast(targetCtrl.Tag, String)
-                If Not String.IsNullOrEmpty(tagStr) AndAlso tagStr.StartsWith("LED", StringComparison.OrdinalIgnoreCase) Then
+                If Not String.IsNullOrEmpty(tagStr) AndAlso
+               tagStr.StartsWith("LED", StringComparison.OrdinalIgnoreCase) Then
+
                     SetLedStateFromText(DirectCast(targetCtrl, Panel), outText)
                 End If
             End If
+
         Next
 
     End Sub
@@ -1759,7 +1807,7 @@ Partial Class Formtest
 
 
     Private Sub Radio_CheckedChanged(sender As Object, e As EventArgs)
-        Dim rb = TryCast(sender, RadioButton)
+        Dim rb As RadioButton = TryCast(sender, RadioButton)
         If rb Is Nothing Then Exit Sub
 
         ' Only act when it becomes checked, not when unchecked
@@ -1768,13 +1816,15 @@ Partial Class Formtest
         Dim meta As String = TryCast(rb.Tag, String)
         If String.IsNullOrEmpty(meta) Then Exit Sub
 
-        Dim parts = meta.Split("|"c)
+        Dim parts() As String = meta.Split("|"c)
         If parts.Length < 2 Then Exit Sub
 
         Dim deviceName As String = parts(0)
         Dim command As String = parts(1)
 
-        ' Reset scale state each time a RADIO is chosen
+        ' ===============================
+        '   RESET SCALE / AUTO STATE
+        ' ===============================
         CurrentUserScaleIsAuto = False
         CurrentUserRangeQuery = ""
         Dim scale As Double = 1.0
@@ -1790,15 +1840,64 @@ Partial Class Formtest
                 End If
             Else
                 Double.TryParse(parts(2),
-                        Globalization.NumberStyles.Float,
-                        Globalization.CultureInfo.InvariantCulture,
-                        scale)
+                            Globalization.NumberStyles.Float,
+                            Globalization.CultureInfo.InvariantCulture,
+                            scale)
             End If
         End If
 
         ' Apply scale for subsequent reads (used when not in AUTO)
         CurrentUserScale = scale
 
+        ' ===============================
+        '   MODE vs RANGE DETECTION
+        ' ===============================
+        Dim cap As String = rb.Text.Trim()
+        Dim lastSpace As Integer = cap.LastIndexOf(" "c)
+
+        Dim isModeRadio As Boolean = (lastSpace < 0)
+
+        If isModeRadio Then
+            ' ---------------------------------
+            ' MODE RADIO:
+            '   - Clear units
+            '   - Clear all other radio selections
+            ' ---------------------------------
+            CurrentUserUnit = ""
+
+            ' Uncheck all other radios in all dynamic groups
+            For Each ctrl As Control In GroupBoxCustom.Controls
+                Dim gb As GroupBox = TryCast(ctrl, GroupBox)
+                If gb Is Nothing Then Continue For
+
+                For Each child As Control In gb.Controls
+                    Dim r As RadioButton = TryCast(child, RadioButton)
+                    If r Is Nothing Then Continue For
+
+                    ' Don't touch the one we just checked
+                    If r Is rb Then Continue For
+
+                    ' This will not recurse badly because the handler exits
+                    ' at the top when rb.Checked = False
+                    r.Checked = False
+                Next
+            Next
+
+        Else
+            ' ---------------------------------
+            ' RANGE RADIO:
+            '   - Derive unit from caption's last token
+            ' ---------------------------------
+            Dim unit As String = ""
+            If lastSpace >= 0 AndAlso lastSpace < cap.Length - 1 Then
+                unit = cap.Substring(lastSpace + 1).Trim()
+            End If
+            CurrentUserUnit = unit
+        End If
+
+        ' ===============================
+        '   SEND THE RADIO COMMAND
+        ' ===============================
         Dim dev As IODevices.IODevice = Nothing
 
         Select Case deviceName.ToLowerInvariant()
@@ -1814,7 +1913,6 @@ Partial Class Formtest
 
         dev.SendAsync(command, True)
     End Sub
-
 
 
     Private Sub Slider_Scroll(sender As Object, e As EventArgs)
