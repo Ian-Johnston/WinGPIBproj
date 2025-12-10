@@ -16,6 +16,12 @@ Partial Class Formtest
     Dim intervalMs As Integer = 2000
     Private originalCustomControls As List(Of Control)
 
+    ' Current scale factor for USER-tab numeric result (e.g. Ω → kΩ)
+    Private CurrentUserScale As Double = 1.0
+
+    ' auto-scale state for USER tab
+    Private CurrentUserScaleIsAuto As Boolean = False
+    Private CurrentUserRangeQuery As String = ""
 
     ' TXT Format:
     ' BUTTON;Caption;Action;Device;CommandOrPrefix;ValueControl;ResultControl
@@ -40,6 +46,8 @@ Partial Class Formtest
 
         GroupBoxCustom.Controls.Clear()
 
+        CurrentUserScale = 1.0   ' reset scale each time we load a layout
+
         Dim autoY As Integer = 10
 
         For Each rawLine In def.Split({vbCrLf, vbLf}, StringSplitOptions.RemoveEmptyEntries)
@@ -63,14 +71,14 @@ Partial Class Formtest
                     GroupBoxCustom.Text = title   ' <-- your custom GroupBox
                     Continue For
 
-' ======================================
-'   CREATE A LABELED TEXTBOX FROM TXT
-'   TEXTBOX;Name;Label text;X;Y
-'   or with extras:
-'   TEXTBOX;Name;Label text;X;Y;W;H;readonly=true
-'   or token form:
-'   TEXTBOX;Name;Label text;x=..;y=..;w=..;h=..;readonly=true
-' ======================================
+                ' ======================================
+                '   CREATE A LABELED TEXTBOX FROM TXT
+                '   TEXTBOX;Name;Label text;X;Y
+                '   or with extras:
+                '   TEXTBOX;Name;Label text;X;Y;W;H;readonly=true
+                '   or token form:
+                '   TEXTBOX;Name;Label text;x=..;y=..;w=..;h=..;readonly=true
+                ' ======================================
                 Case "TEXTBOX"
                     If parts.Length < 3 Then Continue For
 
@@ -301,7 +309,6 @@ Partial Class Formtest
                     End If
 
 
-
                 Case "DROPDOWN"
                     ' Format:
                     ' DROPDOWN;ControlName;Caption;DeviceName;CommandPrefix;X;Y;Width;Item1,Item2,Item3...
@@ -358,6 +365,7 @@ Partial Class Formtest
 
                     GroupBoxCustom.Controls.Add(cb)
 
+
                 Case "RADIOGROUP"
                     ' RADIOGROUP;GroupName;Caption;X;Y;Width;Height
                     ' Example:
@@ -388,10 +396,13 @@ Partial Class Formtest
 
                     End If
 
+
                 Case "RADIO"
                     ' RADIO;GroupName;Caption;DeviceName;Command;X;Y
                     ' Example:
-                    ' RADIO;DCRange;10 V;dev1;:SENS:VOLT:DC:RANG 10;10;20
+                    ' RADIO;DCRange;10 V;dev1;:SENS:VOLT:DC:RANG 10;x=10;y=70;scale=1
+                    ' Or with auto-scale:
+                    ' RADIO;DCIRange;Auto;dev1;:SENS:CURR:DC:RANG:AUTO ON;x=10;y=20;scale=auto|:SENS:CURR:DC:RANG?
 
                     If parts.Length >= 7 Then
 
@@ -403,8 +414,51 @@ Partial Class Formtest
                         Dim relX As Integer = 0
                         Dim relY As Integer = 0
 
+                        ' X/Y (positional or token form)
                         If parts.Length > 5 Then ParseIntField(parts(5), relX)
                         If parts.Length > 6 Then ParseIntField(parts(6), relY)
+
+                        ' Optional scale token
+                        ' Supports:
+                        '   scale=1.0        (numeric)
+                        '   scale=auto       (auto-scale, no range query)
+                        '   scale=auto|CMD?  (auto-scale, with per-meter range query)
+                        Dim scale As Double = 1.0
+                        Dim scaleIsAuto As Boolean = False
+                        Dim rangeQueryForAuto As String = ""
+
+                        If parts.Length > 7 Then
+                            For i As Integer = 7 To parts.Length - 1
+                                Dim tok = parts(i).Trim()
+                                If tok.Contains("="c) Then
+                                    Dim kv = tok.Split("="c)
+                                    If kv.Length = 2 Then
+                                        Dim key = kv(0).Trim().ToLower()
+                                        Dim val = kv(1).Trim()
+
+                                        If key = "scale" Then
+                                            Dim lower = val.ToLowerInvariant()
+
+                                            If lower.StartsWith("auto") Then
+                                                ' auto or auto|<query>
+                                                scaleIsAuto = True
+
+                                                Dim pipeIdx As Integer = val.IndexOf("|"c)
+                                                If pipeIdx >= 0 AndAlso pipeIdx < val.Length - 1 Then
+                                                    rangeQueryForAuto = val.Substring(pipeIdx + 1).Trim()
+                                                End If
+                                            Else
+                                                ' numeric scale (existing behaviour)
+                                                Double.TryParse(val,
+                                                    Globalization.NumberStyles.Float,
+                                                    Globalization.CultureInfo.InvariantCulture,
+                                                    scale)
+                                            End If
+                                        End If
+                                    End If
+                                End If
+                            Next
+                        End If
 
                         ' Find the parent group box
                         Dim parentName As String = "RG_" & groupName
@@ -423,14 +477,24 @@ Partial Class Formtest
                         rb.AutoSize = True
                         rb.Location = New Point(relX, relY)
 
-                        ' Tag encodes: deviceName|command
-                        rb.Tag = deviceName & "|" & command
+                        ' Tag encodes:
+                        '   device|command|scale            (numeric)
+                        '   device|command|AUTO|rangeQuery  (auto)
+                        If scaleIsAuto Then
+                            rb.Tag = deviceName & "|" & command & "|" &
+                                     "AUTO" & "|" & rangeQueryForAuto
+                        Else
+                            rb.Tag = deviceName & "|" & command & "|" &
+                                     scale.ToString(Globalization.CultureInfo.InvariantCulture)
+                        End If
 
                         AddHandler rb.CheckedChanged, AddressOf Radio_CheckedChanged
 
                         gb.Controls.Add(rb)
 
                     End If
+
+
 
                 Case "SLIDER"
                     ' Supports:
@@ -1313,7 +1377,9 @@ Partial Class Formtest
     End Function
 
 
-    Private Sub RunQueryToResult(deviceName As String, commandOrPrefix As String, resultControlName As String)
+    Private Sub RunQueryToResult(deviceName As String,
+                             commandOrPrefix As String,
+                             resultControlName As String)
 
         Dim target = GetControlByName(resultControlName)
         If target Is Nothing Then
@@ -1321,17 +1387,13 @@ Partial Class Formtest
             Exit Sub
         End If
 
-        ' Resolve device name (dev1, dev2, ...)
-        ' IMPORTANT: dev must NOT be Object – it must be the same type as dev1/dev2.
-        ' Assuming dev1/dev2 are IODevices.IODevice (or similar), type it accordingly.
+        ' Resolve device name
         Dim dev As IODevices.IODevice = Nothing
-
         Select Case deviceName.ToLowerInvariant()
             Case "dev1"
                 dev = dev1
             Case "dev2"
                 dev = dev2
-                ' add more devices here if you have them
         End Select
 
         If dev Is Nothing Then
@@ -1343,7 +1405,7 @@ Partial Class Formtest
         Dim status As Integer
 
         Dim fullCmd As String = commandOrPrefix & TermStr2()
-        status = dev.QueryBlocking(fullCmd, q, False)   ' now a strongly-typed call
+        status = dev.QueryBlocking(fullCmd, q, False)
 
         Dim raw As String = ""
         Dim outText As String = ""
@@ -1354,25 +1416,77 @@ Partial Class Formtest
             ' Optional decimal formatting via FuncDecimal checkbox
             Dim decCb As CheckBox = GetCheckboxFor(resultControlName, "FuncDecimal")
 
-            If decCb IsNot Nothing AndAlso decCb.Checked Then
-                Dim d As Double
-                If Double.TryParse(raw,
-                               Globalization.NumberStyles.Float,
-                               Globalization.CultureInfo.InvariantCulture,
-                               d) Then
-                    outText = d.ToString("0.###############",
+            ' Per-range scale (set by RADIO scale=...)
+            Dim scale As Double = CurrentUserScale
+
+            Dim d As Double
+            If Double.TryParse(raw,
+                           Globalization.NumberStyles.Float,
+                           Globalization.CultureInfo.InvariantCulture,
+                           d) Then
+
+                Dim v As Double = d
+
+                ' AUTO-SCALE MODE:
+                ' If a RADIO with scale=auto or scale=auto|... is active,
+                ' optionally query the current range and compute a dynamic scale.
+                If CurrentUserScaleIsAuto AndAlso dev IsNot Nothing AndAlso
+                   Not String.IsNullOrWhiteSpace(CurrentUserRangeQuery) Then
+
+                    Try
+                        Dim rq As IODevices.IOQuery = Nothing
+                        Dim st2 As Integer = dev.QueryBlocking(CurrentUserRangeQuery & TermStr2(), rq, False)
+
+                        If st2 = 0 AndAlso rq IsNot Nothing Then
+                            Dim rngStr As String = rq.ResponseAsString.Trim()
+                            Dim rngVal As Double
+
+                            If Double.TryParse(rngStr,
+                                           Globalization.NumberStyles.Float,
+                                           Globalization.CultureInfo.InvariantCulture,
+                                           rngVal) Then
+
+                                Dim dynScale As Double = ComputeAutoScaleFromRange(rngVal)
+                                v = d * dynScale
+                            Else
+                                ' Fallback: keep existing numeric scale
+                                v = d * scale
+                            End If
+                        Else
+                            ' Fallback if range query fails
+                            v = d * scale
+                        End If
+
+                    Catch
+                        ' On any exception, fall back to normal scaling
+                        v = d * scale
+                    End Try
+
+                Else
+                    ' Normal fixed scale path
+                    v = d * scale
+                End If
+
+                If decCb IsNot Nothing AndAlso decCb.Checked Then
+                    ' Decimal view, nicely formatted
+                    outText = v.ToString("0.###############",
+                                     Globalization.CultureInfo.InvariantCulture)
+                ElseIf Math.Abs(v - d) > 0.0000000001R OrElse
+                       Math.Abs(scale - 1.0R) > 0.0000000001R OrElse
+                       CurrentUserScaleIsAuto Then
+
+                    ' If scaled in any way → generic numeric format
+                    outText = v.ToString("G",
                                      Globalization.CultureInfo.InvariantCulture)
                 Else
+                    ' No scaling & no decimal formatting → preserve raw string
                     outText = raw
                 End If
+
             Else
+                ' Not numeric, just pass through
                 outText = raw
             End If
-
-        ElseIf status = -1 Then
-            ' Instrument/driver reports "blocking" / busy.
-            ' Just skip this cycle and leave existing display as-is.
-            Exit Sub
 
         ElseIf q IsNot Nothing Then
             outText = "ERR " & status & ": " & q.errmsg
@@ -1380,28 +1494,25 @@ Partial Class Formtest
             outText = "ERR " & status & " (no IOQuery)"
         End If
 
-        ' Find ALL controls with that name (textbox + BIGTEXT label + LED etc.)
+        ' Fan-out to all controls with that name (textbox + BIGTEXT label + LED etc.)
         Dim targets = Me.Controls.Find(resultControlName, True)
 
-        For Each target In targets
-            If TypeOf target Is TextBox Then
-                DirectCast(target, TextBox).Text = outText
+        For Each targetCtrl In targets
+            If TypeOf targetCtrl Is TextBox Then
+                DirectCast(targetCtrl, TextBox).Text = outText
 
-            ElseIf TypeOf target Is Label Then
-                DirectCast(target, Label).Text = outText
+            ElseIf TypeOf targetCtrl Is Label Then
+                DirectCast(targetCtrl, Label).Text = outText
 
-            ElseIf TypeOf target Is Panel Then
-                Dim tagStr = TryCast(target.Tag, String)
+            ElseIf TypeOf targetCtrl Is Panel Then
+                Dim tagStr = TryCast(targetCtrl.Tag, String)
                 If Not String.IsNullOrEmpty(tagStr) AndAlso tagStr.StartsWith("LED", StringComparison.OrdinalIgnoreCase) Then
-                    SetLedStateFromText(DirectCast(target, Panel), outText)
+                    SetLedStateFromText(DirectCast(targetCtrl, Panel), outText)
                 End If
             End If
         Next
 
-
-
     End Sub
-
 
 
     Private Function GetCheckboxParam(cb As CheckBox) As String
@@ -1663,6 +1774,31 @@ Partial Class Formtest
         Dim deviceName As String = parts(0)
         Dim command As String = parts(1)
 
+        ' Reset scale state each time a RADIO is chosen
+        CurrentUserScaleIsAuto = False
+        CurrentUserRangeQuery = ""
+        Dim scale As Double = 1.0
+
+        ' Tag formats:
+        '   device|command|scale
+        '   device|command|AUTO|rangeQuery
+        If parts.Length >= 3 Then
+            If String.Equals(parts(2), "AUTO", StringComparison.OrdinalIgnoreCase) Then
+                CurrentUserScaleIsAuto = True
+                If parts.Length >= 4 Then
+                    CurrentUserRangeQuery = parts(3).Trim()
+                End If
+            Else
+                Double.TryParse(parts(2),
+                        Globalization.NumberStyles.Float,
+                        Globalization.CultureInfo.InvariantCulture,
+                        scale)
+            End If
+        End If
+
+        ' Apply scale for subsequent reads (used when not in AUTO)
+        CurrentUserScale = scale
+
         Dim dev As IODevices.IODevice = Nothing
 
         Select Case deviceName.ToLowerInvariant()
@@ -1678,6 +1814,7 @@ Partial Class Formtest
 
         dev.SendAsync(command, True)
     End Sub
+
 
 
     Private Sub Slider_Scroll(sender As Object, e As EventArgs)
@@ -1963,16 +2100,19 @@ Partial Class Formtest
 
 
     Private Sub UpdateChartFromText(ch As DataVisualization.Charting.Chart,
-                        text As String,
-                        yMin As Double?,
-                        yMax As Double?,
-                        xStepMinutes As Double,
-                        maxPoints As Integer,
-                        autoScaleY As Boolean)
+                    text As String,
+                    yMin As Double?,
+                    yMax As Double?,
+                    xStepMinutes As Double,
+                    maxPoints As Integer,
+                    autoScaleY As Boolean)
 
         If ch Is Nothing Then Exit Sub
         If maxPoints <= 0 Then maxPoints = 100
         If xStepMinutes <= 0 Then xStepMinutes = 1.0R
+
+        ' Safety limit for chart values (protects against OVERLOAD / huge numbers)
+        Const AXIS_LIMIT As Double = 1.0E+28
 
         ' Ensure a series exists
         If ch.Series Is Nothing OrElse ch.Series.Count = 0 Then
@@ -1994,7 +2134,7 @@ Partial Class Formtest
 
         ' ---- Extract numeric values from textbox text ----
         Dim tokens = text.Split({","c, ";"c, " "c, ControlChars.Cr, ControlChars.Lf},
-                            StringSplitOptions.RemoveEmptyEntries)
+                        StringSplitOptions.RemoveEmptyEntries)
 
         Dim values As New List(Of Double)
         For Each tok In tokens
@@ -2003,7 +2143,14 @@ Partial Class Formtest
                            Globalization.NumberStyles.Float,
                            Globalization.CultureInfo.InvariantCulture,
                            d) Then
-                values.Add(d)
+
+                ' Ignore NaN / Infinity / huge “OVERLOAD” values
+                If Not Double.IsNaN(d) AndAlso
+               Not Double.IsInfinity(d) AndAlso
+               Math.Abs(d) <= AXIS_LIMIT Then
+
+                    values.Add(d)
+                End If
             End If
         Next
 
@@ -2062,7 +2209,6 @@ Partial Class Formtest
         If autoScaleY Then
             ' Compute min/max from current points, ignoring crazy values
             If s.Points.Count > 0 Then
-                Const AXIS_LIMIT As Double = 1.0E+28  ' safe range for Decimal
 
                 Dim anyValid As Boolean = False
                 Dim minY As Double = Double.MaxValue
@@ -2133,7 +2279,6 @@ Partial Class Formtest
     End Sub
 
 
-
     Private Sub FuncAutoCheckbox_CheckedChanged(sender As Object, e As EventArgs)
         Dim cb = TryCast(sender, CheckBox)
         If cb Is Nothing Then Exit Sub
@@ -2179,6 +2324,48 @@ Partial Class Formtest
             End If
         Next
     End Sub
+
+
+    ' Compute a display scale factor from a numeric range value
+    ' Generic engineering-prefix style:
+    '   very small ranges -> n / µ / m
+    '   mid ranges        -> base units
+    '   large ranges      -> k / M
+    Private Function ComputeAutoScaleFromRange(rangeVal As Double) As Double
+        Dim a As Double = Math.Abs(rangeVal)
+
+        If a <= 0 OrElse Double.IsNaN(a) OrElse Double.IsInfinity(a) Then
+            Return 1.0
+        End If
+
+        ' Below 1 µ → n-units
+        If a < 0.000001 Then
+            Return 1000000000.0     ' n
+        End If
+
+        ' 1 µ .. < 1 m → µ-units
+        If a < 0.001 Then
+            Return 1000000.0     ' µ
+        End If
+
+        ' 1 m .. < 1 → m-units
+        If a < 1.0 Then
+            Return 1000.0     ' m
+        End If
+
+        ' 1 .. < 1 k → base units
+        If a < 1000.0 Then
+            Return 1.0       ' base
+        End If
+
+        ' 1 k .. < 1 M → k-units
+        If a < 1000000.0 Then
+            Return 0.001    ' k
+        End If
+
+        ' >= 1 M → M-units
+        Return 0.000001        ' M
+    End Function
 
 
 
