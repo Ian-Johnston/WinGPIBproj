@@ -1504,7 +1504,7 @@ Partial Class Formtest
                 numericText = valueStr
 
                 If Not String.IsNullOrEmpty(CurrentUserUnit) Then
-                    numericWithUnitText = valueStr & " " & CurrentUserUnit
+                    numericWithUnitText = valueStr & "   " & CurrentUserUnit
                 Else
                     numericWithUnitText = valueStr
                 End If
@@ -1516,10 +1516,20 @@ Partial Class Formtest
             End If
 
         ElseIf q IsNot Nothing Then
+
+            ' Treat "Blocking" as a non-fatal "busy" condition – keep old value
+            If status = -1 AndAlso Not String.IsNullOrEmpty(q.errmsg) AndAlso
+           q.errmsg.IndexOf("Blocking", StringComparison.OrdinalIgnoreCase) >= 0 Then
+
+                ' Just bail out without touching any controls
+                Exit Sub
+            End If
+
             outText = "ERR " & status & ": " & q.errmsg
         Else
             outText = "ERR " & status & " (no IOQuery)"
         End If
+
 
         ' ============================
         '      FAN-OUT TO CONTROLS
