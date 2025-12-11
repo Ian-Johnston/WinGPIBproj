@@ -314,10 +314,10 @@ Partial Class Formtest
 
                 Case "DROPDOWN"
                     ' Format:
-                    ' DROPDOWN;ControlName;Caption;DeviceName;CommandPrefix;X;Y;Width;Item1,Item2,Item3...
+                    ' DROPDOWN;ControlName;Caption;DeviceName;CommandPrefix;X;Y;Width;Item1,Item2,Item3...;captionpos=1/2
                     '
-                    ' Example:
-                    ' DROPDOWN;ComboNPLC;NPLC:;dev1;:VOLT:DC:NPLC ;400;40;120;1,10,100
+                    ' captionpos=1 (default) -> Caption label to the left, first combo item is blank.
+                    ' captionpos=2           -> No label; caption used as first combo item (placeholder, no command).
 
                     If parts.Length < 9 Then Continue For
 
@@ -337,31 +337,70 @@ Partial Class Formtest
                     Dim itemsRaw = parts(8).Trim()
                     Dim items = itemsRaw.Split(","c)
 
-                    ' Label next to dropdown
-                    Dim lbl As New Label()
-                    lbl.Text = caption
-                    lbl.AutoSize = True
-                    lbl.Location = New Point(x, y)
-                    GroupBoxCustom.Controls.Add(lbl)
+                    ' Optional: caption position flag
+                    ' 1 = label beside dropdown (default)
+                    ' 2 = caption as first item in dropdown
+                    Dim captionPos As Integer = 1
+
+                    If parts.Length > 9 Then
+                        For i As Integer = 9 To parts.Length - 1
+                            Dim p As String = parts(i).Trim()
+                            If p.Contains("="c) Then
+                                Dim kv = p.Split("="c)
+                                If kv.Length = 2 Then
+                                    Dim key = kv(0).Trim().ToLower()
+                                    Dim val = kv(1).Trim()
+
+                                    If key = "captionpos" Then
+                                        Integer.TryParse(val, captionPos)
+                                        If captionPos <> 1 AndAlso captionPos <> 2 Then
+                                            captionPos = 1
+                                        End If
+                                    End If
+                                End If
+                            End If
+                        Next
+                    End If
 
                     ' Create dropdown (height not used)
                     Dim cb As New ComboBox()
                     cb.Name = ctrlName
                     cb.DropDownStyle = ComboBoxStyle.DropDownList
-                    cb.Location = New Point(x + lbl.PreferredWidth + 8, y - 3)
+
+                    If captionPos = 1 Then
+                        ' Label next to dropdown
+                        Dim lbl As New Label()
+                        lbl.Text = caption
+                        lbl.AutoSize = True
+                        lbl.Location = New Point(x, y)
+                        GroupBoxCustom.Controls.Add(lbl)
+
+                        cb.Location = New Point(x + lbl.PreferredWidth + 8, y - 3)
+                    Else
+                        ' No label; place combo directly at (x,y)
+                        cb.Location = New Point(x, y)
+                    End If
+
                     cb.Size = New Size(w, cb.Height)
 
-                    ' Blank first item
-                    cb.Items.Add("")
+                    ' First item:
+                    '   captionPos=1 -> blank
+                    '   captionPos=2 -> caption text as placeholder
+                    If captionPos = 1 Then
+                        cb.Items.Add("")                ' true blank
+                    Else
+                        cb.Items.Add(caption)           ' placeholder, acts like blank
+                    End If
 
                     ' Add items
                     For Each it In items
-                        If it.Trim() <> "" Then cb.Items.Add(it.Trim())
+                        Dim s As String = it.Trim()
+                        If s <> "" Then cb.Items.Add(s)
                     Next
 
                     cb.SelectedIndex = 0
 
-                    ' Tag holds Device + CommandPrefix
+                    ' Tag holds Device + CommandPrefix (extra info can be added later if needed)
                     cb.Tag = deviceName & "|" & commandPrefix
 
                     AddHandler cb.SelectedIndexChanged, AddressOf Dropdown_SelectedIndexChanged
@@ -1803,12 +1842,15 @@ Partial Class Formtest
             Exit Sub
         End If
 
+        ' First entry (index 0) is always a placeholder (blank or caption) → do nothing
+        If cb.SelectedIndex <= 0 Then Exit Sub
+
         Dim selected As String = ""
         If cb.SelectedItem IsNot Nothing Then
             selected = cb.SelectedItem.ToString().Trim()
         End If
 
-        ' Blank entry → do nothing
+        ' Extra safety: blank entry → do nothing
         If selected = "" Then Exit Sub
 
         Dim cmd As String = commandPrefix & " " & selected
