@@ -5,6 +5,7 @@ Imports System.Threading
 Imports System.Runtime.InteropServices
 Imports System.IO
 Imports System.Windows.Forms.DataVisualization.Charting
+Imports System.Text.RegularExpressions
 
 
 Partial Class Formtest
@@ -25,6 +26,50 @@ Partial Class Formtest
     ' auto-scale state for USER tab
     Private CurrentUserScaleIsAuto As Boolean = False
     Private CurrentUserRangeQuery As String = ""
+
+    ' GPIB engine selection for USER tab ("standalone" or "native")
+    Private GpibEngineMode As String = "standalone"
+
+    Private ReadOnly Property UsenativeGpibEngine As Boolean
+        Get
+            Return String.Equals(GpibEngineMode, "native", StringComparison.OrdinalIgnoreCase)
+        End Get
+    End Property
+
+    ' Decide whether SendAsync should report errors for a given device
+    Private Function GetSendUseErrorFlag(deviceName As String) As Boolean
+        Dim useErr As Boolean = True
+        If UsenativeGpibEngine AndAlso deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
+            useErr = Not IgnoreErrors1.Checked
+        End If
+        Return useErr
+    End Function
+
+
+    ' Apply DEVICES-tab polling / STB mask settings (currently Dev1 only)
+    Private Sub ApplyPollingSettingsForDevice(dev As IODevices.IODevice, deviceName As String)
+        If dev Is Nothing Then Exit Sub
+
+        If deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
+            If Dev1PollingEnable.Checked Then
+                dev.enablepoll = True
+            Else
+                dev.enablepoll = False
+            End If
+
+            If Dev1STBMask.Text = "" Then
+                Dev1STBMask.Text = "16"
+            End If
+
+            dev.MAVmask = Val(Dev1STBMask.Text)
+
+            If Dev1STBMask.Text = "0" Then
+                dev.enablepoll = False
+                Dev1PollingEnable.Checked = False
+            End If
+        End If
+    End Sub
+
 
     ' TXT Format:
     ' BUTTON;Caption;Action;Device;CommandOrPrefix;ValueControl;ResultControl
@@ -57,6 +102,18 @@ Partial Class Formtest
 
             Dim line = rawLine.Trim()
             If line = "" OrElse line.StartsWith(";") Then Continue For
+
+            ' NEW: Global GPIB engine selector for USER tab
+            ' e.g.  GPIBengine=native   or   GPIBengine=standalone
+            If line.StartsWith("GPIBengine=", StringComparison.OrdinalIgnoreCase) Then
+                Dim val As String = line.Substring("GPIBengine=".Length).Trim()
+                If String.Equals(val, "native", StringComparison.OrdinalIgnoreCase) Then
+                    GpibEngineMode = "native"
+                Else
+                    GpibEngineMode = "standalone"
+                End If
+                Continue For
+            End If
 
             Dim parts = line.Split(";"c)
             If parts.Length < 2 Then Continue For
@@ -1343,20 +1400,6 @@ Partial Class Formtest
                             End Sub
                     End If
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             End Select
 
         Next
@@ -1454,11 +1497,28 @@ Partial Class Formtest
             Exit Sub
         End If
 
+        If UsenativeGpibEngine Then
+            ApplyPollingSettingsForDevice(dev, deviceName)
+        End If
+
         Dim q As IODevices.IOQuery = Nothing
         Dim status As Integer
 
-        Dim fullCmd As String = commandOrPrefix & TermStr2()
-        status = dev.QueryBlocking(fullCmd, q, False)
+        If UsenativeGpibEngine Then
+            ' Built-in DEVICES-style path
+            Dim cmdText As String = commandOrPrefix
+            txtq1b.Text = cmdText
+
+            status = dev.QueryBlocking(txtq1b.Text & TermStr2(), q, True)
+
+            If status = 0 AndAlso q IsNot Nothing Then
+                txtr1b.Text = q.ResponseAsString
+            End If
+        Else
+            ' Standalone USER-tab path (original behaviour)
+            Dim fullCmd As String = commandOrPrefix & TermStr2()
+            status = dev.QueryBlocking(fullCmd, q, False)
+        End If
 
         Dim raw As String = ""
         Dim outText As String = ""
@@ -1466,17 +1526,69 @@ Partial Class Formtest
         ' Extra: keep both numeric-only and numeric+unit text if we have them
         Dim numericText As String = ""
         Dim numericWithUnitText As String = ""
+        Dim forceText As Boolean = False   ' NEW: honour Dev1TextResponse
 
         If status = 0 AndAlso q IsNot Nothing Then
 
             raw = q.ResponseAsString.Trim()
+
+            ' Device-specific tweaks for native engine (Dev1 only for now)
+            If UsenativeGpibEngine AndAlso deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
+
+                ' 4) HP 3457A 7th-digit handling
+                If Dev13457Aseven.Checked Then
+                    temp3457A_Dev1 = raw
+
+                    If Dev1_3457A Then
+                        ' second (7th digit) part
+                        inst_value1_3457A_2 = CDbl(Val(temp3457A_Dev1))
+                        Dev1_3457A = False
+                        inst_value1_3457A_sum = inst_value1_3457A_1 + inst_value1_3457A_2
+                        raw = inst_value1_3457A_sum.ToString("G", Globalization.CultureInfo.InvariantCulture)
+                    Else
+                        ' first part (digits 1–6) → wait for second response
+                        inst_value1_3457A_1 = CDbl(Val(temp3457A_Dev1))
+                        Dev1_3457A = True
+                        ' do not update any controls yet
+                        Exit Sub
+                    End If
+                End If
+
+                ' 5) Remove leading letters (e.g. Racal-Dana 1991 "FA+00000.0000")
+                If Dev1removeletters.Checked AndAlso raw.Length > 2 Then
+                    raw = raw.Remove(0, 2)
+                End If
+
+                ' 6) Keithley 2001 – isolate data before marker char
+                If Dev1K2001isolatedata.Checked AndAlso Dev1K2001isolatedataCHAR.Text <> "" Then
+                    Dim marker As String = Dev1K2001isolatedataCHAR.Text
+                    Dim idx As Integer = raw.IndexOf(marker, StringComparison.Ordinal)
+                    If idx >= 0 Then
+                        raw = raw.Substring(0, idx)
+                    End If
+                End If
+
+                ' 7) Regex numeric isolation
+                If Dev1Regex.Checked Then
+                    Dim pattern As String = "[-+]?\d*\.?\d+([eE][-+]?\d+)?"
+                    Dim m As Match = Regex.Match(raw, pattern)
+                    If m.Success Then
+                        raw = m.Value
+                    End If
+                End If
+
+                ' 8) Treat response as pure text, not numeric
+                If Dev1TextResponse.Checked Then
+                    forceText = True
+                End If
+            End If
 
             Dim decCb As CheckBox = GetCheckboxFor(resultControlName, "FuncDecimal")
 
             Dim scale As Double = CurrentUserScale
             Dim d As Double
 
-            If Double.TryParse(raw,
+            If (Not forceText) AndAlso Double.TryParse(raw,
                            Globalization.NumberStyles.Float,
                            Globalization.CultureInfo.InvariantCulture,
                            d) Then
@@ -1520,6 +1632,19 @@ Partial Class Formtest
                 Else
                     ' FIXED SCALE MODE
                     v = d * scale
+                End If
+
+                ' Extra Dev1-only scale switches when using native engine
+                If UsenativeGpibEngine AndAlso deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
+                    ' 2) Divide by 1000
+                    If Div1000Dev1.Checked Then
+                        v = v / 1000.0R
+                    End If
+
+                    ' 3) Multiply by 1000
+                    If Mult1000Dev1.Checked Then
+                        v = v * 1000.0R
+                    End If
                 End If
 
                 ' ============================
@@ -1651,7 +1776,12 @@ Partial Class Formtest
         Select Case action
 
             Case "SEND"
-                dev.SendAsync(commandOrPrefix, True)
+                Dim cmdToSend As String = commandOrPrefix
+                If UsenativeGpibEngine Then
+                    txtq1c.Text = cmdToSend
+                End If
+                Dim useErr As Boolean = GetSendUseErrorFlag(deviceName)
+                dev.SendAsync(cmdToSend, useErr)
 
             Case "SENDVALUE"
                 Dim valCtrl = TryCast(GetControlByName(valueControlName), TextBox)
@@ -1660,8 +1790,12 @@ Partial Class Formtest
                     Exit Sub
                 End If
 
-                Dim cmd = commandOrPrefix & valCtrl.Text.Trim()
-                dev.SendAsync(cmd, True)
+                Dim cmd As String = commandOrPrefix & valCtrl.Text.Trim()
+                If UsenativeGpibEngine Then
+                    txtq1c.Text = cmd
+                End If
+                Dim useErr As Boolean = GetSendUseErrorFlag(deviceName)
+                dev.SendAsync(cmd, useErr)
 
             Case "QUERY"
 
@@ -1688,9 +1822,9 @@ Partial Class Formtest
 
                         Dim secs As Double
                         If Double.TryParse(numeric,
-                                       Globalization.NumberStyles.Float,
-                                       Globalization.CultureInfo.InvariantCulture,
-                                       secs) AndAlso secs > 0.0R Then
+                                   Globalization.NumberStyles.Float,
+                                   Globalization.CultureInfo.InvariantCulture,
+                                   secs) AndAlso secs > 0.0R Then
 
                             intervalMs = CInt(secs * 1000.0R)
                             Timer5.Interval = intervalMs
@@ -1734,7 +1868,12 @@ Partial Class Formtest
                         cmd = commandOrPrefix & line
                     End If
 
-                    dev.SendAsync(cmd & TermStr2(), True)
+                    Dim finalCmd As String = cmd & TermStr2()
+                    If UsenativeGpibEngine Then
+                        txtq1c.Text = finalCmd
+                    End If
+                    Dim useErr As Boolean = GetSendUseErrorFlag(deviceName)
+                    dev.SendAsync(finalCmd, useErr)
                 Next
 
             Case "CLEARCHART"
@@ -1779,15 +1918,23 @@ Partial Class Formtest
         End Select
         If dev Is Nothing Then Exit Sub
 
+        Dim useErr As Boolean = GetSendUseErrorFlag(device)
+
         If state = 0 Then
             ' Turn ON
-            dev.SendAsync(cmdOn, True)
+            If UsenativeGpibEngine Then
+                txtq1c.Text = cmdOn
+            End If
+            dev.SendAsync(cmdOn, useErr)
             b.BackColor = Color.LimeGreen
             b.ForeColor = Color.Black
             state = 1
         Else
             ' Turn OFF
-            dev.SendAsync(cmdOff, True)
+            If UsenativeGpibEngine Then
+                txtq1c.Text = cmdOff
+            End If
+            dev.SendAsync(cmdOff, useErr)
             b.BackColor = SystemColors.Control
             b.ForeColor = SystemColors.ControlText
             state = 0
@@ -2026,7 +2173,7 @@ Partial Class Formtest
 
         Dim scale As Double
         Double.TryParse(parts(2), Globalization.NumberStyles.Float,
-                        Globalization.CultureInfo.InvariantCulture, scale)
+                    Globalization.CultureInfo.InvariantCulture, scale)
 
         Dim stepVal As Integer = 1
         Integer.TryParse(parts(4), stepVal)
@@ -2053,9 +2200,13 @@ Partial Class Formtest
         If dev Is Nothing Then Exit Sub
 
         Dim cmd As String = commandPrefix.TrimEnd() & " " &
-                            scaledValue.ToString("G", Globalization.CultureInfo.InvariantCulture)
+                        scaledValue.ToString("G", Globalization.CultureInfo.InvariantCulture)
 
-        dev.SendAsync(cmd, True)
+        If UsenativeGpibEngine Then
+            txtq1c.Text = cmd
+        End If
+        Dim useErr As Boolean = GetSendUseErrorFlag(deviceName)
+        dev.SendAsync(cmd, useErr)
     End Sub
 
 
@@ -2107,17 +2258,17 @@ Partial Class Formtest
 
         Dim scale As Double = 1.0
         Double.TryParse(parts(2),
-                    Globalization.NumberStyles.Float,
-                    Globalization.CultureInfo.InvariantCulture,
-                    scale)
+                Globalization.NumberStyles.Float,
+                Globalization.CultureInfo.InvariantCulture,
+                scale)
 
         Dim initFlag As String = If(parts.Length >= 4, parts(3), "1")
         Dim minValFromTag As Decimal = nud.Minimum
         If parts.Length >= 5 Then
             Decimal.TryParse(parts(4),
-                         Globalization.NumberStyles.Float,
-                         Globalization.CultureInfo.InvariantCulture,
-                         minValFromTag)
+                     Globalization.NumberStyles.Float,
+                     Globalization.CultureInfo.InvariantCulture,
+                     minValFromTag)
         End If
 
         ' === FIRST USER CHANGE ===
@@ -2140,7 +2291,11 @@ Partial Class Formtest
             End Select
 
             If dev IsNot Nothing Then
-                dev.SendAsync(firstCmd, True)
+                If UsenativeGpibEngine Then
+                    txtq1c.Text = firstCmd
+                End If
+                Dim useErrFirst As Boolean = GetSendUseErrorFlag(deviceName)
+                dev.SendAsync(firstCmd, useErrFirst)
             End If
 
             Exit Sub
@@ -2158,7 +2313,11 @@ Partial Class Formtest
         End Select
 
         If devNorm IsNot Nothing Then
-            devNorm.SendAsync(cmd, True)
+            If UsenativeGpibEngine Then
+                txtq1c.Text = cmd
+            End If
+            Dim useErrNorm As Boolean = GetSendUseErrorFlag(deviceName)
+            devNorm.SendAsync(cmd, useErrNorm)
         End If
     End Sub
 
@@ -2244,9 +2403,15 @@ Partial Class Formtest
             If line = "" Then Continue For          ' skip blanks
             If line.StartsWith(";") Then Continue For ' skip comments
 
-            dev.SendAsync(line & TermStr2(), True)
+            Dim finalCmd As String = line & TermStr2()
+            If UsenativeGpibEngine Then
+                txtq1c.Text = finalCmd
+            End If
+            Dim useErr As Boolean = GetSendUseErrorFlag(deviceName)
+            dev.SendAsync(finalCmd, useErr)
         Next
     End Sub
+
 
 
     Private Sub UpdateChartFromText(ch As DataVisualization.Charting.Chart,

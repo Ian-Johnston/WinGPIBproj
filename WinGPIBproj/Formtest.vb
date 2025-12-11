@@ -164,7 +164,7 @@ Public Class Formtest
         Try
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.017"
+            BannerText1 = "WinGPIB   V4.018"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
             ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -1491,7 +1491,6 @@ Public Class Formtest
                     End If
 
                     inst_value1_3457A_sum = inst_value1_3457A_1 + inst_value1_3457A_2   ' add them together
-                    'txtr1a.Text = Format(inst_value1_3457A_sum, "#0.0000000")   ' limit to 7 DP's
                     txtr1a.Text = inst_value1_3457A_sum
 
                 End If
