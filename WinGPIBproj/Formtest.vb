@@ -164,7 +164,7 @@ Public Class Formtest
         Try
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.018"
+            BannerText1 = "WinGPIB   V4.019"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
             ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -1311,6 +1311,13 @@ Public Class Formtest
 
     Private Sub Btnq1a_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnq1a.Click
 
+        RunBtnq1aCore()
+
+    End Sub
+
+
+    Private Sub RunBtnq1aCore()
+
         ' DEV1 - Query ASYNC
 
         ' Set up options - Added by IanJ
@@ -1345,6 +1352,13 @@ Public Class Formtest
 
 
     Private Sub Btnq2a_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnq2a.Click
+
+        RunBtnq2aCore()
+
+    End Sub
+
+
+    Private Sub RunBtnq2aCore()
 
         ' DEV2 - Query ASYNC
 
@@ -1385,10 +1399,12 @@ Public Class Formtest
 
 
     Private Sub Btns1c_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btns1c.Click
+        RunBtns1cCore()
+    End Sub
 
+    Private Sub RunBtns1cCore()
         dev1.SendAsync(txtq1c.Text, True)
         txtr1astat.Text = "Send Async '" & txtq1c.Text
-
     End Sub
 
 
@@ -1443,15 +1459,12 @@ Public Class Formtest
 
 
     Private Sub Btns2c_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btns2c.Click
+        RunBtns2cCore()
+    End Sub
 
-        'dev2.SendAsync(txtq2c.Text, True)
-        'txtr2astat.Text = "Send Async '" & txtq2c.Text
-
-        ' Modified by IanJ in association with BB3 software guy
+    Private Sub RunBtns2cCore()
         dev2.SendAsync(txtq2c.Text & TermStr(), True)
         txtr2astat.Text = "Send Async '" & txtq2c.Text
-
-
     End Sub
 
 
@@ -1663,6 +1676,11 @@ Public Class Formtest
 
             'uncomment this to chain on dev2:
             ' dev2.QueryAsync(txtq2a.Text, AddressOf cbdev2, True)
+
+            ' Update USER tab variable
+            USERdev1output = txtr1a_disp.Text
+            USERdev1output2 = txtr1a.Text           ' alternative
+            OutputReceiveddev1 = True
 
         Catch ex As Exception
             txtr1astat.Text = q.cmd & " error in callback function:" & vbCrLf
@@ -1884,6 +1902,11 @@ Public Class Formtest
 
             'uncomment this to chain on dev1:
             'dev1.QueryAsync(txtq1a.Text, AddressOf cbdev1, True)
+
+            ' Update USER tab variable
+            USERdev2output = txtr2a_disp.Text
+            USERdev2output2 = txtr2a.Text           ' alternative
+            OutputReceiveddev2 = True
 
         Catch ex As Exception
             txtr2astat.Text = "error in callback function:" & vbCrLf

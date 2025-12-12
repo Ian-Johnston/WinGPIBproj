@@ -5,7 +5,6 @@ Imports System.Threading
 Imports System.Runtime.InteropServices
 Imports System.IO
 Imports System.Windows.Forms.DataVisualization.Charting
-Imports System.Text.RegularExpressions
 
 
 Partial Class Formtest
@@ -14,6 +13,8 @@ Partial Class Formtest
     Private AutoReadDeviceName As String
     Private AutoReadCommand As String
     Private AutoReadResultControl As String
+    Private AutoReadAction As String
+    Private AutoReadValueControl As String
     Dim intervalMs As Integer = 2000
     Private originalCustomControls As List(Of Control)
 
@@ -27,49 +28,27 @@ Partial Class Formtest
     Private CurrentUserScaleIsAuto As Boolean = False
     Private CurrentUserRangeQuery As String = ""
 
-    ' GPIB engine selection for USER tab ("standalone" or "native")
-    Private GpibEngineMode As String = "standalone"
+    ' Latest DEVICES-tab query outputs for USER tab to read
+    Private USERdev1output As String = ""
+    Private USERdev2output As String = ""
+    Private USERdev1output2 As String = ""
+    Private USERdev2output2 As String = ""
+    Private OutputReceiveddev1 As Boolean = False
+    Private OutputReceiveddev2 As Boolean = False
 
-    Private ReadOnly Property UsenativeGpibEngine As Boolean
-        Get
-            Return String.Equals(GpibEngineMode, "native", StringComparison.OrdinalIgnoreCase)
-        End Get
-    End Property
+    ' --- Timer15 (QUERIESTOFILE) state ---
+    Private Auto15DeviceName As String = ""
+    Private Auto15ScriptBoxName As String = ""
+    Private Auto15FilePathControl As String = ""
+    Private Auto15ResultControl As String = ""
 
-    ' Decide whether SendAsync should report errors for a given device
-    Private Function GetSendUseErrorFlag(deviceName As String) As Boolean
-        Dim useErr As Boolean = True
-        If UsenativeGpibEngine AndAlso deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
-            useErr = Not IgnoreErrors1.Checked
-        End If
-        Return useErr
-    End Function
+    ' Signals that a DEVICES-tab query has completed (reply captured)
+    Private ReadOnly Dev1QueryDone As New Threading.AutoResetEvent(False)
+    Private ReadOnly Dev2QueryDone As New Threading.AutoResetEvent(False)
 
-
-    ' Apply DEVICES-tab polling / STB mask settings (currently Dev1 only)
-    Private Sub ApplyPollingSettingsForDevice(dev As IODevices.IODevice, deviceName As String)
-        If dev Is Nothing Then Exit Sub
-
-        If deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
-            If Dev1PollingEnable.Checked Then
-                dev.enablepoll = True
-            Else
-                dev.enablepoll = False
-            End If
-
-            If Dev1STBMask.Text = "" Then
-                Dev1STBMask.Text = "16"
-            End If
-
-            dev.MAVmask = Val(Dev1STBMask.Text)
-
-            If Dev1STBMask.Text = "0" Then
-                dev.enablepoll = False
-                Dev1PollingEnable.Checked = False
-            End If
-        End If
-    End Sub
-
+    ' Per-device GPIB engine selection for USER tab ("standalone" or "native")
+    Private GpibEngineDev1 As String = "standalone"   ' default if not specified
+    Private GpibEngineDev2 As String = "standalone"   ' default if not specified
 
     ' TXT Format:
     ' BUTTON;Caption;Action;Device;CommandOrPrefix;ValueControl;ResultControl
@@ -84,6 +63,81 @@ Partial Class Formtest
     ' BUTTON;Set DCV;SENDVALUE;dev2;APPLY DCV ;Button3245A_VALUE;
     ' BUTTON;Read ID;QUERY;dev1;*IDN?;;TextBoxID
 
+
+    Private Function IsNativeEngine(deviceName As String) As Boolean
+        If String.IsNullOrWhiteSpace(deviceName) Then Return False
+
+        If deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
+            Return String.Equals(GpibEngineDev1, "native", StringComparison.OrdinalIgnoreCase)
+        ElseIf deviceName.Equals("dev2", StringComparison.OrdinalIgnoreCase) Then
+            Return String.Equals(GpibEngineDev2, "native", StringComparison.OrdinalIgnoreCase)
+        End If
+
+        Return False
+    End Function
+
+
+    Private Sub NativeSend(deviceName As String, cmd As String)
+
+        If deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
+            txtq1c.Text = cmd
+            RunBtns1cCore()     ' run core commands
+            'dev1.SendAsync(txtq1c.Text, True)
+            'txtr1astat.Text = "Send Async '" & txtq1c.Text
+
+        ElseIf deviceName.Equals("dev2", StringComparison.OrdinalIgnoreCase) Then
+            txtq2c.Text = cmd
+            RunBtns2cCore()     ' run core commands
+            'dev2.SendAsync(txtq2c.Text, True)
+            'txtr2astat.Text = "Send Async '" & txtq2c.Text
+        End If
+
+    End Sub
+
+
+    Private Function NativeQuery(deviceName As String, cmd As String) As String
+
+        Const timeoutMs As Integer = 5000   ' adjust if needed
+
+        If deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
+
+            ' Arm flag for this query
+            OutputReceiveddev1 = False
+
+            txtq1a.Text = cmd
+            RunBtnq1aCore()                 ' DEVICES-tab queues + sends
+
+            ' Wait until DEVICES tab captures reply and sets flag TRUE
+            Dim sw As Diagnostics.Stopwatch = Diagnostics.Stopwatch.StartNew()
+            Do While Not OutputReceiveddev1 AndAlso sw.ElapsedMilliseconds < timeoutMs
+                Application.DoEvents()
+                Threading.Thread.Sleep(1)
+            Loop
+
+            Return If(USERdev1output, "").Trim()
+
+        ElseIf deviceName.Equals("dev2", StringComparison.OrdinalIgnoreCase) Then
+
+            OutputReceiveddev2 = False
+
+            txtq2a.Text = cmd
+            RunBtnq2aCore()
+
+            Dim sw As Diagnostics.Stopwatch = Diagnostics.Stopwatch.StartNew()
+            Do While Not OutputReceiveddev2 AndAlso sw.ElapsedMilliseconds < timeoutMs
+                Application.DoEvents()
+                Threading.Thread.Sleep(1)
+            Loop
+
+            Return If(USERdev2output, "").Trim()
+
+        End If
+
+        Return ""
+    End Function
+
+
+
     Private Sub BuildCustomGuiFromText(def As String)
 
         ' Reset per-config runtime state
@@ -91,6 +145,8 @@ Partial Class Formtest
         AutoReadDeviceName = ""
         AutoReadCommand = ""
         AutoReadResultControl = ""
+        AutoReadAction = ""
+        AutoReadValueControl = ""
 
         GroupBoxCustom.Controls.Clear()
 
@@ -103,14 +159,25 @@ Partial Class Formtest
             Dim line = rawLine.Trim()
             If line = "" OrElse line.StartsWith(";") Then Continue For
 
-            ' NEW: Global GPIB engine selector for USER tab
-            ' e.g.  GPIBengine=native   or   GPIBengine=standalone
-            If line.StartsWith("GPIBengine=", StringComparison.OrdinalIgnoreCase) Then
-                Dim val As String = line.Substring("GPIBengine=".Length).Trim()
+            ' Per-device GPIB engine selectors for USER tab
+            ' e.g. GPIBenginedev1=native / standalone
+            '      GPIBenginedev2=native / standalone
+            If line.StartsWith("GPIBenginedev1=", StringComparison.OrdinalIgnoreCase) Then
+                Dim val As String = line.Substring("GPIBenginedev1=".Length).Trim()
                 If String.Equals(val, "native", StringComparison.OrdinalIgnoreCase) Then
-                    GpibEngineMode = "native"
+                    GpibEngineDev1 = "native"
                 Else
-                    GpibEngineMode = "standalone"
+                    GpibEngineDev1 = "standalone"
+                End If
+                Continue For
+            End If
+
+            If line.StartsWith("GPIBenginedev2=", StringComparison.OrdinalIgnoreCase) Then
+                Dim val As String = line.Substring("GPIBenginedev2=".Length).Trim()
+                If String.Equals(val, "native", StringComparison.OrdinalIgnoreCase) Then
+                    GpibEngineDev2 = "native"
+                Else
+                    GpibEngineDev2 = "standalone"
                 End If
                 Continue For
             End If
@@ -1400,6 +1467,20 @@ Partial Class Formtest
                             End Sub
                     End If
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             End Select
 
         Next
@@ -1476,8 +1557,8 @@ Partial Class Formtest
 
 
     Private Sub RunQueryToResult(deviceName As String,
-                          commandOrPrefix As String,
-                          resultControlName As String)
+                            commandOrPrefix As String,
+                            resultControlName As String)
 
         Dim target = GetControlByName(resultControlName)
         If target Is Nothing Then
@@ -1485,7 +1566,7 @@ Partial Class Formtest
             Exit Sub
         End If
 
-        ' Resolve device name
+        ' Resolve device name (we still resolve dev for standalone path + auto-scale query)
         Dim dev As IODevices.IODevice = Nothing
         Select Case deviceName.ToLowerInvariant()
             Case "dev1" : dev = dev1
@@ -1497,204 +1578,151 @@ Partial Class Formtest
             Exit Sub
         End If
 
-        If UsenativeGpibEngine Then
-            ApplyPollingSettingsForDevice(dev, deviceName)
-        End If
-
-        Dim q As IODevices.IOQuery = Nothing
-        Dim status As Integer
-
-        If UsenativeGpibEngine Then
-            ' Built-in DEVICES-style path
-            Dim cmdText As String = commandOrPrefix
-            txtq1b.Text = cmdText
-
-            status = dev.QueryBlocking(txtq1b.Text & TermStr2(), q, True)
-
-            If status = 0 AndAlso q IsNot Nothing Then
-                txtr1b.Text = q.ResponseAsString
-            End If
-        Else
-            ' Standalone USER-tab path (original behaviour)
-            Dim fullCmd As String = commandOrPrefix & TermStr2()
-            status = dev.QueryBlocking(fullCmd, q, False)
-        End If
-
         Dim raw As String = ""
         Dim outText As String = ""
 
         ' Extra: keep both numeric-only and numeric+unit text if we have them
         Dim numericText As String = ""
         Dim numericWithUnitText As String = ""
-        Dim forceText As Boolean = False   ' NEW: honour Dev1TextResponse
 
-        If status = 0 AndAlso q IsNot Nothing Then
+        ' =========================================================
+        '   GET RAW RESPONSE (native or standalone)
+        ' =========================================================
+        If IsNativeEngine(deviceName) Then
 
-            raw = q.ResponseAsString.Trim()
+            ' NATIVE PATH: use existing UI query buttons/textboxes
+            raw = NativeQuery(deviceName, commandOrPrefix)
 
-            ' Device-specific tweaks for native engine (Dev1 only for now)
-            If UsenativeGpibEngine AndAlso deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
+        Else
 
-                ' 4) HP 3457A 7th-digit handling
-                If Dev13457Aseven.Checked Then
-                    temp3457A_Dev1 = raw
+            ' STANDALONE PATH: original IODevices QueryBlocking behaviour
+            Dim q As IODevices.IOQuery = Nothing
+            Dim status As Integer
 
-                    If Dev1_3457A Then
-                        ' second (7th digit) part
-                        inst_value1_3457A_2 = CDbl(Val(temp3457A_Dev1))
-                        Dev1_3457A = False
-                        inst_value1_3457A_sum = inst_value1_3457A_1 + inst_value1_3457A_2
-                        raw = inst_value1_3457A_sum.ToString("G", Globalization.CultureInfo.InvariantCulture)
-                    Else
-                        ' first part (digits 1–6) → wait for second response
-                        inst_value1_3457A_1 = CDbl(Val(temp3457A_Dev1))
-                        Dev1_3457A = True
-                        ' do not update any controls yet
-                        Exit Sub
-                    End If
+            Dim fullCmd As String = commandOrPrefix & TermStr2()
+            status = dev.QueryBlocking(fullCmd, q, False)
+
+            If status = 0 AndAlso q IsNot Nothing Then
+
+                raw = q.ResponseAsString.Trim()
+
+            ElseIf q IsNot Nothing Then
+
+                ' Treat "Blocking" as a non-fatal "busy" condition – keep old value
+                If status = -1 AndAlso Not String.IsNullOrEmpty(q.errmsg) AndAlso
+               q.errmsg.IndexOf("Blocking", StringComparison.OrdinalIgnoreCase) >= 0 Then
+
+                    ' Just bail out without touching any controls
+                    Exit Sub
                 End If
 
-                ' 5) Remove leading letters (e.g. Racal-Dana 1991 "FA+00000.0000")
-                If Dev1removeletters.Checked AndAlso raw.Length > 2 Then
-                    raw = raw.Remove(0, 2)
-                End If
-
-                ' 6) Keithley 2001 – isolate data before marker char
-                If Dev1K2001isolatedata.Checked AndAlso Dev1K2001isolatedataCHAR.Text <> "" Then
-                    Dim marker As String = Dev1K2001isolatedataCHAR.Text
-                    Dim idx As Integer = raw.IndexOf(marker, StringComparison.Ordinal)
-                    If idx >= 0 Then
-                        raw = raw.Substring(0, idx)
-                    End If
-                End If
-
-                ' 7) Regex numeric isolation
-                If Dev1Regex.Checked Then
-                    Dim pattern As String = "[-+]?\d*\.?\d+([eE][-+]?\d+)?"
-                    Dim m As Match = Regex.Match(raw, pattern)
-                    If m.Success Then
-                        raw = m.Value
-                    End If
-                End If
-
-                ' 8) Treat response as pure text, not numeric
-                If Dev1TextResponse.Checked Then
-                    forceText = True
-                End If
-            End If
-
-            Dim decCb As CheckBox = GetCheckboxFor(resultControlName, "FuncDecimal")
-
-            Dim scale As Double = CurrentUserScale
-            Dim d As Double
-
-            If (Not forceText) AndAlso Double.TryParse(raw,
-                           Globalization.NumberStyles.Float,
-                           Globalization.CultureInfo.InvariantCulture,
-                           d) Then
-
-                Dim v As Double = d
-
-                ' ============================
-                '    AUTO SCALE MODE LOGIC
-                ' ============================
-                If CurrentUserScaleIsAuto AndAlso
-               dev IsNot Nothing AndAlso
-               Not String.IsNullOrWhiteSpace(CurrentUserRangeQuery) Then
-
-                    Try
-                        Dim rq As IODevices.IOQuery = Nothing
-                        Dim st2 As Integer = dev.QueryBlocking(CurrentUserRangeQuery & TermStr2(), rq, False)
-
-                        If st2 = 0 AndAlso rq IsNot Nothing Then
-
-                            Dim rngStr As String = rq.ResponseAsString.Trim()
-                            Dim rngVal As Double
-
-                            If Double.TryParse(rngStr,
-                                           Globalization.NumberStyles.Float,
-                                           Globalization.CultureInfo.InvariantCulture,
-                                           rngVal) Then
-
-                                Dim dynScale As Double = ComputeAutoScaleFromRange(rngVal)
-                                v = d * dynScale
-                            Else
-                                v = d * scale    ' fallback
-                            End If
-                        Else
-                            v = d * scale        ' fallback
-                        End If
-
-                    Catch
-                        v = d * scale            ' fallback
-                    End Try
-
-                Else
-                    ' FIXED SCALE MODE
-                    v = d * scale
-                End If
-
-                ' Extra Dev1-only scale switches when using native engine
-                If UsenativeGpibEngine AndAlso deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
-                    ' 2) Divide by 1000
-                    If Div1000Dev1.Checked Then
-                        v = v / 1000.0R
-                    End If
-
-                    ' 3) Multiply by 1000
-                    If Mult1000Dev1.Checked Then
-                        v = v * 1000.0R
-                    End If
-                End If
-
-                ' ============================
-                '      OUTPUT FORMATTING
-                ' ============================
-                Dim valueStr As String
-
-                If decCb IsNot Nothing AndAlso decCb.Checked Then
-                    valueStr = v.ToString("0.###############",
-                                      Globalization.CultureInfo.InvariantCulture)
-                ElseIf Math.Abs(v - d) > 0.0000000001R OrElse
-                   Math.Abs(scale - 1.0R) > 0.0000000001R OrElse
-                   CurrentUserScaleIsAuto Then
-
-                    valueStr = v.ToString("G",
-                                      Globalization.CultureInfo.InvariantCulture)
-                Else
-                    valueStr = raw
-                End If
-
-                numericText = valueStr
-
-                If Not String.IsNullOrEmpty(CurrentUserUnit) Then
-                    numericWithUnitText = valueStr & "   " & CurrentUserUnit
-                Else
-                    numericWithUnitText = valueStr
-                End If
-
-                outText = numericWithUnitText
+                outText = "ERR " & status & ": " & q.errmsg
 
             Else
-                outText = raw
+                outText = "ERR " & status & " (no IOQuery)"
             End If
 
-        ElseIf q IsNot Nothing Then
-
-            ' Treat "Blocking" as a non-fatal "busy" condition – keep old value
-            If status = -1 AndAlso Not String.IsNullOrEmpty(q.errmsg) AndAlso
-           q.errmsg.IndexOf("Blocking", StringComparison.OrdinalIgnoreCase) >= 0 Then
-
-                ' Just bail out without touching any controls
-                Exit Sub
+            ' If we already built an ERR string, skip numeric formatting and just output it
+            If outText.StartsWith("ERR ", StringComparison.OrdinalIgnoreCase) Then
+                GoTo FanOut
             End If
 
-            outText = "ERR " & status & ": " & q.errmsg
-        Else
-            outText = "ERR " & status & " (no IOQuery)"
         End If
 
+        raw = If(raw, "").Trim()
 
+        ' =========================================================
+        '   EXISTING FORMAT / SCALE / UNITS LOGIC (unchanged)
+        ' =========================================================
+        Dim decCb As CheckBox = GetCheckboxFor(resultControlName, "FuncDecimal")
+
+        Dim scale As Double = CurrentUserScale
+        Dim d As Double
+
+        If Double.TryParse(raw,
+                       Globalization.NumberStyles.Float,
+                       Globalization.CultureInfo.InvariantCulture,
+                       d) Then
+
+            Dim v As Double = d
+
+            ' ============================
+            '    AUTO SCALE MODE LOGIC
+            ' ============================
+            If CurrentUserScaleIsAuto AndAlso
+           dev IsNot Nothing AndAlso
+           Not String.IsNullOrWhiteSpace(CurrentUserRangeQuery) Then
+
+                Try
+                    Dim rngStr As String = ""
+
+                    If IsNativeEngine(deviceName) Then
+                        ' Range query via native engine path
+                        rngStr = NativeQuery(deviceName, CurrentUserRangeQuery)
+                    Else
+                        ' Range query via standalone path
+                        Dim rq As IODevices.IOQuery = Nothing
+                        Dim st2 As Integer = dev.QueryBlocking(CurrentUserRangeQuery & TermStr2(), rq, False)
+                        If st2 = 0 AndAlso rq IsNot Nothing Then
+                            rngStr = rq.ResponseAsString.Trim()
+                        End If
+                    End If
+
+                    Dim rngVal As Double
+                    If Double.TryParse(rngStr,
+                                   Globalization.NumberStyles.Float,
+                                   Globalization.CultureInfo.InvariantCulture,
+                                   rngVal) Then
+
+                        Dim dynScale As Double = ComputeAutoScaleFromRange(rngVal)
+                        v = d * dynScale
+                    Else
+                        v = d * scale    ' fallback
+                    End If
+
+                Catch
+                    v = d * scale        ' fallback
+                End Try
+
+            Else
+                ' FIXED SCALE MODE
+                v = d * scale
+            End If
+
+            ' ============================
+            '      OUTPUT FORMATTING
+            ' ============================
+            Dim valueStr As String
+
+            If decCb IsNot Nothing AndAlso decCb.Checked Then
+                valueStr = v.ToString("0.###############",
+                                  Globalization.CultureInfo.InvariantCulture)
+            ElseIf Math.Abs(v - d) > 0.0000000001R OrElse
+               Math.Abs(scale - 1.0R) > 0.0000000001R OrElse
+               CurrentUserScaleIsAuto Then
+
+                valueStr = v.ToString("G",
+                                  Globalization.CultureInfo.InvariantCulture)
+            Else
+                valueStr = raw
+            End If
+
+            numericText = valueStr
+
+            If Not String.IsNullOrEmpty(CurrentUserUnit) Then
+                numericWithUnitText = valueStr & "   " & CurrentUserUnit
+            Else
+                numericWithUnitText = valueStr
+            End If
+
+            outText = numericWithUnitText
+
+        Else
+            ' Non-numeric reply: pass through raw text
+            outText = raw
+        End If
+
+FanOut:
         ' ============================
         '      FAN-OUT TO CONTROLS
         ' ============================
@@ -1776,12 +1804,11 @@ Partial Class Formtest
         Select Case action
 
             Case "SEND"
-                Dim cmdToSend As String = commandOrPrefix
-                If UsenativeGpibEngine Then
-                    txtq1c.Text = cmdToSend
+                If IsNativeEngine(deviceName) Then
+                    NativeSend(deviceName, commandOrPrefix)
+                Else
+                    dev.SendAsync(commandOrPrefix, True)
                 End If
-                Dim useErr As Boolean = GetSendUseErrorFlag(deviceName)
-                dev.SendAsync(cmdToSend, useErr)
 
             Case "SENDVALUE"
                 Dim valCtrl = TryCast(GetControlByName(valueControlName), TextBox)
@@ -1790,12 +1817,13 @@ Partial Class Formtest
                     Exit Sub
                 End If
 
-                Dim cmd As String = commandOrPrefix & valCtrl.Text.Trim()
-                If UsenativeGpibEngine Then
-                    txtq1c.Text = cmd
+                Dim cmd = commandOrPrefix & valCtrl.Text.Trim()
+
+                If IsNativeEngine(deviceName) Then
+                    NativeSend(deviceName, cmd)
+                Else
+                    dev.SendAsync(cmd, True)
                 End If
-                Dim useErr As Boolean = GetSendUseErrorFlag(deviceName)
-                dev.SendAsync(cmd, useErr)
 
             Case "QUERY"
 
@@ -1822,9 +1850,9 @@ Partial Class Formtest
 
                         Dim secs As Double
                         If Double.TryParse(numeric,
-                                   Globalization.NumberStyles.Float,
-                                   Globalization.CultureInfo.InvariantCulture,
-                                   secs) AndAlso secs > 0.0R Then
+                                       Globalization.NumberStyles.Float,
+                                       Globalization.CultureInfo.InvariantCulture,
+                                       secs) AndAlso secs > 0.0R Then
 
                             intervalMs = CInt(secs * 1000.0R)
                             Timer5.Interval = intervalMs
@@ -1847,7 +1875,6 @@ Partial Class Formtest
                 End If
 
             Case "SENDLINES"
-                If dev Is Nothing Then Exit Sub
 
                 Dim valCtrl = TryCast(GetControlByName(valueControlName), TextBox)
                 If valCtrl Is Nothing Then
@@ -1855,25 +1882,36 @@ Partial Class Formtest
                     Exit Sub
                 End If
 
+                ' ===============================
+                ' NATIVE engine → use NativeSend()
+                ' ===============================
+                If IsNativeEngine(deviceName) Then
+
+                    For Each raw In valCtrl.Lines
+                        Dim line = raw.Trim()
+                        If line = "" OrElse line.StartsWith(";"c) Then Continue For
+
+                        ' If you want commandOrPrefix used (like standalone does), keep this:
+                        Dim finalCmd As String = commandOrPrefix & line & TermStr2()
+
+                        ' If you do NOT want a prefix (i.e. lines already contain full commands),
+                        ' then use instead:
+                        ' Dim finalCmd As String = line & TermStr2()
+
+                        NativeSend(deviceName, finalCmd)
+                    Next
+
+                    Exit Sub
+                End If
+
+                ' ===============================
+                ' STANDALONE engine → direct send
+                ' ===============================
                 For Each raw In valCtrl.Lines
                     Dim line = raw.Trim()
-                    If line = "" Then Continue For
-                    If line.StartsWith(";"c) Then Continue For   ' allow comments
+                    If line = "" OrElse line.StartsWith(";"c) Then Continue For
 
-                    ' commandOrPrefix may be blank or may include something like "APPLY DCV "
-                    Dim cmd As String
-                    If String.IsNullOrWhiteSpace(commandOrPrefix) Then
-                        cmd = line
-                    Else
-                        cmd = commandOrPrefix & line
-                    End If
-
-                    Dim finalCmd As String = cmd & TermStr2()
-                    If UsenativeGpibEngine Then
-                        txtq1c.Text = finalCmd
-                    End If
-                    Dim useErr As Boolean = GetSendUseErrorFlag(deviceName)
-                    dev.SendAsync(finalCmd, useErr)
+                    dev.SendAsync(commandOrPrefix & line & TermStr2(), True)
                 Next
 
             Case "CLEARCHART"
@@ -1881,6 +1919,50 @@ Partial Class Formtest
                 Dim ch = TryCast(GetControlByName(deviceName), DataVisualization.Charting.Chart)
                 If ch IsNot Nothing AndAlso ch.Series.Count > 0 Then
                     ch.Series(0).Points.Clear()
+                End If
+
+            Case "QUERIESTOFILE"
+                ' commandOrPrefix = TEXTAREA name (e.g. ScriptBox2)
+                ' valueControlName = file path textbox (optional; may be blank)
+                ' resultControlName = optional "latest reply" display
+
+                Dim scriptBoxName As String = commandOrPrefix
+
+                ' Run once immediately
+                RunQueriesToFileFromTextArea(deviceName, scriptBoxName, valueControlName, resultControlName)
+
+                ' Auto checkbox support (checkbox key = ScriptBox2)
+                Dim autoCb As CheckBox = GetCheckboxFor(scriptBoxName, "FuncAuto")
+
+                If autoCb IsNot Nothing AndAlso autoCb.Checked Then
+                    Dim intervalMs As Integer = 2000
+
+                    Dim param As String = GetCheckboxParam(autoCb)
+                    If Not String.IsNullOrEmpty(param) Then
+                        Dim numeric As String = ""
+                        For Each ch As Char In param
+                            If Char.IsDigit(ch) OrElse ch = "."c Then numeric &= ch
+                        Next
+
+                        Dim secs As Double
+                        If Double.TryParse(numeric,
+                                           Globalization.NumberStyles.Float,
+                                           Globalization.CultureInfo.InvariantCulture,
+                                           secs) AndAlso secs > 0.0R Then
+                            intervalMs = CInt(secs * 1000.0R)
+                        End If
+                    End If
+
+                    ' Store timer state
+                    Auto15DeviceName = deviceName
+                    Auto15ScriptBoxName = scriptBoxName
+                    Auto15FilePathControl = valueControlName
+                    Auto15ResultControl = resultControlName
+
+                    Timer15.Interval = intervalMs
+                    Timer15.Enabled = True
+                Else
+                    Timer15.Enabled = False
                 End If
 
         End Select
@@ -1905,36 +1987,46 @@ Partial Class Formtest
         Dim tagParts = CStr(b.Tag).Split("|"c)
         If tagParts.Length < 4 Then Exit Sub
 
-        Dim device = tagParts(0)
-        Dim cmdOn = tagParts(1)
-        Dim cmdOff = tagParts(2)
-        Dim state = CInt(tagParts(3))   ' 0 = OFF, 1 = ON
+        Dim device As String = tagParts(0)
+        Dim cmdOn As String = tagParts(1)
+        Dim cmdOff As String = tagParts(2)
+        Dim state As Integer
+        Integer.TryParse(tagParts(3), state)   ' 0 = OFF, 1 = ON
 
-        ' Pick dev1/dev2
-        Dim dev As Object = Nothing
-        Select Case device.ToLower()
-            Case "dev1" : dev = dev1
-            Case "dev2" : dev = dev2
+        ' Pick dev1/dev2 + native/standalone flag
+        Dim dev As IODevices.IODevice = Nothing
+        Dim useNative As Boolean = False
+
+        Select Case device.ToLowerInvariant()
+            Case "dev1"
+                dev = dev1
+                useNative = String.Equals(GpibEngineDev1, "native", StringComparison.OrdinalIgnoreCase)
+            Case "dev2"
+                dev = dev2
+                useNative = String.Equals(GpibEngineDev2, "native", StringComparison.OrdinalIgnoreCase)
         End Select
         If dev Is Nothing Then Exit Sub
 
-        Dim useErr As Boolean = GetSendUseErrorFlag(device)
-
         If state = 0 Then
             ' Turn ON
-            If UsenativeGpibEngine Then
-                txtq1c.Text = cmdOn
+            If useNative Then
+                NativeSend(device, cmdOn & TermStr2())
+            Else
+                dev.SendAsync(cmdOn & TermStr2(), True)
             End If
-            dev.SendAsync(cmdOn, useErr)
+
             b.BackColor = Color.LimeGreen
             b.ForeColor = Color.Black
             state = 1
+
         Else
             ' Turn OFF
-            If UsenativeGpibEngine Then
-                txtq1c.Text = cmdOff
+            If useNative Then
+                NativeSend(device, cmdOff & TermStr2())
+            Else
+                dev.SendAsync(cmdOff & TermStr2(), True)
             End If
-            dev.SendAsync(cmdOff, useErr)
+
             b.BackColor = SystemColors.Control
             b.ForeColor = SystemColors.ControlText
             state = 0
@@ -1956,13 +2048,18 @@ Partial Class Formtest
 
         ' Re-run the last query definition
         If Not String.IsNullOrEmpty(AutoReadDeviceName) AndAlso
-       Not String.IsNullOrEmpty(AutoReadCommand) AndAlso
-       Not String.IsNullOrEmpty(AutoReadResultControl) Then
+           Not String.IsNullOrEmpty(AutoReadCommand) Then
 
-            RunQueryToResult(AutoReadDeviceName, AutoReadCommand, AutoReadResultControl)
+            If String.Equals(AutoReadAction, "QUERIESTOFILE", StringComparison.OrdinalIgnoreCase) Then
+                RunQueryToFile(AutoReadDeviceName, AutoReadCommand, AutoReadValueControl, AutoReadResultControl)
+            Else
+                RunQueryToResult(AutoReadDeviceName, AutoReadCommand, AutoReadResultControl)
+            End If
+
         Else
             Timer5.Enabled = False
         End If
+
     End Sub
 
 
@@ -1976,40 +2073,55 @@ Partial Class Formtest
         Dim parts = meta.Split("|"c)
         If parts.Length < 2 Then Exit Sub
 
-        Dim deviceName = parts(0)
-        Dim commandPrefix = parts(1).TrimEnd()
+        Dim deviceName As String = parts(0).Trim()
+        Dim commandPrefix As String = parts(1).TrimEnd()
 
-        Dim dev As IODevices.IODevice = Nothing
-        Select Case deviceName.ToLowerInvariant()
-            Case "dev1" : dev = dev1
-            Case "dev2" : dev = dev2
-        End Select
-        If dev Is Nothing Then
-            MessageBox.Show("Unknown device: " & deviceName)
-            Exit Sub
-        End If
-
-        ' First entry (index 0) is always a placeholder (blank or caption) → do nothing
+        ' First entry (index 0) is always a placeholder → do nothing
         If cb.SelectedIndex <= 0 Then Exit Sub
 
         Dim selected As String = ""
-        If cb.SelectedItem IsNot Nothing Then
-            selected = cb.SelectedItem.ToString().Trim()
-        End If
-
-        ' Extra safety: blank entry → do nothing
+        If cb.SelectedItem IsNot Nothing Then selected = cb.SelectedItem.ToString().Trim()
         If selected = "" Then Exit Sub
 
-        Dim cmd As String = commandPrefix & " " & selected
-        dev.SendAsync(cmd, True)
+        ' Build command
+        Dim cmd As String = commandPrefix.TrimEnd() & " " & selected
+
+        ' Resolve device + engine mode
+        Dim dev As IODevices.IODevice = Nothing
+        Dim useNative As Boolean = False
+
+        Select Case deviceName.ToLowerInvariant()
+            Case "dev1"
+                dev = dev1
+                useNative = String.Equals(GpibEngineDev1, "native", StringComparison.OrdinalIgnoreCase)
+
+            Case "dev2"
+                dev = dev2
+                useNative = String.Equals(GpibEngineDev2, "native", StringComparison.OrdinalIgnoreCase)
+
+            Case Else
+                MessageBox.Show("Unknown device in DROPDOWN: " & deviceName)
+                Exit Sub
+        End Select
+
+        If dev Is Nothing Then
+            MessageBox.Show("Device not available: " & deviceName)
+            Exit Sub
+        End If
+
+        ' Send (native uses the DEVICES-tab core send routine, not PerformClick)
+        If useNative Then
+            NativeSend(deviceName, cmd)     ' <-- calls RunBtns1cCore / RunBtns2cCore
+        Else
+            dev.SendAsync(cmd, True)
+        End If
     End Sub
+
 
 
     Private Sub Radio_CheckedChanged(sender As Object, e As EventArgs)
         Dim rb As RadioButton = TryCast(sender, RadioButton)
         If rb Is Nothing Then Exit Sub
-
-        ' Only act when it becomes checked, not when unchecked
         If Not rb.Checked Then Exit Sub
 
         Dim meta As String = TryCast(rb.Tag, String)
@@ -2039,13 +2151,12 @@ Partial Class Formtest
                 End If
             Else
                 Double.TryParse(parts(2),
-                            Globalization.NumberStyles.Float,
-                            Globalization.CultureInfo.InvariantCulture,
-                            scale)
+                Globalization.NumberStyles.Float,
+                Globalization.CultureInfo.InvariantCulture,
+                scale)
             End If
         End If
 
-        ' Apply scale for subsequent reads (used when not in AUTO)
         CurrentUserScale = scale
 
         ' ===============================
@@ -2053,15 +2164,9 @@ Partial Class Formtest
         ' ===============================
         Dim cap As String = rb.Text.Trim()
         Dim lastSpace As Integer = cap.LastIndexOf(" "c)
-
         Dim isModeRadio As Boolean = (lastSpace < 0)
 
         If isModeRadio Then
-            ' ---------------------------------
-            ' MODE RADIO:
-            '   - Clear units
-            '   - Clear all other radio selections
-            ' ---------------------------------
             CurrentUserUnit = ""
 
             ' Uncheck all other radios in all dynamic groups
@@ -2072,21 +2177,11 @@ Partial Class Formtest
                 For Each child As Control In gb.Controls
                     Dim r As RadioButton = TryCast(child, RadioButton)
                     If r Is Nothing Then Continue For
-
-                    ' Don't touch the one we just checked
                     If r Is rb Then Continue For
-
-                    ' This will not recurse badly because the handler exits
-                    ' at the top when rb.Checked = False
                     r.Checked = False
                 Next
             Next
-
         Else
-            ' ---------------------------------
-            ' RANGE RADIO:
-            '   - Derive unit from caption's last token
-            ' ---------------------------------
             Dim unit As String = ""
             If lastSpace >= 0 AndAlso lastSpace < cap.Length - 1 Then
                 unit = cap.Substring(lastSpace + 1).Trim()
@@ -2098,11 +2193,15 @@ Partial Class Formtest
         '   SEND THE RADIO COMMAND
         ' ===============================
         Dim dev As IODevices.IODevice = Nothing
+        Dim useNative As Boolean = False
 
         Select Case deviceName.ToLowerInvariant()
-            Case "dev1" : dev = dev1
-            Case "dev2" : dev = dev2
-                ' add more if needed
+            Case "dev1"
+                dev = dev1
+                useNative = String.Equals(GpibEngineDev1, "native", StringComparison.OrdinalIgnoreCase)
+            Case "dev2"
+                dev = dev2
+                useNative = String.Equals(GpibEngineDev2, "native", StringComparison.OrdinalIgnoreCase)
         End Select
 
         If dev Is Nothing Then
@@ -2110,8 +2209,14 @@ Partial Class Formtest
             Exit Sub
         End If
 
-        dev.SendAsync(command, True)
+        If useNative Then
+            NativeSend(deviceName, command)   ' <-- deferred click inside NativeSend
+        Else
+            dev.SendAsync(command, True)
+        End If
+
     End Sub
+
 
 
     Private Sub Slider_Scroll(sender As Object, e As EventArgs)
@@ -2168,10 +2273,10 @@ Partial Class Formtest
         Dim parts = meta.Split("|"c)
         If parts.Length < 5 Then Exit Sub
 
-        Dim deviceName As String = parts(0)
-        Dim commandPrefix As String = parts(1)
+        Dim deviceName As String = parts(0).Trim()
+        Dim commandPrefix As String = parts(1).Trim()
 
-        Dim scale As Double
+        Dim scale As Double = 1.0
         Double.TryParse(parts(2), Globalization.NumberStyles.Float,
                     Globalization.CultureInfo.InvariantCulture, scale)
 
@@ -2179,34 +2284,48 @@ Partial Class Formtest
         Integer.TryParse(parts(4), stepVal)
         If stepVal < 1 Then stepVal = 1
 
-        ' Snap again on mouse-up (in case of any drift)
+        ' Snap again on mouse-up
         Dim raw As Integer = tb.Value
         Dim snapped As Integer = CInt(Math.Round(raw / CDbl(stepVal))) * stepVal
         If snapped < tb.Minimum Then snapped = tb.Minimum
         If snapped > tb.Maximum Then snapped = tb.Maximum
-
-        If snapped <> tb.Value Then
-            tb.Value = snapped
-        End If
+        If snapped <> tb.Value Then tb.Value = snapped
 
         Dim scaledValue As Double = snapped * scale
 
-        ' Resolve device
+        Dim cmd As String =
+        commandPrefix.TrimEnd() & " " &
+        scaledValue.ToString("G", Globalization.CultureInfo.InvariantCulture)
+
+        ' Resolve device + engine mode
         Dim dev As IODevices.IODevice = Nothing
+        Dim useNative As Boolean = False
+
         Select Case deviceName.ToLowerInvariant()
-            Case "dev1" : dev = dev1
-            Case "dev2" : dev = dev2
+            Case "dev1"
+                dev = dev1
+                useNative = String.Equals(GpibEngineDev1, "native", StringComparison.OrdinalIgnoreCase)
+
+            Case "dev2"
+                dev = dev2
+                useNative = String.Equals(GpibEngineDev2, "native", StringComparison.OrdinalIgnoreCase)
+
+            Case Else
+                MessageBox.Show("Unknown device in SLIDER: " & deviceName)
+                Exit Sub
         End Select
-        If dev Is Nothing Then Exit Sub
 
-        Dim cmd As String = commandPrefix.TrimEnd() & " " &
-                        scaledValue.ToString("G", Globalization.CultureInfo.InvariantCulture)
-
-        If UsenativeGpibEngine Then
-            txtq1c.Text = cmd
+        If dev Is Nothing Then
+            MessageBox.Show("Device not available: " & deviceName)
+            Exit Sub
         End If
-        Dim useErr As Boolean = GetSendUseErrorFlag(deviceName)
-        dev.SendAsync(cmd, useErr)
+
+        ' Send (native uses the DEVICES-tab core send routine)
+        If useNative Then
+            NativeSend(deviceName, cmd)     ' <-- calls RunBtns1cCore / RunBtns2cCore
+        Else
+            dev.SendAsync(cmd, True)
+        End If
     End Sub
 
 
@@ -2246,56 +2365,73 @@ Partial Class Formtest
 
 
     Private Sub Spinner_ValueChanged(sender As Object, e As EventArgs)
-        Dim nud = DirectCast(sender, NumericUpDown)
+        Dim nud = TryCast(sender, NumericUpDown)
+        If nud Is Nothing Then Exit Sub
+
         Dim tagStr = TryCast(nud.Tag, String)
         If String.IsNullOrEmpty(tagStr) Then Exit Sub
 
         Dim parts = tagStr.Split("|"c)
         If parts.Length < 3 Then Exit Sub
 
-        Dim deviceName = parts(0)
-        Dim commandPrefix = parts(1)
+        Dim deviceName As String = parts(0).Trim()
+        Dim commandPrefix As String = parts(1).Trim()
 
         Dim scale As Double = 1.0
         Double.TryParse(parts(2),
-                Globalization.NumberStyles.Float,
-                Globalization.CultureInfo.InvariantCulture,
-                scale)
+                    Globalization.NumberStyles.Float,
+                    Globalization.CultureInfo.InvariantCulture,
+                    scale)
 
         Dim initFlag As String = If(parts.Length >= 4, parts(3), "1")
+
         Dim minValFromTag As Decimal = nud.Minimum
         If parts.Length >= 5 Then
             Decimal.TryParse(parts(4),
-                     Globalization.NumberStyles.Float,
-                     Globalization.CultureInfo.InvariantCulture,
-                     minValFromTag)
+                         Globalization.NumberStyles.Float,
+                         Globalization.CultureInfo.InvariantCulture,
+                         minValFromTag)
+        End If
+
+        ' Resolve device + engine mode
+        Dim dev As IODevices.IODevice = Nothing
+        Dim useNative As Boolean = False
+
+        Select Case deviceName.ToLowerInvariant()
+            Case "dev1"
+                dev = dev1
+                useNative = String.Equals(GpibEngineDev1, "native", StringComparison.OrdinalIgnoreCase)
+
+            Case "dev2"
+                dev = dev2
+                useNative = String.Equals(GpibEngineDev2, "native", StringComparison.OrdinalIgnoreCase)
+
+            Case Else
+                MessageBox.Show("Unknown device in SPINNER: " & deviceName)
+                Exit Sub
+        End Select
+
+        If dev Is Nothing Then
+            MessageBox.Show("Device not available: " & deviceName)
+            Exit Sub
         End If
 
         ' === FIRST USER CHANGE ===
         If initFlag = "0" Then
-            ' Mark as initialised
             parts(3) = "1"
             nud.Tag = String.Join("|", parts)
 
-            ' Force value to MIN on first change
+            ' Set spinner to the configured min (this will re-enter this handler once)
             nud.Value = minValFromTag
 
             Dim scaledFirst As Double = CDbl(minValFromTag) * scale
             Dim firstStr As String = scaledFirst.ToString("G", Globalization.CultureInfo.InvariantCulture)
-            Dim firstCmd As String = commandPrefix & " " & firstStr
+            Dim firstCmd As String = commandPrefix.TrimEnd() & " " & firstStr
 
-            Dim dev As Object = Nothing
-            Select Case deviceName.ToLowerInvariant()
-                Case "dev1" : dev = dev1
-                Case "dev2" : dev = dev2
-            End Select
-
-            If dev IsNot Nothing Then
-                If UsenativeGpibEngine Then
-                    txtq1c.Text = firstCmd
-                End If
-                Dim useErrFirst As Boolean = GetSendUseErrorFlag(deviceName)
-                dev.SendAsync(firstCmd, useErrFirst)
+            If useNative Then
+                NativeSend(deviceName, firstCmd)   ' <-- IMPORTANT: use the working native path
+            Else
+                dev.SendAsync(firstCmd, True)
             End If
 
             Exit Sub
@@ -2304,22 +2440,15 @@ Partial Class Formtest
         ' === NORMAL CHANGES AFTER FIRST ===
         Dim scaledValue As Double = CDbl(nud.Value) * scale
         Dim valueStr As String = scaledValue.ToString("G", Globalization.CultureInfo.InvariantCulture)
-        Dim cmd As String = commandPrefix & " " & valueStr
+        Dim cmd As String = commandPrefix.TrimEnd() & " " & valueStr
 
-        Dim devNorm As Object = Nothing
-        Select Case deviceName.ToLowerInvariant()
-            Case "dev1" : devNorm = dev1
-            Case "dev2" : devNorm = dev2
-        End Select
-
-        If devNorm IsNot Nothing Then
-            If UsenativeGpibEngine Then
-                txtq1c.Text = cmd
-            End If
-            Dim useErrNorm As Boolean = GetSendUseErrorFlag(deviceName)
-            devNorm.SendAsync(cmd, useErrNorm)
+        If useNative Then
+            NativeSend(deviceName, cmd)            ' <-- IMPORTANT: use the working native path
+        Else
+            dev.SendAsync(cmd, True)
         End If
     End Sub
+
 
 
     Private Sub Spinner_KeepBlank(sender As Object, e As EventArgs)
@@ -2375,13 +2504,14 @@ Partial Class Formtest
 
 
     Private Sub SendLinesButton_Click(sender As Object, e As EventArgs)
-        Dim b As Button = DirectCast(sender, Button)
-        Dim meta = CStr(b.Tag).Split("|"c)
+        Dim b As Button = TryCast(sender, Button)
+        If b Is Nothing Then Exit Sub
 
-        If meta.Length < 2 Then Exit Sub
+        Dim metaParts = CStr(b.Tag).Split("|"c)
+        If metaParts.Length < 2 Then Exit Sub
 
-        Dim areaName = meta(0)
-        Dim deviceName = meta(1)
+        Dim areaName As String = metaParts(0).Trim()
+        Dim deviceName As String = metaParts(1).Trim()
 
         Dim tb As TextBox = TryCast(GetControlByName(areaName), TextBox)
         If tb Is Nothing Then
@@ -2389,29 +2519,44 @@ Partial Class Formtest
             Exit Sub
         End If
 
-        ' Get device object
-        Dim dev = If(deviceName = "dev1", dev1, If(deviceName = "dev2", dev2, Nothing))
+        ' Resolve device + engine mode
+        Dim dev As IODevices.IODevice = Nothing
+        Dim useNative As Boolean = False
+
+        Select Case deviceName.ToLowerInvariant()
+            Case "dev1"
+                dev = dev1
+                useNative = String.Equals(GpibEngineDev1, "native", StringComparison.OrdinalIgnoreCase)
+
+            Case "dev2"
+                dev = dev2
+                useNative = String.Equals(GpibEngineDev2, "native", StringComparison.OrdinalIgnoreCase)
+
+            Case Else
+                MessageBox.Show("Invalid device: " & deviceName)
+                Exit Sub
+        End Select
+
         If dev Is Nothing Then
-            MessageBox.Show("Invalid device: " & deviceName)
+            MessageBox.Show("Device not available: " & deviceName)
             Exit Sub
         End If
 
-        ' Process each line
         For Each rawLine In tb.Lines
             Dim line = rawLine.Trim()
-
-            If line = "" Then Continue For          ' skip blanks
-            If line.StartsWith(";") Then Continue For ' skip comments
+            If line = "" Then Continue For
+            If line.StartsWith(";"c) Then Continue For
 
             Dim finalCmd As String = line & TermStr2()
-            If UsenativeGpibEngine Then
-                txtq1c.Text = finalCmd
+
+            If useNative Then
+                ' IMPORTANT: don't PerformClick from USER tab; use the working native path
+                NativeSend(deviceName, finalCmd)
+            Else
+                dev.SendAsync(finalCmd, True)
             End If
-            Dim useErr As Boolean = GetSendUseErrorFlag(deviceName)
-            dev.SendAsync(finalCmd, useErr)
         Next
     End Sub
-
 
 
     Private Sub UpdateChartFromText(ch As DataVisualization.Charting.Chart,
@@ -2683,11 +2828,249 @@ Partial Class Formtest
     End Function
 
 
+    Private Sub RunQueryToFile(deviceName As String,
+                           queryCommand As String,
+                           filePathControlName As String,
+                           Optional resultControlName As String = "")
+
+        ' queryCommand is a SINGLE query, e.g. ":READ?" or ":SENS:RES:RANG?"
+        If String.IsNullOrWhiteSpace(queryCommand) Then Exit Sub
+
+        Dim filePath As String = ""
+        If Not String.IsNullOrWhiteSpace(filePathControlName) Then
+            Dim fpCtrl = TryCast(GetControlByName(filePathControlName), TextBox)
+            If fpCtrl IsNot Nothing Then filePath = fpCtrl.Text.Trim()
+        End If
+
+        ' Default file name if none provided
+        If String.IsNullOrWhiteSpace(filePath) Then
+            filePath = "QueriesToFile.csv"
+        End If
+
+        ' --- Run query (native or standalone) ---
+        Dim dev As IODevices.IODevice = GetDeviceByName(deviceName)
+        If dev Is Nothing Then
+            MessageBox.Show("Unknown device: " & deviceName)
+            Exit Sub
+        End If
+
+        Dim raw As String = ""
+
+        If IsNativeEngine(deviceName) Then
+            raw = NativeQuery(deviceName, queryCommand)
+        Else
+            Dim q As IODevices.IOQuery = Nothing
+            Dim st As Integer = dev.QueryBlocking(queryCommand & TermStr2(), q, False)
+            If st = 0 AndAlso q IsNot Nothing Then
+                raw = q.ResponseAsString
+            Else
+                raw = "ERR " & st & If(q IsNot Nothing AndAlso Not String.IsNullOrEmpty(q.errmsg), ": " & q.errmsg, "")
+            End If
+        End If
+
+        raw = If(raw, "").Trim()
+
+        ' --- Write line to file (force into My Documents\WinGPIBdata unless rooted) ---
+        Try
+            Dim baseDir As String = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "WinGPIBdata")
+            If Not Directory.Exists(baseDir) Then Directory.CreateDirectory(baseDir)
+
+            If Not Path.IsPathRooted(filePath) Then
+                filePath = Path.Combine(baseDir, filePath)
+            End If
+
+            Dim dir As String = Path.GetDirectoryName(filePath)
+            If Not String.IsNullOrEmpty(dir) AndAlso Not Directory.Exists(dir) Then
+                Directory.CreateDirectory(dir)
+            End If
+
+            Dim ts As String = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", Globalization.CultureInfo.InvariantCulture)
+            Dim cmdEsc As String = queryCommand.Replace("""", """""")
+            Dim respEsc As String = raw.Replace("""", """""")
+
+            Dim line As String = $"""{ts}"",""{deviceName}"",""{cmdEsc}"",""{respEsc}"""
+
+            SyncLock Me
+                System.IO.File.AppendAllText(filePath, line & Environment.NewLine)
+            End SyncLock
+
+        Catch ex As Exception
+            MessageBox.Show("QUERIESTOFILE write failed:" & vbCrLf & ex.Message)
+        End Try
+
+        ' Optional: update a result control with the latest reply
+        If Not String.IsNullOrWhiteSpace(resultControlName) Then
+            Dim targets() As Control = Me.Controls.Find(resultControlName, True)
+            For Each c As Control In targets
+                If TypeOf c Is TextBox Then
+                    DirectCast(c, TextBox).Text = raw
+                ElseIf TypeOf c Is Label Then
+                    DirectCast(c, Label).Text = raw
+                End If
+            Next
+        End If
+
+    End Sub
 
 
+    Private Sub RunSendToFile(deviceName As String,
+                          cmdToSend As String,
+                          filePathControlName As String,
+                          Optional resultControlName As String = "")
+
+        ' Resolve device
+        Dim dev As IODevices.IODevice = GetDeviceByName(deviceName)
+        If dev Is Nothing Then
+            MessageBox.Show("Unknown device: " & deviceName)
+            Exit Sub
+        End If
+
+        ' --- SEND (native or standalone) ---
+        If IsNativeEngine(deviceName) Then
+            NativeSend(deviceName, cmdToSend)   ' your working native send path
+        Else
+            dev.SendAsync(cmdToSend & TermStr2(), True)
+        End If
+
+        ' --- Determine file path (same rules as your RunQueryToFile) ---
+        Dim filePath As String = ""
+        If Not String.IsNullOrWhiteSpace(filePathControlName) Then
+            Dim fpCtrl = TryCast(GetControlByName(filePathControlName), TextBox)
+            If fpCtrl IsNot Nothing Then filePath = fpCtrl.Text.Trim()
+        End If
+
+        If String.IsNullOrWhiteSpace(filePath) Then
+            filePath = "QueriesToFile.csv"
+        End If
+
+        ' --- Write CSV line with BLANK response ---
+        Try
+            Dim baseDir As String = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "WinGPIBdata")
+            If Not Directory.Exists(baseDir) Then Directory.CreateDirectory(baseDir)
+
+            If Not System.IO.Path.IsPathRooted(filePath) Then
+                filePath = System.IO.Path.Combine(baseDir, filePath)
+            End If
+
+            Dim dir As String = System.IO.Path.GetDirectoryName(filePath)
+            If Not String.IsNullOrEmpty(dir) AndAlso Not System.IO.Directory.Exists(dir) Then
+                System.IO.Directory.CreateDirectory(dir)
+            End If
+
+            Dim ts As String = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss",
+                                                 Globalization.CultureInfo.InvariantCulture)
+
+            Dim cmdEsc As String = cmdToSend.Replace("""", """""")
+            Dim respEsc As String = "" ' no reply expected
+
+            Dim lineOut As String = $"""{ts}"",""{deviceName}"",""{cmdEsc}"",""{respEsc}"""
+
+            SyncLock Me
+                System.IO.File.AppendAllText(filePath, lineOut & Environment.NewLine)
+            End SyncLock
+
+        Catch ex As Exception
+            MessageBox.Show("SEND(no reply) write failed:" & vbCrLf & ex.Message)
+        End Try
+
+        ' Optional UI update: you can show "(noreply)" or blank
+        If Not String.IsNullOrWhiteSpace(resultControlName) Then
+            Dim targets() As Control = Me.Controls.Find(resultControlName, True)
+            For Each c As Control In targets
+                If TypeOf c Is TextBox Then
+                    DirectCast(c, TextBox).Text = ""   ' no reply
+                ElseIf TypeOf c Is Label Then
+                    DirectCast(c, Label).Text = ""
+                End If
+            Next
+        End If
+
+    End Sub
 
 
+    Private Function MakeSafeFileName(input As String) As String
+        If input Is Nothing Then Return ""
 
+        Dim s As String = input.Trim()
+
+        ' 1) Remove invalid *path* characters first (prevents Path.GetFileName throwing)
+        For Each ch As Char In System.IO.Path.GetInvalidPathChars()
+            s = s.Replace(ch, "_"c)
+        Next
+
+        ' 2) Now it is safe to call GetFileName (also handles if user pasted a full path)
+        Try
+            s = System.IO.Path.GetFileName(s)
+        Catch
+            ' If anything weird still slips through, just use the raw string after path-char cleanup
+            ' (and continue sanitising below)
+        End Try
+
+        ' 3) Remove invalid *file name* characters
+        For Each ch As Char In System.IO.Path.GetInvalidFileNameChars()
+            s = s.Replace(ch, "_"c)
+        Next
+
+        ' 4) Extra hardening: remove control chars explicitly
+        Dim sb As New System.Text.StringBuilder()
+        For Each ch As Char In s
+            If Not Char.IsControl(ch) Then sb.Append(ch)
+        Next
+        s = sb.ToString().Trim()
+
+        Return s
+    End Function
+
+
+    Private Sub RunQueriesToFileFromTextArea(deviceName As String,
+                                        scriptControlName As String,
+                                        filePathControlName As String,
+                                        Optional resultControlName As String = "")
+
+        Dim scriptTb As TextBox = TryCast(GetControlByName(scriptControlName), TextBox)
+        If scriptTb Is Nothing Then
+            Timer15.Enabled = False
+            Exit Sub
+        End If
+
+        For Each rawLine As String In scriptTb.Lines
+            Dim line As String = rawLine.Trim()
+            If line = "" Then Continue For
+            If line.StartsWith(";"c) Then Continue For
+
+            ' Detect our explicit marker
+            Dim noReply As Boolean = False
+            If line.StartsWith("(noreply)", StringComparison.OrdinalIgnoreCase) Then
+                noReply = True
+                line = line.Substring(9).Trim() ' len("(noreply)") = 9
+            End If
+
+            If line = "" Then Continue For
+
+            If noReply Then
+                ' SEND only, but still log to CSV with blank response
+                RunSendToFile(deviceName, line, filePathControlName, resultControlName)
+            Else
+                ' QUERY + log reply to CSV
+                RunQueryToFile(deviceName, line, filePathControlName, resultControlName)
+            End If
+        Next
+
+    End Sub
+
+
+    Private Sub Timer15_Tick(sender As Object, e As EventArgs) Handles Timer15.Tick
+        Dim autoCb As CheckBox = GetCheckboxFor(Auto15ScriptBoxName, "FuncAuto")
+        If autoCb Is Nothing OrElse Not autoCb.Checked Then
+            Timer15.Enabled = False
+            Exit Sub
+        End If
+
+        RunQueriesToFileFromTextArea(Auto15DeviceName,
+                                     Auto15ScriptBoxName,
+                                     Auto15FilePathControl,
+                                     Auto15ResultControl)
+    End Sub
 
 
 
