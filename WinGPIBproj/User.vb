@@ -53,6 +53,12 @@ Partial Class Formtest
     ' NEW: stops Timer5 re-entering while a query is running
     Private UserAutoBusy As Integer = 0
 
+    ' Stats panel runtime state =====
+    Private StatsState As New Dictionary(Of String, RunningStatsState)(StringComparer.OrdinalIgnoreCase)
+    ' Holds the per-panel UI row outputs (label -> value label)
+    Private StatsRows As New Dictionary(Of String, List(Of StatsRow))(StringComparer.OrdinalIgnoreCase)
+
+
     ' TXT Format:
     ' BUTTON;Caption;Action;Device;CommandOrPrefix;ValueControl;ResultControl
     '
@@ -1481,16 +1487,136 @@ Partial Class Formtest
                             End Sub
                     End If
 
+                Case "STATSPANEL"
+                    ' STATSPANEL;PanelName;Caption;ResultTarget;x=..;y=..;w=..;h=..;format=G6
+
+                    If parts.Length < 4 Then Continue For
+
+                    Dim panelName As String = parts(1).Trim()
+                    Dim caption As String = parts(2).Trim()
+                    Dim resultTarget As String = parts(3).Trim()
+
+                    Dim x As Integer = 20
+                    Dim y As Integer = 20
+                    Dim w As Integer = 260
+                    Dim h As Integer = 160
+                    Dim fmt As String = "G6"
+
+                    For i As Integer = 4 To parts.Length - 1
+                        Dim p = parts(i).Trim()
+                        If Not p.Contains("="c) Then Continue For
+                        Dim kv = p.Split("="c)
+                        If kv.Length <> 2 Then Continue For
+
+                        Dim key = kv(0).Trim().ToLowerInvariant()
+                        Dim val = kv(1).Trim()
+
+                        Select Case key
+                            Case "x" : ParseIntField(val, x)
+                            Case "y" : ParseIntField(val, y)
+                            Case "w" : ParseIntField(val, w)
+                            Case "h" : ParseIntField(val, h)
+                            Case "format" : fmt = val
+                        End Select
+                    Next
+
+                    Dim gb As New GroupBox()
+                    gb.Name = panelName
+                    gb.Text = caption
+                    gb.Location = New Point(x, y)
+                    gb.Size = New Size(w, h)
+                    gb.Tag = "STATSPANEL|" & resultTarget & "|" & fmt
+                    GroupBoxCustom.Controls.Add(gb)
+
+                    ' Init state/rows
+                    If Not StatsState.ContainsKey(panelName) Then
+                        StatsState(panelName) = New RunningStatsState()
+                    Else
+                        StatsState(panelName).Reset()
+                    End If
+
+                    If Not StatsRows.ContainsKey(panelName) Then
+                        StatsRows(panelName) = New List(Of StatsRow)()
+                    Else
+                        StatsRows(panelName).Clear()
+                    End If
+
+                    ' Hook to source textbox
+                    Dim src = TryCast(GetControlByName(resultTarget), TextBox)
+                    If src IsNot Nothing Then
+                        AddHandler src.TextChanged,
+                            Sub(senderSrc As Object, eSrc As EventArgs)
+                                Dim t As String = DirectCast(senderSrc, TextBox).Text
+                                Dim d As Double
+                                If TryExtractFirstDouble(t, d) Then
+                                    UpdateStatsPanel(panelName, d)
+                                End If
+                            End Sub
+                    End If
+
+                    Continue For
 
 
+                Case "STAT"
+                    ' STAT;PanelName;Label;FuncKey;[ref=MEAN/FIRST/<number>][;units=decimal|scientific]
 
+                    If parts.Length < 4 Then Continue For
 
+                    Dim panelName As String = parts(1).Trim()
+                    Dim labelText As String = parts(2).Trim()
+                    Dim funcKey As String = parts(3).Trim().ToUpperInvariant()
+                    Dim refTok As String = ""
+                    Dim fmtOverride As String = ""
 
+                    For i As Integer = 4 To parts.Length - 1
+                        Dim p = parts(i).Trim()
 
+                        If p.StartsWith("ref=", StringComparison.OrdinalIgnoreCase) Then
+                            refTok = p.Substring(4).Trim()
 
+                        ElseIf p.StartsWith("units=", StringComparison.OrdinalIgnoreCase) Then
+                            Dim u = p.Substring(6).Trim().ToLowerInvariant()
+                            If u = "decimal" Then
+                                fmtOverride = "F"
+                            ElseIf u = "scientific" Then
+                                fmtOverride = "E"
+                            End If
+                        End If
+                    Next
 
+                    Dim gb = TryCast(GetControlByName(panelName), GroupBox)
+                    If gb Is Nothing Then Continue For
 
+                    Dim rowY As Integer = 18 + (StatsRows(panelName).Count * 18)
 
+                    Dim lblName As New Label()
+                    lblName.AutoSize = True
+                    lblName.Text = labelText
+                    lblName.Location = New Point(10, rowY)
+                    lblName.ForeColor = SystemColors.ControlText
+
+                    Dim lblVal As New Label()
+                    lblVal.AutoSize = True
+                    lblVal.Text = ""
+                    lblVal.Location = New Point(gb.Width \ 2, rowY)
+                    lblVal.ForeColor = SystemColors.ControlText
+                    lblVal.Font = New Font("Consolas", 8.25F)
+
+                    gb.Controls.Add(lblName)
+                    gb.Controls.Add(lblVal)
+
+                    StatsRows(panelName).Add(New StatsRow With {
+                        .LabelText = labelText,
+                        .FuncKey = funcKey,
+                        .RefToken = refTok,
+                        .FormatOverride = fmtOverride,
+                        .ValueLabel = lblVal
+                    })
+
+                    ' Draw immediately if we already have samples
+                    UpdateStatsPanel(panelName, Double.NaN)
+
+                    Continue For
 
 
 
@@ -1822,13 +1948,17 @@ FanOut:
 
         ' Only resolve a GPIB device for actions that actually need one
         Dim dev As IODevices.IODevice = Nothing
-        If Not String.Equals(action, "CLEARCHART", StringComparison.OrdinalIgnoreCase) Then
+
+        If Not String.Equals(action, "CLEARCHART", StringComparison.OrdinalIgnoreCase) AndAlso
+   Not String.Equals(action, "RESETSTATS", StringComparison.OrdinalIgnoreCase) Then
+
             dev = GetDeviceByName(deviceName)
             If dev Is Nothing Then
                 MessageBox.Show("Device not available: " & deviceName)
                 Exit Sub
             End If
         End If
+
 
         Select Case action
 
@@ -1992,6 +2122,15 @@ FanOut:
                     Timer15.Enabled = True
                 Else
                     Timer15.Enabled = False
+                End If
+
+            Case "RESETSTATS"
+                ' deviceName holds panelName for RESETSTATS
+                Dim panelName As String = deviceName
+
+                If StatsState.ContainsKey(panelName) Then
+                    StatsState(panelName).Reset()
+                    UpdateStatsPanel(panelName, Double.NaN) ' refresh display
                 End If
 
         End Select
@@ -3146,6 +3285,188 @@ FanOut:
     End Function
 
 
+    ' ===== One output row in a stats panel =====
+    Private Class StatsRow
+        Public LabelText As String
+        Public FuncKey As String
+        Public RefToken As String
+        Public ValueLabel As Label
+        Public FormatOverride As String   ' "", "F", or "E"
+    End Class
+
+
+    ' ===== Running stats (fast, stable) =====
+    Private Class RunningStatsState
+        Public Count As Long
+        Public Min As Double = Double.PositiveInfinity
+        Public Max As Double = Double.NegativeInfinity
+        Public Last As Double
+        Public First As Double
+        Public HasFirst As Boolean
+
+        ' Welford for mean/std
+        Public Mean As Double
+        Public M2 As Double
+
+
+        Public Sub Reset()
+            Count = 0
+            Min = Double.PositiveInfinity
+            Max = Double.NegativeInfinity
+            Last = 0
+            First = 0
+            HasFirst = False
+            Mean = 0
+            M2 = 0
+        End Sub
+
+
+        Public Sub AddSample(x As Double)
+            Last = x
+            If Not HasFirst Then
+                First = x
+                HasFirst = True
+            End If
+
+            If x < Min Then Min = x
+            If x > Max Then Max = x
+
+            Count += 1
+            Dim delta As Double = x - Mean
+            Mean += delta / Count
+            Dim delta2 As Double = x - Mean
+            M2 += delta * delta2
+        End Sub
+
+
+        Public Function StdDevSample() As Double
+            If Count < 2 Then Return 0
+            Return Math.Sqrt(M2 / (Count - 1))
+        End Function
+    End Class
+
+
+    Private Function TryExtractFirstDouble(text As String, ByRef value As Double) As Boolean
+        If String.IsNullOrWhiteSpace(text) Then Return False
+
+        ' split on common separators, take first token that parses
+        Dim tokens = text.Split({","c, ";"c, " "c, ControlChars.Cr, ControlChars.Lf},
+                            StringSplitOptions.RemoveEmptyEntries)
+
+        For Each tok In tokens
+            Dim t = tok.Trim()
+            If Double.TryParse(t, Globalization.NumberStyles.Float,
+                           Globalization.CultureInfo.InvariantCulture, value) Then
+                If Not Double.IsNaN(value) AndAlso Not Double.IsInfinity(value) Then Return True
+            End If
+        Next
+
+        Return False
+    End Function
+
+
+    Private Sub UpdateStatsPanel(panelName As String, sample As Double)
+
+        If Not StatsState.ContainsKey(panelName) Then Exit Sub
+        If Not StatsRows.ContainsKey(panelName) Then Exit Sub
+
+        Dim st = StatsState(panelName)
+
+        ' Add new sample (unless refresh-only)
+        If Not Double.IsNaN(sample) Then
+            st.AddSample(sample)
+        End If
+
+        Dim gb = TryCast(GetControlByName(panelName), GroupBox)
+        If gb Is Nothing Then Exit Sub
+
+        ' Panel default format (e.g. G6)
+        Dim tagStr = TryCast(gb.Tag, String)
+        Dim panelFmt As String = "G6"
+        If Not String.IsNullOrEmpty(tagStr) Then
+            Dim tp = tagStr.Split("|"c)
+            If tp.Length >= 3 Then panelFmt = tp(2)
+        End If
+
+        For Each r In StatsRows(panelName)
+
+            Dim outVal As String = ""
+
+            Select Case r.FuncKey
+
+                Case "MIN"
+                    If st.Count > 0 Then outVal = FormatStatValue(st.Min, panelFmt, r.FormatOverride)
+
+                Case "MAX"
+                    If st.Count > 0 Then outVal = FormatStatValue(st.Max, panelFmt, r.FormatOverride)
+
+                Case "PKPK"
+                    If st.Count > 0 Then outVal = FormatStatValue(st.Max - st.Min, panelFmt, r.FormatOverride)
+
+                Case "MEAN"
+                    If st.Count > 0 Then outVal = FormatStatValue(st.Mean, panelFmt, r.FormatOverride)
+
+                Case "STD"
+                    If st.Count > 1 Then outVal = FormatStatValue(st.StdDevSample(), panelFmt, r.FormatOverride)
+
+                Case "LAST"
+                    If st.Count > 0 Then outVal = FormatStatValue(st.Last, panelFmt, r.FormatOverride)
+
+                Case "COUNT"
+                    outVal = st.Count.ToString(Globalization.CultureInfo.InvariantCulture)
+
+                Case "PPM"
+                    outVal = ComputePpmString(st, r.RefToken, panelFmt)
+
+                Case Else
+                    outVal = ""
+            End Select
+
+            r.ValueLabel.Text = outVal
+        Next
+
+    End Sub
+
+
+
+    Private Function ComputePpmString(st As RunningStatsState, refTok As String, fmt As String) As String
+        If st.Count = 0 Then Return ""
+
+        Dim refVal As Double = 0
+        Dim rt As String = If(refTok, "").Trim()
+
+        If rt = "" OrElse rt.Equals("MEAN", StringComparison.OrdinalIgnoreCase) Then
+            refVal = st.Mean
+        ElseIf rt.Equals("FIRST", StringComparison.OrdinalIgnoreCase) Then
+            If Not st.HasFirst Then Return ""
+            refVal = st.First
+        Else
+            Double.TryParse(rt, Globalization.NumberStyles.Float,
+                        Globalization.CultureInfo.InvariantCulture, refVal)
+        End If
+
+        If refVal = 0 Then Return ""
+
+        Dim ppm As Double = ((st.Last - refVal) / refVal) * 1000000.0R
+        Return ppm.ToString(fmt, Globalization.CultureInfo.InvariantCulture)
+    End Function
+
+
+    Private Function FormatStatValue(value As Double,
+                                 panelFmt As String,
+                                 rowFmt As String) As String
+        Dim f As String = panelFmt
+
+        If Not String.IsNullOrEmpty(rowFmt) Then
+            If rowFmt = "F" Then
+                f = "F6"        ' forced decimal
+            ElseIf rowFmt = "E" Then
+                f = "E6"        ' forced scientific
+            End If
+        End If
+
+        Return value.ToString(f, Globalization.CultureInfo.InvariantCulture)
+    End Function
 
 
 End Class
