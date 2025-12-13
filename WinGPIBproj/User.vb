@@ -1488,7 +1488,7 @@ Partial Class Formtest
                     End If
 
                 Case "STATSPANEL"
-                    ' STATSPANEL;PanelName;Caption;ResultTarget;x=..;y=..;w=..;h=..;format=G6
+                    ' STATSPANEL;PanelName;Caption;ResultTarget;x=..;y=..;w=..;h=..;format=G7
 
                     If parts.Length < 4 Then Continue For
 
@@ -3459,7 +3459,7 @@ FanOut:
 
         If Not String.IsNullOrEmpty(rowFmt) Then
             If rowFmt = "F" Then
-                f = "F6"        ' forced decimal
+                f = panelFmt   ' respect STATSPANEL format
             ElseIf rowFmt = "E" Then
                 f = "E6"        ' forced scientific
             End If
