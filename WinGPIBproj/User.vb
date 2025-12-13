@@ -50,6 +50,9 @@ Partial Class Formtest
     Private GpibEngineDev1 As String = "standalone"   ' default if not specified
     Private GpibEngineDev2 As String = "standalone"   ' default if not specified
 
+    ' NEW: stops Timer5 re-entering while a query is running
+    Private UserAutoBusy As Integer = 0
+
     ' TXT Format:
     ' BUTTON;Caption;Action;Device;CommandOrPrefix;ValueControl;ResultControl
     '
@@ -1557,8 +1560,9 @@ Partial Class Formtest
 
 
     Private Sub RunQueryToResult(deviceName As String,
-                            commandOrPrefix As String,
-                            resultControlName As String)
+                                 commandOrPrefix As String,
+                                 resultControlName As String,
+                                 Optional rawOverride As String = Nothing)
 
         Dim target = GetControlByName(resultControlName)
         If target Is Nothing Then
@@ -1588,45 +1592,49 @@ Partial Class Formtest
         ' =========================================================
         '   GET RAW RESPONSE (native or standalone)
         ' =========================================================
-        If IsNativeEngine(deviceName) Then
-
-            ' NATIVE PATH: use existing UI query buttons/textboxes
-            raw = NativeQuery(deviceName, commandOrPrefix)
-
+        If rawOverride IsNot Nothing Then
+            raw = rawOverride
         Else
+            If IsNativeEngine(deviceName) Then
 
-            ' STANDALONE PATH: original IODevices QueryBlocking behaviour
-            Dim q As IODevices.IOQuery = Nothing
-            Dim status As Integer
-
-            Dim fullCmd As String = commandOrPrefix & TermStr2()
-            status = dev.QueryBlocking(fullCmd, q, False)
-
-            If status = 0 AndAlso q IsNot Nothing Then
-
-                raw = q.ResponseAsString.Trim()
-
-            ElseIf q IsNot Nothing Then
-
-                ' Treat "Blocking" as a non-fatal "busy" condition – keep old value
-                If status = -1 AndAlso Not String.IsNullOrEmpty(q.errmsg) AndAlso
-               q.errmsg.IndexOf("Blocking", StringComparison.OrdinalIgnoreCase) >= 0 Then
-
-                    ' Just bail out without touching any controls
-                    Exit Sub
-                End If
-
-                outText = "ERR " & status & ": " & q.errmsg
+                ' NATIVE PATH: use existing UI query buttons/textboxes
+                raw = NativeQuery(deviceName, commandOrPrefix)
 
             Else
-                outText = "ERR " & status & " (no IOQuery)"
-            End If
 
-            ' If we already built an ERR string, skip numeric formatting and just output it
-            If outText.StartsWith("ERR ", StringComparison.OrdinalIgnoreCase) Then
-                GoTo FanOut
-            End If
+                ' STANDALONE PATH: original IODevices QueryBlocking behaviour
+                Dim q As IODevices.IOQuery = Nothing
+                Dim status As Integer
 
+                Dim fullCmd As String = commandOrPrefix & TermStr2()
+                status = dev.QueryBlocking(fullCmd, q, False)
+
+                If status = 0 AndAlso q IsNot Nothing Then
+
+                    raw = q.ResponseAsString.Trim()
+
+                ElseIf q IsNot Nothing Then
+
+                    ' Treat "Blocking" as a non-fatal "busy" condition – keep old value
+                    If status = -1 AndAlso Not String.IsNullOrEmpty(q.errmsg) AndAlso
+               q.errmsg.IndexOf("Blocking", StringComparison.OrdinalIgnoreCase) >= 0 Then
+
+                        ' Just bail out without touching any controls
+                        Exit Sub
+                    End If
+
+                    outText = "ERR " & status & ": " & q.errmsg
+
+                Else
+                    outText = "ERR " & status & " (no IOQuery)"
+                End If
+
+                ' If we already built an ERR string, skip numeric formatting and just output it
+                If outText.StartsWith("ERR ", StringComparison.OrdinalIgnoreCase) Then
+                    GoTo FanOut
+                End If
+
+            End If
         End If
 
         raw = If(raw, "").Trim()
@@ -1726,7 +1734,14 @@ FanOut:
         ' ============================
         '      FAN-OUT TO CONTROLS
         ' ============================
-        Dim targets = Me.Controls.Find(resultControlName, True)
+        Dim targets = GroupBoxCustom.Controls.Find(resultControlName, True)
+
+        ' Fallback (only if the control isn't in GroupBoxCustom)
+        If targets Is Nothing OrElse targets.Length = 0 Then
+            targets = Me.Controls.Find(resultControlName, True)
+        End If
+
+        GroupBoxCustom.SuspendLayout()
 
         For Each targetCtrl In targets
 
@@ -1761,6 +1776,8 @@ FanOut:
             End If
 
         Next
+
+        GroupBoxCustom.ResumeLayout(False)
 
     End Sub
 
@@ -2039,26 +2056,40 @@ FanOut:
 
     Private Sub Timer5_Tick(sender As Object, e As EventArgs) Handles Timer5.Tick
 
-        ' If Auto checkbox is no longer present or unchecked, stop auto-read
         Dim autoCb As CheckBox = GetCheckboxFor(AutoReadResultControl, "FuncAuto")
         If autoCb Is Nothing OrElse Not autoCb.Checked Then
             Timer5.Enabled = False
             Exit Sub
         End If
 
-        ' Re-run the last query definition
-        If Not String.IsNullOrEmpty(AutoReadDeviceName) AndAlso
-           Not String.IsNullOrEmpty(AutoReadCommand) Then
-
-            If String.Equals(AutoReadAction, "QUERIESTOFILE", StringComparison.OrdinalIgnoreCase) Then
-                RunQueryToFile(AutoReadDeviceName, AutoReadCommand, AutoReadValueControl, AutoReadResultControl)
-            Else
-                RunQueryToResult(AutoReadDeviceName, AutoReadCommand, AutoReadResultControl)
-            End If
-
-        Else
+        If String.IsNullOrEmpty(AutoReadDeviceName) OrElse String.IsNullOrEmpty(AutoReadCommand) Then
             Timer5.Enabled = False
+            Exit Sub
         End If
+
+        ' Prevent overlap (timer ticks while query still running)
+        If Threading.Interlocked.Exchange(UserAutoBusy, 1) = 1 Then Exit Sub
+
+        Dim devName As String = AutoReadDeviceName
+        Dim cmd As String = AutoReadCommand
+        Dim resultName As String = AutoReadResultControl
+
+        Threading.Tasks.Task.Run(Sub()
+
+                                     Dim raw As String = QueryRawOnly(devName, cmd)
+
+                                     ' If busy/no update, just release lock
+                                     If raw = "" Then
+                                         Threading.Interlocked.Exchange(UserAutoBusy, 0)
+                                         Return
+                                     End If
+
+                                     Me.BeginInvoke(Sub()
+                                                        RunQueryToResult(devName, cmd, resultName, raw)
+                                                        Threading.Interlocked.Exchange(UserAutoBusy, 0)
+                                                    End Sub)
+
+                                 End Sub)
 
     End Sub
 
@@ -3072,6 +3103,35 @@ FanOut:
                                      Auto15ResultControl)
     End Sub
 
+
+    ' Returns just the raw reply (no UI updates)
+    Private Function QueryRawOnly(deviceName As String, cmd As String) As String
+
+        If IsNativeEngine(deviceName) Then
+            ' Runs your existing native path (but we’ll call it off-thread)
+            Return NativeQuery(deviceName, cmd)
+        End If
+
+        Dim dev As IODevices.IODevice = GetDeviceByName(deviceName)
+        If dev Is Nothing Then Return "ERR Unknown device: " & deviceName
+
+        Dim q As IODevices.IOQuery = Nothing
+        Dim st As Integer = dev.QueryBlocking(cmd & TermStr2(), q, False)
+
+        If st = 0 AndAlso q IsNot Nothing Then
+            Return q.ResponseAsString.Trim()
+        End If
+
+        If q IsNot Nothing Then
+            If st = -1 AndAlso Not String.IsNullOrEmpty(q.errmsg) AndAlso
+           q.errmsg.IndexOf("Blocking", StringComparison.OrdinalIgnoreCase) >= 0 Then
+                Return ""   ' keep old value (busy)
+            End If
+            Return "ERR " & st & ": " & q.errmsg
+        End If
+
+        Return "ERR " & st & " (no IOQuery)"
+    End Function
 
 
 
