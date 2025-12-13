@@ -1299,7 +1299,9 @@ Partial Class Formtest
 
                 Case "CHART"
                     ' CHART;ChartName;Caption;ResultTarget;
-                    '       x=..;y=..;w=..;h=..;ymin=..;ymax=..;xstep=..;maxpoints=..;color=..;autoscale=..;linewidth=..
+                    ' x=..;y=..;w=..;h=..;ymin=..;ymax=..;xstep=..;maxpoints=..;
+                    ' color=..;autoscale=..;linewidth=..;
+                    ' innerx=..;innery=..;innerw=..;innerh=..
 
                     If parts.Length < 4 Then Continue For
 
@@ -1315,10 +1317,16 @@ Partial Class Formtest
                     Dim yMin As Double? = Nothing
                     Dim yMax As Double? = Nothing
                     Dim xStep As Double = 1.0R
-                    Dim maxPoints As Integer = 100           ' rolling window length
-                    Dim plotColor As Color = Color.Yellow    ' default trace colour
-                    Dim autoScaleY As Boolean = False        ' default off
-                    Dim lineWidth As Integer = 2             ' NEW: default trace width
+                    Dim maxPoints As Integer = 100
+                    Dim plotColor As Color = Color.Yellow
+                    Dim autoScaleY As Boolean = False
+                    Dim lineWidth As Integer = 2
+
+                    ' Inner plot area (%)
+                    Dim innerX As Single = 2.0F
+                    Dim innerY As Single = 2.0F
+                    Dim innerW As Single = 96.0F
+                    Dim innerH As Single = 96.0F
 
                     ' ---- parse named tokens ----
                     For i As Integer = 4 To parts.Length - 1
@@ -1328,7 +1336,7 @@ Partial Class Formtest
                         Dim kv = p.Split("="c)
                         If kv.Length <> 2 Then Continue For
 
-                        Dim key = kv(0).Trim().ToLower()
+                        Dim key = kv(0).Trim().ToLowerInvariant()
                         Dim val = kv(1).Trim()
 
                         Select Case key
@@ -1361,13 +1369,10 @@ Partial Class Formtest
 
                             Case "color"
                                 Dim c As Color = Color.FromName(val)
-                                ' FromName returns Empty if invalid
-                                If c.ToArgb() <> Color.Empty.ToArgb() Then
-                                    plotColor = c
-                                End If
+                                If c.ToArgb() <> Color.Empty.ToArgb() Then plotColor = c
 
                             Case "autoscale"
-                                Dim v = val.ToLower()
+                                Dim v = val.ToLowerInvariant()
                                 autoScaleY = (v = "yes" OrElse v = "true" OrElse v = "on" OrElse v = "1")
 
                             Case "linewidth"
@@ -1375,10 +1380,32 @@ Partial Class Formtest
                                 If Integer.TryParse(val, lw) AndAlso lw >= 1 AndAlso lw <= 10 Then
                                     lineWidth = lw
                                 End If
+
+                            Case "innerx"
+                                Single.TryParse(val, Globalization.NumberStyles.Float,
+                                                Globalization.CultureInfo.InvariantCulture, innerX)
+
+                            Case "innery"
+                                Single.TryParse(val, Globalization.NumberStyles.Float,
+                                                Globalization.CultureInfo.InvariantCulture, innerY)
+
+                            Case "innerw"
+                                Single.TryParse(val, Globalization.NumberStyles.Float,
+                                                Globalization.CultureInfo.InvariantCulture, innerW)
+
+                            Case "innerh"
+                                Single.TryParse(val, Globalization.NumberStyles.Float,
+                                                Globalization.CultureInfo.InvariantCulture, innerH)
                         End Select
                     Next
 
-                    ' ---- Caption label above chart ----
+                    ' ---- clamp inner plot values ----
+                    innerX = Math.Max(0.0F, Math.Min(innerX, 100.0F))
+                    innerY = Math.Max(0.0F, Math.Min(innerY, 100.0F))
+                    innerW = Math.Max(1.0F, Math.Min(innerW, 100.0F))
+                    innerH = Math.Max(1.0F, Math.Min(innerH, 100.0F))
+
+                    ' ---- caption ----
                     Dim lblCap As New Label()
                     lblCap.Text = caption
                     lblCap.AutoSize = True
@@ -1387,88 +1414,73 @@ Partial Class Formtest
 
                     Dim chartTop As Integer = y + lblCap.Height + 3
 
-                    ' ---- Create chart ----
+                    ' ---- chart ----
                     Dim ch As New DataVisualization.Charting.Chart()
                     ch.Name = chartName
                     ch.Location = New Point(x, chartTop)
                     ch.Size = New Size(w, h)
+                    ch.BackColor = Color.Black
 
                     Dim ca As New DataVisualization.Charting.ChartArea("Default")
                     ch.ChartAreas.Add(ca)
 
-                    Dim s As New DataVisualization.Charting.Series("S1")
-                    s.ChartType = DataVisualization.Charting.SeriesChartType.Line
-                    s.BorderWidth = lineWidth   ' use configured line width
-                    ch.Series.Add(s)
+                    ' Fill chart completely
+                    ca.Position.Auto = False
+                    ca.Position = New DataVisualization.Charting.ElementPosition(0, 0, 100, 100)
 
-                    ' ---- Apply Y range if specified (fixed mode only) ----
+                    ' Apply inner plot padding from config
+                    ca.InnerPlotPosition.Auto = False
+                    ca.InnerPlotPosition = New DataVisualization.Charting.ElementPosition(innerX, innerY, innerW, innerH)
+
+                    ' ---- Y range ----
                     If Not autoScaleY Then
-                        If yMin.HasValue Then
-                            ca.AxisY.Minimum = yMin.Value
-                        Else
-                            ca.AxisY.Minimum = Double.NaN
-                        End If
-
-                        If yMax.HasValue Then
-                            ca.AxisY.Maximum = yMax.Value
-                        Else
-                            ca.AxisY.Maximum = Double.NaN
-                        End If
+                        ca.AxisY.Minimum = If(yMin.HasValue, yMin.Value, Double.NaN)
+                        ca.AxisY.Maximum = If(yMax.HasValue, yMax.Value, Double.NaN)
                     Else
-                        ' Let UpdateChartFromText handle Y limits
                         ca.AxisY.Minimum = Double.NaN
                         ca.AxisY.Maximum = Double.NaN
                     End If
 
-                    ' ================================
-                    '   Dark theme, fixed-style grid
-                    ' ================================
+                    ' ---- grid / axes ----
                     ca.BackColor = Color.Black
-                    ch.BackColor = Color.Black
 
-                    ' X-axis: vertical grid ON, but no labels
                     ca.AxisX.LabelStyle.Enabled = False
                     ca.AxisX.MajorTickMark.Enabled = False
                     ca.AxisX.MinorTickMark.Enabled = False
-
                     ca.AxisX.MajorGrid.Enabled = True
                     ca.AxisX.MajorGrid.LineColor = Color.FromArgb(60, 60, 60)
                     ca.AxisX.MajorGrid.LineDashStyle = DataVisualization.Charting.ChartDashStyle.Dot
-                    ca.AxisX.MinorGrid.Enabled = False
 
-                    ' Y-axis: horizontal grid + smaller font
                     ca.AxisY.MajorGrid.Enabled = True
                     ca.AxisY.MajorGrid.LineColor = Color.FromArgb(80, 80, 80)
-                    ca.AxisY.MinorGrid.Enabled = False
                     ca.AxisY.LabelStyle.ForeColor = Color.White
                     ca.AxisY.LabelStyle.Font = New Font("Segoe UI", 7.0F)
                     ca.AxisY.MajorTickMark.Enabled = False
 
-                    ' Series styling with INI colour
-                    If ch.Series.Count > 0 Then
-                        Dim s0 = ch.Series(0)
-                        s0.Color = plotColor
-                        s0.BorderWidth = lineWidth   ' use configured line width
-                        s0.MarkerStyle = DataVisualization.Charting.MarkerStyle.Circle
-                        s0.MarkerSize = 3
-                        s0.MarkerColor = plotColor
-                    End If
+                    ' ---- series ----
+                    Dim s As New DataVisualization.Charting.Series("S1")
+                    s.ChartType = DataVisualization.Charting.SeriesChartType.Line
+                    s.BorderWidth = lineWidth
+                    s.Color = plotColor
+                    s.MarkerStyle = DataVisualization.Charting.MarkerStyle.Circle
+                    s.MarkerSize = 3
+                    s.MarkerColor = plotColor
+                    ch.Series.Add(s)
 
                     GroupBoxCustom.Controls.Add(ch)
 
-                    ' ---- Wire chart to the textbox that holds numeric data ----
+                    ' ---- bind to textbox ----
                     Dim src = TryCast(GetControlByName(resultTarget), TextBox)
                     If src IsNot Nothing Then
-                        ' Initial draw
                         UpdateChartFromText(ch, src.Text, yMin, yMax, xStep, maxPoints, autoScaleY)
-
-                        ' Update on every text change
                         AddHandler src.TextChanged,
                             Sub(senderSrc As Object, eSrc As EventArgs)
-                                Dim tbSrc = DirectCast(senderSrc, TextBox)
-                                UpdateChartFromText(ch, tbSrc.Text, yMin, yMax, xStep, maxPoints, autoScaleY)
+                                UpdateChartFromText(ch,
+                                                    DirectCast(senderSrc, TextBox).Text,
+                                                    yMin, yMax, xStep, maxPoints, autoScaleY)
                             End Sub
                     End If
+
 
 
 
