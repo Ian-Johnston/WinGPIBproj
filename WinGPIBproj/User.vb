@@ -1738,13 +1738,17 @@ Partial Class Formtest
                             Case "y" : ParseIntField(val, y)
                             Case "w" : ParseIntField(val, w)
                             Case "h" : ParseIntField(val, h)
+
                             Case "maxrows"
                                 Dim mr As Integer
                                 If Integer.TryParse(val, mr) AndAlso mr > 0 Then maxRows = mr
+
                             Case "format"
                                 If val <> "" Then fmt = val
+
                             Case "cols"
                                 If val <> "" Then colsRaw = val
+
                             Case "ppmref"
                                 If val <> "" Then ppmRef = val
                         End Select
@@ -1774,9 +1778,25 @@ Partial Class Formtest
                     dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect
                     dgv.MultiSelect = False
                     dgv.AutoGenerateColumns = False
-                    dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
                     dgv.ScrollBars = ScrollBars.Vertical
-                    dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+
+                    ' IMPORTANT: avoid Fill mode (can cause extra repaint/flicker)
+                    dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
+
+                    ' Reduce flicker: force DoubleBuffered on the grid.
+                    ' Note: DataGridView recreates its handle when hidden/shown, so re-apply on HandleCreated.
+                    Dim ApplyDgvDoubleBuffer As Action =
+        Sub()
+            Try
+                Dim pi = GetType(DataGridView).GetProperty("DoubleBuffered",
+                    Reflection.BindingFlags.Instance Or Reflection.BindingFlags.NonPublic)
+                If pi IsNot Nothing Then pi.SetValue(dgv, True, Nothing)
+            Catch
+            End Try
+        End Sub
+
+                    ApplyDgvDoubleBuffer()
+                    AddHandler dgv.HandleCreated, Sub() ApplyDgvDoubleBuffer()
 
                     ' Build columns from cols=
                     Dim colNames As New List(Of String)
@@ -1809,7 +1829,7 @@ Partial Class Formtest
 
                         ' apply numeric display format to numeric columns
                         If Not colName.Equals("Time", StringComparison.OrdinalIgnoreCase) AndAlso
-                           Not colName.Equals("Count", StringComparison.OrdinalIgnoreCase) Then
+           Not colName.Equals("Count", StringComparison.OrdinalIgnoreCase) Then
                             c.DefaultCellStyle.Format = fmt
                         End If
 
@@ -1847,52 +1867,47 @@ Partial Class Formtest
                     Dim src = TryCast(GetControlByName(resultTarget), TextBox)
                     If src IsNot Nothing Then
                         AddHandler src.TextChanged,
-                            Sub(senderSrc As Object, eSrc As EventArgs)
+            Sub(senderSrc As Object, eSrc As EventArgs)
 
-                                Dim d As Double
-                                If Not TryExtractFirstDouble(DirectCast(senderSrc, TextBox).Text, d) Then Exit Sub
+                Dim d As Double
+                If Not TryExtractFirstDouble(DirectCast(senderSrc, TextBox).Text, d) Then Exit Sub
 
-                                ' update per-grid stats
-                                st.AddSample(d)
+                ' update per-grid stats
+                st.AddSample(d)
 
-                                Dim row As New HistoryRow()
+                Dim row As New HistoryRow()
+                row.Time = DateTime.Now
+                row.Value = d
+                row.Min = If(st.Count > 0, st.Min, 0)
+                row.Max = If(st.Count > 0, st.Max, 0)
+                row.PkPk = If(st.Count > 0, st.Max - st.Min, 0)
+                row.Mean = If(st.Count > 0, st.Mean, 0)
+                row.Std = If(st.Count > 1, st.StdDevSample(), 0)
 
-                                ' IMPORTANT: store DateTime, not a time-only string
-                                ' (prevents 01/01/0001)
-                                row.Time = DateTime.Now
+                ' PPM deviation (default ref = MEAN)
+                Dim refVal As Double = st.Mean
+                If ppmRef.Equals("FIRST", StringComparison.OrdinalIgnoreCase) AndAlso st.HasFirst Then
+                    refVal = st.First
+                ElseIf Not ppmRef.Equals("MEAN", StringComparison.OrdinalIgnoreCase) Then
+                    Dim tmp As Double
+                    If Double.TryParse(ppmRef, Globalization.NumberStyles.Float,
+                                       Globalization.CultureInfo.InvariantCulture, tmp) Then
+                        refVal = tmp
+                    End If
+                End If
 
-                                row.Value = d
+                row.PPM = If(refVal <> 0, ((st.Last - refVal) / refVal) * 1000000.0R, 0)
+                row.Count = CInt(st.Count)
 
-                                row.Min = If(st.Count > 0, st.Min, 0)
-                                row.Max = If(st.Count > 0, st.Max, 0)
-                                row.PkPk = If(st.Count > 0, st.Max - st.Min, 0)
-                                row.Mean = If(st.Count > 0, st.Mean, 0)
-                                row.Std = If(st.Count > 1, st.StdDevSample(), 0)
+                ' insert newest at top
+                list.Insert(0, row)
 
-                                ' PPM deviation (default ref = MEAN)
-                                Dim refVal As Double = st.Mean
-                                If ppmRef.Equals("FIRST", StringComparison.OrdinalIgnoreCase) AndAlso st.HasFirst Then
-                                    refVal = st.First
-                                ElseIf Not ppmRef.Equals("MEAN", StringComparison.OrdinalIgnoreCase) Then
-                                    Dim tmp As Double
-                                    If Double.TryParse(ppmRef, Globalization.NumberStyles.Float,
-                                                       Globalization.CultureInfo.InvariantCulture, tmp) Then
-                                        refVal = tmp
-                                    End If
-                                End If
+                ' trim
+                While list.Count > maxRows
+                    list.RemoveAt(list.Count - 1)
+                End While
 
-                                row.PPM = If(refVal <> 0, ((st.Last - refVal) / refVal) * 1000000.0R, 0)
-                                row.Count = CInt(st.Count)
-
-                                ' insert newest at top
-                                list.Insert(0, row)
-
-                                ' trim
-                                While list.Count > maxRows
-                                    list.RemoveAt(list.Count - 1)
-                                End While
-
-                            End Sub
+            End Sub
                     End If
 
                     Continue For
