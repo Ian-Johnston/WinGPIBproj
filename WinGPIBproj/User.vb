@@ -73,6 +73,11 @@ Partial Class Formtest
     Private HistorySettings As New Dictionary(Of String, HistoryGridConfig)(StringComparer.OrdinalIgnoreCase)
     Private HistoryGrids As New Dictionary(Of String, DataGridView)(StringComparer.OrdinalIgnoreCase)
 
+    ' Invisibility
+    Private UiById As New Dictionary(Of String, Control)(StringComparer.OrdinalIgnoreCase)      ' Invisibility: every created control, by ID (ChartDMM, Hist1, Stats1, ...)
+    Private HideFuncToTargetId As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)       ' Invisibility: function-name -> target-control-id mapping (ChartDMMhide -> ChartDMM)
+    Private InvisFuncToTargets As New Dictionary(Of String, List(Of String))(StringComparer.OrdinalIgnoreCase)
+
 
     ' History Grid
     Private Class HistoryGridConfig
@@ -97,6 +102,39 @@ Partial Class Formtest
         Public Property PPM As Double
         Public Property Count As Long
     End Class
+
+
+    Private Sub ButtonLoadTxt_Click(sender As Object, e As EventArgs) Handles ButtonLoadTxt.Click
+
+        Using dlg As New OpenFileDialog()
+            dlg.Title = "Select Custom GUI Layout File"
+            dlg.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*"
+
+            If dlg.ShowDialog() = DialogResult.OK Then
+                Try
+                    LoadCustomGuiFromFile(dlg.FileName)
+                Catch ex As Exception
+                    MessageBox.Show("Error loading layout file: " & ex.Message)
+                End Try
+            End If
+        End Using
+
+    End Sub
+
+
+    Private Sub ButtonResetTxt_Click(sender As Object, e As EventArgs) Handles ButtonResetTxt.Click
+
+        ' Clear invisibility
+        UiById.Clear()
+        InvisFuncToTargets.Clear()
+
+        ' Remove all dynamically created controls
+        GroupBoxCustom.Controls.Clear()
+
+        ' Reset the title text
+        GroupBoxCustom.Text = "User Defineable"
+
+    End Sub
 
 
     ' TXT Format:
@@ -1463,6 +1501,9 @@ Partial Class Formtest
                     ' ---- chart ----
                     Dim ch As New DataVisualization.Charting.Chart()
                     ch.Name = chartName
+
+                    RegisterDynamicControl(chartName, ch)   ' register for invisibility
+
                     ch.Location = New Point(x, chartTop)
                     ch.Size = New Size(w, h)
                     ch.BackColor = Color.Black
@@ -1527,6 +1568,7 @@ Partial Class Formtest
                             End Sub
                     End If
 
+
                 Case "STATSPANEL"
                     ' STATSPANEL;PanelName;Caption;ResultTarget;x=..;y=..;w=..;h=..;format=G7
 
@@ -1562,6 +1604,9 @@ Partial Class Formtest
 
                     Dim gb As New GroupBox()
                     gb.Name = panelName
+
+                    RegisterDynamicControl(panelName, gb)       ' Invisibility control
+
                     gb.Text = caption
                     gb.Location = New Point(x, y)
                     gb.Size = New Size(w, h)
@@ -1717,6 +1762,9 @@ Partial Class Formtest
                     ' Grid
                     Dim dgv As New DataGridView()
                     dgv.Name = gridName
+
+                    RegisterDynamicControl(gridName, dgv)       ' Invisibility control
+
                     dgv.Location = New Point(x, topY)
                     dgv.Size = New Size(w, h)
                     dgv.AllowUserToAddRows = False
@@ -1849,6 +1897,10 @@ Partial Class Formtest
 
                     Continue For
 
+
+                Case "INVISIBILITY"
+                    ParseInvisibilityLine(parts)
+                    Continue For
 
 
 
@@ -2179,6 +2231,26 @@ FanOut:
         Dim b = DirectCast(sender, Button)
         Dim meta = CStr(b.Tag)
         Dim parts = meta.Split("|"c)
+
+
+        ' ================= INVISIBILITY FUNCTION INTERCEPT =================
+        For Each p As String In parts
+            Dim raw As String = If(p, "").Trim()
+            If raw = "" Then Continue For
+
+            ' If the token has config tail like ";x=..;y=..", strip it off
+            Dim s As String = raw.Split(";"c)(0).Trim()
+
+            If s <> "" AndAlso InvisFuncToTargets.ContainsKey(s) Then
+                TryRunInvisibilityFunction(s)
+                Exit Sub
+            End If
+        Next
+        ' ==================================================================
+
+
+
+
         If parts.Length < 3 Then Exit Sub
 
         Dim action = parts(0)                 ' SEND / SENDVALUE / QUERY / SENDLINES / CLEARCHART
@@ -2187,11 +2259,34 @@ FanOut:
         Dim valueControlName = If(parts.Length > 3, parts(3), "")
         Dim resultControlName = If(parts.Length > 4, parts(4), "")
 
+        ' INVISIBILITY: your hide buttons store the function name in resultControlName
+        If Not String.IsNullOrWhiteSpace(resultControlName) Then
+            Dim fn = resultControlName.Split(";"c)(0).Trim()
+            If TryRunInvisibilityFunction(fn) Then Exit Sub
+        End If
+
+        ' --- INVISIBILITY / Function buttons (no device needed) ---
+        ' Your config example leaves action/device/command blank and puts the function name in resultControlName
+        Dim funcName As String = ""
+
+        If String.IsNullOrWhiteSpace(action) AndAlso String.IsNullOrWhiteSpace(deviceName) AndAlso String.IsNullOrWhiteSpace(commandOrPrefix) Then
+
+            funcName = resultControlName
+        ElseIf String.Equals(action, "FUNC", StringComparison.OrdinalIgnoreCase) Then
+            ' (optional) if you later choose to use BUTTON;Caption;FUNC;;;;FuncName
+            funcName = resultControlName
+        End If
+
+        If Not String.IsNullOrWhiteSpace(funcName) Then
+            If TryRunInvisibilityFunction(funcName) Then Exit Sub
+        End If
+        ' ---------------------------------------------------------
+
+
         ' Only resolve a GPIB device for actions that actually need one
         Dim dev As IODevices.IODevice = Nothing
 
-        If Not String.Equals(action, "CLEARCHART", StringComparison.OrdinalIgnoreCase) AndAlso
-   Not String.Equals(action, "RESETSTATS", StringComparison.OrdinalIgnoreCase) Then
+        If Not String.Equals(action, "CLEARCHART", StringComparison.OrdinalIgnoreCase) AndAlso Not String.Equals(action, "RESETSTATS", StringComparison.OrdinalIgnoreCase) Then
 
             dev = GetDeviceByName(deviceName)
             If dev Is Nothing Then
@@ -2375,17 +2470,6 @@ FanOut:
                 End If
 
         End Select
-
-    End Sub
-
-
-    Private Sub ButtonResetTxt_Click(sender As Object, e As EventArgs) Handles ButtonResetTxt.Click
-
-        ' Remove all dynamically created controls
-        GroupBoxCustom.Controls.Clear()
-
-        ' Reset the title text
-        GroupBoxCustom.Text = "User Defineable"
 
     End Sub
 
@@ -3750,6 +3834,63 @@ FanOut:
         bs.ResetBindings(False)
 
     End Sub
+
+
+    Private Sub RegisterDynamicControl(id As String, ctrl As Control)
+        If String.IsNullOrWhiteSpace(id) Then Return
+        If ctrl Is Nothing Then Return
+        UiById(id.Trim()) = ctrl
+    End Sub
+
+
+    Private Sub ParseInvisibilityLine(parts() As String)
+        ' Format:
+        ' INVISIBILITY;TargetIdOrList;FuncName;TargetIdOrList;FuncName;...
+        ' TargetIdOrList can be "ChartDMM" or "ChartDMM,Hist1,Stats1"
+
+        Dim i As Integer = 1
+        While i + 1 < parts.Length
+            Dim targetSpec As String = parts(i).Trim()
+            Dim funcName As String = parts(i + 1).Trim()
+
+            If targetSpec <> "" AndAlso funcName <> "" Then
+
+                Dim targets As New List(Of String)
+
+                For Each t In targetSpec.Split(","c)
+                    Dim tid = t.Trim()
+                    If tid <> "" Then targets.Add(tid)
+                Next
+
+                If targets.Count > 0 Then
+                    InvisFuncToTargets(funcName) = targets
+                End If
+            End If
+
+            i += 2
+        End While
+    End Sub
+
+
+    Private Function TryRunInvisibilityFunction(funcName As String) As Boolean
+        If String.IsNullOrWhiteSpace(funcName) Then Return False
+
+        Dim targets As List(Of String) = Nothing
+        If Not InvisFuncToTargets.TryGetValue(funcName.Trim(), targets) Then Return False
+
+        ' Toggle visibility of all targets in the list
+        For Each id In targets
+            Dim c As Control = Nothing
+            If UiById.TryGetValue(id, c) AndAlso c IsNot Nothing Then
+                c.Visible = Not c.Visible
+                If c.Visible Then c.BringToFront() ' helpful for stacked overlays
+            End If
+        Next
+
+        Return True
+    End Function
+
+
 
 
 End Class

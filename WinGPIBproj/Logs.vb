@@ -71,23 +71,6 @@ Partial Class Formtest
     Private sum1 As Double = 0          ' Dev1 running sum
     Private sum2 As Double = 0          ' Dev2 running sum
 
-    Private Sub ButtonLoadTxt_Click(sender As Object, e As EventArgs) Handles ButtonLoadTxt.Click
-
-        Using dlg As New OpenFileDialog()
-            dlg.Title = "Select Custom GUI Layout File"
-            dlg.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*"
-
-            If dlg.ShowDialog() = DialogResult.OK Then
-                Try
-                    LoadCustomGuiFromFile(dlg.FileName)
-                Catch ex As Exception
-                    MessageBox.Show("Error loading layout file: " & ex.Message)
-                End Try
-            End If
-        End Using
-
-    End Sub
-
 
     ' Expect these controls to exist on the form:
     ' CheckBoxAvgEnable  (checkbox to enable averaging)

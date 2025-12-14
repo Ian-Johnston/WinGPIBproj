@@ -164,7 +164,7 @@ Public Class Formtest
         Try
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.024"
+            BannerText1 = "WinGPIB   V4.025"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
             ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -2610,7 +2610,6 @@ Public Class Formtest
 
         Return (latest, notes.ToString().Trim())
     End Function
-
 
 End Class
 
