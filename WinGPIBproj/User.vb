@@ -702,10 +702,7 @@ Partial Class Formtest
                                                 End If
                                             Else
                                                 ' numeric scale (existing behaviour)
-                                                Double.TryParse(val,
-                                                    Globalization.NumberStyles.Float,
-                                                    Globalization.CultureInfo.InvariantCulture,
-                                                    scale)
+                                                Double.TryParse(val, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, scale)
                                             End If
                                         End If
                                     End If
@@ -2335,6 +2332,7 @@ FanOut:
                     dev.SendAsync(cmd, True)
                 End If
 
+
             Case "QUERY"
 
                 ' Single immediate query
@@ -2344,34 +2342,36 @@ FanOut:
                 Dim autoCb As CheckBox = GetCheckboxFor(resultControlName, "FuncAuto")
 
                 If autoCb IsNot Nothing AndAlso autoCb.Checked Then
-                    ' Default interval: 2000 ms
-                    Dim intervalMs As Integer = 2000
 
-                    Dim param As String = GetCheckboxParam(autoCb)   ' e.g. "2secs", "0.5", "0.5secs"
+                    Const MIN_AUTOREAD_MS As Integer = 250   ' NEW: minimum allowed
+                    Const MAX_AUTOREAD_MS As Integer = 60000 ' optional maximum
+
+                    Dim intervalMs As Integer = 2000         ' default
+
+                    Dim param As String = GetCheckboxParam(autoCb)   ' e.g. "2secs", "0.5", "0.0005"
                     If Not String.IsNullOrEmpty(param) Then
 
-                        ' Extract a numeric string allowing digits and decimal point
+                        ' Extract numeric part
                         Dim numeric As String = ""
                         For Each ch As Char In param
-                            If Char.IsDigit(ch) OrElse ch = "."c Then
-                                numeric &= ch
-                            End If
+                            If Char.IsDigit(ch) OrElse ch = "."c Then numeric &= ch
                         Next
 
                         Dim secs As Double
                         If Double.TryParse(numeric,
-                                       Globalization.NumberStyles.Float,
-                                       Globalization.CultureInfo.InvariantCulture,
-                                       secs) AndAlso secs > 0.0R Then
+                                           Globalization.NumberStyles.Float,
+                                           Globalization.CultureInfo.InvariantCulture,
+                                           secs) AndAlso secs > 0.0R Then
 
-                            intervalMs = CInt(secs * 1000.0R)
-                            Timer5.Interval = intervalMs
-                        Else
-                            ' fallback: keep existing intervalMs (e.g. default 2000ms)
+                            ' IMPORTANT: use Ceiling so tiny values never become 0ms
+                            intervalMs = CInt(Math.Ceiling(secs * 1000.0R))
+
                         End If
-                    Else
-                        ' no param → leave intervalMs as the default (e.g. 2000ms)
                     End If
+
+                    ' Clamp BEFORE setting Timer5.Interval
+                    If intervalMs < MIN_AUTOREAD_MS Then intervalMs = MIN_AUTOREAD_MS
+                    If intervalMs > MAX_AUTOREAD_MS Then intervalMs = MAX_AUTOREAD_MS
 
                     AutoReadDeviceName = deviceName
                     AutoReadCommand = commandOrPrefix
@@ -2379,10 +2379,11 @@ FanOut:
 
                     Timer5.Interval = intervalMs
                     Timer5.Enabled = True
+
                 Else
-                    ' No auto-read requested - ensure timer is off for this path
                     Timer5.Enabled = False
                 End If
+
 
             Case "SENDLINES"
 
