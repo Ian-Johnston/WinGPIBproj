@@ -2343,8 +2343,8 @@ FanOut:
 
                 If autoCb IsNot Nothing AndAlso autoCb.Checked Then
 
-                    Const MIN_AUTOREAD_MS As Integer = 250   ' NEW: minimum allowed
-                    Const MAX_AUTOREAD_MS As Integer = 60000 ' optional maximum
+                    Const MIN_AUTOREAD_MS As Integer = 1       ' minimum allowed
+                    Const MAX_AUTOREAD_MS As Integer = 60000   ' optional maximum
 
                     Dim intervalMs As Integer = 2000         ' default
 
