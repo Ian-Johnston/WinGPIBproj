@@ -1,10 +1,11 @@
 ﻿' User customizeable tab
 
-Imports IODevices
-Imports System.Threading
-Imports System.Runtime.InteropServices
+Imports System.ComponentModel
 Imports System.IO
+Imports System.Runtime.InteropServices
+Imports System.Threading
 Imports System.Windows.Forms.DataVisualization.Charting
+Imports IODevices
 
 
 Partial Class Formtest
@@ -57,6 +58,45 @@ Partial Class Formtest
     Private StatsState As New Dictionary(Of String, RunningStatsState)(StringComparer.OrdinalIgnoreCase)
     ' Holds the per-panel UI row outputs (label -> value label)
     Private StatsRows As New Dictionary(Of String, List(Of StatsRow))(StringComparer.OrdinalIgnoreCase)
+
+    ' ===== History grid runtime state =====
+    Private HistoryTables As New Dictionary(Of String, DataTable)(StringComparer.OrdinalIgnoreCase)
+    Private HistoryStates As New Dictionary(Of String, RunningStatsState)(StringComparer.OrdinalIgnoreCase)
+    Private HistoryPpmRef As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+    Private HistoryMaxRows As New Dictionary(Of String, Integer)(StringComparer.OrdinalIgnoreCase)
+    Private HistoryFormats As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+    Private HistoryState As New Dictionary(Of String, RunningStatsState)(StringComparer.OrdinalIgnoreCase)
+    Private HistoryLists As New Dictionary(Of String, BindingSource)(StringComparer.OrdinalIgnoreCase)
+    Private HistoryCols As New Dictionary(Of String, List(Of String))(StringComparer.OrdinalIgnoreCase)
+    Dim colsRaw As String = "Value,Time"   ' default if cols= not provided
+    Private HistoryData As New Dictionary(Of String, BindingList(Of HistoryRow))(StringComparer.OrdinalIgnoreCase)
+    Private HistorySettings As New Dictionary(Of String, HistoryGridConfig)(StringComparer.OrdinalIgnoreCase)
+    Private HistoryGrids As New Dictionary(Of String, DataGridView)(StringComparer.OrdinalIgnoreCase)
+
+
+    ' History Grid
+    Private Class HistoryGridConfig
+        Public Property GridName As String
+        Public Property ResultTarget As String
+        Public Property MaxRows As Integer
+        Public Property Format As String
+        Public Property Columns As List(Of String)   ' <-- MUST be a list
+        Public Property PpmRef As String
+    End Class
+
+
+    ' And History Grid
+    Private Class HistoryRow
+        Public Property Value As Double
+        Public Property Time As DateTime
+        Public Property Min As Double
+        Public Property Max As Double
+        Public Property PkPk As Double
+        Public Property Mean As Double
+        Public Property Std As Double
+        Public Property PPM As Double
+        Public Property Count As Long
+    End Class
 
 
     ' TXT Format:
@@ -1617,6 +1657,207 @@ Partial Class Formtest
                     UpdateStatsPanel(panelName, Double.NaN)
 
                     Continue For
+
+
+                Case "HISTORYGRID"
+                    ' HISTORYGRID;GridName;Caption;ResultTarget;
+                    '   x=..;y=..;w=..;h=..;maxrows=..;format=F7;cols=Value,Time,Min,Max,PkPk,Mean,Std,PPM,Count;ppmref=MEAN
+
+                    If parts.Length < 4 Then Continue For
+
+                    Dim gridName As String = parts(1).Trim()
+                    Dim caption As String = parts(2).Trim()
+                    Dim resultTarget As String = parts(3).Trim()
+
+                    Dim x As Integer = 20
+                    Dim y As Integer = 20
+                    Dim w As Integer = 500
+                    Dim h As Integer = 180
+                    Dim maxRows As Integer = 50
+                    Dim fmt As String = "F7"
+                    Dim colsRaw As String = "Value,Time,Min,Max,PkPk,Mean,Std,PPM,Count"
+                    Dim ppmRef As String = "MEAN"
+
+                    For i As Integer = 4 To parts.Length - 1
+                        Dim p = parts(i).Trim()
+                        If Not p.Contains("="c) Then Continue For
+
+                        Dim kv = p.Split("="c)
+                        If kv.Length <> 2 Then Continue For
+
+                        Dim key = kv(0).Trim().ToLowerInvariant()
+                        Dim val = kv(1).Trim()
+
+                        Select Case key
+                            Case "x" : ParseIntField(val, x)
+                            Case "y" : ParseIntField(val, y)
+                            Case "w" : ParseIntField(val, w)
+                            Case "h" : ParseIntField(val, h)
+                            Case "maxrows"
+                                Dim mr As Integer
+                                If Integer.TryParse(val, mr) AndAlso mr > 0 Then maxRows = mr
+                            Case "format"
+                                If val <> "" Then fmt = val
+                            Case "cols"
+                                If val <> "" Then colsRaw = val
+                            Case "ppmref"
+                                If val <> "" Then ppmRef = val
+                        End Select
+                    Next
+
+                    ' Caption label
+                    Dim lbl As New Label()
+                    lbl.Text = caption
+                    lbl.AutoSize = True
+                    lbl.Location = New Point(x, y)
+                    GroupBoxCustom.Controls.Add(lbl)
+
+                    Dim topY As Integer = y + lbl.Height + 3
+
+                    ' Grid
+                    Dim dgv As New DataGridView()
+                    dgv.Name = gridName
+                    dgv.Location = New Point(x, topY)
+                    dgv.Size = New Size(w, h)
+                    dgv.AllowUserToAddRows = False
+                    dgv.AllowUserToDeleteRows = False
+                    dgv.ReadOnly = True
+                    dgv.RowHeadersVisible = False
+                    dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect
+                    dgv.MultiSelect = False
+                    dgv.AutoGenerateColumns = False
+                    dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
+                    dgv.ScrollBars = ScrollBars.Vertical
+                    dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+
+                    ' Build columns from cols=
+                    Dim colNames As New List(Of String)
+                    For Each raw As String In colsRaw.Split(","c)
+                        Dim s As String = raw.Trim()
+                        If s <> "" Then colNames.Add(s)
+                    Next
+                    If colNames.Count = 0 Then colNames.AddRange(New String() {"Value", "Time"})
+
+                    dgv.Columns.Clear()
+
+                    For Each colName As String In colNames
+                        Dim c As New DataGridViewTextBoxColumn()
+                        c.Name = colName
+                        c.HeaderText = colName
+                        c.DataPropertyName = colName   ' MUST match HistoryRow property names
+                        c.SortMode = DataGridViewColumnSortMode.NotSortable
+
+                        ' reasonable defaults
+                        c.Width = 70
+                        If colName.Equals("Value", StringComparison.OrdinalIgnoreCase) Then c.Width = 95
+                        If colName.Equals("Time", StringComparison.OrdinalIgnoreCase) Then c.Width = 120
+                        If colName.Equals("PkPk", StringComparison.OrdinalIgnoreCase) Then c.Width = 90
+                        If colName.Equals("Mean", StringComparison.OrdinalIgnoreCase) Then c.Width = 95
+
+                        ' format TIME to show only time-of-day
+                        If colName.Equals("Time", StringComparison.OrdinalIgnoreCase) Then
+                            c.DefaultCellStyle.Format = "HH:mm:ss"
+                        End If
+
+                        ' apply numeric display format to numeric columns
+                        If Not colName.Equals("Time", StringComparison.OrdinalIgnoreCase) AndAlso
+                           Not colName.Equals("Count", StringComparison.OrdinalIgnoreCase) Then
+                            c.DefaultCellStyle.Format = fmt
+                        End If
+
+                        dgv.Columns.Add(c)
+                    Next
+
+                    ' make first column bold
+                    If dgv.Columns.Count > 0 Then
+                        dgv.Columns(0).DefaultCellStyle.Font = New Font("Segoe UI", 9.0F, FontStyle.Bold)
+                    End If
+
+                    GroupBoxCustom.Controls.Add(dgv)
+
+                    ' Per-grid history list
+                    Dim list As BindingList(Of HistoryRow) = Nothing
+                    If Not HistoryData.TryGetValue(gridName, list) Then
+                        list = New BindingList(Of HistoryRow)()
+                        HistoryData(gridName) = list
+                    Else
+                        list.Clear()
+                    End If
+
+                    dgv.DataSource = list
+
+                    ' Per-grid running stats
+                    Dim st As RunningStatsState = Nothing
+                    If Not HistoryState.TryGetValue(gridName, st) Then
+                        st = New RunningStatsState()
+                        HistoryState(gridName) = st
+                    Else
+                        st.Reset()
+                    End If
+
+                    ' Hook to source textbox
+                    Dim src = TryCast(GetControlByName(resultTarget), TextBox)
+                    If src IsNot Nothing Then
+                        AddHandler src.TextChanged,
+                            Sub(senderSrc As Object, eSrc As EventArgs)
+
+                                Dim d As Double
+                                If Not TryExtractFirstDouble(DirectCast(senderSrc, TextBox).Text, d) Then Exit Sub
+
+                                ' update per-grid stats
+                                st.AddSample(d)
+
+                                Dim row As New HistoryRow()
+
+                                ' IMPORTANT: store DateTime, not a time-only string
+                                ' (prevents 01/01/0001)
+                                row.Time = DateTime.Now
+
+                                row.Value = d
+
+                                row.Min = If(st.Count > 0, st.Min, 0)
+                                row.Max = If(st.Count > 0, st.Max, 0)
+                                row.PkPk = If(st.Count > 0, st.Max - st.Min, 0)
+                                row.Mean = If(st.Count > 0, st.Mean, 0)
+                                row.Std = If(st.Count > 1, st.StdDevSample(), 0)
+
+                                ' PPM deviation (default ref = MEAN)
+                                Dim refVal As Double = st.Mean
+                                If ppmRef.Equals("FIRST", StringComparison.OrdinalIgnoreCase) AndAlso st.HasFirst Then
+                                    refVal = st.First
+                                ElseIf Not ppmRef.Equals("MEAN", StringComparison.OrdinalIgnoreCase) Then
+                                    Dim tmp As Double
+                                    If Double.TryParse(ppmRef, Globalization.NumberStyles.Float,
+                                                       Globalization.CultureInfo.InvariantCulture, tmp) Then
+                                        refVal = tmp
+                                    End If
+                                End If
+
+                                row.PPM = If(refVal <> 0, ((st.Last - refVal) / refVal) * 1000000.0R, 0)
+                                row.Count = CInt(st.Count)
+
+                                ' insert newest at top
+                                list.Insert(0, row)
+
+                                ' trim
+                                While list.Count > maxRows
+                                    list.RemoveAt(list.Count - 1)
+                                End While
+
+                            End Sub
+                    End If
+
+                    Continue For
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3428,7 +3669,6 @@ FanOut:
     End Sub
 
 
-
     Private Function ComputePpmString(st As RunningStatsState, refTok As String, fmt As String) As String
         If st.Count = 0 Then Return ""
 
@@ -3467,6 +3707,49 @@ FanOut:
 
         Return value.ToString(f, Globalization.CultureInfo.InvariantCulture)
     End Function
+
+
+    Private Sub UpdateHistoryGrid(gridName As String, sample As Double)
+
+        If Not HistoryState.ContainsKey(gridName) Then Exit Sub
+        If Not HistoryLists.ContainsKey(gridName) Then Exit Sub
+
+        Dim st = HistoryState(gridName)
+        st.AddSample(sample)
+
+        Dim fmt As String = "G6"
+        If HistoryFormats.ContainsKey(gridName) Then fmt = HistoryFormats(gridName)
+
+        Dim ppmRef As String = "MEAN"
+        If HistoryPpmRef.ContainsKey(gridName) Then ppmRef = HistoryPpmRef(gridName)
+
+        Dim row As New HistoryRow()
+        row.Value = sample.ToString(fmt, Globalization.CultureInfo.InvariantCulture)
+        row.Time = DateTime.Now.ToString("HH:mm:ss", Globalization.CultureInfo.InvariantCulture)
+        row.Min = If(st.Count > 0, st.Min.ToString(fmt, Globalization.CultureInfo.InvariantCulture), "")
+        row.Max = If(st.Count > 0, st.Max.ToString(fmt, Globalization.CultureInfo.InvariantCulture), "")
+        row.PkPk = If(st.Count > 0, (st.Max - st.Min).ToString(fmt, Globalization.CultureInfo.InvariantCulture), "")
+        row.Mean = If(st.Count > 0, st.Mean.ToString(fmt, Globalization.CultureInfo.InvariantCulture), "")
+        row.Std = If(st.Count > 1, st.StdDevSample().ToString(fmt, Globalization.CultureInfo.InvariantCulture), "")
+        row.Count = st.Count.ToString(Globalization.CultureInfo.InvariantCulture)
+        row.Value = st.Last
+        row.PPM = ComputePpmString(st, ppmRef, fmt)
+
+        Dim bs = HistoryLists(gridName)
+        Dim lst = TryCast(bs.DataSource, List(Of HistoryRow))
+        If lst Is Nothing Then Exit Sub
+
+        ' Newest at TOP
+        lst.Insert(0, row)
+
+        Dim maxRows As Integer = HistoryMaxRows(gridName)
+        While lst.Count > maxRows
+            lst.RemoveAt(lst.Count - 1)
+        End While
+
+        bs.ResetBindings(False)
+
+    End Sub
 
 
 End Class
