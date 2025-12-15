@@ -276,28 +276,34 @@ Partial Class Formtest
 
             Select Case typeStr
 
-            ' ============================
-            '   SET GROUPBOX TITLE
-            '   GROUPBOX;Some title text
-            ' ============================
                 Case "GROUPBOX"
-                    Dim title = parts(1).Trim()
-                    GroupBoxCustom.Text = title   ' <-- your custom GroupBox
+
+                    ' Parse named parameters
+                    Dim kv = ParseNamedParams(parts)
+
+                    If kv.ContainsKey("caption") Then
+                        GroupBoxCustom.Text = kv("caption")
+                    End If
+
+                    ' Optional future support
+                    If kv.ContainsKey("x") Then GroupBoxCustom.Left = CInt(kv("x"))
+                    If kv.ContainsKey("y") Then GroupBoxCustom.Top = CInt(kv("y"))
+                    If kv.ContainsKey("w") Then GroupBoxCustom.Width = CInt(kv("w"))
+                    If kv.ContainsKey("h") Then GroupBoxCustom.Height = CInt(kv("h"))
+
                     Continue For
 
-                ' ======================================
-                '   CREATE A LABELED TEXTBOX FROM TXT
-                '   TEXTBOX;Name;Label text;X;Y
-                '   or with extras:
-                '   TEXTBOX;Name;Label text;X;Y;W;H;readonly=true
-                '   or token form:
-                '   TEXTBOX;Name;Label text;x=..;y=..;w=..;h=..;readonly=true
-                ' ======================================
-                Case "TEXTBOX"
-                    If parts.Length < 3 Then Continue For
 
-                    Dim tbName = parts(1).Trim()
-                    Dim labelText = parts(2).Trim()
+                Case "TEXTBOX"
+                    ' Supports:
+                    '   TEXTBOX;Name;Caption;X;Y[;W;H;readonly=..]          (positional)
+                    '   TEXTBOX;name=..;caption=..;x=..;y=..;w=..;h=..;readonly=true   (named)
+                    '   TEXTBOX;Name;caption=..;x=..;y=..;...              (hybrid)
+
+                    If parts.Length < 2 Then Continue For
+
+                    Dim tbName As String = ""
+                    Dim labelText As String = ""
 
                     Dim x As Integer = 10
                     Dim y As Integer = autoY
@@ -306,50 +312,90 @@ Partial Class Formtest
                     Dim isReadOnly As Boolean = False
                     Dim hasExplicitCoords As Boolean = False
 
-                    ' ---------- positional form ----------
-                    ' TEXTBOX;Name;Caption;X;Y[;W;H;readonly=..]
-                    If parts.Length >= 5 AndAlso Not parts(3).Contains("="c) Then
-                        ParseIntField(parts(3), x)
-                        ParseIntField(parts(4), y)
-                        hasExplicitCoords = True
+                    ' -----------------------------
+                    ' Detect all-named style early
+                    ' -----------------------------
+                    Dim firstLooksNamed As Boolean =
+                        parts.Length >= 2 AndAlso parts(1).IndexOf("="c) >= 0
+
+                    ' -----------------------------
+                    ' Positional form (legacy)
+                    ' TEXTBOX;Name;Caption;X;Y;[W;H;readonly=..]
+                    ' -----------------------------
+                    If Not firstLooksNamed AndAlso parts.Length >= 3 AndAlso Not parts(3).Contains("="c) Then
+
+                        tbName = parts(1).Trim()
+                        labelText = parts(2).Trim()
+
+                        If parts.Length >= 5 Then
+                            ParseIntField(parts(3), x)
+                            ParseIntField(parts(4), y)
+                            hasExplicitCoords = True
+                        End If
 
                         If parts.Length >= 7 Then ParseIntField(parts(5), w)
                         If parts.Length >= 8 Then ParseIntField(parts(6), h)
 
-                        ' optional readonly in positional form
+                        ' optional readonly (positional)
                         If parts.Length >= 9 Then
                             ParseBoolField(parts(7), isReadOnly)
                         End If
 
                     Else
-                        ' ---------- token form ----------
-                        ' TEXTBOX;Name;Caption;x=..;y=..;w=..;h=..;readonly=true
-                        For i As Integer = 3 To parts.Length - 1
+                        ' -----------------------------
+                        ' Named / hybrid token form
+                        ' TEXTBOX;name=..;caption=..;x=..;y=..;...
+                        ' OR TEXTBOX;Name;caption=..;x=..;...
+                        ' -----------------------------
+
+                        ' If user provided a plain Name in parts(1), keep it unless overridden by name=
+                        If Not firstLooksNamed Then
+                            tbName = parts(1).Trim()
+                        End If
+
+                        ' If user provided a plain Caption in parts(2) (hybrid), keep it unless overridden by caption=
+                        If parts.Length >= 3 AndAlso Not parts(2).Contains("="c) Then
+                            labelText = parts(2).Trim()
+                        End If
+
+                        For i As Integer = 1 To parts.Length - 1
                             Dim token = parts(i).Trim()
                             If Not token.Contains("="c) Then Continue For
 
                             Dim kv = token.Split("="c)
                             If kv.Length <> 2 Then Continue For
 
-                            Dim key = kv(0).Trim().ToLower()
+                            Dim key = kv(0).Trim().ToLowerInvariant()
                             Dim val = kv(1).Trim()
 
                             Select Case key
+                                Case "name"
+                                    tbName = val
+
+                                Case "caption"
+                                    labelText = val
+
                                 Case "x"
                                     ParseIntField(val, x)
                                     hasExplicitCoords = True
+
                                 Case "y"
                                     ParseIntField(val, y)
                                     hasExplicitCoords = True
+
                                 Case "w"
                                     ParseIntField(val, w)
+
                                 Case "h"
                                     ParseIntField(val, h)
+
                                 Case "readonly"
                                     ParseBoolField(val, isReadOnly)
                             End Select
                         Next
                     End If
+
+                    If String.IsNullOrWhiteSpace(tbName) Then Continue For
 
                     ' Label
                     Dim lbl As New Label()
@@ -364,7 +410,6 @@ Partial Class Formtest
                     tb.Location = New Point(lbl.Right + 5, y - 2)
                     tb.Size = New Size(w, h)
                     tb.ReadOnly = isReadOnly
-
                     GroupBoxCustom.Controls.Add(tb)
 
                     ' Only advance autoY if coordinates not explicitly given
@@ -375,203 +420,436 @@ Partial Class Formtest
                     Continue For
 
 
-            ' ======================================
-            '   BUTTON LINES
-            '   BUTTON;Caption;Action;Device;Command;ValueCtl;ResultCtl;X;Y
-            ' ======================================
                 Case "BUTTON"
-                    If parts.Length < 5 Then Continue For
 
-                    Dim caption = parts(1).Trim()
-                    Dim action = parts(2).Trim().ToUpperInvariant()
-                    Dim deviceName = parts(3).Trim()
-                    Dim commandOrPrefix = parts(4).Trim()
-                    Dim valueControlName As String = If(parts.Length > 5, parts(5).Trim(), "")
-                    Dim resultControlName As String = If(parts.Length > 6, parts(6).Trim(), "")
+                    ' --------------------------------------------------
+                    ' Detect ALL-NAMED mode (caption= / action= present)
+                    ' --------------------------------------------------
+                    Dim named As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
 
-                    ' --- Position (X,Y) ---
-                    Dim x As Integer = 10
-                    Dim y As Integer = autoY
+                    For i As Integer = 1 To parts.Length - 1
+                        Dim p = parts(i).Trim()
+                        Dim eq As Integer = p.IndexOf("="c)
+                        If eq > 0 Then
+                            Dim k As String = p.Substring(0, eq).Trim()
+                            Dim v As String = p.Substring(eq + 1).Trim()
+                            If k <> "" Then named(k) = v
+                        End If
+                    Next
 
-                    If parts.Length >= 9 Then
-                        ParseIntField(parts(7), x)
-                        ParseIntField(parts(8), y)
-                    End If
+                    Dim isAllNamed As Boolean =
+                        named.ContainsKey("caption") OrElse
+                        named.ContainsKey("action") OrElse
+                        named.ContainsKey("device")
 
-                    Dim b As New Button()
-                    b.Text = caption
-                    b.Tag = $"{action}|{deviceName}|{commandOrPrefix}|{valueControlName}|{resultControlName}"
+                    ' ==================================================
+                    ' ALL-NAMED MODE
+                    ' ==================================================
+                    If isAllNamed Then
 
-                    ' --- Size (Width,Height) ---
-                    Dim w As Integer = 160
-                    Dim h As Integer = b.Height   ' default button height
+                        Dim caption As String = If(named.ContainsKey("caption"), named("caption"), "")
+                        Dim action As String = If(named.ContainsKey("action"), named("action"), "").ToUpperInvariant()
+                        Dim deviceName As String = If(named.ContainsKey("device"), named("device"), "")
+                        Dim commandOrPrefix As String = If(named.ContainsKey("command"), named("command"), "")
+                        Dim valueControlName As String = If(named.ContainsKey("sendval"), named("sendval"), "")
+                        Dim resultControlName As String = If(named.ContainsKey("result"), named("result"), "")
 
-                    If parts.Length >= 11 Then
-                        ParseIntField(parts(9), w)
-                        ParseIntField(parts(10), h)
-                    End If
+                        Dim x As Integer = 10
+                        Dim y As Integer = autoY
+                        Dim w As Integer = 160
+                        Dim h As Integer = 0
 
-                    b.Location = New Point(x, y)
-                    b.Size = New Size(w, h)
+                        If named.ContainsKey("x") Then ParseIntField(named("x"), x)
+                        If named.ContainsKey("y") Then ParseIntField(named("y"), y)
+                        If named.ContainsKey("w") Then ParseIntField(named("w"), w)
+                        If named.ContainsKey("h") Then ParseIntField(named("h"), h)
 
-                    AddHandler b.Click, AddressOf CustomButton_Click
-                    GroupBoxCustom.Controls.Add(b)
+                        Dim b As New Button()
+                        b.Text = caption
+                        b.Tag = $"{action}|{deviceName}|{commandOrPrefix}|{valueControlName}|{resultControlName}"
+                        b.Location = New Point(x, y)
 
-                    If parts.Length < 9 Then
-                        autoY += b.Height + 5      ' uses final height (after any override)
-                    End If
-
-                Case "CHECKBOX"
-                    ' CHECKBOX;ResultControlName;Caption;FunctionKey;Param;X;Y
-                    ' e.g. CHECKBOX;TextBoxResult;Decimal:;FuncDecimal;;430;440
-                    '      CHECKBOX;TextBoxResult;Auto 2secs:;FuncAuto;2secs;430;465
-
-                    If parts.Length >= 7 Then
-
-                        Dim resultName = parts(1).Trim()    ' e.g. "TextBoxResult"
-                        Dim caption = parts(2).Trim()       ' e.g. "Decimal:"
-                        Dim funcKey = parts(3).Trim()       ' e.g. "FuncDecimal" / "FuncAuto"
-                        Dim param = parts(4).Trim()         ' e.g. "" or "2secs"
-
-                        Dim x As Integer = 0
-                        Dim y As Integer = 0
-                        If parts.Length > 5 Then ParseIntField(parts(5), x)
-                        If parts.Length > 6 Then ParseIntField(parts(6), y)
-
-                        Dim cb As New CheckBox()
-                        cb.Text = caption
-                        cb.AutoSize = True
-                        cb.Location = New Point(x, y)
-
-                        ' Tag encodes: resultName|FUNCXXX|param
-                        cb.Tag = resultName & "|" & funcKey.ToUpperInvariant() & "|" & param
-                        cb.Name = "Chk_" & resultName & "_" & funcKey
-
-                        ' Only FuncAuto needs special behaviour when (un)checked
-                        If funcKey.Equals("FuncAuto", StringComparison.OrdinalIgnoreCase) Then
-                            AddHandler cb.CheckedChanged, AddressOf FuncAutoCheckbox_CheckedChanged
+                        If h > 0 Then
+                            b.Size = New Size(w, h)
+                        Else
+                            b.Width = w
                         End If
 
-                        GroupBoxCustom.Controls.Add(cb)
+                        AddHandler b.Click, AddressOf CustomButton_Click
+                        GroupBoxCustom.Controls.Add(b)
 
+                        ' Auto-flow only if Y not explicitly supplied
+                        If Not named.ContainsKey("y") Then
+                            autoY += b.Height + 5
+                        End If
+
+                        Continue For
                     End If
+
+                    ' ==================================================
+                    ' EXISTING POSITIONAL / HYBRID MODE (UNCHANGED)
+                    ' ==================================================
+                    If parts.Length < 5 Then Continue For
+
+                    Dim captionPos = parts(1).Trim()
+                    Dim actionPos = parts(2).Trim().ToUpperInvariant()
+                    Dim deviceNamePos = parts(3).Trim()
+                    Dim commandOrPrefixPos = parts(4).Trim()
+                    Dim valueControlNamePos As String = If(parts.Length > 5, parts(5).Trim(), "")
+                    Dim resultControlNamePos As String = If(parts.Length > 6, parts(6).Trim(), "")
+
+                    ' --- Position (X,Y) ---
+                    Dim xPos As Integer = 10
+                    Dim yPos As Integer = autoY
+
+                    If parts.Length >= 9 Then
+                        ParseIntField(parts(7), xPos)
+                        ParseIntField(parts(8), yPos)
+                    End If
+
+                    Dim bPos As New Button()
+                    bPos.Text = captionPos
+                    bPos.Tag = $"{actionPos}|{deviceNamePos}|{commandOrPrefixPos}|{valueControlNamePos}|{resultControlNamePos}"
+
+                    ' --- Size (Width,Height) ---
+                    Dim wPos As Integer = 160
+                    Dim hPos As Integer = bPos.Height
+
+                    If parts.Length >= 11 Then
+                        ParseIntField(parts(9), wPos)
+                        ParseIntField(parts(10), hPos)
+                    End If
+
+                    bPos.Location = New Point(xPos, yPos)
+                    bPos.Size = New Size(wPos, hPos)
+
+                    AddHandler bPos.Click, AddressOf CustomButton_Click
+                    GroupBoxCustom.Controls.Add(bPos)
+
+                    If parts.Length < 9 Then
+                        autoY += bPos.Height + 5
+                    End If
+
+
+                Case "CHECKBOX"
+
+                    If parts.Length < 2 Then Continue For
+
+                    Dim resultName As String = ""
+                    Dim caption As String = ""
+                    Dim funcKey As String = ""
+                    Dim param As String = ""
+
+                    Dim x As Integer = 0
+                    Dim y As Integer = 0
+
+                    Dim firstLooksNamed As Boolean =
+                        parts.Length >= 2 AndAlso parts(1).IndexOf("="c) >= 0
+
+                    ' -----------------------------
+                    ' Positional form (legacy)
+                    ' CHECKBOX;ResultControlName;Caption;FunctionKey;Param;X;Y
+                    ' -----------------------------
+                    If Not firstLooksNamed AndAlso parts.Length >= 7 AndAlso Not parts(2).Contains("="c) Then
+
+                        resultName = parts(1).Trim()
+                        caption = parts(2).Trim()
+                        funcKey = parts(3).Trim()
+                        param = parts(4).Trim()
+
+                        ParseIntField(parts(5), x)
+                        ParseIntField(parts(6), y)
+
+                    Else
+                        ' -----------------------------
+                        ' Named / hybrid token form
+                        ' -----------------------------
+                        If Not firstLooksNamed Then
+                            resultName = parts(1).Trim()
+                        End If
+
+                        If parts.Length >= 3 AndAlso Not parts(2).Contains("="c) Then
+                            caption = parts(2).Trim()
+                        End If
+
+                        If parts.Length >= 4 AndAlso Not parts(3).Contains("="c) Then
+                            funcKey = parts(3).Trim()
+                        End If
+
+                        If parts.Length >= 5 AndAlso Not parts(4).Contains("="c) Then
+                            param = parts(4).Trim()
+                        End If
+
+                        For i As Integer = 1 To parts.Length - 1
+                            Dim t As String = parts(i).Trim()
+                            If Not t.Contains("="c) Then Continue For
+
+                            Dim kv = t.Split("="c)
+                            If kv.Length <> 2 Then Continue For
+
+                            Dim key = kv(0).Trim().ToLowerInvariant()
+                            Dim val = kv(1).Trim()
+
+                            Select Case key
+                                Case "result", "target", "resulttarget"
+                                    resultName = val
+
+                                Case "caption", "text", "label"
+                                    caption = val
+
+                                Case "func", "function", "funckey"
+                                    funcKey = val
+
+                                Case "param"
+                                    param = val
+
+                                Case "x"
+                                    ParseIntField(val, x)
+
+                                Case "y"
+                                    ParseIntField(val, y)
+                            End Select
+                        Next
+                    End If
+
+                    If String.IsNullOrWhiteSpace(resultName) Then Continue For
+                    If String.IsNullOrWhiteSpace(funcKey) Then Continue For
+
+                    Dim cb As New CheckBox()
+                    cb.Text = caption
+                    cb.AutoSize = True
+                    cb.Location = New Point(x, y)
+
+                    cb.Tag = resultName & "|" & funcKey.ToUpperInvariant() & "|" & param
+                    cb.Name = "Chk_" & resultName & "_" & funcKey
+
+                    If funcKey.Equals("FuncAuto", StringComparison.OrdinalIgnoreCase) Then
+                        AddHandler cb.CheckedChanged, AddressOf FuncAutoCheckbox_CheckedChanged
+                    End If
+
+                    GroupBoxCustom.Controls.Add(cb)
+
+                    Continue For
 
 
                 Case "LABEL"
-                    ' LABEL;Caption;x=..;y=..;f=..
-                    ' LABEL;Caption;X;Y;FontSize    (positional still supported)
+                    ' Supports:
+                    '   LABEL;Caption;X;Y;FontSize                 (positional)
+                    '   LABEL;caption=..;x=..;y=..;f=..           (all-named)
+                    '   LABEL;Caption;x=..;y=..;f=..              (hybrid)
+                    '   LABEL;name=Lbl1;caption=..;x=..;y=..;f=..
 
-                    If parts.Length >= 2 Then
+                    If parts.Length < 2 Then Continue For
 
-                        Dim caption As String = parts(1).Trim()
+                    Dim name As String = ""
+                    Dim caption As String = ""
+                    Dim x As Integer = 0
+                    Dim y As Integer = 0
+                    Dim fontSize As Single = 10.0F
 
-                        Dim x As Integer = 0
-                        Dim y As Integer = 0
-                        Dim fontSize As Single = 10.0F   ' default
+                    Dim firstLooksNamed As Boolean =
+                        parts.Length >= 2 AndAlso parts(1).IndexOf("="c) >= 0
 
-                        ' -----------------------
-                        ' Positional form:
-                        ' LABEL;cap;X;Y;F
-                        ' -----------------------
-                        Dim usedPositional As Boolean = False
+                    ' -------------------------------------------------
+                    ' Positional legacy form
+                    ' LABEL;Caption;X;Y;FontSize
+                    ' -------------------------------------------------
+                    If Not firstLooksNamed AndAlso parts.Length >= 2 AndAlso Not parts(2).Contains("="c) Then
 
-                        If parts.Length >= 5 AndAlso Not parts(2).Contains("=") Then
+                        caption = parts(1).Trim()
+
+                        If parts.Length >= 4 Then
                             ParseIntField(parts(2), x)
                             ParseIntField(parts(3), y)
+                        End If
 
+                        If parts.Length >= 5 Then
                             Dim fs As Single
-                            If Single.TryParse(parts(4).Trim(), fs) Then fontSize = fs
-
-                            usedPositional = True
+                            If Single.TryParse(parts(4).Trim(),
+                                               Globalization.NumberStyles.Float,
+                                               Globalization.CultureInfo.InvariantCulture,
+                                               fs) Then
+                                fontSize = fs
+                            End If
                         End If
 
-                        ' -----------------------
-                        ' Named-parameter form:
-                        ' LABEL;cap;x=...;y=...;f=...
-                        ' -----------------------
-                        If Not usedPositional Then
-                            For i As Integer = 2 To parts.Length - 1
-                                Dim p = parts(i).Trim()
-                                If p.Contains("=") Then
-                                    Dim kv = p.Split("="c)
-                                    If kv.Length = 2 Then
-                                        Dim key = kv(0).Trim().ToLower()
-                                        Dim val = kv(1).Trim()
+                    Else
+                        ' -------------------------------------------------
+                        ' Named / hybrid form
+                        ' -------------------------------------------------
 
-                                        Select Case key
-                                            Case "x" : ParseIntField(val, x)
-                                            Case "y" : ParseIntField(val, y)
-                                            Case "f"
-                                                Dim fs As Single
-                                                If Single.TryParse(val, fs) Then fontSize = fs
-                                        End Select
+                        ' Hybrid: allow positional caption
+                        If Not firstLooksNamed Then
+                            caption = parts(1).Trim()
+                        End If
+
+                        For i As Integer = 1 To parts.Length - 1
+                            Dim t As String = parts(i).Trim()
+                            If Not t.Contains("="c) Then Continue For
+
+                            Dim kv = t.Split("="c)
+                            If kv.Length <> 2 Then Continue For
+
+                            Dim key = kv(0).Trim().ToLowerInvariant()
+                            Dim val = kv(1).Trim()
+
+                            Select Case key
+                                Case "name"
+                                    name = val
+
+                                Case "caption", "text"
+                                    caption = val
+
+                                Case "x"
+                                    ParseIntField(val, x)
+
+                                Case "y"
+                                    ParseIntField(val, y)
+
+                                Case "f", "fontsize"
+                                    Dim fs As Single
+                                    If Single.TryParse(val,
+                                                       Globalization.NumberStyles.Float,
+                                                       Globalization.CultureInfo.InvariantCulture,
+                                                       fs) Then
+                                        fontSize = fs
                                     End If
-                                End If
-                            Next
-                        End If
-
-                        ' -----------------------
-                        ' Create label
-                        ' -----------------------
-                        Dim lbl As New Label()
-                        lbl.Text = caption
-                        lbl.AutoSize = True
-                        lbl.Location = New Point(x, y)
-                        lbl.Font = New Font(lbl.Font.FontFamily, fontSize, FontStyle.Regular)
-
-                        GroupBoxCustom.Controls.Add(lbl)
+                            End Select
+                        Next
                     End If
+
+                    If caption = "" Then Continue For
+
+                    ' -------------------------------------------------
+                    ' Create label
+                    ' -------------------------------------------------
+                    Dim lbl As New Label()
+                    lbl.Text = caption
+                    lbl.AutoSize = True
+                    lbl.Location = New Point(x, y)
+                    lbl.Font = New Font(lbl.Font.FontFamily, fontSize, FontStyle.Regular)
+
+                    If name <> "" Then
+                        lbl.Name = name
+                        RegisterDynamicControl(name, lbl)
+                    End If
+
+                    GroupBoxCustom.Controls.Add(lbl)
+
+                    Continue For
 
 
                 Case "DROPDOWN"
-                    ' Format:
-                    ' DROPDOWN;ControlName;Caption;DeviceName;CommandPrefix;X;Y;Width;Item1,Item2,Item3...;captionpos=1/2
+                    ' Supports BOTH:
+                    ' 1) Positional:
+                    '    DROPDOWN;ControlName;Caption;DeviceName;CommandPrefix;X;Y;Width;Item1,Item2,Item3...;captionpos=1/2
+                    '
+                    ' 2) All-named:
+                    '    DROPDOWN;name=Ctrl1;caption=Range;device=dev1;cmd=:SENS:VOLT:DC:RANG; x=20;y=60;w=140;items=0.1,1,10;captionpos=1
                     '
                     ' captionpos=1 (default) -> Caption label to the left, first combo item is blank.
                     ' captionpos=2           -> No label; caption used as first combo item (placeholder, no command).
 
-                    If parts.Length < 9 Then Continue For
-
-                    Dim ctrlName = parts(1).Trim()
-                    Dim caption = parts(2).Trim()
-                    Dim deviceName = parts(3).Trim()
-                    Dim commandPrefix = parts(4).Trim()
+                    Dim ctrlName As String = ""
+                    Dim caption As String = ""
+                    Dim deviceName As String = ""
+                    Dim commandPrefix As String = ""
 
                     Dim x As Integer = 0
                     Dim y As Integer = 0
-                    Dim w As Integer = 120   ' sensible default width
-
-                    If parts.Length > 5 Then ParseIntField(parts(5), x)
-                    If parts.Length > 6 Then ParseIntField(parts(6), y)
-                    If parts.Length > 7 Then ParseIntField(parts(7), w)
-
-                    Dim itemsRaw = parts(8).Trim()
-                    Dim items = itemsRaw.Split(","c)
-
-                    ' Optional: caption position flag
-                    ' 1 = label beside dropdown (default)
-                    ' 2 = caption as first item in dropdown
+                    Dim w As Integer = 120
+                    Dim itemsRaw As String = ""
                     Dim captionPos As Integer = 1
 
-                    If parts.Length > 9 Then
-                        For i As Integer = 9 To parts.Length - 1
-                            Dim p As String = parts(i).Trim()
-                            If p.Contains("="c) Then
-                                Dim kv = p.Split("="c)
-                                If kv.Length = 2 Then
-                                    Dim key = kv(0).Trim().ToLower()
-                                    Dim val = kv(1).Trim()
+                    ' Decide whether this line is positional or all-named
+                    Dim isAllNamed As Boolean = (parts.Length >= 2 AndAlso parts(1).Contains("="c))
 
-                                    If key = "captionpos" Then
-                                        Integer.TryParse(val, captionPos)
-                                        If captionPos <> 1 AndAlso captionPos <> 2 Then
-                                            captionPos = 1
-                                        End If
-                                    End If
+                    If Not isAllNamed Then
+                        ' ---------- positional ----------
+                        If parts.Length < 9 Then Continue For
+
+                        ctrlName = parts(1).Trim()
+                        caption = parts(2).Trim()
+                        deviceName = parts(3).Trim()
+                        commandPrefix = parts(4).Trim()
+
+                        If parts.Length > 5 Then ParseIntField(parts(5), x)
+                        If parts.Length > 6 Then ParseIntField(parts(6), y)
+                        If parts.Length > 7 Then ParseIntField(parts(7), w)
+
+                        itemsRaw = parts(8).Trim()
+
+                        If parts.Length > 9 Then
+                            For i As Integer = 9 To parts.Length - 1
+                                Dim p As String = parts(i).Trim()
+                                If Not p.Contains("="c) Then Continue For
+                                Dim kv = p.Split("="c)
+                                If kv.Length <> 2 Then Continue For
+
+                                Dim key = kv(0).Trim().ToLowerInvariant()
+                                Dim val = kv(1).Trim()
+
+                                If key = "captionpos" Then
+                                    Integer.TryParse(val, captionPos)
+                                    If captionPos <> 1 AndAlso captionPos <> 2 Then captionPos = 1
                                 End If
-                            End If
+                            Next
+                        End If
+
+                    Else
+                        ' ---------- all-named ----------
+                        ' DROPDOWN;name=...;caption=...;device=...;cmd=...;x=...;y=...;w=...;items=...;captionpos=...
+                        For i As Integer = 1 To parts.Length - 1
+                            Dim p As String = parts(i).Trim()
+                            If Not p.Contains("="c) Then Continue For
+
+                            Dim kv = p.Split("="c)
+                            If kv.Length <> 2 Then Continue For
+
+                            Dim key = kv(0).Trim().ToLowerInvariant()
+                            Dim val = kv(1).Trim()
+
+                            Select Case key
+                                Case "name", "ctrl", "control", "controlname"
+                                    ctrlName = val
+
+                                Case "caption"
+                                    caption = val
+
+                                Case "device", "dev", "devicename"
+                                    deviceName = val
+
+                                Case "cmd", "command", "commandprefix"
+                                    commandPrefix = val
+
+                                Case "x"
+                                    ParseIntField(val, x)
+
+                                Case "y"
+                                    ParseIntField(val, y)
+
+                                Case "w", "width"
+                                    ParseIntField(val, w)
+
+                                Case "items"
+                                    itemsRaw = val
+
+                                Case "captionpos"
+                                    Integer.TryParse(val, captionPos)
+                                    If captionPos <> 1 AndAlso captionPos <> 2 Then captionPos = 1
+                            End Select
                         Next
+
+                        ' Minimal required fields
+                        If String.IsNullOrWhiteSpace(ctrlName) OrElse
+                           String.IsNullOrWhiteSpace(deviceName) OrElse
+                           String.IsNullOrWhiteSpace(commandPrefix) OrElse
+                           String.IsNullOrWhiteSpace(itemsRaw) Then
+                            Continue For
+                        End If
                     End If
+
+                    Dim items = itemsRaw.Split(","c)
 
                     ' Create dropdown (height not used)
                     Dim cb As New ComboBox()
@@ -598,9 +876,9 @@ Partial Class Formtest
                     '   captionPos=1 -> blank
                     '   captionPos=2 -> caption text as placeholder
                     If captionPos = 1 Then
-                        cb.Items.Add("")                ' true blank
+                        cb.Items.Add("")
                     Else
-                        cb.Items.Add(caption)           ' placeholder, acts like blank
+                        cb.Items.Add(caption)
                     End If
 
                     ' Add items
@@ -611,7 +889,7 @@ Partial Class Formtest
 
                     cb.SelectedIndex = 0
 
-                    ' Tag holds Device + CommandPrefix (extra info can be added later if needed)
+                    ' Tag holds Device + CommandPrefix
                     cb.Tag = deviceName & "|" & commandPrefix
 
                     AddHandler cb.SelectedIndexChanged, AddressOf Dropdown_SelectedIndexChanged
@@ -620,163 +898,254 @@ Partial Class Formtest
 
 
                 Case "RADIOGROUP"
-                    ' RADIOGROUP;GroupName;Caption;X;Y;Width;Height
-                    ' Example:
-                    ' RADIOGROUP;DCRange;DC Voltage Range;20;200;260;140
 
-                    If parts.Length >= 7 Then
+                    If parts.Length < 2 Then Continue For
 
-                        Dim groupName As String = parts(1).Trim()
-                        Dim caption As String = parts(2).Trim()
+                    Dim groupName As String = ""
+                    Dim caption As String = ""
 
-                        Dim x As Integer = 0
-                        Dim y As Integer = 0
-                        Dim w As Integer = 100   ' sensible default
-                        Dim h As Integer = 60    ' sensible default
+                    Dim x As Integer = 0
+                    Dim y As Integer = 0
+                    Dim w As Integer = 100
+                    Dim h As Integer = 60
 
-                        If parts.Length > 3 Then ParseIntField(parts(3), x)
-                        If parts.Length > 4 Then ParseIntField(parts(4), y)
-                        If parts.Length > 5 Then ParseIntField(parts(5), w)
-                        If parts.Length > 6 Then ParseIntField(parts(6), h)
+                    ' collect named tokens (from anywhere after the keyword)
+                    Dim tok As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+                    For i As Integer = 1 To parts.Length - 1
+                        Dim t = parts(i).Trim()
+                        Dim eq = t.IndexOf("="c)
+                        If eq > 0 AndAlso eq < t.Length - 1 Then
+                            Dim k = t.Substring(0, eq).Trim()
+                            Dim v = t.Substring(eq + 1).Trim()
+                            If k <> "" Then tok(k) = v
+                        End If
+                    Next
 
-                        Dim gb As New GroupBox()
-                        gb.Name = "RG_" & groupName
-                        gb.Text = caption
-                        gb.Location = New Point(x, y)
-                        gb.Size = New Size(w, h)
-
-                        GroupBoxCustom.Controls.Add(gb)
-
+                    ' group name
+                    If parts(1).Contains("="c) Then
+                        If tok.ContainsKey("group") Then groupName = tok("group")
+                        If groupName = "" AndAlso tok.ContainsKey("name") Then groupName = tok("name")
+                    Else
+                        groupName = parts(1).Trim()
                     End If
+                    If groupName = "" Then Continue For
+
+                    ' caption
+                    If parts.Length >= 3 AndAlso Not parts(2).Contains("="c) Then
+                        caption = parts(2).Trim()
+                    ElseIf tok.ContainsKey("caption") Then
+                        caption = tok("caption")
+                    Else
+                        caption = groupName
+                    End If
+
+                    ' positional coords still supported if present
+                    If parts.Length >= 7 AndAlso Not parts(3).Contains("="c) Then
+                        ParseIntField(parts(3), x)
+                        ParseIntField(parts(4), y)
+                        ParseIntField(parts(5), w)
+                        ParseIntField(parts(6), h)
+                    End If
+
+                    ' named overrides
+                    If tok.ContainsKey("x") Then ParseIntField(tok("x"), x)
+                    If tok.ContainsKey("y") Then ParseIntField(tok("y"), y)
+                    If tok.ContainsKey("w") Then ParseIntField(tok("w"), w)
+                    If tok.ContainsKey("h") Then ParseIntField(tok("h"), h)
+
+                    Dim gb As New GroupBox()
+                    gb.Name = "RG_" & groupName
+                    gb.Text = caption
+                    gb.Location = New Point(x, y)
+                    gb.Size = New Size(w, h)
+
+                    GroupBoxCustom.Controls.Add(gb)
+
+                    Continue For
 
 
                 Case "RADIO"
-                    ' RADIO;GroupName;Caption;DeviceName;Command;X;Y
-                    ' Example:
-                    ' RADIO;DCRange;10 V;dev1;:SENS:VOLT:DC:RANG 10;x=10;y=70;scale=1
-                    ' Or with auto-scale:
-                    ' RADIO;DCIRange;Auto;dev1;:SENS:CURR:DC:RANG:AUTO ON;x=10;y=20;scale=auto|:SENS:CURR:DC:RANG?
+                    ' Supports:
+                    '   RADIO;GroupName;Caption;DeviceName;Command;X;Y
+                    '   RADIO;GroupName;Caption;DeviceName;Command;x=..;y=..;scale=..
+                    '   RADIO;group=..;caption=..;device=..;command=..;x=..;y=..;scale=..
 
-                    If parts.Length >= 7 Then
+                    If parts.Length < 2 Then Continue For
 
-                        Dim groupName As String = parts(1).Trim()
-                        Dim caption As String = parts(2).Trim()
-                        Dim deviceName As String = parts(3).Trim()
-                        Dim command As String = parts(4).Trim()
+                    Dim groupName As String = ""
+                    Dim caption As String = ""
+                    Dim deviceName As String = ""
+                    Dim command As String = ""
 
-                        Dim relX As Integer = 0
-                        Dim relY As Integer = 0
+                    Dim relX As Integer = 0
+                    Dim relY As Integer = 0
 
-                        ' X/Y (positional or token form)
-                        If parts.Length > 5 Then ParseIntField(parts(5), relX)
-                        If parts.Length > 6 Then ParseIntField(parts(6), relY)
-
-                        ' Optional scale token
-                        ' Supports:
-                        '   scale=1.0        (numeric)
-                        '   scale=auto       (auto-scale, no range query)
-                        '   scale=auto|CMD?  (auto-scale, with per-meter range query)
-                        Dim scale As Double = 1.0
-                        Dim scaleIsAuto As Boolean = False
-                        Dim rangeQueryForAuto As String = ""
-
-                        If parts.Length > 7 Then
-                            For i As Integer = 7 To parts.Length - 1
-                                Dim tok = parts(i).Trim()
-                                If tok.Contains("="c) Then
-                                    Dim kv = tok.Split("="c)
-                                    If kv.Length = 2 Then
-                                        Dim key = kv(0).Trim().ToLower()
-                                        Dim val = kv(1).Trim()
-
-                                        If key = "scale" Then
-                                            Dim lower = val.ToLowerInvariant()
-
-                                            If lower.StartsWith("auto") Then
-                                                ' auto or auto|<query>
-                                                scaleIsAuto = True
-
-                                                Dim pipeIdx As Integer = val.IndexOf("|"c)
-                                                If pipeIdx >= 0 AndAlso pipeIdx < val.Length - 1 Then
-                                                    rangeQueryForAuto = val.Substring(pipeIdx + 1).Trim()
-                                                End If
-                                            Else
-                                                ' numeric scale (existing behaviour)
-                                                Double.TryParse(val, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, scale)
-                                            End If
-                                        End If
-                                    End If
-                                End If
-                            Next
+                    ' collect named tokens (from anywhere after the keyword)
+                    Dim tok As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+                    For i As Integer = 1 To parts.Length - 1
+                        Dim t = parts(i).Trim()
+                        Dim eq = t.IndexOf("="c)
+                        If eq > 0 AndAlso eq < t.Length - 1 Then
+                            Dim k = t.Substring(0, eq).Trim()
+                            Dim v = t.Substring(eq + 1).Trim()
+                            If k <> "" Then tok(k) = v
                         End If
+                    Next
 
-                        ' Find the parent group box
-                        Dim parentName As String = "RG_" & groupName
-                        Dim found() As Control = GroupBoxCustom.Controls.Find(parentName, True)
-
-                        If found Is Nothing OrElse found.Length = 0 Then
-                            ' No matching RADIOGROUP found; ignore this RADIO
-                            Exit Select
-                        End If
-
-                        Dim gb As GroupBox = TryCast(found(0), GroupBox)
-                        If gb Is Nothing Then Exit Select
-
-                        Dim rb As New RadioButton()
-                        rb.Text = caption
-                        rb.AutoSize = True
-                        rb.Location = New Point(relX, relY)
-
-                        ' Tag encodes:
-                        '   device|command|scale            (numeric)
-                        '   device|command|AUTO|rangeQuery  (auto)
-                        If scaleIsAuto Then
-                            rb.Tag = deviceName & "|" & command & "|" &
-                                     "AUTO" & "|" & rangeQueryForAuto
-                        Else
-                            rb.Tag = deviceName & "|" & command & "|" &
-                                     scale.ToString(Globalization.CultureInfo.InvariantCulture)
-                        End If
-
-                        AddHandler rb.CheckedChanged, AddressOf Radio_CheckedChanged
-
-                        gb.Controls.Add(rb)
-
+                    ' group name
+                    If parts(1).Contains("="c) Then
+                        If tok.ContainsKey("group") Then groupName = tok("group")
+                    Else
+                        groupName = parts(1).Trim()
                     End If
+                    If groupName = "" Then Continue For
+
+                    ' caption
+                    If parts.Length >= 3 AndAlso Not parts(2).Contains("="c) Then
+                        caption = parts(2).Trim()
+                    ElseIf tok.ContainsKey("caption") Then
+                        caption = tok("caption")
+                    End If
+
+                    ' device + command
+                    If parts.Length >= 5 AndAlso Not parts(3).Contains("="c) Then
+                        deviceName = parts(3).Trim()
+                        command = parts(4).Trim()
+                    End If
+                    If deviceName = "" Then
+                        If tok.ContainsKey("device") Then deviceName = tok("device")
+                        If deviceName = "" AndAlso tok.ContainsKey("dev") Then deviceName = tok("dev")
+                    End If
+                    If command = "" Then
+                        If tok.ContainsKey("command") Then command = tok("command")
+                        If command = "" AndAlso tok.ContainsKey("cmd") Then command = tok("cmd")
+                    End If
+
+                    If caption = "" OrElse deviceName = "" OrElse command = "" Then Continue For
+
+                    ' positional X/Y
+                    If parts.Length >= 7 AndAlso Not parts(5).Contains("="c) Then
+                        ParseIntField(parts(5), relX)
+                        ParseIntField(parts(6), relY)
+                    End If
+
+                    ' named X/Y override
+                    If tok.ContainsKey("x") Then ParseIntField(tok("x"), relX)
+                    If tok.ContainsKey("y") Then ParseIntField(tok("y"), relY)
+
+                    ' scale token (named, or existing tail token form)
+                    Dim scale As Double = 1.0
+                    Dim scaleIsAuto As Boolean = False
+                    Dim rangeQueryForAuto As String = ""
+
+                    Dim scaleVal As String = ""
+                    If tok.ContainsKey("scale") Then
+                        scaleVal = tok("scale")
+                    Else
+                        ' also support older: ...;scale=...
+                        For i As Integer = 7 To parts.Length - 1
+                            Dim t = parts(i).Trim()
+                            If t.StartsWith("scale=", StringComparison.OrdinalIgnoreCase) Then
+                                scaleVal = t.Substring(6).Trim()
+                                Exit For
+                            End If
+                        Next
+                    End If
+
+                    If scaleVal <> "" Then
+                        Dim lower = scaleVal.ToLowerInvariant()
+                        If lower.StartsWith("auto") Then
+                            scaleIsAuto = True
+                            Dim pipeIdx As Integer = scaleVal.IndexOf("|"c)
+                            If pipeIdx >= 0 AndAlso pipeIdx < scaleVal.Length - 1 Then
+                                rangeQueryForAuto = scaleVal.Substring(pipeIdx + 1).Trim()
+                            End If
+                        Else
+                            Double.TryParse(scaleVal, Globalization.NumberStyles.Float,
+                                            Globalization.CultureInfo.InvariantCulture, scale)
+                        End If
+                    End If
+
+                    ' Find parent group box
+                    Dim parentName As String = "RG_" & groupName
+                    Dim found() As Control = GroupBoxCustom.Controls.Find(parentName, True)
+                    If found Is Nothing OrElse found.Length = 0 Then Continue For
+
+                    Dim gb As GroupBox = TryCast(found(0), GroupBox)
+                    If gb Is Nothing Then Continue For
+
+                    Dim rb As New RadioButton()
+                    rb.Text = caption
+                    rb.AutoSize = True
+                    rb.Location = New Point(relX, relY)
+
+                    If scaleIsAuto Then
+                        rb.Tag = deviceName & "|" & command & "|AUTO|" & rangeQueryForAuto
+                    Else
+                        rb.Tag = deviceName & "|" & command & "|" &
+                                 scale.ToString(Globalization.CultureInfo.InvariantCulture)
+                    End If
+
+                    AddHandler rb.CheckedChanged, AddressOf Radio_CheckedChanged
+                    gb.Controls.Add(rb)
+
+                    Continue For
 
 
                 Case "SLIDER"
                     ' Supports:
-                    ' SLIDER;Name;Caption;Device;Command;X;Y;W;Min;Max;Step;Scale
-                    ' or
-                    ' SLIDER;Name;Caption;Device;Command;x=..;y=..;w=..;min=..;max=..;step=..;scale=..;hint=..
+                    ' Positional:
+                    '   SLIDER;Name;Caption;Device;Command;X;Y;W;Min;Max;Step;Scale
+                    '
+                    ' Hybrid named:
+                    '   SLIDER;Name;Caption;Device;Command;x=..;y=..;w=..;min=..;max=..;step=..;scale=..;hint=..
+                    '
+                    ' All-named:
+                    '   SLIDER;name=..;caption=..;device=..;command=..;x=..;y=..;w=..;min=..;max=..;step=..;scale=..;hint=..
 
-                    If parts.Length >= 5 Then
+                    If parts.Length < 2 Then Continue For
 
-                        Dim controlName As String = parts(1).Trim()
-                        Dim caption As String = parts(2).Trim()
-                        Dim deviceName As String = parts(3).Trim()
-                        Dim commandPrefix As String = parts(4).Trim()
+                    ' ---- gather tokens (any key=value after SLIDER) ----
+                    Dim tok As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+                    For i As Integer = 1 To parts.Length - 1
+                        Dim t = parts(i).Trim()
+                        Dim eq = t.IndexOf("="c)
+                        If eq > 0 AndAlso eq < t.Length - 1 Then
+                            Dim k = t.Substring(0, eq).Trim()
+                            Dim v = t.Substring(eq + 1).Trim()
+                            If k <> "" Then tok(k) = v
+                        End If
+                    Next
 
-                        ' ---- defaults ----
-                        Dim x As Integer = 20
-                        Dim y As Integer = 20
-                        Dim width As Integer = 200
-                        Dim minVal As Integer = 0
-                        Dim maxVal As Integer = 100
-                        Dim stepVal As Integer = 1
-                        Dim scale As Double = 1.0
-                        Dim hintText As String = ""
+                    Dim controlName As String = ""
+                    Dim caption As String = ""
+                    Dim deviceName As String = ""
+                    Dim commandPrefix As String = ""
 
-                        ' --------------------------------------------------------
-                        ' Try positional format first
-                        ' --------------------------------------------------------
-                        Dim usedPositional As Boolean = False
+                    ' ---- defaults ----
+                    Dim x As Integer = 20
+                    Dim y As Integer = 20
+                    Dim width As Integer = 200
+                    Dim minVal As Integer = 0
+                    Dim maxVal As Integer = 100
+                    Dim stepVal As Integer = 1
+                    Dim scale As Double = 1.0
+                    Dim hintText As String = ""
 
+                    Dim usedPositional As Boolean = False
+                    Dim isAllNamed As Boolean = (parts.Length >= 2 AndAlso parts(1).Contains("="c))
+
+                    ' -------------------------------
+                    ' Positional form (original)
+                    ' -------------------------------
+                    If Not isAllNamed AndAlso parts.Length >= 5 Then
+                        controlName = parts(1).Trim()
+                        caption = parts(2).Trim()
+                        deviceName = parts(3).Trim()
+                        commandPrefix = parts(4).Trim()
+
+                        ' Try positional fields
                         If parts.Length >= 12 AndAlso Not parts(5).Contains("="c) Then
-                            ' Positional format:
-                            ' SLIDER;Name;Caption;Device;Command;X;Y;W;Min;Max;Step;Scale
-
                             ParseIntField(parts(5), x)
                             ParseIntField(parts(6), y)
                             ParseIntField(parts(7), width)
@@ -784,129 +1153,148 @@ Partial Class Formtest
                             ParseIntField(parts(9), maxVal)
                             ParseIntField(parts(10), stepVal)
 
-                            Double.TryParse(
-                                   parts(11).Trim(),
-                                   Globalization.NumberStyles.Float,
-                                   Globalization.CultureInfo.InvariantCulture,
-                                   scale
-                            )
+                            Double.TryParse(parts(11).Trim(),
+                                            Globalization.NumberStyles.Float,
+                                            Globalization.CultureInfo.InvariantCulture,
+                                            scale)
 
                             usedPositional = True
                         End If
-
-
-                        ' --------------------------------------------------------
-                        ' Named-parameter format
-                        ' --------------------------------------------------------
-                        If Not usedPositional Then
-                            For i As Integer = 5 To parts.Length - 1
-                                Dim p = parts(i).Trim()
-                                If p.Contains("=") Then
-                                    Dim kv = p.Split("="c)
-                                    If kv.Length = 2 Then
-                                        Dim key = kv(0).Trim().ToLower()
-                                        Dim val = kv(1).Trim()
-
-                                        Select Case key
-                                            Case "x" : Integer.TryParse(val, x)
-                                            Case "y" : Integer.TryParse(val, y)
-                                            Case "w" : Integer.TryParse(val, width)
-                                            Case "min" : Integer.TryParse(val, minVal)
-                                            Case "max" : Integer.TryParse(val, maxVal)
-                                            Case "step" : Integer.TryParse(val, stepVal)
-                                            Case "scale" : Double.TryParse(val, scale)
-                                            Case "hint" : hintText = val
-                                        End Select
-                                    End If
-                                End If
-                            Next
-                        End If
-
-                        ' --------------------------------------------------------
-                        ' Build GroupBox
-                        ' --------------------------------------------------------
-                        Dim gb As New GroupBox()
-                        gb.Text = caption
-                        gb.Location = New Point(x, y)
-                        gb.Size = New Size(width + 60, 70)
-                        gb.Name = "GB_Slider_" & controlName
-                        GroupBoxCustom.BackColor = Me.BackColor
-                        GroupBoxCustom.Controls.Add(gb)
-
-                        ' Value label
-                        Dim lblValue As New Label()
-                        lblValue.Name = "Lbl_" & controlName & "_Value"
-                        lblValue.AutoSize = True
-                        lblValue.Text = ""   ' blanks at start
-                        lblValue.Location = New Point(width + 20, 30)
-                        gb.Controls.Add(lblValue)
-                        gb.Height = 72 ' groupbox height
-
-                        ' Trackbar slider
-                        Dim tb As New TrackBar()
-                        tb.Name = controlName
-                        tb.Location = New Point(10, 25)
-                        tb.Width = width
-                        tb.Minimum = minVal
-                        tb.Maximum = maxVal
-                        tb.SmallChange = stepVal
-                        tb.LargeChange = stepVal * 5
-                        tb.TickStyle = TickStyle.None
-
-                        tb.Tag = deviceName & "|" &
-                                 commandPrefix & "|" &
-                                 scale.ToString(Globalization.CultureInfo.InvariantCulture) & "|" &
-                                 lblValue.Name & "|" &
-                                 stepVal.ToString()
-
-                        AddHandler tb.Scroll, AddressOf Slider_Scroll
-                        AddHandler tb.MouseUp, AddressOf Slider_MouseUp
-
-                        gb.Controls.Add(tb)
-
-                        ' Tooltip hint support
-                        If hintText <> "" Then
-                            Dim tt As New ToolTip()
-                            tt.SetToolTip(gb, hintText)
-                            tt.SetToolTip(tb, hintText)
-                            tt.SetToolTip(lblValue, hintText)
-                        End If
-
                     End If
+
+                    ' -------------------------------
+                    ' All-named or Hybrid-named
+                    ' -------------------------------
+                    If isAllNamed OrElse Not usedPositional Then
+
+                        If controlName = "" Then
+                            If tok.ContainsKey("name") Then controlName = tok("name")
+                            If controlName = "" AndAlso tok.ContainsKey("control") Then controlName = tok("control")
+                        End If
+
+                        If caption = "" Then
+                            If tok.ContainsKey("caption") Then caption = tok("caption")
+                        End If
+
+                        If deviceName = "" Then
+                            If tok.ContainsKey("device") Then deviceName = tok("device")
+                            If deviceName = "" AndAlso tok.ContainsKey("dev") Then deviceName = tok("dev")
+                        End If
+
+                        If commandPrefix = "" Then
+                            If tok.ContainsKey("command") Then commandPrefix = tok("command")
+                            If commandPrefix = "" AndAlso tok.ContainsKey("cmd") Then commandPrefix = tok("cmd")
+                        End If
+
+                        ' If hybrid named (Name;Caption;Device;Command; x=.. etc) but caption/device/command were positional already,
+                        ' we still allow overriding geometry/params via tokens below.
+
+                        If tok.ContainsKey("x") Then ParseIntField(tok("x"), x)
+                        If tok.ContainsKey("y") Then ParseIntField(tok("y"), y)
+                        If tok.ContainsKey("w") Then ParseIntField(tok("w"), width)
+
+                        If tok.ContainsKey("min") Then ParseIntField(tok("min"), minVal)
+                        If tok.ContainsKey("max") Then ParseIntField(tok("max"), maxVal)
+                        If tok.ContainsKey("step") Then ParseIntField(tok("step"), stepVal)
+
+                        If tok.ContainsKey("scale") Then
+                            Double.TryParse(tok("scale"),
+                                            Globalization.NumberStyles.Float,
+                                            Globalization.CultureInfo.InvariantCulture,
+                                            scale)
+                        End If
+
+                        If tok.ContainsKey("hint") Then hintText = tok("hint")
+                    End If
+
+                    ' basic required fields
+                    If controlName = "" OrElse caption = "" OrElse deviceName = "" OrElse commandPrefix = "" Then Continue For
+                    If maxVal < minVal Then
+                        Dim tmp = minVal : minVal = maxVal : maxVal = tmp
+                    End If
+                    If stepVal <= 0 Then stepVal = 1
+
+                    ' --------------------------------------------------------
+                    ' Build GroupBox
+                    ' --------------------------------------------------------
+                    Dim gb As New GroupBox()
+                    gb.Text = caption
+                    gb.Location = New Point(x, y)
+                    gb.Size = New Size(width + 60, 70)
+                    gb.Name = "GB_Slider_" & controlName
+                    GroupBoxCustom.BackColor = Me.BackColor
+                    GroupBoxCustom.Controls.Add(gb)
+
+                    ' Value label
+                    Dim lblValue As New Label()
+                    lblValue.Name = "Lbl_" & controlName & "_Value"
+                    lblValue.AutoSize = True
+                    lblValue.Text = ""
+                    lblValue.Location = New Point(width + 20, 30)
+                    gb.Controls.Add(lblValue)
+                    gb.Height = 72
+
+                    ' Trackbar slider
+                    Dim tb As New TrackBar()
+                    tb.Name = controlName
+                    tb.Location = New Point(10, 25)
+                    tb.Width = width
+                    tb.Minimum = minVal
+                    tb.Maximum = maxVal
+                    tb.SmallChange = stepVal
+                    tb.LargeChange = stepVal * 5
+                    tb.TickStyle = TickStyle.None
+
+                    tb.Tag = deviceName & "|" &
+                             commandPrefix & "|" &
+                             scale.ToString(Globalization.CultureInfo.InvariantCulture) & "|" &
+                             lblValue.Name & "|" &
+                             stepVal.ToString(Globalization.CultureInfo.InvariantCulture)
+
+                    AddHandler tb.Scroll, AddressOf Slider_Scroll
+                    AddHandler tb.MouseUp, AddressOf Slider_MouseUp
+
+                    gb.Controls.Add(tb)
+
+                    ' Tooltip hint support
+                    If hintText <> "" Then
+                        Dim tt As New ToolTip()
+                        tt.SetToolTip(gb, hintText)
+                        tt.SetToolTip(tb, hintText)
+                        tt.SetToolTip(lblValue, hintText)
+                    End If
+
+                    Continue For
 
 
                 Case "HR"
-                    ' Supports:
-                    ' HR;X;Y;Width
-                    ' HR;x=..;y=..;w=..
-
                     Dim x As Integer = 0
                     Dim y As Integer = 0
                     Dim w As Integer = 200   ' default width
 
                     ' ---------- Positional format ----------
-                    If parts.Length >= 4 AndAlso Not parts(1).Contains("=") Then
+                    If parts.Length >= 4 AndAlso Not parts(1).Contains("="c) Then
                         ParseIntField(parts(1), x)
                         ParseIntField(parts(2), y)
                         ParseIntField(parts(3), w)
 
                     Else
-                        ' ---------- Token format ----------
+                        ' ---------- Named/token format ----------
                         For i As Integer = 1 To parts.Length - 1
                             Dim p = parts(i).Trim()
-                            If p.Contains("=") Then
-                                Dim kv = p.Split("="c)
-                                If kv.Length = 2 Then
-                                    Dim key = kv(0).Trim().ToLower()
-                                    Dim val = kv(1).Trim()
+                            If Not p.Contains("="c) Then Continue For
 
-                                    Select Case key
-                                        Case "x" : ParseIntField(val, x)
-                                        Case "y" : ParseIntField(val, y)
-                                        Case "w" : ParseIntField(val, w)
-                                    End Select
-                                End If
-                            End If
+                            Dim kv = p.Split("="c)
+                            If kv.Length <> 2 Then Continue For
+
+                            Dim key = kv(0).Trim().ToLowerInvariant()
+                            Dim val = kv(1).Trim()
+
+                            Select Case key
+                                Case "x" : ParseIntField(val, x)
+                                Case "y" : ParseIntField(val, y)
+                                Case "w", "width" : ParseIntField(val, w)
+                            End Select
                         Next
                     End If
 
@@ -919,34 +1307,36 @@ Partial Class Formtest
                     hrLine.Location = New Point(x, y)
 
                     GroupBoxCustom.Controls.Add(hrLine)
+                    Continue For
 
 
                 Case "VR"
-                    ' VR;X;Y;Height
-                    ' VR;x=20;y=200;h=150
-
                     Dim x As Integer = 10
                     Dim y As Integer = 10
                     Dim h As Integer = 100
 
-                    ' Positional format?
-                    If parts.Length >= 4 AndAlso Not parts(1).Contains("=") Then
+                    ' ---------- Positional format ----------
+                    If parts.Length >= 4 AndAlso Not parts(1).Contains("="c) Then
                         ParseIntField(parts(1), x)
                         ParseIntField(parts(2), y)
                         ParseIntField(parts(3), h)
+
                     Else
-                        ' Token format
+                        ' ---------- Named/token format ----------
                         For i As Integer = 1 To parts.Length - 1
                             Dim tok = parts(i).Trim()
+                            If Not tok.Contains("="c) Then Continue For
+
                             Dim kv = tok.Split("="c)
                             If kv.Length <> 2 Then Continue For
-                            Dim key = kv(0).Trim().ToLower()
+
+                            Dim key = kv(0).Trim().ToLowerInvariant()
                             Dim val = kv(1).Trim()
 
                             Select Case key
                                 Case "x" : ParseIntField(val, x)
                                 Case "y" : ParseIntField(val, y)
-                                Case "h" : ParseIntField(val, h)
+                                Case "h", "height" : ParseIntField(val, h)
                             End Select
                         Next
                     End If
@@ -960,32 +1350,52 @@ Partial Class Formtest
                     ln.Location = New Point(x, y)
 
                     GroupBoxCustom.Controls.Add(ln)
+                    Continue For
+
 
 
                 Case "SPINNER"
-                    ' Supports:
-                    ' SPINNER;Name;Caption;Device;Command;X;Y;W;Min;Max;Step;Scale
-                    ' or
-                    ' SPINNER;Name;Caption;Device;Command;x=..;y=..;w=..;min=..;max=..;step=..;scale=..
+                    If parts.Length < 2 Then Continue For
 
-                    If parts.Length >= 5 Then
+                    ' -----------------------
+                    ' Defaults
+                    ' -----------------------
+                    Dim controlName As String = ""
+                    Dim caption As String = ""
+                    Dim deviceName As String = ""
+                    Dim commandPrefix As String = ""
 
-                        Dim controlName As String = parts(1).Trim()
-                        Dim caption As String = parts(2).Trim()
-                        Dim deviceName As String = parts(3).Trim()
-                        Dim commandPrefix As String = parts(4).Trim()
+                    Dim x As Integer = 20
+                    Dim y As Integer = 20
+                    Dim width As Integer = 80
+                    Dim minVal As Integer = 0
+                    Dim maxVal As Integer = 100
+                    Dim stepVal As Integer = 1
+                    Dim scale As Double = 1.0
 
-                        Dim x As Integer = 20
-                        Dim y As Integer = 20
-                        Dim width As Integer = 80
-                        Dim minVal As Integer = 0
-                        Dim maxVal As Integer = 100
-                        Dim stepVal As Integer = 1
-                        Dim scale As Double = 1.0
+                    ' -----------------------
+                    ' Detect if there are any named tokens early
+                    ' -----------------------
+                    Dim hasNamed As Boolean = False
+                    For i As Integer = 1 To parts.Length - 1
+                        If parts(i).Contains("="c) Then
+                            hasNamed = True
+                            Exit For
+                        End If
+                    Next
 
-                        Dim usedPositional As Boolean = False
+                    ' -----------------------
+                    ' Positional header (classic)
+                    ' -----------------------
+                    If Not hasNamed Then
+                        If parts.Length < 5 Then Continue For
 
-                        ' Positional form
+                        controlName = parts(1).Trim()
+                        caption = parts(2).Trim()
+                        deviceName = parts(3).Trim()
+                        commandPrefix = parts(4).Trim()
+
+                        ' Positional coords/limits
                         If parts.Length >= 12 AndAlso Not parts(5).Contains("="c) Then
                             ParseIntField(parts(5), x)
                             ParseIntField(parts(6), y)
@@ -993,208 +1403,336 @@ Partial Class Formtest
                             ParseIntField(parts(8), minVal)
                             ParseIntField(parts(9), maxVal)
                             ParseIntField(parts(10), stepVal)
-                            Double.TryParse(
-                parts(11).Trim(),
-                Globalization.NumberStyles.Float,
-                Globalization.CultureInfo.InvariantCulture,
-                scale
-            )
-                            usedPositional = True
-                        End If
 
-                        ' Token form
-                        If Not usedPositional Then
+                            Double.TryParse(parts(11).Trim(),
+                                            Globalization.NumberStyles.Float,
+                                            Globalization.CultureInfo.InvariantCulture,
+                                            scale)
+                        Else
+                            ' If they used classic header but then tokens for the rest, parse tokens from 5+
                             For i As Integer = 5 To parts.Length - 1
                                 Dim p = parts(i).Trim()
-                                If p.Contains("="c) Then
-                                    Dim kv = p.Split("="c)
-                                    If kv.Length = 2 Then
-                                        Dim key = kv(0).Trim().ToLower()
-                                        Dim val = kv(1).Trim()
-                                        Select Case key
-                                            Case "x" : ParseIntField(val, x)
-                                            Case "y" : ParseIntField(val, y)
-                                            Case "w" : ParseIntField(val, width)
-                                            Case "min" : ParseIntField(val, minVal)
-                                            Case "max" : ParseIntField(val, maxVal)
-                                            Case "step" : ParseIntField(val, stepVal)
-                                            Case "scale"
-                                                Double.TryParse(
-                                    val,
-                                    Globalization.NumberStyles.Float,
-                                    Globalization.CultureInfo.InvariantCulture,
-                                    scale
-                                )
-                                        End Select
-                                    End If
-                                End If
+                                If Not p.Contains("="c) Then Continue For
+
+                                Dim kv = p.Split("="c)
+                                If kv.Length <> 2 Then Continue For
+                                Dim key = kv(0).Trim().ToLowerInvariant()
+                                Dim val = kv(1).Trim()
+
+                                Select Case key
+                                    Case "x" : ParseIntField(val, x)
+                                    Case "y" : ParseIntField(val, y)
+                                    Case "w", "width" : ParseIntField(val, width)
+                                    Case "min" : ParseIntField(val, minVal)
+                                    Case "max" : ParseIntField(val, maxVal)
+                                    Case "step" : ParseIntField(val, stepVal)
+                                    Case "scale"
+                                        Double.TryParse(val,
+                                                        Globalization.NumberStyles.Float,
+                                                        Globalization.CultureInfo.InvariantCulture,
+                                                        scale)
+                                End Select
                             Next
                         End If
 
-                        ' Label
-                        Dim lbl As New Label()
-                        lbl.Text = caption
-                        lbl.AutoSize = True
-                        lbl.Location = New Point(x, y + 3)
-                        GroupBoxCustom.Controls.Add(lbl)
+                    Else
+                        ' -----------------------
+                        ' Fully token/named form (and hybrid)
+                        ' -----------------------
+                        ' We allow either:
+                        '   SPINNER;Name;Caption;Device;Cmd; x=.. etc
+                        ' or:
+                        '   SPINNER;name=..;caption=..;device=..;cmd=..; x=.. etc
 
-                        ' Spinner (NumericUpDown)
-                        Dim nud As New NumericUpDown()
-                        nud.Name = controlName
-                        nud.Location = New Point(x + lbl.PreferredWidth + 5, y)
-                        nud.Width = width
+                        ' First, capture positional header if they provided it
+                        If parts.Length >= 5 AndAlso
+                           Not parts(1).Contains("="c) AndAlso
+                           Not parts(2).Contains("="c) AndAlso
+                           Not parts(3).Contains("="c) AndAlso
+                           Not parts(4).Contains("="c) Then
 
-                        nud.Minimum = minVal
-                        nud.Maximum = maxVal
-                        nud.Increment = stepVal
-                        nud.DecimalPlaces = 0   ' using scale for fractional output
+                            controlName = parts(1).Trim()
+                            caption = parts(2).Trim()
+                            deviceName = parts(3).Trim()
+                            commandPrefix = parts(4).Trim()
+                        End If
 
-                        ' Start at min internally, but show blank
-                        nud.Value = minVal
-                        nud.Text = ""
+                        ' Then parse all tokens (including possible name/caption/device/cmd overrides)
+                        For i As Integer = 1 To parts.Length - 1
+                            Dim p = parts(i).Trim()
+                            If Not p.Contains("="c) Then Continue For
 
-                        ' Tag = DEVICE|COMMAND|SCALE|INITFLAG|MIN
-                        nud.Tag = deviceName & "|" &
-                                  commandPrefix & "|" &
-                                  scale.ToString(Globalization.CultureInfo.InvariantCulture) & "|" &
-                                  "0" & "|" &
-                                  minVal.ToString(Globalization.CultureInfo.InvariantCulture)
+                            Dim kv = p.Split("="c)
+                            If kv.Length <> 2 Then Continue For
 
-                        AddHandler nud.ValueChanged, AddressOf Spinner_ValueChanged
+                            Dim key = kv(0).Trim().ToLowerInvariant()
+                            Dim val = kv(1).Trim()
 
-                        GroupBoxCustom.Controls.Add(nud)
+                            Select Case key
+                                Case "name" : controlName = val
+                                Case "caption" : caption = val
+                                Case "device" : deviceName = val
+                                Case "cmd", "command" : commandPrefix = val
 
+                                Case "x" : ParseIntField(val, x)
+                                Case "y" : ParseIntField(val, y)
+                                Case "w", "width" : ParseIntField(val, width)
+                                Case "min" : ParseIntField(val, minVal)
+                                Case "max" : ParseIntField(val, maxVal)
+                                Case "step" : ParseIntField(val, stepVal)
+                                Case "scale"
+                                    Double.TryParse(val,
+                                                    Globalization.NumberStyles.Float,
+                                                    Globalization.CultureInfo.InvariantCulture,
+                                                    scale)
+                            End Select
+                        Next
+
+                        If controlName = "" OrElse deviceName = "" OrElse commandPrefix = "" Then
+                            Continue For
+                        End If
                     End If
+
+                    ' -----------------------
+                    ' Label
+                    ' -----------------------
+                    Dim lbl As New Label()
+                    lbl.Text = caption
+                    lbl.AutoSize = True
+                    lbl.Location = New Point(x, y + 3)
+                    GroupBoxCustom.Controls.Add(lbl)
+
+                    ' -----------------------
+                    ' Spinner (NumericUpDown)
+                    ' -----------------------
+                    Dim nud As New NumericUpDown()
+                    nud.Name = controlName
+                    nud.Location = New Point(x + lbl.PreferredWidth + 5, y)
+                    nud.Width = width
+
+                    nud.Minimum = minVal
+                    nud.Maximum = maxVal
+                    nud.Increment = stepVal
+                    nud.DecimalPlaces = 0   ' using scale for fractional output
+
+                    ' Start at min internally, but show blank
+                    nud.Value = minVal
+                    nud.Text = ""
+
+                    ' Tag = DEVICE|COMMAND|SCALE|INITFLAG|MIN
+                    nud.Tag = deviceName & "|" &
+                              commandPrefix & "|" &
+                              scale.ToString(Globalization.CultureInfo.InvariantCulture) & "|" &
+                              "0" & "|" &
+                              minVal.ToString(Globalization.CultureInfo.InvariantCulture)
+
+                    AddHandler nud.ValueChanged, AddressOf Spinner_ValueChanged
+
+                    GroupBoxCustom.Controls.Add(nud)
+                    Continue For
 
 
                 Case "LED"
+                    If parts.Length < 3 Then Continue For
+
+                    Dim ledName As String = ""
+                    Dim caption As String = ""
+
+                    Dim x As Integer = 10
+                    Dim y As Integer = 10
+                    Dim size As Integer = 12
+
+                    ' Default colours
+                    Dim onColor As Color = Color.LimeGreen
+                    Dim offColor As Color = Color.DarkGray
+                    Dim badColor As Color = Color.Gold
+
+                    Dim usedPositional As Boolean = False
+
+                    ' -----------------------------
+                    ' Positional form?
                     ' LED;Name;Caption;X;Y;Size
-                    ' or LED;Name;Caption;x=..;y=..;s=..;on=..;off=..;bad=..
+                    ' -----------------------------
+                    If parts.Length >= 6 AndAlso Not parts(1).Contains("="c) AndAlso Not parts(3).Contains("="c) Then
+                        ledName = parts(1).Trim()
+                        caption = parts(2).Trim()
+                        ParseIntField(parts(3), x)
+                        ParseIntField(parts(4), y)
+                        ParseIntField(parts(5), size)
+                        usedPositional = True
+                    End If
 
-                    If parts.Length >= 3 Then
-
-                        Dim ledName As String = parts(1).Trim()
-                        Dim caption As String = parts(2).Trim()
-
-                        Dim x As Integer = 10
-                        Dim y As Integer = 10
-                        Dim size As Integer = 12
-
-                        ' Default colours
-                        Dim onColor As Color = Color.LimeGreen
-                        Dim offColor As Color = Color.DarkGray
-                        Dim badColor As Color = Color.Gold
-
-                        ' --- positional X,Y,Size: LED;Name;Caption;X;Y;Size ---
-                        If parts.Length >= 6 AndAlso Not parts(3).Contains("="c) Then
-                            ParseIntField(parts(3), x)
-                            ParseIntField(parts(4), y)
-                            ParseIntField(parts(5), size)
-                        End If
-
-                        ' --- token style: x=..;y=..;s=..;on=..;off=..;bad=.. ---
-                        For i As Integer = 3 To parts.Length - 1
+                    ' -----------------------------
+                    ' Named / token form
+                    ' LED;name=..;caption=..;x=..;y=..;s=..;on=..;off=..;bad=..
+                    ' -----------------------------
+                    If Not usedPositional Then
+                        For i As Integer = 1 To parts.Length - 1
                             Dim p = parts(i).Trim()
-                            If p.Contains("="c) Then
-                                Dim kv = p.Split("="c)
-                                If kv.Length = 2 Then
-                                    Dim key = kv(0).Trim().ToLower()
-                                    Dim val = kv(1).Trim()
-                                    Select Case key
-                                        Case "x" : ParseIntField(val, x)
-                                        Case "y" : ParseIntField(val, y)
-                                        Case "s" : ParseIntField(val, size)
-                                        Case "on"
-                                            Dim c = Color.FromName(val)
-                                            If c.ToArgb() <> 0 Then onColor = c
-                                        Case "off"
-                                            Dim c = Color.FromName(val)
-                                            If c.ToArgb() <> 0 Then offColor = c
-                                        Case "bad"
-                                            Dim c = Color.FromName(val)
-                                            If c.ToArgb() <> 0 Then badColor = c
-                                    End Select
-                                End If
-                            End If
+                            If Not p.Contains("="c) Then Continue For
+
+                            Dim kv = p.Split("="c)
+                            If kv.Length <> 2 Then Continue For
+
+                            Dim key = kv(0).Trim().ToLowerInvariant()
+                            Dim val = kv(1).Trim()
+
+                            Select Case key
+                                Case "name" : ledName = val
+                                Case "caption" : caption = val
+                                Case "x" : ParseIntField(val, x)
+                                Case "y" : ParseIntField(val, y)
+                                Case "s", "size" : ParseIntField(val, size)
+
+                                Case "on"
+                                    Dim c = Color.FromName(val)
+                                    If c.ToArgb() <> 0 Then onColor = c
+                                Case "off"
+                                    Dim c = Color.FromName(val)
+                                    If c.ToArgb() <> 0 Then offColor = c
+                                Case "bad"
+                                    Dim c = Color.FromName(val)
+                                    If c.ToArgb() <> 0 Then badColor = c
+                            End Select
                         Next
 
-                        ' Caption label
-                        Dim lbl As New Label()
-                        lbl.Text = caption
-                        lbl.AutoSize = True
-                        lbl.Location = New Point(x, y + 2)
-                        GroupBoxCustom.Controls.Add(lbl)
-
-                        ' LED panel
-                        Dim led As New Panel()
-                        led.Name = ledName
-                        led.Size = New Size(size, size)
-                        led.Location = New Point(lbl.Right + 5, y)
-                        led.BorderStyle = BorderStyle.FixedSingle
-                        led.BackColor = offColor    ' start OFF
-
-                        ' Tag: marker + colours
-                        led.Tag = $"LED|{onColor.ToArgb}|{offColor.ToArgb}|{badColor.ToArgb}"
-
-                        GroupBoxCustom.Controls.Add(led)
-
+                        ' fallback if someone still used legacy first two fields but then named coords
+                        If ledName = "" AndAlso parts.Length > 1 AndAlso Not parts(1).Contains("="c) Then ledName = parts(1).Trim()
+                        If caption = "" AndAlso parts.Length > 2 AndAlso Not parts(2).Contains("="c) Then caption = parts(2).Trim()
                     End If
+
+                    If ledName = "" Then Continue For
+
+                    ' Caption label
+                    Dim lbl As New Label()
+                    lbl.Text = caption
+                    lbl.AutoSize = True
+                    lbl.Location = New Point(x, y + 2)
+                    GroupBoxCustom.Controls.Add(lbl)
+
+                    ' LED panel
+                    Dim led As New Panel()
+                    led.Name = ledName
+                    led.Size = New Size(size, size)
+                    led.Location = New Point(lbl.Right + 5, y)
+                    led.BorderStyle = BorderStyle.FixedSingle
+                    led.BackColor = offColor    ' start OFF
+
+                    ' Tag: marker + colours
+                    led.Tag = $"LED|{onColor.ToArgb}|{offColor.ToArgb}|{badColor.ToArgb}"
+
+                    GroupBoxCustom.Controls.Add(led)
+                    Continue For
 
 
                 Case "BIGTEXT"
-                    ' BIGTEXT;ControlName;Caption(optional);x=..;y=..;f=..;w=..;h=..;border=on/off;units=on/off
                     If parts.Length >= 2 Then
 
-                        Dim controlName As String = parts(1).Trim()
-                        Dim caption As String = If(parts.Length > 2, parts(2).Trim(), "")
+                        Dim controlName As String = ""
+                        Dim caption As String = ""
 
+                        ' Defaults
                         Dim x As Integer = 20
                         Dim y As Integer = 20
                         Dim fontSize As Single = 28.0F
-                        Dim w As Integer = 200     ' default width
-                        Dim h As Integer = 60      ' default height
-
-                        ' Defaults:
+                        Dim w As Integer = 200
+                        Dim h As Integer = 60
                         Dim borderOn As Boolean = True
                         Dim unitsOn As Boolean = True
 
-                        ' Parse named tokens
-                        For i As Integer = 3 To parts.Length - 1
-                            Dim p = parts(i).Trim()
-                            If p.Contains("="c) Then
+                        ' ------------------------------------------------------------
+                        ' Parse first fields:
+                        ' positional: parts(1)=name, parts(2)=caption
+                        ' named:      parts(1)=name=..., parts(2)=caption=...
+                        ' ------------------------------------------------------------
+                        If parts(1).Contains("="c) Then
+                            ' name/caption are given as tokens too
+                            For i As Integer = 1 To parts.Length - 1
+                                Dim p = parts(i).Trim()
+                                If Not p.Contains("="c) Then Continue For
+
                                 Dim kv = p.Split("="c)
-                                If kv.Length = 2 Then
-                                    Dim key = kv(0).Trim().ToLower()
-                                    Dim val = kv(1).Trim()
+                                If kv.Length <> 2 Then Continue For
 
-                                    Select Case key
-                                        Case "x" : Integer.TryParse(val, x)
-                                        Case "y" : Integer.TryParse(val, y)
-                                        Case "f" : Single.TryParse(val, fontSize)
-                                        Case "w" : Integer.TryParse(val, w)
-                                        Case "h" : Integer.TryParse(val, h)
+                                Dim key = kv(0).Trim().ToLowerInvariant()
+                                Dim val = kv(1).Trim()
 
-                                        Case "border"
-                                            Select Case val.Trim().ToLower()
-                                                Case "0", "off", "false", "no", "none"
-                                                    borderOn = False
-                                                Case Else
-                                                    borderOn = True
-                                            End Select
+                                Select Case key
+                                    Case "name" : controlName = val
+                                    Case "caption" : caption = val
 
-                                        Case "units"
-                                            Select Case val.Trim().ToLower()
-                                                Case "0", "off", "false", "no", "none"
-                                                    unitsOn = False
-                                                Case Else
-                                                    unitsOn = True
-                                            End Select
-                                    End Select
-                                End If
-                            End If
-                        Next
+                                    Case "x" : Integer.TryParse(val, x)
+                                    Case "y" : Integer.TryParse(val, y)
+                                    Case "f" : Single.TryParse(val, fontSize)
+                                    Case "w" : Integer.TryParse(val, w)
+                                    Case "h" : Integer.TryParse(val, h)
 
-                        ' --- Outer panel (the "box") ---
+                                    Case "border"
+                                        Select Case val.ToLowerInvariant()
+                                            Case "0", "off", "false", "no", "none"
+                                                borderOn = False
+                                            Case Else
+                                                borderOn = True
+                                        End Select
+
+                                    Case "units"
+                                        Select Case val.ToLowerInvariant()
+                                            Case "0", "off", "false", "no", "none"
+                                                unitsOn = False
+                                            Case Else
+                                                unitsOn = True
+                                        End Select
+                                End Select
+                            Next
+                        Else
+                            ' original positional fields
+                            controlName = parts(1).Trim()
+                            caption = If(parts.Length > 2, parts(2).Trim(), "")
+
+                            ' named tokens start at index 3 (same as your existing code)
+                            For i As Integer = 3 To parts.Length - 1
+                                Dim p = parts(i).Trim()
+                                If Not p.Contains("="c) Then Continue For
+
+                                Dim kv = p.Split("="c)
+                                If kv.Length <> 2 Then Continue For
+
+                                Dim key = kv(0).Trim().ToLowerInvariant()
+                                Dim val = kv(1).Trim()
+
+                                Select Case key
+                                    Case "x" : Integer.TryParse(val, x)
+                                    Case "y" : Integer.TryParse(val, y)
+                                    Case "f" : Single.TryParse(val, fontSize)
+                                    Case "w" : Integer.TryParse(val, w)
+                                    Case "h" : Integer.TryParse(val, h)
+
+                                    Case "border"
+                                        Select Case val.ToLowerInvariant()
+                                            Case "0", "off", "false", "no", "none"
+                                                borderOn = False
+                                            Case Else
+                                                borderOn = True
+                                        End Select
+
+                                    Case "units"
+                                        Select Case val.ToLowerInvariant()
+                                            Case "0", "off", "false", "no", "none"
+                                                unitsOn = False
+                                            Case Else
+                                                unitsOn = True
+                                        End Select
+                                End Select
+                            Next
+                        End If
+
+                        ' Must have a real name
+                        If String.IsNullOrWhiteSpace(controlName) Then Exit Select
+
+                        ' Guard: font size must be valid (>0)
+                        If fontSize <= 0.0F Then fontSize = 28.0F
+
+                        ' --- Outer panel ---
                         Dim panel As New Panel()
                         panel.Location = New Point(x, y)
                         panel.Size = New Size(w, h)
@@ -1204,38 +1742,29 @@ Partial Class Formtest
 
                         GroupBoxCustom.Controls.Add(panel)
 
-                        ' --- BIG TEXT LABEL ---
+                        ' --- BIG TEXT label ---
                         Dim lbl As New Label()
-                        lbl.Name = controlName
-                        lbl.Text = ""
+                        lbl.Name = controlName            ' <-- this is what your updater looks for
+                        lbl.Text = "#####"
                         lbl.AutoSize = False
                         lbl.TextAlign = ContentAlignment.MiddleCenter
                         lbl.Font = New Font(lbl.Font.FontFamily, fontSize, FontStyle.Bold)
                         lbl.Dock = DockStyle.Fill
 
-                        lbl.Text = "#####"
-
-                        ' NEW: mark BIGTEXT labels that should NOT show units
                         If Not unitsOn Then
                             lbl.Tag = "BIGTEXT_UNITS_OFF"
                         End If
 
                         panel.Controls.Add(lbl)
                     End If
+                    Continue For
 
 
-
-                ' ======================================
-                '   MULTILINE TEXT AREA
-                '   TEXTAREA;Name;Caption;X;Y;W;H
-                '   or token form:
-                '   TEXTAREA;Name;Caption;x=..;y=..;w=..;h=..;init=line1|line2|...
-                ' ======================================
                 Case "TEXTAREA"
                     If parts.Length < 3 Then Continue For
 
-                    Dim tbName = parts(1).Trim()
-                    Dim labelText = parts(2).Trim()
+                    Dim tbName As String = ""
+                    Dim labelText As String = ""
 
                     Dim x As Integer = 10
                     Dim y As Integer = autoY
@@ -1244,37 +1773,23 @@ Partial Class Formtest
                     Dim hasExplicitCoords As Boolean = False
                     Dim initLines As String() = Nothing
 
-                    ' ----- positional form? (X,Y[,W,H]) -----
-                    If parts.Length >= 5 AndAlso Not parts(3).Contains("="c) Then
-                        ParseIntField(parts(3), x)
-                        ParseIntField(parts(4), y)
-                        hasExplicitCoords = True
-
-                        If parts.Length >= 7 Then ParseIntField(parts(5), w)
-                        If parts.Length >= 8 Then ParseIntField(parts(6), h)
-
-                        ' extra tokens may include init=
-                        For i2 As Integer = 7 To parts.Length - 1
-                            Dim p2 = parts(i2).Trim()
-                            If p2.StartsWith("init=", StringComparison.OrdinalIgnoreCase) Then
-                                Dim val = p2.Substring(5).Trim()
-                                If val <> "" Then initLines = val.Split("|"c)
-                            End If
-                        Next
-
-                    Else
-                        ' ----- token form: x=..;y=..;w=..;h=..;init=... -----
-                        For i2 As Integer = 3 To parts.Length - 1
+                    ' ------------------------------------------------------------
+                    ' If parts(1) is tokenised (name=...), treat as all-named mode
+                    ' ------------------------------------------------------------
+                    If parts(1).Contains("="c) Then
+                        For i2 As Integer = 1 To parts.Length - 1
                             Dim p2 = parts(i2).Trim()
                             If Not p2.Contains("="c) Then Continue For
 
                             Dim kv = p2.Split("="c)
                             If kv.Length <> 2 Then Continue For
 
-                            Dim key = kv(0).Trim().ToLower()
+                            Dim key = kv(0).Trim().ToLowerInvariant()
                             Dim val = kv(1).Trim()
 
                             Select Case key
+                                Case "name" : tbName = val
+                                Case "caption" : labelText = val
                                 Case "x" : ParseIntField(val, x) : hasExplicitCoords = True
                                 Case "y" : ParseIntField(val, y) : hasExplicitCoords = True
                                 Case "w" : ParseIntField(val, w)
@@ -1283,7 +1798,57 @@ Partial Class Formtest
                                     If val <> "" Then initLines = val.Split("|"c)
                             End Select
                         Next
+
+                    Else
+                        ' ------------------------------------------------------------
+                        ' Positional name/caption
+                        ' ------------------------------------------------------------
+                        tbName = parts(1).Trim()
+                        labelText = parts(2).Trim()
+
+                        ' ----- positional form? (X,Y[,W,H]) -----
+                        If parts.Length >= 5 AndAlso Not parts(3).Contains("="c) Then
+                            ParseIntField(parts(3), x)
+                            ParseIntField(parts(4), y)
+                            hasExplicitCoords = True
+
+                            If parts.Length >= 7 Then ParseIntField(parts(5), w)
+                            If parts.Length >= 8 Then ParseIntField(parts(6), h)
+
+                            ' extra tokens may include init=
+                            For i2 As Integer = 7 To parts.Length - 1
+                                Dim p2 = parts(i2).Trim()
+                                If p2.StartsWith("init=", StringComparison.OrdinalIgnoreCase) Then
+                                    Dim val = p2.Substring(5).Trim()
+                                    If val <> "" Then initLines = val.Split("|"c)
+                                End If
+                            Next
+
+                        Else
+                            ' ----- token form: x=..;y=..;w=..;h=..;init=... -----
+                            For i2 As Integer = 3 To parts.Length - 1
+                                Dim p2 = parts(i2).Trim()
+                                If Not p2.Contains("="c) Then Continue For
+
+                                Dim kv = p2.Split("="c)
+                                If kv.Length <> 2 Then Continue For
+
+                                Dim key = kv(0).Trim().ToLowerInvariant()
+                                Dim val = kv(1).Trim()
+
+                                Select Case key
+                                    Case "x" : ParseIntField(val, x) : hasExplicitCoords = True
+                                    Case "y" : ParseIntField(val, y) : hasExplicitCoords = True
+                                    Case "w" : ParseIntField(val, w)
+                                    Case "h" : ParseIntField(val, h)
+                                    Case "init"
+                                        If val <> "" Then initLines = val.Split("|"c)
+                                End Select
+                            Next
+                        End If
                     End If
+
+                    If String.IsNullOrWhiteSpace(tbName) Then Continue For
 
                     ' Label
                     Dim lbl As New Label()
@@ -1313,84 +1878,101 @@ Partial Class Formtest
 
                     Continue For
 
-                ' ======================================
-                '   TOGGLE BUTTON
-                '   TOGGLE;Name;Caption;Device;CommandOn;CommandOff;X;Y;W;H
-                '   or token form:
-                '   TOGGLE;Name;Caption;Device;CommandOn;CommandOff;x=..;y=..;w=..;h=..
-                ' ======================================
 
                 Case "TOGGLE"
-                    ' TOGGLE;Name;Caption;Device;OnCmd;OffCmd;X;Y;W;H
-                    ' OR token form: x=..;y=..;w=..;h=..
+                    If parts.Length < 2 Then Continue For
 
-                    If parts.Length >= 6 Then
+                    Dim name As String = ""
+                    Dim caption As String = ""
+                    Dim device As String = ""
+                    Dim cmdOn As String = ""
+                    Dim cmdOff As String = ""
 
-                        Dim name As String = parts(1).Trim()
-                        Dim caption As String = parts(2).Trim()
-                        Dim device As String = parts(3).Trim()
-                        Dim cmdOn As String = parts(4).Trim()
-                        Dim cmdOff As String = parts(5).Trim()
+                    Dim x As Integer = 20, y As Integer = 20, w As Integer = 120, h As Integer = 35
 
-                        Dim x As Integer = 20, y As Integer = 20, w As Integer = 120, h As Integer = 35
-                        Dim usedPositional As Boolean = False
+                    ' -------- detect named vs positional --------
+                    Dim anyNamed As Boolean = False
+                    For i As Integer = 1 To parts.Length - 1
+                        If parts(i).Contains("="c) Then anyNamed = True : Exit For
+                    Next
 
-                        ' Positional
-                        If parts.Length >= 10 AndAlso Not parts(6).Contains("="c) Then
+                    If Not anyNamed Then
+                        ' ---- positional ----
+                        If parts.Length < 6 Then Continue For
+
+                        name = parts(1).Trim()
+                        caption = parts(2).Trim()
+                        device = parts(3).Trim()
+                        cmdOn = parts(4).Trim()
+                        cmdOff = parts(5).Trim()
+
+                        If parts.Length >= 10 Then
                             ParseIntField(parts(6), x)
                             ParseIntField(parts(7), y)
                             ParseIntField(parts(8), w)
                             ParseIntField(parts(9), h)
-                            usedPositional = True
                         End If
 
-                        ' Token format
-                        If Not usedPositional Then
-                            For i As Integer = 6 To parts.Length - 1
-                                Dim p = parts(i).Trim()
-                                If p.Contains("="c) Then
-                                    Dim kv = p.Split("="c)
-                                    If kv.Length = 2 Then
-                                        Select Case kv(0).Trim().ToLower()
-                                            Case "x" : ParseIntField(kv(1), x)
-                                            Case "y" : ParseIntField(kv(1), y)
-                                            Case "w" : ParseIntField(kv(1), w)
-                                            Case "h" : ParseIntField(kv(1), h)
-                                        End Select
-                                    End If
-                                End If
-                            Next
+                    Else
+                        ' ---- named / hybrid ----
+                        ' allow first 5 fields positional if user kept them that way
+                        If parts.Length >= 6 AndAlso Not parts(1).Contains("="c) Then
+                            name = parts(1).Trim()
+                            caption = parts(2).Trim()
+                            device = parts(3).Trim()
+                            cmdOn = parts(4).Trim()
+                            cmdOff = parts(5).Trim()
                         End If
 
-                        ' Create toggle button
-                        Dim b As New Button()
-                        b.Name = name
-                        b.Text = caption
-                        b.Location = New Point(x, y)
-                        b.Size = New Size(w, h)
+                        For i As Integer = 1 To parts.Length - 1
+                            Dim p = parts(i).Trim()
+                            If Not p.Contains("="c) Then Continue For
 
-                        ' Tag holds: DEVICE|ONCMD|OFFCMD|STATE
-                        b.Tag = device & "|" & cmdOn & "|" & cmdOff & "|0"   ' state 0 = OFF
+                            Dim kv = p.Split({"="c}, 2)
+                            If kv.Length <> 2 Then Continue For
 
-                        AddHandler b.Click, AddressOf ToggleButton_Click
+                            Dim key = kv(0).Trim().ToLowerInvariant()
+                            Dim val = kv(1).Trim()
 
-                        GroupBoxCustom.Controls.Add(b)
+                            Select Case key
+                                Case "name" : name = val
+                                Case "caption" : caption = val
+                                Case "device" : device = val
+                                Case "on" : cmdOn = val
+                                Case "off" : cmdOff = val
+                                Case "x" : ParseIntField(val, x)
+                                Case "y" : ParseIntField(val, y)
+                                Case "w" : ParseIntField(val, w)
+                                Case "h" : ParseIntField(val, h)
+                            End Select
+                        Next
                     End If
+
+                    If name = "" OrElse device = "" OrElse cmdOn = "" OrElse cmdOff = "" Then Continue For
+
+                    ' Create toggle button
+                    Dim b As New Button()
+                    b.Name = name
+                    b.Text = If(caption <> "", caption, name)
+                    b.Location = New Point(x, y)
+                    b.Size = New Size(w, h)
+
+                    ' Tag holds: DEVICE|ONCMD|OFFCMD|STATE
+                    b.Tag = device & "|" & cmdOn & "|" & cmdOff & "|0"   ' state 0 = OFF
+
+                    AddHandler b.Click, AddressOf ToggleButton_Click
+                    GroupBoxCustom.Controls.Add(b)
+                    Continue For
 
 
                 Case "CHART"
-                    ' CHART;ChartName;Caption;ResultTarget;
-                    ' x=..;y=..;w=..;h=..;ymin=..;ymax=..;xstep=..;maxpoints=..;
-                    ' color=..;autoscale=..;linewidth=..;
-                    ' innerx=..;innery=..;innerw=..;innerh=..
-
-                    If parts.Length < 4 Then Continue For
-
-                    Dim chartName As String = parts(1).Trim()
-                    Dim caption As String = parts(2).Trim()
-                    Dim resultTarget As String = parts(3).Trim()
+                    If parts.Length < 2 Then Continue For
 
                     ' ---- defaults ----
+                    Dim chartName As String = ""
+                    Dim caption As String = ""
+                    Dim resultTarget As String = ""
+
                     Dim x As Integer = 20
                     Dim y As Integer = 20
                     Dim w As Integer = 250
@@ -1409,8 +1991,97 @@ Partial Class Formtest
                     Dim innerW As Single = 96.0F
                     Dim innerH As Single = 96.0F
 
-                    ' ---- parse named tokens ----
-                    For i As Integer = 4 To parts.Length - 1
+                    Dim usedPositional As Boolean = False
+
+                    ' ------------------------------------------------------------
+                    ' Positional header fields:
+                    ' CHART;ChartName;Caption;ResultTarget;...
+                    ' ------------------------------------------------------------
+                    If parts.Length >= 4 AndAlso Not parts(1).Contains("="c) AndAlso Not parts(2).Contains("="c) AndAlso Not parts(3).Contains("="c) Then
+                        chartName = parts(1).Trim()
+                        caption = parts(2).Trim()
+                        resultTarget = parts(3).Trim()
+                        usedPositional = True
+                    End If
+
+                    ' ------------------------------------------------------------
+                    ' Named header fields:
+                    ' CHART;name=...;caption=...;target=...;...
+                    ' ------------------------------------------------------------
+                    If Not usedPositional Then
+                        For i As Integer = 1 To Math.Min(parts.Length - 1, 6) ' header tokens usually early
+                            Dim tok As String = parts(i).Trim()
+                            If Not tok.Contains("="c) Then Continue For
+
+                            Dim kv = tok.Split("="c)
+                            If kv.Length <> 2 Then Continue For
+
+                            Dim key = kv(0).Trim().ToLowerInvariant()
+                            Dim val = kv(1).Trim()
+
+                            Select Case key
+                                Case "name"
+                                    chartName = val
+                                Case "caption"
+                                    caption = val
+                                Case "target", "resulttarget", "result", "source"
+                                    resultTarget = val
+                            End Select
+                        Next
+                    End If
+
+                    ' Must have at least name + target to work
+                    If chartName = "" Then Continue For
+                    If resultTarget = "" Then Continue For
+
+                    ' ------------------------------------------------------------
+                    ' Parse parameters:
+                    ' Positional body (optional) OR named tokens (always allowed)
+                    ' ------------------------------------------------------------
+
+                    If usedPositional Then
+                        ' Positional extras start at index 4
+                        ' X;Y;W;H;YMin;YMax;XStep;MaxPoints;Color;LineWidth;AutoScale;InnerX;InnerY;InnerW;InnerH
+                        If parts.Length > 4 Then ParseIntField(parts(4), x)
+                        If parts.Length > 5 Then ParseIntField(parts(5), y)
+                        If parts.Length > 6 Then ParseIntField(parts(6), w)
+                        If parts.Length > 7 Then ParseIntField(parts(7), h)
+
+                        If parts.Length > 8 Then
+                            Dim d As Double
+                            If Double.TryParse(parts(8).Trim(), Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, d) Then yMin = d
+                        End If
+                        If parts.Length > 9 Then
+                            Dim d As Double
+                            If Double.TryParse(parts(9).Trim(), Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, d) Then yMax = d
+                        End If
+                        If parts.Length > 10 Then
+                            Double.TryParse(parts(10).Trim(), Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, xStep)
+                        End If
+                        If parts.Length > 11 Then
+                            Dim mp As Integer
+                            If Integer.TryParse(parts(11).Trim(), mp) AndAlso mp > 0 Then maxPoints = mp
+                        End If
+                        If parts.Length > 12 Then
+                            Dim c As Color = Color.FromName(parts(12).Trim())
+                            If c.ToArgb() <> Color.Empty.ToArgb() Then plotColor = c
+                        End If
+                        If parts.Length > 13 Then
+                            Dim lw As Integer
+                            If Integer.TryParse(parts(13).Trim(), lw) AndAlso lw >= 1 AndAlso lw <= 10 Then lineWidth = lw
+                        End If
+                        If parts.Length > 14 Then
+                            Dim v = parts(14).Trim().ToLowerInvariant()
+                            autoScaleY = (v = "yes" OrElse v = "true" OrElse v = "on" OrElse v = "1")
+                        End If
+                        If parts.Length > 15 Then Single.TryParse(parts(15).Trim(), Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, innerX)
+                        If parts.Length > 16 Then Single.TryParse(parts(16).Trim(), Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, innerY)
+                        If parts.Length > 17 Then Single.TryParse(parts(17).Trim(), Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, innerW)
+                        If parts.Length > 18 Then Single.TryParse(parts(18).Trim(), Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, innerH)
+                    End If
+
+                    ' Named tokens (allowed even if positional was used)
+                    For i As Integer = If(usedPositional, 4, 1) To parts.Length - 1
                         Dim p = parts(i).Trim()
                         If Not p.Contains("="c) Then Continue For
 
@@ -1428,21 +2099,14 @@ Partial Class Formtest
 
                             Case "ymin"
                                 Dim d As Double
-                                If Double.TryParse(val, Globalization.NumberStyles.Float,
-                                                   Globalization.CultureInfo.InvariantCulture, d) Then
-                                    yMin = d
-                                End If
+                                If Double.TryParse(val, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, d) Then yMin = d
 
                             Case "ymax"
                                 Dim d As Double
-                                If Double.TryParse(val, Globalization.NumberStyles.Float,
-                                                   Globalization.CultureInfo.InvariantCulture, d) Then
-                                    yMax = d
-                                End If
+                                If Double.TryParse(val, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, d) Then yMax = d
 
                             Case "xstep"
-                                Double.TryParse(val, Globalization.NumberStyles.Float,
-                                                Globalization.CultureInfo.InvariantCulture, xStep)
+                                Double.TryParse(val, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, xStep)
 
                             Case "maxpoints"
                                 Dim mp As Integer
@@ -1458,25 +2122,16 @@ Partial Class Formtest
 
                             Case "linewidth"
                                 Dim lw As Integer
-                                If Integer.TryParse(val, lw) AndAlso lw >= 1 AndAlso lw <= 10 Then
-                                    lineWidth = lw
-                                End If
+                                If Integer.TryParse(val, lw) AndAlso lw >= 1 AndAlso lw <= 10 Then lineWidth = lw
 
                             Case "innerx"
-                                Single.TryParse(val, Globalization.NumberStyles.Float,
-                                                Globalization.CultureInfo.InvariantCulture, innerX)
-
+                                Single.TryParse(val, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, innerX)
                             Case "innery"
-                                Single.TryParse(val, Globalization.NumberStyles.Float,
-                                                Globalization.CultureInfo.InvariantCulture, innerY)
-
+                                Single.TryParse(val, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, innerY)
                             Case "innerw"
-                                Single.TryParse(val, Globalization.NumberStyles.Float,
-                                                Globalization.CultureInfo.InvariantCulture, innerW)
-
+                                Single.TryParse(val, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, innerW)
                             Case "innerh"
-                                Single.TryParse(val, Globalization.NumberStyles.Float,
-                                                Globalization.CultureInfo.InvariantCulture, innerH)
+                                Single.TryParse(val, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, innerH)
                         End Select
                     Next
 
@@ -1486,14 +2141,22 @@ Partial Class Formtest
                     innerW = Math.Max(1.0F, Math.Min(innerW, 100.0F))
                     innerH = Math.Max(1.0F, Math.Min(innerH, 100.0F))
 
-                    ' ---- caption ----
-                    Dim lblCap As New Label()
-                    lblCap.Text = caption
-                    lblCap.AutoSize = True
-                    lblCap.Location = New Point(x, y)
-                    GroupBoxCustom.Controls.Add(lblCap)
+                    ' ---- caption label (optional) ----
+                    Dim lblCap As Label = Nothing
+                    Dim chartTop As Integer = y
 
-                    Dim chartTop As Integer = y + lblCap.Height + 3
+                    If caption <> "" Then
+                        lblCap = New Label()
+                        lblCap.Text = caption
+                        lblCap.AutoSize = True
+                        lblCap.Location = New Point(x, y)
+                        lblCap.Name = "Lbl_" & chartName
+
+                        RegisterDynamicControl(lblCap.Name, lblCap) ' so invisibility hides it too
+                        GroupBoxCustom.Controls.Add(lblCap)
+
+                        chartTop = y + lblCap.Height + 3
+                    End If
 
                     ' ---- chart ----
                     Dim ch As New DataVisualization.Charting.Chart()
@@ -1542,14 +2205,14 @@ Partial Class Formtest
                     ca.AxisY.MajorTickMark.Enabled = False
 
                     ' ---- series ----
-                    Dim s As New DataVisualization.Charting.Series("S1")
-                    s.ChartType = DataVisualization.Charting.SeriesChartType.Line
-                    s.BorderWidth = lineWidth
-                    s.Color = plotColor
-                    s.MarkerStyle = DataVisualization.Charting.MarkerStyle.Circle
-                    s.MarkerSize = 3
-                    s.MarkerColor = plotColor
-                    ch.Series.Add(s)
+                    Dim ser As New DataVisualization.Charting.Series("S1")
+                    ser.ChartType = DataVisualization.Charting.SeriesChartType.Line
+                    ser.BorderWidth = lineWidth
+                    ser.Color = plotColor
+                    ser.MarkerStyle = DataVisualization.Charting.MarkerStyle.Circle
+                    ser.MarkerSize = 3
+                    ser.MarkerColor = plotColor
+                    ch.Series.Add(ser)
 
                     GroupBoxCustom.Controls.Add(ch)
 
@@ -1564,16 +2227,21 @@ Partial Class Formtest
                                                     yMin, yMax, xStep, maxPoints, autoScaleY)
                             End Sub
                     End If
+                    Continue For
 
 
                 Case "STATSPANEL"
-                    ' STATSPANEL;PanelName;Caption;ResultTarget;x=..;y=..;w=..;h=..;format=G7
+                    ' Supports BOTH:
+                    '   STATSPANEL;PanelName;Caption;ResultTarget;x=..;y=..;w=..;h=..;format=G7
+                    ' and fully-named header:
+                    '   STATSPANEL;name=Stats1;caption=Stats;target=TextBoxResult;x=..;y=..;w=..;h=..;format=G7
 
-                    If parts.Length < 4 Then Continue For
+                    If parts.Length < 2 Then Continue For
 
-                    Dim panelName As String = parts(1).Trim()
-                    Dim caption As String = parts(2).Trim()
-                    Dim resultTarget As String = parts(3).Trim()
+                    ' ---- defaults ----
+                    Dim panelName As String = ""
+                    Dim caption As String = ""
+                    Dim resultTarget As String = ""
 
                     Dim x As Integer = 20
                     Dim y As Integer = 20
@@ -1581,9 +2249,41 @@ Partial Class Formtest
                     Dim h As Integer = 160
                     Dim fmt As String = "G6"
 
+                    ' ---- read header fields (positional OR named) ----
+                    If parts.Length >= 4 Then
+                        ' Try named header first
+                        For i As Integer = 1 To 3
+                            Dim p = parts(i).Trim()
+                            If p.Contains("="c) Then
+                                Dim kv = p.Split("="c)
+                                If kv.Length = 2 Then
+                                    Dim key = kv(0).Trim().ToLowerInvariant()
+                                    Dim val = kv(1).Trim()
+                                    Select Case key
+                                        Case "name" : panelName = val
+                                        Case "caption" : caption = val
+                                        Case "target", "resulttarget" : resultTarget = val
+                                    End Select
+                                End If
+                            End If
+                        Next
+
+                        ' If any are still blank, fall back to positional
+                        If panelName = "" Then panelName = parts(1).Trim()
+                        If caption = "" Then caption = parts(2).Trim()
+                        If resultTarget = "" Then resultTarget = parts(3).Trim()
+                    Else
+                        ' Not enough for positional header
+                        Continue For
+                    End If
+
+                    If panelName = "" OrElse resultTarget = "" Then Continue For
+
+                    ' ---- parse tail tokens (x= y= w= h= format=) ----
                     For i As Integer = 4 To parts.Length - 1
                         Dim p = parts(i).Trim()
                         If Not p.Contains("="c) Then Continue For
+
                         Dim kv = p.Split("="c)
                         If kv.Length <> 2 Then Continue For
 
@@ -1595,10 +2295,12 @@ Partial Class Formtest
                             Case "y" : ParseIntField(val, y)
                             Case "w" : ParseIntField(val, w)
                             Case "h" : ParseIntField(val, h)
-                            Case "format" : fmt = val
+                            Case "format"
+                                If val <> "" Then fmt = val
                         End Select
                     Next
 
+                    ' ---- build panel ----
                     Dim gb As New GroupBox()
                     gb.Name = panelName
 
@@ -1610,7 +2312,7 @@ Partial Class Formtest
                     gb.Tag = "STATSPANEL|" & resultTarget & "|" & fmt
                     GroupBoxCustom.Controls.Add(gb)
 
-                    ' Init state/rows
+                    ' ---- init state/rows ----
                     If Not StatsState.ContainsKey(panelName) Then
                         StatsState(panelName) = New RunningStatsState()
                     Else
@@ -1623,7 +2325,7 @@ Partial Class Formtest
                         StatsRows(panelName).Clear()
                     End If
 
-                    ' Hook to source textbox
+                    ' ---- hook to source textbox ----
                     Dim src = TryCast(GetControlByName(resultTarget), TextBox)
                     If src IsNot Nothing Then
                         AddHandler src.TextChanged,
@@ -1635,23 +2337,56 @@ Partial Class Formtest
                                 End If
                             End Sub
                     End If
-
                     Continue For
 
 
                 Case "STAT"
-                    ' STAT;PanelName;Label;FuncKey;[ref=MEAN/FIRST/<number>][;units=decimal|scientific]
+                    If parts.Length < 2 Then Continue For
 
-                    If parts.Length < 4 Then Continue For
-
-                    Dim panelName As String = parts(1).Trim()
-                    Dim labelText As String = parts(2).Trim()
-                    Dim funcKey As String = parts(3).Trim().ToUpperInvariant()
+                    Dim panelName As String = ""
+                    Dim labelText As String = ""
+                    Dim funcKey As String = ""
                     Dim refTok As String = ""
-                    Dim fmtOverride As String = ""
+                    Dim fmtOverride As String = ""   ' "F" or "E" prefix override (uses panel fmt digits)
 
-                    For i As Integer = 4 To parts.Length - 1
+                    ' ---- header: named OR positional ----
+                    If parts.Length >= 4 Then
+                        ' try named header first (parts(1..3))
+                        For i As Integer = 1 To 3
+                            Dim p = parts(i).Trim()
+                            If p.Contains("="c) Then
+                                Dim kv = p.Split("="c)
+                                If kv.Length = 2 Then
+                                    Dim key = kv(0).Trim().ToLowerInvariant()
+                                    Dim val = kv(1).Trim()
+                                    Select Case key
+                                        Case "panel", "panelname", "name" : panelName = val
+                                        Case "label", "caption" : labelText = val
+                                        Case "func", "funckey" : funcKey = val
+                                    End Select
+                                End If
+                            End If
+                        Next
+                    End If
+
+                    ' fall back to positional if needed
+                    If panelName = "" AndAlso parts.Length >= 2 Then panelName = parts(1).Trim()
+                    If labelText = "" AndAlso parts.Length >= 3 Then labelText = parts(2).Trim()
+                    If funcKey = "" AndAlso parts.Length >= 4 Then funcKey = parts(3).Trim()
+
+                    If panelName = "" OrElse funcKey = "" Then Continue For
+
+                    funcKey = funcKey.Trim().ToUpperInvariant()
+
+                    ' ---- parse tokens (including if user put them in "tail" OR in named form) ----
+                    ' We parse from index 4 onwards in positional, but also allow users to put ref=/units=
+                    ' right after STAT;... as named tokens (safe to just scan the entire remainder).
+                    Dim startIdx As Integer = 4
+                    If parts.Length < 4 Then startIdx = parts.Length ' (but we already Continued above)
+
+                    For i As Integer = startIdx To parts.Length - 1
                         Dim p = parts(i).Trim()
+                        If p = "" Then Continue For
 
                         If p.StartsWith("ref=", StringComparison.OrdinalIgnoreCase) Then
                             refTok = p.Substring(4).Trim()
@@ -1662,12 +2397,46 @@ Partial Class Formtest
                                 fmtOverride = "F"
                             ElseIf u = "scientific" Then
                                 fmtOverride = "E"
+                            ElseIf u = "general" OrElse u = "sig" OrElse u = "significant" Then
+                                fmtOverride = "G"
+                            End If
+
+                        ElseIf p.Contains("="c) Then
+                            ' also allow named tokens: panel=, label=, func=, ref=, units=
+                            Dim kv = p.Split("="c)
+                            If kv.Length = 2 Then
+                                Dim key = kv(0).Trim().ToLowerInvariant()
+                                Dim val = kv(1).Trim()
+
+                                Select Case key
+                                    Case "panel", "panelname", "name"
+                                        If panelName = "" Then panelName = val
+                                    Case "label", "caption"
+                                        If labelText = "" Then labelText = val
+                                    Case "func", "funckey"
+                                        If funcKey = "" Then funcKey = val.ToUpperInvariant()
+                                    Case "ref"
+                                        refTok = val
+                                    Case "units"
+                                        Dim u = val.Trim().ToLowerInvariant()
+                                        If u = "decimal" Then
+                                            fmtOverride = "F"
+                                        ElseIf u = "scientific" Then
+                                            fmtOverride = "E"
+                                        ElseIf u = "general" OrElse u = "sig" OrElse u = "significant" Then
+                                            fmtOverride = "G"
+                                        End If
+                                End Select
                             End If
                         End If
                     Next
 
                     Dim gb = TryCast(GetControlByName(panelName), GroupBox)
                     If gb Is Nothing Then Continue For
+
+                    ' Ensure dictionaries exist (defensive)
+                    If Not StatsRows.ContainsKey(panelName) Then StatsRows(panelName) = New List(Of StatsRow)()
+                    If Not StatsState.ContainsKey(panelName) Then StatsState(panelName) = New RunningStatsState()
 
                     Dim rowY As Integer = 18 + (StatsRows(panelName).Count * 18)
 
@@ -1697,19 +2466,22 @@ Partial Class Formtest
 
                     ' Draw immediately if we already have samples
                     UpdateStatsPanel(panelName, Double.NaN)
-
                     Continue For
 
 
                 Case "HISTORYGRID"
-                    ' HISTORYGRID;GridName;Caption;ResultTarget;
-                    '   x=..;y=..;w=..;h=..;maxrows=..;format=F7;cols=Value,Time,Min,Max,PkPk,Mean,Std,PPM,Count;ppmref=MEAN
+                    ' Supports BOTH:
+                    ' Positional:
+                    '   HISTORYGRID;GridName;Caption;ResultTarget; x=..;y=..;w=..;h=..;maxrows=..;format=F7;cols=...;ppmref=MEAN
+                    '
+                    ' Named:
+                    '   HISTORYGRID;name=GridName;caption=...;result=TextBoxResult; x=..;y=..;w=..;h=..;maxrows=..;format=F7;cols=...;ppmref=MEAN
 
-                    If parts.Length < 4 Then Continue For
+                    If parts.Length < 2 Then Continue For
 
-                    Dim gridName As String = parts(1).Trim()
-                    Dim caption As String = parts(2).Trim()
-                    Dim resultTarget As String = parts(3).Trim()
+                    Dim gridName As String = ""
+                    Dim caption As String = ""
+                    Dim resultTarget As String = ""
 
                     Dim x As Integer = 20
                     Dim y As Integer = 20
@@ -1720,47 +2492,98 @@ Partial Class Formtest
                     Dim colsRaw As String = "Value,Time,Min,Max,PkPk,Mean,Std,PPM,Count"
                     Dim ppmRef As String = "MEAN"
 
-                    For i As Integer = 4 To parts.Length - 1
-                        Dim p = parts(i).Trim()
-                        If Not p.Contains("="c) Then Continue For
+                    Dim firstIsNamed As Boolean = parts.Length > 1 AndAlso parts(1).Contains("="c)
 
-                        Dim kv = p.Split("="c)
-                        If kv.Length <> 2 Then Continue For
+                    If Not firstIsNamed Then
+                        ' ----- positional header -----
+                        If parts.Length < 4 Then Continue For
+                        gridName = parts(1).Trim()
+                        caption = parts(2).Trim()
+                        resultTarget = parts(3).Trim()
 
-                        Dim key = kv(0).Trim().ToLowerInvariant()
-                        Dim val = kv(1).Trim()
+                        ' tokens start after the 3 header fields
+                        For i As Integer = 4 To parts.Length - 1
+                            Dim p = parts(i).Trim()
+                            If Not p.Contains("="c) Then Continue For
 
-                        Select Case key
-                            Case "x" : ParseIntField(val, x)
-                            Case "y" : ParseIntField(val, y)
-                            Case "w" : ParseIntField(val, w)
-                            Case "h" : ParseIntField(val, h)
+                            Dim kv = p.Split("="c)
+                            If kv.Length <> 2 Then Continue For
 
-                            Case "maxrows"
-                                Dim mr As Integer
-                                If Integer.TryParse(val, mr) AndAlso mr > 0 Then maxRows = mr
+                            Dim key = kv(0).Trim().ToLowerInvariant()
+                            Dim val = kv(1).Trim()
 
-                            Case "format"
-                                If val <> "" Then fmt = val
+                            Select Case key
+                                Case "x" : ParseIntField(val, x)
+                                Case "y" : ParseIntField(val, y)
+                                Case "w" : ParseIntField(val, w)
+                                Case "h" : ParseIntField(val, h)
+                                Case "maxrows"
+                                    Dim mr As Integer
+                                    If Integer.TryParse(val, mr) AndAlso mr > 0 Then maxRows = mr
+                                Case "format"
+                                    If val <> "" Then fmt = val
+                                Case "cols"
+                                    If val <> "" Then colsRaw = val
+                                Case "ppmref"
+                                    If val <> "" Then ppmRef = val
+                            End Select
+                        Next
 
-                            Case "cols"
-                                If val <> "" Then colsRaw = val
+                    Else
+                        ' ----- named header + tokens -----
+                        For i As Integer = 1 To parts.Length - 1
+                            Dim p = parts(i).Trim()
+                            If Not p.Contains("="c) Then Continue For
 
-                            Case "ppmref"
-                                If val <> "" Then ppmRef = val
-                        End Select
-                    Next
+                            Dim kv = p.Split("="c)
+                            If kv.Length <> 2 Then Continue For
 
-                    ' Caption label
-                    Dim lbl As New Label()
-                    lbl.Text = caption
-                    lbl.AutoSize = True
-                    lbl.Location = New Point(x, y)
-                    GroupBoxCustom.Controls.Add(lbl)
+                            Dim key = kv(0).Trim().ToLowerInvariant()
+                            Dim val = kv(1).Trim()
 
-                    Dim topY As Integer = y + lbl.Height + 3
+                            Select Case key
+                                Case "name" : gridName = val
+                                Case "caption" : caption = val
+                                Case "result" : resultTarget = val
+                                Case "target" : resultTarget = val   ' allow synonym if you ever use it
 
-                    ' Grid
+                                Case "x" : ParseIntField(val, x)
+                                Case "y" : ParseIntField(val, y)
+                                Case "w" : ParseIntField(val, w)
+                                Case "h" : ParseIntField(val, h)
+
+                                Case "maxrows"
+                                    Dim mr As Integer
+                                    If Integer.TryParse(val, mr) AndAlso mr > 0 Then maxRows = mr
+
+                                Case "format"
+                                    If val <> "" Then fmt = val
+
+                                Case "cols"
+                                    If val <> "" Then colsRaw = val
+
+                                Case "ppmref"
+                                    If val <> "" Then ppmRef = val
+                            End Select
+                        Next
+
+                        ' must have these in named mode
+                        If gridName = "" OrElse resultTarget = "" Then Continue For
+                    End If
+
+                    ' ---------- Caption label (optional) ----------
+                    Dim topY As Integer = y
+
+                    If caption <> "" Then
+                        Dim lbl As New Label()
+                        lbl.Text = caption
+                        lbl.AutoSize = True
+                        lbl.Location = New Point(x, y)
+                        GroupBoxCustom.Controls.Add(lbl)
+                        topY = y + lbl.Height + 3
+                    End If
+
+                    ' ---------- Grid ----------
                     Dim dgv As New DataGridView()
                     dgv.Name = gridName
 
@@ -1776,21 +2599,18 @@ Partial Class Formtest
                     dgv.MultiSelect = False
                     dgv.AutoGenerateColumns = False
                     dgv.ScrollBars = ScrollBars.Vertical
-
-                    ' IMPORTANT: avoid Fill mode (can cause extra repaint/flicker)
                     dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
 
-                    ' Reduce flicker: force DoubleBuffered on the grid.
-                    ' Note: DataGridView recreates its handle when hidden/shown, so re-apply on HandleCreated.
+                    ' Reduce flicker: DataGridView.DoubleBuffered (private property)
                     Dim ApplyDgvDoubleBuffer As Action =
-        Sub()
-            Try
-                Dim pi = GetType(DataGridView).GetProperty("DoubleBuffered",
-                    Reflection.BindingFlags.Instance Or Reflection.BindingFlags.NonPublic)
-                If pi IsNot Nothing Then pi.SetValue(dgv, True, Nothing)
-            Catch
-            End Try
-        End Sub
+                        Sub()
+                            Try
+                                Dim pi = GetType(DataGridView).GetProperty("DoubleBuffered",
+                                    Reflection.BindingFlags.Instance Or Reflection.BindingFlags.NonPublic)
+                                If pi IsNot Nothing Then pi.SetValue(dgv, True, Nothing)
+                            Catch
+                            End Try
+                        End Sub
 
                     ApplyDgvDoubleBuffer()
                     AddHandler dgv.HandleCreated, Sub() ApplyDgvDoubleBuffer()
@@ -1812,28 +2632,21 @@ Partial Class Formtest
                         c.DataPropertyName = colName   ' MUST match HistoryRow property names
                         c.SortMode = DataGridViewColumnSortMode.NotSortable
 
-                        ' reasonable defaults
                         c.Width = 70
                         If colName.Equals("Value", StringComparison.OrdinalIgnoreCase) Then c.Width = 95
                         If colName.Equals("Time", StringComparison.OrdinalIgnoreCase) Then c.Width = 120
                         If colName.Equals("PkPk", StringComparison.OrdinalIgnoreCase) Then c.Width = 90
                         If colName.Equals("Mean", StringComparison.OrdinalIgnoreCase) Then c.Width = 95
 
-                        ' format TIME to show only time-of-day
                         If colName.Equals("Time", StringComparison.OrdinalIgnoreCase) Then
                             c.DefaultCellStyle.Format = "HH:mm:ss"
-                        End If
-
-                        ' apply numeric display format to numeric columns
-                        If Not colName.Equals("Time", StringComparison.OrdinalIgnoreCase) AndAlso
-           Not colName.Equals("Count", StringComparison.OrdinalIgnoreCase) Then
+                        ElseIf Not colName.Equals("Count", StringComparison.OrdinalIgnoreCase) Then
                             c.DefaultCellStyle.Format = fmt
                         End If
 
                         dgv.Columns.Add(c)
                     Next
 
-                    ' make first column bold
                     If dgv.Columns.Count > 0 Then
                         dgv.Columns(0).DefaultCellStyle.Font = New Font("Segoe UI", 9.0F, FontStyle.Bold)
                     End If
@@ -1860,54 +2673,51 @@ Partial Class Formtest
                         st.Reset()
                     End If
 
-                    ' Hook to source textbox
+                    ' Hook to source textbox (NOTE: resultTarget must be just the control name)
                     Dim src = TryCast(GetControlByName(resultTarget), TextBox)
                     If src IsNot Nothing Then
                         AddHandler src.TextChanged,
-            Sub(senderSrc As Object, eSrc As EventArgs)
+                            Sub(senderSrc As Object, eSrc As EventArgs)
 
-                Dim d As Double
-                If Not TryExtractFirstDouble(DirectCast(senderSrc, TextBox).Text, d) Then Exit Sub
+                                Dim d As Double
+                                If Not TryExtractFirstDouble(DirectCast(senderSrc, TextBox).Text, d) Then Exit Sub
 
-                ' update per-grid stats
-                st.AddSample(d)
+                                st.AddSample(d)
 
-                Dim row As New HistoryRow()
-                row.Time = DateTime.Now
-                row.Value = d
-                row.Min = If(st.Count > 0, st.Min, 0)
-                row.Max = If(st.Count > 0, st.Max, 0)
-                row.PkPk = If(st.Count > 0, st.Max - st.Min, 0)
-                row.Mean = If(st.Count > 0, st.Mean, 0)
-                row.Std = If(st.Count > 1, st.StdDevSample(), 0)
+                                Dim row As New HistoryRow()
+                                row.Time = DateTime.Now
+                                row.Value = d
+                                row.Min = If(st.Count > 0, st.Min, 0)
+                                row.Max = If(st.Count > 0, st.Max, 0)
+                                row.PkPk = If(st.Count > 0, st.Max - st.Min, 0)
+                                row.Mean = If(st.Count > 0, st.Mean, 0)
+                                row.Std = If(st.Count > 1, st.StdDevSample(), 0)
 
-                ' PPM deviation (default ref = MEAN)
-                Dim refVal As Double = st.Mean
-                If ppmRef.Equals("FIRST", StringComparison.OrdinalIgnoreCase) AndAlso st.HasFirst Then
-                    refVal = st.First
-                ElseIf Not ppmRef.Equals("MEAN", StringComparison.OrdinalIgnoreCase) Then
-                    Dim tmp As Double
-                    If Double.TryParse(ppmRef, Globalization.NumberStyles.Float,
-                                       Globalization.CultureInfo.InvariantCulture, tmp) Then
-                        refVal = tmp
-                    End If
-                End If
+                                Dim refVal As Double = st.Mean
+                                If ppmRef.Equals("FIRST", StringComparison.OrdinalIgnoreCase) AndAlso st.HasFirst Then
+                                    refVal = st.First
+                                ElseIf Not ppmRef.Equals("MEAN", StringComparison.OrdinalIgnoreCase) Then
+                                    Dim tmp As Double
+                                    If Double.TryParse(ppmRef, Globalization.NumberStyles.Float,
+                                                       Globalization.CultureInfo.InvariantCulture, tmp) Then
+                                        refVal = tmp
+                                    End If
+                                End If
 
-                row.PPM = If(refVal <> 0, ((st.Last - refVal) / refVal) * 1000000.0R, 0)
-                row.Count = CInt(st.Count)
+                                row.PPM = If(refVal <> 0, ((st.Last - refVal) / refVal) * 1000000.0R, 0)
+                                row.Count = CInt(st.Count)
 
-                ' insert newest at top
-                list.Insert(0, row)
+                                list.Insert(0, row)
 
-                ' trim
-                While list.Count > maxRows
-                    list.RemoveAt(list.Count - 1)
-                End While
+                                While list.Count > maxRows
+                                    list.RemoveAt(list.Count - 1)
+                                End While
 
-            End Sub
+                            End Sub
                     End If
 
                     Continue For
+
 
 
                 Case "INVISIBILITY"
@@ -2425,12 +3235,14 @@ FanOut:
                     dev.SendAsync(commandOrPrefix & line & TermStr2(), True)
                 Next
 
+
             Case "CLEARCHART"
                 ' deviceName here is actually the ChartName (e.g. "ChartDMM")
                 Dim ch = TryCast(GetControlByName(deviceName), DataVisualization.Charting.Chart)
                 If ch IsNot Nothing AndAlso ch.Series.Count > 0 Then
                     ch.Series(0).Points.Clear()
                 End If
+
 
             Case "QUERIESTOFILE"
                 ' commandOrPrefix = TEXTAREA name (e.g. ScriptBox2)
@@ -2475,6 +3287,7 @@ FanOut:
                 Else
                     Timer15.Enabled = False
                 End If
+
 
             Case "RESETSTATS"
                 ' deviceName holds panelName for RESETSTATS
@@ -3860,32 +4673,107 @@ FanOut:
 
 
     Private Sub ParseInvisibilityLine(parts() As String)
-        ' Format:
-        ' INVISIBILITY;TargetIdOrList;FuncName;TargetIdOrList;FuncName;...
-        ' TargetIdOrList can be "ChartDMM" or "ChartDMM,Hist1,Stats1"
+        ' Supports BOTH:
+        '
+        ' 1) Positional pairs (current working):
+        '    INVISIBILITY;ChartDMM;ChartDMMhide;Hist1;Hist1hide;Stats1;Stats1hide
+        '    INVISIBILITY;ChartDMM,Hist1,Stats1;AllHide
+        '
+        ' 2) Named tokens (new):
+        '    INVISIBILITY;targets=ChartDMM;func=ChartDMMhide;targets=Hist1;func=Hist1hide
+        '    INVISIBILITY;targets=ChartDMM,Hist1,Stats1;func=AllHide
+        '    INVISIBILITY;func=AllHide;targets=ChartDMM,Hist1,Stats1   (order doesn't matter)
 
-        Dim i As Integer = 1
-        While i + 1 < parts.Length
-            Dim targetSpec As String = parts(i).Trim()
-            Dim funcName As String = parts(i + 1).Trim()
+        If parts Is Nothing OrElse parts.Length < 3 Then Exit Sub
 
-            If targetSpec <> "" AndAlso funcName <> "" Then
+        ' Detect "named" usage if any token after INVISIBILITY contains '='
+        Dim anyNamed As Boolean = False
+        For i As Integer = 1 To parts.Length - 1
+            If parts(i) IsNot Nothing AndAlso parts(i).Contains("="c) Then
+                anyNamed = True
+                Exit For
+            End If
+        Next
 
+        If Not anyNamed Then
+            ' ---------- Existing positional behaviour ----------
+            Dim i As Integer = 1
+            While i + 1 < parts.Length
+                Dim targetSpec As String = parts(i).Trim()
+                Dim funcName As String = parts(i + 1).Trim()
+
+                If targetSpec <> "" AndAlso funcName <> "" Then
+                    Dim targets As New List(Of String)
+                    For Each t In targetSpec.Split(","c)
+                        Dim tid = t.Trim()
+                        If tid <> "" Then targets.Add(tid)
+                    Next
+
+                    If targets.Count > 0 Then
+                        InvisFuncToTargets(funcName) = targets
+                    End If
+                End If
+
+                i += 2
+            End While
+
+            Exit Sub
+        End If
+
+        ' ---------- Named tokens behaviour ----------
+        Dim pendingTargets As String = ""
+        Dim pendingFunc As String = ""
+
+        For i As Integer = 1 To parts.Length - 1
+            Dim tok As String = If(parts(i), "").Trim()
+            If tok = "" Then Continue For
+            If Not tok.Contains("="c) Then Continue For
+
+            Dim kv = tok.Split(New Char() {"="c}, 2)
+            If kv.Length <> 2 Then Continue For
+
+            Dim key As String = kv(0).Trim().ToLowerInvariant()
+            Dim val As String = kv(1).Trim()
+
+            Select Case key
+                Case "targets", "target", "id", "ids"
+                    pendingTargets = val
+
+                Case "func", "function", "name"
+                    pendingFunc = val
+            End Select
+
+            ' When we have both, commit a mapping and clear for next pair
+            If pendingTargets <> "" AndAlso pendingFunc <> "" Then
                 Dim targets As New List(Of String)
-
-                For Each t In targetSpec.Split(","c)
+                For Each t In pendingTargets.Split(","c)
                     Dim tid = t.Trim()
                     If tid <> "" Then targets.Add(tid)
                 Next
 
                 If targets.Count > 0 Then
-                    InvisFuncToTargets(funcName) = targets
+                    InvisFuncToTargets(pendingFunc.Trim()) = targets
                 End If
-            End If
 
-            i += 2
-        End While
+                pendingTargets = ""
+                pendingFunc = ""
+            End If
+        Next
+
+        ' If they supplied both but in a way that only resolves at the end, commit it
+        If pendingTargets <> "" AndAlso pendingFunc <> "" Then
+            Dim targets As New List(Of String)
+            For Each t In pendingTargets.Split(","c)
+                Dim tid = t.Trim()
+                If tid <> "" Then targets.Add(tid)
+            Next
+
+            If targets.Count > 0 Then
+                InvisFuncToTargets(pendingFunc.Trim()) = targets
+            End If
+        End If
     End Sub
+
 
 
     Private Function TryRunInvisibilityFunction(funcName As String) As Boolean
@@ -3904,6 +4792,20 @@ FanOut:
         Next
 
         Return True
+    End Function
+
+
+    Private Function ParseNamedParams(parts() As String) As Dictionary(Of String, String)
+        Dim dict As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+
+        For i As Integer = 1 To parts.Length - 1
+            If parts(i).Contains("=") Then
+                Dim kv = parts(i).Split({"="c}, 2)
+                dict(kv(0).Trim()) = kv(1).Trim()
+            End If
+        Next
+
+        Return dict
     End Function
 
 
