@@ -2611,6 +2611,29 @@ Public Class Formtest
         Return (latest, notes.ToString().Trim())
     End Function
 
+
+    ' SHUTTING DOWN WinGPIB
+
+    Private Sub FormMain_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
+
+        For i As Integer = 1 To 15
+            Dim t = DirectCast(Me.GetType().GetField(
+                $"Timer{i}",
+                Reflection.BindingFlags.Instance Or Reflection.BindingFlags.NonPublic
+            )?.GetValue(Me), System.Windows.Forms.Timer)
+
+            If t IsNot Nothing Then
+                t.Stop()
+                t.Enabled = False
+            End If
+        Next
+
+    End Sub
+
+
+
+
+
 End Class
 
 
