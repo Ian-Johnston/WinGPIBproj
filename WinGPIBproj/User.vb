@@ -1,8 +1,10 @@
 ﻿' User customizeable tab
 
 Imports System.ComponentModel
+Imports System.Globalization
 Imports System.IO
 Imports System.Runtime.InteropServices
+Imports System.Text
 Imports System.Threading
 Imports System.Windows.Forms.DataVisualization.Charting
 Imports IODevices
@@ -78,6 +80,9 @@ Partial Class Formtest
     Private HideFuncToTargetId As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)       ' Invisibility: function-name -> target-control-id mapping (ChartDMMhide -> ChartDMM)
     Private InvisFuncToTargets As New Dictionary(Of String, List(Of String))(StringComparer.OrdinalIgnoreCase)
 
+    ' Trigger
+    Private TriggerEng As TriggerEngine
+
 
     ' History Grid
     Private Class HistoryGridConfig
@@ -90,7 +95,7 @@ Partial Class Formtest
     End Class
 
 
-    ' And History Grid
+    ' History Grid
     Private Class HistoryRow
         Public Property Value As Double
         Public Property Time As DateTime
@@ -295,11 +300,6 @@ Partial Class Formtest
 
 
                 Case "TEXTBOX"
-                    ' Supports:
-                    '   TEXTBOX;Name;Caption;X;Y[;W;H;readonly=..]          (positional)
-                    '   TEXTBOX;name=..;caption=..;x=..;y=..;w=..;h=..;readonly=true   (named)
-                    '   TEXTBOX;Name;caption=..;x=..;y=..;...              (hybrid)
-
                     If parts.Length < 2 Then Continue For
 
                     Dim tbName As String = ""
@@ -322,22 +322,20 @@ Partial Class Formtest
                     ' Positional form (legacy)
                     ' TEXTBOX;Name;Caption;X;Y;[W;H;readonly=..]
                     ' -----------------------------
-                    If Not firstLooksNamed AndAlso parts.Length >= 3 AndAlso Not parts(3).Contains("="c) Then
+                    If Not firstLooksNamed AndAlso parts.Length >= 5 AndAlso Not parts(3).Contains("="c) Then
 
                         tbName = parts(1).Trim()
                         labelText = parts(2).Trim()
 
-                        If parts.Length >= 5 Then
-                            ParseIntField(parts(3), x)
-                            ParseIntField(parts(4), y)
-                            hasExplicitCoords = True
-                        End If
+                        ParseIntField(parts(3), x)
+                        ParseIntField(parts(4), y)
+                        hasExplicitCoords = True
 
-                        If parts.Length >= 7 Then ParseIntField(parts(5), w)
-                        If parts.Length >= 8 Then ParseIntField(parts(6), h)
+                        If parts.Length >= 6 Then ParseIntField(parts(5), w)
+                        If parts.Length >= 7 Then ParseIntField(parts(6), h)
 
                         ' optional readonly (positional)
-                        If parts.Length >= 9 Then
+                        If parts.Length >= 8 Then
                             ParseBoolField(parts(7), isReadOnly)
                         End If
 
@@ -362,7 +360,7 @@ Partial Class Formtest
                             Dim token = parts(i).Trim()
                             If Not token.Contains("="c) Then Continue For
 
-                            Dim kv = token.Split("="c)
+                            Dim kv = token.Split({"="c}, 2)
                             If kv.Length <> 2 Then Continue For
 
                             Dim key = kv(0).Trim().ToLowerInvariant()
@@ -410,18 +408,30 @@ Partial Class Formtest
                     tb.Location = New Point(lbl.Right + 5, y - 2)
                     tb.Size = New Size(w, h)
                     tb.ReadOnly = isReadOnly
+
+                    ' NEW: register so triggers/actions can reference this control by name
+                    RegisterAnyControl(tbName, tb)
+
+                    ' NEW: publish changes for trigger engine (user typing OR programmatic changes)
+                    AddHandler tb.TextChanged,
+                        Sub()
+                            PublishTextBox(tb.Name, tb.Text)
+                        End Sub
+
                     GroupBoxCustom.Controls.Add(tb)
+
+                    ' NEW: publish initial (empty or preset) value once
+                    PublishTextBox(tb.Name, tb.Text)
 
                     ' Only advance autoY if coordinates not explicitly given
                     If Not hasExplicitCoords Then
                         autoY += Math.Max(lbl.Height, tb.Height) + 5
                     End If
-
                     Continue For
 
 
-                Case "BUTTON"
 
+                Case "BUTTON"
                     ' --------------------------------------------------
                     ' Detect ALL-NAMED mode (caption= / action= present)
                     ' --------------------------------------------------
@@ -437,22 +447,50 @@ Partial Class Formtest
                         End If
                     Next
 
+                    ' NEW: accept common aliases so config can use your doc terms
+                    Dim hasCaption As Boolean = named.ContainsKey("caption")
+                    Dim hasAction As Boolean = named.ContainsKey("action")
+                    Dim hasDevice As Boolean = named.ContainsKey("device") OrElse named.ContainsKey("devicename")
+                    Dim hasName As Boolean = named.ContainsKey("name") OrElse named.ContainsKey("controlname")
+
                     Dim isAllNamed As Boolean =
-                        named.ContainsKey("caption") OrElse
-                        named.ContainsKey("action") OrElse
-                        named.ContainsKey("device")
+                        hasCaption OrElse hasAction OrElse hasDevice OrElse hasName   ' NEW
 
                     ' ==================================================
                     ' ALL-NAMED MODE
                     ' ==================================================
                     If isAllNamed Then
 
+                        ' NEW: button internal id used by TRIGGER fire:...
+                        Dim btnName As String = ""
+                        If named.ContainsKey("name") Then btnName = named("name")
+                        If btnName = "" AndAlso named.ContainsKey("controlname") Then btnName = named("controlname")
+
                         Dim caption As String = If(named.ContainsKey("caption"), named("caption"), "")
+
                         Dim action As String = If(named.ContainsKey("action"), named("action"), "").ToUpperInvariant()
-                        Dim deviceName As String = If(named.ContainsKey("device"), named("device"), "")
-                        Dim commandOrPrefix As String = If(named.ContainsKey("command"), named("command"), "")
-                        Dim valueControlName As String = If(named.ContainsKey("sendval"), named("sendval"), "")
-                        Dim resultControlName As String = If(named.ContainsKey("result"), named("result"), "")
+
+                        ' NEW: accept device/deviceName
+                        Dim deviceName As String = ""
+                        If named.ContainsKey("device") Then deviceName = named("device")
+                        If deviceName = "" AndAlso named.ContainsKey("devicename") Then deviceName = named("devicename")
+
+                        ' NEW: accept command/commandprefix
+                        Dim commandOrPrefix As String = ""
+                        If named.ContainsKey("command") Then commandOrPrefix = named("command")
+                        If commandOrPrefix = "" AndAlso named.ContainsKey("commandprefix") Then commandOrPrefix = named("commandprefix")
+
+                        ' NEW: accept sendval/valuectl/valuecontrol
+                        Dim valueControlName As String = ""
+                        If named.ContainsKey("sendval") Then valueControlName = named("sendval")
+                        If valueControlName = "" AndAlso named.ContainsKey("valuectl") Then valueControlName = named("valuectl")
+                        If valueControlName = "" AndAlso named.ContainsKey("valuecontrol") Then valueControlName = named("valuecontrol")
+
+                        ' NEW: accept result/resultctl/resulttarget
+                        Dim resultControlName As String = ""
+                        If named.ContainsKey("result") Then resultControlName = named("result")
+                        If resultControlName = "" AndAlso named.ContainsKey("resultctl") Then resultControlName = named("resultctl")
+                        If resultControlName = "" AndAlso named.ContainsKey("resulttarget") Then resultControlName = named("resulttarget")
 
                         Dim x As Integer = 10
                         Dim y As Integer = autoY
@@ -465,6 +503,12 @@ Partial Class Formtest
                         If named.ContainsKey("h") Then ParseIntField(named("h"), h)
 
                         Dim b As New Button()
+
+                        ' NEW: set internal name so TRIGGER fire:BtnHello can find it
+                        If Not String.IsNullOrWhiteSpace(btnName) Then
+                            b.Name = btnName
+                        End If
+
                         b.Text = caption
                         b.Tag = $"{action}|{deviceName}|{commandOrPrefix}|{valueControlName}|{resultControlName}"
                         b.Location = New Point(x, y)
@@ -477,6 +521,12 @@ Partial Class Formtest
 
                         AddHandler b.Click, AddressOf CustomButton_Click
                         GroupBoxCustom.Controls.Add(b)
+
+                        ' NEW: register button for trigger engine fire:
+                        If Not String.IsNullOrWhiteSpace(b.Name) Then
+                            RegisterButton(b.Name, b)
+                            RegisterAnyControl(b.Name, b)
+                        End If
 
                         ' Auto-flow only if Y not explicitly supplied
                         If Not named.ContainsKey("y") Then
@@ -526,9 +576,13 @@ Partial Class Formtest
                     AddHandler bPos.Click, AddressOf CustomButton_Click
                     GroupBoxCustom.Controls.Add(bPos)
 
+                    ' NEW: positional buttons don't have a name -> triggers can't fire them unless you invent one.
+                    ' If you want, you can optionally auto-name them here, but leaving unchanged per your comment.
+
                     If parts.Length < 9 Then
                         autoY += bPos.Height + 5
                     End If
+
 
 
                 Case "CHECKBOX"
@@ -612,7 +666,6 @@ Partial Class Formtest
                         Next
                     End If
 
-                    If String.IsNullOrWhiteSpace(resultName) Then Continue For
                     If String.IsNullOrWhiteSpace(funcKey) Then Continue For
 
                     Dim cb As New CheckBox()
@@ -625,6 +678,10 @@ Partial Class Formtest
 
                     If funcKey.Equals("FuncAuto", StringComparison.OrdinalIgnoreCase) Then
                         AddHandler cb.CheckedChanged, AddressOf FuncAutoCheckbox_CheckedChanged
+
+                    ElseIf funcKey.Equals("FuncTrigEnable", StringComparison.OrdinalIgnoreCase) Then
+                        AddHandler cb.CheckedChanged, AddressOf FuncTrigEnableCheckbox_CheckedChanged
+
                     End If
 
                     GroupBoxCustom.Controls.Add(cb)
@@ -965,11 +1022,6 @@ Partial Class Formtest
 
 
                 Case "RADIO"
-                    ' Supports:
-                    '   RADIO;GroupName;Caption;DeviceName;Command;X;Y
-                    '   RADIO;GroupName;Caption;DeviceName;Command;x=..;y=..;scale=..
-                    '   RADIO;group=..;caption=..;device=..;command=..;x=..;y=..;scale=..
-
                     If parts.Length < 2 Then Continue For
 
                     Dim groupName As String = ""
@@ -1088,21 +1140,10 @@ Partial Class Formtest
 
                     AddHandler rb.CheckedChanged, AddressOf Radio_CheckedChanged
                     gb.Controls.Add(rb)
-
                     Continue For
 
 
                 Case "SLIDER"
-                    ' Supports:
-                    ' Positional:
-                    '   SLIDER;Name;Caption;Device;Command;X;Y;W;Min;Max;Step;Scale
-                    '
-                    ' Hybrid named:
-                    '   SLIDER;Name;Caption;Device;Command;x=..;y=..;w=..;min=..;max=..;step=..;scale=..;hint=..
-                    '
-                    ' All-named:
-                    '   SLIDER;name=..;caption=..;device=..;command=..;x=..;y=..;w=..;min=..;max=..;step=..;scale=..;hint=..
-
                     If parts.Length < 2 Then Continue For
 
                     ' ---- gather tokens (any key=value after SLIDER) ----
@@ -1263,7 +1304,6 @@ Partial Class Formtest
                         tt.SetToolTip(tb, hintText)
                         tt.SetToolTip(lblValue, hintText)
                     End If
-
                     Continue For
 
 
@@ -1864,6 +1904,10 @@ Partial Class Formtest
                     tb.ScrollBars = ScrollBars.Vertical
                     tb.Location = New Point(x, y + lbl.Height + 3)
                     tb.Size = New Size(w, h)
+
+                    ' trigger
+                    RegisterTextArea(tbName, tb)
+                    RegisterAnyControl(tbName, tb)
 
                     ' apply init contents if provided
                     If initLines IsNot Nothing Then
@@ -2715,14 +2759,94 @@ Partial Class Formtest
 
                             End Sub
                     End If
-
                     Continue For
-
 
 
                 Case "INVISIBILITY"
                     ParseInvisibilityLine(parts)
                     Continue For
+
+
+                Case "TRIGGER"
+                    If parts.Length < 2 Then Continue For
+                    If Not parts(1).Contains("="c) Then Continue For   ' named-only
+
+                    Dim trigName As String = ""
+                    Dim ifExpr As String = ""
+                    Dim thenChain As String = ""
+
+                    Dim periodSec As Double = 0.5
+                    Dim cooldownSec As Double = 0.0
+                    Dim needHits As Integer = 1
+                    Dim oneShot As Boolean = False
+                    Dim enabled As Boolean = True
+
+                    For i2 As Integer = 1 To parts.Length - 1
+                        Dim p2 = parts(i2).Trim()
+                        If Not p2.Contains("="c) Then Continue For
+
+                        Dim kv = p2.Split({"="c}, 2)
+                        If kv.Length <> 2 Then Continue For
+
+                        Dim key = kv(0).Trim().ToLowerInvariant()
+                        Dim val = kv(1).Trim()
+
+                        Select Case key
+                            Case "name"
+                                trigName = val
+
+                            Case "if"
+                                ifExpr = val
+
+                            Case "then"
+                                thenChain = val
+
+                            Case "period"
+                                Double.TryParse(val, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, periodSec)
+
+                            Case "cooldown"
+                                Double.TryParse(val, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, cooldownSec)
+
+                            Case "need"
+                                Integer.TryParse(val, needHits)
+
+                            Case "oneshot"
+                                oneShot = (val.Equals("1") OrElse val.Equals("true", StringComparison.OrdinalIgnoreCase) OrElse val.Equals("yes", StringComparison.OrdinalIgnoreCase))
+
+                            Case "enabled"
+                                enabled = (val.Equals("1") OrElse val.Equals("true", StringComparison.OrdinalIgnoreCase) OrElse val.Equals("yes", StringComparison.OrdinalIgnoreCase))
+                        End Select
+                    Next
+
+                    If String.IsNullOrWhiteSpace(trigName) Then Continue For
+                    If String.IsNullOrWhiteSpace(ifExpr) Then Continue For
+                    If String.IsNullOrWhiteSpace(thenChain) Then Continue For
+
+                    If needHits < 1 Then needHits = 1
+                    If periodSec <= 0 Then periodSec = 0.5
+
+                    ' NEW: your trigger engine must exist (or be created here)
+                    EnsureTriggerEngine()
+
+                    ' NEW: TriggerDef class/struct used by your engine
+                    Dim td As New TriggerDef With {
+                        .Name = trigName,
+                        .Enabled = enabled,
+                        .PeriodSec = periodSec,
+                        .IfExpr = ifExpr,
+                        .ThenChain = thenChain,
+                        .CooldownSec = cooldownSec,
+                        .NeedHits = needHits,
+                        .OneShot = oneShot
+                    }
+
+                    ' Start trigger engine
+                    EnsureTriggerEngine()
+                    TriggerEng.AddOrUpdate(td)
+                    Continue For
+
+
+
 
 
 
@@ -4579,6 +4703,19 @@ FanOut:
             r.ValueLabel.Text = outVal
         Next
 
+        ' Publish stats so TRIGGER expressions can read them
+        Dim stdNow As Double = 0
+        If st.Count > 1 Then stdNow = st.StdDevSample()
+
+        PublishStats(panelName,
+             st.Last,
+             st.Mean,
+             stdNow,
+             If(st.Count > 0, st.Max - st.Min, 0),
+             st.Min,
+             st.Max,
+             st.Count)
+
     End Sub
 
 
@@ -4795,18 +4932,658 @@ FanOut:
     End Function
 
 
+    ' ====================================================================================================================================================================================================
+
+    ' ============================
+    ' 1) VARIABLE REGISTRY
+    ' ============================
+    ' NEW: universal registry of live values (case-insensitive)
+    Private ReadOnly Vars As New Dictionary(Of String, Object)(StringComparer.OrdinalIgnoreCase)
+
+    ' NEW: control registries so triggers can invoke actions by name
+    Private ReadOnly BtnByName As New Dictionary(Of String, Button)(StringComparer.OrdinalIgnoreCase)
+    Private ReadOnly TextAreaByName As New Dictionary(Of String, TextBox)(StringComparer.OrdinalIgnoreCase) ' multiline
+    Private ReadOnly ControlByName As New Dictionary(Of String, Control)(StringComparer.OrdinalIgnoreCase)
+
+    ' NEW: trigger engine instance
+    'Private _triggerEngine As TriggerEngine
+
+
+    ' ============================
+    ' 2) PUBLISH METHODS (call from your existing updates)
+    ' ============================
+
+    ' Publish any textbox value (including ResultTarget textbox)
+    Private Sub PublishTextBox(controlName As String, textValue As String)
+        If String.IsNullOrWhiteSpace(controlName) Then Exit Sub
+
+        Vars($"tb:{controlName}") = textValue
+
+        Dim d As Double
+        If Double.TryParse(textValue, NumberStyles.Float, CultureInfo.InvariantCulture, d) Then
+            Vars($"num:{controlName}") = d
+        End If
+    End Sub
+
+    ' Publish BIGTEXT (if BIGTEXT has its own name, publish it too)
+    Private Sub PublishBigText(controlName As String, textValue As String)
+        If String.IsNullOrWhiteSpace(controlName) Then Exit Sub
+
+        Vars($"big:{controlName}") = textValue
+
+        Dim d As Double
+        If Double.TryParse(textValue, NumberStyles.Float, CultureInfo.InvariantCulture, d) Then
+            Vars($"bignum:{controlName}") = d
+        End If
+    End Sub
+
+    ' Publish STATSPANEL live metrics (call each time stats update)
+    Private Sub PublishStats(panelName As String,
+                         lastVal As Double,
+                         meanVal As Double,
+                         stdVal As Double,
+                         pkpkVal As Double,
+                         minVal As Double,
+                         maxVal As Double,
+                         countVal As Integer)
+
+        If String.IsNullOrWhiteSpace(panelName) Then Exit Sub
+
+        Vars($"stats:{panelName}.last") = lastVal
+        Vars($"stats:{panelName}.mean") = meanVal
+        Vars($"stats:{panelName}.std") = stdVal
+        Vars($"stats:{panelName}.pkpk") = pkpkVal
+        Vars($"stats:{panelName}.min") = minVal
+        Vars($"stats:{panelName}.max") = maxVal
+        Vars($"stats:{panelName}.count") = countVal
+    End Sub
+
+
+    ' ============================
+    ' 3) REGISTRATION (call as you create dynamic controls)
+    ' ============================
+
+    Private Sub RegisterButton(controlName As String, btn As Button)
+        If String.IsNullOrWhiteSpace(controlName) OrElse btn Is Nothing Then Exit Sub
+        BtnByName(controlName) = btn
+        ControlByName(controlName) = btn
+    End Sub
+
+    Private Sub RegisterTextArea(controlName As String, tb As TextBox)
+        If String.IsNullOrWhiteSpace(controlName) OrElse tb Is Nothing Then Exit Sub
+        TextAreaByName(controlName) = tb
+        ControlByName(controlName) = tb
+    End Sub
+
+    Private Sub RegisterAnyControl(controlName As String, ctrl As Control)
+        If String.IsNullOrWhiteSpace(controlName) OrElse ctrl Is Nothing Then Exit Sub
+        ControlByName(controlName) = ctrl
+    End Sub
+
+
+    ' ============================
+    ' 4) TRIGGER ENGINE STARTUP
+    ' ============================
+    Private Sub EnsureTriggerEngine()
+        If TriggerEng Is Nothing Then
+            TriggerEng = New TriggerEngine(AddressOf GetVarValue,
+                                       AddressOf ExecuteThenChain,
+                                       AddressOf AppendTriggerLog)
+
+            TriggerEng.Start()
+        End If
+
+    End Sub
+
+
+    Private Function GetVarValue(name As String) As Object
+        Dim v As Object = Nothing
+        If Vars.TryGetValue(name, v) Then Return v
+        Return Nothing
+    End Function
+
+
+    ' ============================
+    ' 5) CONFIG PARSER ENTRYPOINT
+    ' ============================
+    ' Call this from your config parsing loop when you see "TRIGGER"
+    Private Sub ParseTriggerLine(parts() As String)
+        EnsureTriggerEngine()
+
+        Dim kv = ParseNamedParams(parts)
+
+        Dim name = GetKV(kv, "name", "")
+        If name = "" Then Exit Sub
+
+        Dim period = GetKVD(kv, "period", 0.5)
+        Dim ifExpr = GetKV(kv, "if", "")
+        Dim thenExpr = GetKV(kv, "then", "")
+
+        Dim cooldown = GetKVD(kv, "cooldown", 0.0)
+        Dim need = GetKVI(kv, "need", 1)
+        Dim oneshot = GetKVB(kv, "oneshot", False)
+        Dim enabled = GetKVB(kv, "enabled", True)
+
+        TriggerEng.AddOrUpdate(New TriggerDef With {
+        .Name = name,
+        .Enabled = enabled,
+        .PeriodSec = period,
+        .IfExpr = ifExpr,
+        .ThenChain = thenExpr,
+        .CooldownSec = cooldown,
+        .NeedHits = need,
+        .OneShot = oneshot
+    })
+    End Sub
+
+
+    ' ============================
+    ' 6) ACTION DISPATCHER (then=...)
+    ' ============================
+    ' then=fire:BtnX|run:ScriptBox|resetstats:Stats1|clearchart:ChartDMM|togglevis:ChartDMM,Hist1
+    Private Sub ExecuteThenChain(chain As String)
+        If String.IsNullOrWhiteSpace(chain) Then Exit Sub
+
+        For Each raw In chain.Split("|"c)
+            Dim a = raw.Trim()
+            AppendTriggerLog($"    → {a}")
+            If a = "" Then Continue For
+
+            Dim idx = a.IndexOf(":"c)
+            If idx <= 0 Then Continue For
+
+            Dim key = a.Substring(0, idx).Trim().ToLowerInvariant()
+            Dim arg = a.Substring(idx + 1).Trim()
+
+            Select Case key
+                Case "fire"
+                    If BtnByName.ContainsKey(arg) Then BtnByName(arg).PerformClick()
+
+                Case "run"
+                    RunTextAreaAsSendLines(arg)
+
+                Case "resetstats"
+                    ResetStatsPanel(arg)   ' <-- YOU map this to your existing RESETSTATS logic
+
+                Case "clearchart"
+                    ClearChart(arg)        ' <-- YOU map this to your existing CLEARCHART logic
+
+                Case "togglevis"
+                    ToggleVisibility(arg)
+
+                Case "show"
+                    SetVisibility(arg, True)
+
+                Case "hide"
+                    SetVisibility(arg, False)
+            End Select
+        Next
+    End Sub
+
+    Private Sub ToggleVisibility(csv As String)
+        For Each id In csv.Split(","c)
+            Dim k = id.Trim()
+            If k = "" Then Continue For
+            Dim c As Control = Nothing
+            If ControlByName.TryGetValue(k, c) AndAlso c IsNot Nothing Then
+                c.Visible = Not c.Visible
+                If c.Visible Then c.BringToFront()
+            End If
+        Next
+    End Sub
+
+    Private Sub SetVisibility(csv As String, visible As Boolean)
+        For Each id In csv.Split(","c)
+            Dim k = id.Trim()
+            If k = "" Then Continue For
+            Dim c As Control = Nothing
+            If ControlByName.TryGetValue(k, c) AndAlso c IsNot Nothing Then
+                c.Visible = visible
+                If c.Visible Then c.BringToFront()
+            End If
+        Next
+    End Sub
+
+
+    ' ============================
+    ' 7) MAP THESE TWO TO YOUR EXISTING CODE
+    ' ============================
+
+    ' REQUIRED: call the same code you already run for Action=RESETSTATS
+    Private Sub ResetStatsPanel(panelName As String)
+        ' Put your existing RESETSTATS logic here, or call the method you already use.
+        ' Example (replace with YOUR structures):
+        ' If StatsState.ContainsKey(panelName) Then
+        '     StatsState(panelName).Reset()
+        '     UpdateStatsPanel(panelName, Double.NaN)
+        ' End If
+    End Sub
+
+    ' REQUIRED: call the same code you already run for Action=CLEARCHART
+    Private Sub ClearChart(chartName As String)
+        ' Put your existing CLEARCHART logic here, or call the method you already use.
+    End Sub
+
+    ' REQUIRED: run an existing textarea using your SENDLINES execution logic
+    Private Sub RunTextAreaAsSendLines(textAreaName As String)
+        Dim tb As TextBox = Nothing
+        If Not TextAreaByName.TryGetValue(textAreaName, tb) OrElse tb Is Nothing Then Exit Sub
+
+        ' If you already have a SENDLINES executor function, CALL IT HERE and return.
+        ' Otherwise this fallback just gives you lines to process:
+        For Each raw In tb.Lines
+            Dim s = raw.Trim()
+            If s = "" Then Continue For
+            If s.StartsWith(";"c) Then Continue For
+
+            Dim noReply As Boolean = False
+            If s.StartsWith("(noreply)", StringComparison.OrdinalIgnoreCase) Then
+                noReply = True
+                s = s.Substring(9).Trim()
+            End If
+
+            ' Replace these two calls with YOUR existing send/query methods:
+            ' If noReply Then SendToDevice(currentDev, s) Else QueryDevice(currentDev, s)
+        Next
+    End Sub
+
+
+    ' ============================
+    ' 8) MINIMAL NAMED PARAM PARSER HELPERS
+    ' ============================
     Private Function ParseNamedParams(parts() As String) As Dictionary(Of String, String)
         Dim dict As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
-
         For i As Integer = 1 To parts.Length - 1
-            If parts(i).Contains("=") Then
-                Dim kv = parts(i).Split({"="c}, 2)
+            Dim s = parts(i).Trim()
+            If s.Contains("=") Then
+                Dim kv = s.Split({"="c}, 2)
                 dict(kv(0).Trim()) = kv(1).Trim()
             End If
         Next
-
         Return dict
     End Function
+
+    Private Function GetKV(kv As Dictionary(Of String, String), key As String, def As String) As String
+        Dim v As String = Nothing
+        If kv.TryGetValue(key, v) Then Return v
+        Return def
+    End Function
+
+    Private Function GetKVD(kv As Dictionary(Of String, String), key As String, def As Double) As Double
+        Dim s As String = Nothing
+        If kv.TryGetValue(key, s) Then
+            Dim d As Double
+            If Double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, d) Then Return d
+        End If
+        Return def
+    End Function
+
+    Private Function GetKVI(kv As Dictionary(Of String, String), key As String, def As Integer) As Integer
+        Dim s As String = Nothing
+        If kv.TryGetValue(key, s) Then
+            Dim i As Integer
+            If Integer.TryParse(s, i) Then Return i
+        End If
+        Return def
+    End Function
+
+    Private Function GetKVB(kv As Dictionary(Of String, String), key As String, def As Boolean) As Boolean
+        Dim s As String = Nothing
+        If kv.TryGetValue(key, s) Then
+            If s.Equals("1") OrElse s.Equals("true", StringComparison.OrdinalIgnoreCase) OrElse s.Equals("yes", StringComparison.OrdinalIgnoreCase) Then Return True
+            If s.Equals("0") OrElse s.Equals("false", StringComparison.OrdinalIgnoreCase) OrElse s.Equals("no", StringComparison.OrdinalIgnoreCase) Then Return False
+        End If
+        Return def
+    End Function
+
+
+    ' ============================
+    ' 9) TRIGGER ENGINE + EXPRESSION EVALUATOR
+    ' ============================
+    Private Class TriggerDef
+        Public Name As String
+        Public Enabled As Boolean
+        Public PeriodSec As Double
+        Public IfExpr As String
+        Public ThenChain As String
+        Public CooldownSec As Double
+        Public NeedHits As Integer
+        Public OneShot As Boolean
+    End Class
+
+
+    Private Class TriggerRuntime
+        Public Def As TriggerDef
+        Public NextEvalUtc As DateTime
+        Public Hits As Integer
+        Public CooldownUntilUtc As DateTime
+        Public FiredOnce As Boolean
+        Public Busy As Boolean
+    End Class
+
+
+    Private Class TriggerEngine
+        Private ReadOnly _getVar As Func(Of String, Object)
+        Private ReadOnly _doActions As Action(Of String)
+        Private ReadOnly _trigs As New Dictionary(Of String, TriggerRuntime)(StringComparer.OrdinalIgnoreCase)
+        Private ReadOnly _timer As New System.Windows.Forms.Timer()
+        Private ReadOnly _log As Action(Of String)
+
+
+        Public Sub SetEnabled(triggerName As String, enabled As Boolean)
+            If String.IsNullOrWhiteSpace(triggerName) Then Exit Sub
+
+            Dim rt As TriggerRuntime = Nothing
+            If _trigs.TryGetValue(triggerName, rt) AndAlso rt IsNot Nothing AndAlso rt.Def IsNot Nothing Then
+                rt.Def.Enabled = enabled
+                rt.Hits = 0
+                rt.CooldownUntilUtc = DateTime.MinValue
+                rt.NextEvalUtc = DateTime.UtcNow
+            End If
+        End Sub
+
+
+        Public Sub New(getVar As Func(Of String, Object), doActions As Action(Of String), log As Action(Of String))
+
+            _getVar = getVar
+            _doActions = doActions
+            _log = log
+
+            _timer.Interval = 100
+            AddHandler _timer.Tick, AddressOf Tick
+
+        End Sub
+
+
+        Public Sub Start()
+            _timer.Start()
+        End Sub
+
+        Public Sub AddOrUpdate(def As TriggerDef)
+            If def Is Nothing OrElse String.IsNullOrWhiteSpace(def.Name) Then Exit Sub
+
+            Dim rt As TriggerRuntime = Nothing
+            If Not _trigs.TryGetValue(def.Name, rt) Then
+                rt = New TriggerRuntime()
+                _trigs(def.Name) = rt
+            End If
+
+            rt.Def = def
+            If rt.Def.NeedHits < 1 Then rt.Def.NeedHits = 1
+            If rt.Def.PeriodSec <= 0 Then rt.Def.PeriodSec = 0.5
+            rt.NextEvalUtc = DateTime.UtcNow
+        End Sub
+
+
+        Private Sub Tick(sender As Object, e As EventArgs)
+            Dim now = DateTime.UtcNow
+
+            For Each kv In _trigs
+                Dim rt = kv.Value
+                Dim d = rt.Def
+                If d Is Nothing OrElse Not d.Enabled Then Continue For
+                If rt.Busy Then Continue For
+                If d.OneShot AndAlso rt.FiredOnce Then Continue For
+                If now < rt.CooldownUntilUtc Then Continue For
+                If now < rt.NextEvalUtc Then Continue For
+
+                rt.NextEvalUtc = now.AddSeconds(d.PeriodSec)
+
+                Dim ok As Boolean
+                Try
+                    ok = EvalBool(d.IfExpr, _getVar)
+                    If _log IsNot Nothing AndAlso d.Name.Equals("TrigSettled", StringComparison.OrdinalIgnoreCase) Then
+                        Dim c = _getVar("stats:Stats1.count")
+                        Dim s = _getVar("stats:Stats1.std")
+                        _log($"[DBG] count={If(c, "NULL")} std={If(s, "NULL")} ok={ok}")
+                    End If
+                Catch
+                    ok = False
+                End Try
+
+                If ok Then
+                    rt.Hits += 1
+                Else
+                    rt.Hits = 0
+                End If
+
+                If rt.Hits < d.NeedHits Then Continue For
+
+                rt.Hits = 0
+                rt.Busy = True
+                Try
+                    If _log IsNot Nothing Then _log($"[TRIGGER] {d.Name} fired")
+                    _doActions(d.ThenChain)
+                    rt.FiredOnce = True
+                    If d.CooldownSec > 0 Then rt.CooldownUntilUtc = now.AddSeconds(d.CooldownSec)
+                Catch ex As Exception
+                    If _log IsNot Nothing Then _log($"[ERROR] {d.Name}: {ex.Message}")
+                Finally
+                    rt.Busy = False
+                End Try
+
+            Next
+        End Sub
+
+
+        ' --- Expression evaluator: numbers, variables, AND/OR/NOT, comparisons, parentheses
+        Private Shared Function EvalBool(expr As String, getVar As Func(Of String, Object)) As Boolean
+            If String.IsNullOrWhiteSpace(expr) Then Return False
+            Dim tokens = Tokenize(expr)
+            Dim rpn = ToRpn(tokens)
+            Dim obj = EvalRpn(rpn, getVar)
+            Return ToBool(obj)
+        End Function
+
+
+        Private Shared Function Tokenize(expr As String) As List(Of String)
+            Dim t As New List(Of String)()
+            Dim i As Integer = 0
+            While i < expr.Length
+                Dim c = expr(i)
+                If Char.IsWhiteSpace(c) Then i += 1 : Continue While
+
+                If c = "("c OrElse c = ")"c Then
+                    t.Add(c.ToString()) : i += 1 : Continue While
+                End If
+
+                If i + 1 < expr.Length Then
+                    Dim two = expr.Substring(i, 2)
+                    If two = "<=" OrElse two = ">=" OrElse two = "==" OrElse two = "!=" Then
+                        t.Add(two) : i += 2 : Continue While
+                    End If
+                End If
+
+                If c = "<"c OrElse c = ">"c Then
+                    t.Add(c.ToString()) : i += 1 : Continue While
+                End If
+
+                Dim sb As New StringBuilder()
+                While i < expr.Length
+                    c = expr(i)
+                    If Char.IsWhiteSpace(c) Then Exit While
+                    If c = "("c OrElse c = ")"c Then Exit While
+                    If c = "<"c OrElse c = ">"c OrElse c = "="c OrElse c = "!"c Then Exit While
+                    sb.Append(c) : i += 1
+                End While
+
+                Dim w = sb.ToString().Trim()
+                If w <> "" Then
+                    If w.Equals("and", StringComparison.OrdinalIgnoreCase) Then w = "AND"
+                    If w.Equals("or", StringComparison.OrdinalIgnoreCase) Then w = "OR"
+                    If w.Equals("not", StringComparison.OrdinalIgnoreCase) Then w = "NOT"
+                    t.Add(w)
+                End If
+            End While
+            Return t
+        End Function
+
+
+        Private Shared Function IsOp(tok As String) As Boolean
+            Select Case tok
+                Case "NOT", "AND", "OR", "<", "<=", ">", ">=", "==", "!=" : Return True
+            End Select
+            Return False
+        End Function
+
+
+        Private Shared Function Prec(op As String) As Integer
+            Select Case op
+                Case "NOT" : Return 3
+                Case "<", "<=", ">", ">=", "==", "!=" : Return 2
+                Case "AND" : Return 1
+                Case "OR" : Return 0
+            End Select
+            Return -1
+        End Function
+
+
+        Private Shared Function ToRpn(tokens As List(Of String)) As List(Of String)
+            Dim out As New List(Of String)()
+            Dim ops As New Stack(Of String)()
+
+            For Each tok In tokens
+                If tok = "(" Then
+                    ops.Push(tok)
+                ElseIf tok = ")" Then
+                    While ops.Count > 0 AndAlso ops.Peek() <> "("
+                        out.Add(ops.Pop())
+                    End While
+                    If ops.Count > 0 AndAlso ops.Peek() = "(" Then ops.Pop()
+                ElseIf IsOp(tok) Then
+                    While ops.Count > 0 AndAlso IsOp(ops.Peek()) AndAlso Prec(ops.Peek()) >= Prec(tok)
+                        out.Add(ops.Pop())
+                    End While
+                    ops.Push(tok)
+                Else
+                    out.Add(tok)
+                End If
+            Next
+
+            While ops.Count > 0
+                out.Add(ops.Pop())
+            End While
+
+            Return out
+        End Function
+
+
+        Private Shared Function EvalRpn(rpn As List(Of String), getVar As Func(Of String, Object)) As Object
+            Dim st As New Stack(Of Object)()
+
+            For Each tok In rpn
+                If Not IsOp(tok) Then
+                    st.Push(ParseVal(tok, getVar))
+                    Continue For
+                End If
+
+                If tok = "NOT" Then
+                    Dim a = If(st.Count > 0, st.Pop(), False)
+                    st.Push(Not ToBool(a))
+                    Continue For
+                End If
+
+                Dim b = If(st.Count > 0, st.Pop(), Nothing)
+                Dim a2 = If(st.Count > 0, st.Pop(), Nothing)
+
+                Select Case tok
+                    Case "AND" : st.Push(ToBool(a2) AndAlso ToBool(b))
+                    Case "OR" : st.Push(ToBool(a2) OrElse ToBool(b))
+                    Case "<", "<=", ">", ">=", "==", "!=" : st.Push(Cmp(a2, b, tok))
+                End Select
+            Next
+
+            If st.Count = 0 Then Return False
+            Return st.Pop()
+        End Function
+
+
+        Private Shared Function ParseVal(tok As String, getVar As Func(Of String, Object)) As Object
+            Dim d As Double
+            If Double.TryParse(tok, NumberStyles.Float, CultureInfo.InvariantCulture, d) Then Return d
+            Dim v = getVar(tok)
+            If v IsNot Nothing Then Return v
+            Return tok
+        End Function
+
+
+        Private Shared Function ToBool(v As Object) As Boolean
+            If v Is Nothing Then Return False
+            If TypeOf v Is Boolean Then Return CBool(v)
+
+            Dim d As Double
+            If Double.TryParse(v.ToString().Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, d) Then
+                Return d <> 0.0
+            End If
+
+            Dim s = v.ToString().Trim()
+            If s.Equals("true", StringComparison.OrdinalIgnoreCase) OrElse s.Equals("on", StringComparison.OrdinalIgnoreCase) Then Return True
+            If s.Equals("false", StringComparison.OrdinalIgnoreCase) OrElse s.Equals("off", StringComparison.OrdinalIgnoreCase) Then Return False
+
+            Return False
+        End Function
+
+
+        Private Shared Function Cmp(a As Object, b As Object, op As String) As Boolean
+            Dim da As Double, db As Double
+            If TryNum(a, da) AndAlso TryNum(b, db) Then
+                Select Case op
+                    Case "<" : Return da < db
+                    Case "<=" : Return da <= db
+                    Case ">" : Return da > db
+                    Case ">=" : Return da >= db
+                    Case "==" : Return da = db
+                    Case "!=" : Return da <> db
+                End Select
+            End If
+
+            Dim sa = If(a, "").ToString()
+            Dim sb = If(b, "").ToString()
+            If op = "==" Then Return sa.Equals(sb, StringComparison.OrdinalIgnoreCase)
+            If op = "!=" Then Return Not sa.Equals(sb, StringComparison.OrdinalIgnoreCase)
+            Return False
+        End Function
+
+
+        Private Shared Function TryNum(v As Object, ByRef d As Double) As Boolean
+            If v Is Nothing Then Return False
+            Return Double.TryParse(v.ToString().Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, d)
+        End Function
+
+    End Class
+
+
+    Private Sub AppendTriggerLog(msg As String)
+        Dim tb = TryCast(GroupBoxCustom.Controls.Find("TriggerLog", True).FirstOrDefault(), TextBox)
+        If tb Is Nothing Then Exit Sub
+
+        Dim line = $"{DateTime.Now:HH:mm:ss.fff}  {msg}"
+
+        tb.AppendText(line & Environment.NewLine)
+    End Sub
+
+
+    Private Sub FuncTrigEnableCheckbox_CheckedChanged(sender As Object, e As EventArgs)
+        Dim cb = TryCast(sender, CheckBox)
+        If cb Is Nothing Then Exit Sub
+
+        ' Your Tag format is: result|FUNC|param
+        Dim tagStr As String = TryCast(cb.Tag, String)
+        If String.IsNullOrWhiteSpace(tagStr) Then Exit Sub
+
+        Dim p = tagStr.Split("|"c)
+        Dim funcKey As String = If(p.Length >= 2, p(1).Trim().ToUpperInvariant(), "")
+        Dim param As String = If(p.Length >= 3, p(2).Trim(), "")   ' <-- trigger name
+
+        If funcKey <> "FUNCTRIGENABLE" Then Exit Sub
+        If String.IsNullOrWhiteSpace(param) Then Exit Sub
+
+        EnsureTriggerEngine() ' make sure engine exists + started
+        TriggerEng.SetEnabled(param, cb.Checked)
+
+        AppendTriggerLog($"[TRIGGER] {param} enabled={cb.Checked}")
+    End Sub
+
 
 
 
