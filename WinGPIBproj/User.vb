@@ -3232,7 +3232,7 @@ FanOut:
         ' Only resolve a GPIB device for actions that actually need one
         Dim dev As IODevices.IODevice = Nothing
 
-        If Not String.Equals(action, "CLEARCHART", StringComparison.OrdinalIgnoreCase) AndAlso Not String.Equals(action, "RESETSTATS", StringComparison.OrdinalIgnoreCase) Then
+        If Not String.Equals(action, "CLEARCHART", StringComparison.OrdinalIgnoreCase) AndAlso Not String.Equals(action, "RESETSTATS", StringComparison.OrdinalIgnoreCase) AndAlso Not String.Equals(action, "CLEARHISTORY", StringComparison.OrdinalIgnoreCase) Then
 
             dev = GetDeviceByName(deviceName)
             If dev Is Nothing Then
@@ -3421,6 +3421,22 @@ FanOut:
                     StatsState(panelName).Reset()
                     UpdateStatsPanel(panelName, Double.NaN) ' refresh display
                 End If
+
+
+            Case "CLEARHISTORY"
+                Dim gridName As String = deviceName
+
+                If HistoryData.ContainsKey(gridName) Then
+                    HistoryData(gridName).Clear()
+                End If
+
+                If HistoryState.ContainsKey(gridName) Then
+                    HistoryState(gridName).Reset()
+                End If
+
+                Exit Sub
+
+
 
         End Select
 
@@ -4932,27 +4948,33 @@ FanOut:
     End Function
 
 
+    Private Sub ClearHistoryGrid(gridName As String)
+        If String.IsNullOrWhiteSpace(gridName) Then Exit Sub
+
+        Dim ctrl As Control = Nothing
+        If Not ControlByName.TryGetValue(gridName, ctrl) OrElse ctrl Is Nothing Then Exit Sub
+
+        Dim dgv = TryCast(ctrl, DataGridView)
+        If dgv Is Nothing Then Exit Sub
+
+        ' If you bound to a DataTable / BindingSource, clear the underlying source instead.
+        dgv.Rows.Clear()
+    End Sub
+
+
     ' ====================================================================================================================================================================================================
 
-    ' ============================
-    ' 1) VARIABLE REGISTRY
-    ' ============================
-    ' NEW: universal registry of live values (case-insensitive)
+    ' VARIABLE REGISTRY
+    ' Universal registry of live values (case-insensitive)
     Private ReadOnly Vars As New Dictionary(Of String, Object)(StringComparer.OrdinalIgnoreCase)
 
-    ' NEW: control registries so triggers can invoke actions by name
+    ' Control registries so triggers can invoke actions by name
     Private ReadOnly BtnByName As New Dictionary(Of String, Button)(StringComparer.OrdinalIgnoreCase)
     Private ReadOnly TextAreaByName As New Dictionary(Of String, TextBox)(StringComparer.OrdinalIgnoreCase) ' multiline
     Private ReadOnly ControlByName As New Dictionary(Of String, Control)(StringComparer.OrdinalIgnoreCase)
 
-    ' NEW: trigger engine instance
-    'Private _triggerEngine As TriggerEngine
-
-
-    ' ============================
-    ' 2) PUBLISH METHODS (call from your existing updates)
-    ' ============================
-
+    ' Trigger engine instance
+    ' PUBLISH METHODS
     ' Publish any textbox value (including ResultTarget textbox)
     Private Sub PublishTextBox(controlName As String, textValue As String)
         If String.IsNullOrWhiteSpace(controlName) Then Exit Sub
@@ -4965,6 +4987,7 @@ FanOut:
         End If
     End Sub
 
+
     ' Publish BIGTEXT (if BIGTEXT has its own name, publish it too)
     Private Sub PublishBigText(controlName As String, textValue As String)
         If String.IsNullOrWhiteSpace(controlName) Then Exit Sub
@@ -4976,6 +4999,7 @@ FanOut:
             Vars($"bignum:{controlName}") = d
         End If
     End Sub
+
 
     ' Publish STATSPANEL live metrics (call each time stats update)
     Private Sub PublishStats(panelName As String,
@@ -4999,15 +5023,13 @@ FanOut:
     End Sub
 
 
-    ' ============================
-    ' 3) REGISTRATION (call as you create dynamic controls)
-    ' ============================
-
+    ' REGISTRATION (call as you create dynamic controls)
     Private Sub RegisterButton(controlName As String, btn As Button)
         If String.IsNullOrWhiteSpace(controlName) OrElse btn Is Nothing Then Exit Sub
         BtnByName(controlName) = btn
         ControlByName(controlName) = btn
     End Sub
+
 
     Private Sub RegisterTextArea(controlName As String, tb As TextBox)
         If String.IsNullOrWhiteSpace(controlName) OrElse tb Is Nothing Then Exit Sub
@@ -5015,15 +5037,14 @@ FanOut:
         ControlByName(controlName) = tb
     End Sub
 
+
     Private Sub RegisterAnyControl(controlName As String, ctrl As Control)
         If String.IsNullOrWhiteSpace(controlName) OrElse ctrl Is Nothing Then Exit Sub
         ControlByName(controlName) = ctrl
     End Sub
 
 
-    ' ============================
-    ' 4) TRIGGER ENGINE STARTUP
-    ' ============================
+    ' TRIGGER ENGINE STARTUP
     Private Sub EnsureTriggerEngine()
         If TriggerEng Is Nothing Then
             TriggerEng = New TriggerEngine(AddressOf GetVarValue,
@@ -5043,9 +5064,7 @@ FanOut:
     End Function
 
 
-    ' ============================
-    ' 5) CONFIG PARSER ENTRYPOINT
-    ' ============================
+    ' CONFIG PARSER ENTRYPOINT
     ' Call this from your config parsing loop when you see "TRIGGER"
     Private Sub ParseTriggerLine(parts() As String)
         EnsureTriggerEngine()
@@ -5077,9 +5096,7 @@ FanOut:
     End Sub
 
 
-    ' ============================
-    ' 6) ACTION DISPATCHER (then=...)
-    ' ============================
+    ' ACTION DISPATCHER
     ' then=fire:BtnX|run:ScriptBox|resetstats:Stats1|clearchart:ChartDMM|togglevis:ChartDMM,Hist1
     Private Sub ExecuteThenChain(chain As String)
         If String.IsNullOrWhiteSpace(chain) Then Exit Sub
@@ -5144,10 +5161,6 @@ FanOut:
         Next
     End Sub
 
-
-    ' ============================
-    ' 7) MAP THESE TWO TO YOUR EXISTING CODE
-    ' ============================
 
     ' REQUIRED: call the same code you already run for Action=RESETSTATS
     Private Sub ResetStatsPanel(panelName As String)
