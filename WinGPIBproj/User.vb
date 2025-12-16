@@ -83,6 +83,12 @@ Partial Class Formtest
     ' Trigger
     Private TriggerEng As TriggerEngine
 
+    ' LUA
+    Dim inLuaScript As Boolean = False
+    Dim luaScriptName As String = ""
+    Dim luaLines As New List(Of String)
+    Dim autoY As Integer = 10
+
 
     ' History Grid
     Private Class HistoryGridConfig
@@ -241,6 +247,7 @@ Partial Class Formtest
         AutoReadValueControl = ""
 
         GroupBoxCustom.Controls.Clear()
+        LuaScriptsByName.Clear()
 
         CurrentUserScale = 1.0   ' reset scale each time we load a layout
 
@@ -250,6 +257,20 @@ Partial Class Formtest
 
             Dim line = rawLine.Trim()
             If line = "" OrElse line.StartsWith(";") Then Continue For
+
+            ' ================= LUA SCRIPT BLOCK =================
+            If inLuaScript Then
+                If line.StartsWith("LUASCRIPTEND", StringComparison.OrdinalIgnoreCase) Then
+                    LuaScriptsByName(luaScriptName) = String.Join(vbCrLf, luaLines)
+                    luaLines.Clear()
+                    inLuaScript = False
+                Else
+                    ' store ORIGINAL rawLine to preserve indentation
+                    luaLines.Add(rawLine)
+                End If
+                Continue For
+            End If
+            ' ===================================================
 
             ' Per-device GPIB engine selectors for USER tab
             ' e.g. GPIBenginedev1=native / standalone
@@ -271,6 +292,14 @@ Partial Class Formtest
                 Else
                     GpibEngineDev2 = "standalone"
                 End If
+                Continue For
+            End If
+
+            ' LUASCRIPTBEGIN;name=MyScript
+            If line.StartsWith("LUASCRIPTBEGIN", StringComparison.OrdinalIgnoreCase) Then
+                luaScriptName = GetParam(line, "name")
+                luaLines.Clear()
+                inLuaScript = True
                 Continue For
             End If
 
@@ -3241,7 +3270,8 @@ FanOut:
             Not String.Equals(action, "CLEARCHART", StringComparison.OrdinalIgnoreCase) AndAlso
             Not String.Equals(action, "RESETSTATS", StringComparison.OrdinalIgnoreCase) AndAlso
             Not String.Equals(action, "CLEARHISTORY", StringComparison.OrdinalIgnoreCase) AndAlso
-            Not String.Equals(action, "RUNLUA", StringComparison.OrdinalIgnoreCase) Then
+            Not String.Equals(action, "RUNLUA", StringComparison.OrdinalIgnoreCase) AndAlso
+            Not String.Equals(action, "STOPLUA", StringComparison.OrdinalIgnoreCase) Then
 
             dev = GetDeviceByName(deviceName)
             If dev Is Nothing Then
@@ -3447,16 +3477,28 @@ FanOut:
 
 
             Case "RUNLUA"
-                ' commandOrPrefix = TEXTAREA name containing Lua script
-                Dim scriptBoxName As String = commandOrPrefix
-                Dim tb = TryCast(GetControlByName(scriptBoxName), TextBoxBase)
-                If tb Is Nothing Then
-                    MessageBox.Show("TEXTAREA not found: " & scriptBoxName)
+                Dim scriptName As String = commandOrPrefix.Trim()
+
+                ' 1) First try config-defined LUASCRIPT
+                Dim luaText As String = ""
+                If LuaScriptsByName.TryGetValue(scriptName, luaText) Then
+                    RunLua(luaText.Replace("|", vbCrLf))
                     Exit Sub
                 End If
 
-                Dim luaCode As String = String.Join(Environment.NewLine, tb.Lines)
-                RunLua(luaCode)
+                ' 2) Fallback: old TEXTAREA method still allowed
+                Dim tb = TryCast(GetControlByName(scriptName), TextBoxBase)
+                If tb Is Nothing Then
+                    MessageBox.Show("Lua script not found: " & scriptName)
+                    Exit Sub
+                End If
+
+                RunLua(String.Join(Environment.NewLine, tb.Lines))
+
+
+            Case "STOPLUA"
+                RequestLuaStop()
+                Exit Sub
 
 
 
@@ -5119,7 +5161,7 @@ FanOut:
 
 
     ' ACTION DISPATCHER
-    ' then=fire:BtnX|run:ScriptBox|resetstats:Stats1|clearchart:ChartDMM|togglevis:ChartDMM,Hist1
+    ' then=fire:BtnX|run:ScriptBox|resetstats:Stats1|clearchart:ChartDMM|togglevis:ChartDMM,Hist1|runlua:ScriptName
     Private Sub ExecuteThenChain(chain As String)
         If String.IsNullOrWhiteSpace(chain) Then Exit Sub
 
@@ -5136,7 +5178,8 @@ FanOut:
 
             Select Case key
                 Case "fire"
-                    If BtnByName.ContainsKey(arg) Then BtnByName(arg).PerformClick()
+                    Dim b As Button = Nothing
+                    If BtnByName.TryGetValue(arg, b) AndAlso b IsNot Nothing Then b.PerformClick()
 
                 Case "run"
                     RunTextAreaAsSendLines(arg)
@@ -5169,17 +5212,30 @@ FanOut:
                     SetLedFromSpec(arg)     ' arg format: LedName=ON / OFF / BAD / 1 / 0 / TRUE / FALSE
 
                 Case "runlua"
-                    Dim luaText As String = GetTextAreaText(arg)   ' arg = "LuaTest"
+                    Dim scriptName As String = arg
+
+                    ' 1) Prefer config-defined LUASCRIPT
+                    Dim luaText As String = ""
+                    If LuaScriptsByName IsNot Nothing AndAlso LuaScriptsByName.TryGetValue(scriptName, luaText) Then
+                        If String.IsNullOrWhiteSpace(luaText) Then
+                            AppendTriggerLog("[LUA] RUNLUA: LUASCRIPT empty: " & scriptName)
+                        Else
+                            RunLua(luaText.Replace("|", vbCrLf))
+                        End If
+                        Continue For
+                    End If
+
+                    ' 2) Fallback: TEXTAREA by name (old behaviour)
+                    luaText = GetTextAreaText(scriptName)
                     If String.IsNullOrWhiteSpace(luaText) Then
-                        AppendTriggerLog("[LUA] RUNLUA: textarea not found or empty: " & arg)
+                        AppendTriggerLog("[LUA] RUNLUA: script not found (LUASCRIPT or TEXTAREA): " & scriptName)
                     Else
                         RunLua(luaText.Replace("|", vbCrLf))
                     End If
-
-
             End Select
         Next
     End Sub
+
 
     Private Sub ToggleVisibility(csv As String)
         For Each id In csv.Split(","c)
@@ -5192,6 +5248,7 @@ FanOut:
             End If
         Next
     End Sub
+
 
     Private Sub SetVisibility(csv As String, visible As Boolean)
         For Each id In csv.Split(","c)

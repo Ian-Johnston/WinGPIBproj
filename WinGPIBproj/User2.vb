@@ -7,9 +7,32 @@ Imports MoonSharp.Interpreter.Interop
 
 Partial Class Formtest
 
+
     ' Lua engine instance
     Private _lua As Script
     Private _luaReady As Boolean = False
+
+    ' Lua cancel flag
+    Private _luaCancelRequested As Boolean = False
+
+    ' Lua scripts loaded from config (no UI control required)
+    Private ReadOnly LuaScriptsByName As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+
+
+
+    ' call this to request stop
+    Private Sub RequestLuaStop()
+        _luaCancelRequested = True
+    End Sub
+
+
+    ' throw to abort Lua cleanly
+    Private Sub ThrowIfLuaCancelled()
+        If _luaCancelRequested Then
+            Throw New OperationCanceledException("Lua cancelled")
+        End If
+    End Sub
+
 
     Private Sub EnsureLua()
         If _luaReady Then Exit Sub
@@ -111,6 +134,61 @@ Partial Class Formtest
                                           End If
                                       End Function, Func(Of String, String, String))
 
+        _lua.Globals("settext") = CType(Sub(ctrlName As String, val As Object)
+                                            Dim c = GetControlByName(If(ctrlName, "").Trim())
+                                            If c Is Nothing Then
+                                                AppendTriggerLog("[LUA] settext(): control not found: " & ctrlName)
+                                                Exit Sub
+                                            End If
+
+                                            Dim s As String = If(val, "").ToString()
+
+                                            If TypeOf c Is TextBoxBase Then
+                                                Dim tb = DirectCast(c, TextBoxBase)
+                                                If tb.InvokeRequired Then
+                                                    tb.BeginInvoke(Sub() tb.Text = s)
+                                                Else
+                                                    tb.Text = s
+                                                End If
+                                                Exit Sub
+                                            End If
+
+                                            If TypeOf c Is Label Then
+                                                Dim lbl = DirectCast(c, Label)
+                                                If lbl.InvokeRequired Then
+                                                    lbl.BeginInvoke(Sub() lbl.Text = s)
+                                                Else
+                                                    lbl.Text = s
+                                                End If
+                                                Exit Sub
+                                            End If
+
+                                            AppendTriggerLog("[LUA] settext(): unsupported control type: " & c.GetType().Name)
+                                        End Sub, Action(Of String, Object))
+
+        ' UI repaint helper (optional but useful)
+        _lua.Globals("doui") = CType(Sub()
+                                         Application.DoEvents()
+                                     End Sub, Action)
+
+        ' Simple sleep (blocks UI thread if Lua runs on UI thread)
+        _lua.Globals("sleep") = CType(Sub(ms As Double)
+                                          Dim total As Integer = CInt(Math.Max(0, ms))
+                                          Dim remaining As Integer = total
+
+                                          While remaining > 0
+                                              ThrowIfLuaCancelled()
+
+                                              Dim stepMs As Integer = Math.Min(50, remaining) ' 50ms chunks
+                                              Threading.Thread.Sleep(stepMs)
+                                              remaining -= stepMs
+
+                                              ' optional: let UI breathe if you’re running on UI thread
+                                              Application.DoEvents()
+                                          End While
+                                      End Sub, Action(Of Double))
+
+
 
 
         _luaReady = True
@@ -118,12 +196,20 @@ Partial Class Formtest
 
     Private Sub RunLua(luaCode As String)
         EnsureLua()
+
+        _luaCancelRequested = False   ' NEW: clear any previous stop request
+
         Try
             _lua.DoString(luaCode)
+
+        Catch ex As OperationCanceledException
+            AppendTriggerLog("[LUA] Script stopped")
+
         Catch ex As Exception
             AppendTriggerLog("[LUA ERROR] " & ex.Message)
         End Try
     End Sub
+
 
 
     Private Function GetTextAreaText(name As String) As String
@@ -132,6 +218,24 @@ Partial Class Formtest
             Return tb.Text
         End If
         Return Nothing
+    End Function
+
+
+    ' Read "key=value" params from a ; separated config line
+    Private Function GetParam(lineText As String, key As String) As String
+        For Each part In lineText.Split(";"c)
+            Dim p = part.Trim()
+            If p.Length = 0 Then Continue For
+
+            Dim idx = p.IndexOf("="c)
+            If idx <= 0 Then Continue For
+
+            Dim k = p.Substring(0, idx).Trim()
+            If k.Equals(key, StringComparison.OrdinalIgnoreCase) Then
+                Return p.Substring(idx + 1).Trim()
+            End If
+        Next
+        Return ""
     End Function
 
 
