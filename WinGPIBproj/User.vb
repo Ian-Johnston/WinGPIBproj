@@ -367,6 +367,7 @@ Partial Class Formtest
                             Dim val = kv(1).Trim()
 
                             Select Case key
+
                                 Case "name"
                                     tbName = val
 
@@ -389,6 +390,7 @@ Partial Class Formtest
 
                                 Case "readonly"
                                     ParseBoolField(val, isReadOnly)
+
                             End Select
                         Next
                     End If
@@ -1658,8 +1660,11 @@ Partial Class Formtest
                     led.BorderStyle = BorderStyle.FixedSingle
                     led.BackColor = offColor    ' start OFF
 
+                    led.Tag = $"LED|{onColor.ToArgb()}|{offColor.ToArgb()}|{badColor.ToArgb()}"
+                    RegisterAnyControl(ledName, led)
+
                     ' Tag: marker + colours
-                    led.Tag = $"LED|{onColor.ToArgb}|{offColor.ToArgb}|{badColor.ToArgb}"
+                    'led.Tag = $"LED|{onColor.ToArgb}|{offColor.ToArgb}|{badColor.ToArgb}"
 
                     GroupBoxCustom.Controls.Add(led)
                     Continue For
@@ -5120,10 +5125,10 @@ FanOut:
                     RunTextAreaAsSendLines(arg)
 
                 Case "resetstats"
-                    ResetStatsPanel(arg)   ' <-- YOU map this to your existing RESETSTATS logic
+                    ResetStatsPanel(arg)
 
                 Case "clearchart"
-                    ClearChart(arg)        ' <-- YOU map this to your existing CLEARCHART logic
+                    ClearChart(arg)
 
                 Case "togglevis"
                     ToggleVisibility(arg)
@@ -5133,6 +5138,19 @@ FanOut:
 
                 Case "hide"
                     SetVisibility(arg, False)
+
+                Case "enabletrig"
+                    If TriggerEng IsNot Nothing Then TriggerEng.SetEnabled(arg, True)
+
+                Case "disabletrig"
+                    If TriggerEng IsNot Nothing Then TriggerEng.SetEnabled(arg, False)
+
+                Case "resettrig"
+                    If TriggerEng IsNot Nothing Then TriggerEng.Reset(arg)
+
+                Case "led"
+                    SetLedFromSpec(arg)     ' arg format: LedName=ON / OFF / BAD / 1 / 0 / TRUE / FALSE
+
             End Select
         Next
     End Sub
@@ -5281,6 +5299,19 @@ FanOut:
         Private ReadOnly _trigs As New Dictionary(Of String, TriggerRuntime)(StringComparer.OrdinalIgnoreCase)
         Private ReadOnly _timer As New System.Windows.Forms.Timer()
         Private ReadOnly _log As Action(Of String)
+
+
+        Public Sub Reset(triggerName As String)
+            If String.IsNullOrWhiteSpace(triggerName) Then Exit Sub
+
+            Dim rt As TriggerRuntime = Nothing
+            If _trigs.TryGetValue(triggerName, rt) AndAlso rt IsNot Nothing Then
+                rt.Hits = 0
+                rt.CooldownUntilUtc = DateTime.MinValue
+                rt.NextEvalUtc = DateTime.UtcNow
+                If _log IsNot Nothing Then _log($"[TRIGGER] {triggerName} reset")
+            End If
+        End Sub
 
 
         Public Sub SetEnabled(triggerName As String, enabled As Boolean)
@@ -5596,6 +5627,37 @@ FanOut:
 
         AppendTriggerLog($"[TRIGGER] {param} enabled={cb.Checked}")
     End Sub
+
+
+    Private Sub SetLedFromSpec(spec As String)
+        If String.IsNullOrWhiteSpace(spec) Then Exit Sub
+
+        Dim parts = spec.Split({"="c}, 2)
+        If parts.Length <> 2 Then Exit Sub
+
+        Dim ledName = parts(0).Trim()
+        Dim stateText = parts(1).Trim()
+
+        ' Find the LED panel control by Name
+        Dim ledCtrl As Control = Nothing
+
+        ' Prefer your registry if you have it
+        If ControlByName IsNot Nothing AndAlso ControlByName.TryGetValue(ledName, ledCtrl) Then
+            ' ok
+        Else
+            ' fallback: search controls
+            ledCtrl = GroupBoxCustom.Controls.Find(ledName, True).FirstOrDefault()
+        End If
+
+        If ledCtrl Is Nothing Then Exit Sub
+
+        ' Your LED is a Panel
+        Dim pnl = TryCast(ledCtrl, Panel)
+        If pnl Is Nothing Then Exit Sub
+
+        SetLedStateFromText(pnl, stateText)
+    End Sub
+
 
 
 
