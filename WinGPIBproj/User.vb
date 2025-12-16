@@ -3237,7 +3237,11 @@ FanOut:
         ' Only resolve a GPIB device for actions that actually need one
         Dim dev As IODevices.IODevice = Nothing
 
-        If Not String.Equals(action, "CLEARCHART", StringComparison.OrdinalIgnoreCase) AndAlso Not String.Equals(action, "RESETSTATS", StringComparison.OrdinalIgnoreCase) AndAlso Not String.Equals(action, "CLEARHISTORY", StringComparison.OrdinalIgnoreCase) Then
+        If Not String.IsNullOrWhiteSpace(action) AndAlso
+            Not String.Equals(action, "CLEARCHART", StringComparison.OrdinalIgnoreCase) AndAlso
+            Not String.Equals(action, "RESETSTATS", StringComparison.OrdinalIgnoreCase) AndAlso
+            Not String.Equals(action, "CLEARHISTORY", StringComparison.OrdinalIgnoreCase) AndAlso
+            Not String.Equals(action, "RUNLUA", StringComparison.OrdinalIgnoreCase) Then
 
             dev = GetDeviceByName(deviceName)
             If dev Is Nothing Then
@@ -3440,6 +3444,19 @@ FanOut:
                 End If
 
                 Exit Sub
+
+
+            Case "RUNLUA"
+                ' commandOrPrefix = TEXTAREA name containing Lua script
+                Dim scriptBoxName As String = commandOrPrefix
+                Dim tb = TryCast(GetControlByName(scriptBoxName), TextBoxBase)
+                If tb Is Nothing Then
+                    MessageBox.Show("TEXTAREA not found: " & scriptBoxName)
+                    Exit Sub
+                End If
+
+                Dim luaCode As String = String.Join(Environment.NewLine, tb.Lines)
+                RunLua(luaCode)
 
 
 
@@ -5150,6 +5167,15 @@ FanOut:
 
                 Case "led"
                     SetLedFromSpec(arg)     ' arg format: LedName=ON / OFF / BAD / 1 / 0 / TRUE / FALSE
+
+                Case "runlua"
+                    Dim luaText As String = GetTextAreaText(arg)   ' arg = "LuaTest"
+                    If String.IsNullOrWhiteSpace(luaText) Then
+                        AppendTriggerLog("[LUA] RUNLUA: textarea not found or empty: " & arg)
+                    Else
+                        RunLua(luaText.Replace("|", vbCrLf))
+                    End If
+
 
             End Select
         Next

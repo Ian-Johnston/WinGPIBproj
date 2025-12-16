@@ -174,8 +174,8 @@ Partial Class Formtest
 
         If ButtonDev1Run.Enabled = True Then ' Device 1 is started
 
-            Dim i As Integer
-            Dim s As String
+            'Dim i As Integer       ' unused?
+            'Dim s As String        ' unused?
             Dim jsonData As New Dictionary(Of String, Object) ' For storing JSON data
             Dim sections As New Dictionary(Of String, List(Of Object)) ' Sections for JSON
 

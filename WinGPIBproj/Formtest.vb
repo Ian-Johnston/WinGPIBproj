@@ -33,6 +33,7 @@ Imports System.Text
 Imports System.Text.RegularExpressions
 Imports IODevices
 'Imports System.Runtime.InteropServices
+Imports System.Diagnostics
 
 
 Public Class Formtest
@@ -2630,6 +2631,97 @@ Public Class Formtest
 
     End Sub
 
+    ' LUA copyright notice
+    Private Sub ButtonLUA_Click(sender As Object, e As EventArgs) Handles ButtonLUA.Click
+
+        Using noticeForm As New Form()
+            noticeForm.Text = "Third-Party License - MoonSharp"
+            noticeForm.Size = New Size(700, 500)
+            noticeForm.StartPosition = FormStartPosition.CenterParent
+            noticeForm.FormBorderStyle = FormBorderStyle.FixedDialog
+            noticeForm.MaximizeBox = False
+            noticeForm.MinimizeBox = False
+            noticeForm.ShowInTaskbar = False
+
+            ' License text
+            Dim rtb As New RichTextBox()
+            rtb.Dock = DockStyle.Fill
+            rtb.ReadOnly = True
+            rtb.BackColor = SystemColors.Window
+            rtb.Font = New Font("Consolas", 10)
+            rtb.WordWrap = False
+            rtb.DetectUrls = True
+
+            AddHandler rtb.LinkClicked, Sub(s, ev)
+                                            Try
+                                                Process.Start(New ProcessStartInfo(ev.LinkText) With {.UseShellExecute = True})
+                                            Catch
+                                                ' ignore
+                                            End Try
+                                        End Sub
+
+            rtb.Text =
+                "WinGPIB uses the LUA scripting language plugin, as follows:" & vbCrLf & vbCrLf &
+                "MoonSharp Interpreter" & vbCrLf & vbCrLf &
+                "Copyright (c) 2014-2016, Marco Mastropaolo" & vbCrLf &
+                "All rights reserved." & vbCrLf & vbCrLf &
+                "Parts of the string library are based on the KopiLua project: https://github.com/NLua/KopiLua" & vbCrLf &
+                "Copyright (c) 2012 LoDC" & vbCrLf & vbCrLf &
+                "Visual Studio Code debugger code is based on code from Microsoft vscode-mono-debug project: https://github.com/Microsoft/vscode-mono-debug" & vbCrLf &
+                "Copyright (c) Microsoft Corporation - released under MIT license." & vbCrLf & vbCrLf &
+                "Remote Debugger icons are from the Eclipse project: https://www.eclipse.org/" & vbCrLf &
+                "Copyright of The Eclipse Foundation" & vbCrLf & vbCrLf &
+                "The MoonSharp icon is (c) Isaac, 2014-2015" & vbCrLf & vbCrLf &
+                "Redistribution and use in source and binary forms, with or without modification, " & vbCrLf &
+                "are permitted provided that the following conditions are met:" & vbCrLf & vbCrLf &
+                "* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer." & vbCrLf &
+                "* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer " & vbCrLf &
+                "in the documentation and/or other materials provided with the distribution." & vbCrLf &
+                "* Neither the name of Marco Mastropaolo nor the names of its contributors may be used to endorse or promote products " & vbCrLf &
+                "derived from this software without specific prior written permission." & vbCrLf & vbCrLf &
+                "THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ""AS IS"" AND ANY EXPRESS OR IMPLIED WARRANTIES, " & vbCrLf &
+                "INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. " & vbCrLf &
+                "IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, " & vbCrLf &
+                "OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; " & vbCrLf &
+                "OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT " & vbCrLf &
+                "(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
+
+            ' OK button
+            Dim btnOK As New Button()
+            btnOK.Text = "OK"
+            btnOK.DialogResult = DialogResult.OK
+            btnOK.AutoSize = True
+
+            noticeForm.AcceptButton = btnOK
+            noticeForm.CancelButton = btnOK
+
+            ' Layout so the RichTextBox doesn't cover the button
+            Dim layout As New TableLayoutPanel With {
+                .Dock = DockStyle.Fill,
+                .RowCount = 2,
+                .ColumnCount = 1
+            }
+            layout.RowStyles.Add(New RowStyle(SizeType.Percent, 100.0F))
+            layout.RowStyles.Add(New RowStyle(SizeType.AutoSize))
+
+            Dim panelButtons As New FlowLayoutPanel With {
+                .Dock = DockStyle.Fill,
+                .FlowDirection = FlowDirection.RightToLeft,
+                .AutoSize = True,
+                .Padding = New Padding(8)
+            }
+            panelButtons.Controls.Add(btnOK)
+
+            layout.Controls.Add(rtb, 0, 0)
+            layout.Controls.Add(panelButtons, 0, 1)
+
+            noticeForm.Controls.Add(layout)
+
+            ' Show the dialog
+            noticeForm.ShowDialog(Me)
+        End Using
+
+    End Sub
 
 
 
