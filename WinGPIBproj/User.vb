@@ -131,16 +131,21 @@ Partial Class Formtest
             dlg.Title = "Select Custom GUI Layout File"
             dlg.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*"
 
-            If dlg.ShowDialog() = DialogResult.OK Then
-                Try
-                    LoadCustomGuiFromFile(dlg.FileName)
-                Catch ex As Exception
-                    MessageBox.Show("Error loading layout file: " & ex.Message)
-                End Try
+            If dlg.ShowDialog() <> DialogResult.OK Then
+                Exit Sub   ' user cancelled → leave label alone
             End If
+
+            Try
+                LoadCustomGuiFromFile(dlg.FileName)
+                LabelUSERtab1.Visible = False   ' only hide if load succeeds
+            Catch ex As Exception
+                MessageBox.Show("Error loading layout file: " & ex.Message)
+                LabelUSERtab1.Visible = True    ' keep it visible on failure
+            End Try
         End Using
 
     End Sub
+
 
 
     Private Sub ButtonResetTxt_Click(sender As Object, e As EventArgs) Handles ButtonResetTxt.Click
@@ -169,10 +174,28 @@ Partial Class Formtest
         InvisFuncToTargets.Clear()
 
         ' Remove all dynamically created controls
-        GroupBoxCustom.Controls.Clear()
+        'GroupBoxCustom.Controls.Clear()
+
+        For i As Integer = GroupBoxCustom.Controls.Count - 1 To 0 Step -1
+            Dim c = GroupBoxCustom.Controls(i)
+            If c Is LabelUSERtab1 Then Continue For
+            GroupBoxCustom.Controls.RemoveAt(i)
+            c.Dispose()
+        Next
 
         ' Reset the title text
         GroupBoxCustom.Text = "User Defineable"
+
+        If LabelUSERtab1.IsDisposed Then
+            MessageBox.Show("LabelUSERtab1 was disposed (it must be outside the dynamic clear).")
+        Else
+            If LabelUSERtab1.Parent IsNot GroupBoxCustom Then
+                LabelUSERtab1.Parent = GroupBoxCustom
+            End If
+
+            LabelUSERtab1.Visible = True
+            LabelUSERtab1.BringToFront()
+        End If
 
     End Sub
 

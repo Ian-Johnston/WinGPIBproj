@@ -135,6 +135,27 @@
   <metadata name="ToolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>1387, 27</value>
   </metadata>
+  <data name="LabelUSERtab1.Text" xml:space="preserve">
+    <value>The WinGPIB User tab allows you to:
+
+- Load a simple text-based configuration file to build a complete custom control panel — no recompiling required
+- Keep multiple configuration files, each tailored to a specific instrument, test setup, or measurement task, and switch between them as needed
+- Create buttons, textboxes, charts, stats panels, LEDs, dropdowns, and more dynamically at runtime
+- Bind controls directly to GPIB / SCPI commands for any connected instrument (dev1, dev2)
+- Execute scripted lists of GPIB/SCPI commands with optional periodic execution and automatic logging to file
+- Run auto-refresh measurements, live charts, statistics, and history logging
+- Define trigger logic and chained actions without writing application code
+- Execute Lua scripts for advanced sequencing, automation, and multi-instrument control
+- Control existing buttons and functions elsewhere in WinGPIB from scripts
+- Build repeatable test, calibration, and data-logging workflows using plain text files
+
+In short:
+The User tab lets you turn WinGPIB into a custom instrument front panel and automation system, tailored exactly to your setup.
+
+Note:
+User area size = 1030 × 547
+Coordinate origin (0,0) is at the top-left corner</value>
+  </data>
   <metadata name="SerialPort1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>107, 20</value>
   </metadata>
