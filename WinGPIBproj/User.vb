@@ -10,14 +10,27 @@ Imports System.Windows.Forms.DataVisualization.Charting
 Imports IODevices
 
 
+
 Partial Class Formtest
 
-    ' Auto-read state
+    ' Auto-read state - Timer 5 (dev1)
     Private AutoReadDeviceName As String
     Private AutoReadCommand As String
     Private AutoReadResultControl As String
-    Private AutoReadAction As String
+    'Private AutoReadAction As String
     Private AutoReadValueControl As String
+    Private UserAutoBusy As Integer = 0
+
+    ' Auto-read state - Timer 16 (dev2)
+    Private AutoReadDeviceName2 As String = ""
+    Private AutoReadCommand2 As String = ""
+    Private AutoReadResultControl2 As String = ""
+    'Private AutoReadAction2 As String
+    Private AutoReadValueControl2 As String
+    Private UserAutoBusy2 As Integer = 0
+
+    Private UserLayoutGen As Integer = 0
+
     Dim intervalMs As Integer = 2000
     Private originalCustomControls As List(Of Control)
 
@@ -52,9 +65,6 @@ Partial Class Formtest
     ' Per-device GPIB engine selection for USER tab ("standalone" or "native")
     Private GpibEngineDev1 As String = "standalone"   ' default if not specified
     Private GpibEngineDev2 As String = "standalone"   ' default if not specified
-
-    ' NEW: stops Timer5 re-entering while a query is running
-    Private UserAutoBusy As Integer = 0
 
     ' Stats panel runtime state =====
     Private StatsState As New Dictionary(Of String, RunningStatsState)(StringComparer.OrdinalIgnoreCase)
@@ -134,6 +144,25 @@ Partial Class Formtest
 
 
     Private Sub ButtonResetTxt_Click(sender As Object, e As EventArgs) Handles ButtonResetTxt.Click
+
+        ' Invalidate any in-flight async UI updates
+        Threading.Interlocked.Increment(UserLayoutGen)
+
+        ' Stop User tab dev1 and dev2 timers
+        Me.Timer5.Stop()
+        Me.Timer16.Stop()
+
+        ' Clear slot1
+        AutoReadDeviceName = ""
+        AutoReadCommand = ""
+        AutoReadResultControl = ""
+        Threading.Interlocked.Exchange(UserAutoBusy, 0)
+
+        ' Clear slot2
+        AutoReadDeviceName2 = ""
+        AutoReadCommand2 = ""
+        AutoReadResultControl2 = ""
+        Threading.Interlocked.Exchange(UserAutoBusy2, 0)
 
         ' Clear invisibility
         UiById.Clear()
@@ -235,7 +264,6 @@ Partial Class Formtest
     End Function
 
 
-
     Private Sub BuildCustomGuiFromText(def As String)
 
         ' Reset per-config runtime state
@@ -243,8 +271,17 @@ Partial Class Formtest
         AutoReadDeviceName = ""
         AutoReadCommand = ""
         AutoReadResultControl = ""
-        AutoReadAction = ""
+        'AutoReadAction = ""
         AutoReadValueControl = ""
+
+        Timer16.Enabled = False
+        AutoReadDeviceName2 = ""
+        AutoReadCommand2 = ""
+        AutoReadResultControl2 = ""
+        'AutoReadAction2 = ""
+        AutoReadValueControl2 = ""
+
+        Threading.Interlocked.Exchange(UserAutoBusy2, 0)
 
         GroupBoxCustom.Controls.Clear()
         LuaScriptsByName.Clear()
@@ -3316,15 +3353,13 @@ FanOut:
 
                 If autoCb IsNot Nothing AndAlso autoCb.Checked Then
 
-                    Const MIN_AUTOREAD_MS As Integer = 1       ' minimum allowed
-                    Const MAX_AUTOREAD_MS As Integer = 60000   ' optional maximum
+                    Const MIN_AUTOREAD_MS As Integer = 1
+                    Const MAX_AUTOREAD_MS As Integer = 60000
 
-                    Dim intervalMs As Integer = 2000         ' default
+                    Dim intervalMs As Integer = 2000
 
-                    Dim param As String = GetCheckboxParam(autoCb)   ' e.g. "2secs", "0.5", "0.0005"
+                    Dim param As String = GetCheckboxParam(autoCb)
                     If Not String.IsNullOrEmpty(param) Then
-
-                        ' Extract numeric part
                         Dim numeric As String = ""
                         For Each ch As Char In param
                             If Char.IsDigit(ch) OrElse ch = "."c Then numeric &= ch
@@ -3335,26 +3370,44 @@ FanOut:
                                            Globalization.NumberStyles.Float,
                                            Globalization.CultureInfo.InvariantCulture,
                                            secs) AndAlso secs > 0.0R Then
-
-                            ' IMPORTANT: use Ceiling so tiny values never become 0ms
                             intervalMs = CInt(Math.Ceiling(secs * 1000.0R))
-
                         End If
                     End If
 
-                    ' Clamp BEFORE setting Timer5.Interval
                     If intervalMs < MIN_AUTOREAD_MS Then intervalMs = MIN_AUTOREAD_MS
                     If intervalMs > MAX_AUTOREAD_MS Then intervalMs = MAX_AUTOREAD_MS
 
-                    AutoReadDeviceName = deviceName
-                    AutoReadCommand = commandOrPrefix
-                    AutoReadResultControl = resultControlName
+                    If String.Equals(deviceName, "dev2", StringComparison.OrdinalIgnoreCase) Then
+                        ' --- slot #2 / dev2 ---
+                        AutoReadDeviceName2 = deviceName
+                        AutoReadCommand2 = commandOrPrefix
+                        AutoReadResultControl2 = resultControlName
 
-                    Timer5.Interval = intervalMs
-                    Timer5.Enabled = True
+                        Timer16.Interval = intervalMs
+                        Timer16.Enabled = True
+                    Else
+                        ' --- slot #1 / dev1 ---
+                        AutoReadDeviceName = deviceName
+                        AutoReadCommand = commandOrPrefix
+                        AutoReadResultControl = resultControlName
+
+                        Timer5.Interval = intervalMs
+                        Timer5.Enabled = True
+                    End If
 
                 Else
-                    Timer5.Enabled = False
+                    ' Auto refresh OFF for this specific device
+                    If String.Equals(deviceName, "dev2", StringComparison.OrdinalIgnoreCase) Then
+                        Timer16.Enabled = False
+                        AutoReadDeviceName2 = ""
+                        AutoReadCommand2 = ""
+                        AutoReadResultControl2 = ""
+                    Else
+                        Timer5.Enabled = False
+                        AutoReadDeviceName = ""
+                        AutoReadCommand = ""
+                        AutoReadResultControl = ""
+                    End If
                 End If
 
 
@@ -3565,6 +3618,8 @@ FanOut:
 
     Private Sub Timer5_Tick(sender As Object, e As EventArgs) Handles Timer5.Tick
 
+        Dim myGen As Integer = Threading.Interlocked.CompareExchange(UserLayoutGen, 0, 0)
+
         Dim autoCb As CheckBox = GetCheckboxFor(AutoReadResultControl, "FuncAuto")
         If autoCb Is Nothing OrElse Not autoCb.Checked Then
             Timer5.Enabled = False
@@ -3594,8 +3649,64 @@ FanOut:
                                      End If
 
                                      Me.BeginInvoke(Sub()
+
+                                                        ' If layout was reset/rebuilt while we were running, ignore
+                                                        If myGen <> Threading.Interlocked.CompareExchange(UserLayoutGen, 0, 0) Then
+                                                            Threading.Interlocked.Exchange(UserAutoBusy, 0)
+                                                            Return
+                                                        End If
+
                                                         RunQueryToResult(devName, cmd, resultName, raw)
                                                         Threading.Interlocked.Exchange(UserAutoBusy, 0)
+                                                    End Sub)
+
+                                 End Sub)
+
+    End Sub
+
+
+    Private Sub Timer16_Tick(sender As Object, e As EventArgs) Handles Timer16.Tick
+
+        Dim myGen As Integer = Threading.Interlocked.CompareExchange(UserLayoutGen, 0, 0)
+
+        Dim autoCb As CheckBox = GetCheckboxFor(AutoReadResultControl2, "FuncAuto")
+        If autoCb Is Nothing OrElse Not autoCb.Checked Then
+            Timer16.Enabled = False
+            Exit Sub
+        End If
+
+        If String.IsNullOrEmpty(AutoReadDeviceName2) OrElse String.IsNullOrEmpty(AutoReadCommand2) Then
+            Timer16.Enabled = False
+            Exit Sub
+        End If
+
+        ' Prevent overlap (timer ticks while query still running)
+        If Threading.Interlocked.Exchange(UserAutoBusy2, 1) = 1 Then Exit Sub
+
+        Dim devName As String = AutoReadDeviceName2
+        Dim cmd As String = AutoReadCommand2
+        Dim resultName As String = AutoReadResultControl2
+
+        Threading.Tasks.Task.Run(Sub()
+
+                                     Dim raw As String = QueryRawOnly(devName, cmd)
+
+                                     ' If busy/no update, just release lock
+                                     If raw = "" Then
+                                         Threading.Interlocked.Exchange(UserAutoBusy2, 0)
+                                         Return
+                                     End If
+
+                                     Me.BeginInvoke(Sub()
+
+                                                        ' If layout was reset/rebuilt while we were running, ignore
+                                                        If myGen <> Threading.Interlocked.CompareExchange(UserLayoutGen, 0, 0) Then
+                                                            Threading.Interlocked.Exchange(UserAutoBusy, 0)
+                                                            Return
+                                                        End If
+
+                                                        RunQueryToResult(devName, cmd, resultName, raw)
+                                                        Threading.Interlocked.Exchange(UserAutoBusy2, 0)
                                                     End Sub)
 
                                  End Sub)

@@ -133,6 +133,8 @@ Public Class Formtest
         Me.Timer12.Stop()
         Me.Timer13.Stop()
         Me.Timer14.Stop()
+        Me.Timer15.Stop()
+        Me.Timer16.Stop()
 
         ' Manually run RESET I/O DEVICES button
         Dim reset As New EventArgs()
@@ -165,7 +167,7 @@ Public Class Formtest
         Try
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.032"
+            BannerText1 = "WinGPIB   V4.033"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
             ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
