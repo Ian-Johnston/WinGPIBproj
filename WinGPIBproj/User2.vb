@@ -19,10 +19,10 @@ Partial Class Formtest
     Private ReadOnly LuaScriptsByName As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
 
 
-
     ' call this to request stop
     Private Sub RequestLuaStop()
         _luaCancelRequested = True
+        AppendLog("[LUA] Stopped by user", "LuaLog")
     End Sub
 
 
@@ -43,9 +43,12 @@ Partial Class Formtest
         _lua = New Script(CoreModules.Preset_SoftSandbox)
 
         ' Expose small API to Lua
-        _lua.Globals("log") = CType(Sub(msg As Object)
-                                        AppendTriggerLog("[LUA] " & If(msg, "").ToString())
-                                    End Sub, Action(Of Object))
+        _lua.Globals("logto") = CType(Sub(target As String, msg As Object)
+                                          If String.IsNullOrWhiteSpace(target) Then
+                                              target = "TriggerLog"
+                                          End If
+                                          AppendLog("[LUA] " & If(msg, "").ToString(), target)
+                                      End Sub, Action(Of String, Object))
 
         _lua.Globals("fire") = CType(Sub(btnName As String)
                                          If String.IsNullOrWhiteSpace(btnName) Then Exit Sub
@@ -58,7 +61,7 @@ Partial Class Formtest
                                              End If
 
                                          Else
-                                             AppendTriggerLog("[LUA] fire(): button not found: " & btnName)
+                                             AppendLog("[LUA] fire(): button not found: " & btnName)
                                          End If
                                      End Sub, Action(Of String))
 
@@ -87,7 +90,7 @@ Partial Class Formtest
                                              End Select
 
                                              If dev Is Nothing Then
-                                                 AppendTriggerLog("[LUA] send(): device not available: " & devName)
+                                                 AppendLog("[LUA] send(): device not available: " & devName)
                                                  Exit Sub
                                              End If
 
@@ -112,7 +115,7 @@ Partial Class Formtest
                                               End Select
 
                                               If dev Is Nothing Then
-                                                  AppendTriggerLog("[LUA] query(): device not available: " & devName)
+                                                  AppendLog("[LUA] query(): device not available: " & devName)
                                                   Return ""
                                               End If
 
@@ -125,9 +128,9 @@ Partial Class Formtest
                                               End If
 
                                               If q IsNot Nothing Then
-                                                  AppendTriggerLog("[LUA] query(): ERR " & status & ": " & q.errmsg)
+                                                  AppendLog("[LUA] query(): ERR " & status & ": " & q.errmsg)
                                               Else
-                                                  AppendTriggerLog("[LUA] query(): ERR " & status & " (no IOQuery)")
+                                                  AppendLog("[LUA] query(): ERR " & status & " (no IOQuery)")
                                               End If
 
                                               Return ""
@@ -137,7 +140,7 @@ Partial Class Formtest
         _lua.Globals("settext") = CType(Sub(ctrlName As String, val As Object)
                                             Dim c = GetControlByName(If(ctrlName, "").Trim())
                                             If c Is Nothing Then
-                                                AppendTriggerLog("[LUA] settext(): control not found: " & ctrlName)
+                                                AppendLog("[LUA] settext(): control not found: " & ctrlName)
                                                 Exit Sub
                                             End If
 
@@ -163,7 +166,7 @@ Partial Class Formtest
                                                 Exit Sub
                                             End If
 
-                                            AppendTriggerLog("[LUA] settext(): unsupported control type: " & c.GetType().Name)
+                                            AppendLog("[LUA] settext(): unsupported control type: " & c.GetType().Name)
                                         End Sub, Action(Of String, Object))
 
         ' UI repaint helper (optional but useful)
@@ -203,10 +206,10 @@ Partial Class Formtest
             _lua.DoString(luaCode)
 
         Catch ex As OperationCanceledException
-            AppendTriggerLog("[LUA] Script stopped")
+            AppendLog("[LUA] Script stopped")
 
         Catch ex As Exception
-            AppendTriggerLog("[LUA ERROR] " & ex.Message)
+            AppendLog("[LUA ERROR] " & ex.Message)
         End Try
     End Sub
 

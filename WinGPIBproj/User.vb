@@ -5113,7 +5113,7 @@ FanOut:
         If TriggerEng Is Nothing Then
             TriggerEng = New TriggerEngine(AddressOf GetVarValue,
                                        AddressOf ExecuteThenChain,
-                                       AddressOf AppendTriggerLog)
+                                       AddressOf AppendLog)
 
             TriggerEng.Start()
         End If
@@ -5167,7 +5167,7 @@ FanOut:
 
         For Each raw In chain.Split("|"c)
             Dim a = raw.Trim()
-            AppendTriggerLog($"    → {a}")
+            AppendLog($"    → {a}")
             If a = "" Then Continue For
 
             Dim idx = a.IndexOf(":"c)
@@ -5218,7 +5218,7 @@ FanOut:
                     Dim luaText As String = ""
                     If LuaScriptsByName IsNot Nothing AndAlso LuaScriptsByName.TryGetValue(scriptName, luaText) Then
                         If String.IsNullOrWhiteSpace(luaText) Then
-                            AppendTriggerLog("[LUA] RUNLUA: LUASCRIPT empty: " & scriptName)
+                            AppendLog("[LUA] RUNLUA: LUASCRIPT empty: " & scriptName)
                         Else
                             RunLua(luaText.Replace("|", vbCrLf))
                         End If
@@ -5228,7 +5228,7 @@ FanOut:
                     ' 2) Fallback: TEXTAREA by name (old behaviour)
                     luaText = GetTextAreaText(scriptName)
                     If String.IsNullOrWhiteSpace(luaText) Then
-                        AppendTriggerLog("[LUA] RUNLUA: script not found (LUASCRIPT or TEXTAREA): " & scriptName)
+                        AppendLog("[LUA] RUNLUA: script not found (LUASCRIPT or TEXTAREA): " & scriptName)
                     Else
                         RunLua(luaText.Replace("|", vbCrLf))
                     End If
@@ -5680,13 +5680,37 @@ FanOut:
     End Class
 
 
-    Private Sub AppendTriggerLog(msg As String)
-        Dim tb = TryCast(GroupBoxCustom.Controls.Find("TriggerLog", True).FirstOrDefault(), TextBox)
+    ' UI logger: append a timestamped line to a named TEXTAREA (TextBox)
+    Private Sub AppendLog(msg As String, Optional targetName As String = Nothing)
+        If String.IsNullOrWhiteSpace(msg) Then Exit Sub
+
+        Dim tb As TextBox = Nothing
+
+        ' 1) If caller specified a target, try it first
+        If Not String.IsNullOrWhiteSpace(targetName) Then
+            tb = TryCast(GroupBoxCustom.Controls.Find(targetName, True).FirstOrDefault(), TextBox)
+        End If
+
+        ' 2) Fallback: first readonly multiline TextBox (log-style TEXTAREA)
+        If tb Is Nothing Then
+            For Each c As Control In GroupBoxCustom.Controls
+                Dim t = TryCast(c, TextBox)
+                If t IsNot Nothing AndAlso t.Multiline AndAlso t.ReadOnly Then
+                    tb = t
+                    Exit For
+                End If
+            Next
+        End If
+
         If tb Is Nothing Then Exit Sub
 
-        Dim line = $"{DateTime.Now:HH:mm:ss.fff}  {msg}"
+        Dim line As String = $"{DateTime.Now:HH:mm:ss.fff}  {msg}{Environment.NewLine}"
 
-        tb.AppendText(line & Environment.NewLine)
+        If tb.InvokeRequired Then
+            tb.BeginInvoke(Sub() tb.AppendText(line))
+        Else
+            tb.AppendText(line)
+        End If
     End Sub
 
 
@@ -5708,7 +5732,7 @@ FanOut:
         EnsureTriggerEngine() ' make sure engine exists + started
         TriggerEng.SetEnabled(param, cb.Checked)
 
-        AppendTriggerLog($"[TRIGGER] {param} enabled={cb.Checked}")
+        AppendLog($"[TRIGGER] {param} enabled={cb.Checked}")
     End Sub
 
 
