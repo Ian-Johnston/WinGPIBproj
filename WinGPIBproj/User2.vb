@@ -50,19 +50,55 @@ Partial Class Formtest
                                           AppendLog("[LUA] " & If(msg, "").ToString(), target)
                                       End Sub, Action(Of String, Object))
 
-        _lua.Globals("fire") = CType(Sub(btnName As String)
-                                         If String.IsNullOrWhiteSpace(btnName) Then Exit Sub
+        _lua.Globals("fire") = CType(Sub(ctrlName As String)
+                                         If String.IsNullOrWhiteSpace(ctrlName) Then Exit Sub
+
+                                         ' 1) User-tab fast path
                                          Dim b As Button = Nothing
-                                         If BtnByName.TryGetValue(btnName, b) AndAlso b IsNot Nothing Then
+                                         If BtnByName IsNot Nothing AndAlso BtnByName.TryGetValue(ctrlName, b) AndAlso b IsNot Nothing Then
                                              If b.InvokeRequired Then
                                                  b.BeginInvoke(Sub() b.PerformClick())
                                              Else
                                                  b.PerformClick()
                                              End If
-
-                                         Else
-                                             AppendLog("[LUA] fire(): button not found: " & btnName)
+                                             Exit Sub
                                          End If
+
+                                         ' 2) Find control anywhere
+                                         Dim c As Control = Me.Controls.Find(ctrlName, True).FirstOrDefault()
+                                         Dim btn As Button = TryCast(c, Button)
+
+                                         If btn Is Nothing Then
+                                             AppendLog("[LUA] fire(): button not found: " & ctrlName)
+                                             Exit Sub
+                                         End If
+
+                                         btn.BeginInvoke(Sub()
+                                                             ' Find owning TabControl / TabPage
+                                                             Dim tp As TabPage = Nothing
+                                                             Dim parent As Control = btn.Parent
+                                                             While parent IsNot Nothing
+                                                                 tp = TryCast(parent, TabPage)
+                                                                 If tp IsNot Nothing Then Exit While
+                                                                 parent = parent.Parent
+                                                             End While
+
+                                                             Dim tc As TabControl = TryCast(tp?.Parent, TabControl)
+                                                             Dim oldTab As TabPage = If(tc IsNot Nothing, tc.SelectedTab, Nothing)
+
+                                                             ' Switch tab if required
+                                                             If tc IsNot Nothing AndAlso tp IsNot Nothing AndAlso tc.SelectedTab IsNot tp Then
+                                                                 tc.SelectedTab = tp
+                                                                 Application.DoEvents()
+                                                             End If
+
+                                                             btn.PerformClick()
+
+                                                             ' Restore original tab
+                                                             If tc IsNot Nothing AndAlso oldTab IsNot Nothing Then
+                                                                 tc.SelectedTab = oldTab
+                                                             End If
+                                                         End Sub)
                                      End Sub, Action(Of String))
 
         _lua.Globals("getnum") = CType(Function(varName As String) As Double
