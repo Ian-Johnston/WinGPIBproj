@@ -287,22 +287,27 @@ Partial Class Formtest
     End Function
 
 
+    ' Parser loop
     Private Sub BuildCustomGuiFromText(def As String)
+
+        _lockedOriginalSizes.Clear()
+        _lastConfigLines.Clear()
+        _lastAutoLayoutEnabled = False
 
         ' Reset per-config runtime state
         Timer5.Enabled = False
         AutoReadDeviceName = ""
         AutoReadCommand = ""
         AutoReadResultControl = ""
-        'AutoReadAction = ""
         AutoReadValueControl = ""
 
         Timer16.Enabled = False
         AutoReadDeviceName2 = ""
         AutoReadCommand2 = ""
         AutoReadResultControl2 = ""
-        'AutoReadAction2 = ""
         AutoReadValueControl2 = ""
+
+        AutoLayoutEnabled = False
 
         Threading.Interlocked.Exchange(UserAutoBusy2, 0)
 
@@ -313,10 +318,25 @@ Partial Class Formtest
 
         Dim autoY As Integer = 10
 
-        For Each rawLine In def.Split({vbCrLf, vbLf}, StringSplitOptions.RemoveEmptyEntries)
+        For Each rawLine In def.Split({vbCrLf, vbLf}, StringSplitOptions.None)
+
+            ' Capture raw line exactly (INCLUDING blank lines)
+            _lastConfigLines.Add(rawLine)
 
             Dim line = rawLine.Trim()
-            If line = "" OrElse line.StartsWith(";") Then Continue For
+            If line = "" OrElse line.StartsWith("'") Then Continue For
+
+            If line.StartsWith("AUTOLAYOUT", StringComparison.OrdinalIgnoreCase) Then
+                Dim partsAL = line.Split({"="c}, 2)
+                If partsAL.Length = 2 Then
+                    AutoLayoutEnabled =
+                (partsAL(1).Trim().Equals("TRUE", StringComparison.OrdinalIgnoreCase) OrElse
+                 partsAL(1).Trim().Equals("1"))
+                    _lastAutoLayoutEnabled = AutoLayoutEnabled
+                End If
+                Continue For
+            End If
+
 
             ' ================= LUA SCRIPT BLOCK =================
             If inLuaScript Then
@@ -1870,7 +1890,15 @@ Partial Class Formtest
                         Dim panel As New Panel()
                         panel.Location = New Point(x, y)
                         panel.Size = New Size(w, h)
+
                         panel.Name = "Panel_" & controlName
+                        panel.Tag = "LOCKSIZE"
+
+                        If Not _lockedOriginalSizes.ContainsKey(panel.Name) Then
+                            _lockedOriginalSizes(panel.Name) = panel.Size
+                        End If
+
+
                         panel.BorderStyle = If(borderOn, BorderStyle.FixedSingle, BorderStyle.None)
                         panel.BackColor = GroupBoxCustom.BackColor
 
@@ -2130,6 +2158,10 @@ Partial Class Formtest
                     Dim innerH As Single = 96.0F
 
                     Dim usedPositional As Boolean = False
+
+                    If Not _lockedOriginalSizes.ContainsKey(Chart.Name) Then
+                        _lockedOriginalSizes(Chart.Name) = Chart.Size
+                    End If
 
                     ' ------------------------------------------------------------
                     ' Positional header fields:
@@ -2941,23 +2973,22 @@ Partial Class Formtest
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             End Select
 
         Next
+
+        ' apply auto-layout (overrides any x/y from config)
+        If AutoLayoutEnabled Then
+            ApplyAutoLayout(GroupBoxCustom)
+            Dim exported As String = ExportConfigWithCurrentXY(_lastConfigLines, GroupBoxCustom)
+            ShowExportPopup(exported)
+
+            If Not AutoLayoutResizeHooked Then
+                AddHandler GroupBoxCustom.Resize, AddressOf GroupBoxCustom_ResizeAutoLayout
+                AutoLayoutResizeHooked = True
+            End If
+        End If
+
 
     End Sub
 

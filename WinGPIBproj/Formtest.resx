@@ -146,7 +146,7 @@
 - Run auto-refresh measurements, live charts, statistics, and history logging
 - Define trigger logic and chained actions without writing application code
 - Execute Lua scripts for advanced sequencing, automation, and multi-instrument control
-- Control existing buttons and functions elsewhere in WinGPIB from scripts
+- Control existing buttons and functions elsewhere in WinGPIB from LUA scripts
 - Build repeatable test, calibration, and data-logging workflows using plain text files
 
 In short:

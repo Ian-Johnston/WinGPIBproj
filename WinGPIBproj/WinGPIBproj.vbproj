@@ -145,10 +145,13 @@
     <Compile Include="ButtonsTx.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="User2.vb">
+    <Compile Include="User3-AutoLayout.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="User.vb">
+    <Compile Include="User2-LUA.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="User-Main.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Cal3245A.vb">
