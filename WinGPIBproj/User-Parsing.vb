@@ -2718,6 +2718,41 @@ Partial Class Formtest
 
         Next
 
+        ' Apply INVISIBILITY defaults after all controls are created/registered.
+        ApplyInvisibilityDefaults()
+
+    End Sub
+
+
+    ' Apply invisibility
+    Private Sub ApplyInvisibilityDefaults()
+        If InvisFuncDefaultVisible Is Nothing OrElse InvisFuncDefaultVisible.Count = 0 Then Exit Sub
+
+        For Each kvp In InvisFuncDefaultVisible
+            Dim funcName As String = kvp.Key
+            Dim defaultVisible As Boolean = kvp.Value
+
+            Dim targets As List(Of String) = Nothing
+            If Not InvisFuncToTargets.TryGetValue(funcName, targets) OrElse targets Is Nothing Then Continue For
+
+            For Each id In targets
+                Dim c As Control = Nothing
+
+                ' Prefer UiById if present
+                If UiById IsNot Nothing AndAlso UiById.TryGetValue(id, c) AndAlso c IsNot Nothing Then
+                    c.Visible = defaultVisible
+                    If defaultVisible Then c.BringToFront()
+                    Continue For
+                End If
+
+                ' Fallback: find by name in the GroupBox (recursive)
+                Dim found = GroupBoxCustom.Controls.Find(id, True)
+                If found IsNot Nothing AndAlso found.Length > 0 AndAlso found(0) IsNot Nothing Then
+                    found(0).Visible = defaultVisible
+                    If defaultVisible Then found(0).BringToFront()
+                End If
+            Next
+        Next
     End Sub
 
 
@@ -2789,6 +2824,9 @@ Partial Class Formtest
         '    INVISIBILITY;targets=ChartDMM,Hist1,Stats1;func=AllHide
         '    INVISIBILITY;func=AllHide;targets=ChartDMM,Hist1,Stats1   (order doesn't matter)
 
+        Dim pendingHasDefault As Boolean = False
+        Dim pendingDefaultVisible As Boolean = True
+
         If parts Is Nothing OrElse parts.Length < 3 Then Exit Sub
 
         ' Detect "named" usage if any token after INVISIBILITY contains '='
@@ -2846,23 +2884,13 @@ Partial Class Formtest
 
                 Case "func", "function", "name"
                     pendingFunc = val
+
+                Case "default"
+                    pendingHasDefault = True
+                    Dim v As String = val.Trim().ToLowerInvariant()
+                    pendingDefaultVisible = (v = "on" OrElse v = "1" OrElse v = "true" OrElse v = "yes")
             End Select
 
-            ' When we have both, commit a mapping and clear for next pair
-            If pendingTargets <> "" AndAlso pendingFunc <> "" Then
-                Dim targets As New List(Of String)
-                For Each t In pendingTargets.Split(","c)
-                    Dim tid = t.Trim()
-                    If tid <> "" Then targets.Add(tid)
-                Next
-
-                If targets.Count > 0 Then
-                    InvisFuncToTargets(pendingFunc.Trim()) = targets
-                End If
-
-                pendingTargets = ""
-                pendingFunc = ""
-            End If
         Next
 
         ' If they supplied both but in a way that only resolves at the end, commit it
@@ -2875,8 +2903,18 @@ Partial Class Formtest
 
             If targets.Count > 0 Then
                 InvisFuncToTargets(pendingFunc.Trim()) = targets
+
+                If pendingHasDefault Then
+                    InvisFuncDefaultVisible(pendingFunc.Trim()) = pendingDefaultVisible
+                End If
             End If
+
+            pendingTargets = ""
+            pendingFunc = ""
+            pendingHasDefault = False
+            pendingDefaultVisible = True
         End If
+
     End Sub
 
 
@@ -2887,10 +2925,6 @@ Partial Class Formtest
             Case Else : Return Nothing
         End Select
     End Function
-
-
-
-
 
 
 

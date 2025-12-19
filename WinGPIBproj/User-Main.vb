@@ -72,10 +72,12 @@ Partial Class Formtest
     Private HistoryGrids As New Dictionary(Of String, DataGridView)(StringComparer.OrdinalIgnoreCase)
 
     Private ReadOnly HistoryGridsByTarget As New Dictionary(Of String, List(Of String))(StringComparer.OrdinalIgnoreCase)
+
     ' Invisibility
     Private UiById As New Dictionary(Of String, Control)(StringComparer.OrdinalIgnoreCase)      ' Invisibility: every created control, by ID (ChartDMM, Hist1, Stats1, ...)
     Private HideFuncToTargetId As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)       ' Invisibility: function-name -> target-control-id mapping (ChartDMMhide -> ChartDMM)
     Private InvisFuncToTargets As New Dictionary(Of String, List(Of String))(StringComparer.OrdinalIgnoreCase)
+    Private InvisFuncDefaultVisible As New Dictionary(Of String, Boolean)(StringComparer.OrdinalIgnoreCase) ' func -> default Visible state
 
     ' Trigger
     Private TriggerEng As TriggerEngine
@@ -156,6 +158,7 @@ Partial Class Formtest
         ' Clear invisibility
         UiById.Clear()
         InvisFuncToTargets.Clear()
+        InvisFuncDefaultVisible.Clear()
 
         ' Remove all dynamically created controls
         'GroupBoxCustom.Controls.Clear()
@@ -2777,7 +2780,6 @@ Partial Class Formtest
         End While
 
     End Sub
-
 
 
 
