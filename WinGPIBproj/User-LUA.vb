@@ -8,6 +8,12 @@ Imports MoonSharp.Interpreter.Interop
 Partial Class Formtest
 
 
+    ' LUA
+    Dim inLuaScript As Boolean = False
+    Dim luaScriptName As String = ""
+    Dim luaLines As New List(Of String)
+    Dim autoY As Integer = 10
+
     ' Lua engine instance
     Private _lua As Script
     Private _luaReady As Boolean = False

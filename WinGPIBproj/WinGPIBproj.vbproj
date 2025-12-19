@@ -145,7 +145,16 @@
     <Compile Include="ButtonsTx.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="User2-LUA.vb">
+    <Compile Include="User-Timers.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="User-DeviceIO.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="User-Parsing.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="User-LUA.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="User-Main.vb">
