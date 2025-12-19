@@ -2073,6 +2073,13 @@ Partial Class Formtest
 
                     GroupBoxCustom.Controls.Add(ch)
 
+                    ' Store chart binding so it can be updated even without a source TextBox
+                    Dim yMinStr As String = If(yMin.HasValue, yMin.Value.ToString(Globalization.CultureInfo.InvariantCulture), "")
+                    Dim yMaxStr As String = If(yMax.HasValue, yMax.Value.ToString(Globalization.CultureInfo.InvariantCulture), "")
+                    Dim autoStr As String = If(autoScaleY, "1", "0")
+
+                    ch.Tag = "CHART|" & resultTarget & "|" & yMinStr & "|" & yMaxStr & "|" & xStep.ToString(Globalization.CultureInfo.InvariantCulture) & "|" & maxPoints.ToString(Globalization.CultureInfo.InvariantCulture) & "|" & autoStr
+
                     ' ---- bind to textbox ----
                     Dim src = TryCast(GetControlByName(resultTarget), TextBox)
                     If src IsNot Nothing Then
@@ -2536,14 +2543,14 @@ Partial Class Formtest
                         AddHandler src.TextChanged,
                             Sub(senderSrc As Object, eSrc As EventArgs)
 
-                                Dim d As Double
-                                If Not TryExtractFirstDouble(DirectCast(senderSrc, TextBox).Text, d) Then Exit Sub
+                                Dim dvSample As Double
+                                If Not TryExtractFirstDouble(DirectCast(senderSrc, TextBox).Text, dvSample) Then Exit Sub
 
-                                st.AddSample(d)
+                                st.AddSample(dvSample)
 
                                 Dim row As New HistoryRow()
                                 row.Time = DateTime.Now
-                                row.Value = d
+                                row.Value = dvSample
                                 row.Min = If(st.Count > 0, st.Min, 0)
                                 row.Max = If(st.Count > 0, st.Max, 0)
                                 row.PkPk = If(st.Count > 0, st.Max - st.Min, 0)
@@ -2571,6 +2578,24 @@ Partial Class Formtest
                                 End While
 
                             End Sub
+                    End If
+                    ' NEW: register grid -> target so DATASOURCE updates can drive it (no hidden TextBox needed)
+                    HistorySettings(gridName) = New HistoryGridConfig With {
+                        .GridName = gridName,
+                        .ResultTarget = resultTarget,
+                        .MaxRows = maxRows,
+                        .Format = fmt,
+                        .Columns = colNames,
+                        .PpmRef = ppmRef
+                    }
+
+                    Dim glist As List(Of String) = Nothing
+                    If Not HistoryGridsByTarget.TryGetValue(resultTarget, glist) Then
+                        glist = New List(Of String)()
+                        HistoryGridsByTarget(resultTarget) = glist
+                    End If
+                    If Not glist.Contains(gridName, StringComparer.OrdinalIgnoreCase) Then
+                        glist.Add(gridName)
                     End If
                     Continue For
 
@@ -2659,6 +2684,36 @@ Partial Class Formtest
                     Continue For
 
 
+                Case "DATASOURCE"
+                    Dim resultName As String = ""
+                    Dim device As String = ""
+                    Dim command As String = ""
+
+                    For Each part In parts
+                        Dim kv = part.Split("="c)
+                        If kv.Length <> 2 Then Continue For
+
+                        Dim key = kv(0).Trim().ToLowerInvariant()
+                        Dim val = kv(1).Trim()
+
+                        Select Case key
+                            Case "result"
+                                resultName = val
+                            Case "device"
+                                device = val
+                            Case "command", "cmd"
+                                command = val
+                        End Select
+                    Next
+
+                    If resultName <> "" AndAlso device <> "" AndAlso command <> "" Then
+                        DataSources(resultName) = New DataSourceDef With {.Device = device, .Command = command}
+                    End If
+
+                    ' No UI control created
+
+
+
             End Select
 
         Next
@@ -2678,6 +2733,13 @@ Partial Class Formtest
         Next
         Return dict
     End Function
+
+
+    ' Which grids listen to which result name
+    Public Class DataSourceDef
+        Public Device As String
+        Public Command As String
+    End Class
 
 
     Private Sub ParseIntField(token As String, ByRef target As Integer)
@@ -2825,6 +2887,9 @@ Partial Class Formtest
             Case Else : Return Nothing
         End Select
     End Function
+
+
+
 
 
 

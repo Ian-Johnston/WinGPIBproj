@@ -232,6 +232,82 @@ FanOut:
 
         GroupBoxCustom.ResumeLayout(False)
 
+        ' UPDATED LINKED CONTROLS (no TextBox required)
+        Dim feedText As String = If(numericWithUnitText <> "", numericWithUnitText, outText)
+
+        ' Walk all controls in GroupBoxCustom recursively
+        Dim stack As New Stack(Of Control)
+        stack.Push(GroupBoxCustom)
+
+        While stack.Count > 0
+            Dim c As Control = stack.Pop()
+
+            For Each child As Control In c.Controls
+                stack.Push(child)
+            Next
+
+            ' ---- CHART ----
+            If TypeOf c Is DataVisualization.Charting.Chart Then
+                Dim tagStr As String = TryCast(c.Tag, String)
+                If Not String.IsNullOrEmpty(tagStr) AndAlso tagStr.StartsWith("CHART|", StringComparison.OrdinalIgnoreCase) Then
+                    Dim tp() As String = tagStr.Split("|"c)
+                    ' CHART|target|ymin|ymax|xstep|maxpoints|autoscale
+                    If tp.Length >= 7 AndAlso tp(1).Equals(resultControlName, StringComparison.OrdinalIgnoreCase) Then
+
+                        Dim yMin2 As Double? = Nothing
+                        Dim yMax2 As Double? = Nothing
+                        Dim xStep2 As Double = 1.0R
+                        Dim maxPts2 As Integer = 100
+                        Dim auto2 As Boolean = False
+
+                        If tp(2) <> "" AndAlso Double.TryParse(tp(2), Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, d) Then
+                            yMin2 = d
+                        End If
+
+                        If tp(3) <> "" AndAlso Double.TryParse(tp(3), Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, d) Then
+                            yMax2 = d
+                        End If
+
+                        Double.TryParse(tp(4), Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, xStep2)
+                        Integer.TryParse(tp(5), maxPts2)
+                        auto2 = (tp(6) = "1")
+
+                        UpdateChartFromText(DirectCast(c, DataVisualization.Charting.Chart), feedText, yMin2, yMax2, xStep2, maxPts2, auto2)
+                    End If
+                End If
+            End If
+
+            ' ---- STATSPANEL ----
+            If TypeOf c Is GroupBox Then
+                Dim tagStr As String = TryCast(c.Tag, String)
+                If Not String.IsNullOrEmpty(tagStr) AndAlso tagStr.StartsWith("STATSPANEL|", StringComparison.OrdinalIgnoreCase) Then
+                    Dim tp() As String = tagStr.Split("|"c)
+                    ' STATSPANEL|target|fmt
+                    If tp.Length >= 2 AndAlso tp(1).Equals(resultControlName, StringComparison.OrdinalIgnoreCase) Then
+                        Dim dv As Double
+                        If TryExtractFirstDouble(feedText, dv) Then
+                            UpdateStatsPanel(c.Name, dv)
+                        End If
+                    End If
+                End If
+            End If
+
+        End While
+
+        ' ---- HISTORYGRID (no TextBox required) ----
+        Dim grids As List(Of String) = Nothing
+        If HistoryGridsByTarget.TryGetValue(resultControlName, grids) Then
+            Dim dv As Double
+            If TryExtractFirstDouble(feedText, dv) Then
+                For Each gridName In grids
+                    AddHistorySample(gridName, dv)
+                Next
+            End If
+        End If
+
+
+
+
     End Sub
 
 

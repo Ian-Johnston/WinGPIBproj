@@ -71,6 +71,7 @@ Partial Class Formtest
     Private HistorySettings As New Dictionary(Of String, HistoryGridConfig)(StringComparer.OrdinalIgnoreCase)
     Private HistoryGrids As New Dictionary(Of String, DataGridView)(StringComparer.OrdinalIgnoreCase)
 
+    Private ReadOnly HistoryGridsByTarget As New Dictionary(Of String, List(Of String))(StringComparer.OrdinalIgnoreCase)
     ' Invisibility
     Private UiById As New Dictionary(Of String, Control)(StringComparer.OrdinalIgnoreCase)      ' Invisibility: every created control, by ID (ChartDMM, Hist1, Stats1, ...)
     Private HideFuncToTargetId As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)       ' Invisibility: function-name -> target-control-id mapping (ChartDMMhide -> ChartDMM)
@@ -78,6 +79,9 @@ Partial Class Formtest
 
     ' Trigger
     Private TriggerEng As TriggerEngine
+
+    ' DATASOURCE registry: resultName -> device|command
+    Public DataSources As New Dictionary(Of String, DataSourceDef)(StringComparer.OrdinalIgnoreCase)
 
 
     ' History Grid
@@ -176,6 +180,14 @@ Partial Class Formtest
             LabelUSERtab1.Visible = True
             LabelUSERtab1.BringToFront()
         End If
+
+        ' Clear DATASOURCE + linked-control mappings (NEW)
+        DataSources.Clear()
+        HistoryGridsByTarget.Clear()
+
+        ' If you implemented the multi-job schedulers (NEW)
+        AutoJobs5.Clear()
+        AutoJobs16.Clear()
 
     End Sub
 
@@ -1284,6 +1296,33 @@ Partial Class Formtest
     End Sub
 
 
+    ' Datasource
+    Private Class AutoJob
+        Public Device As String
+        Public Command As String
+        Public Result As String
+        Public IntervalMs As Integer
+        Public NextDue As Integer
+        Public InFlight As Boolean
+    End Class
+
+
+    ' Separate job sets (Timer5 vs Timer16)
+    Private ReadOnly AutoJobs5 As New Dictionary(Of String, AutoJob)(StringComparer.OrdinalIgnoreCase)
+    Private ReadOnly AutoJobs16 As New Dictionary(Of String, AutoJob)(StringComparer.OrdinalIgnoreCase)
+
+
+    ' TickCount helpers (wrap-safe)
+    Private Function NowTick() As Integer
+        Return Environment.TickCount
+    End Function
+
+
+    Private Function Due(nowTick As Integer, dueTick As Integer) As Boolean
+        Return CInt(nowTick - dueTick) >= 0
+    End Function
+
+
     Private Sub FuncAutoCheckbox_CheckedChanged(sender As Object, e As EventArgs)
         Dim cb = TryCast(sender, CheckBox)
         If cb Is Nothing Then Exit Sub
@@ -1296,38 +1335,97 @@ Partial Class Formtest
 
         Dim resultName As String = parts(0).Trim()
 
-        ' If unchecked → stop auto-read for this result (if it's the active one)
-        If Not cb.Checked Then
-            If String.Equals(AutoReadResultControl, resultName, StringComparison.OrdinalIgnoreCase) Then
-                Timer5.Enabled = False
+        ' Compute intervalMs from FuncAuto param (seconds) in Tag part[2]
+        Dim intervalMs As Integer = 2000
+        If parts.Length >= 3 Then
+            Dim paramStr As String = parts(2).Trim()
+            Dim numeric As String = ""
+            For Each ch As Char In paramStr
+                If Char.IsDigit(ch) OrElse ch = "."c Then numeric &= ch
+            Next
+            Dim secs As Double
+            If Double.TryParse(numeric, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, secs) AndAlso secs > 0.0R Then
+                intervalMs = CInt(Math.Ceiling(secs * 1000.0R))
             End If
+        End If
+        If intervalMs < 1 Then intervalMs = 1
+        If intervalMs > 60000 Then intervalMs = 60000
+
+        ' Determine producer: DATASOURCE preferred, else steal from QUERY button (backwards compat)
+        Dim dev As String = ""
+        Dim cmd As String = ""
+
+        If DataSources.ContainsKey(resultName) Then
+            Dim ds As DataSourceDef = DataSources(resultName)
+            dev = ds.Device
+            cmd = ds.Command
+        Else
+            For Each ctrl As Control In GroupBoxCustom.Controls
+                Dim btn = TryCast(ctrl, Button)
+                If btn Is Nothing Then Continue For
+
+                Dim meta = TryCast(btn.Tag, String)
+                If String.IsNullOrEmpty(meta) Then Continue For
+
+                Dim bp = meta.Split("|"c)
+                If bp.Length < 5 Then Continue For
+
+                Dim action = bp(0)
+                Dim deviceName = bp(1)
+                Dim commandOrPrefix = bp(2)
+                Dim resultControlName = bp(4)
+
+                If String.Equals(action, "QUERY", StringComparison.OrdinalIgnoreCase) AndAlso
+               String.Equals(resultControlName, resultName, StringComparison.OrdinalIgnoreCase) Then
+                    dev = deviceName
+                    cmd = commandOrPrefix
+                    Exit For
+                End If
+            Next
+        End If
+
+        ' Choose which timer/dictionary this result belongs to
+        Dim jobs As Dictionary(Of String, AutoJob) = AutoJobs5
+        If dev.Equals("dev2", StringComparison.OrdinalIgnoreCase) Then jobs = AutoJobs16
+
+        ' Unchecked: remove this job from the correct scheduler
+        If Not cb.Checked Then
+            jobs.Remove(resultName)
+
+            If AutoJobs5.Count = 0 Then Timer5.Enabled = False
+            If AutoJobs16.Count = 0 Then Timer16.Enabled = False
+
             Exit Sub
         End If
 
-        ' Checked: find the QUERY button that feeds this result textbox
-        For Each ctrl As Control In GroupBoxCustom.Controls
-            Dim btn = TryCast(ctrl, Button)
-            If btn Is Nothing Then Continue For
+        If String.IsNullOrWhiteSpace(dev) OrElse String.IsNullOrWhiteSpace(cmd) Then Exit Sub
 
-            Dim meta = TryCast(btn.Tag, String)
-            If String.IsNullOrEmpty(meta) Then Continue For
+        ' Immediate one-shot read on enable
+        RunQueryToResult(dev, cmd, resultName)
 
-            Dim bp = meta.Split("|"c)
-            If bp.Length < 5 Then Continue For
+        ' Add/update job
+        Dim j As AutoJob = Nothing
+        If Not jobs.TryGetValue(resultName, j) Then
+            j = New AutoJob()
+            jobs(resultName) = j
+        End If
 
-            Dim action = bp(0)
-            Dim deviceName = bp(1)
-            Dim commandOrPrefix = bp(2)
-            Dim resultControlName = bp(4)
+        Dim nowT As Integer = NowTick()
+        j.Device = dev
+        j.Command = cmd
+        j.Result = resultName
+        j.IntervalMs = intervalMs
+        j.NextDue = nowT + 1
+        j.InFlight = False
 
-            If String.Equals(action, "QUERY", StringComparison.OrdinalIgnoreCase) AndAlso
-           String.Equals(resultControlName, resultName, StringComparison.OrdinalIgnoreCase) Then
-
-                ' Simulate a click on this QUERY button
-                CustomButton_Click(btn, EventArgs.Empty)
-                Exit For
-            End If
-        Next
+        ' Enable correct scheduler timer (fixed scheduler tick)
+        If jobs Is AutoJobs16 Then
+            Timer16.Interval = 50
+            Timer16.Enabled = True
+        Else
+            Timer5.Interval = 50
+            Timer5.Enabled = True
+        End If
     End Sub
 
 
@@ -2636,6 +2734,49 @@ Partial Class Formtest
     End Sub
 
 
+    ' Called by RunQueryToResult() when DATASOURCE feeds a result name
+    Private Sub AddHistorySample(gridName As String, dv As Double)
+
+        Dim list As BindingList(Of HistoryRow) = Nothing
+        If Not HistoryData.TryGetValue(gridName, list) Then Exit Sub
+
+        Dim st As RunningStatsState = Nothing
+        If Not HistoryState.TryGetValue(gridName, st) Then Exit Sub
+
+        Dim cfg As HistoryGridConfig = Nothing
+        If Not HistorySettings.TryGetValue(gridName, cfg) Then Exit Sub
+
+        st.AddSample(dv)
+
+        Dim row As New HistoryRow()
+        row.Time = DateTime.Now
+        row.Value = dv
+        row.Min = If(st.Count > 0, st.Min, 0)
+        row.Max = If(st.Count > 0, st.Max, 0)
+        row.PkPk = If(st.Count > 0, st.Max - st.Min, 0)
+        row.Mean = If(st.Count > 0, st.Mean, 0)
+        row.Std = If(st.Count > 1, st.StdDevSample(), 0)
+
+        Dim refVal As Double = st.Mean
+        If cfg.PpmRef IsNot Nothing AndAlso cfg.PpmRef.Equals("FIRST", StringComparison.OrdinalIgnoreCase) AndAlso st.HasFirst Then
+            refVal = st.First
+        ElseIf cfg.PpmRef IsNot Nothing AndAlso Not cfg.PpmRef.Equals("MEAN", StringComparison.OrdinalIgnoreCase) Then
+            Dim tmp As Double
+            If Double.TryParse(cfg.PpmRef, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, tmp) Then
+                refVal = tmp
+            End If
+        End If
+
+        row.PPM = If(refVal <> 0, ((st.Last - refVal) / refVal) * 1000000.0R, 0)
+        row.Count = CInt(st.Count)
+
+        list.Insert(0, row)
+
+        While list.Count > cfg.MaxRows
+            list.RemoveAt(list.Count - 1)
+        End While
+
+    End Sub
 
 
 
