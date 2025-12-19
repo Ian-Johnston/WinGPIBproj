@@ -283,7 +283,7 @@ FanOut:
     ' Action:
     '   SEND        = send fixed command
     '   SENDVALUE   = send prefix + value from ValueControl
-    '   QUERY       = blocking query -> result stored into ResultControl
+    '   QUERY       = query -> result stored into ResultControl
     '
     ' Example:
     ' BUTTON;Reset dev1;SEND;dev1;RST;;
