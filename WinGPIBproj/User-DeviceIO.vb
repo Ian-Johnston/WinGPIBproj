@@ -181,6 +181,12 @@ Partial Class Formtest
 
             outText = numericWithUnitText
 
+            ' Publish numeric result for TRIGGER engine
+            ' v is the scaled numeric value you already computed
+            Vars(resultControlName) = v
+            Vars($"num:{resultControlName}") = v
+            Vars($"bignum:{resultControlName}") = v
+
             ' Calc - Cache last numeric value for this stream
             ResultLastValue(resultControlName) = v
             ' Prevent recursive calc -> push -> RunQueryToResult -> calc loops

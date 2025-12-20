@@ -17,7 +17,6 @@ Partial Class Formtest
     Private AutoReadDeviceName As String
     Private AutoReadCommand As String
     Private AutoReadResultControl As String
-    'Private AutoReadAction As String
     Private AutoReadValueControl As String
     Private UserAutoBusy As Integer = 0
 
@@ -25,14 +24,12 @@ Partial Class Formtest
     Private AutoReadDeviceName2 As String = ""
     Private AutoReadCommand2 As String = ""
     Private AutoReadResultControl2 As String = ""
-    'Private AutoReadAction2 As String
     Private AutoReadValueControl2 As String
     Private UserAutoBusy2 As Integer = 0
 
     Private UserLayoutGen As Integer = 0
 
     Dim intervalMs As Integer = 2000
-    Private originalCustomControls As List(Of Control)
 
     ' Current engineering unit (e.g. Ω, kΩ, MΩ, mA, µA) taken from the selected RADIO
     Private CurrentUserUnit As String = ""
@@ -43,10 +40,6 @@ Partial Class Formtest
     ' auto-scale state for USER tab
     Private CurrentUserScaleIsAuto As Boolean = False
     Private CurrentUserRangeQuery As String = ""
-
-    ' Signals that a DEVICES-tab query has completed (reply captured)
-    Private ReadOnly Dev1QueryDone As New Threading.AutoResetEvent(False)
-    Private ReadOnly Dev2QueryDone As New Threading.AutoResetEvent(False)
 
     ' Per-device GPIB engine selection for USER tab ("standalone" or "native")
     Private GpibEngineDev1 As String = "standalone"   ' default if not specified
@@ -86,6 +79,8 @@ Partial Class Formtest
 
     ' Trigger
     Private TriggerEng As TriggerEngine
+    ' Auto naming for unnamed triggers
+    Private TriggerAutoIndex As Integer = 0
 
     ' DATASOURCE registry: resultName -> device|command
     Public DataSources As New Dictionary(Of String, DataSourceDef)(StringComparer.OrdinalIgnoreCase)
@@ -144,7 +139,6 @@ Partial Class Formtest
         End Using
 
     End Sub
-
 
 
     Private Sub ButtonResetTxt_Click(sender As Object, e As EventArgs) Handles ButtonResetTxt.Click
@@ -209,6 +203,10 @@ Partial Class Formtest
         ResultLastValue.Clear()
         CalcDefs.Clear()
         CalcDeps.Clear()
+
+        ' Trigger
+        If TriggerEng IsNot Nothing Then TriggerEng.ClearAll()
+        TriggerAutoIndex = 0
 
     End Sub
 
@@ -1078,6 +1076,15 @@ Partial Class Formtest
         End Select
 
         DirectCast(led, Panel).BackColor = newColor
+
+        ' Publish LED state for triggers:
+        ' Vars("led:LedMAV") and Vars("LedMAV") -> 1/0
+        Dim ledName As String = led.Name
+        Dim isOn As Integer = 0
+        If newColor = onColor Then isOn = 1 Else isOn = 0
+
+        Vars($"led:{ledName}") = isOn
+        Vars(ledName) = isOn
     End Sub
 
 
@@ -2128,8 +2135,27 @@ Partial Class Formtest
 
 
     Private Function GetVarValue(name As String) As Object
+        If String.IsNullOrWhiteSpace(name) Then Return Nothing
+
+        Dim key = name.Trim()
+
         Dim v As Object = Nothing
-        If Vars.TryGetValue(name, v) Then Return v
+
+        ' 1) Exact match
+        If Vars.TryGetValue(key, v) Then Return v
+
+        ' 2) Common result streams
+        If Vars.TryGetValue($"num:{key}", v) Then Return v
+        If Vars.TryGetValue($"bignum:{key}", v) Then Return v
+
+        ' 3) LED stream
+        If Vars.TryGetValue($"led:{key}", v) Then Return v
+
+        ' 4) Stats short form: Stats1.mean -> stats:Stats1.mean
+        If key.Contains("."c) Then
+            If Vars.TryGetValue($"stats:{key}", v) Then Return v
+        End If
+
         Return Nothing
     End Function
 
@@ -2183,18 +2209,13 @@ Partial Class Formtest
             Dim arg = a.Substring(idx + 1).Trim()
 
             Select Case key
+
                 Case "fire"
                     Dim b As Button = Nothing
                     If BtnByName.TryGetValue(arg, b) AndAlso b IsNot Nothing Then b.PerformClick()
 
                 Case "run"
                     RunTextAreaAsSendLines(arg)
-
-                Case "resetstats"
-                    ResetStatsPanel(arg)
-
-                Case "clearchart"
-                    ClearChart(arg)
 
                 Case "togglevis"
                     ToggleVisibility(arg)
@@ -2238,6 +2259,19 @@ Partial Class Formtest
                     Else
                         RunLua(luaText.Replace("|", vbCrLf))
                     End If
+
+                Case "toggle"
+                    ToggleVisibility(arg)
+
+                Case "set"
+                    SetResultFromSpec(arg)   ' arg: ResultName=123.4
+
+                Case "send"
+                    SendFromSpec(arg)        ' arg: dev1:*CLS
+
+                Case "query"
+                    QueryFromSpec(arg)       ' arg: dev1:MEAS?->YourDMM
+
             End Select
         Next
     End Sub
@@ -2269,22 +2303,7 @@ Partial Class Formtest
     End Sub
 
 
-    ' REQUIRED: call the same code you already run for Action=RESETSTATS
-    Private Sub ResetStatsPanel(panelName As String)
-        ' Put your existing RESETSTATS logic here, or call the method you already use.
-        ' Example (replace with YOUR structures):
-        ' If StatsState.ContainsKey(panelName) Then
-        '     StatsState(panelName).Reset()
-        '     UpdateStatsPanel(panelName, Double.NaN)
-        ' End If
-    End Sub
-
-    ' REQUIRED: call the same code you already run for Action=CLEARCHART
-    Private Sub ClearChart(chartName As String)
-        ' Put your existing CLEARCHART logic here, or call the method you already use.
-    End Sub
-
-    ' REQUIRED: run an existing textarea using your SENDLINES execution logic
+    ' Run an existing textarea using your SENDLINES execution logic
     Private Sub RunTextAreaAsSendLines(textAreaName As String)
         Dim tb As TextBox = Nothing
         If Not TextAreaByName.TryGetValue(textAreaName, tb) OrElse tb Is Nothing Then Exit Sub
@@ -2665,6 +2684,11 @@ Partial Class Formtest
             If v Is Nothing Then Return False
             Return Double.TryParse(v.ToString().Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, d)
         End Function
+
+
+        Public Sub ClearAll()
+            _trigs.Clear()
+        End Sub
 
     End Class
 
@@ -3095,6 +3119,72 @@ Partial Class Formtest
     End Sub
 
 
+    Private Sub SetResultFromSpec(spec As String)
+        If String.IsNullOrWhiteSpace(spec) Then Exit Sub
+
+        Dim parts = spec.Split({"="c}, 2)
+        If parts.Length <> 2 Then Exit Sub
+
+        Dim resultName = parts(0).Trim()
+        Dim valueText = parts(1).Trim()
+
+        Dim d As Double
+        If Not Double.TryParse(valueText, Globalization.NumberStyles.Float,
+                           Globalization.CultureInfo.InvariantCulture, d) Then Exit Sub
+
+        ' Publish into Vars (both friendly + numeric stream)
+        Vars(resultName) = d
+        Vars($"num:{resultName}") = d
+
+        ' Optional: update a UI control if it exists and is text-based
+        Dim c As Control = Nothing
+        If ControlByName IsNot Nothing AndAlso ControlByName.TryGetValue(resultName, c) AndAlso c IsNot Nothing Then
+            If TypeOf c Is TextBox Then
+                DirectCast(c, TextBox).Text = d.ToString(Globalization.CultureInfo.InvariantCulture)
+            ElseIf TypeOf c Is Label Then
+                DirectCast(c, Label).Text = d.ToString(Globalization.CultureInfo.InvariantCulture)
+            End If
+        End If
+    End Sub
+
+
+    Private Sub SendFromSpec(spec As String)
+        If String.IsNullOrWhiteSpace(spec) Then Exit Sub
+
+        Dim idx = spec.IndexOf(":"c)
+        If idx <= 0 Then Exit Sub
+
+        Dim dev = spec.Substring(0, idx).Trim()
+        Dim cmd = spec.Substring(idx + 1).Trim()
+
+        If dev = "" OrElse cmd = "" Then Exit Sub
+
+        ' Use your existing native send path
+        NativeSend(dev, cmd)
+    End Sub
+
+
+    Private Sub QueryFromSpec(spec As String)
+        If String.IsNullOrWhiteSpace(spec) Then Exit Sub
+
+        Dim arrow = spec.IndexOf("->", StringComparison.Ordinal)
+        If arrow <= 0 Then Exit Sub
+
+        Dim left = spec.Substring(0, arrow).Trim()
+        Dim resultName = spec.Substring(arrow + 2).Trim()
+        If resultName = "" Then Exit Sub
+
+        Dim idx = left.IndexOf(":"c)
+        If idx <= 0 Then Exit Sub
+
+        Dim dev = left.Substring(0, idx).Trim()
+        Dim cmd = left.Substring(idx + 1).Trim()
+
+        If dev = "" OrElse cmd = "" Then Exit Sub
+
+        ' You already have this in User-DeviceIO.vb
+        RunQueryToResult(dev, cmd, resultName)
+    End Sub
 
 
 

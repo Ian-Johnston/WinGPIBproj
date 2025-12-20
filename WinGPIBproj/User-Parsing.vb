@@ -2648,6 +2648,7 @@ Partial Class Formtest
                         Dim val = kv(1).Trim()
 
                         Select Case key
+
                             Case "name"
                                 trigName = val
 
@@ -2671,10 +2672,24 @@ Partial Class Formtest
 
                             Case "enabled"
                                 enabled = (val.Equals("1") OrElse val.Equals("true", StringComparison.OrdinalIgnoreCase) OrElse val.Equals("yes", StringComparison.OrdinalIgnoreCase))
+
+                            Case "name"
+                                trigName = val
+
+                            Case "if", "when"
+                                ifExpr = NormalizeTriggerWhen(val)
+
+                            Case "then", "do"
+                                thenChain = val
+
                         End Select
                     Next
 
-                    If String.IsNullOrWhiteSpace(trigName) Then Continue For
+                    If String.IsNullOrWhiteSpace(trigName) Then
+                        TriggerAutoIndex += 1
+                        trigName = "T" & TriggerAutoIndex.ToString()
+                    End If
+
                     If String.IsNullOrWhiteSpace(ifExpr) Then Continue For
                     If String.IsNullOrWhiteSpace(thenChain) Then Continue For
 
@@ -3000,6 +3015,37 @@ Partial Class Formtest
             End If
         Next
     End Sub
+
+
+    Private Function NormalizeTriggerWhen(expr As String) As String
+        If String.IsNullOrWhiteSpace(expr) Then Return ""
+
+        Dim s = expr.Trim()
+
+        ' Convert ON/OFF forms: LedMAV=ON  -> LedMAV==1
+        ' Convert single '=' to '==' only when it's a comparison (not >=, <=, !=, ==)
+        ' This is deliberately simple and safe.
+        If s.Contains("="c) AndAlso Not s.Contains(">=") AndAlso Not s.Contains("<=") AndAlso Not s.Contains("==") AndAlso Not s.Contains("!=") Then
+            ' change first '=' to '=='
+            Dim p = s.Split({"="c}, 2)
+            If p.Length = 2 Then
+                Dim lhs = p(0).Trim()
+                Dim rhs = p(1).Trim()
+
+                ' Map ON/OFF/TRUE/FALSE to 1/0
+                Select Case rhs.ToUpperInvariant()
+                    Case "ON", "TRUE", "HIGH", "YES"
+                        rhs = "1"
+                    Case "OFF", "FALSE", "LOW", "NO"
+                        rhs = "0"
+                End Select
+
+                s = lhs & " == " & rhs
+            End If
+        End If
+
+        Return s
+    End Function
 
 
 
