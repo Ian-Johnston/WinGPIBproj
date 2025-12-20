@@ -1492,6 +1492,7 @@ Partial Class Formtest
                         Dim h As Integer = 60
                         Dim borderOn As Boolean = True
                         Dim unitsOn As Boolean = True
+                        Dim fmt As String = ""
 
                         ' ------------------------------------------------------------
                         ' Parse first fields:
@@ -1535,6 +1536,9 @@ Partial Class Formtest
                                             Case Else
                                                 unitsOn = True
                                         End Select
+
+                                    Case "format"
+                                        fmt = val
                                 End Select
                             Next
                         Else
@@ -1575,6 +1579,9 @@ Partial Class Formtest
                                             Case Else
                                                 unitsOn = True
                                         End Select
+
+                                    Case "format"
+                                        fmt = val
                                 End Select
                             Next
                         End If
@@ -1604,8 +1611,19 @@ Partial Class Formtest
                         lbl.Font = New Font(lbl.Font.FontFamily, fontSize, FontStyle.Bold)
                         lbl.Dock = DockStyle.Fill
 
+                        ' Preserve legacy units tag, but allow format too
+                        Dim tagParts As New List(Of String)
+
                         If Not unitsOn Then
-                            lbl.Tag = "BIGTEXT_UNITS_OFF"
+                            tagParts.Add("BIGTEXT_UNITS_OFF") ' legacy behaviour
+                        End If
+
+                        If Not String.IsNullOrWhiteSpace(fmt) Then
+                            tagParts.Add("BIGTEXT_FMT=" & fmt)
+                        End If
+
+                        If tagParts.Count > 0 Then
+                            lbl.Tag = String.Join("|", tagParts)
                         End If
 
                         panel.Controls.Add(lbl)
@@ -2710,7 +2728,12 @@ Partial Class Formtest
                         DataSources(resultName) = New DataSourceDef With {.Device = device, .Command = command}
                     End If
 
-                    ' No UI control created
+
+                Case "CALC"
+                    ParseCalcLine(parts)
+                    Continue For
+
+
 
 
 
@@ -2839,7 +2862,7 @@ Partial Class Formtest
         Next
 
         If Not anyNamed Then
-            ' ---------- Existing positional behaviour ----------
+            ' Existing positional behaviour
             Dim i As Integer = 1
             While i + 1 < parts.Length
                 Dim targetSpec As String = parts(i).Trim()
@@ -2863,7 +2886,7 @@ Partial Class Formtest
             Exit Sub
         End If
 
-        ' ---------- Named tokens behaviour ----------
+        ' Named tokens behaviour
         Dim pendingTargets As String = ""
         Dim pendingFunc As String = ""
 
@@ -2925,6 +2948,58 @@ Partial Class Formtest
             Case Else : Return Nothing
         End Select
     End Function
+
+
+    Private Sub ParseCalcLine(parts() As String)
+        ' CALC;result=PPM;expr=(YourDMM-Ref)/Ref*1000000
+        If parts Is Nothing OrElse parts.Length < 2 Then Exit Sub
+
+        Dim outResult As String = ""
+        Dim expr As String = ""
+
+        For i As Integer = 1 To parts.Length - 1
+            Dim tok As String = If(parts(i), "").Trim()
+            If tok = "" OrElse Not tok.Contains("="c) Then Continue For
+
+            Dim kv = tok.Split(New Char() {"="c}, 2)
+            If kv.Length <> 2 Then Continue For
+
+            Dim key As String = kv(0).Trim().ToLowerInvariant()
+            Dim val As String = kv(1).Trim()
+
+            Select Case key
+                Case "result", "name", "out"
+                    outResult = val
+                Case "expr", "expression"
+                    expr = val
+            End Select
+        Next
+
+        If outResult = "" OrElse expr = "" Then Exit Sub
+
+        ' Build dependencies: identifiers in expr that are not numbers/operators
+        Dim deps As List(Of String) = ExtractCalcDeps(expr)
+
+        ' Store
+        Dim cd As New CalcDef With {
+        .OutResult = outResult.Trim(),
+        .Expr = expr,
+        .Deps = deps
+    }
+        CalcDefs(cd.OutResult) = cd
+
+        ' Reverse map deps -> outResults
+        For Each dep In deps
+            Dim lst As List(Of String) = Nothing
+            If Not CalcDeps.TryGetValue(dep, lst) Then
+                lst = New List(Of String)()
+                CalcDeps(dep) = lst
+            End If
+            If Not lst.Contains(cd.OutResult, StringComparer.OrdinalIgnoreCase) Then
+                lst.Add(cd.OutResult)
+            End If
+        Next
+    End Sub
 
 
 

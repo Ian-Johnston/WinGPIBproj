@@ -57,7 +57,7 @@ Partial Class Formtest
     ' Holds the per-panel UI row outputs (label -> value label)
     Private StatsRows As New Dictionary(Of String, List(Of StatsRow))(StringComparer.OrdinalIgnoreCase)
 
-    ' ===== History grid runtime state =====
+    ' History grid runtime state
     Private HistoryTables As New Dictionary(Of String, DataTable)(StringComparer.OrdinalIgnoreCase)
     Private HistoryStates As New Dictionary(Of String, RunningStatsState)(StringComparer.OrdinalIgnoreCase)
     Private HistoryPpmRef As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
@@ -70,8 +70,13 @@ Partial Class Formtest
     Private HistoryData As New Dictionary(Of String, BindingList(Of HistoryRow))(StringComparer.OrdinalIgnoreCase)
     Private HistorySettings As New Dictionary(Of String, HistoryGridConfig)(StringComparer.OrdinalIgnoreCase)
     Private HistoryGrids As New Dictionary(Of String, DataGridView)(StringComparer.OrdinalIgnoreCase)
-
     Private ReadOnly HistoryGridsByTarget As New Dictionary(Of String, List(Of String))(StringComparer.OrdinalIgnoreCase)
+
+    ' Calc
+    Private ReadOnly ResultLastValue As New Dictionary(Of String, Double)(StringComparer.OrdinalIgnoreCase) ' resultName -> last numeric value
+    Private ReadOnly CalcDefs As New Dictionary(Of String, CalcDef)(StringComparer.OrdinalIgnoreCase)        ' outResult -> calc definition
+    Private ReadOnly CalcDeps As New Dictionary(Of String, List(Of String))(StringComparer.OrdinalIgnoreCase) ' depName -> list of outResults
+    Private UserCalcDepth As Integer = 0
 
     ' Invisibility
     Private UiById As New Dictionary(Of String, Control)(StringComparer.OrdinalIgnoreCase)      ' Invisibility: every created control, by ID (ChartDMM, Hist1, Stats1, ...)
@@ -84,6 +89,14 @@ Partial Class Formtest
 
     ' DATASOURCE registry: resultName -> device|command
     Public DataSources As New Dictionary(Of String, DataSourceDef)(StringComparer.OrdinalIgnoreCase)
+
+
+    ' CALC support
+    Private Class CalcDef
+        Public OutResult As String
+        Public Expr As String
+        Public Deps As List(Of String)
+    End Class
 
 
     ' History Grid
@@ -191,6 +204,11 @@ Partial Class Formtest
         ' If you implemented the multi-job schedulers (NEW)
         AutoJobs5.Clear()
         AutoJobs16.Clear()
+
+        ' Calc
+        ResultLastValue.Clear()
+        CalcDefs.Clear()
+        CalcDeps.Clear()
 
     End Sub
 
@@ -2780,6 +2798,303 @@ Partial Class Formtest
         End While
 
     End Sub
+
+
+    Private Function ExtractCalcDeps(expr As String) As List(Of String)
+        Dim deps As New List(Of String)()
+        If String.IsNullOrWhiteSpace(expr) Then Return deps
+
+        Dim i As Integer = 0
+        While i < expr.Length
+            Dim ch As Char = expr(i)
+
+            ' Identifier starts: letter or underscore
+            If Char.IsLetter(ch) OrElse ch = "_"c Then
+                Dim j As Integer = i + 1
+                While j < expr.Length
+                    Dim c2 As Char = expr(j)
+                    If Char.IsLetterOrDigit(c2) OrElse c2 = "_"c Then
+                        j += 1
+                    Else
+                        Exit While
+                    End If
+                End While
+
+                Dim ident As String = expr.Substring(i, j - i).Trim()
+                If ident <> "" Then
+                    ' Filter out reserved words if you add any later
+                    If Not deps.Contains(ident, StringComparer.OrdinalIgnoreCase) Then
+                        deps.Add(ident)
+                    End If
+                End If
+
+                i = j
+                Continue While
+            End If
+
+            i += 1
+        End While
+
+        Return deps
+    End Function
+
+
+    Private Function OpPrec(op As Char) As Integer
+        Select Case op
+            Case "+"c, "-"c : Return 1
+            Case "*"c, "/"c : Return 2
+        End Select
+        Return 0
+    End Function
+
+
+    Private Iterator Function TokenizeExpr(expr As String) As IEnumerable(Of String)
+        Dim i As Integer = 0
+        While i < expr.Length
+            Dim ch As Char = expr(i)
+
+            If Char.IsWhiteSpace(ch) Then
+                i += 1
+                Continue While
+            End If
+
+            ' Operators / parentheses
+            If "+-*/()".IndexOf(ch) >= 0 Then
+                Yield ch.ToString()
+                i += 1
+                Continue While
+            End If
+
+            ' Number: 1, 1.23, .5, 1e-6, 1.2E+3   (IMPORTANT: only +/- allowed after e/E)
+            If Char.IsDigit(ch) OrElse ch = "."c Then
+                Dim j As Integer = i
+                Dim sawDot As Boolean = False
+
+                ' integer/decimal part
+                While j < expr.Length
+                    Dim c2 As Char = expr(j)
+                    If Char.IsDigit(c2) Then
+                        j += 1
+                    ElseIf c2 = "."c AndAlso Not sawDot Then
+                        sawDot = True
+                        j += 1
+                    Else
+                        Exit While
+                    End If
+                End While
+
+                ' optional exponent: e/E then optional sign then digits
+                If j < expr.Length AndAlso (expr(j) = "e"c OrElse expr(j) = "E"c) Then
+                    Dim k As Integer = j + 1
+
+                    If k < expr.Length AndAlso (expr(k) = "+"c OrElse expr(k) = "-"c) Then
+                        k += 1
+                    End If
+
+                    Dim expStart As Integer = k
+                    While k < expr.Length AndAlso Char.IsDigit(expr(k))
+                        k += 1
+                    End While
+
+                    If k > expStart Then
+                        j = k
+                    End If
+                End If
+
+                Yield expr.Substring(i, j - i)
+                i = j
+                Continue While
+            End If
+
+
+            ' Identifier
+            If Char.IsLetter(ch) OrElse ch = "_"c Then
+                Dim j As Integer = i + 1
+                While j < expr.Length
+                    Dim c2 As Char = expr(j)
+                    If Char.IsLetterOrDigit(c2) OrElse c2 = "_"c Then
+                        j += 1
+                    Else
+                        Exit While
+                    End If
+                End While
+                Yield expr.Substring(i, j - i)
+                i = j
+                Continue While
+            End If
+
+            ' Unknown char: skip
+            i += 1
+        End While
+    End Function
+
+
+    Private Function TryEvalCalc(expr As String, ByRef result As Double) As Boolean
+        result = 0
+        If String.IsNullOrWhiteSpace(expr) Then Return False
+
+        Dim output As New List(Of String)()
+        Dim ops As New Stack(Of Char)()
+
+        ' Track previous token type so we can detect unary minus
+        Dim prevWasValue As Boolean = False  ' value = number/identifier/")"
+
+        ' Shunting-yard: infix -> RPN
+        For Each tok In TokenizeExpr(expr)
+
+            ' operator / paren?
+            If tok.Length = 1 AndAlso "+-*/()".Contains(tok(0)) Then
+                Dim c As Char = tok(0)
+
+                ' Unary minus handling: if "-" appears where a value can't precede it, treat as "0 - ..."
+                If c = "-"c AndAlso Not prevWasValue Then
+                    output.Add("0")
+                    ' proceed as normal binary minus
+                End If
+
+                If c = "("c Then
+                    ops.Push(c)
+                    prevWasValue = False
+
+                ElseIf c = ")"c Then
+                    While ops.Count > 0 AndAlso ops.Peek() <> "("c
+                        output.Add(ops.Pop().ToString())
+                    End While
+                    If ops.Count > 0 AndAlso ops.Peek() = "("c Then ops.Pop()
+                    prevWasValue = True
+
+                Else
+                    While ops.Count > 0 AndAlso ops.Peek() <> "("c AndAlso OpPrec(ops.Peek()) >= OpPrec(c)
+                        output.Add(ops.Pop().ToString())
+                    End While
+                    ops.Push(c)
+                    prevWasValue = False
+                End If
+
+            Else
+                ' number or identifier
+                output.Add(tok)
+                prevWasValue = True
+            End If
+        Next
+
+        While ops.Count > 0
+            output.Add(ops.Pop().ToString())
+        End While
+
+        ' Evaluate RPN
+        Dim st As New Stack(Of Double)()
+        For Each tok In output
+            If tok.Length = 1 AndAlso "+-*/".Contains(tok(0)) Then
+                If st.Count < 2 Then Return False
+                Dim b As Double = st.Pop()
+                Dim a As Double = st.Pop()
+
+                Select Case tok(0)
+                    Case "+"c : st.Push(a + b)
+                    Case "-"c : st.Push(a - b)
+                    Case "*"c : st.Push(a * b)
+                    Case "/"c : st.Push(a / b)
+                End Select
+
+            Else
+                Dim dv As Double
+                If Double.TryParse(tok, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, dv) Then
+                    st.Push(dv)
+                Else
+                    ' identifier: lookup last value
+                    If Not ResultLastValue.TryGetValue(tok, dv) Then
+                        Return False ' missing input => can't compute yet
+                    End If
+                    st.Push(dv)
+                End If
+            End If
+        Next
+
+        If st.Count <> 1 Then Return False
+        result = st.Pop()
+        Return True
+    End Function
+
+
+    Private Sub RecalcFromDependency(depName As String)
+        Dim outs As List(Of String) = Nothing
+        If Not CalcDeps.TryGetValue(depName, outs) OrElse outs Is Nothing OrElse outs.Count = 0 Then Exit Sub
+
+        ' Evaluate in passes so chained calcs work even if ordering is wrong.
+        ' Example: PPM depends on Ref; if PPM is attempted before Ref is cached, we retry.
+        Dim pending As New List(Of String)(outs)
+        Dim passes As Integer = 3 ' enough for small chains
+
+        For pass As Integer = 1 To passes
+            Dim progressed As Boolean = False
+
+            For i As Integer = pending.Count - 1 To 0 Step -1
+                Dim outName As String = pending(i)
+
+                Dim cd As CalcDef = Nothing
+                If Not CalcDefs.TryGetValue(outName, cd) OrElse cd Is Nothing Then
+                    pending.RemoveAt(i)
+                    Continue For
+                End If
+
+                Dim dvOut As Double
+                If Not TryEvalCalc(cd.Expr, dvOut) Then
+                    Continue For ' maybe succeeds next pass after another calc runs
+                End If
+
+                ResultLastValue(cd.OutResult) = dvOut
+                PushNumericResult(cd.OutResult, dvOut)
+
+                pending.RemoveAt(i)
+                progressed = True
+            Next
+
+            If pending.Count = 0 Then Exit For
+            If Not progressed Then Exit For
+        Next
+    End Sub
+
+
+    Private Sub RecalcAllCalcs()
+        If CalcDefs.Count = 0 Then Exit Sub
+
+        ' Multi-pass resolves chained calcs (Ref -> PPM etc.)
+        ' Keep passes small; chains are short.
+        Dim passes As Integer = 4
+
+        For pass As Integer = 1 To passes
+            Dim progressed As Boolean = False
+
+            For Each cd In CalcDefs.Values
+                Dim dvOut As Double
+                If Not TryEvalCalc(cd.Expr, dvOut) Then Continue For
+
+                ' Avoid endless re-push if unchanged
+                Dim prev As Double
+                If ResultLastValue.TryGetValue(cd.OutResult, prev) Then
+                    If Math.Abs(prev - dvOut) < 0.0R Then
+                        ' (leave as-is; you can use an epsilon if you want)
+                    End If
+                End If
+
+                ResultLastValue(cd.OutResult) = dvOut
+                PushNumericResult(cd.OutResult, dvOut)
+
+                progressed = True
+            Next
+
+            If Not progressed Then Exit For
+        Next
+    End Sub
+
+
+    Private Sub PushNumericResult(resultName As String, dv As Double)
+        Dim outText As String = dv.ToString("G", Globalization.CultureInfo.InvariantCulture)
+        RunQueryToResult("dev1", "", resultName, rawOverride:=outText)
+    End Sub
+
+
 
 
 

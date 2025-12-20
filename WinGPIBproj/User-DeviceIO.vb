@@ -18,7 +18,10 @@ Partial Class Formtest
                                 Optional rawOverride As String = Nothing)
 
         Dim target = GetControlByName(resultControlName)
-        If target Is Nothing Then
+
+        ' If this is a pushed value (CALC / fan-out) and there is no direct UI control,
+        ' that's OK — linked controls (CHART/STATS/HISTORYGRID/BIGTEXT etc.) may still exist.
+        If target Is Nothing AndAlso rawOverride Is Nothing Then
             MessageBox.Show("Result control not found: " & resultControlName)
             Exit Sub
         End If
@@ -178,6 +181,21 @@ Partial Class Formtest
 
             outText = numericWithUnitText
 
+            ' Calc - Cache last numeric value for this stream
+            ResultLastValue(resultControlName) = v
+            ' Prevent recursive calc -> push -> RunQueryToResult -> calc loops
+            If Threading.Interlocked.Increment(UserCalcDepth) = 1 Then
+                Try
+                    RecalcAllCalcs()
+                Finally
+                    Threading.Interlocked.Decrement(UserCalcDepth)
+                End Try
+            Else
+                Threading.Interlocked.Decrement(UserCalcDepth)
+            End If
+
+
+
         Else
             ' Non-numeric reply: pass through raw text
             outText = raw
@@ -210,11 +228,54 @@ FanOut:
                 Dim lbl = DirectCast(targetCtrl, Label)
                 Dim tagStr = TryCast(lbl.Tag, String)
 
-                ' BIGTEXT with units=off → numeric only
-                If tagStr IsNot Nothing AndAlso tagStr = "BIGTEXT_UNITS_OFF" AndAlso numericText <> "" Then
-                    lbl.Text = numericText
+                Dim unitsOff As Boolean = False
+                Dim fmt As String = ""
+
+                If Not String.IsNullOrEmpty(tagStr) Then
+                    Dim tp() As String = tagStr.Split("|"c)
+                    For Each t In tp
+                        Dim tt As String = t.Trim()
+                        If tt.Equals("BIGTEXT_UNITS_OFF", StringComparison.OrdinalIgnoreCase) Then
+                            unitsOff = True
+                        ElseIf tt.StartsWith("BIGTEXT_FMT=", StringComparison.OrdinalIgnoreCase) Then
+                            fmt = tt.Substring("BIGTEXT_FMT=".Length).Trim()
+                        End If
+                    Next
+                End If
+
+                ' Choose base numeric string (prefer numericText, then parse from feed)
+                Dim baseNumeric As String = numericText
+                If String.IsNullOrWhiteSpace(baseNumeric) Then
+                    baseNumeric = outText
+                End If
+
+                ' Apply format if requested AND we have a numeric value
+                Dim displayNumeric As String = baseNumeric
+                If fmt <> "" Then
+                    Dim dv As Double
+                    If Double.TryParse(baseNumeric,
+                               Globalization.NumberStyles.Float,
+                               Globalization.CultureInfo.InvariantCulture,
+                               dv) Then
+                        displayNumeric = dv.ToString(fmt, Globalization.CultureInfo.InvariantCulture)
+                    End If
+                End If
+
+                If unitsOff AndAlso numericText <> "" Then
+                    ' BIGTEXT units=off → numeric only (formatted if fmt was applied)
+                    lbl.Text = displayNumeric
                 ElseIf numericWithUnitText <> "" Then
-                    lbl.Text = numericWithUnitText
+                    ' Normal label/BIGTEXT units=on
+                    ' If we formatted, rebuild with units; otherwise keep original string
+                    If fmt <> "" AndAlso displayNumeric <> "" Then
+                        If Not String.IsNullOrEmpty(CurrentUserUnit) Then
+                            lbl.Text = displayNumeric & "   " & CurrentUserUnit
+                        Else
+                            lbl.Text = displayNumeric
+                        End If
+                    Else
+                        lbl.Text = numericWithUnitText
+                    End If
                 Else
                     lbl.Text = outText
                 End If
@@ -222,7 +283,7 @@ FanOut:
             ElseIf TypeOf targetCtrl Is Panel Then
                 Dim tagStr = TryCast(targetCtrl.Tag, String)
                 If Not String.IsNullOrEmpty(tagStr) AndAlso
-               tagStr.StartsWith("LED", StringComparison.OrdinalIgnoreCase) Then
+           tagStr.StartsWith("LED", StringComparison.OrdinalIgnoreCase) Then
 
                     SetLedStateFromText(DirectCast(targetCtrl, Panel), outText)
                 End If
