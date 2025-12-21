@@ -2117,7 +2117,9 @@ Partial Class Formtest
 
     Private Sub RegisterAnyControl(controlName As String, ctrl As Control)
         If String.IsNullOrWhiteSpace(controlName) OrElse ctrl Is Nothing Then Exit Sub
+
         ControlByName(controlName) = ctrl
+        UiById(controlName) = ctrl      ' makes INVISIBILITY work
     End Sub
 
 

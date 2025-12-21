@@ -233,7 +233,62 @@ Partial Class Formtest
                                           End While
                                       End Sub, Action(Of Double))
 
+        ' Expose setnum() to Lua: publishes numeric values into Vars() so TRIGGERs can see them
+        _lua.Globals("setnum") = CType(Sub(varName As String, val As Object)
+                                           varName = If(varName, "").Trim()
+                                           If varName = "" Then Exit Sub
 
+                                           Dim d As Double
+                                           If val Is Nothing OrElse Not Double.TryParse(val.ToString(),
+                                       NumberStyles.Float, CultureInfo.InvariantCulture, d) Then
+                                               AppendLog("[LUA] setnum(): not numeric: " & varName & "=" & If(val, ""))
+                                               Exit Sub
+                                           End If
+
+                                           ' Publish for triggers and general use
+                                           Vars(varName) = d
+                                           Vars($"num:{varName}") = d
+                                           Vars($"bignum:{varName}") = d
+
+                                           ' Optional: update a UI control with same name (TextBox/Label)
+                                           Dim c = GetControlByName(varName)
+                                           If c IsNot Nothing Then
+                                               Dim s = d.ToString(CultureInfo.InvariantCulture)
+
+                                               If TypeOf c Is TextBoxBase Then
+                                                   Dim tb = DirectCast(c, TextBoxBase)
+                                                   If tb.InvokeRequired Then tb.BeginInvoke(Sub() tb.Text = s) Else tb.Text = s
+                                                   Exit Sub
+                                               End If
+
+                                               If TypeOf c Is Label Then
+                                                   Dim lbl = DirectCast(c, Label)
+                                                   If lbl.InvokeRequired Then lbl.BeginInvoke(Sub() lbl.Text = s) Else lbl.Text = s
+                                                   Exit Sub
+                                               End If
+                                           End If
+                                       End Sub, Action(Of String, Object))
+
+        ' Expose now() to Lua: returns current system time (hour/min/sec)
+        _lua.Globals("now") = CType(Function() As Table
+                                        Dim t = DateTime.Now
+                                        Dim tbl = New Table(_lua)
+
+                                        tbl("hour") = t.Hour       ' 0..23
+                                        tbl("min") = t.Minute      ' 0..59
+                                        tbl("sec") = t.Second      ' 0..59
+
+                                        Return tbl
+                                    End Function, Func(Of Table))
+
+        ' Lua helper to control LED panels by name (state = ON/OFF/BAD)
+        _lua.Globals("setled") = CType(Sub(ledName As String, stateText As String)
+                                           ledName = If(ledName, "").Trim()
+                                           stateText = If(stateText, "").Trim()
+                                           If ledName = "" OrElse stateText = "" Then Exit Sub
+
+                                           SetLedFromSpec($"{ledName}={stateText}")
+                                       End Sub, Action(Of String, String))
 
 
         _luaReady = True
