@@ -27,6 +27,9 @@ Partial Class Formtest
     Private AutoReadValueControl2 As String
     Private UserAutoBusy2 As Integer = 0
 
+    Private AutoReadOverloadToken As String = ""
+    Private AutoReadOverloadToken2 As String = ""
+
     Private UserLayoutGen As Integer = 0
 
     Dim intervalMs As Integer = 2000
@@ -191,11 +194,11 @@ Partial Class Formtest
             LabelUSERtab1.BringToFront()
         End If
 
-        ' Clear DATASOURCE + linked-control mappings (NEW)
+        ' Clear DATASOURCE + linked-control mappings
         DataSources.Clear()
         HistoryGridsByTarget.Clear()
 
-        ' If you implemented the multi-job schedulers (NEW)
+        ' If you implemented the multi-job schedulers
         AutoJobs5.Clear()
         AutoJobs16.Clear()
 
@@ -326,7 +329,6 @@ Partial Class Formtest
         Next
         ' ==================================================================
 
-
         If parts.Length < 3 Then Exit Sub
 
         Dim action = parts(0)                 ' SEND / SENDVALUE / QUERY / SENDLINES / CLEARCHART
@@ -335,13 +337,19 @@ Partial Class Formtest
         Dim valueControlName = If(parts.Length > 3, parts(3), "")
         Dim resultControlName = If(parts.Length > 4, parts(4), "")
 
+        ' OVERLOADTOKEN
+        Dim overloadToken As String = If(parts.Length > 5, parts(5), "")
+        If Not String.IsNullOrWhiteSpace(overloadToken) Then
+            overloadToken = overloadToken.Split(";"c)(0).Trim()
+        End If
+
         ' INVISIBILITY: your hide buttons store the function name in resultControlName
         If Not String.IsNullOrWhiteSpace(resultControlName) Then
             Dim fn = resultControlName.Split(";"c)(0).Trim()
             If TryRunInvisibilityFunction(fn) Then Exit Sub
         End If
 
-        ' --- INVISIBILITY / Function buttons (no device needed) ---
+        ' INVISIBILITY / Function buttons (no device needed)
         ' Your config example leaves action/device/command blank and puts the function name in resultControlName
         Dim funcName As String = ""
 
@@ -405,7 +413,7 @@ Partial Class Formtest
             Case "QUERY"
 
                 ' Single immediate query
-                RunQueryToResult(deviceName, commandOrPrefix, resultControlName)
+                RunQueryToResult(deviceName, commandOrPrefix, resultControlName, Nothing, overloadToken)
 
                 ' Check for an Auto checkbox (FuncAuto) for this result control
                 Dim autoCb As CheckBox = GetCheckboxFor(resultControlName, "FuncAuto")
@@ -441,6 +449,7 @@ Partial Class Formtest
                         AutoReadDeviceName2 = deviceName
                         AutoReadCommand2 = commandOrPrefix
                         AutoReadResultControl2 = resultControlName
+                        AutoReadOverloadToken2 = overloadToken
 
                         Timer16.Interval = intervalMs
                         Timer16.Enabled = True
@@ -449,6 +458,7 @@ Partial Class Formtest
                         AutoReadDeviceName = deviceName
                         AutoReadCommand = commandOrPrefix
                         AutoReadResultControl = resultControlName
+                        AutoReadOverloadToken = overloadToken
 
                         Timer5.Interval = intervalMs
                         Timer5.Enabled = True
@@ -1332,6 +1342,7 @@ Partial Class Formtest
         Public IntervalMs As Integer
         Public NextDue As Integer
         Public InFlight As Boolean
+        Public OverloadToken As String = ""
     End Class
 
 
@@ -1383,10 +1394,12 @@ Partial Class Formtest
         Dim dev As String = ""
         Dim cmd As String = ""
 
+        Dim overloadToken As String = ""
         If DataSources.ContainsKey(resultName) Then
             Dim ds As DataSourceDef = DataSources(resultName)
             dev = ds.Device
             cmd = ds.Command
+            overloadToken = If(ds.OverloadToken, "").Trim()
         Else
             For Each ctrl As Control In GroupBoxCustom.Controls
                 Dim btn = TryCast(ctrl, Button)
@@ -1429,7 +1442,7 @@ Partial Class Formtest
         If String.IsNullOrWhiteSpace(dev) OrElse String.IsNullOrWhiteSpace(cmd) Then Exit Sub
 
         ' Immediate one-shot read on enable
-        RunQueryToResult(dev, cmd, resultName)
+        RunQueryToResult(dev, cmd, resultName, Nothing, overloadToken)
 
         ' Add/update job
         Dim j As AutoJob = Nothing
@@ -1445,6 +1458,7 @@ Partial Class Formtest
         j.IntervalMs = intervalMs
         j.NextDue = nowT + 1
         j.InFlight = False
+        j.OverloadToken = overloadToken
 
         ' Enable correct scheduler timer (fixed scheduler tick)
         If jobs Is AutoJobs16 Then

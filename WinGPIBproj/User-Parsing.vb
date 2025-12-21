@@ -839,6 +839,7 @@ Partial Class Formtest
                     Dim deviceName As String = ""
                     Dim command As String = ""
 
+                    Dim overloadToken As String = ""
                     Dim relX As Integer = 0
                     Dim relY As Integer = 0
 
@@ -2597,7 +2598,7 @@ Partial Class Formtest
 
                             End Sub
                     End If
-                    ' NEW: register grid -> target so DATASOURCE updates can drive it (no hidden TextBox needed)
+                    ' Register grid -> target so DATASOURCE updates can drive it (no hidden TextBox needed)
                     HistorySettings(gridName) = New HistoryGridConfig With {
                         .GridName = gridName,
                         .ResultTarget = resultTarget,
@@ -2721,6 +2722,7 @@ Partial Class Formtest
                     Dim resultName As String = ""
                     Dim device As String = ""
                     Dim command As String = ""
+                    Dim overloadToken As String = ""
 
                     For Each part In parts
                         Dim kv = part.Split("="c)
@@ -2736,11 +2738,13 @@ Partial Class Formtest
                                 device = val
                             Case "command", "cmd"
                                 command = val
+                            Case "overload"
+                                overloadToken = val
                         End Select
                     Next
 
                     If resultName <> "" AndAlso device <> "" AndAlso command <> "" Then
-                        DataSources(resultName) = New DataSourceDef With {.Device = device, .Command = command}
+                        DataSources(resultName) = New DataSourceDef With {.Device = device, .Command = command, .OverloadToken = overloadToken}
                     End If
 
 
@@ -2812,6 +2816,7 @@ Partial Class Formtest
     Public Class DataSourceDef
         Public Device As String
         Public Command As String
+        Public OverloadToken As String
     End Class
 
 

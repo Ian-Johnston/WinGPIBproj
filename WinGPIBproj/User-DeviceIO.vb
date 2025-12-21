@@ -15,7 +15,8 @@ Partial Class Formtest
     Private Sub RunQueryToResult(deviceName As String,
                                 commandOrPrefix As String,
                                 resultControlName As String,
-                                Optional rawOverride As String = Nothing)
+                                Optional rawOverride As String = Nothing,
+                                Optional overloadToken As String = Nothing)
 
         Dim target = GetControlByName(resultControlName)
 
@@ -94,6 +95,24 @@ Partial Class Formtest
         End If
 
         raw = If(raw, "").Trim()
+
+        ' =========================================================
+        '   OVERLOAD DETECT (user-defined token match)
+        ' =========================================================
+        If Not String.IsNullOrWhiteSpace(overloadToken) Then
+            If raw.IndexOf(overloadToken, StringComparison.OrdinalIgnoreCase) >= 0 Then
+
+                outText = "OVERLOAD"
+
+                ' Publish a numeric marker for trigger/calc users (optional but useful)
+                Vars(resultControlName) = Double.NaN
+                Vars($"num:{resultControlName}") = Double.NaN
+                Vars($"bignum:{resultControlName}") = Double.NaN
+                ResultLastValue(resultControlName) = Double.NaN
+
+                GoTo FanOut
+            End If
+        End If
 
         ' =========================================================
         '   EXISTING FORMAT / SCALE / UNITS LOGIC (unchanged)
@@ -371,9 +390,6 @@ FanOut:
                 Next
             End If
         End If
-
-
-
 
     End Sub
 

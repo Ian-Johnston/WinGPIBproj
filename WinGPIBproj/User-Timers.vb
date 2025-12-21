@@ -44,7 +44,7 @@ Partial Class Formtest
 
             j.InFlight = True
             Try
-                RunQueryToResult(j.Device, j.Command, j.Result)
+                RunQueryToResult(j.Device, j.Command, j.Result, Nothing, j.OverloadToken)
             Finally
                 j.InFlight = False
                 j.NextDue = nowT + j.IntervalMs
@@ -71,7 +71,7 @@ Partial Class Formtest
 
             j.InFlight = True
             Try
-                RunQueryToResult(j.Device, j.Command, j.Result)
+                RunQueryToResult(j.Device, j.Command, j.Result, Nothing, j.OverloadToken)
             Finally
                 j.InFlight = False
                 j.NextDue = nowT + j.IntervalMs
