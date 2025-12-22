@@ -1372,7 +1372,14 @@ Partial Class Formtest
         Dim parts = tagStr.Split("|"c)
         If parts.Length < 2 Then Exit Sub
 
-        Dim resultName As String = parts(0).Trim()
+        ' NEW: allow multiple results in the first Tag field, comma-separated
+        Dim resultNames As String() =
+        parts(0).Split(","c).
+        Select(Function(s) s.Trim()).
+        Where(Function(s) s <> "").
+        ToArray()
+
+        If resultNames.Length = 0 Then Exit Sub
 
         ' Compute intervalMs from FuncAuto param (seconds) in Tag part[2]
         Dim intervalMs As Integer = 2000
@@ -1390,84 +1397,90 @@ Partial Class Formtest
         If intervalMs < 1 Then intervalMs = 1
         If intervalMs > 60000 Then intervalMs = 60000
 
-        ' Determine producer: DATASOURCE preferred, else steal from QUERY button (backwards compat)
-        Dim dev As String = ""
-        Dim cmd As String = ""
+        ' NEW: apply to each result in the list
+        For Each resultName As String In resultNames
 
-        Dim overloadToken As String = ""
-        If DataSources.ContainsKey(resultName) Then
-            Dim ds As DataSourceDef = DataSources(resultName)
-            dev = ds.Device
-            cmd = ds.Command
-            overloadToken = If(ds.OverloadToken, "").Trim()
-        Else
-            For Each ctrl As Control In GroupBoxCustom.Controls
-                Dim btn = TryCast(ctrl, Button)
-                If btn Is Nothing Then Continue For
+            ' Determine producer: DATASOURCE preferred, else steal from QUERY button (backwards compat)
+            Dim dev As String = ""
+            Dim cmd As String = ""
 
-                Dim meta = TryCast(btn.Tag, String)
-                If String.IsNullOrEmpty(meta) Then Continue For
+            Dim overloadToken As String = ""
+            If DataSources.ContainsKey(resultName) Then
+                Dim ds As DataSourceDef = DataSources(resultName)
+                dev = ds.Device
+                cmd = ds.Command
+                overloadToken = If(ds.OverloadToken, "").Trim()
+            Else
+                For Each ctrl As Control In GroupBoxCustom.Controls
+                    Dim btn = TryCast(ctrl, Button)
+                    If btn Is Nothing Then Continue For
 
-                Dim bp = meta.Split("|"c)
-                If bp.Length < 5 Then Continue For
+                    Dim meta = TryCast(btn.Tag, String)
+                    If String.IsNullOrEmpty(meta) Then Continue For
 
-                Dim action = bp(0)
-                Dim deviceName = bp(1)
-                Dim commandOrPrefix = bp(2)
-                Dim resultControlName = bp(4)
+                    Dim bp = meta.Split("|"c)
+                    If bp.Length < 5 Then Continue For
 
-                If String.Equals(action, "QUERY", StringComparison.OrdinalIgnoreCase) AndAlso
-               String.Equals(resultControlName, resultName, StringComparison.OrdinalIgnoreCase) Then
-                    dev = deviceName
-                    cmd = commandOrPrefix
-                    Exit For
-                End If
-            Next
-        End If
+                    Dim action = bp(0)
+                    Dim deviceName = bp(1)
+                    Dim commandOrPrefix = bp(2)
+                    Dim resultControlName = bp(4)
 
-        ' Choose which timer/dictionary this result belongs to
-        Dim jobs As Dictionary(Of String, AutoJob) = AutoJobs5
-        If dev.Equals("dev2", StringComparison.OrdinalIgnoreCase) Then jobs = AutoJobs16
+                    If String.Equals(action, "QUERY", StringComparison.OrdinalIgnoreCase) AndAlso
+                   String.Equals(resultControlName, resultName, StringComparison.OrdinalIgnoreCase) Then
+                        dev = deviceName
+                        cmd = commandOrPrefix
+                        Exit For
+                    End If
+                Next
+            End If
 
-        ' Unchecked: remove this job from the correct scheduler
-        If Not cb.Checked Then
-            jobs.Remove(resultName)
+            ' Choose which timer/dictionary this result belongs to
+            Dim jobs As Dictionary(Of String, AutoJob) = AutoJobs5
+            If dev.Equals("dev2", StringComparison.OrdinalIgnoreCase) Then jobs = AutoJobs16
 
-            If AutoJobs5.Count = 0 Then Timer5.Enabled = False
-            If AutoJobs16.Count = 0 Then Timer16.Enabled = False
+            ' Unchecked: remove this job from the correct scheduler
+            If Not cb.Checked Then
+                jobs.Remove(resultName)
 
-            Exit Sub
-        End If
+                If AutoJobs5.Count = 0 Then Timer5.Enabled = False
+                If AutoJobs16.Count = 0 Then Timer16.Enabled = False
 
-        If String.IsNullOrWhiteSpace(dev) OrElse String.IsNullOrWhiteSpace(cmd) Then Exit Sub
+                Continue For
+            End If
 
-        ' Immediate one-shot read on enable
-        RunQueryToResult(dev, cmd, resultName, Nothing, overloadToken)
+            If String.IsNullOrWhiteSpace(dev) OrElse String.IsNullOrWhiteSpace(cmd) Then Continue For
 
-        ' Add/update job
-        Dim j As AutoJob = Nothing
-        If Not jobs.TryGetValue(resultName, j) Then
-            j = New AutoJob()
-            jobs(resultName) = j
-        End If
+            ' Immediate one-shot read on enable
+            RunQueryToResult(dev, cmd, resultName, Nothing, overloadToken)
 
-        Dim nowT As Integer = NowTick()
-        j.Device = dev
-        j.Command = cmd
-        j.Result = resultName
-        j.IntervalMs = intervalMs
-        j.NextDue = nowT + 1
-        j.InFlight = False
-        j.OverloadToken = overloadToken
+            ' Add/update job
+            Dim j As AutoJob = Nothing
+            If Not jobs.TryGetValue(resultName, j) Then
+                j = New AutoJob()
+                jobs(resultName) = j
+            End If
 
-        ' Enable correct scheduler timer (fixed scheduler tick)
-        If jobs Is AutoJobs16 Then
-            Timer16.Interval = 50
-            Timer16.Enabled = True
-        Else
-            Timer5.Interval = 50
-            Timer5.Enabled = True
-        End If
+            Dim nowT As Integer = NowTick()
+            j.Device = dev
+            j.Command = cmd
+            j.Result = resultName
+            j.IntervalMs = intervalMs
+            j.NextDue = nowT + 1
+            j.InFlight = False
+            j.OverloadToken = overloadToken
+
+            ' Enable correct scheduler timer (fixed scheduler tick)
+            If jobs Is AutoJobs16 Then
+                Timer16.Interval = 50
+                Timer16.Enabled = True
+            Else
+                Timer5.Interval = 50
+                Timer5.Enabled = True
+            End If
+
+        Next
+
     End Sub
 
 
