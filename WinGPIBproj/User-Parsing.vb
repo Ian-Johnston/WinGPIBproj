@@ -609,13 +609,15 @@ Partial Class Formtest
                 Case "DROPDOWN"
                     ' Supports BOTH:
                     ' 1) Positional:
-                    '    DROPDOWN;ControlName;Caption;DeviceName;CommandPrefix;X;Y;Width;Item1,Item2,Item3...;captionpos=1/2
+                    '    DROPDOWN;ControlName;Caption;DeviceName;CommandPrefix;X;Y;Width;Item1,Item2,Item3...;captionpos=1/2;determine=...
                     '
                     ' 2) All-named:
-                    '    DROPDOWN;name=Ctrl1;caption=Range;device=dev1;cmd=:SENS:VOLT:DC:RANG; x=20;y=60;w=140;items=0.1,1,10;captionpos=1
+                    '    DROPDOWN;name=Ctrl1;caption=Range;device=dev1;cmd=:SENS:VOLT:DC:RANG; x=20;y=60;w=140;items=0.1,1,10;captionpos=1;determine=...
                     '
-                    ' captionpos=1 (default) -> Caption label to the left, first combo item is blank.
-                    ' captionpos=2           -> No label; caption used as first combo item (placeholder, no command).
+                    ' determine syntax:
+                    '   determine=<query>                 -> defaults respnum
+                    '   determine=<query>|respnum
+                    '   determine=<query>|resptext
 
                     Dim ctrlName As String = ""
                     Dim caption As String = ""
@@ -627,6 +629,9 @@ Partial Class Formtest
                     Dim w As Integer = 120
                     Dim itemsRaw As String = ""
                     Dim captionPos As Integer = 1
+
+                    ' NEW: determine
+                    Dim determineRaw As String = ""
 
                     ' Decide whether this line is positional or all-named
                     Dim isAllNamed As Boolean = (parts.Length >= 2 AndAlso parts(1).Contains("="c))
@@ -659,13 +664,17 @@ Partial Class Formtest
                                 If key = "captionpos" Then
                                     Integer.TryParse(val, captionPos)
                                     If captionPos <> 1 AndAlso captionPos <> 2 Then captionPos = 1
+
+                                    ' NEW
+                                ElseIf key = "determine" Then
+                                    determineRaw = val
                                 End If
                             Next
                         End If
 
                     Else
                         ' ---------- all-named ----------
-                        ' DROPDOWN;name=...;caption=...;device=...;cmd=...;x=...;y=...;w=...;items=...;captionpos=...
+                        ' DROPDOWN;name=...;caption=...;device=...;cmd=...;x=...;y=...;w=...;items=...;captionpos=...;determine=...
                         For i As Integer = 1 To parts.Length - 1
                             Dim p As String = parts(i).Trim()
                             If Not p.Contains("="c) Then Continue For
@@ -704,14 +713,18 @@ Partial Class Formtest
                                 Case "captionpos"
                                     Integer.TryParse(val, captionPos)
                                     If captionPos <> 1 AndAlso captionPos <> 2 Then captionPos = 1
+
+                ' NEW
+                                Case "determine"
+                                    determineRaw = val
                             End Select
                         Next
 
                         ' Minimal required fields
                         If String.IsNullOrWhiteSpace(ctrlName) OrElse
-                           String.IsNullOrWhiteSpace(deviceName) OrElse
-                           String.IsNullOrWhiteSpace(commandPrefix) OrElse
-                           String.IsNullOrWhiteSpace(itemsRaw) Then
+           String.IsNullOrWhiteSpace(deviceName) OrElse
+           String.IsNullOrWhiteSpace(commandPrefix) OrElse
+           String.IsNullOrWhiteSpace(itemsRaw) Then
                             Continue For
                         End If
                     End If
@@ -758,6 +771,16 @@ Partial Class Formtest
 
                     ' Tag holds Device + CommandPrefix
                     cb.Tag = deviceName & "|" & commandPrefix
+
+                    ' NEW: append determine tokens into Tag for ApplyDetermineDropdowns()
+                    If Not String.IsNullOrWhiteSpace(determineRaw) Then
+                        Dim dp() As String = determineRaw.Split("|"c)
+                        Dim detQ As String = If(dp.Length >= 1, dp(0).Trim(), "")
+                        Dim detF As String = If(dp.Length >= 2 AndAlso dp(1).Trim() <> "", dp(1).Trim().ToLowerInvariant(), "respnum")
+                        If detQ <> "" Then
+                            cb.Tag = CStr(cb.Tag) & "|DETQ=" & detQ & "|DETF=" & detF
+                        End If
+                    End If
 
                     AddHandler cb.SelectedIndexChanged, AddressOf Dropdown_SelectedIndexChanged
 
@@ -942,11 +965,29 @@ Partial Class Formtest
                     rb.AutoSize = True
                     rb.Location = New Point(relX, relY)
 
+                    ' FIRST: set the base Tag (existing behaviour)
                     If scaleIsAuto Then
                         rb.Tag = deviceName & "|" & command & "|AUTO|" & rangeQueryForAuto
                     Else
-                        rb.Tag = deviceName & "|" & command & "|" &
-                                 scale.ToString(Globalization.CultureInfo.InvariantCulture)
+                        rb.Tag = deviceName & "|" & command & "|" & scale.ToString(Globalization.CultureInfo.InvariantCulture)
+                    End If
+
+                    ' THEN: append determine (optional)
+                    ' determine=<query>|<expected>|resptext
+                    ' If resptext is omitted, numeric compare (respnum) is assumed.
+                    If tok.ContainsKey("determine") Then
+                        Dim det As String = tok("determine").Trim()
+                        If det <> "" Then
+                            Dim dp() As String = det.Split("|"c)
+                            Dim detQ As String = If(dp.Length >= 1, dp(0).Trim(), "")
+                            Dim detE As String = If(dp.Length >= 2, dp(1).Trim(), "")
+                            Dim detF As String = If(dp.Length >= 3, dp(2).Trim().ToLowerInvariant(), "") ' optional
+
+                            If detQ <> "" AndAlso detE <> "" Then
+                                rb.Tag = CStr(rb.Tag) & "|DETQ=" & detQ & "|DETE=" & detE
+                                If detF <> "" Then rb.Tag = CStr(rb.Tag) & "|DETF=" & detF
+                            End If
+                        End If
                     End If
 
                     AddHandler rb.CheckedChanged, AddressOf Radio_CheckedChanged
@@ -2763,7 +2804,125 @@ Partial Class Formtest
         ' Apply INVISIBILITY defaults after all controls are created/registered.
         ApplyInvisibilityDefaults()
 
+        ' Apply initial instrument state to controls that have determine=...
+        ApplyDetermineRadios()
+        ApplyDetermineDropdowns()
+
+        LogToTempBox("BuildCustomGuiFromText() END - TempBox exists=" &
+             (GroupBoxCustom.Controls.Find("TempBox", True).Length > 0).ToString())
+
+
     End Sub
+
+
+    ' =========================================================
+    '   DETERMINE (initial state readback)
+    ' =========================================================
+    '
+    ' RADIO lines can optionally include:
+    '   determine=<query>|<expected>
+    '   determine=<query>|<expected>|resptext
+    '
+    ' If resptext is specified, WinGPIB will request a raw response for that query
+    ' (USERdev1rawoutput/USERdev2rawoutput TRUE) and then do a text "contains" match.
+    ' If omitted, numeric compare (respnum) is assumed (extract first number and compare).
+    '
+    Private Sub ApplyDetermineRadios()
+
+        LogToTempBox("ApplyDetermineRadios() CALLED")       ' testing only
+
+        Dim cache As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+
+        For Each ctrl As Control In GroupBoxCustom.Controls
+            Dim gb As GroupBox = TryCast(ctrl, GroupBox)
+            If gb Is Nothing Then Continue For
+            If Not gb.Name.StartsWith("RG_", StringComparison.OrdinalIgnoreCase) Then Continue For
+
+            Dim chosen As RadioButton = Nothing
+
+            For Each child As Control In gb.Controls
+                Dim rb As RadioButton = TryCast(child, RadioButton)
+                If rb Is Nothing Then Continue For
+
+                Dim tagStr As String = TryCast(rb.Tag, String)
+                If String.IsNullOrEmpty(tagStr) Then Continue For
+
+                ' Tag is: device|command|scale OR device|command|AUTO|rangeQuery|DETQ=...|DETE=...|DETF=...
+                Dim parts() As String = tagStr.Split("|"c)
+                If parts.Length < 2 Then Continue For
+
+                Dim deviceName As String = parts(0).Trim()
+
+                ' Look for DETQ= / DETE= / DETF=
+                Dim detQuery As String = ""
+                Dim detExpected As String = ""
+                Dim detFmt As String = ""     ' optional
+
+                For Each p In parts
+                    If p.StartsWith("DETQ=", StringComparison.OrdinalIgnoreCase) Then
+                        detQuery = p.Substring(5).Trim()
+                    ElseIf p.StartsWith("DETE=", StringComparison.OrdinalIgnoreCase) Then
+                        detExpected = p.Substring(5).Trim()
+                    ElseIf p.StartsWith("DETF=", StringComparison.OrdinalIgnoreCase) Then
+                        detFmt = p.Substring(5).Trim().ToLowerInvariant()
+                    End If
+                Next
+
+                If detQuery = "" OrElse detExpected = "" Then Continue For
+
+                If detFmt = "" Then detFmt = "respnum" ' default
+
+                Dim cacheKey As String = deviceName & "||" & detQuery & "||" & detFmt
+                Dim reply As String = ""
+
+                If Not cache.TryGetValue(cacheKey, reply) Then
+                    reply = DetermineQuery(deviceName, detQuery, detFmt)
+                    cache(cacheKey) = reply
+
+                    LogToTempBox("[DET] " & deviceName & " " & detQuery & " -> " & reply)       ' test only
+                End If
+
+                If DetermineMatch(reply, detExpected, detFmt) Then
+                    chosen = rb
+                    Exit For
+                End If
+
+                LogToTempBox("[DETINFO] " & deviceName & " q=" & detQuery & " exp=" & detExpected & " fmt=" & detFmt)       ' test only
+
+            Next
+
+            If chosen IsNot Nothing Then
+                ' Important: do NOT send SCPI when we tick the radio during determine
+                UserInitSuppressSend = True
+                chosen.Checked = True
+                UserInitSuppressSend = False
+            End If
+        Next
+
+    End Sub
+
+
+    Private Function DetermineMatch(reply As String, expected As String, detFmt As String) As Boolean
+        If reply Is Nothing Then reply = ""
+        If expected Is Nothing Then expected = ""
+
+        If detFmt = "resptext" Then
+            Dim r As String = reply.ToUpperInvariant()
+            Dim e As String = expected.ToUpperInvariant()
+            Return (e <> "" AndAlso r.Contains(e))
+        Else
+            ' respnum (default)
+            Dim dv As Double
+            If Not TryExtractFirstDouble(reply, dv) Then Return False
+
+            Dim ev As Double
+            If Not Double.TryParse(expected, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, ev) Then
+                Return False
+            End If
+
+            Return Math.Abs(dv - ev) < 0.0000001
+        End If
+    End Function
 
 
     ' Apply invisibility
@@ -3051,6 +3210,78 @@ Partial Class Formtest
 
         Return s
     End Function
+
+
+    Private Sub ApplyDetermineDropdowns()
+
+        For Each ctrl As Control In GroupBoxCustom.Controls
+            Dim cb As ComboBox = TryCast(ctrl, ComboBox)
+            If cb Is Nothing Then Continue For
+
+            Dim tagStr As String = TryCast(cb.Tag, String)
+            If String.IsNullOrEmpty(tagStr) Then Continue For
+
+            Dim parts() As String = tagStr.Split("|"c)
+            If parts.Length < 2 Then Continue For
+
+            Dim deviceName As String = parts(0).Trim()
+
+            Dim detQuery As String = ""
+            Dim detFmt As String = "respnum"
+
+            For Each p In parts
+                If p.StartsWith("DETQ=", StringComparison.OrdinalIgnoreCase) Then
+                    detQuery = p.Substring(5).Trim()
+                ElseIf p.StartsWith("DETF=", StringComparison.OrdinalIgnoreCase) Then
+                    detFmt = p.Substring(5).Trim().ToLowerInvariant()
+                End If
+            Next
+
+            If detQuery = "" Then Continue For
+
+            ' Run determine query (fast path)
+            Dim reply As String = DetermineQuery(deviceName, detQuery, detFmt)
+            If reply = "" Then Continue For
+
+            ' Match reply to dropdown items
+            Dim num As Double
+            If Not TryExtractFirstDouble(reply, num) Then Continue For
+
+            ' Prevent command send while selecting
+            UserInitSuppressSend = True
+
+            For i As Integer = 0 To cb.Items.Count - 1
+                Dim itemVal As Double
+                If Double.TryParse(cb.Items(i).ToString(),
+                               Globalization.NumberStyles.Float,
+                               Globalization.CultureInfo.InvariantCulture,
+                               itemVal) Then
+                    If Math.Abs(itemVal - num) < 0.0000001 Then
+                        cb.SelectedIndex = i
+                        Exit For
+                    End If
+                End If
+            Next
+
+            UserInitSuppressSend = False
+        Next
+
+    End Sub
+
+
+    ' For Testing only
+    ' Requires a config entry = TEXTAREA;name=TempBox;caption=Testing:;x=500;y=370;w=380;h=140
+    ' Anywhere in the code add = LogToTempBox("[DET] " & deviceName & " " & detQuery & " -> " & reply)       ' test only
+    Private Sub LogToTempBox(msg As String)
+        Dim found() As Control = GroupBoxCustom.Controls.Find("TempBox", True)
+        If found Is Nothing OrElse found.Length = 0 Then Exit Sub
+
+        Dim tb As TextBox = TryCast(found(0), TextBox)
+        If tb Is Nothing Then Exit Sub
+
+        If tb.TextLength > 0 Then tb.AppendText(Environment.NewLine)
+        tb.AppendText(msg)
+    End Sub
 
 
 

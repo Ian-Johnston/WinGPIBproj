@@ -18,6 +18,8 @@
 
 
 'Imports System.Threading
+'Imports System.Runtime.InteropServices
+Imports System.Diagnostics
 Imports System.IO
 'Imports System
 Imports System.IO.Ports
@@ -32,8 +34,7 @@ Imports System.Net
 Imports System.Text
 Imports System.Text.RegularExpressions
 Imports IODevices
-'Imports System.Runtime.InteropServices
-Imports System.Diagnostics
+Imports MoonSharp.Interpreter
 
 
 Public Class Formtest
@@ -167,7 +168,7 @@ Public Class Formtest
         Try
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.040"
+            BannerText1 = "WinGPIB   V4.041"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
             ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -1477,7 +1478,19 @@ Public Class Formtest
 
         Try
 
+            ' Fast query mode (used by User tab determine etc) - avoid slow processing
+            If USERdev1fastquery Then
+                ' Always capture raw response for determine etc
+                USERdev1output2 = If(q.ResponseAsString, "")
+                ' Also keep a display copy if you want
+                USERdev1output = If(txtr1a_disp Is Nothing, "", txtr1a_disp.Text)
+
+                OutputReceiveddev1 = True
+                Exit Sub
+            End If
+
             Dim s As String = "async command:'" & q.cmd & "'" & vbCrLf
+
             If q.status = 0 And Dev1TextResponse.Checked = False Then
 
                 inst_value1F = q.ResponseAsString   ' for PDVS2mini calibration
@@ -1660,6 +1673,8 @@ Public Class Formtest
                     Dev1GPIBActivity = False
                 End If
 
+                USERdev1output = txtr1a_disp.Text       ' User tab processed/display
+
             Else
                 s &= "error " & q.errcode & vbCrLf
             End If
@@ -1680,10 +1695,8 @@ Public Class Formtest
             'uncomment this to chain on dev2:
             ' dev2.QueryAsync(txtq2a.Text, AddressOf cbdev2, True)
 
-            ' Update USER tab variable
-            USERdev1output = txtr1a_disp.Text
-            USERdev1output2 = txtr1a.Text           ' alternative
             OutputReceiveddev1 = True
+
 
         Catch ex As Exception
             txtr1astat.Text = q.cmd & " error in callback function:" & vbCrLf
@@ -1701,9 +1714,18 @@ Public Class Formtest
 
         Try
 
+            ' Fast query mode (used by User tab determine etc) - avoid slow processing
+            If USERdev2fastquery Then
+                USERdev2output2 = If(q.ResponseAsString, "")
+                USERdev2output = If(txtr2a_disp Is Nothing, "", txtr2a_disp.Text)
+
+                OutputReceiveddev2 = True
+                Exit Sub
+            End If
+
             Dim s As String = "async command:'" & q.cmd & "'" & vbCrLf
+
             If q.status = 0 And Dev2TextResponse.Checked = False Then
-                'txtr2a.Text = q.ResponseAsString
 
                 ' Update CMD line only if it was used
                 If CMDlineOp = True Then
@@ -1885,6 +1907,7 @@ Public Class Formtest
                     Dev2GPIBActivity = False
                 End If
 
+                USERdev2output = txtr2a_disp.Text       ' User tab processed/display
 
             Else
                 s &= "error " & q.errcode & vbCrLf
@@ -1906,9 +1929,6 @@ Public Class Formtest
             'uncomment this to chain on dev1:
             'dev1.QueryAsync(txtq1a.Text, AddressOf cbdev1, True)
 
-            ' Update USER tab variable
-            USERdev2output = txtr2a_disp.Text
-            USERdev2output2 = txtr2a.Text           ' alternative
             OutputReceiveddev2 = True
 
         Catch ex As Exception

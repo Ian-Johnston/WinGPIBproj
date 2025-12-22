@@ -11,6 +11,13 @@ Partial Class Formtest
     Private OutputReceiveddev1 As Boolean = False
     Private OutputReceiveddev2 As Boolean = False
 
+    ' When TRUE, native queries should store the *raw* instrument response into USERdevXoutput
+    ' (used by determine=...|...|resptext)
+    Private USERdev1rawoutput As Boolean = False
+    Private USERdev2rawoutput As Boolean = False
+    Private USERdev1fastquery As Boolean = False
+    Private USERdev2fastquery As Boolean = False
+
 
     Private Sub RunQueryToResult(deviceName As String,
                                 commandOrPrefix As String,
@@ -394,42 +401,108 @@ FanOut:
     End Sub
 
 
-    Private Function NativeQuery(deviceName As String, cmd As String) As String
+    Private Function NativeQuery(deviceName As String, cmd As String, Optional requireRaw As Boolean = False) As String
 
         Const timeoutMs As Integer = 5000   ' adjust if needed
 
         If deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
 
-            ' Arm flag for this query
-            OutputReceiveddev1 = False
+            USERdev1rawoutput = requireRaw
+            Try
 
-            txtq1a.Text = cmd
-            RunBtnq1aCore()                 ' DEVICES-tab queues + sends
+                OutputReceiveddev1 = False
+                txtq1a.Text = cmd
+                RunBtnq1aCore()
 
-            ' Wait until DEVICES tab captures reply and sets flag TRUE
-            Dim sw As Diagnostics.Stopwatch = Diagnostics.Stopwatch.StartNew()
-            Do While Not OutputReceiveddev1 AndAlso sw.ElapsedMilliseconds < timeoutMs
-                Application.DoEvents()
-                Threading.Thread.Sleep(1)
-            Loop
+                Dim sw As Diagnostics.Stopwatch = Diagnostics.Stopwatch.StartNew()
+                Do While Not OutputReceiveddev1 AndAlso sw.ElapsedMilliseconds < timeoutMs
+                    Application.DoEvents()
+                    Threading.Thread.Sleep(1)
+                Loop
 
-            Return If(USERdev1output, "").Trim()
+                Return If(USERdev1output, "").Trim()
+
+            Finally
+                USERdev1rawoutput = False
+            End Try
 
         ElseIf deviceName.Equals("dev2", StringComparison.OrdinalIgnoreCase) Then
 
-            OutputReceiveddev2 = False
+            USERdev2rawoutput = requireRaw
+            Try
 
-            txtq2a.Text = cmd
-            RunBtnq2aCore()
+                OutputReceiveddev2 = False
+                txtq2a.Text = cmd
+                RunBtnq2aCore()
 
-            Dim sw As Diagnostics.Stopwatch = Diagnostics.Stopwatch.StartNew()
-            Do While Not OutputReceiveddev2 AndAlso sw.ElapsedMilliseconds < timeoutMs
-                Application.DoEvents()
-                Threading.Thread.Sleep(1)
-            Loop
+                Dim sw As Diagnostics.Stopwatch = Diagnostics.Stopwatch.StartNew()
+                Do While Not OutputReceiveddev2 AndAlso sw.ElapsedMilliseconds < timeoutMs
+                    Application.DoEvents()
+                    Threading.Thread.Sleep(1)
+                Loop
 
-            Return If(USERdev2output, "").Trim()
+                Return If(USERdev2output, "").Trim()
 
+            Finally
+                USERdev2rawoutput = False
+            End Try
+
+        End If
+
+        Return ""
+    End Function
+
+
+    ' Used by determine=... on RADIOs. Performs a single query and returns the raw response text.
+    ' detFmt:
+    '   resptext -> sets USERdevXrawoutput TRUE during query
+    '   respnum  -> leaves USERdevXrawoutput FALSE (default)
+    Private Function DetermineQuery(deviceName As String, cmd As String, detFmt As String) As String
+
+        Dim requireRaw As Boolean = String.Equals(detFmt, "resptext", StringComparison.OrdinalIgnoreCase)
+
+        If IsNativeEngine(deviceName) Then
+
+            If deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
+                USERdev1rawoutput = requireRaw
+                USERdev1fastquery = True          ' <<< ONLY HERE
+            ElseIf deviceName.Equals("dev2", StringComparison.OrdinalIgnoreCase) Then
+                USERdev2rawoutput = requireRaw
+                USERdev2fastquery = True
+            End If
+
+            Try
+                NativeQuery(deviceName, cmd, requireRaw)
+
+                If deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
+                    Return If(USERdev1output2, "").Trim()
+                Else
+                    Return If(USERdev2output2, "").Trim()
+                End If
+
+            Finally
+                If deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
+                    USERdev1rawoutput = False
+                    USERdev1fastquery = False     ' <<< RESET HERE
+                ElseIf deviceName.Equals("dev2", StringComparison.OrdinalIgnoreCase) Then
+                    USERdev2rawoutput = False
+                    USERdev2fastquery = False
+                End If
+            End Try
+        End If
+
+        ' Standalone engine path unchanged
+        Dim dev As IODevices.IODevice = Nothing
+        Select Case deviceName.ToLowerInvariant()
+            Case "dev1" : dev = dev1
+            Case "dev2" : dev = dev2
+        End Select
+        If dev Is Nothing Then Return ""
+
+        Dim q As IODevices.IOQuery = Nothing
+        Dim status = dev.QueryBlocking(cmd & TermStr2(), q, False)
+        If status = 0 AndAlso q IsNot Nothing Then
+            Return q.ResponseAsString
         End If
 
         Return ""

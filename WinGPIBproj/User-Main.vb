@@ -88,6 +88,9 @@ Partial Class Formtest
     ' DATASOURCE registry: resultName -> device|command
     Public DataSources As New Dictionary(Of String, DataSourceDef)(StringComparer.OrdinalIgnoreCase)
 
+    ' Used during "determine" pass so that setting Radio.Checked does NOT send SCPI
+    Private UserInitSuppressSend As Boolean = False
+
 
     ' CALC support
     Private Class CalcDef
@@ -686,6 +689,9 @@ Partial Class Formtest
 
 
     Private Sub Dropdown_SelectedIndexChanged(sender As Object, e As EventArgs)
+
+        If UserInitSuppressSend Then Exit Sub
+
         Dim cb = TryCast(sender, ComboBox)
         If cb Is Nothing Then Exit Sub
 
@@ -813,6 +819,9 @@ Partial Class Formtest
         ' ===============================
         '   SEND THE RADIO COMMAND
         ' ===============================
+
+        If UserInitSuppressSend Then Exit Sub
+
         Dim dev As IODevices.IODevice = Nothing
         Dim useNative As Boolean = False
 
