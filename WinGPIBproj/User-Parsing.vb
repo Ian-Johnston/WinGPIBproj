@@ -8,6 +8,18 @@ Partial Class Formtest
 
     Private Sub BuildCustomGuiFromText(def As String)
 
+        ' Simple gate: require at least one device running
+        If Not gbox1.Enabled AndAlso Not gbox2.Enabled Then
+            MessageBox.Show(
+            "No GPIB devices are currently connected." & vbCrLf & vbCrLf &
+            "Start Device1 and/or Device2, then reload the User config.",
+            "WinGPIB",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Warning
+            )
+            Exit Sub
+        End If
+
         ' Reset per-config runtime state
         Timer5.Enabled = False
         AutoReadDeviceName = ""
