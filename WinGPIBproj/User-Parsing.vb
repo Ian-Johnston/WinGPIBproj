@@ -32,14 +32,21 @@ Partial Class Formtest
 
         Dim autoY As Integer = 10
 
-        For Each rawLine In def.Split({vbCrLf, vbLf}, StringSplitOptions.RemoveEmptyEntries)
+        ' -----------------------------
+        ' Multi-line logical line joiner
+        ' -----------------------------
+        Dim physicalLines = def.Split({vbCrLf, vbLf}, StringSplitOptions.None)
+        Dim logicalLines As New List(Of String)
+        Dim pending As String = Nothing
 
-            Dim line = rawLine.Trim()
-            If line = "" OrElse line.StartsWith(";") Then Continue For
+        For Each rawLine In physicalLines
+
+            Dim trimmedEnd As String = rawLine.TrimEnd()
+            Dim lineTrimmed As String = trimmedEnd.Trim()
 
             ' ================= LUA SCRIPT BLOCK =================
             If inLuaScript Then
-                If line.StartsWith("LUASCRIPTEND", StringComparison.OrdinalIgnoreCase) Then
+                If lineTrimmed.StartsWith("LUASCRIPTEND", StringComparison.OrdinalIgnoreCase) Then
                     LuaScriptsByName(luaScriptName) = String.Join(vbCrLf, luaLines)
                     luaLines.Clear()
                     inLuaScript = False
@@ -51,9 +58,61 @@ Partial Class Formtest
             End If
             ' ===================================================
 
+            ' Skip empty/comment lines (do NOT flush pending)
+            If lineTrimmed = "" OrElse lineTrimmed.StartsWith(";") Then
+                Continue For
+            End If
+
+            Dim startsIndented As Boolean =
+            rawLine.Length > 0 AndAlso Char.IsWhiteSpace(rawLine(0))
+
+            If pending Is Nothing Then
+                pending = lineTrimmed
+            Else
+                Dim pendingEndsWithSemi As Boolean =
+                pending.TrimEnd().EndsWith(";", StringComparison.Ordinal)
+
+                ' Continuation rule:
+                ' - continuation lines must be indented
+                ' - and previous pending line must end with ";"
+                If startsIndented AndAlso pendingEndsWithSemi Then
+                    pending &= lineTrimmed
+                Else
+                    ' flush previous logical line
+                    logicalLines.Add(pending.Trim())
+                    pending = lineTrimmed
+                End If
+            End If
+
+            ' Start LUA block only when NOT already in one (must be checked here so it can begin on a logical line)
+            If lineTrimmed.StartsWith("LUASCRIPTBEGIN", StringComparison.OrdinalIgnoreCase) Then
+                ' flush any pending logical line before beginning LUA
+                If pending IsNot Nothing Then
+                    logicalLines.Add(pending.Trim())
+                    pending = Nothing
+                End If
+
+                luaScriptName = GetParam(lineTrimmed, "name")
+                luaLines.Clear()
+                inLuaScript = True
+                Continue For
+            End If
+
+        Next
+
+        ' Flush final pending logical line
+        If pending IsNot Nothing Then
+            logicalLines.Add(pending.Trim())
+        End If
+
+        ' -----------------------------
+        ' Existing parser works on logical lines
+        ' -----------------------------
+        For Each line In logicalLines
+
+            If line = "" OrElse line.StartsWith(";") Then Continue For
+
             ' Per-device GPIB engine selectors for USER tab
-            ' e.g. GPIBenginedev1=native / standalone
-            '      GPIBenginedev2=native / standalone
             If line.StartsWith("GPIBenginedev1=", StringComparison.OrdinalIgnoreCase) Then
                 Dim val As String = line.Substring("GPIBenginedev1=".Length).Trim()
                 If String.Equals(val, "native", StringComparison.OrdinalIgnoreCase) Then
