@@ -127,20 +127,33 @@ Partial Class Formtest
 
     Private Sub ButtonLoadTxt_Click(sender As Object, e As EventArgs) Handles ButtonLoadTxt.Click
 
+        ' Assumes CSVfilepath.Text is always a valid existing folder. Most of the time it is (because of the init code in Formtest.vb),
+        ' but if it’s blank early in startup, could still fall back to Documents.
         Using dlg As New OpenFileDialog()
-            dlg.Title = "Select Custom GUI Layout File"
+            dlg.Title = "Select Config File"
             dlg.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*"
 
-            If dlg.ShowDialog() <> DialogResult.OK Then
-                Exit Sub   ' user cancelled → leave label alone
+            ' Base folder: prefer CSVfilepath.Text if it is a valid directory, else fall back to Documents\WinGPIBdata
+            Dim baseDir As String = CSVfilepath.Text
+            If String.IsNullOrWhiteSpace(baseDir) OrElse Not IO.Directory.Exists(baseDir) Then
+                Dim documentsPath As String = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+                baseDir = IO.Path.Combine(documentsPath, "WinGPIBdata")
             End If
+
+            ' Force dialog into \WinGPIBdata\Devices
+            Dim devicesDir As String = IO.Path.Combine(baseDir, "Devices")
+            IO.Directory.CreateDirectory(devicesDir)
+
+            dlg.InitialDirectory = devicesDir
+
+            If dlg.ShowDialog() <> DialogResult.OK Then Exit Sub
 
             Try
                 LoadCustomGuiFromFile(dlg.FileName)
-                LabelUSERtab1.Visible = False   ' only hide if load succeeds
+                LabelUSERtab1.Visible = False
             Catch ex As Exception
                 MessageBox.Show("Error loading layout file: " & ex.Message)
-                LabelUSERtab1.Visible = True    ' keep it visible on failure
+                LabelUSERtab1.Visible = True
             End Try
         End Using
 
