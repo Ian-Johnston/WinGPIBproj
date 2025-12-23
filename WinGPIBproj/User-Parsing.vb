@@ -689,7 +689,7 @@ Partial Class Formtest
                     Dim itemsRaw As String = ""
                     Dim captionPos As Integer = 1
 
-                    ' NEW: determine
+                    ' Determine
                     Dim determineRaw As String = ""
 
                     ' Decide whether this line is positional or all-named
@@ -773,7 +773,6 @@ Partial Class Formtest
                                     Integer.TryParse(val, captionPos)
                                     If captionPos <> 1 AndAlso captionPos <> 2 Then captionPos = 1
 
-                ' NEW
                                 Case "determine"
                                     determineRaw = val
                             End Select
@@ -1055,6 +1054,9 @@ Partial Class Formtest
 
 
                 Case "SLIDER"
+
+                    Dim determineRaw As String = ""
+
                     If parts.Length < 2 Then Continue For
 
                     ' ---- gather tokens (any key=value after SLIDER) ----
@@ -1106,11 +1108,28 @@ Partial Class Formtest
                             ParseIntField(parts(10), stepVal)
 
                             Double.TryParse(parts(11).Trim(),
-                                            Globalization.NumberStyles.Float,
-                                            Globalization.CultureInfo.InvariantCulture,
-                                            scale)
+                            Globalization.NumberStyles.Float,
+                            Globalization.CultureInfo.InvariantCulture,
+                            scale)
 
                             usedPositional = True
+                        End If
+
+                        ' NEW: look for determine= in any trailing key=value segments
+                        If parts.Length > 12 Then
+                            For i As Integer = 12 To parts.Length - 1
+                                Dim p As String = parts(i).Trim()
+                                If Not p.Contains("="c) Then Continue For
+                                Dim kv = p.Split("="c)
+                                If kv.Length <> 2 Then Continue For
+
+                                Dim key = kv(0).Trim().ToLowerInvariant()
+                                Dim val = kv(1).Trim()
+                                If key = "determine" Then
+                                    determineRaw = val
+                                    Exit For
+                                End If
+                            Next
                         End If
                     End If
 
@@ -1151,12 +1170,17 @@ Partial Class Formtest
 
                         If tok.ContainsKey("scale") Then
                             Double.TryParse(tok("scale"),
-                                            Globalization.NumberStyles.Float,
-                                            Globalization.CultureInfo.InvariantCulture,
-                                            scale)
+                            Globalization.NumberStyles.Float,
+                            Globalization.CultureInfo.InvariantCulture,
+                            scale)
                         End If
 
                         If tok.ContainsKey("hint") Then hintText = tok("hint")
+
+                        ' NEW: determine from named tokens
+                        If determineRaw = "" AndAlso tok.ContainsKey("determine") Then
+                            determineRaw = tok("determine").Trim()
+                        End If
                     End If
 
                     ' basic required fields
@@ -1198,10 +1222,22 @@ Partial Class Formtest
                     tb.TickStyle = TickStyle.None
 
                     tb.Tag = deviceName & "|" &
-                             commandPrefix & "|" &
-                             scale.ToString(Globalization.CultureInfo.InvariantCulture) & "|" &
-                             lblValue.Name & "|" &
-                             stepVal.ToString(Globalization.CultureInfo.InvariantCulture)
+             commandPrefix & "|" &
+             scale.ToString(Globalization.CultureInfo.InvariantCulture) & "|" &
+             lblValue.Name & "|" &
+             stepVal.ToString(Globalization.CultureInfo.InvariantCulture)
+
+                    ' NEW: append DETQ/DETF for determine support
+                    If Not String.IsNullOrWhiteSpace(determineRaw) Then
+                        Dim dp() As String = determineRaw.Split("|"c)
+                        Dim detQ As String = If(dp.Length >= 1, dp(0).Trim(), "")
+                        Dim detF As String = If(dp.Length >= 2 AndAlso dp(1).Trim() <> "",
+                                dp(1).Trim().ToLowerInvariant(),
+                                "respnum")
+                        If detQ <> "" Then
+                            tb.Tag = CStr(tb.Tag) & "|DETQ=" & detQ & "|DETF=" & detF
+                        End If
+                    End If
 
                     AddHandler tb.Scroll, AddressOf Slider_Scroll
                     AddHandler tb.MouseUp, AddressOf Slider_MouseUp
@@ -2866,6 +2902,7 @@ Partial Class Formtest
         ' Apply initial instrument state to controls that have determine=...
         ApplyDetermineRadios()
         ApplyDetermineDropdowns()
+        ApplyDetermineSliders()
 
         LogToTempBox("BuildCustomGuiFromText() END - TempBox exists=" &
              (GroupBoxCustom.Controls.Find("TempBox", True).Length > 0).ToString())
@@ -3323,6 +3360,89 @@ Partial Class Formtest
             Next
 
             UserInitSuppressSend = False
+        Next
+
+    End Sub
+
+
+    Private Sub ApplyDetermineSliders()
+
+        For Each ctrl As Control In GroupBoxCustom.Controls
+
+            ' Your sliders live inside a GroupBox you create per slider
+            Dim gb As GroupBox = TryCast(ctrl, GroupBox)
+            If gb Is Nothing Then Continue For
+            If Not gb.Name.StartsWith("GB_Slider_", StringComparison.OrdinalIgnoreCase) Then Continue For
+
+            Dim tb As TrackBar = Nothing
+            For Each c As Control In gb.Controls
+                tb = TryCast(c, TrackBar)
+                If tb IsNot Nothing Then Exit For
+            Next
+            If tb Is Nothing Then Continue For
+
+            Dim tagStr As String = TryCast(tb.Tag, String)
+            If String.IsNullOrEmpty(tagStr) Then Continue For
+
+            Dim parts() As String = tagStr.Split("|"c)
+            If parts.Length < 2 Then Continue For
+
+            Dim deviceName As String = parts(0).Trim()
+
+            Dim detQuery As String = ""
+            Dim detFmt As String = "respnum"
+
+            For Each p In parts
+                If p.StartsWith("DETQ=", StringComparison.OrdinalIgnoreCase) Then
+                    detQuery = p.Substring(5).Trim()
+                ElseIf p.StartsWith("DETF=", StringComparison.OrdinalIgnoreCase) Then
+                    detFmt = p.Substring(5).Trim().ToLowerInvariant()
+                End If
+            Next
+
+            If detQuery = "" Then Continue For
+
+            Dim reply As String = DetermineQuery(deviceName, detQuery, detFmt)
+            If reply = "" Then Continue For
+
+            Dim num As Double
+            If Not TryExtractFirstDouble(reply, num) Then Continue For
+
+            Dim newVal As Integer = CInt(Math.Round(num))
+            If newVal < tb.Minimum Then newVal = tb.Minimum
+            If newVal > tb.Maximum Then newVal = tb.Maximum
+
+            UserInitSuppressSend = True
+            tb.Value = newVal
+            UserInitSuppressSend = False
+
+            ' Update the slider value label (normally done by Scroll/MouseUp, but suppressed during determine)
+            Try
+                Dim tagParts() As String = tagStr.Split("|"c)
+                If tagParts.Length >= 5 Then
+                    Dim scale As Double = 1.0
+                    Double.TryParse(tagParts(2), Globalization.NumberStyles.Float,
+                        Globalization.CultureInfo.InvariantCulture, scale)
+
+                    Dim lblName As String = tagParts(3).Trim()
+
+                    Dim lbl As Label = Nothing
+                    For Each c As Control In gb.Controls
+                        If TypeOf c Is Label AndAlso String.Equals(c.Name, lblName, StringComparison.OrdinalIgnoreCase) Then
+                            lbl = DirectCast(c, Label)
+                            Exit For
+                        End If
+                    Next
+
+                    If lbl IsNot Nothing Then
+                        Dim disp As Double = newVal * scale
+                        lbl.Text = disp.ToString(Globalization.CultureInfo.InvariantCulture)
+                    End If
+                End If
+            Catch
+                ' ignore label update failures
+            End Try
+
         Next
 
     End Sub

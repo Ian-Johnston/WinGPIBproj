@@ -848,8 +848,10 @@ Partial Class Formtest
     End Sub
 
 
+    Private Sub Slider_Scroll(sender As Object, e As EventArgs)       ' handler
 
-    Private Sub Slider_Scroll(sender As Object, e As EventArgs)
+        If UserInitSuppressSend Then Exit Sub
+
         Dim tb = TryCast(sender, TrackBar)
         If tb Is Nothing Then Exit Sub
 
@@ -893,7 +895,10 @@ Partial Class Formtest
     End Sub
 
 
-    Private Sub Slider_MouseUp(sender As Object, e As MouseEventArgs)
+    Private Sub Slider_MouseUp(sender As Object, e As MouseEventArgs)       ' handler
+
+        If UserInitSuppressSend Then Exit Sub
+
         Dim tb = TryCast(sender, TrackBar)
         If tb Is Nothing Then Exit Sub
 
