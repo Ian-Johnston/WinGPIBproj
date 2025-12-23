@@ -1,6 +1,7 @@
 ﻿' User customizeable tab - Parsing
 
 Imports System.ComponentModel
+Imports WinGPIBproj.OnOffLed
 
 
 Partial Class Formtest
@@ -1937,6 +1938,7 @@ Partial Class Formtest
                     Dim device As String = ""
                     Dim cmdOn As String = ""
                     Dim cmdOff As String = ""
+                    Dim determineRaw As String = ""   ' NEW
 
                     Dim x As Integer = 20, y As Integer = 20, w As Integer = 120, h As Integer = 35
 
@@ -1994,6 +1996,7 @@ Partial Class Formtest
                                 Case "y" : ParseIntField(val, y)
                                 Case "w" : ParseIntField(val, w)
                                 Case "h" : ParseIntField(val, h)
+                                Case "determine" : determineRaw = val   ' NEW
                             End Select
                         Next
                     End If
@@ -2002,13 +2005,30 @@ Partial Class Formtest
 
                     ' Create toggle button
                     Dim b As New Button()
+                    b.UseVisualStyleBackColor = False
                     b.Name = name
                     b.Text = If(caption <> "", caption, name)
                     b.Location = New Point(x, y)
                     b.Size = New Size(w, h)
 
-                    ' Tag holds: DEVICE|ONCMD|OFFCMD|STATE
-                    b.Tag = device & "|" & cmdOn & "|" & cmdOff & "|0"   ' state 0 = OFF
+                    ' Tag holds: DEVICE|ONCMD|OFFCMD|STATE plus optional DETQ/DETE/DETF
+                    Dim tagStr As String = device & "|" & cmdOn & "|" & cmdOff & "|0"   ' state 0 = OFF
+
+                    ' Optional: determine=<query>|<expected>|resptext
+                    ' If resptext is omitted, numeric compare (respnum) is assumed.
+                    If determineRaw <> "" Then
+                        Dim dp() As String = determineRaw.Split("|"c)
+                        Dim detQ As String = If(dp.Length >= 1, dp(0).Trim(), "")
+                        Dim detE As String = If(dp.Length >= 2, dp(1).Trim(), "")
+                        Dim detF As String = If(dp.Length >= 3, dp(2).Trim().ToLowerInvariant(), "") ' optional
+
+                        If detQ <> "" AndAlso detE <> "" Then
+                            tagStr &= "|DETQ=" & detQ & "|DETE=" & detE
+                            If detF <> "" Then tagStr &= "|DETF=" & detF
+                        End If
+                    End If
+
+                    b.Tag = tagStr
 
                     AddHandler b.Click, AddressOf ToggleButton_Click
                     GroupBoxCustom.Controls.Add(b)
@@ -2942,6 +2962,7 @@ Partial Class Formtest
         ApplyDetermineDropdowns()
         ApplyDetermineSliders()
         ApplyDetermineSpinners()
+        ApplyDetermineToggles()
 
         ' LogToTempBox("BuildCustomGuiFromText() END - TempBox exists=" & (GroupBoxCustom.Controls.Find("TempBox", True).Length > 0).ToString())
 
@@ -3542,6 +3563,106 @@ Partial Class Formtest
 
         Next
 
+    End Sub
+
+
+    Private Sub ApplyDetermineToggles()
+
+        Dim cache As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+
+        For Each ctrl As Control In GroupBoxCustom.Controls
+
+            Dim b As Button = TryCast(ctrl, Button)
+            If b Is Nothing Then Continue For
+
+            Dim tagStr As String = TryCast(b.Tag, String)
+            If String.IsNullOrEmpty(tagStr) Then Continue For
+
+            Dim parts() As String = tagStr.Split("|"c)
+            If parts.Length < 4 Then Continue For   ' DEVICE|ONCMD|OFFCMD|STATE...
+
+            Dim deviceName As String = parts(0).Trim()
+
+            Dim detQuery As String = ""
+            Dim detExpected As String = ""
+            Dim detFmt As String = "respnum"
+
+            For Each p In parts
+                If p.StartsWith("DETQ=", StringComparison.OrdinalIgnoreCase) Then
+                    detQuery = p.Substring(5).Trim()
+                ElseIf p.StartsWith("DETE=", StringComparison.OrdinalIgnoreCase) Then
+                    detExpected = p.Substring(5).Trim()
+                ElseIf p.StartsWith("DETF=", StringComparison.OrdinalIgnoreCase) Then
+                    detFmt = p.Substring(5).Trim().ToLowerInvariant()
+                End If
+            Next
+
+            If detQuery = "" OrElse detExpected = "" Then Continue For
+
+            Dim cacheKey As String = deviceName & "||" & detQuery & "||" & detFmt
+            Dim reply As String = ""
+            If Not cache.TryGetValue(cacheKey, reply) Then
+                reply = DetermineQuery(deviceName, detQuery, detFmt)
+                cache(cacheKey) = reply
+            End If
+
+            Dim isOn As Boolean = DetermineMatch(reply, detExpected, detFmt)
+            Dim newState As Integer = If(isOn, 1, 0)
+
+            ' Update Tag state but preserve DET tokens
+            parts(3) = newState.ToString(Globalization.CultureInfo.InvariantCulture)
+            b.Tag = String.Join("|", parts)
+
+            ' Illuminate (important: allow BackColor)
+            b.UseVisualStyleBackColor = False
+            If newState = 1 Then
+                b.BackColor = Color.LimeGreen
+                b.ForeColor = Color.Black
+            Else
+                b.BackColor = SystemColors.Control
+                b.ForeColor = SystemColors.ControlText
+            End If
+
+        Next
+
+    End Sub
+
+
+    Private Sub SetToggleButtonState(b As Button, isOn As Boolean)
+
+        Dim tagStr As String = TryCast(b.Tag, String)
+        If String.IsNullOrEmpty(tagStr) Then Exit Sub
+
+        Dim parts() As String = tagStr.Split("|"c)
+        If parts.Length < 4 Then Exit Sub
+
+        ' parts(0)=device, (1)=oncmd, (2)=offcmd, (3)=state
+        parts(3) = If(isOn, "1", "0")
+
+        ' rebuild tag (preserve any DETQ/DETE/DETF fields after index 3)
+        b.Tag = String.Join("|", parts)
+
+        ' simple visual cue (pressed look)
+        b.FlatStyle = FlatStyle.Standard
+        If isOn Then
+            b.Font = New Font(b.Font, FontStyle.Bold)
+        Else
+            b.Font = New Font(b.Font, FontStyle.Regular)
+        End If
+
+    End Sub
+
+
+    Private Sub ApplyToggleVisual(b As Button, state As Integer)
+        b.UseVisualStyleBackColor = False
+
+        If state = 1 Then
+            b.BackColor = Color.LimeGreen
+            b.ForeColor = Color.Black
+        Else
+            b.BackColor = SystemColors.Control
+            b.ForeColor = SystemColors.ControlText
+        End If
     End Sub
 
 

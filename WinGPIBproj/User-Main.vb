@@ -657,15 +657,21 @@ Partial Class Formtest
 
 
     Private Sub ToggleButton_Click(sender As Object, e As EventArgs)
+        If UserInitSuppressSend Then Exit Sub
+
         Dim b As Button = DirectCast(sender, Button)
 
-        Dim tagParts = CStr(b.Tag).Split("|"c)
+        Dim tagStr As String = TryCast(b.Tag, String)
+        If String.IsNullOrEmpty(tagStr) Then Exit Sub
+
+        Dim tagParts = tagStr.Split("|"c)
         If tagParts.Length < 4 Then Exit Sub
 
         Dim device As String = tagParts(0)
         Dim cmdOn As String = tagParts(1)
         Dim cmdOff As String = tagParts(2)
-        Dim state As Integer
+
+        Dim state As Integer = 0
         Integer.TryParse(tagParts(3), state)   ' 0 = OFF, 1 = ON
 
         ' Pick dev1/dev2 + native/standalone flag
@@ -682,33 +688,28 @@ Partial Class Formtest
         End Select
         If dev Is Nothing Then Exit Sub
 
-        If state = 0 Then
-            ' Turn ON
+        Dim newState As Integer = If(state = 0, 1, 0)
+
+        If newState = 1 Then
             If useNative Then
                 NativeSend(device, cmdOn & TermStr2())
             Else
                 dev.SendAsync(cmdOn & TermStr2(), True)
             End If
-
-            b.BackColor = Color.LimeGreen
-            b.ForeColor = Color.Black
-            state = 1
-
         Else
-            ' Turn OFF
             If useNative Then
                 NativeSend(device, cmdOff & TermStr2())
             Else
                 dev.SendAsync(cmdOff & TermStr2(), True)
             End If
-
-            b.BackColor = SystemColors.Control
-            b.ForeColor = SystemColors.ControlText
-            state = 0
         End If
 
-        ' Update Tag with new state
-        b.Tag = device & "|" & cmdOn & "|" & cmdOff & "|" & state
+        ' Update Tag with new state (PRESERVE any DETQ/DETE/DETF tokens)
+        tagParts(3) = newState.ToString(Globalization.CultureInfo.InvariantCulture)
+        b.Tag = String.Join("|", tagParts)
+
+        ' Apply illumination
+        ApplyToggleVisual(b, newState)
     End Sub
 
 
