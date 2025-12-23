@@ -149,8 +149,21 @@ Partial Class Formtest
 
     Private Sub ButtonResetTxt_Click(sender As Object, e As EventArgs) Handles ButtonResetTxt.Click
 
+        ResetUsertab()
+
+    End Sub
+
+
+    Private Sub ResetUsertab()
+
         ' Invalidate any in-flight async UI updates
         Threading.Interlocked.Increment(UserLayoutGen)
+
+        ' Reset LUA state completely
+        inLuaScript = False
+        luaLines.Clear()
+        luaScriptName = ""
+        LuaScriptsByName.Clear()
 
         ' Stop User tab dev1 and dev2 timers
         Me.Timer5.Stop()
@@ -174,8 +187,6 @@ Partial Class Formtest
         InvisFuncDefaultVisible.Clear()
 
         ' Remove all dynamically created controls
-        'GroupBoxCustom.Controls.Clear()
-
         For i As Integer = GroupBoxCustom.Controls.Count - 1 To 0 Step -1
             Dim c = GroupBoxCustom.Controls(i)
             If c Is LabelUSERtab1 Then Continue For
@@ -965,6 +976,9 @@ Partial Class Formtest
 
 
     Private Sub Spinner_ValueChanged(sender As Object, e As EventArgs)
+
+        If UserInitSuppressSend Then Exit Sub
+
         Dim nud = TryCast(sender, NumericUpDown)
         If nud Is Nothing Then Exit Sub
 

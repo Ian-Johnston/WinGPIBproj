@@ -1340,8 +1340,10 @@ Partial Class Formtest
                     Continue For
 
 
-
                 Case "SPINNER"
+
+                    Dim determineRaw As String = ""
+
                     If parts.Length < 2 Then Continue For
 
                     ' -----------------------
@@ -1392,9 +1394,9 @@ Partial Class Formtest
                             ParseIntField(parts(10), stepVal)
 
                             Double.TryParse(parts(11).Trim(),
-                                            Globalization.NumberStyles.Float,
-                                            Globalization.CultureInfo.InvariantCulture,
-                                            scale)
+                            Globalization.NumberStyles.Float,
+                            Globalization.CultureInfo.InvariantCulture,
+                            scale)
                         Else
                             ' If they used classic header but then tokens for the rest, parse tokens from 5+
                             For i As Integer = 5 To parts.Length - 1
@@ -1415,9 +1417,11 @@ Partial Class Formtest
                                     Case "step" : ParseIntField(val, stepVal)
                                     Case "scale"
                                         Double.TryParse(val,
-                                                        Globalization.NumberStyles.Float,
-                                                        Globalization.CultureInfo.InvariantCulture,
-                                                        scale)
+                                        Globalization.NumberStyles.Float,
+                                        Globalization.CultureInfo.InvariantCulture,
+                                        scale)
+                                    Case "determine"
+                                        determineRaw = val
                                 End Select
                             Next
                         End If
@@ -1433,10 +1437,10 @@ Partial Class Formtest
 
                         ' First, capture positional header if they provided it
                         If parts.Length >= 5 AndAlso
-                           Not parts(1).Contains("="c) AndAlso
-                           Not parts(2).Contains("="c) AndAlso
-                           Not parts(3).Contains("="c) AndAlso
-                           Not parts(4).Contains("="c) Then
+           Not parts(1).Contains("="c) AndAlso
+           Not parts(2).Contains("="c) AndAlso
+           Not parts(3).Contains("="c) AndAlso
+           Not parts(4).Contains("="c) Then
 
                             controlName = parts(1).Trim()
                             caption = parts(2).Trim()
@@ -1469,9 +1473,11 @@ Partial Class Formtest
                                 Case "step" : ParseIntField(val, stepVal)
                                 Case "scale"
                                     Double.TryParse(val,
-                                                    Globalization.NumberStyles.Float,
-                                                    Globalization.CultureInfo.InvariantCulture,
-                                                    scale)
+                                    Globalization.NumberStyles.Float,
+                                    Globalization.CultureInfo.InvariantCulture,
+                                    scale)
+                                Case "determine"
+                                    determineRaw = val
                             End Select
                         Next
 
@@ -1479,6 +1485,14 @@ Partial Class Formtest
                             Continue For
                         End If
                     End If
+
+                    ' -----------------------
+                    ' Basic validation
+                    ' -----------------------
+                    If maxVal < minVal Then
+                        Dim tmp = minVal : minVal = maxVal : maxVal = tmp
+                    End If
+                    If stepVal <= 0 Then stepVal = 1
 
                     ' -----------------------
                     ' Label
@@ -1506,12 +1520,24 @@ Partial Class Formtest
                     nud.Value = minVal
                     nud.Text = ""
 
-                    ' Tag = DEVICE|COMMAND|SCALE|INITFLAG|MIN
+                    ' Tag = DEVICE|COMMAND|SCALE|INITFLAG|MIN   (existing)
                     nud.Tag = deviceName & "|" &
-                              commandPrefix & "|" &
-                              scale.ToString(Globalization.CultureInfo.InvariantCulture) & "|" &
-                              "0" & "|" &
-                              minVal.ToString(Globalization.CultureInfo.InvariantCulture)
+              commandPrefix & "|" &
+              scale.ToString(Globalization.CultureInfo.InvariantCulture) & "|" &
+              "0" & "|" &
+              minVal.ToString(Globalization.CultureInfo.InvariantCulture)
+
+                    ' Append DETQ/DETF for determine support (optional)
+                    If Not String.IsNullOrWhiteSpace(determineRaw) Then
+                        Dim dp() As String = determineRaw.Split("|"c)
+                        Dim detQ As String = If(dp.Length >= 1, dp(0).Trim(), "")
+                        Dim detF As String = If(dp.Length >= 2 AndAlso dp(1).Trim() <> "",
+                                dp(1).Trim().ToLowerInvariant(),
+                                "respnum")
+                        If detQ <> "" Then
+                            nud.Tag = CStr(nud.Tag) & "|DETQ=" & detQ & "|DETF=" & detF
+                        End If
+                    End If
 
                     AddHandler nud.ValueChanged, AddressOf Spinner_ValueChanged
 
@@ -2903,9 +2929,9 @@ Partial Class Formtest
         ApplyDetermineRadios()
         ApplyDetermineDropdowns()
         ApplyDetermineSliders()
+        ApplyDetermineSpinners()
 
-        LogToTempBox("BuildCustomGuiFromText() END - TempBox exists=" &
-             (GroupBoxCustom.Controls.Find("TempBox", True).Length > 0).ToString())
+        ' LogToTempBox("BuildCustomGuiFromText() END - TempBox exists=" & (GroupBoxCustom.Controls.Find("TempBox", True).Length > 0).ToString())
 
 
     End Sub
@@ -2925,7 +2951,7 @@ Partial Class Formtest
     '
     Private Sub ApplyDetermineRadios()
 
-        LogToTempBox("ApplyDetermineRadios() CALLED")       ' testing only
+        ' LogToTempBox("ApplyDetermineRadios() CALLED")       ' testing only
 
         Dim cache As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
 
@@ -2975,7 +3001,7 @@ Partial Class Formtest
                     reply = DetermineQuery(deviceName, detQuery, detFmt)
                     cache(cacheKey) = reply
 
-                    LogToTempBox("[DET] " & deviceName & " " & detQuery & " -> " & reply)       ' test only
+                    ' LogToTempBox("[DET] " & deviceName & " " & detQuery & " -> " & reply)       ' test only
                 End If
 
                 If DetermineMatch(reply, detExpected, detFmt) Then
@@ -2983,7 +3009,7 @@ Partial Class Formtest
                     Exit For
                 End If
 
-                LogToTempBox("[DETINFO] " & deviceName & " q=" & detQuery & " exp=" & detExpected & " fmt=" & detFmt)       ' test only
+                ' LogToTempBox("[DETINFO] " & deviceName & " q=" & detQuery & " exp=" & detExpected & " fmt=" & detFmt)       ' test only
 
             Next
 
@@ -3442,6 +3468,65 @@ Partial Class Formtest
             Catch
                 ' ignore label update failures
             End Try
+
+        Next
+
+    End Sub
+
+
+    Private Sub ApplyDetermineSpinners()
+
+        For Each ctrl As Control In GroupBoxCustom.Controls
+
+            Dim nud As NumericUpDown = TryCast(ctrl, NumericUpDown)
+            If nud Is Nothing Then Continue For
+
+            Dim tagStr As String = TryCast(nud.Tag, String)
+            If String.IsNullOrEmpty(tagStr) Then Continue For
+
+            Dim parts() As String = tagStr.Split("|"c)
+            If parts.Length < 5 Then Continue For
+
+            Dim deviceName As String = parts(0).Trim()
+
+            ' Tag = DEVICE|COMMAND|SCALE|INITFLAG|MIN|DETQ=...|DETF=...
+            Dim scale As Double = 1.0
+            Double.TryParse(parts(2), Globalization.NumberStyles.Float,
+                        Globalization.CultureInfo.InvariantCulture, scale)
+
+            Dim detQuery As String = ""
+            Dim detFmt As String = "respnum"
+
+            For Each p In parts
+                If p.StartsWith("DETQ=", StringComparison.OrdinalIgnoreCase) Then
+                    detQuery = p.Substring(5).Trim()
+                ElseIf p.StartsWith("DETF=", StringComparison.OrdinalIgnoreCase) Then
+                    detFmt = p.Substring(5).Trim().ToLowerInvariant()
+                End If
+            Next
+
+            If detQuery = "" Then Continue For
+
+            Dim reply As String = DetermineQuery(deviceName, detQuery, detFmt)
+            If reply = "" Then Continue For
+
+            Dim num As Double
+            If Not TryExtractFirstDouble(reply, num) Then Continue For
+
+            ' Convert instrument value -> spinner internal value
+            ' (assumes send uses: cmd & (nud.Value * scale))
+            Dim internalVal As Double = num
+            If scale <> 0 Then internalVal = num / scale
+
+            Dim newVal As Decimal = CDec(Math.Round(internalVal, 0))
+
+            If newVal < nud.Minimum Then newVal = nud.Minimum
+            If newVal > nud.Maximum Then newVal = nud.Maximum
+
+            UserInitSuppressSend = True
+            nud.Value = newVal
+            nud.Text = newVal.ToString(Globalization.CultureInfo.InvariantCulture)  ' prevent blank display
+            UserInitSuppressSend = False
 
         Next
 
