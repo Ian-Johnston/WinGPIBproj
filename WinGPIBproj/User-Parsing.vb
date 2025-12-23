@@ -1938,7 +1938,9 @@ Partial Class Formtest
                     Dim device As String = ""
                     Dim cmdOn As String = ""
                     Dim cmdOff As String = ""
-                    Dim determineRaw As String = ""   ' NEW
+                    Dim determineRaw As String = ""
+                    Dim onColorName As String = "default"
+                    Dim offColorName As String = "default"
 
                     Dim x As Integer = 20, y As Integer = 20, w As Integer = 120, h As Integer = 35
 
@@ -1996,7 +1998,9 @@ Partial Class Formtest
                                 Case "y" : ParseIntField(val, y)
                                 Case "w" : ParseIntField(val, w)
                                 Case "h" : ParseIntField(val, h)
-                                Case "determine" : determineRaw = val   ' NEW
+                                Case "determine" : determineRaw = val
+                                Case "oncolor" : onColorName = val.ToLowerInvariant()
+                                Case "offcolor" : offColorName = val.ToLowerInvariant()
                             End Select
                         Next
                     End If
@@ -2011,7 +2015,7 @@ Partial Class Formtest
                     b.Location = New Point(x, y)
                     b.Size = New Size(w, h)
 
-                    ' Tag holds: DEVICE|ONCMD|OFFCMD|STATE plus optional DETQ/DETE/DETF
+                    ' Tag holds: DEVICE|ONCMD|OFFCMD|STATE plus optional DETQ/DETE/DETF + ONCLR/OFFCLR
                     Dim tagStr As String = device & "|" & cmdOn & "|" & cmdOff & "|0"   ' state 0 = OFF
 
                     ' Optional: determine=<query>|<expected>|resptext
@@ -2028,10 +2032,136 @@ Partial Class Formtest
                         End If
                     End If
 
+                    ' Colours (optional)
+                    tagStr &= "|ONCLR=" & onColorName & "|OFFCLR=" & offColorName
+
                     b.Tag = tagStr
 
                     AddHandler b.Click, AddressOf ToggleButton_Click
                     GroupBoxCustom.Controls.Add(b)
+                    Continue For
+
+
+                Case "TOGGLEDUAL"
+                    If parts.Length < 2 Then Continue For
+
+                    Dim name As String = ""
+                    Dim caption As String = ""
+                    Dim device As String = ""
+                    Dim leftText As String = "ON"
+                    Dim rightText As String = "OFF"
+                    Dim cmdOn As String = ""
+                    Dim cmdOff As String = ""
+                    Dim determineRaw As String = ""
+                    Dim onColorName As String = "default"
+                    Dim offColorName As String = "default"
+
+                    Dim x As Integer = 20, y As Integer = 20, w As Integer = 180, h As Integer = 35
+
+                    ' tokens
+                    Dim tok As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+                    For i As Integer = 1 To parts.Length - 1
+                        Dim t = parts(i).Trim()
+                        Dim eq = t.IndexOf("="c)
+                        If eq > 0 AndAlso eq < t.Length - 1 Then
+                            Dim k = t.Substring(0, eq).Trim()
+                            Dim v = t.Substring(eq + 1).Trim()
+                            If k <> "" Then tok(k) = v
+                        End If
+                    Next
+
+                    If tok.ContainsKey("name") Then name = tok("name").Trim()
+                    If tok.ContainsKey("caption") Then caption = tok("caption").Trim()
+                    If tok.ContainsKey("device") Then device = tok("device").Trim()
+
+                    If tok.ContainsKey("left") Then leftText = tok("left").Trim()
+                    If tok.ContainsKey("right") Then rightText = tok("right").Trim()
+
+                    If tok.ContainsKey("on") Then cmdOn = tok("on").Trim()
+                    If tok.ContainsKey("off") Then cmdOff = tok("off").Trim()
+
+                    If tok.ContainsKey("x") Then ParseIntField(tok("x"), x)
+                    If tok.ContainsKey("y") Then ParseIntField(tok("y"), y)
+                    If tok.ContainsKey("w") Then ParseIntField(tok("w"), w)
+                    If tok.ContainsKey("h") Then ParseIntField(tok("h"), h)
+
+                    If tok.ContainsKey("determine") Then determineRaw = tok("determine").Trim()
+
+                    If tok.ContainsKey("oncolor") OrElse tok.ContainsKey("leftcolor") Then
+                        onColorName = If(tok.ContainsKey("oncolor"), tok("oncolor"), tok("leftcolor")).Trim().ToLowerInvariant()
+                    End If
+                    If tok.ContainsKey("offcolor") OrElse tok.ContainsKey("rightcolor") Then
+                        offColorName = If(tok.ContainsKey("offcolor"), tok("offcolor"), tok("rightcolor")).Trim().ToLowerInvariant()
+                    End If
+
+                    If name = "" OrElse device = "" OrElse cmdOn = "" OrElse cmdOff = "" Then Continue For
+
+                    ' Optional caption label
+                    Dim capW As Integer = 0
+                    If caption <> "" Then
+                        Dim lbl As New Label()
+                        lbl.Text = caption
+                        lbl.AutoSize = True
+                        lbl.Location = New Point(x, y + 7)
+                        GroupBoxCustom.Controls.Add(lbl)
+                        capW = lbl.PreferredWidth + 8
+                    End If
+
+                    ' Host panel
+                    Dim pnl As New Panel()
+                    pnl.Name = "TD_" & name
+                    pnl.Location = New Point(x + capW, y)
+                    pnl.Size = New Size(w, h)
+                    'pnl.BorderStyle = BorderStyle.FixedSingle
+                    GroupBoxCustom.Controls.Add(pnl)
+
+                    ' Two buttons
+                    Dim bL As New Button()
+                    bL.Name = "TDL_" & name
+                    bL.Text = leftText
+                    bL.Location = New Point(0, 0)
+                    bL.Size = New Size(w \ 2, h)
+                    bL.UseVisualStyleBackColor = False
+
+                    Dim bR As New Button()
+                    bR.Name = "TDR_" & name
+                    bR.Text = rightText
+                    bR.Location = New Point(w \ 2, 0)
+                    bR.Size = New Size(w - (w \ 2), h)
+                    bR.UseVisualStyleBackColor = False
+
+                    ' Tag format (both buttons share the same Tag):
+                    ' DEVICE|ONCMD|OFFCMD|STATE|PANELNAME plus optional DETQ/DETE/DETF + ONCLR/OFFCLR
+                    ' STATE: 1 = LEFT active (ON), 0 = RIGHT active (OFF)
+                    Dim tagStr As String = device & "|" & cmdOn & "|" & cmdOff & "|0|" & pnl.Name
+
+                    ' append determine tokens if present
+                    If determineRaw <> "" Then
+                        Dim dp() As String = determineRaw.Split("|"c)
+                        Dim detQ As String = If(dp.Length >= 1, dp(0).Trim(), "")
+                        Dim detE As String = If(dp.Length >= 2, dp(1).Trim(), "")
+                        Dim detF As String = If(dp.Length >= 3, dp(2).Trim().ToLowerInvariant(), "") ' optional
+                        If detQ <> "" AndAlso detE <> "" Then
+                            tagStr &= "|DETQ=" & detQ & "|DETE=" & detE
+                            If detF <> "" Then tagStr &= "|DETF=" & detF
+                        End If
+                    End If
+
+                    ' Colours (optional)
+                    tagStr &= "|ONCLR=" & onColorName & "|OFFCLR=" & offColorName
+
+                    bL.Tag = tagStr
+                    bR.Tag = tagStr
+
+                    AddHandler bL.Click, AddressOf ToggleDual_LeftClick
+                    AddHandler bR.Click, AddressOf ToggleDual_RightClick
+
+                    pnl.Controls.Add(bL)
+                    pnl.Controls.Add(bR)
+
+                    ' Default visual = OFF (right) (colour applied in ApplyToggleDualVisual)
+                    ApplyToggleDualVisual(pnl, False)
+
                     Continue For
 
 
@@ -2963,6 +3093,7 @@ Partial Class Formtest
         ApplyDetermineSliders()
         ApplyDetermineSpinners()
         ApplyDetermineToggles()
+        ApplyDetermineToggleDuals()
 
         ' LogToTempBox("BuildCustomGuiFromText() END - TempBox exists=" & (GroupBoxCustom.Controls.Find("TempBox", True).Length > 0).ToString())
 
@@ -3587,6 +3718,9 @@ Partial Class Formtest
             Dim detExpected As String = ""
             Dim detFmt As String = "respnum"
 
+            Dim onClr As String = "default"
+            Dim offClr As String = "default"
+
             For Each p In parts
                 If p.StartsWith("DETQ=", StringComparison.OrdinalIgnoreCase) Then
                     detQuery = p.Substring(5).Trim()
@@ -3594,6 +3728,10 @@ Partial Class Formtest
                     detExpected = p.Substring(5).Trim()
                 ElseIf p.StartsWith("DETF=", StringComparison.OrdinalIgnoreCase) Then
                     detFmt = p.Substring(5).Trim().ToLowerInvariant()
+                ElseIf p.StartsWith("ONCLR=", StringComparison.OrdinalIgnoreCase) Then
+                    onClr = p.Substring(6).Trim().ToLowerInvariant()
+                ElseIf p.StartsWith("OFFCLR=", StringComparison.OrdinalIgnoreCase) Then
+                    offClr = p.Substring(7).Trim().ToLowerInvariant()
                 End If
             Next
 
@@ -3613,56 +3751,222 @@ Partial Class Formtest
             parts(3) = newState.ToString(Globalization.CultureInfo.InvariantCulture)
             b.Tag = String.Join("|", parts)
 
-            ' Illuminate (important: allow BackColor)
-            b.UseVisualStyleBackColor = False
-            If newState = 1 Then
-                b.BackColor = Color.LimeGreen
-                b.ForeColor = Color.Black
-            Else
-                b.BackColor = SystemColors.Control
-                b.ForeColor = SystemColors.ControlText
-            End If
+            ApplyToggleVisual(b, newState, onClr, offClr)
 
         Next
 
     End Sub
 
 
-    Private Sub SetToggleButtonState(b As Button, isOn As Boolean)
+    Private Function ToggleColorFromName(name As String) As Color
+        Select Case name.ToLowerInvariant()
+            Case "limegreen" : Return Color.LimeGreen
+            Case "green" : Return Color.Green
+            Case "red" : Return Color.Red
+            Case "orange" : Return Color.Orange
+            Case "yellow" : Return Color.Gold
+            Case "blue" : Return Color.DeepSkyBlue
+            Case Else : Return SystemColors.Control
+        End Select
+    End Function
 
-        Dim tagStr As String = TryCast(b.Tag, String)
-        If String.IsNullOrEmpty(tagStr) Then Exit Sub
 
-        Dim parts() As String = tagStr.Split("|"c)
-        If parts.Length < 4 Then Exit Sub
 
-        ' parts(0)=device, (1)=oncmd, (2)=offcmd, (3)=state
-        parts(3) = If(isOn, "1", "0")
+    Private Sub ApplyToggleVisual(b As Button, state As Integer,
+                             Optional onClr As String = "default",
+                             Optional offClr As String = "default")
 
-        ' rebuild tag (preserve any DETQ/DETE/DETF fields after index 3)
-        b.Tag = String.Join("|", parts)
+        b.UseVisualStyleBackColor = False
 
-        ' simple visual cue (pressed look)
-        b.FlatStyle = FlatStyle.Standard
-        If isOn Then
-            b.Font = New Font(b.Font, FontStyle.Bold)
+        If state = 1 Then
+            b.BackColor = ToggleColorFromName(onClr)
+            b.ForeColor = Color.Black
         Else
-            b.Font = New Font(b.Font, FontStyle.Regular)
+            b.BackColor = ToggleColorFromName(offClr)
+            b.ForeColor = SystemColors.ControlText
         End If
 
     End Sub
 
 
-    Private Sub ApplyToggleVisual(b As Button, state As Integer)
-        b.UseVisualStyleBackColor = False
+    Private Sub ToggleDual_LeftClick(sender As Object, e As EventArgs)
+        If UserInitSuppressSend Then Exit Sub
+        ToggleDual_SendAndSet(DirectCast(sender, Button), True)
+    End Sub
 
-        If state = 1 Then
-            b.BackColor = Color.LimeGreen
-            b.ForeColor = Color.Black
+
+    Private Sub ToggleDual_RightClick(sender As Object, e As EventArgs)
+        If UserInitSuppressSend Then Exit Sub
+        ToggleDual_SendAndSet(DirectCast(sender, Button), False)
+    End Sub
+
+
+    Private Sub ToggleDual_SendAndSet(b As Button, setLeftActive As Boolean)
+
+        Dim tagStr As String = TryCast(b.Tag, String)
+        If String.IsNullOrEmpty(tagStr) Then Exit Sub
+
+        Dim parts() As String = tagStr.Split("|"c)
+        If parts.Length < 5 Then Exit Sub
+
+        Dim device As String = parts(0).Trim()
+        Dim cmdOn As String = parts(1).Trim()
+        Dim cmdOff As String = parts(2).Trim()
+        Dim pnlName As String = parts(4).Trim()
+
+        ' Pick dev1/dev2 + native/standalone flag
+        Dim dev As IODevices.IODevice = Nothing
+        Dim useNative As Boolean = False
+
+        Select Case device.ToLowerInvariant()
+            Case "dev1"
+                dev = dev1
+                useNative = String.Equals(GpibEngineDev1, "native", StringComparison.OrdinalIgnoreCase)
+            Case "dev2"
+                dev = dev2
+                useNative = String.Equals(GpibEngineDev2, "native", StringComparison.OrdinalIgnoreCase)
+        End Select
+        If dev Is Nothing Then Exit Sub
+
+        Dim cmd As String = If(setLeftActive, cmdOn, cmdOff)
+
+        If useNative Then
+            NativeSend(device, cmd & TermStr2())
         Else
-            b.BackColor = SystemColors.Control
-            b.ForeColor = SystemColors.ControlText
+            dev.SendAsync(cmd & TermStr2(), True)
         End If
+
+        ' Update STATE in BOTH buttons' tag (preserve DET tokens)
+        parts(3) = If(setLeftActive, "1", "0")
+        Dim newTag As String = String.Join("|", parts)
+
+        Dim found() As Control = GroupBoxCustom.Controls.Find(pnlName, True)
+        If found IsNot Nothing AndAlso found.Length > 0 Then
+            Dim pnl As Panel = TryCast(found(0), Panel)
+            If pnl IsNot Nothing Then
+                For Each c As Control In pnl.Controls
+                    Dim bb As Button = TryCast(c, Button)
+                    If bb IsNot Nothing Then bb.Tag = newTag
+                Next
+                ApplyToggleDualVisual(pnl, setLeftActive)
+            End If
+        End If
+
+    End Sub
+
+
+    Private Sub ApplyToggleDualVisual(pnl As Panel, leftActive As Boolean)
+
+        Dim bL As Button = Nothing
+        Dim bR As Button = Nothing
+
+        For Each c As Control In pnl.Controls
+            Dim bb As Button = TryCast(c, Button)
+            If bb Is Nothing Then Continue For
+            If bb.Name.StartsWith("TDL_", StringComparison.OrdinalIgnoreCase) Then bL = bb
+            If bb.Name.StartsWith("TDR_", StringComparison.OrdinalIgnoreCase) Then bR = bb
+        Next
+        If bL Is Nothing OrElse bR Is Nothing Then Exit Sub
+
+        Dim tagStr As String = TryCast(bL.Tag, String)
+        Dim onClr As String = "default"
+        Dim offClr As String = "default"
+
+        If Not String.IsNullOrEmpty(tagStr) Then
+            Dim parts() As String = tagStr.Split("|"c)
+            For Each p In parts
+                If p.StartsWith("ONCLR=", StringComparison.OrdinalIgnoreCase) Then
+                    onClr = p.Substring(6).Trim().ToLowerInvariant()
+                ElseIf p.StartsWith("OFFCLR=", StringComparison.OrdinalIgnoreCase) Then
+                    offClr = p.Substring(7).Trim().ToLowerInvariant()
+                End If
+            Next
+        End If
+
+        bL.UseVisualStyleBackColor = False
+        bR.UseVisualStyleBackColor = False
+
+        If leftActive Then
+            bL.BackColor = ToggleColorFromName(onClr)
+            bL.ForeColor = Color.Black
+            bR.BackColor = ToggleColorFromName(offClr)
+            bR.ForeColor = SystemColors.ControlText
+        Else
+            bR.BackColor = ToggleColorFromName(onClr)
+            bR.ForeColor = Color.Black
+            bL.BackColor = ToggleColorFromName(offClr)
+            bL.ForeColor = SystemColors.ControlText
+        End If
+
+    End Sub
+
+
+    Private Sub ApplyDetermineToggleDuals()
+
+        Dim cache As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+
+        For Each ctrl As Control In GroupBoxCustom.Controls
+
+            Dim pnl As Panel = TryCast(ctrl, Panel)
+            If pnl Is Nothing Then Continue For
+            If Not pnl.Name.StartsWith("TD_", StringComparison.OrdinalIgnoreCase) Then Continue For
+
+            ' Grab tag from any button inside
+            Dim tagStr As String = Nothing
+            For Each c As Control In pnl.Controls
+                Dim bb As Button = TryCast(c, Button)
+                If bb IsNot Nothing Then
+                    tagStr = TryCast(bb.Tag, String)
+                    If Not String.IsNullOrEmpty(tagStr) Then Exit For
+                End If
+            Next
+            If String.IsNullOrEmpty(tagStr) Then Continue For
+
+            Dim parts() As String = tagStr.Split("|"c)
+            If parts.Length < 5 Then Continue For
+
+            Dim deviceName As String = parts(0).Trim()
+
+            Dim detQuery As String = ""
+            Dim detExpected As String = ""
+            Dim detFmt As String = "respnum"
+
+            For Each p In parts
+                If p.StartsWith("DETQ=", StringComparison.OrdinalIgnoreCase) Then
+                    detQuery = p.Substring(5).Trim()
+                ElseIf p.StartsWith("DETE=", StringComparison.OrdinalIgnoreCase) Then
+                    detExpected = p.Substring(5).Trim()
+                ElseIf p.StartsWith("DETF=", StringComparison.OrdinalIgnoreCase) Then
+                    detFmt = p.Substring(5).Trim().ToLowerInvariant()
+                End If
+            Next
+
+            If detQuery = "" OrElse detExpected = "" Then Continue For
+
+            Dim cacheKey As String = deviceName & "||" & detQuery & "||" & detFmt
+            Dim reply As String = ""
+            If Not cache.TryGetValue(cacheKey, reply) Then
+                reply = DetermineQuery(deviceName, detQuery, detFmt)
+                cache(cacheKey) = reply
+            End If
+
+            Dim isOnLeft As Boolean = DetermineMatch(reply, detExpected, detFmt)
+
+            ' Update tag state + visual WITHOUT sending SCPI
+            Dim newState As String = If(isOnLeft, "1", "0")
+            parts(3) = newState
+            Dim newTag As String = String.Join("|", parts)
+
+            UserInitSuppressSend = True
+            For Each c As Control In pnl.Controls
+                Dim bb As Button = TryCast(c, Button)
+                If bb IsNot Nothing Then bb.Tag = newTag
+            Next
+            ApplyToggleDualVisual(pnl, isOnLeft)
+            UserInitSuppressSend = False
+
+        Next
+
     End Sub
 
 
