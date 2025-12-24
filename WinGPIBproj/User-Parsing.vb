@@ -3021,10 +3021,10 @@ Partial Class Formtest
                     If needHits < 1 Then needHits = 1
                     If periodSec <= 0 Then periodSec = 0.5
 
-                    ' NEW: your trigger engine must exist (or be created here)
+                    ' Trigger engine must exist (or be created here)
                     EnsureTriggerEngine()
 
-                    ' NEW: TriggerDef class/struct used by your engine
+                    ' TriggerDef class/struct used by your engine
                     Dim td As New TriggerDef With {
                         .Name = trigName,
                         .Enabled = enabled,
@@ -3077,6 +3077,148 @@ Partial Class Formtest
                     Continue For
 
 
+                Case "MULTIBUTTON"
+
+                    Dim name As String = ""
+                    Dim caption As String = ""
+                    Dim device As String = ""
+                    Dim commandPrefix As String = ""
+                    Dim itemsRaw As String = ""
+                    Dim commandsRaw As String = ""
+                    Dim determineRaw As String = ""
+                    Dim detmapRaw As String = ""
+
+                    Dim x As Integer = 20, y As Integer = 20
+                    Dim w As Integer = 60     ' per-button width
+                    Dim h As Integer = 28     ' per-button height
+                    Dim gap As Integer = 0
+
+                    Dim onColorName As String = "limegreen"
+                    Dim offColorName As String = "default"
+
+                    ' --- tokens ---
+                    Dim tok As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+                    For i As Integer = 1 To parts.Length - 1
+                        Dim t = parts(i).Trim()
+                        Dim eq = t.IndexOf("="c)
+                        If eq > 0 AndAlso eq < t.Length - 1 Then
+                            tok(t.Substring(0, eq).Trim()) = t.Substring(eq + 1).Trim()
+                        End If
+                    Next
+
+                    If tok.ContainsKey("name") Then name = tok("name")
+                    If tok.ContainsKey("caption") Then caption = tok("caption")
+                    If tok.ContainsKey("device") Then device = tok("device")
+
+                    If tok.ContainsKey("command") Then commandPrefix = tok("command")
+                    If tok.ContainsKey("cmd") AndAlso commandPrefix = "" Then commandPrefix = tok("cmd")
+
+                    If tok.ContainsKey("items") Then itemsRaw = tok("items")
+                    If tok.ContainsKey("commands") Then commandsRaw = tok("commands")
+
+                    If tok.ContainsKey("x") Then ParseIntField(tok("x"), x)
+                    If tok.ContainsKey("y") Then ParseIntField(tok("y"), y)
+                    If tok.ContainsKey("w") Then ParseIntField(tok("w"), w)
+                    If tok.ContainsKey("h") Then ParseIntField(tok("h"), h)
+                    If tok.ContainsKey("gap") Then ParseIntField(tok("gap"), gap)
+
+                    If tok.ContainsKey("determine") Then determineRaw = tok("determine")
+
+                    If tok.ContainsKey("oncolor") Then onColorName = tok("oncolor").ToLowerInvariant()
+                    If tok.ContainsKey("offcolor") Then offColorName = tok("offcolor").ToLowerInvariant()
+
+                    If tok.ContainsKey("detmap") Then detmapRaw = tok("detmap").Trim()
+
+                    If name = "" OrElse device = "" OrElse itemsRaw = "" Then Continue For
+
+                    Dim items = itemsRaw.Split(","c).Select(Function(s) s.Trim()).Where(Function(s) s <> "").ToArray()
+                    If items.Length < 2 OrElse items.Length > 10 Then Continue For
+
+                    Dim cmds() As String = Nothing
+                    If commandsRaw <> "" Then
+                        cmds = commandsRaw.Split(","c).Select(Function(s) s.Trim()).ToArray()
+                        If cmds.Length <> items.Length Then Continue For
+                    Else
+                        If commandPrefix = "" Then Continue For
+                    End If
+
+                    ' ---- detmap (optional, must match items count) ----
+                    Dim detmap() As String = Nothing
+                    If detmapRaw <> "" Then
+                        detmap = detmapRaw.Split(","c).Select(Function(s) s.Trim()).Where(Function(s) s <> "").ToArray()
+                        If detmap.Length <> items.Length Then Continue For
+                    End If
+
+                    ' --- caption label ---
+                    Dim capW As Integer = 0
+                    If caption <> "" Then
+                        Dim lbl As New Label()
+                        lbl.Text = caption
+                        lbl.AutoSize = True
+                        lbl.Location = New Point(x, y + 6)
+                        GroupBoxCustom.Controls.Add(lbl)
+                        capW = lbl.PreferredWidth + 8
+                    End If
+
+                    ' --- host panel ---
+                    Dim pnl As New Panel()
+                    pnl.Name = "MB_" & name
+                    pnl.Location = New Point(x + capW, y)
+                    pnl.Size = New Size(items.Length * w + (items.Length - 1) * gap, h)
+                    GroupBoxCustom.Controls.Add(pnl)
+
+                    ' --- base tag ---
+                    Dim tagBase As String =
+                        "MB|" & device & "|" & commandPrefix & "|" & pnl.Name & "|" &
+                        items.Length & "|-1" &
+                        "|ONCLR=" & onColorName & "|OFFCLR=" & offColorName
+
+                    ' determine=<query>||resptext  (expected omitted in detmap mode)
+                    If determineRaw <> "" Then
+                        Dim dp() = determineRaw.Split("|"c)
+                        Dim detQ As String = If(dp.Length >= 1, dp(0).Trim(), "")
+                        Dim detE As String = If(dp.Length >= 2, dp(1).Trim(), "")
+                        Dim detF As String = If(dp.Length >= 3, dp(2).Trim().ToLowerInvariant(), "")
+
+                        ' support determine=CONF?||resptext  (dp(1) empty)
+                        If detQ <> "" Then
+                            tagBase &= "|DETQ=" & detQ
+                            If detE <> "" Then tagBase &= "|DETE=" & detE
+                            If detF <> "" Then tagBase &= "|DETF=" & detF
+                        End If
+                    End If
+
+                    If cmds IsNot Nothing Then
+                        tagBase &= "|CMDS=" & String.Join("§", cmds)
+                    End If
+
+                    If detmap IsNot Nothing Then
+                        tagBase &= "|DETMAP=" & String.Join("§", detmap)
+                    End If
+
+                    ' --- buttons ---
+                    Dim xx As Integer = 0
+                    For i As Integer = 0 To items.Length - 1
+                        Dim b As New Button()
+                        b.Name = "MBI_" & name & "_" & i
+                        b.Text = items(i)
+                        b.UseVisualStyleBackColor = False
+                        b.Location = New Point(xx, 0)
+                        b.Size = New Size(w, h)
+                        b.Tag = tagBase & "|IDX=" & i & "|ITEM=" & items(i)
+
+                        AddHandler b.Click, AddressOf MultiButton_Click
+                        pnl.Controls.Add(b)
+
+                        xx += w + gap
+                    Next
+
+                    ApplyMultiButtonVisual(pnl, -1)
+                    Continue For
+
+
+
+
 
 
 
@@ -3094,6 +3236,8 @@ Partial Class Formtest
         ApplyDetermineSpinners()
         ApplyDetermineToggles()
         ApplyDetermineToggleDuals()
+        ApplyDetermineMultiButtons()
+
 
         ' LogToTempBox("BuildCustomGuiFromText() END - TempBox exists=" & (GroupBoxCustom.Controls.Find("TempBox", True).Length > 0).ToString())
 
@@ -3194,8 +3338,28 @@ Partial Class Formtest
 
         If detFmt = "resptext" Then
             Dim r As String = reply.ToUpperInvariant()
-            Dim e As String = expected.ToUpperInvariant()
-            Return (e <> "" AndAlso r.Contains(e))
+            Dim eRaw As String = expected.Trim()
+
+            If eRaw = "" Then Return False
+
+            ' Exact token match if expected starts with "="
+            If eRaw.StartsWith("=", StringComparison.Ordinal) Then
+                Dim tok As String = eRaw.Substring(1).Trim().ToUpperInvariant()
+                If tok = "" Then Return False
+
+                ' Make tokenization robust (strip quotes, split on common SCPI delimiters)
+                r = r.Replace("""", " ")
+
+                Dim seps() As Char = {":"c, ","c, ";"c, " "c, ControlChars.Tab, ControlChars.Cr, ControlChars.Lf}
+                For Each t In r.Split(seps, StringSplitOptions.RemoveEmptyEntries)
+                    If t.Trim().ToUpperInvariant() = tok Then Return True
+                Next
+                Return False
+            End If
+
+            ' Default (legacy): substring match
+            Dim e As String = eRaw.ToUpperInvariant()
+            Return r.Contains(e)
         Else
             ' respnum (default)
             Dim dv As Double
@@ -3208,6 +3372,7 @@ Partial Class Formtest
 
             Return Math.Abs(dv - ev) < 0.0000001
         End If
+
     End Function
 
 
@@ -3968,6 +4133,171 @@ Partial Class Formtest
         Next
 
     End Sub
+
+
+    Private Sub ApplyDetermineMultiButtons()
+
+        Dim cache As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+
+        For Each ctrl As Control In GroupBoxCustom.Controls
+
+            Dim pnl As Panel = TryCast(ctrl, Panel)
+            If pnl Is Nothing Then Continue For
+            If Not pnl.Name.StartsWith("MB_", StringComparison.OrdinalIgnoreCase) Then Continue For
+
+            ' Grab tag from any button inside
+            Dim tagStr As String = Nothing
+            For Each c As Control In pnl.Controls
+                Dim bb As Button = TryCast(c, Button)
+                If bb IsNot Nothing Then
+                    tagStr = TryCast(bb.Tag, String)
+                    If Not String.IsNullOrEmpty(tagStr) Then Exit For
+                End If
+            Next
+            If String.IsNullOrEmpty(tagStr) Then Continue For
+
+            Dim parts() As String = tagStr.Split("|"c)
+
+            Dim deviceName As String = ""
+            Dim detQuery As String = ""
+            Dim detFmt As String = "respnum"
+            Dim detmapPacked As String = ""
+            Dim onClr As String = "limegreen"
+            Dim offClr As String = "default"
+
+            ' MB|device|prefix|panel|count|state|ONCLR=..|OFFCLR=..|DETQ=..|DETF=..|DETMAP=..
+            If parts.Length >= 2 Then deviceName = parts(1).Trim()
+
+            For Each p In parts
+                If p.StartsWith("DETQ=", StringComparison.OrdinalIgnoreCase) Then
+                    detQuery = p.Substring(5).Trim()
+                ElseIf p.StartsWith("DETF=", StringComparison.OrdinalIgnoreCase) Then
+                    detFmt = p.Substring(5).Trim().ToLowerInvariant()
+                ElseIf p.StartsWith("DETMAP=", StringComparison.OrdinalIgnoreCase) Then
+                    detmapPacked = p.Substring(7)
+                ElseIf p.StartsWith("ONCLR=", StringComparison.OrdinalIgnoreCase) Then
+                    onClr = p.Substring(6).Trim().ToLowerInvariant()
+                ElseIf p.StartsWith("OFFCLR=", StringComparison.OrdinalIgnoreCase) Then
+                    offClr = p.Substring(7).Trim().ToLowerInvariant()
+                End If
+            Next
+
+            ' Must have query
+            If deviceName = "" OrElse detQuery = "" Then Continue For
+
+            ' detmap optional but needed for multistate determine
+            If detmapPacked = "" Then Continue For
+
+            Dim detmap() As String = detmapPacked.Split("§"c)
+
+            Dim cacheKey As String = deviceName & "||" & detQuery & "||" & detFmt
+            Dim reply As String = ""
+            If Not cache.TryGetValue(cacheKey, reply) Then
+                reply = DetermineQuery(deviceName, detQuery, detFmt)
+                cache(cacheKey) = reply
+            End If
+
+            Dim chosenIdx As Integer = -1
+            For i As Integer = 0 To detmap.Length - 1
+                If DetermineMatch(reply, detmap(i), detFmt) Then
+                    chosenIdx = i
+                    Exit For
+                End If
+            Next
+
+            UserInitSuppressSend = True
+            ApplyMultiButtonVisual(pnl, chosenIdx, onClr, offClr)
+            UserInitSuppressSend = False
+
+        Next
+
+    End Sub
+
+
+    Private Sub MultiButton_Click(sender As Object, e As EventArgs)
+        If UserInitSuppressSend Then Exit Sub
+
+        Dim b As Button = DirectCast(sender, Button)
+        Dim parts = CStr(b.Tag).Split("|"c)
+
+        Dim device = parts(1)
+        Dim prefix = parts(2)
+        Dim pnlName = parts(3)
+
+        Dim idx As Integer = -1
+        Dim item As String = ""
+        Dim cmdsPacked As String = ""
+        Dim onClr As String = "limegreen"
+        Dim offClr As String = "default"
+
+        For Each p In parts
+            If p.StartsWith("IDX=") Then Integer.TryParse(p.Substring(4), idx)
+            If p.StartsWith("ITEM=") Then item = p.Substring(5)
+            If p.StartsWith("CMDS=") Then cmdsPacked = p.Substring(5)
+            If p.StartsWith("ONCLR=") Then onClr = p.Substring(6)
+            If p.StartsWith("OFFCLR=") Then offClr = p.Substring(7)
+        Next
+
+        Dim cmd As String
+        If cmdsPacked <> "" Then
+            cmd = cmdsPacked.Split("§"c)(idx)
+        Else
+            cmd = prefix & If(prefix.EndsWith(" "), "", " ") & item
+        End If
+
+        Dim dev As IODevices.IODevice = Nothing
+        Dim useNative As Boolean = False
+
+        Select Case device.ToLowerInvariant()
+            Case "dev1"
+                dev = dev1
+                useNative = String.Equals(GpibEngineDev1, "native", StringComparison.OrdinalIgnoreCase)
+            Case "dev2"
+                dev = dev2
+                useNative = String.Equals(GpibEngineDev2, "native", StringComparison.OrdinalIgnoreCase)
+        End Select
+
+        If dev Is Nothing Then Exit Sub
+
+        If useNative Then
+            NativeSend(device, cmd & TermStr2())
+        Else
+            dev.SendAsync(cmd & TermStr2(), True)
+        End If
+
+        Dim pnl = DirectCast(GroupBoxCustom.Controls.Find(pnlName, True)(0), Panel)
+        ApplyMultiButtonVisual(pnl, idx, onClr, offClr)
+    End Sub
+
+
+    Private Sub ApplyMultiButtonVisual(pnl As Panel, activeIdx As Integer,
+                                  Optional onClr As String = "limegreen",
+                                  Optional offClr As String = "default")
+
+        For Each c As Control In pnl.Controls
+            Dim b As Button = TryCast(c, Button)
+            If b Is Nothing Then Continue For
+
+            Dim idx As Integer = -1
+            For Each p In CStr(b.Tag).Split("|"c)
+                If p.StartsWith("IDX=") Then Integer.TryParse(p.Substring(4), idx)
+            Next
+
+            b.UseVisualStyleBackColor = False
+            If idx = activeIdx AndAlso activeIdx >= 0 Then
+                b.BackColor = ToggleColorFromName(onClr)
+                b.ForeColor = Color.Black
+            Else
+                b.BackColor = ToggleColorFromName(offClr)
+                b.ForeColor = SystemColors.ControlText
+            End If
+        Next
+    End Sub
+
+
+
+
+
 
 
     ' For Testing only
