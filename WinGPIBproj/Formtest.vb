@@ -2544,7 +2544,7 @@ Public Class Formtest
                 raw = wc.DownloadString(UpdateInfoUrl)
             End Using
 
-            ' NEW: parse version + multi-line NOTES
+            ' Parse version + multi-line NOTES
             Dim parsed = ParseUpdateTxt(raw)
             Dim latest As Version = parsed.Item1
             Dim notesText As String = parsed.Item2

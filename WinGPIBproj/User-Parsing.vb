@@ -196,7 +196,7 @@ Partial Class Formtest
                     ' Detect all-named style early
                     ' -----------------------------
                     Dim firstLooksNamed As Boolean =
-                        parts.Length >= 2 AndAlso parts(1).IndexOf("="c) >= 0
+        parts.Length >= 2 AndAlso parts(1).IndexOf("="c) >= 0
 
                     ' -----------------------------
                     ' Positional form (legacy)
@@ -291,18 +291,22 @@ Partial Class Formtest
                     tb.Size = New Size(w, h)
                     tb.ReadOnly = isReadOnly
 
-                    ' NEW: register so triggers/actions can reference this control by name
+                    ' Register so triggers/actions can reference this control by name
                     RegisterAnyControl(tbName, tb)
 
-                    ' NEW: publish changes for trigger engine (user typing OR programmatic changes)
+                    ' Publish changes for trigger engine (user typing OR programmatic changes)
                     AddHandler tb.TextChanged,
-                        Sub()
-                            PublishTextBox(tb.Name, tb.Text)
-                        End Sub
+        Sub()
+            PublishTextBox(tb.Name, tb.Text)
+        End Sub
+
+                    ' Arm keypad target when user clicks/focuses this textbox
+                    AddHandler tb.Enter, AddressOf UserKeypad_SetTarget
+                    AddHandler tb.MouseDown, AddressOf UserKeypad_SetTarget
 
                     GroupBoxCustom.Controls.Add(tb)
 
-                    ' NEW: publish initial (empty or preset) value once
+                    ' Publish initial (empty or preset) value once
                     PublishTextBox(tb.Name, tb.Text)
 
                     ' Only advance autoY if coordinates not explicitly given
@@ -310,7 +314,6 @@ Partial Class Formtest
                         autoY += Math.Max(lbl.Height, tb.Height) + 5
                     End If
                     Continue For
-
 
 
                 Case "BUTTON"
@@ -329,7 +332,7 @@ Partial Class Formtest
                         End If
                     Next
 
-                    ' NEW: accept common aliases so config can use your doc terms
+                    ' Accept common aliases so config can use your doc terms
                     Dim hasCaption As Boolean = named.ContainsKey("caption")
                     Dim hasAction As Boolean = named.ContainsKey("action")
                     Dim hasDevice As Boolean = named.ContainsKey("device") OrElse named.ContainsKey("devicename")
@@ -343,7 +346,7 @@ Partial Class Formtest
                     ' ==================================================
                     If isAllNamed Then
 
-                        ' NEW: button internal id used by TRIGGER fire:...
+                        ' Button internal id used by TRIGGER fire:...
                         Dim btnName As String = ""
                         If named.ContainsKey("name") Then btnName = named("name")
                         If btnName = "" AndAlso named.ContainsKey("controlname") Then btnName = named("controlname")
@@ -352,23 +355,23 @@ Partial Class Formtest
 
                         Dim action As String = If(named.ContainsKey("action"), named("action"), "").ToUpperInvariant()
 
-                        ' NEW: accept device/deviceName
+                        ' Accept device/deviceName
                         Dim deviceName As String = ""
                         If named.ContainsKey("device") Then deviceName = named("device")
                         If deviceName = "" AndAlso named.ContainsKey("devicename") Then deviceName = named("devicename")
 
-                        ' NEW: accept command/commandprefix
+                        ' Accept command/commandprefix
                         Dim commandOrPrefix As String = ""
                         If named.ContainsKey("command") Then commandOrPrefix = named("command")
                         If commandOrPrefix = "" AndAlso named.ContainsKey("commandprefix") Then commandOrPrefix = named("commandprefix")
 
-                        ' NEW: accept sendval/valuectl/valuecontrol
+                        ' Accept sendval/valuectl/valuecontrol
                         Dim valueControlName As String = ""
                         If named.ContainsKey("sendval") Then valueControlName = named("sendval")
                         If valueControlName = "" AndAlso named.ContainsKey("valuectl") Then valueControlName = named("valuectl")
                         If valueControlName = "" AndAlso named.ContainsKey("valuecontrol") Then valueControlName = named("valuecontrol")
 
-                        ' NEW: accept result/resultctl/resulttarget
+                        ' Accept result/resultctl/resulttarget
                         Dim resultControlName As String = ""
                         If named.ContainsKey("result") Then resultControlName = named("result")
                         If resultControlName = "" AndAlso named.ContainsKey("resultctl") Then resultControlName = named("resultctl")
@@ -386,7 +389,7 @@ Partial Class Formtest
 
                         Dim b As New Button()
 
-                        ' NEW: set internal name so TRIGGER fire:BtnHello can find it
+                        ' Set internal name so TRIGGER fire:BtnHello can find it
                         If Not String.IsNullOrWhiteSpace(btnName) Then
                             b.Name = btnName
                         End If
@@ -404,7 +407,7 @@ Partial Class Formtest
                         AddHandler b.Click, AddressOf CustomButton_Click
                         GroupBoxCustom.Controls.Add(b)
 
-                        ' NEW: register button for trigger engine fire:
+                        ' Register button for trigger engine fire:
                         If Not String.IsNullOrWhiteSpace(b.Name) Then
                             RegisterButton(b.Name, b)
                             RegisterAnyControl(b.Name, b)
@@ -458,7 +461,7 @@ Partial Class Formtest
                     AddHandler bPos.Click, AddressOf CustomButton_Click
                     GroupBoxCustom.Controls.Add(bPos)
 
-                    ' NEW: positional buttons don't have a name -> triggers can't fire them unless you invent one.
+                    ' Positional buttons don't have a name -> triggers can't fire them unless you invent one.
                     ' If you want, you can optionally auto-name them here, but leaving unchanged per your comment.
 
                     If parts.Length < 9 Then
@@ -843,7 +846,7 @@ Partial Class Formtest
                     ' Tag holds Device + CommandPrefix
                     cb.Tag = deviceName & "|" & commandPrefix
 
-                    ' NEW: append determine tokens into Tag for ApplyDetermineDropdowns()
+                    ' Append determine tokens into Tag for ApplyDetermineDropdowns()
                     If Not String.IsNullOrWhiteSpace(determineRaw) Then
                         Dim dp() As String = determineRaw.Split("|"c)
                         Dim detQ As String = If(dp.Length >= 1, dp(0).Trim(), "")
@@ -1128,7 +1131,7 @@ Partial Class Formtest
                             usedPositional = True
                         End If
 
-                        ' NEW: look for determine= in any trailing key=value segments
+                        ' Look for determine= in any trailing key=value segments
                         If parts.Length > 12 Then
                             For i As Integer = 12 To parts.Length - 1
                                 Dim p As String = parts(i).Trim()
@@ -1190,7 +1193,7 @@ Partial Class Formtest
 
                         If tok.ContainsKey("hint") Then hintText = tok("hint")
 
-                        ' NEW: determine from named tokens
+                        ' Determine from named tokens
                         If determineRaw = "" AndAlso tok.ContainsKey("determine") Then
                             determineRaw = tok("determine").Trim()
                         End If
@@ -1240,7 +1243,7 @@ Partial Class Formtest
              lblValue.Name & "|" &
              stepVal.ToString(Globalization.CultureInfo.InvariantCulture)
 
-                    ' NEW: append DETQ/DETF for determine support
+                    ' Append DETQ/DETF for determine support
                     If Not String.IsNullOrWhiteSpace(determineRaw) Then
                         Dim dp() As String = determineRaw.Split("|"c)
                         Dim detQ As String = If(dp.Length >= 1, dp(0).Trim(), "")
@@ -3078,7 +3081,6 @@ Partial Class Formtest
 
 
                 Case "MULTIBUTTON"
-
                     Dim name As String = ""
                     Dim caption As String = ""
                     Dim device As String = ""
@@ -3214,6 +3216,63 @@ Partial Class Formtest
                     Next
 
                     ApplyMultiButtonVisual(pnl, -1)
+                    Continue For
+
+
+                Case "KEYPAD"
+                    Dim name As String = "Keypad1"
+                    Dim caption As String = "Keypad"
+                    Dim mode As String = "fixed"
+                    Dim x As Integer = 20, y As Integer = 20, w As Integer = 230, h As Integer = 280
+                    Dim targetLabelOn As Boolean = True
+
+                    Dim tok As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+                    For i As Integer = 1 To parts.Length - 1
+                        Dim t = parts(i).Trim()
+                        Dim eq = t.IndexOf("="c)
+                        If eq > 0 AndAlso eq < t.Length - 1 Then
+                            tok(t.Substring(0, eq).Trim()) = t.Substring(eq + 1).Trim()
+                        End If
+                    Next
+
+                    If tok.ContainsKey("name") Then name = tok("name").Trim()
+                    If tok.ContainsKey("caption") Then caption = tok("caption").Trim()
+                    If tok.ContainsKey("mode") Then mode = tok("mode").Trim().ToLowerInvariant()
+
+                    If tok.ContainsKey("x") Then ParseIntField(tok("x"), x)
+                    If tok.ContainsKey("y") Then ParseIntField(tok("y"), y)
+                    If tok.ContainsKey("w") Then ParseIntField(tok("w"), w)
+                    If tok.ContainsKey("h") Then ParseIntField(tok("h"), h)
+
+                    If tok.ContainsKey("targetlabel") Then
+                        Dim v = tok("targetlabel").Trim().ToLowerInvariant()
+                        targetLabelOn = (v = "on" OrElse v = "true" OrElse v = "1")
+                    End If
+
+                    ' Remember current keypad config so popup can be recreated if disposed
+                    UserKeypadName = name
+                    UserKeypadCaption = caption
+                    UserKeypadW = w
+                    UserKeypadH = h
+                    UserKeypadTargetLabelOn = targetLabelOn
+
+                    UserKeypadMode = If(mode = "popup", "popup", "fixed")
+
+                    If UserKeypadMode = "fixed" Then
+
+                        UserKeypadFixedPanel = CreateUserKeypadPanel(name, caption, w, h, targetLabelOn)
+                        UserKeypadFixedPanel.Location = New Point(x, y)
+                        GroupBoxCustom.Controls.Add(UserKeypadFixedPanel)
+
+                    Else
+                        ' Recreate-safe: EnsureKeypadPopup should internally handle Nothing/IsDisposed.
+                        EnsureKeypadPopup(name, caption, w, h, targetLabelOn)
+
+                        UserKeypadPopupForm.StartPosition = FormStartPosition.Manual
+                        UserKeypadPopupForm.Location = Me.PointToScreen(New Point(x, y))
+                        UserKeypadPopupForm.Hide()
+                    End If
+
                     Continue For
 
 
@@ -4295,14 +4354,211 @@ Partial Class Formtest
     End Sub
 
 
+    Private Sub UserKeypad_SetTarget(sender As Object, e As EventArgs)
+
+        Dim c As Control = TryCast(sender, Control)
+        If c Is Nothing Then Exit Sub
+
+        ' TEXTBOX ONLY
+        If Not TypeOf c Is TextBox Then Exit Sub
+
+        UserKeypadTarget = c
+        UpdateKeypadTargetLabel()
+
+        If Not String.Equals(UserKeypadMode, "popup", StringComparison.OrdinalIgnoreCase) Then Exit Sub
+
+        ' Recreate popup if needed (MUST be before Show)
+        If UserKeypadPopupForm Is Nothing OrElse UserKeypadPopupForm.IsDisposed Then
+            EnsureKeypadPopup(UserKeypadName, UserKeypadCaption, UserKeypadW, UserKeypadH, UserKeypadTargetLabelOn)
+        End If
+
+        ' Safety: if still nothing, bail
+        If UserKeypadPopupForm Is Nothing OrElse UserKeypadPopupForm.IsDisposed Then Exit Sub
+
+        If Not UserKeypadPopupForm.Visible Then UserKeypadPopupForm.Show(Me)
+        UserKeypadPopupForm.BringToFront()
+
+    End Sub
+
+
+    Private Sub UpdateKeypadTargetLabel()
+        If UserKeypadTargetLabel Is Nothing Then Exit Sub
+        If UserKeypadTarget Is Nothing Then
+            UserKeypadTargetLabel.Text = "Target: (none)"
+        Else
+            UserKeypadTargetLabel.Text = "Target: " & UserKeypadTarget.Name
+        End If
+    End Sub
+
+    Private Sub EnsureKeypadPopup(name As String, caption As String, w As Integer, h As Integer, targetLabelOn As Boolean)
+        If UserKeypadPopupForm IsNot Nothing AndAlso Not UserKeypadPopupForm.IsDisposed Then Exit Sub
+
+        UserKeypadPopupForm = New Form()
+        UserKeypadPopupForm.FormBorderStyle = FormBorderStyle.FixedToolWindow
+        UserKeypadPopupForm.Text = caption
+        UserKeypadPopupForm.TopMost = True
+        UserKeypadPopupForm.ShowInTaskbar = False
+        UserKeypadPopupForm.Size = New Size(w + 16, h + 39)
+
+        Dim pnl = CreateUserKeypadPanel(name, caption, w, h, targetLabelOn)
+        pnl.Dock = DockStyle.Fill
+        UserKeypadPopupForm.Controls.Add(pnl)
+
+        UserKeypadPopupPanel = pnl
+    End Sub
+
+    Private Function CreateUserKeypadPanel(name As String, caption As String, w As Integer, h As Integer, targetLabelOn As Boolean) As Panel
+
+        Dim pnl As New Panel()
+        pnl.Name = "KP_" & name
+        pnl.Size = New Size(w, h)
+
+        Dim topY As Integer = 0
+
+        If targetLabelOn Then
+            Dim lbl As New Label()
+            lbl.AutoSize = False
+            lbl.Height = 18
+            lbl.Width = w
+            lbl.Location = New Point(0, 0)
+            lbl.TextAlign = ContentAlignment.MiddleLeft
+            lbl.Text = "Target: (none)"
+            pnl.Controls.Add(lbl)
+            UserKeypadTargetLabel = lbl
+            topY = 22
+        End If
+
+        ' 4x4 keypad:
+        ' 7 8 9 BK
+        ' 4 5 6 CL
+        ' 1 2 3 +/-
+        ' 0 . OK X
+        Dim btnW As Integer = (w - 6) \ 4
+        Dim btnH As Integer = (h - topY - 6) \ 4
+
+        Dim keys As String(,) = {
+        {"7", "8", "9", "BK"},
+        {"4", "5", "6", "CL"},
+        {"1", "2", "3", "+/-"},
+        {"0", ".", "OK", "X"}
+    }
+
+        For r As Integer = 0 To 3
+            For c As Integer = 0 To 3
+                Dim k As String = keys(r, c)
+
+                Dim b As New Button()
+                b.Text = k
+                b.UseVisualStyleBackColor = True
+
+                Dim xx As Integer = c * (btnW + 2)
+                Dim yy As Integer = topY + r * (btnH + 2)
+
+                b.Location = New Point(xx, yy)
+                b.Size = New Size(btnW, btnH)
+                b.Tag = k
+
+                AddHandler b.Click, AddressOf UserKeypad_ButtonClick
+                pnl.Controls.Add(b)
+            Next
+        Next
+
+        UpdateKeypadTargetLabel()
+        Return pnl
+    End Function
+
+
+    Private Sub UserKeypad_ButtonClick(sender As Object, e As EventArgs)
+
+        Dim b As Button = TryCast(sender, Button)
+        If b Is Nothing Then Exit Sub
+
+        Dim key As String = TryCast(b.Tag, String)
+        If String.IsNullOrEmpty(key) Then Exit Sub
+
+        Dim tb As TextBox = TryCast(UserKeypadTarget, TextBox)
+        If tb Is Nothing OrElse tb.IsDisposed Then
+            UserKeypadTarget = Nothing
+            UpdateKeypadTargetLabel()
+            Exit Sub
+        End If
+
+        Select Case key
+            Case "BK"
+                BackspaceAtCaret(tb)
+
+            Case "CL"
+                tb.Text = ""
+                tb.SelectionStart = 0
+                tb.SelectionLength = 0
+
+            Case "+/-"
+                ToggleSign(tb)
+
+            Case "OK"
+            ' no-op (you can later hook this to "send" if you want)
+
+            Case "X"
+                If String.Equals(UserKeypadMode, "popup", StringComparison.OrdinalIgnoreCase) Then
+                    If UserKeypadPopupForm IsNot Nothing Then UserKeypadPopupForm.Hide()
+                End If
+
+            Case Else
+                InsertAtCaret(tb, key)
+        End Select
+
+    End Sub
+
+    Private Sub InsertAtCaret(tb As TextBox, s As String)
+        Dim pos As Integer = tb.SelectionStart
+        If tb.SelectionLength > 0 Then
+            tb.Text = tb.Text.Remove(tb.SelectionStart, tb.SelectionLength)
+            pos = tb.SelectionStart
+        End If
+        tb.Text = tb.Text.Insert(pos, s)
+        tb.SelectionStart = pos + s.Length
+        tb.SelectionLength = 0
+    End Sub
+
+    Private Sub BackspaceAtCaret(tb As TextBox)
+        If tb.SelectionLength > 0 Then
+            Dim start = tb.SelectionStart
+            tb.Text = tb.Text.Remove(start, tb.SelectionLength)
+            tb.SelectionStart = start
+            tb.SelectionLength = 0
+            Exit Sub
+        End If
+
+        Dim pos As Integer = tb.SelectionStart
+        If pos > 0 AndAlso tb.TextLength > 0 Then
+            tb.Text = tb.Text.Remove(pos - 1, 1)
+            tb.SelectionStart = pos - 1
+            tb.SelectionLength = 0
+        End If
+    End Sub
+
+    Private Sub ToggleSign(tb As TextBox)
+        Dim t As String = tb.Text.Trim()
+        If t.StartsWith("-", StringComparison.Ordinal) Then
+            t = t.Substring(1)
+        ElseIf t <> "" Then
+            t = "-" & t
+        Else
+            t = "-"
+        End If
+        tb.Text = t
+        tb.SelectionStart = tb.TextLength
+        tb.SelectionLength = 0
+    End Sub
 
 
 
 
 
-    ' For Testing only
+
+    ' For Testing/debugging only
     ' Requires a config entry = TEXTAREA;name=TempBox;caption=Testing:;x=500;y=370;w=380;h=140
-    ' Anywhere in the code add = LogToTempBox("[DET] " & deviceName & " " & detQuery & " -> " & reply)       ' test only
+    ' Anywhere in the code i.e. LogToTempBox("[DET] " & deviceName & " " & detQuery & " -> " & reply)       ' test only
     Private Sub LogToTempBox(msg As String)
         Dim found() As Control = GroupBoxCustom.Controls.Find("TempBox", True)
         If found Is Nothing OrElse found.Length = 0 Then Exit Sub

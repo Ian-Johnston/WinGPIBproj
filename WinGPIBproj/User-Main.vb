@@ -91,6 +91,20 @@ Partial Class Formtest
     ' Used during "determine" pass so that setting Radio.Checked does NOT send SCPI
     Private UserInitSuppressSend As Boolean = False
 
+    ' KEYPAD STATE
+    Private UserKeypadTarget As Control = Nothing
+    Private UserKeypadPopupForm As Form = Nothing
+    Private UserKeypadPopupPanel As Panel = Nothing
+    Private UserKeypadFixedPanel As Panel = Nothing
+    Private UserKeypadTargetLabel As Label = Nothing
+    Private UserKeypadMode As String = "fixed"  ' "fixed" or "popup"
+    Private UserKeypadName As String = "Keypad1"
+    Private UserKeypadCaption As String = "Keypad"
+    Private UserKeypadW As Integer = 230
+    Private UserKeypadH As Integer = 280
+    Private UserKeypadTargetLabelOn As Boolean = True
+
+
 
     ' CALC support
     Private Class CalcDef
@@ -237,6 +251,18 @@ Partial Class Formtest
         ' Trigger
         If TriggerEng IsNot Nothing Then TriggerEng.ClearAll()
         TriggerAutoIndex = 0
+
+        ' Keypad reset
+        UserKeypadTarget = Nothing
+        If UserKeypadPopupForm IsNot Nothing Then
+            UserKeypadPopupForm.Close()
+            UserKeypadPopupForm.Dispose()
+            UserKeypadPopupForm = Nothing
+        End If
+        UserKeypadPopupPanel = Nothing
+        UserKeypadFixedPanel = Nothing
+        UserKeypadTargetLabel = Nothing
+        UserKeypadMode = "fixed"
 
     End Sub
 
@@ -1414,7 +1440,7 @@ Partial Class Formtest
         Dim parts = tagStr.Split("|"c)
         If parts.Length < 2 Then Exit Sub
 
-        ' NEW: allow multiple results in the first Tag field, comma-separated
+        ' Allow multiple results in the first Tag field, comma-separated
         Dim resultNames As String() =
         parts(0).Split(","c).
         Select(Function(s) s.Trim()).
@@ -1439,7 +1465,7 @@ Partial Class Formtest
         If intervalMs < 1 Then intervalMs = 1
         If intervalMs > 60000 Then intervalMs = 60000
 
-        ' NEW: apply to each result in the list
+        ' Apply to each result in the list
         For Each resultName As String In resultNames
 
             ' Determine producer: DATASOURCE preferred, else steal from QUERY button (backwards compat)

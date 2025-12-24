@@ -65,7 +65,7 @@ Partial Class Formtest
     ' Create a list to store log entries
     Private EventlogEntries As New List(Of String)
 
-    ' === NEW: lightweight rolling average state ===
+    ' Lightweight rolling average state
     Private q1 As New Queue(Of Double)  ' Dev1 samples
     Private q2 As New Queue(Of Double)  ' Dev2 samples
     Private sum1 As Double = 0          ' Dev1 running sum
@@ -76,7 +76,7 @@ Partial Class Formtest
     ' CheckBoxAvgEnable  (checkbox to enable averaging)
     ' TextBoxAvgWindow   (N value for rolling window)
 
-    ' === NEW: returns averaged value if enabled, else raw ===
+    ' Returns averaged value if enabled, else raw
     Private Function AvgVal(v As Double, dev As Integer) As Double
         If Not CheckBoxAvgEnable.Checked Then Return v
 

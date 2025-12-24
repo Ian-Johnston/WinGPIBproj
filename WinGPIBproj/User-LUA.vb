@@ -297,7 +297,7 @@ Partial Class Formtest
     Private Sub RunLua(luaCode As String)
         EnsureLua()
 
-        _luaCancelRequested = False   ' NEW: clear any previous stop request
+        _luaCancelRequested = False   ' Clear any previous stop request
 
         Try
             _lua.DoString(luaCode)
