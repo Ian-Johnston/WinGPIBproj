@@ -3269,8 +3269,17 @@ Partial Class Formtest
                         EnsureKeypadPopup(name, caption, w, h, targetLabelOn)
 
                         UserKeypadPopupForm.StartPosition = FormStartPosition.Manual
-                        UserKeypadPopupForm.Location = Me.PointToScreen(New Point(x, y))
+
+                        If Not UserKeypadPopupPosValid Then
+                            UserKeypadPopupForm.Location = Me.PointToScreen(New Point(x, y))
+                            UserKeypadPopupPos = UserKeypadPopupForm.Location
+                            UserKeypadPopupPosValid = True
+                        Else
+                            UserKeypadPopupForm.Location = UserKeypadPopupPos
+                        End If
+
                         UserKeypadPopupForm.Hide()
+
                     End If
 
                     Continue For
@@ -4405,6 +4414,22 @@ Partial Class Formtest
         UserKeypadPopupForm.Controls.Add(pnl)
 
         UserKeypadPopupPanel = pnl
+
+        ' Restore last known position (if we have one)
+        If UserKeypadPopupPosValid Then
+            UserKeypadPopupForm.StartPosition = FormStartPosition.Manual
+            UserKeypadPopupForm.Location = UserKeypadPopupPos
+        End If
+
+        ' Track moves so we remember position
+        AddHandler UserKeypadPopupForm.Move,
+    Sub()
+        If UserKeypadPopupForm IsNot Nothing AndAlso Not UserKeypadPopupForm.IsDisposed Then
+            UserKeypadPopupPos = UserKeypadPopupForm.Location
+            UserKeypadPopupPosValid = True
+        End If
+    End Sub
+
     End Sub
 
     Private Function CreateUserKeypadPanel(name As String, caption As String, w As Integer, h As Integer, targetLabelOn As Boolean) As Panel

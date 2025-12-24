@@ -103,6 +103,8 @@ Partial Class Formtest
     Private UserKeypadW As Integer = 230
     Private UserKeypadH As Integer = 280
     Private UserKeypadTargetLabelOn As Boolean = True
+    Private UserKeypadPopupPosValid As Boolean = False
+    Private UserKeypadPopupPos As Point
 
 
 
@@ -263,6 +265,7 @@ Partial Class Formtest
         UserKeypadFixedPanel = Nothing
         UserKeypadTargetLabel = Nothing
         UserKeypadMode = "fixed"
+        ' UserKeypadPopupPosValid = False
 
     End Sub
 
