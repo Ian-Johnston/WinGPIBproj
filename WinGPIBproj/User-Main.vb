@@ -106,6 +106,9 @@ Partial Class Formtest
     Private UserKeypadPopupPosValid As Boolean = False
     Private UserKeypadPopupPos As Point
 
+    ' Config file
+    Private LastUserConfigPath As String = ""
+
 
 
     ' CALC support
@@ -166,11 +169,16 @@ Partial Class Formtest
 
             Try
                 LoadCustomGuiFromFile(dlg.FileName)
+                LastUserConfigPath = dlg.FileName
                 LabelUSERtab1.Visible = False
             Catch ex As Exception
                 MessageBox.Show("Error loading layout file: " & ex.Message)
                 LabelUSERtab1.Visible = True
             End Try
+
+            LastUserConfigPath = dlg.FileName
+            ButtonLoadTxtRefresh.Enabled = True
+
         End Using
 
     End Sub
@@ -266,6 +274,31 @@ Partial Class Formtest
         UserKeypadTargetLabel = Nothing
         UserKeypadMode = "fixed"
         ' UserKeypadPopupPosValid = False
+
+        ButtonLoadTxtRefresh.Enabled = False
+        'LastUserConfigPath = ""
+
+    End Sub
+
+
+    Private Sub ButtonLoadTxtRefresh_Click(sender As Object, e As EventArgs) Handles ButtonLoadTxtRefresh.Click
+
+        If LastUserConfigPath = "" OrElse Not IO.File.Exists(LastUserConfigPath) Then
+            MessageBox.Show("No previously loaded config file to refresh.")
+            Exit Sub
+        End If
+
+        ResetUsertab()
+
+        Try
+            LoadCustomGuiFromFile(LastUserConfigPath)
+            LabelUSERtab1.Visible = False
+        Catch ex As Exception
+            MessageBox.Show("Error reloading layout file: " & ex.Message)
+            LabelUSERtab1.Visible = True
+        End Try
+
+        ButtonLoadTxtRefresh.Enabled = True
 
     End Sub
 

@@ -117,6 +117,7 @@ Public Class Formtest
     Dim PDVS2miniCalAvailable As Boolean = 0
 
 
+
     ' SHUTTING DOWN WinGPIB
     Private Sub Formtest_FormClosing(ByVal sender As System.Object, ByVal e As System.Windows.Forms.FormClosingEventArgs) Handles MyBase.FormClosing
 
@@ -172,7 +173,7 @@ Public Class Formtest
         Try
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.046"
+            BannerText1 = "WinGPIB   V4.047"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
             ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -769,6 +770,9 @@ Public Class Formtest
 
             ' 3245A Dev2
             Disable3245AControls()
+
+            ' User tab
+            ButtonLoadTxtRefresh.Enabled = False
 
 
 
