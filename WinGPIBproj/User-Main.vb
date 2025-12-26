@@ -146,8 +146,6 @@ Partial Class Formtest
 
     Private Sub ButtonLoadTxt_Click(sender As Object, e As EventArgs) Handles ButtonLoadTxt.Click
 
-        ' Assumes CSVfilepath.Text is always a valid existing folder. Most of the time it is (because of the init code in Formtest.vb),
-        ' but if it’s blank early in startup, could still fall back to Documents.
         Using dlg As New OpenFileDialog()
             dlg.Title = "Select Config File"
             dlg.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*"
@@ -168,23 +166,28 @@ Partial Class Formtest
             If dlg.ShowDialog() <> DialogResult.OK Then Exit Sub
 
             Try
-                LoadCustomGuiFromFile(dlg.FileName)
-                LastUserConfigPath = dlg.FileName
+                LoadCustomGuiFromFile(dlg.FileName)   ' sets LastUserConfigPath + restores textboxes
+
+                ButtonLoadTxtRefresh.Enabled = True
                 LabelUSERtab1.Visible = False
+
             Catch ex As Exception
                 MessageBox.Show("Error loading layout file: " & ex.Message)
                 LabelUSERtab1.Visible = True
             End Try
-
-            LastUserConfigPath = dlg.FileName
-            ButtonLoadTxtRefresh.Enabled = True
 
         End Using
 
     End Sub
 
 
+
     Private Sub ButtonResetTxt_Click(sender As Object, e As EventArgs) Handles ButtonResetTxt.Click
+
+        ' If a config is currently active, save any edited textbox values first
+        If Not String.IsNullOrWhiteSpace(LastUserConfigPath) AndAlso IO.File.Exists(LastUserConfigPath) Then
+            SaveUserTextboxState()
+        End If
 
         ResetUsertab()
 
@@ -193,18 +196,18 @@ Partial Class Formtest
 
     Private Sub ResetUsertab()
 
-        ' Invalidate any in-flight async UI updates
+        ' Invalidate any in-flight async UI updates ASAP
         Threading.Interlocked.Increment(UserLayoutGen)
+
+        ' Stop User tab dev1 and dev2 timers ASAP
+        Me.Timer5.Stop()
+        Me.Timer16.Stop()
 
         ' Reset LUA state completely
         inLuaScript = False
         luaLines.Clear()
         luaScriptName = ""
         LuaScriptsByName.Clear()
-
-        ' Stop User tab dev1 and dev2 timers
-        Me.Timer5.Stop()
-        Me.Timer16.Stop()
 
         ' Clear slot1
         AutoReadDeviceName = ""
@@ -218,18 +221,23 @@ Partial Class Formtest
         AutoReadResultControl2 = ""
         Threading.Interlocked.Exchange(UserAutoBusy2, 0)
 
-        ' Clear invisibility
+        ' Clear invisibility + UI maps
         UiById.Clear()
         InvisFuncToTargets.Clear()
         InvisFuncDefaultVisible.Clear()
 
         ' Remove all dynamically created controls
-        For i As Integer = GroupBoxCustom.Controls.Count - 1 To 0 Step -1
-            Dim c = GroupBoxCustom.Controls(i)
-            If c Is LabelUSERtab1 Then Continue For
-            GroupBoxCustom.Controls.RemoveAt(i)
-            c.Dispose()
-        Next
+        GroupBoxCustom.SuspendLayout()
+        Try
+            For i As Integer = GroupBoxCustom.Controls.Count - 1 To 0 Step -1
+                Dim c = GroupBoxCustom.Controls(i)
+                If c Is LabelUSERtab1 Then Continue For
+                GroupBoxCustom.Controls.RemoveAt(i)
+                c.Dispose()
+            Next
+        Finally
+            GroupBoxCustom.ResumeLayout()
+        End Try
 
         ' Reset the title text
         GroupBoxCustom.Text = "User Defineable"
@@ -275,6 +283,7 @@ Partial Class Formtest
         UserKeypadMode = "fixed"
         ' UserKeypadPopupPosValid = False
 
+        ' After a reset, REFRESH is no longer valid until a load succeeds again
         ButtonLoadTxtRefresh.Enabled = False
         'LastUserConfigPath = ""
 
@@ -283,22 +292,41 @@ Partial Class Formtest
 
     Private Sub ButtonLoadTxtRefresh_Click(sender As Object, e As EventArgs) Handles ButtonLoadTxtRefresh.Click
 
-        If LastUserConfigPath = "" OrElse Not IO.File.Exists(LastUserConfigPath) Then
+        SaveUserTextboxState()
+        ResetUsertab()
+        LoadCustomGuiFromFile(LastUserConfigPath)
+        RestoreUserTextboxState()
+
+        If String.IsNullOrWhiteSpace(LastUserConfigPath) OrElse Not IO.File.Exists(LastUserConfigPath) Then
             MessageBox.Show("No previously loaded config file to refresh.")
+            ButtonLoadTxtRefresh.Enabled = False
             Exit Sub
         End If
 
-        ResetUsertab()
+        ButtonLoadTxtRefresh.Enabled = False
 
         Try
-            LoadCustomGuiFromFile(LastUserConfigPath)
-            LabelUSERtab1.Visible = False
-        Catch ex As Exception
-            MessageBox.Show("Error reloading layout file: " & ex.Message)
-            LabelUSERtab1.Visible = True
-        End Try
+            ' 1) Save textbox state before destroying controls
+            SaveUserTextboxState()
 
-        ButtonLoadTxtRefresh.Enabled = True
+            ' 2) Reset user tab (dispose dynamic controls, stop timers, clear dictionaries)
+            ResetUsertab()
+
+            ' 3) Reload config
+            LoadCustomGuiFromFile(LastUserConfigPath)
+
+            ' 4) Restore textbox values for this config
+            RestoreUserTextboxState()
+
+            LabelUSERtab1.Visible = False
+
+        Catch ex As Exception
+            MessageBox.Show("REFRESH failed:" & vbCrLf & ex.ToString())
+            LabelUSERtab1.Visible = True
+        Finally
+            ' Re-enable if file still exists
+            ButtonLoadTxtRefresh.Enabled = IO.File.Exists(LastUserConfigPath)
+        End Try
 
     End Sub
 
@@ -322,12 +350,19 @@ Partial Class Formtest
 
 
     Private Sub LoadCustomGuiFromFile(path As String)
-        If IO.File.Exists(path) Then
-            Dim text = IO.File.ReadAllText(path)
-            BuildCustomGuiFromText(text)
-        Else
+
+        If Not IO.File.Exists(path) Then
             MessageBox.Show("Custom GUI file not found: " & path)
+            Exit Sub
         End If
+
+        LastUserConfigPath = path   ' <-- key fix
+
+        Dim text = IO.File.ReadAllText(path)
+        BuildCustomGuiFromText(text)
+
+        RestoreUserTextboxState()   ' <-- auto-populate after build
+
     End Sub
 
 

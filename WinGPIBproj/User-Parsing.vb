@@ -1,6 +1,7 @@
 ﻿' User customizeable tab - Parsing
 
 Imports System.ComponentModel
+Imports Newtonsoft.Json
 Imports WinGPIBproj.OnOffLed
 
 
@@ -4575,6 +4576,96 @@ Partial Class Formtest
         tb.SelectionStart = tb.TextLength
         tb.SelectionLength = 0
     End Sub
+
+
+    ' Saving user textbox data to settings
+    Private Sub SaveUserTextboxState()
+        If String.IsNullOrWhiteSpace(LastUserConfigPath) Then Exit Sub
+
+        Dim dict As Dictionary(Of String, String) = Nothing
+
+        Try
+            dict = JsonConvert.DeserializeObject(Of Dictionary(Of String, String))(My.Settings.UserGui_TextboxStateJson)
+        Catch
+            dict = Nothing
+        End Try
+
+        If dict Is Nothing Then
+            dict = New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+        End If
+
+        For Each kvp In UiById
+            Dim tb = TryCast(kvp.Value, TextBox)
+            If tb Is Nothing Then Continue For
+            If tb.IsDisposed Then Continue For
+
+            Dim key As String = LastUserConfigPath.ToLowerInvariant() & "|" & tb.Name.ToLowerInvariant()
+            dict(key) = tb.Text
+        Next
+
+        My.Settings.UserGui_TextboxStateJson = JsonConvert.SerializeObject(dict)
+        My.Settings.Save()
+    End Sub
+
+    Private Sub RestoreUserTextboxState()
+        If String.IsNullOrWhiteSpace(LastUserConfigPath) Then Exit Sub
+
+        Dim dict As Dictionary(Of String, String) = Nothing
+
+        Try
+            dict = JsonConvert.DeserializeObject(Of Dictionary(Of String, String))(My.Settings.UserGui_TextboxStateJson)
+        Catch
+            dict = Nothing
+        End Try
+
+        If dict Is Nothing Then Exit Sub
+
+        For Each kvp In UiById
+            Dim tb = TryCast(kvp.Value, TextBox)
+            If tb Is Nothing Then Continue For
+
+            Dim key As String = LastUserConfigPath.ToLowerInvariant() & "|" & tb.Name.ToLowerInvariant()
+
+            Dim saved As String = Nothing
+            If dict.TryGetValue(key, saved) Then
+                tb.Text = saved
+            End If
+        Next
+    End Sub
+
+
+    Private Function LoadAllTextboxState() As Dictionary(Of String, String)
+
+        Dim json As String = My.Settings.UserGui_TextboxStateJson
+
+        If String.IsNullOrWhiteSpace(json) Then
+            Return New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+        End If
+
+        Try
+            Dim d As Dictionary(Of String, String) =
+            JsonConvert.DeserializeObject(Of Dictionary(Of String, String))(json)
+
+            If d Is Nothing Then
+                Return New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+            End If
+
+            Return d
+
+        Catch
+            Return New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+        End Try
+
+    End Function
+
+
+    Private Function MakeTextboxStateKey(cfgPath As String, tbName As String) As String
+        ' Keyed by exact config file + textbox name
+        Return cfgPath.ToLowerInvariant() & "|" & tbName.ToLowerInvariant()
+    End Function
+
+
+
 
 
 
