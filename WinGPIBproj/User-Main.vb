@@ -1961,6 +1961,26 @@ Partial Class Formtest
             If tp.Length >= 3 Then panelFmt = tp(2)
         End If
 
+        ' Local resolver: supports numeric OR "@ControlName"
+        Dim ResolveRefToken As Func(Of String, String) =
+        Function(tok As String) As String
+            If String.IsNullOrWhiteSpace(tok) Then Return ""
+
+            tok = tok.Trim()
+
+            If tok.StartsWith("@") Then
+                Dim ctrlName As String = tok.Substring(1).Trim()
+                If ctrlName = "" Then Return ""
+
+                Dim tb = TryCast(GetControlByName(ctrlName), TextBox)
+                If tb Is Nothing Then Return ""
+
+                Return tb.Text.Trim()
+            End If
+
+            Return tok
+        End Function
+
         For Each r In StatsRows(panelName)
 
             Dim outVal As String = ""
@@ -1989,7 +2009,8 @@ Partial Class Formtest
                     outVal = st.Count.ToString(Globalization.CultureInfo.InvariantCulture)
 
                 Case "PPM"
-                    outVal = ComputePpmString(st, r.RefToken, panelFmt)
+                    Dim refResolved As String = ResolveRefToken(r.RefToken)
+                    outVal = ComputePpmString(st, refResolved, panelFmt)
 
                 Case Else
                     outVal = ""
@@ -2003,13 +2024,13 @@ Partial Class Formtest
         If st.Count > 1 Then stdNow = st.StdDevSample()
 
         PublishStats(panelName,
-             st.Last,
-             st.Mean,
-             stdNow,
-             If(st.Count > 0, st.Max - st.Min, 0),
-             st.Min,
-             st.Max,
-             st.Count)
+         st.Last,
+         st.Mean,
+         stdNow,
+         If(st.Count > 0, st.Max - st.Min, 0),
+         st.Min,
+         st.Max,
+         st.Count)
 
     End Sub
 

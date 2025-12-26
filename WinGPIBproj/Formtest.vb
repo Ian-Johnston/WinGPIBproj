@@ -172,7 +172,7 @@ Public Class Formtest
         Try
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.045"
+            BannerText1 = "WinGPIB   V4.046"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
             ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -2144,6 +2144,20 @@ Public Class Formtest
         Process.Start("explorer.exe", String.Format("/n, /e, {0}", CSVfilepath.Text))
 
     End Sub
+
+    Private Sub ShowFiles4_Click(sender As Object, e As EventArgs) Handles ShowFiles4.Click
+
+        Dim basePath As String = CSVfilepath.Text
+        Dim devicesPath As String = basePath & "\Devices"
+
+        If Not Directory.Exists(devicesPath) Then
+            devicesPath = basePath
+        End If
+
+        Process.Start("explorer.exe", String.Format("/n, /e, {0}", devicesPath))
+
+    End Sub
+
 
     Private Sub ButtonPlaybackChart_Click_1(sender As Object, e As EventArgs)
         Dim externalchart = New Chart()
