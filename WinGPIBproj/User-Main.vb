@@ -108,6 +108,8 @@ Partial Class Formtest
 
     ' Config file
     Private LastUserConfigPath As String = ""
+    Private UserConfig_DataSaveEnabled As Boolean = True
+
 
 
 
@@ -145,6 +147,8 @@ Partial Class Formtest
 
 
     Private Sub ButtonLoadTxt_Click(sender As Object, e As EventArgs) Handles ButtonLoadTxt.Click
+
+        UserConfig_DataSaveEnabled = True
 
         Using dlg As New OpenFileDialog()
             dlg.Title = "Select Config File"
@@ -350,6 +354,8 @@ Partial Class Formtest
 
 
     Private Sub LoadCustomGuiFromFile(path As String)
+
+        UserConfig_DataSaveEnabled = True   ' reset to default for this config
 
         If Not IO.File.Exists(path) Then
             MessageBox.Show("Custom GUI file not found: " & path)

@@ -10,6 +10,8 @@ Partial Class Formtest
 
     Private Sub BuildCustomGuiFromText(def As String)
 
+        UserConfig_DataSaveEnabled = True   ' reset to default for this config
+
         ' Simple gate: require at least one device running
         If Not gbox1.Enabled AndAlso Not gbox2.Enabled Then
             MessageBox.Show(
@@ -153,6 +155,24 @@ Partial Class Formtest
                 luaLines.Clear()
                 inLuaScript = True
                 Continue For
+            End If
+
+            ' -----------------------------
+            ' Simple KEY=VALUE directives (no semicolons)
+            ' e.g. DATASAVE=disabled
+            ' -----------------------------
+            If line.Contains("="c) AndAlso Not line.Contains(";"c) Then
+                Dim kv = line.Split({"="c}, 2)
+                If kv.Length = 2 Then
+                    Dim k = kv(0).Trim().ToLowerInvariant()
+                    Dim v = kv(1).Trim().ToLowerInvariant()
+
+                    Select Case k
+                        Case "datasave"
+                            UserConfig_DataSaveEnabled = (v = "enabled" OrElse v = "true" OrElse v = "1")
+                            Continue For
+                    End Select
+                End If
             End If
 
             Dim parts = line.Split(";"c)
@@ -3282,9 +3302,15 @@ Partial Class Formtest
                         UserKeypadPopupForm.Hide()
 
                     End If
-
                     Continue For
 
+
+                Case "DATASAVE"
+                    If parts.Length >= 2 Then
+                        Dim v As String = parts(1).Trim().ToLowerInvariant()
+                        UserConfig_DataSaveEnabled = (v = "enabled" OrElse v = "true" OrElse v = "1")
+                    End If
+                    Continue For
 
 
 
@@ -4580,6 +4606,9 @@ Partial Class Formtest
 
     ' Saving user textbox data to settings
     Private Sub SaveUserTextboxState()
+
+        If Not UserConfig_DataSaveEnabled Then Exit Sub
+
         If String.IsNullOrWhiteSpace(LastUserConfigPath) Then Exit Sub
 
         Dim dict As Dictionary(Of String, String) = Nothing
@@ -4608,6 +4637,9 @@ Partial Class Formtest
     End Sub
 
     Private Sub RestoreUserTextboxState()
+
+        If Not UserConfig_DataSaveEnabled Then Exit Sub
+
         If String.IsNullOrWhiteSpace(LastUserConfigPath) Then Exit Sub
 
         Dim dict As Dictionary(Of String, String) = Nothing
