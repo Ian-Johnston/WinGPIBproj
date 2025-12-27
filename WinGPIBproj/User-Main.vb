@@ -55,18 +55,14 @@ Partial Class Formtest
     Private StatsRows As New Dictionary(Of String, List(Of StatsRow))(StringComparer.OrdinalIgnoreCase)
 
     ' History grid runtime state
-    Private HistoryTables As New Dictionary(Of String, DataTable)(StringComparer.OrdinalIgnoreCase)
-    Private HistoryStates As New Dictionary(Of String, RunningStatsState)(StringComparer.OrdinalIgnoreCase)
     Private HistoryPpmRef As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
     Private HistoryMaxRows As New Dictionary(Of String, Integer)(StringComparer.OrdinalIgnoreCase)
     Private HistoryFormats As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
     Private HistoryState As New Dictionary(Of String, RunningStatsState)(StringComparer.OrdinalIgnoreCase)
     Private HistoryLists As New Dictionary(Of String, BindingSource)(StringComparer.OrdinalIgnoreCase)
-    Private HistoryCols As New Dictionary(Of String, List(Of String))(StringComparer.OrdinalIgnoreCase)
     Dim colsRaw As String = "Value,Time"   ' default if cols= not provided
     Private HistoryData As New Dictionary(Of String, BindingList(Of HistoryRow))(StringComparer.OrdinalIgnoreCase)
     Private HistorySettings As New Dictionary(Of String, HistoryGridConfig)(StringComparer.OrdinalIgnoreCase)
-    Private HistoryGrids As New Dictionary(Of String, DataGridView)(StringComparer.OrdinalIgnoreCase)
     Private ReadOnly HistoryGridsByTarget As New Dictionary(Of String, List(Of String))(StringComparer.OrdinalIgnoreCase)
 
     ' Calc
@@ -77,7 +73,6 @@ Partial Class Formtest
 
     ' Invisibility
     Private UiById As New Dictionary(Of String, Control)(StringComparer.OrdinalIgnoreCase)      ' Invisibility: every created control, by ID (ChartDMM, Hist1, Stats1, ...)
-    Private HideFuncToTargetId As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)       ' Invisibility: function-name -> target-control-id mapping (ChartDMMhide -> ChartDMM)
     Private InvisFuncToTargets As New Dictionary(Of String, List(Of String))(StringComparer.OrdinalIgnoreCase)
     Private InvisFuncDefaultVisible As New Dictionary(Of String, Boolean)(StringComparer.OrdinalIgnoreCase) ' func -> default Visible state
 
@@ -114,8 +109,17 @@ Partial Class Formtest
     ' Buffer logs until TempBox exists (because BuildCustomGuiFromText clears/rebuilds controls)
     Private ReadOnly TempBoxLogBuffer As New List(Of String)
 
-    ' Aimple popup while user config is initializing
+    ' Simple popup while user config is initializing
     Private UserInitPopup As Form = Nothing
+    Private HistoryGrids As New Dictionary(Of String, DataGridView)(StringComparer.OrdinalIgnoreCase)
+    Private HistoryGridPopupForms As New Dictionary(Of String, Form)(StringComparer.OrdinalIgnoreCase)
+
+    ' CHART popup support
+    Private ChartSettings As New Dictionary(Of String, ChartConfig)(StringComparer.OrdinalIgnoreCase)
+    Private ChartPopupForms As New Dictionary(Of String, Form)(StringComparer.OrdinalIgnoreCase)
+
+
+
 
 
 
@@ -133,8 +137,21 @@ Partial Class Formtest
         Public Property ResultTarget As String
         Public Property MaxRows As Integer
         Public Property Format As String
-        Public Property Columns As List(Of String)   ' <-- MUST be a list
+        Public Property Columns As List(Of String)
         Public Property PpmRef As String
+        Public Property Popup As Boolean
+    End Class
+
+
+    Private Class ChartConfig
+        Public Property ChartName As String
+        Public Property ResultTarget As String
+        Public Property YMin As Double?
+        Public Property YMax As Double?
+        Public Property XStep As Double
+        Public Property MaxPoints As Integer
+        Public Property AutoScaleY As Boolean
+        Public Property Popup As Boolean
     End Class
 
 
@@ -664,11 +681,39 @@ Partial Class Formtest
 
 
             Case "CLEARCHART"
-                ' deviceName here is actually the ChartName (e.g. "ChartDMM")
-                Dim ch = TryCast(GetControlByName(deviceName), DataVisualization.Charting.Chart)
-                If ch IsNot Nothing AndAlso ch.Series.Count > 0 Then
-                    ch.Series(0).Points.Clear()
+                ' deviceName is the chart name from the config, e.g. "ChartDMM"
+                Dim chartName As String = deviceName
+
+                ' 1) Clear the main in-panel chart (if present)
+                Dim chMain As DataVisualization.Charting.Chart =
+                TryCast(GetControlByName(chartName), DataVisualization.Charting.Chart)
+
+                If chMain IsNot Nothing AndAlso chMain.Series.Count > 0 Then
+                    For Each s In chMain.Series
+                        s.Points.Clear()
+                    Next
                 End If
+
+                ' 2) Clear the popup chart (if a popup window exists)
+                Dim popupForm As Form = Nothing
+                If ChartPopupForms IsNot Nothing AndAlso
+               ChartPopupForms.TryGetValue(chartName, popupForm) AndAlso
+               popupForm IsNot Nothing AndAlso Not popupForm.IsDisposed Then
+
+                    Dim chPopup As DataVisualization.Charting.Chart = Nothing
+                    For Each ctrl As Control In popupForm.Controls
+                        chPopup = TryCast(ctrl, DataVisualization.Charting.Chart)
+                        If chPopup IsNot Nothing Then Exit For
+                    Next
+
+                    If chPopup IsNot Nothing AndAlso chPopup.Series.Count > 0 Then
+                        For Each s In chPopup.Series
+                            s.Points.Clear()
+                        Next
+                    End If
+                End If
+
+                Exit Sub
 
 
             Case "QUERIESTOFILE"
@@ -1250,17 +1295,6 @@ Partial Class Formtest
     End Sub
 
 
-
-    Private Sub Spinner_KeepBlank(sender As Object, e As EventArgs)
-        Dim nud As NumericUpDown = DirectCast(sender, NumericUpDown)
-
-        ' If spinner is tagged blank, keep it blank until the user changes it
-        If nud.Tag IsNot Nothing AndAlso nud.Tag.ToString().Contains("|BLANK") Then
-            nud.Text = ""
-        End If
-    End Sub
-
-
     Private Sub SetLedStateFromText(led As Control, reply As String)
         If led Is Nothing Then Exit Sub
 
@@ -1309,62 +1343,6 @@ Partial Class Formtest
 
         Vars($"led:{ledName}") = isOn
         Vars(ledName) = isOn
-    End Sub
-
-
-    Private Sub SendLinesButton_Click(sender As Object, e As EventArgs)
-        Dim b As Button = TryCast(sender, Button)
-        If b Is Nothing Then Exit Sub
-
-        Dim metaParts = CStr(b.Tag).Split("|"c)
-        If metaParts.Length < 2 Then Exit Sub
-
-        Dim areaName As String = metaParts(0).Trim()
-        Dim deviceName As String = metaParts(1).Trim()
-
-        Dim tb As TextBox = TryCast(GetControlByName(areaName), TextBox)
-        If tb Is Nothing Then
-            MessageBox.Show("TEXTAREA not found: " & areaName)
-            Exit Sub
-        End If
-
-        ' Resolve device + engine mode
-        Dim dev As IODevices.IODevice = Nothing
-        Dim useNative As Boolean = False
-
-        Select Case deviceName.ToLowerInvariant()
-            Case "dev1"
-                dev = dev1
-                useNative = String.Equals(GpibEngineDev1, "native", StringComparison.OrdinalIgnoreCase)
-
-            Case "dev2"
-                dev = dev2
-                useNative = String.Equals(GpibEngineDev2, "native", StringComparison.OrdinalIgnoreCase)
-
-            Case Else
-                MessageBox.Show("Invalid device: " & deviceName)
-                Exit Sub
-        End Select
-
-        If dev Is Nothing Then
-            MessageBox.Show("Device not available: " & deviceName)
-            Exit Sub
-        End If
-
-        For Each rawLine In tb.Lines
-            Dim line = rawLine.Trim()
-            If line = "" Then Continue For
-            If line.StartsWith(";"c) Then Continue For
-
-            Dim finalCmd As String = line & TermStr2()
-
-            If useNative Then
-                ' IMPORTANT: don't PerformClick from USER tab; use the working native path
-                NativeSend(deviceName, finalCmd)
-            Else
-                dev.SendAsync(finalCmd, True)
-            End If
-        Next
     End Sub
 
 
@@ -1901,40 +1879,6 @@ Partial Class Formtest
     End Sub
 
 
-    Private Function MakeSafeFileName(input As String) As String
-        If input Is Nothing Then Return ""
-
-        Dim s As String = input.Trim()
-
-        ' 1) Remove invalid *path* characters first (prevents Path.GetFileName throwing)
-        For Each ch As Char In System.IO.Path.GetInvalidPathChars()
-            s = s.Replace(ch, "_"c)
-        Next
-
-        ' 2) Now it is safe to call GetFileName (also handles if user pasted a full path)
-        Try
-            s = System.IO.Path.GetFileName(s)
-        Catch
-            ' If anything weird still slips through, just use the raw string after path-char cleanup
-            ' (and continue sanitising below)
-        End Try
-
-        ' 3) Remove invalid *file name* characters
-        For Each ch As Char In System.IO.Path.GetInvalidFileNameChars()
-            s = s.Replace(ch, "_"c)
-        Next
-
-        ' 4) Extra hardening: remove control chars explicitly
-        Dim sb As New System.Text.StringBuilder()
-        For Each ch As Char In s
-            If Not Char.IsControl(ch) Then sb.Append(ch)
-        Next
-        s = sb.ToString().Trim()
-
-        Return s
-    End Function
-
-
     Private Sub RunQueriesToFileFromTextArea(deviceName As String,
                                         scriptControlName As String,
                                         filePathControlName As String,
@@ -1972,37 +1916,7 @@ Partial Class Formtest
     End Sub
 
 
-    ' Returns just the raw reply (no UI updates)
-    Private Function QueryRawOnly(deviceName As String, cmd As String) As String
-
-        If IsNativeEngine(deviceName) Then
-            ' Runs your existing native path (but we’ll call it off-thread)
-            Return NativeQuery(deviceName, cmd)
-        End If
-
-        Dim dev As IODevices.IODevice = GetDeviceByName(deviceName)
-        If dev Is Nothing Then Return "ERR Unknown device: " & deviceName
-
-        Dim q As IODevices.IOQuery = Nothing
-        Dim st As Integer = dev.QueryBlocking(cmd & TermStr2(), q, False)
-
-        If st = 0 AndAlso q IsNot Nothing Then
-            Return q.ResponseAsString.Trim()
-        End If
-
-        If q IsNot Nothing Then
-            If st = -1 AndAlso Not String.IsNullOrEmpty(q.errmsg) AndAlso
-           q.errmsg.IndexOf("Blocking", StringComparison.OrdinalIgnoreCase) >= 0 Then
-                Return ""   ' keep old value (busy)
-            End If
-            Return "ERR " & st & ": " & q.errmsg
-        End If
-
-        Return "ERR " & st & " (no IOQuery)"
-    End Function
-
-
-    ' ===== One output row in a stats panel =====
+    ' One output row in a stats panel
     Private Class StatsRow
         Public LabelText As String
         Public FuncKey As String
@@ -2012,7 +1926,7 @@ Partial Class Formtest
     End Class
 
 
-    ' ===== Running stats (fast, stable) =====
+    ' Running stats (fast, stable)
     Private Class RunningStatsState
         Public Count As Long
         Public Min As Double = Double.PositiveInfinity
@@ -2219,49 +2133,6 @@ Partial Class Formtest
     End Function
 
 
-    Private Sub UpdateHistoryGrid(gridName As String, sample As Double)
-
-        If Not HistoryState.ContainsKey(gridName) Then Exit Sub
-        If Not HistoryLists.ContainsKey(gridName) Then Exit Sub
-
-        Dim st = HistoryState(gridName)
-        st.AddSample(sample)
-
-        Dim fmt As String = "G6"
-        If HistoryFormats.ContainsKey(gridName) Then fmt = HistoryFormats(gridName)
-
-        Dim ppmRef As String = "MEAN"
-        If HistoryPpmRef.ContainsKey(gridName) Then ppmRef = HistoryPpmRef(gridName)
-
-        Dim row As New HistoryRow()
-        row.Value = sample.ToString(fmt, Globalization.CultureInfo.InvariantCulture)
-        row.Time = DateTime.Now.ToString("HH:mm:ss", Globalization.CultureInfo.InvariantCulture)
-        row.Min = If(st.Count > 0, st.Min.ToString(fmt, Globalization.CultureInfo.InvariantCulture), "")
-        row.Max = If(st.Count > 0, st.Max.ToString(fmt, Globalization.CultureInfo.InvariantCulture), "")
-        row.PkPk = If(st.Count > 0, (st.Max - st.Min).ToString(fmt, Globalization.CultureInfo.InvariantCulture), "")
-        row.Mean = If(st.Count > 0, st.Mean.ToString(fmt, Globalization.CultureInfo.InvariantCulture), "")
-        row.Std = If(st.Count > 1, st.StdDevSample().ToString(fmt, Globalization.CultureInfo.InvariantCulture), "")
-        row.Count = st.Count.ToString(Globalization.CultureInfo.InvariantCulture)
-        row.Value = st.Last
-        row.PPM = ComputePpmString(st, ppmRef, fmt)
-
-        Dim bs = HistoryLists(gridName)
-        Dim lst = TryCast(bs.DataSource, List(Of HistoryRow))
-        If lst Is Nothing Then Exit Sub
-
-        ' Newest at TOP
-        lst.Insert(0, row)
-
-        Dim maxRows As Integer = HistoryMaxRows(gridName)
-        While lst.Count > maxRows
-            lst.RemoveAt(lst.Count - 1)
-        End While
-
-        bs.ResetBindings(False)
-
-    End Sub
-
-
     Private Sub RegisterDynamicControl(id As String, ctrl As Control)
         If String.IsNullOrWhiteSpace(id) Then Return
         If ctrl Is Nothing Then Return
@@ -2275,12 +2146,41 @@ Partial Class Formtest
         Dim targets As List(Of String) = Nothing
         If Not InvisFuncToTargets.TryGetValue(funcName.Trim(), targets) Then Return False
 
-        ' Toggle visibility of all targets in the list
+        Dim poppedHist As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+        Dim poppedCharts As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+
+        ' First pass: handle pop-out targets (history grids and charts)
         For Each id In targets
+            ' HISTORYGRID popup?
+            Dim hCfg As HistoryGridConfig = Nothing
+            If HistorySettings.TryGetValue(id, hCfg) _
+           AndAlso hCfg IsNot Nothing _
+           AndAlso hCfg.Popup Then
+
+                PopOutHistoryGrid(id)
+                poppedHist.Add(id)
+                Continue For
+            End If
+
+            ' CHART popup?
+            Dim cCfg As ChartConfig = Nothing
+            If ChartSettings.TryGetValue(id, cCfg) _
+           AndAlso cCfg IsNot Nothing _
+           AndAlso cCfg.Popup Then
+
+                PopOutChart(id)
+                poppedCharts.Add(id)
+            End If
+        Next
+
+        ' Second pass: normal visibility toggle for non-popup targets
+        For Each id In targets
+            If poppedHist.Contains(id) OrElse poppedCharts.Contains(id) Then Continue For
+
             Dim c As Control = Nothing
             If UiById.TryGetValue(id, c) AndAlso c IsNot Nothing Then
                 c.Visible = Not c.Visible
-                If c.Visible Then c.BringToFront() ' helpful for stacked overlays
+                If c.Visible Then c.BringToFront()
             End If
         Next
 
@@ -2288,18 +2188,116 @@ Partial Class Formtest
     End Function
 
 
-    Private Sub ClearHistoryGrid(gridName As String)
-        If String.IsNullOrWhiteSpace(gridName) Then Exit Sub
+    Private Sub PopOutHistoryGrid(gridName As String)
+        Dim cfg As HistoryGridConfig = Nothing
+        If Not HistorySettings.TryGetValue(gridName, cfg) _
+       OrElse cfg Is Nothing _
+       OrElse Not cfg.Popup Then
 
-        Dim ctrl As Control = Nothing
-        If Not ControlByName.TryGetValue(gridName, ctrl) OrElse ctrl Is Nothing Then Exit Sub
+            Exit Sub
+        End If
 
-        Dim dgv = TryCast(ctrl, DataGridView)
-        If dgv Is Nothing Then Exit Sub
+        ' If there's already a popup, just bring it to front
+        Dim existingForm As Form = Nothing
+        If HistoryGridPopupForms.TryGetValue(gridName, existingForm) _
+       AndAlso existingForm IsNot Nothing _
+       AndAlso Not existingForm.IsDisposed Then
 
-        ' If you bound to a DataTable / BindingSource, clear the underlying source instead.
-        dgv.Rows.Clear()
+            existingForm.BringToFront()
+            existingForm.Activate()
+            Exit Sub
+        End If
+
+        ' Get (or create) the shared history list
+        Dim list As BindingList(Of HistoryRow) = Nothing
+        If Not HistoryData.TryGetValue(gridName, list) Then
+            list = New BindingList(Of HistoryRow)()
+            HistoryData(gridName) = list
+        End If
+
+        ' Build popup form
+        Dim f As New Form()
+        f.Text = If(String.IsNullOrEmpty(cfg.GridName), gridName, cfg.GridName)
+        f.StartPosition = FormStartPosition.CenterParent
+        f.Size = New Size(650, 373)
+
+        Dim dgv As New DataGridView()
+        dgv.Dock = DockStyle.Fill
+        dgv.Name = gridName & "_popup"
+
+        dgv.AllowUserToAddRows = False
+        dgv.AllowUserToDeleteRows = False
+        dgv.ReadOnly = True
+        dgv.RowHeadersVisible = False
+        dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect
+        dgv.MultiSelect = False
+        dgv.AutoGenerateColumns = False
+        dgv.ScrollBars = ScrollBars.Vertical
+        dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
+
+        ' Double-buffer to reduce flicker
+        Dim ApplyDgvDoubleBuffer As Action =
+        Sub()
+            Try
+                Dim pi = GetType(DataGridView).GetProperty("DoubleBuffered",
+                    Reflection.BindingFlags.Instance Or Reflection.BindingFlags.NonPublic)
+                If pi IsNot Nothing Then pi.SetValue(dgv, True, Nothing)
+            Catch
+            End Try
+        End Sub
+
+        ApplyDgvDoubleBuffer()
+        AddHandler dgv.HandleCreated, Sub() ApplyDgvDoubleBuffer()
+
+        ' Build columns from cfg.Columns
+        Dim colNames As List(Of String) = cfg.Columns
+        If colNames Is Nothing OrElse colNames.Count = 0 Then
+            colNames = New List(Of String) From {"Value", "Time"}
+        End If
+
+        dgv.Columns.Clear()
+
+        For Each colName As String In colNames
+            Dim c As New DataGridViewTextBoxColumn()
+            c.Name = colName
+            c.HeaderText = colName
+            c.DataPropertyName = colName   ' must match HistoryRow properties
+            c.SortMode = DataGridViewColumnSortMode.NotSortable
+
+            c.Width = 70
+            If colName.Equals("Value", StringComparison.OrdinalIgnoreCase) Then c.Width = 95
+            If colName.Equals("Time", StringComparison.OrdinalIgnoreCase) Then c.Width = 120
+            If colName.Equals("PkPk", StringComparison.OrdinalIgnoreCase) Then c.Width = 90
+            If colName.Equals("Mean", StringComparison.OrdinalIgnoreCase) Then c.Width = 95
+
+            If colName.Equals("Time", StringComparison.OrdinalIgnoreCase) Then
+                c.DefaultCellStyle.Format = "HH:mm:ss"
+            ElseIf Not colName.Equals("Count", StringComparison.OrdinalIgnoreCase) Then
+                c.DefaultCellStyle.Format = cfg.Format
+            End If
+
+            dgv.Columns.Add(c)
+        Next
+
+        If dgv.Columns.Count > 0 Then
+            dgv.Columns(0).DefaultCellStyle.Font = New Font("Segoe UI", 9.0F, FontStyle.Bold)
+        End If
+
+        ' Bind to the SAME data list the history engine uses
+        dgv.DataSource = list
+
+        f.Controls.Add(dgv)
+
+        HistoryGridPopupForms(gridName) = f
+
+        AddHandler f.FormClosing,
+        Sub(sender As Object, args As FormClosingEventArgs)
+            HistoryGridPopupForms.Remove(gridName)
+        End Sub
+
+        f.Show(Me)
     End Sub
+
 
 
     ' ====================================================================================================================================================================================================
@@ -2324,19 +2322,6 @@ Partial Class Formtest
         Dim d As Double
         If Double.TryParse(textValue, NumberStyles.Float, CultureInfo.InvariantCulture, d) Then
             Vars($"num:{controlName}") = d
-        End If
-    End Sub
-
-
-    ' Publish BIGTEXT (if BIGTEXT has its own name, publish it too)
-    Private Sub PublishBigText(controlName As String, textValue As String)
-        If String.IsNullOrWhiteSpace(controlName) Then Exit Sub
-
-        Vars($"big:{controlName}") = textValue
-
-        Dim d As Double
-        If Double.TryParse(textValue, NumberStyles.Float, CultureInfo.InvariantCulture, d) Then
-            Vars($"bignum:{controlName}") = d
         End If
     End Sub
 
@@ -2423,38 +2408,6 @@ Partial Class Formtest
 
         Return Nothing
     End Function
-
-
-    ' CONFIG PARSER ENTRYPOINT
-    ' Call this from your config parsing loop when you see "TRIGGER"
-    Private Sub ParseTriggerLine(parts() As String)
-        EnsureTriggerEngine()
-
-        Dim kv = ParseNamedParams(parts)
-
-        Dim name = GetKV(kv, "name", "")
-        If name = "" Then Exit Sub
-
-        Dim period = GetKVD(kv, "period", 0.5)
-        Dim ifExpr = GetKV(kv, "if", "")
-        Dim thenExpr = GetKV(kv, "then", "")
-
-        Dim cooldown = GetKVD(kv, "cooldown", 0.0)
-        Dim need = GetKVI(kv, "need", 1)
-        Dim oneshot = GetKVB(kv, "oneshot", False)
-        Dim enabled = GetKVB(kv, "enabled", True)
-
-        TriggerEng.AddOrUpdate(New TriggerDef With {
-        .Name = name,
-        .Enabled = enabled,
-        .PeriodSec = period,
-        .IfExpr = ifExpr,
-        .ThenChain = thenExpr,
-        .CooldownSec = cooldown,
-        .NeedHits = need,
-        .OneShot = oneshot
-    })
-    End Sub
 
 
     ' ACTION DISPATCHER
@@ -3306,45 +3259,6 @@ Partial Class Formtest
     End Function
 
 
-    Private Sub RecalcFromDependency(depName As String)
-        Dim outs As List(Of String) = Nothing
-        If Not CalcDeps.TryGetValue(depName, outs) OrElse outs Is Nothing OrElse outs.Count = 0 Then Exit Sub
-
-        ' Evaluate in passes so chained calcs work even if ordering is wrong.
-        ' Example: PPM depends on Ref; if PPM is attempted before Ref is cached, we retry.
-        Dim pending As New List(Of String)(outs)
-        Dim passes As Integer = 3 ' enough for small chains
-
-        For pass As Integer = 1 To passes
-            Dim progressed As Boolean = False
-
-            For i As Integer = pending.Count - 1 To 0 Step -1
-                Dim outName As String = pending(i)
-
-                Dim cd As CalcDef = Nothing
-                If Not CalcDefs.TryGetValue(outName, cd) OrElse cd Is Nothing Then
-                    pending.RemoveAt(i)
-                    Continue For
-                End If
-
-                Dim dvOut As Double
-                If Not TryEvalCalc(cd.Expr, dvOut) Then
-                    Continue For ' maybe succeeds next pass after another calc runs
-                End If
-
-                ResultLastValue(cd.OutResult) = dvOut
-                PushNumericResult(cd.OutResult, dvOut)
-
-                pending.RemoveAt(i)
-                progressed = True
-            Next
-
-            If pending.Count = 0 Then Exit For
-            If Not progressed Then Exit For
-        Next
-    End Sub
-
-
     Private Sub RecalcAllCalcs()
         If CalcDefs.Count = 0 Then Exit Sub
 
@@ -3618,10 +3532,6 @@ Partial Class Formtest
             GroupBoxCustom.Enabled = True
         End If
     End Sub
-
-
-
-
 
 
 

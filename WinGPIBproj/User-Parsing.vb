@@ -2257,6 +2257,8 @@ Partial Class Formtest
 
                     Dim usedPositional As Boolean = False
 
+                    Dim popup As Boolean = False
+
                     ' ------------------------------------------------------------
                     ' Positional header fields:
                     ' CHART;ChartName;Caption;ResultTarget;...
@@ -2396,6 +2398,10 @@ Partial Class Formtest
                                 Single.TryParse(val, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, innerW)
                             Case "innerh"
                                 Single.TryParse(val, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, innerH)
+
+                            Case "popup"
+                                Dim v = val.ToLowerInvariant()
+                                popup = (v = "1" OrElse v = "true" OrElse v = "yes")
                         End Select
                     Next
 
@@ -2479,6 +2485,18 @@ Partial Class Formtest
                     ch.Series.Add(ser)
 
                     GroupBoxCustom.Controls.Add(ch)
+
+                    ' Remember config for pop-out charts
+                    ChartSettings(chartName) = New ChartConfig With {
+    .ChartName = chartName,
+    .ResultTarget = resultTarget,
+    .YMin = yMin,
+    .YMax = yMax,
+    .XStep = xStep,
+    .MaxPoints = maxPoints,
+    .AutoScaleY = autoScaleY,
+    .Popup = popup
+}
 
                     ' Store chart binding so it can be updated even without a source TextBox
                     Dim yMinStr As String = If(yMin.HasValue, yMin.Value.ToString(Globalization.CultureInfo.InvariantCulture), "")
@@ -2762,6 +2780,7 @@ Partial Class Formtest
                     Dim fmt As String = "F7"
                     Dim colsRaw As String = "Value,Time,Min,Max,PkPk,Mean,Std,PPM,Count"
                     Dim ppmRef As String = "MEAN"
+                    Dim popup As Boolean = False
 
                     Dim firstIsNamed As Boolean = parts.Length > 1 AndAlso parts(1).Contains("="c)
 
@@ -2797,6 +2816,11 @@ Partial Class Formtest
                                     If val <> "" Then colsRaw = val
                                 Case "ppmref"
                                     If val <> "" Then ppmRef = val
+                                Case "popup"
+                                    If val <> "" Then
+                                        Dim lv = val.Trim().ToLowerInvariant()
+                                        popup = (lv = "1" OrElse lv = "true" OrElse lv = "yes")
+                                    End If
                             End Select
                         Next
 
@@ -2835,6 +2859,12 @@ Partial Class Formtest
 
                                 Case "ppmref"
                                     If val <> "" Then ppmRef = val
+
+                                Case "popup"
+                                    If val <> "" Then
+                                        Dim lv = val.Trim().ToLowerInvariant()
+                                        popup = (lv = "1" OrElse lv = "true" OrElse lv = "yes")
+                                    End If
                             End Select
                         Next
 
@@ -2845,7 +2875,7 @@ Partial Class Formtest
                     ' ---------- Caption label (optional) ----------
                     Dim topY As Integer = y
 
-                    If caption <> "" Then
+                    If caption <> "" AndAlso Not popup Then
                         Dim lbl As New Label()
                         lbl.Text = caption
                         lbl.AutoSize = True
@@ -2862,6 +2892,7 @@ Partial Class Formtest
 
                     dgv.Location = New Point(x, topY)
                     dgv.Size = New Size(w, h)
+
                     dgv.AllowUserToAddRows = False
                     dgv.AllowUserToDeleteRows = False
                     dgv.ReadOnly = True
@@ -2874,14 +2905,14 @@ Partial Class Formtest
 
                     ' Reduce flicker: DataGridView.DoubleBuffered (private property)
                     Dim ApplyDgvDoubleBuffer As Action =
-                        Sub()
-                            Try
-                                Dim pi = GetType(DataGridView).GetProperty("DoubleBuffered",
-                                    Reflection.BindingFlags.Instance Or Reflection.BindingFlags.NonPublic)
-                                If pi IsNot Nothing Then pi.SetValue(dgv, True, Nothing)
-                            Catch
-                            End Try
-                        End Sub
+                    Sub()
+                        Try
+                            Dim pi = GetType(DataGridView).GetProperty("DoubleBuffered",
+                                Reflection.BindingFlags.Instance Or Reflection.BindingFlags.NonPublic)
+                            If pi IsNot Nothing Then pi.SetValue(dgv, True, Nothing)
+                        Catch
+                        End Try
+                    End Sub
 
                     ApplyDgvDoubleBuffer()
                     AddHandler dgv.HandleCreated, Sub() ApplyDgvDoubleBuffer()
@@ -2924,6 +2955,9 @@ Partial Class Formtest
 
                     GroupBoxCustom.Controls.Add(dgv)
 
+                    ' Keep a reference to the grid for popup logic (CLEARHISTORY)
+                    HistoryGrids(gridName) = dgv
+
                     ' Per-grid history list
                     Dim list As BindingList(Of HistoryRow) = Nothing
                     If Not HistoryData.TryGetValue(gridName, list) Then
@@ -2948,53 +2982,55 @@ Partial Class Formtest
                     Dim src = TryCast(GetControlByName(resultTarget), TextBox)
                     If src IsNot Nothing Then
                         AddHandler src.TextChanged,
-                            Sub(senderSrc As Object, eSrc As EventArgs)
+                        Sub(senderSrc As Object, eSrc As EventArgs)
 
-                                Dim dvSample As Double
-                                If Not TryExtractFirstDouble(DirectCast(senderSrc, TextBox).Text, dvSample) Then Exit Sub
+                            Dim dvSample As Double
+                            If Not TryExtractFirstDouble(DirectCast(senderSrc, TextBox).Text, dvSample) Then Exit Sub
 
-                                st.AddSample(dvSample)
+                            st.AddSample(dvSample)
 
-                                Dim row As New HistoryRow()
-                                row.Time = DateTime.Now
-                                row.Value = dvSample
-                                row.Min = If(st.Count > 0, st.Min, 0)
-                                row.Max = If(st.Count > 0, st.Max, 0)
-                                row.PkPk = If(st.Count > 0, st.Max - st.Min, 0)
-                                row.Mean = If(st.Count > 0, st.Mean, 0)
-                                row.Std = If(st.Count > 1, st.StdDevSample(), 0)
+                            Dim row As New HistoryRow()
+                            row.Time = DateTime.Now
+                            row.Value = dvSample
+                            row.Min = If(st.Count > 0, st.Min, 0)
+                            row.Max = If(st.Count > 0, st.Max, 0)
+                            row.PkPk = If(st.Count > 0, st.Max - st.Min, 0)
+                            row.Mean = If(st.Count > 0, st.Mean, 0)
+                            row.Std = If(st.Count > 1, st.StdDevSample(), 0)
 
-                                Dim refVal As Double = st.Mean
-                                If ppmRef.Equals("FIRST", StringComparison.OrdinalIgnoreCase) AndAlso st.HasFirst Then
-                                    refVal = st.First
-                                ElseIf Not ppmRef.Equals("MEAN", StringComparison.OrdinalIgnoreCase) Then
-                                    Dim tmp As Double
-                                    If Double.TryParse(ppmRef, Globalization.NumberStyles.Float,
-                                                       Globalization.CultureInfo.InvariantCulture, tmp) Then
-                                        refVal = tmp
-                                    End If
+                            Dim refVal As Double = st.Mean
+                            If ppmRef.Equals("FIRST", StringComparison.OrdinalIgnoreCase) AndAlso st.HasFirst Then
+                                refVal = st.First
+                            ElseIf Not ppmRef.Equals("MEAN", StringComparison.OrdinalIgnoreCase) Then
+                                Dim tmp As Double
+                                If Double.TryParse(ppmRef, Globalization.NumberStyles.Float,
+                                                   Globalization.CultureInfo.InvariantCulture, tmp) Then
+                                    refVal = tmp
                                 End If
+                            End If
 
-                                row.PPM = If(refVal <> 0, ((st.Last - refVal) / refVal) * 1000000.0R, 0)
-                                row.Count = CInt(st.Count)
+                            row.PPM = If(refVal <> 0, ((st.Last - refVal) / refVal) * 1000000.0R, 0)
+                            row.Count = CInt(st.Count)
 
-                                list.Insert(0, row)
+                            list.Insert(0, row)
 
-                                While list.Count > maxRows
-                                    list.RemoveAt(list.Count - 1)
-                                End While
+                            While list.Count > maxRows
+                                list.RemoveAt(list.Count - 1)
+                            End While
 
-                            End Sub
+                        End Sub
                     End If
+
                     ' Register grid -> target so DATASOURCE updates can drive it (no hidden TextBox needed)
                     HistorySettings(gridName) = New HistoryGridConfig With {
-                        .GridName = gridName,
-                        .ResultTarget = resultTarget,
-                        .MaxRows = maxRows,
-                        .Format = fmt,
-                        .Columns = colNames,
-                        .PpmRef = ppmRef
-                    }
+                    .GridName = gridName,
+                    .ResultTarget = resultTarget,
+                    .MaxRows = maxRows,
+                    .Format = fmt,
+                    .Columns = colNames,
+                    .PpmRef = ppmRef,
+                    .Popup = popup
+                }
 
                     Dim glist As List(Of String) = Nothing
                     If Not HistoryGridsByTarget.TryGetValue(resultTarget, glist) Then
@@ -3351,7 +3387,6 @@ Partial Class Formtest
                         UserConfig_DataSaveEnabled = (v = "enabled" OrElse v = "true" OrElse v = "1")
                     End If
                     Continue For
-
 
 
 
@@ -4773,37 +4808,6 @@ Partial Class Formtest
     End Sub
 
 
-    Private Function LoadAllTextboxState() As Dictionary(Of String, String)
-
-        Dim json As String = My.Settings.UserGui_TextboxStateJson
-
-        If String.IsNullOrWhiteSpace(json) Then
-            Return New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
-        End If
-
-        Try
-            Dim d As Dictionary(Of String, String) =
-            JsonConvert.DeserializeObject(Of Dictionary(Of String, String))(json)
-
-            If d Is Nothing Then
-                Return New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
-            End If
-
-            Return d
-
-        Catch
-            Return New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
-        End Try
-
-    End Function
-
-
-    Private Function MakeTextboxStateKey(cfgPath As String, tbName As String) As String
-        ' Keyed by exact config file + textbox name
-        Return cfgPath.ToLowerInvariant() & "|" & tbName.ToLowerInvariant()
-    End Function
-
-
     Private Function ExtractUnitFromCaption(caption As String) As String
         If String.IsNullOrWhiteSpace(caption) Then Return ""
 
@@ -4870,6 +4874,97 @@ Partial Class Formtest
         f.ShowDialog(Me)
     End Sub
 
+
+    Private Sub PopOutChart(chartName As String)
+        Dim cfg As ChartConfig = Nothing
+        If Not ChartSettings.TryGetValue(chartName, cfg) _
+       OrElse cfg Is Nothing _
+       OrElse Not cfg.Popup Then
+
+            Exit Sub
+        End If
+
+        ' If popup already exists, just bring it to front
+        Dim existingForm As Form = Nothing
+        If ChartPopupForms.TryGetValue(chartName, existingForm) _
+       AndAlso existingForm IsNot Nothing _
+       AndAlso Not existingForm.IsDisposed Then
+
+            existingForm.BringToFront()
+            existingForm.Activate()
+            Exit Sub
+        End If
+
+        ' Build popup form
+        Dim f As New Form()
+        f.Text = If(String.IsNullOrEmpty(cfg.ChartName), chartName, cfg.ChartName)
+        f.StartPosition = FormStartPosition.CenterParent
+        f.Size = New Size(1000, 400)
+
+        Dim ch As New DataVisualization.Charting.Chart()
+        ch.Name = chartName & "_popup"
+        ch.Dock = DockStyle.Fill
+        ch.BackColor = Color.Black
+
+        Dim ca As New DataVisualization.Charting.ChartArea("Default")
+        ch.ChartAreas.Add(ca)
+
+        ' Y range / autoscale
+        If cfg.AutoScaleY Then
+            ca.AxisY.Minimum = Double.NaN
+            ca.AxisY.Maximum = Double.NaN
+        Else
+            ca.AxisY.Minimum = If(cfg.YMin.HasValue, cfg.YMin.Value, Double.NaN)
+            ca.AxisY.Maximum = If(cfg.YMax.HasValue, cfg.YMax.Value, Double.NaN)
+        End If
+
+        ' Simple grid / labels styling
+        ca.BackColor = Color.Black
+        ca.AxisX.LabelStyle.Enabled = False
+        ca.AxisX.MajorTickMark.Enabled = False
+        ca.AxisX.MinorTickMark.Enabled = False
+        ca.AxisX.MajorGrid.Enabled = True
+        ca.AxisX.MajorGrid.LineColor = Color.FromArgb(60, 60, 60)
+        ca.AxisX.MajorGrid.LineDashStyle = DataVisualization.Charting.ChartDashStyle.Dot
+
+        ca.AxisY.MajorGrid.Enabled = True
+        ca.AxisY.MajorGrid.LineColor = Color.FromArgb(80, 80, 80)
+        ca.AxisY.LabelStyle.ForeColor = Color.White
+        ca.AxisY.LabelStyle.Font = New Font("Segoe UI", 7.0F)
+        ca.AxisY.MajorTickMark.Enabled = False
+
+        ' Series
+        Dim s As New DataVisualization.Charting.Series("S1")
+        s.ChartType = DataVisualization.Charting.SeriesChartType.Line
+        s.BorderWidth = 1
+        s.Color = Color.Yellow
+        s.MarkerStyle = DataVisualization.Charting.MarkerStyle.Circle
+        s.MarkerSize = 3
+        s.MarkerColor = s.Color
+        ch.Series.Add(s)
+
+        ' If original chart exists, copy its basic style (color, width)
+        Dim orig As DataVisualization.Charting.Chart =
+        TryCast(GetControlByName(chartName), DataVisualization.Charting.Chart)
+
+        If orig IsNot Nothing AndAlso orig.Series.Count > 0 Then
+            Dim s0 = orig.Series(0)
+            s.BorderWidth = s0.BorderWidth
+            s.Color = s0.Color
+            s.MarkerColor = s0.MarkerColor
+        End If
+
+        f.Controls.Add(ch)
+
+        ChartPopupForms(chartName) = f
+
+        AddHandler f.FormClosing,
+        Sub(sender As Object, args As FormClosingEventArgs)
+            ChartPopupForms.Remove(chartName)
+        End Sub
+
+        f.Show(Me)
+    End Sub
 
 
 

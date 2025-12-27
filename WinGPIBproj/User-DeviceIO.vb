@@ -473,6 +473,37 @@ FanOut:
 
         End While
 
+        ' ---- POPUP CHARTS (in separate windows) ----
+        If ChartSettings IsNot Nothing AndAlso ChartPopupForms IsNot Nothing Then
+            For Each kv In ChartSettings
+                Dim cfg As ChartConfig = kv.Value
+                If cfg Is Nothing OrElse Not cfg.Popup Then Continue For
+
+                ' Only charts bound to this resultControlName
+                If Not String.Equals(cfg.ResultTarget, resultControlName, StringComparison.OrdinalIgnoreCase) Then Continue For
+
+                Dim popupForm As Form = Nothing
+                If Not ChartPopupForms.TryGetValue(kv.Key, popupForm) Then Continue For
+                If popupForm Is Nothing OrElse popupForm.IsDisposed Then Continue For
+
+                ' Find the Chart inside the popup form
+                Dim popupChart As DataVisualization.Charting.Chart = Nothing
+                For Each ctrl As Control In popupForm.Controls
+                    popupChart = TryCast(ctrl, DataVisualization.Charting.Chart)
+                    If popupChart IsNot Nothing Then Exit For
+                Next
+                If popupChart Is Nothing Then Continue For
+
+                Dim yMin2 As Double? = cfg.YMin
+                Dim yMax2 As Double? = cfg.YMax
+                Dim xStep2 As Double = cfg.XStep
+                Dim maxPts2 As Integer = cfg.MaxPoints
+                Dim auto2 As Boolean = cfg.AutoScaleY
+
+                UpdateChartFromText(popupChart, feedText, yMin2, yMax2, xStep2, maxPts2, auto2)
+            Next
+        End If
+
         ' ---- HISTORYGRID (no TextBox required) ----
         Dim grids As List(Of String) = Nothing
         If HistoryGridsByTarget.TryGetValue(resultControlName, grids) Then
