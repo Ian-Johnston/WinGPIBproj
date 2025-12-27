@@ -61,8 +61,16 @@ Partial Class Formtest
         Else
             If IsNativeEngine(deviceName) Then
 
+                Dim overloadSource As String = "disp"
+                If Not String.IsNullOrWhiteSpace(overloadToken) AndAlso overloadToken.Contains("|"c) Then
+                    Dim sp = overloadToken.Split({"|"c}, 2)
+                    overloadSource = sp(1).Trim().ToLowerInvariant()
+                End If
+
+                Dim wantRaw As Boolean = (overloadSource = "raw")
+
                 ' NATIVE PATH: use existing UI query buttons/textboxes
-                raw = NativeQuery(deviceName, commandOrPrefix)
+                raw = NativeQuery(deviceName, commandOrPrefix, requireRaw:=wantRaw)
 
             Else
 
@@ -104,14 +112,50 @@ Partial Class Formtest
         raw = If(raw, "").Trim()
 
         ' =========================================================
-        '   OVERLOAD DETECT (user-defined token match)
+        '   OVERLOAD DETECT (overload=token|raw or token|disp)
+        '   Default (no |suffix) = disp
+        '   Uses CONTAINS match; RAW is trimmed to ignore leading spaces
         ' =========================================================
         If Not String.IsNullOrWhiteSpace(overloadToken) Then
-            If raw.IndexOf(overloadToken, StringComparison.OrdinalIgnoreCase) >= 0 Then
+
+            ' Parse token + optional source selector
+            Dim overloadValue As String = overloadToken.Trim()
+            Dim overloadSource As String = "disp"   ' default
+
+            If overloadValue.Contains("|"c) Then
+                Dim sp = overloadValue.Split({"|"c}, 2)
+                overloadValue = sp(0).Trim()
+                overloadSource = sp(1).Trim().ToLowerInvariant()
+            End If
+
+            ' Choose comparison text
+            Dim cmpText As String = ""
+
+            If IsNativeEngine(deviceName) Then
+                ' Native: we have BOTH raw and disp available from Formtest.vb capture
+                If overloadSource = "raw" Then
+                    cmpText =
+                If(deviceName.Equals("dev2", StringComparison.OrdinalIgnoreCase),
+                   If(USERdev2output2, "").Trim(),
+                   If(USERdev1output2, "").Trim())
+                Else
+                    ' disp
+                    cmpText =
+                If(deviceName.Equals("dev2", StringComparison.OrdinalIgnoreCase),
+                   If(USERdev2output, ""),
+                   If(USERdev1output, ""))
+                End If
+            Else
+                ' Standalone: only the query reply exists here -> treat as raw
+                cmpText = If(raw, "").Trim()
+            End If
+
+            ' CONTAINS match
+            If overloadValue <> "" AndAlso
+       cmpText.IndexOf(overloadValue, StringComparison.OrdinalIgnoreCase) >= 0 Then
 
                 outText = "OVERLOAD"
 
-                ' Publish a numeric marker for trigger/calc users (optional but useful)
                 Vars(resultControlName) = Double.NaN
                 Vars($"num:{resultControlName}") = Double.NaN
                 Vars($"bignum:{resultControlName}") = Double.NaN
@@ -119,7 +163,9 @@ Partial Class Formtest
 
                 GoTo FanOut
             End If
+
         End If
+
 
         ' =========================================================
         '   EXISTING FORMAT / SCALE / UNITS LOGIC (unchanged)
@@ -403,13 +449,14 @@ FanOut:
 
     Private Function NativeQuery(deviceName As String, cmd As String, Optional requireRaw As Boolean = False) As String
 
-        Const timeoutMs As Integer = 5000   ' adjust if needed
+        Const timeoutMs As Integer = 5000
 
         If deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
 
-            USERdev1rawoutput = requireRaw
-            Try
+            ' Tell Formtest callback to use the fast path (fills USERdev1output2 + USERdev1output)
+            USERdev1fastquery = True
 
+            Try
                 OutputReceiveddev1 = False
                 txtq1a.Text = cmd
                 RunBtnq1aCore()
@@ -420,17 +467,18 @@ FanOut:
                     Threading.Thread.Sleep(1)
                 Loop
 
-                Return If(USERdev1output, "").Trim()
+                Dim s As String = If(requireRaw, USERdev1output2, USERdev1output)
+                Return If(s, "").Trim()
 
             Finally
-                USERdev1rawoutput = False
+                USERdev1fastquery = False
             End Try
 
         ElseIf deviceName.Equals("dev2", StringComparison.OrdinalIgnoreCase) Then
 
-            USERdev2rawoutput = requireRaw
-            Try
+            USERdev2fastquery = True
 
+            Try
                 OutputReceiveddev2 = False
                 txtq2a.Text = cmd
                 RunBtnq2aCore()
@@ -441,10 +489,11 @@ FanOut:
                     Threading.Thread.Sleep(1)
                 Loop
 
-                Return If(USERdev2output, "").Trim()
+                Dim s As String = If(requireRaw, USERdev2output2, USERdev2output)
+                Return If(s, "").Trim()
 
             Finally
-                USERdev2rawoutput = False
+                USERdev2fastquery = False
             End Try
 
         End If
