@@ -7,7 +7,6 @@ Imports WinGPIBproj.OnOffLed
 
 Partial Class Formtest
 
-
     Private Sub BuildCustomGuiFromText(def As String)
 
         UserConfig_DataSaveEnabled = True   ' reset to default for this config
@@ -45,6 +44,7 @@ Partial Class Formtest
         LuaScriptsByName.Clear()
 
         CurrentUserScale = 1.0   ' reset scale each time we load a layout
+        CurrentUserUnit = ""
 
         Dim autoY As Integer = 10
 
@@ -3419,7 +3419,13 @@ Partial Class Formtest
             If chosen IsNot Nothing Then
                 ' Important: do NOT send SCPI when we tick the radio during determine
                 UserInitSuppressSend = True
+                SyncUserUnitsAndScaleFromCheckedRadios()
                 chosen.Checked = True
+
+                ' --- update CurrentUserUnit when determine selects a range radio ---
+                Dim u As String = ExtractUnitFromCaption(chosen.Text)
+                If Not String.IsNullOrEmpty(u) Then CurrentUserUnit = u
+
                 UserInitSuppressSend = False
             End If
         Next
@@ -4696,6 +4702,21 @@ Partial Class Formtest
         Return cfgPath.ToLowerInvariant() & "|" & tbName.ToLowerInvariant()
     End Function
 
+
+    Private Function ExtractUnitFromCaption(caption As String) As String
+        If String.IsNullOrWhiteSpace(caption) Then Return ""
+
+        caption = caption.Trim()
+
+        ' Split on spaces: "10 uA" → {"10","uA"}
+        Dim parts = caption.Split(New Char() {" "c}, StringSplitOptions.RemoveEmptyEntries)
+
+        ' Need at least value + unit
+        If parts.Length < 2 Then Return ""
+
+        ' Unit is last token
+        Return parts(parts.Length - 1)
+    End Function
 
 
 

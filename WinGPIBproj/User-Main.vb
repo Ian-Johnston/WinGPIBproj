@@ -879,6 +879,8 @@ Partial Class Formtest
         If rb Is Nothing Then Exit Sub
         If Not rb.Checked Then Exit Sub
 
+        If UserInitSuppressSend Then Exit Sub
+
         Dim meta As String = TryCast(rb.Tag, String)
         If String.IsNullOrEmpty(meta) Then Exit Sub
 
@@ -1597,6 +1599,7 @@ Partial Class Formtest
             If String.IsNullOrWhiteSpace(dev) OrElse String.IsNullOrWhiteSpace(cmd) Then Continue For
 
             ' Immediate one-shot read on enable
+            SyncUserUnitsAndScaleFromCheckedRadios()
             RunQueryToResult(dev, cmd, resultName, Nothing, overloadToken)
 
             ' Add/update job
@@ -3380,6 +3383,90 @@ Partial Class Formtest
         ' You already have this in User-DeviceIO.vb
         RunQueryToResult(dev, cmd, resultName)
     End Sub
+
+
+    Private Sub SyncUserUnitsAndScaleFromCheckedRadios()
+
+        Dim modeCaption As String = ""
+
+        ' 1) Find selected MODE radio (caption has no space e.g. "DCV", "DCI", "2WΩ")
+        For Each ctrl As Control In GroupBoxCustom.Controls
+            Dim gb = TryCast(ctrl, GroupBox)
+            If gb Is Nothing Then Continue For
+
+            For Each child As Control In gb.Controls
+                Dim rb = TryCast(child, RadioButton)
+                If rb Is Nothing OrElse Not rb.Checked Then Continue For
+
+                Dim cap = rb.Text.Trim()
+                If cap <> "" AndAlso cap.LastIndexOf(" "c) < 0 Then
+                    modeCaption = cap
+                    Exit For
+                End If
+            Next
+
+            If modeCaption <> "" Then Exit For
+        Next
+
+        If modeCaption = "" Then Exit Sub
+
+        ' Reset scale state (will be set from selected RANGE radio)
+        CurrentUserScaleIsAuto = False
+        CurrentUserRangeQuery = ""
+        CurrentUserScale = 1.0
+
+        ' 2) Find selected RANGE radio inside the group whose caption matches modeCaption
+        For Each ctrl As Control In GroupBoxCustom.Controls
+            Dim gb = TryCast(ctrl, GroupBox)
+            If gb Is Nothing Then Continue For
+            If Not gb.Text.Trim().Equals(modeCaption, StringComparison.OrdinalIgnoreCase) Then Continue For
+
+            For Each child As Control In gb.Controls
+                Dim rb = TryCast(child, RadioButton)
+                If rb Is Nothing OrElse Not rb.Checked Then Continue For
+
+                ' ---- UNIT from caption tail (same rule you already use) ----
+                Dim cap = rb.Text.Trim()
+                Dim lastSpace = cap.LastIndexOf(" "c)
+                If lastSpace >= 0 AndAlso lastSpace < cap.Length - 1 Then
+                    CurrentUserUnit = cap.Substring(lastSpace + 1).Trim()
+                Else
+                    CurrentUserUnit = ""
+                End If
+
+                ' ---- SCALE from Tag (device|command|scale OR device|command|AUTO|rangeQuery) ----
+                Dim meta As String = TryCast(rb.Tag, String)
+                If Not String.IsNullOrEmpty(meta) Then
+                    Dim parts() As String = meta.Split("|"c)
+
+                    If parts.Length >= 3 Then
+                        If String.Equals(parts(2), "AUTO", StringComparison.OrdinalIgnoreCase) Then
+                            CurrentUserScaleIsAuto = True
+                            If parts.Length >= 4 Then
+                                CurrentUserRangeQuery = parts(3).Trim()
+                            End If
+                            CurrentUserScale = 1.0
+                        Else
+                            Dim sc As Double
+                            If Double.TryParse(parts(2),
+                                           Globalization.NumberStyles.Float,
+                                           Globalization.CultureInfo.InvariantCulture,
+                                           sc) Then
+                                CurrentUserScale = sc
+                            Else
+                                CurrentUserScale = 1.0
+                            End If
+                        End If
+                    End If
+                End If
+
+                Exit Sub
+            Next
+        Next
+
+    End Sub
+
+
 
 
 
