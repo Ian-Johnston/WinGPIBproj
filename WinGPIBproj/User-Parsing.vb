@@ -705,20 +705,27 @@ Partial Class Formtest
                 Case "DROPDOWN"
                     ' Supports BOTH:
                     ' 1) Positional:
-                    '    DROPDOWN;ControlName;Caption;DeviceName;CommandPrefix;X;Y;Width;Item1,Item2,Item3...;captionpos=1/2;determine=...
+                    '    DROPDOWN;ControlName;Caption;DeviceName;CommandPrefix;X;Y;Width;Item1,Item2,...;captionpos=1/2;determine=...;commands=...;detmap=...
                     '
                     ' 2) All-named:
-                    '    DROPDOWN;name=Ctrl1;caption=Range;device=dev1;cmd=:SENS:VOLT:DC:RANG; x=20;y=60;w=140;items=0.1,1,10;captionpos=1;determine=...
+                    '    DROPDOWN;name=Ctrl1;caption=Range;device=dev1;command=:SENS:...;commands=cmd1,cmd2,...;x=..;y=..;w=..;items=..;captionpos=..;determine=..;detmap=..
                     '
                     ' determine syntax:
                     '   determine=<query>                 -> defaults respnum
                     '   determine=<query>|respnum
                     '   determine=<query>|resptext
+                    '
+                    ' For resptext dropdowns, you can add:
+                    '   detmap=VOLT:AC,VOLT,=RES,=FRES,...
+                    '   - map count must match the dropdown items count (excluding placeholder)
+                    '   - "=TOKEN" means exact match; otherwise starts-with match
 
                     Dim ctrlName As String = ""
                     Dim caption As String = ""
                     Dim deviceName As String = ""
                     Dim commandPrefix As String = ""
+                    Dim commandsList As String = ""
+                    Dim detmapRaw As String = ""
 
                     Dim x As Integer = 0
                     Dim y As Integer = 0
@@ -726,10 +733,8 @@ Partial Class Formtest
                     Dim itemsRaw As String = ""
                     Dim captionPos As Integer = 1
 
-                    ' Determine
                     Dim determineRaw As String = ""
 
-                    ' Decide whether this line is positional or all-named
                     Dim isAllNamed As Boolean = (parts.Length >= 2 AndAlso parts(1).Contains("="c))
 
                     If Not isAllNamed Then
@@ -757,20 +762,29 @@ Partial Class Formtest
                                 Dim key = kv(0).Trim().ToLowerInvariant()
                                 Dim val = kv(1).Trim()
 
-                                If key = "captionpos" Then
-                                    Integer.TryParse(val, captionPos)
-                                    If captionPos <> 1 AndAlso captionPos <> 2 Then captionPos = 1
+                                Select Case key
+                                    Case "captionpos"
+                                        Integer.TryParse(val, captionPos)
+                                        If captionPos <> 1 AndAlso captionPos <> 2 Then captionPos = 1
 
-                                    ' NEW
-                                ElseIf key = "determine" Then
-                                    determineRaw = val
-                                End If
+                                    Case "determine"
+                                        determineRaw = val
+
+                                    Case "command", "cmd", "commandprefix"
+                                        commandPrefix = val
+
+                                    Case "commands", "cmdlist"
+                                        commandsList = val
+
+                                    Case "detmap"
+                                        detmapRaw = val
+                                End Select
                             Next
+
                         End If
 
                     Else
                         ' ---------- all-named ----------
-                        ' DROPDOWN;name=...;caption=...;device=...;cmd=...;x=...;y=...;w=...;items=...;captionpos=...;determine=...
                         For i As Integer = 1 To parts.Length - 1
                             Dim p As String = parts(i).Trim()
                             If Not p.Contains("="c) Then Continue For
@@ -791,8 +805,14 @@ Partial Class Formtest
                                 Case "device", "dev", "devicename"
                                     deviceName = val
 
-                                Case "cmd", "command", "commandprefix"
+                                Case "command", "cmd", "commandprefix"
                                     commandPrefix = val
+
+                                Case "commands", "cmdlist"
+                                    commandsList = val
+
+                                Case "detmap"
+                                    detmapRaw = val
 
                                 Case "x"
                                     ParseIntField(val, x)
@@ -815,24 +835,21 @@ Partial Class Formtest
                             End Select
                         Next
 
-                        ' Minimal required fields
                         If String.IsNullOrWhiteSpace(ctrlName) OrElse
-           String.IsNullOrWhiteSpace(deviceName) OrElse
-           String.IsNullOrWhiteSpace(commandPrefix) OrElse
-           String.IsNullOrWhiteSpace(itemsRaw) Then
+                           String.IsNullOrWhiteSpace(deviceName) OrElse
+                           (String.IsNullOrWhiteSpace(commandPrefix) AndAlso String.IsNullOrWhiteSpace(commandsList)) OrElse
+                           String.IsNullOrWhiteSpace(itemsRaw) Then
                             Continue For
                         End If
                     End If
 
                     Dim items = itemsRaw.Split(","c)
 
-                    ' Create dropdown (height not used)
                     Dim cb As New ComboBox()
                     cb.Name = ctrlName
                     cb.DropDownStyle = ComboBoxStyle.DropDownList
 
                     If captionPos = 1 Then
-                        ' Label next to dropdown
                         Dim lbl As New Label()
                         lbl.Text = caption
                         lbl.AutoSize = True
@@ -841,22 +858,17 @@ Partial Class Formtest
 
                         cb.Location = New Point(x + lbl.PreferredWidth + 8, y - 3)
                     Else
-                        ' No label; place combo directly at (x,y)
                         cb.Location = New Point(x, y)
                     End If
 
                     cb.Size = New Size(w, cb.Height)
 
-                    ' First item:
-                    '   captionPos=1 -> blank
-                    '   captionPos=2 -> caption text as placeholder
                     If captionPos = 1 Then
                         cb.Items.Add("")
                     Else
                         cb.Items.Add(caption)
                     End If
 
-                    ' Add items
                     For Each it In items
                         Dim s As String = it.Trim()
                         If s <> "" Then cb.Items.Add(s)
@@ -864,21 +876,38 @@ Partial Class Formtest
 
                     cb.SelectedIndex = 0
 
-                    ' Tag holds Device + CommandPrefix
-                    cb.Tag = deviceName & "|" & commandPrefix
+                    ' ---------------------------------------------------------
+                    ' Tag formats:
+                    '   Prefix mode:  dev|<prefix>|DETQ=...|DETF=...|DETMAP=...
+                    '   List mode:    dev|CMDLIST|cmd1,cmd2,...|DETQ=...|DETF=...|DETMAP=...
+                    ' ---------------------------------------------------------
+                    If Not String.IsNullOrWhiteSpace(commandsList) Then
+                        cb.Tag = deviceName & "|CMDLIST|" & commandsList.Trim()
+                    Else
+                        cb.Tag = deviceName & "|" & commandPrefix.Trim()
+                    End If
 
-                    ' Append determine tokens into Tag for ApplyDetermineDropdowns()
                     If Not String.IsNullOrWhiteSpace(determineRaw) Then
                         Dim dp() As String = determineRaw.Split("|"c)
                         Dim detQ As String = If(dp.Length >= 1, dp(0).Trim(), "")
-                        Dim detF As String = If(dp.Length >= 2 AndAlso dp(1).Trim() <> "", dp(1).Trim().ToLowerInvariant(), "respnum")
+                        Dim detF As String = "respnum"
+
+                        ' take the LAST non-empty format token (handles CONF?||resptext)
+                        For k As Integer = 1 To dp.Length - 1
+                            Dim t As String = dp(k).Trim()
+                            If t <> "" Then detF = t.ToLowerInvariant()
+                        Next
+
                         If detQ <> "" Then
                             cb.Tag = CStr(cb.Tag) & "|DETQ=" & detQ & "|DETF=" & detF
                         End If
                     End If
 
-                    AddHandler cb.SelectedIndexChanged, AddressOf Dropdown_SelectedIndexChanged
+                    If Not String.IsNullOrWhiteSpace(detmapRaw) Then
+                        cb.Tag = CStr(cb.Tag) & "|DETMAP=" & detmapRaw.Trim()
+                    End If
 
+                    AddHandler cb.SelectedIndexChanged, AddressOf Dropdown_SelectedIndexChanged
                     GroupBoxCustom.Controls.Add(cb)
 
 
@@ -1047,6 +1076,12 @@ Partial Class Formtest
                         End If
                     End If
 
+                    ' NEW: decimal places (optional) dp=5
+                    Dim dpVal As Integer = -1
+                    If tok.ContainsKey("dp") Then
+                        Integer.TryParse(tok("dp"), dpVal)
+                    End If
+
                     ' Find parent group box
                     Dim parentName As String = "RG_" & groupName
                     Dim found() As Control = GroupBoxCustom.Controls.Find(parentName, True)
@@ -1083,6 +1118,11 @@ Partial Class Formtest
                                 If detF <> "" Then rb.Tag = CStr(rb.Tag) & "|DETF=" & detF
                             End If
                         End If
+                    End If
+
+                    ' NEW: append DP info to Tag if specified
+                    If dpVal >= 0 Then
+                        rb.Tag = CStr(rb.Tag) & "|DP=" & dpVal.ToString()
                     End If
 
                     AddHandler rb.CheckedChanged, AddressOf Radio_CheckedChanged
@@ -3334,9 +3374,6 @@ Partial Class Formtest
         ApplyDetermineMultiButtons()
 
 
-        ' LogToTempBox("BuildCustomGuiFromText() END - TempBox exists=" & (GroupBoxCustom.Controls.Find("TempBox", True).Length > 0).ToString())
-
-
     End Sub
 
 
@@ -3353,8 +3390,6 @@ Partial Class Formtest
     ' If omitted, numeric compare (respnum) is assumed (extract first number and compare).
     '
     Private Sub ApplyDetermineRadios()
-
-        ' LogToTempBox("ApplyDetermineRadios() CALLED")       ' testing only
 
         Dim cache As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
 
@@ -3403,16 +3438,12 @@ Partial Class Formtest
                 If Not cache.TryGetValue(cacheKey, reply) Then
                     reply = DetermineQuery(deviceName, detQuery, detFmt)
                     cache(cacheKey) = reply
-
-                    ' LogToTempBox("[DET] " & deviceName & " " & detQuery & " -> " & reply)       ' test only
                 End If
 
                 If DetermineMatch(reply, detExpected, detFmt) Then
                     chosen = rb
                     Exit For
                 End If
-
-                ' LogToTempBox("[DETINFO] " & deviceName & " q=" & detQuery & " exp=" & detExpected & " fmt=" & detFmt)       ' test only
 
             Next
 
@@ -3766,7 +3797,11 @@ Partial Class Formtest
 
     Private Sub ApplyDetermineDropdowns()
 
+        ' test only
+        '_detDbg.Clear()                ' TESTING ONLY
+
         For Each ctrl As Control In GroupBoxCustom.Controls
+
             Dim cb As ComboBox = TryCast(ctrl, ComboBox)
             If cb Is Nothing Then Continue For
 
@@ -3780,43 +3815,109 @@ Partial Class Formtest
 
             Dim detQuery As String = ""
             Dim detFmt As String = "respnum"
+            Dim detMap As String = ""
 
             For Each p In parts
                 If p.StartsWith("DETQ=", StringComparison.OrdinalIgnoreCase) Then
                     detQuery = p.Substring(5).Trim()
+
                 ElseIf p.StartsWith("DETF=", StringComparison.OrdinalIgnoreCase) Then
                     detFmt = p.Substring(5).Trim().ToLowerInvariant()
+
+                ElseIf p.StartsWith("DETMAP=", StringComparison.OrdinalIgnoreCase) Then
+                    detMap = p.Substring(7).Trim()
                 End If
             Next
 
             If detQuery = "" Then Continue For
 
-            ' Run determine query (fast path)
             Dim reply As String = DetermineQuery(deviceName, detQuery, detFmt)
+
             If reply = "" Then Continue For
 
-            ' Match reply to dropdown items
-            Dim num As Double
-            If Not TryExtractFirstDouble(reply, num) Then Continue For
-
-            ' Prevent command send while selecting
             UserInitSuppressSend = True
 
-            For i As Integer = 0 To cb.Items.Count - 1
-                Dim itemVal As Double
-                If Double.TryParse(cb.Items(i).ToString(),
-                               Globalization.NumberStyles.Float,
-                               Globalization.CultureInfo.InvariantCulture,
-                               itemVal) Then
-                    If Math.Abs(itemVal - num) < 0.0000001 Then
-                        cb.SelectedIndex = i
-                        Exit For
+            If detFmt = "resptext" AndAlso detMap <> "" Then
+                ' ---------------------------
+                ' TEXT + DETMAP MODE
+                ' ---------------------------
+                Dim maps() As String =
+                detMap.Split(","c).
+                Select(Function(s) s.Trim()).
+                Where(Function(s) s <> "").
+                ToArray()
+
+                ' Extract token from reply: first token before whitespace
+                ' Examples:
+                '   "VOLT:AC +1.00000000E+01,+1.00000000E-05" -> "VOLT:AC"
+                Dim rep As String = reply.Trim().Trim(""""c)
+
+                ' first token up to first space
+                Dim funcToken As String = rep
+                    Dim spIdx As Integer = rep.IndexOf(" "c)
+                    If spIdx > 0 Then funcToken = rep.Substring(0, spIdx).Trim()
+
+                    Dim funcU As String = funcToken.ToUpperInvariant()
+
+                    Dim matchIndex As Integer = -1
+
+                    For i As Integer = 0 To maps.Length - 1
+                        Dim m As String = maps(i)
+                        If m = "" Then Continue For
+
+                        Dim exact As Boolean = False
+                        If m.StartsWith("="c) Then
+                            exact = True
+                            m = m.Substring(1)
+                        End If
+
+                        Dim mU As String = m.ToUpperInvariant()
+
+                        If exact Then
+                            If String.Equals(funcU, mU, StringComparison.OrdinalIgnoreCase) Then
+                                matchIndex = i
+                                Exit For
+                            End If
+                        Else
+                            ' starts-with match (order matters: put VOLT:AC before VOLT)
+                            If funcU.StartsWith(mU, StringComparison.OrdinalIgnoreCase) Then
+                                matchIndex = i
+                                Exit For
+                            End If
+                        End If
+                    Next
+
+                    If matchIndex >= 0 Then
+                        Dim sel As Integer = matchIndex + 1 ' +1 because index 0 is placeholder
+                        If sel >= 0 AndAlso sel < cb.Items.Count Then cb.SelectedIndex = sel
                     End If
+
+                Else
+                    ' ---------------------------
+                    ' NUMERIC MODE (existing)
+                    ' ---------------------------
+                    Dim num As Double
+                If TryExtractFirstDouble(reply, num) Then
+                    For i As Integer = 0 To cb.Items.Count - 1
+                        Dim itemVal As Double
+                        If Double.TryParse(cb.Items(i).ToString(),
+                                       Globalization.NumberStyles.Float,
+                                       Globalization.CultureInfo.InvariantCulture,
+                                       itemVal) Then
+                            If Math.Abs(itemVal - num) < 0.0000001 Then
+                                cb.SelectedIndex = i
+                                Exit For
+                            End If
+                        End If
+                    Next
                 End If
-            Next
+            End If
 
             UserInitSuppressSend = False
+
         Next
+
+        'ShowCopyableDebug("ApplyDetermineDropdowns()", _detDbg.ToString())             ' TESTING ONLY
 
     End Sub
 
@@ -4724,20 +4825,52 @@ Partial Class Formtest
 
 
 
+    ' ============================================================
+    '   DEBUG POPUP LOG (collect lines then show one MessageBox)
+    ' ============================================================
+    Private ReadOnly _detDbg As New System.Text.StringBuilder()
 
-    ' For Testing/debugging only
-    ' Requires a config entry = TEXTAREA;name=TempBox;caption=Testing:;x=500;y=370;w=380;h=140
-    ' Anywhere in the code i.e. LogToTempBox("[DET] " & deviceName & " " & detQuery & " -> " & reply)       ' test only
-    Private Sub LogToTempBox(msg As String)
-        Dim found() As Control = GroupBoxCustom.Controls.Find("TempBox", True)
-        If found Is Nothing OrElse found.Length = 0 Then Exit Sub
-
-        Dim tb As TextBox = TryCast(found(0), TextBox)
-        If tb Is Nothing Then Exit Sub
-
-        If tb.TextLength > 0 Then tb.AppendText(Environment.NewLine)
-        tb.AppendText(msg)
+    Private Sub DetDbgLog(msg As String)
+        _detDbg.AppendLine(msg)
     End Sub
+
+
+    ' =========================================================
+    '   COPYABLE DEBUG POPUP
+    ' =========================================================
+    Private Sub ShowCopyableDebug(title As String, text As String)
+
+        Dim f As New Form()
+        f.Text = title
+        f.StartPosition = FormStartPosition.CenterParent
+        f.Size = New Size(900, 500)
+        f.MinimizeBox = False
+        f.MaximizeBox = False
+
+        Dim tb As New TextBox()
+        tb.Multiline = True
+        tb.ReadOnly = True
+        tb.ScrollBars = ScrollBars.Both
+        tb.WordWrap = False
+        tb.Dock = DockStyle.Fill
+        tb.Font = New Font("Consolas", 9.0!)
+        tb.Text = text
+
+        f.Controls.Add(tb)
+
+        ' Allow Ctrl+A
+        AddHandler tb.KeyDown,
+        Sub(s, e)
+            If e.Control AndAlso e.KeyCode = Keys.A Then
+                tb.SelectAll()
+                e.SuppressKeyPress = True
+            End If
+        End Sub
+
+        f.ShowDialog(Me)
+    End Sub
+
+
 
 
 

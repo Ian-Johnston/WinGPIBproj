@@ -18,6 +18,12 @@ Partial Class Formtest
     Private USERdev1fastquery As Boolean = False
     Private USERdev2fastquery As Boolean = False
 
+    ' Cache for auto-scale range queries (key: "dev||query")
+    Private ReadOnly UserRangeQueryCache As New Dictionary(Of String, Double)(StringComparer.OrdinalIgnoreCase)
+    ' Has the auto-range query already been sent for this selection?
+    Private CurrentUserRangeQueryDone As Boolean = False
+
+
 
     Private Sub RunQueryToResult(deviceName As String,
                                 commandOrPrefix As String,
@@ -186,39 +192,63 @@ Partial Class Formtest
             '    AUTO SCALE MODE LOGIC
             ' ============================
             If CurrentUserScaleIsAuto AndAlso
-           dev IsNot Nothing AndAlso
-           Not String.IsNullOrWhiteSpace(CurrentUserRangeQuery) Then
+   dev IsNot Nothing AndAlso
+   Not String.IsNullOrWhiteSpace(CurrentUserRangeQuery) Then
 
-                Try
-                    Dim rngStr As String = ""
+                Dim cacheKey As String = deviceName & "||" & CurrentUserRangeQuery
+                Dim rngVal As Double
 
-                    If IsNativeEngine(deviceName) Then
-                        ' Range query via native engine path
-                        rngStr = NativeQuery(deviceName, CurrentUserRangeQuery)
-                    Else
-                        ' Range query via standalone path
-                        Dim rq As IODevices.IOQuery = Nothing
-                        Dim st2 As Integer = dev.QueryBlocking(CurrentUserRangeQuery & TermStr2(), rq, False)
-                        If st2 = 0 AndAlso rq IsNot Nothing Then
-                            rngStr = rq.ResponseAsString.Trim()
+                ' If we already have a cached range, just use it – no GPIB traffic
+                If UserRangeQueryCache.TryGetValue(cacheKey, rngVal) Then
+
+                    Dim dynScale As Double = ComputeAutoScaleFromRange(rngVal)
+                    v = d * dynScale
+
+                ElseIf Not CurrentUserRangeQueryDone Then
+                    ' Only allow the range query once per AUTO selection
+                    Try
+                        Dim rngStr As String = ""
+
+                        If IsNativeEngine(deviceName) Then
+                            ' Range query via native engine path
+                            rngStr = NativeQuery(deviceName, CurrentUserRangeQuery)
+                        Else
+                            ' Range query via standalone path
+                            Dim rq As IODevices.IOQuery = Nothing
+                            Dim st2 As Integer = dev.QueryBlocking(CurrentUserRangeQuery & TermStr2(), rq, False)
+                            If st2 = 0 AndAlso rq IsNot Nothing Then
+                                rngStr = rq.ResponseAsString.Trim()
+                            End If
                         End If
-                    End If
 
-                    Dim rngVal As Double
-                    If Double.TryParse(rngStr,
-                                   Globalization.NumberStyles.Float,
-                                   Globalization.CultureInfo.InvariantCulture,
-                                   rngVal) Then
+                        If Double.TryParse(rngStr,
+                               Globalization.NumberStyles.Float,
+                               Globalization.CultureInfo.InvariantCulture,
+                               rngVal) Then
 
-                        Dim dynScale As Double = ComputeAutoScaleFromRange(rngVal)
-                        v = d * dynScale
-                    Else
-                        v = d * scale    ' fallback
-                    End If
+                            ' Store for future use – and mark done so we never query again
+                            UserRangeQueryCache(cacheKey) = rngVal
+                            CurrentUserRangeQueryDone = True
 
-                Catch
-                    v = d * scale        ' fallback
-                End Try
+                            Dim dynScale As Double = ComputeAutoScaleFromRange(rngVal)
+                            v = d * dynScale
+                        Else
+                            ' Parse failed – still mark as done to avoid spamming
+                            CurrentUserRangeQueryDone = True
+                            v = d * scale    ' fallback
+                        End If
+
+                    Catch
+                        ' Error – mark done so we don't keep retrying every tick
+                        CurrentUserRangeQueryDone = True
+                        v = d * scale        ' fallback
+                    End Try
+
+                Else
+                    ' AUTO mode, but we've already done the one-shot query and nothing cached:
+                    ' fall back to fixed scale (likely 1.0 for AUTO entries).
+                    v = d * scale
+                End If
 
             Else
                 ' FIXED SCALE MODE
@@ -327,25 +357,34 @@ FanOut:
                     baseNumeric = outText
                 End If
 
-                ' Apply format if requested AND we have a numeric value
+                ' Apply DP or format if requested AND we have a numeric value
                 Dim displayNumeric As String = baseNumeric
-                If fmt <> "" Then
-                    Dim dv As Double
-                    If Double.TryParse(baseNumeric,
-                               Globalization.NumberStyles.Float,
-                               Globalization.CultureInfo.InvariantCulture,
-                               dv) Then
-                        displayNumeric = dv.ToString(fmt, Globalization.CultureInfo.InvariantCulture)
+                Dim dv As Double
+                If Double.TryParse(baseNumeric,
+                                   Globalization.NumberStyles.Float,
+                                   Globalization.CultureInfo.InvariantCulture,
+                                   dv) Then
+
+                    ' 1) RANGE dp= wins
+                    If CurrentUserDp >= 0 Then
+                        displayNumeric = dv.ToString("F" & CurrentUserDp,
+                                                     Globalization.CultureInfo.InvariantCulture)
+
+                        ' 2) otherwise BIGTEXT_FMT= if present
+                    ElseIf fmt <> "" Then
+                        displayNumeric = dv.ToString(fmt,
+                                                     Globalization.CultureInfo.InvariantCulture)
                     End If
                 End If
 
                 If unitsOff AndAlso numericText <> "" Then
-                    ' BIGTEXT units=off → numeric only (formatted if fmt was applied)
+                    ' BIGTEXT units=off → numeric only (formatted if DP/FMT was applied)
                     lbl.Text = displayNumeric
+
                 ElseIf numericWithUnitText <> "" Then
                     ' Normal label/BIGTEXT units=on
-                    ' If we formatted, rebuild with units; otherwise keep original string
-                    If fmt <> "" AndAlso displayNumeric <> "" Then
+                    ' If we formatted (DP or FMT), rebuild with units; otherwise keep original string
+                    If (CurrentUserDp >= 0 OrElse fmt <> "") AndAlso displayNumeric <> "" Then
                         If Not String.IsNullOrEmpty(CurrentUserUnit) Then
                             lbl.Text = displayNumeric & "   " & CurrentUserUnit
                         Else
@@ -354,6 +393,7 @@ FanOut:
                     Else
                         lbl.Text = numericWithUnitText
                     End If
+
                 Else
                     lbl.Text = outText
                 End If

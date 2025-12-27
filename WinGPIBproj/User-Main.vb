@@ -36,6 +36,7 @@ Partial Class Formtest
 
     ' Current engineering unit (e.g. Ω, kΩ, MΩ, mA, µA) taken from the selected RADIO
     Private CurrentUserUnit As String = ""
+    Private CurrentUserDp As Integer = -1
 
     ' Current scale factor for USER-tab numeric result (e.g. Ω → kΩ)
     Private CurrentUserScale As Double = 1.0
@@ -110,6 +111,11 @@ Partial Class Formtest
     Private LastUserConfigPath As String = ""
     Private UserConfig_DataSaveEnabled As Boolean = True
 
+    ' Buffer logs until TempBox exists (because BuildCustomGuiFromText clears/rebuilds controls)
+    Private ReadOnly TempBoxLogBuffer As New List(Of String)
+
+    ' Aimple popup while user config is initializing
+    Private UserInitPopup As Form = Nothing
 
 
 
@@ -169,6 +175,8 @@ Partial Class Formtest
 
             If dlg.ShowDialog() <> DialogResult.OK Then Exit Sub
 
+            ShowUserInitPopup()
+
             Try
                 LoadCustomGuiFromFile(dlg.FileName)   ' sets LastUserConfigPath + restores textboxes
 
@@ -178,12 +186,14 @@ Partial Class Formtest
             Catch ex As Exception
                 MessageBox.Show("Error loading layout file: " & ex.Message)
                 LabelUSERtab1.Visible = True
+
+            Finally
+                HideUserInitPopup()
             End Try
 
         End Using
 
     End Sub
-
 
 
     Private Sub ButtonResetTxt_Click(sender As Object, e As EventArgs) Handles ButtonResetTxt.Click
@@ -269,6 +279,8 @@ Partial Class Formtest
         ResultLastValue.Clear()
         CalcDefs.Clear()
         CalcDeps.Clear()
+        ' Auto-scale range cache
+        UserRangeQueryCache.Clear()
 
         ' Trigger
         If TriggerEng IsNot Nothing Then TriggerEng.ClearAll()
@@ -830,7 +842,6 @@ Partial Class Formtest
         If parts.Length < 2 Then Exit Sub
 
         Dim deviceName As String = parts(0).Trim()
-        Dim commandPrefix As String = parts(1).TrimEnd()
 
         ' First entry (index 0) is always a placeholder → do nothing
         If cb.SelectedIndex <= 0 Then Exit Sub
@@ -839,8 +850,42 @@ Partial Class Formtest
         If cb.SelectedItem IsNot Nothing Then selected = cb.SelectedItem.ToString().Trim()
         If selected = "" Then Exit Sub
 
-        ' Build command
-        Dim cmd As String = commandPrefix.TrimEnd() & " " & selected
+        Dim cmd As String = ""
+
+        ' =========================================================
+        ' commands= list mode
+        ' Tag format: dev|CMDLIST|cmd1,cmd2,cmd3|...
+        ' =========================================================
+        If String.Equals(parts(1).Trim(), "CMDLIST", StringComparison.OrdinalIgnoreCase) Then
+
+            If parts.Length < 3 Then Exit Sub
+
+            Dim listRaw As String = parts(2)
+
+            Dim cmds() As String =
+            listRaw.Split(","c).
+            Select(Function(s) s.Trim()).
+            Where(Function(s) s <> "").
+            ToArray()
+
+            Dim idx As Integer = cb.SelectedIndex - 1   ' because index 0 is placeholder
+            If idx < 0 OrElse idx >= cmds.Length Then Exit Sub
+
+            cmd = cmds(idx)
+
+        Else
+            ' =========================================================
+            ' Existing command-prefix mode
+            ' Tag format: dev|prefix|...
+            ' =========================================================
+            Dim commandPrefix As String = parts(1).TrimEnd()
+
+            If commandPrefix.EndsWith(" ") OrElse commandPrefix.EndsWith(vbTab) Then
+                cmd = commandPrefix & selected
+            Else
+                cmd = commandPrefix & " " & selected
+            End If
+        End If
 
         ' Resolve device + engine mode
         Dim dev As IODevices.IODevice = Nothing
@@ -865,12 +910,12 @@ Partial Class Formtest
             Exit Sub
         End If
 
-        ' Send (native uses the DEVICES-tab core send routine, not PerformClick)
         If useNative Then
-            NativeSend(deviceName, cmd)     ' <-- calls RunBtns1cCore / RunBtns2cCore
+            NativeSend(deviceName, cmd)
         Else
             dev.SendAsync(cmd, True)
         End If
+
     End Sub
 
 
@@ -924,26 +969,48 @@ Partial Class Formtest
         Dim isModeRadio As Boolean = (lastSpace < 0)
 
         If isModeRadio Then
+            ' When changing mode (DCV/ACV etc), clear unit then
+            ' re-sync from whichever RANGE radio is already selected
             CurrentUserUnit = ""
+            CurrentUserDp = -1
 
-            ' Uncheck all other radios in all dynamic groups
-            For Each ctrl As Control In GroupBoxCustom.Controls
-                Dim gb As GroupBox = TryCast(ctrl, GroupBox)
-                If gb Is Nothing Then Continue For
-
-                For Each child As Control In gb.Controls
+            ' Uncheck only other radios in the SAME group box as this mode radio
+            Dim parentGb As GroupBox = TryCast(rb.Parent, GroupBox)
+            If parentGb IsNot Nothing Then
+                For Each child As Control In parentGb.Controls
                     Dim r As RadioButton = TryCast(child, RadioButton)
-                    If r Is Nothing Then Continue For
-                    If r Is rb Then Continue For
+                    If r Is Nothing OrElse r Is rb Then Continue For
                     r.Checked = False
                 Next
-            Next
+            End If
+
+            ' Rebuild CurrentUserUnit / scale from the currently checked RANGE radio
+            SyncUserUnitsAndScaleFromCheckedRadios()
+
         Else
+            ' RANGE radios: unit comes from the tail of the caption ("10 V" → "V")
             Dim unit As String = ""
             If lastSpace >= 0 AndAlso lastSpace < cap.Length - 1 Then
                 unit = cap.Substring(lastSpace + 1).Trim()
             End If
             CurrentUserUnit = unit
+
+            ' --- DP from Tag (if present) ---
+            Dim tagStr As String = TryCast(rb.Tag, String)
+            CurrentUserDp = -1
+            If Not String.IsNullOrEmpty(tagStr) Then
+                Dim tp() As String = tagStr.Split("|"c)
+                For Each t In tp
+                    Dim tt = t.Trim()
+                    If tt.StartsWith("DP=", StringComparison.OrdinalIgnoreCase) Then
+                        Dim dpn As Integer
+                        If Integer.TryParse(tt.Substring(3), dpn) Then
+                            CurrentUserDp = dpn
+                        End If
+                    End If
+                Next
+            End If
+
         End If
 
         ' ===============================
@@ -3288,7 +3355,10 @@ Partial Class Formtest
         For pass As Integer = 1 To passes
             Dim progressed As Boolean = False
 
-            For Each cd In CalcDefs.Values
+            ' NEW local variable: snapshot of current calc defs
+            Dim calcList As New List(Of CalcDef)(CalcDefs.Values)
+
+            For Each cd In calcList
                 Dim dvOut As Double
                 If Not TryEvalCalc(cd.Expr, dvOut) Then Continue For
 
@@ -3414,6 +3484,8 @@ Partial Class Formtest
         CurrentUserScaleIsAuto = False
         CurrentUserRangeQuery = ""
         CurrentUserScale = 1.0
+        CurrentUserRangeQueryDone = True
+        CurrentUserDp = -1  ' reset DP here as well
 
         ' 2) Find selected RANGE radio inside the group whose caption matches modeCaption
         For Each ctrl As Control In GroupBoxCustom.Controls
@@ -3425,7 +3497,7 @@ Partial Class Formtest
                 Dim rb = TryCast(child, RadioButton)
                 If rb Is Nothing OrElse Not rb.Checked Then Continue For
 
-                ' ---- UNIT from caption tail (same rule you already use) ----
+                ' ---- UNIT from caption tail ("10 V" → "V") ----
                 Dim cap = rb.Text.Trim()
                 Dim lastSpace = cap.LastIndexOf(" "c)
                 If lastSpace >= 0 AndAlso lastSpace < cap.Length - 1 Then
@@ -3434,7 +3506,7 @@ Partial Class Formtest
                     CurrentUserUnit = ""
                 End If
 
-                ' ---- SCALE from Tag (device|command|scale OR device|command|AUTO|rangeQuery) ----
+                ' ---- SCALE / AUTO from Tag (device|command|scale OR device|command|AUTO|rangeQuery...) ----
                 Dim meta As String = TryCast(rb.Tag, String)
                 If Not String.IsNullOrEmpty(meta) Then
                     Dim parts() As String = meta.Split("|"c)
@@ -3449,15 +3521,35 @@ Partial Class Formtest
                         Else
                             Dim sc As Double
                             If Double.TryParse(parts(2),
-                                           Globalization.NumberStyles.Float,
-                                           Globalization.CultureInfo.InvariantCulture,
-                                           sc) Then
+                                               Globalization.NumberStyles.Float,
+                                               Globalization.CultureInfo.InvariantCulture,
+                                               sc) Then
                                 CurrentUserScale = sc
                             Else
                                 CurrentUserScale = 1.0
                             End If
                         End If
                     End If
+
+                    ' ---- DP from Tag (DP=n) ----
+                    CurrentUserDp = -1
+                    Dim tp() As String = meta.Split("|"c)
+                    For Each t In tp
+                        Dim tt = t.Trim()
+                        If tt.StartsWith("DP=", StringComparison.OrdinalIgnoreCase) Then
+                            Dim dpn As Integer
+                            If Integer.TryParse(tt.Substring(3), dpn) Then
+                                CurrentUserDp = dpn
+                            End If
+                        End If
+                    Next
+                End If
+
+                ' Determine path also must (re)arm the one-shot range query
+                If CurrentUserScaleIsAuto AndAlso Not String.IsNullOrWhiteSpace(CurrentUserRangeQuery) Then
+                    CurrentUserRangeQueryDone = False
+                Else
+                    CurrentUserRangeQueryDone = True
                 End If
 
                 Exit Sub
@@ -3465,6 +3557,69 @@ Partial Class Formtest
         Next
 
     End Sub
+
+
+    Private Sub ShowUserInitPopup()
+        If Not (UserInitPopup Is Nothing) Then Return
+
+        UserInitPopup = New Form()
+        With UserInitPopup
+            .FormBorderStyle = FormBorderStyle.FixedDialog
+            .ControlBox = False
+            .MinimizeBox = False
+            .MaximizeBox = False
+            .ShowInTaskbar = False
+            .StartPosition = FormStartPosition.Manual   ' <<< manual positioning
+            .Text = "Initializing..."
+            .Size = New Size(360, 150)
+            .TopMost = True
+        End With
+
+        Dim lbl As New Label()
+        With lbl
+            .Font = New Font("Segoe UI", 11.0F, FontStyle.Regular)
+            .Dock = DockStyle.Fill
+            .TextAlign = ContentAlignment.MiddleCenter
+            .Text = "Loading configuration" & Environment.NewLine &
+                "Initializing instruments" & Environment.NewLine &
+                "Please wait...."
+        End With
+
+        UserInitPopup.Controls.Add(lbl)
+
+        ' --- Center over this form manually ---
+        Dim parentForm As Form = Me
+        Dim x As Integer = parentForm.Left + (parentForm.Width - UserInitPopup.Width) \ 2
+        Dim y As Integer = parentForm.Top + (parentForm.Height - UserInitPopup.Height) \ 2
+        UserInitPopup.Location = New Point(x, y)
+
+        ' Disable user area so nothing can be clicked
+        If GroupBoxCustom IsNot Nothing Then
+            GroupBoxCustom.Enabled = False
+        End If
+
+        UserInitPopup.Show(Me)
+        UserInitPopup.BringToFront()
+        UserInitPopup.Refresh()
+    End Sub
+
+
+    Private Sub HideUserInitPopup()
+        If UserInitPopup IsNot Nothing Then
+            Try
+                UserInitPopup.Close()
+                UserInitPopup.Dispose()
+            Catch
+            End Try
+            UserInitPopup = Nothing
+        End If
+
+        If GroupBoxCustom IsNot Nothing Then
+            GroupBoxCustom.Enabled = True
+        End If
+    End Sub
+
+
 
 
 
