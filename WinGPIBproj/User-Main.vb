@@ -140,6 +140,8 @@ Partial Class Formtest
         Public Property Columns As List(Of String)
         Public Property PpmRef As String
         Public Property Popup As Boolean
+        Public Property Width As Integer
+        Public Property Height As Integer
     End Class
 
 
@@ -152,6 +154,12 @@ Partial Class Formtest
         Public Property MaxPoints As Integer
         Public Property AutoScaleY As Boolean
         Public Property Popup As Boolean
+        Public Property Width As Integer
+        Public Property Height As Integer
+        Public Property InnerX As Single
+        Public Property InnerY As Single
+        Public Property InnerW As Single
+        Public Property InnerH As Single
     End Class
 
 
@@ -2196,7 +2204,15 @@ Partial Class Formtest
         Dim f As New Form()
         f.Text = If(String.IsNullOrEmpty(cfg.GridName), gridName, cfg.GridName)
         f.StartPosition = FormStartPosition.CenterParent
-        f.Size = New Size(650, 373)
+        Dim baseW As Integer = If(cfg.Width > 0, cfg.Width, 600)
+        Dim baseH As Integer = If(cfg.Height > 0, cfg.Height, 300)
+        f.Size = New Size(baseW + 40, baseH + 80)   ' a bit of padding for borders/title
+
+        f.FormBorderStyle = FormBorderStyle.FixedDialog
+        f.MaximizeBox = False
+        f.MinimizeBox = False
+        f.ShowInTaskbar = False   ' optional
+        f.ControlBox = True       ' keep close button
 
         Dim dgv As New DataGridView()
         dgv.Dock = DockStyle.Fill

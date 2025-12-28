@@ -2495,7 +2495,13 @@ Partial Class Formtest
     .XStep = xStep,
     .MaxPoints = maxPoints,
     .AutoScaleY = autoScaleY,
-    .Popup = popup
+    .Popup = popup,
+    .Width = w,
+    .Height = h,
+    .InnerX = innerX,
+    .InnerY = innerY,
+    .InnerW = innerW,
+    .InnerH = innerH
 }
 
                     ' Store chart binding so it can be updated even without a source TextBox
@@ -3029,7 +3035,9 @@ Partial Class Formtest
                     .Format = fmt,
                     .Columns = colNames,
                     .PpmRef = ppmRef,
-                    .Popup = popup
+                    .Popup = popup,
+                    .Width = w,
+                    .Height = h
                 }
 
                     Dim glist As List(Of String) = Nothing
@@ -4878,17 +4886,16 @@ Partial Class Formtest
     Private Sub PopOutChart(chartName As String)
         Dim cfg As ChartConfig = Nothing
         If Not ChartSettings.TryGetValue(chartName, cfg) _
-       OrElse cfg Is Nothing _
-       OrElse Not cfg.Popup Then
-
+           OrElse cfg Is Nothing _
+           OrElse Not cfg.Popup Then
             Exit Sub
         End If
 
         ' If popup already exists, just bring it to front
         Dim existingForm As Form = Nothing
         If ChartPopupForms.TryGetValue(chartName, existingForm) _
-       AndAlso existingForm IsNot Nothing _
-       AndAlso Not existingForm.IsDisposed Then
+           AndAlso existingForm IsNot Nothing _
+           AndAlso Not existingForm.IsDisposed Then
 
             existingForm.BringToFront()
             existingForm.Activate()
@@ -4898,8 +4905,21 @@ Partial Class Formtest
         ' Build popup form
         Dim f As New Form()
         f.Text = If(String.IsNullOrEmpty(cfg.ChartName), chartName, cfg.ChartName)
-        f.StartPosition = FormStartPosition.CenterParent
-        f.Size = New Size(1000, 400)
+        f.StartPosition = FormStartPosition.Manual
+
+        ' Size based on CHART w=/h= from config, with a bit of padding for borders/title
+        Dim baseW As Integer = If(cfg.Width > 0, cfg.Width, 800)
+        Dim baseH As Integer = If(cfg.Height > 0, cfg.Height, 300)
+        f.Size = New Size(baseW + 40, baseH + 80)
+
+        ' Try to position near the original chart if it exists
+        Dim orig As DataVisualization.Charting.Chart =
+            TryCast(GetControlByName(chartName), DataVisualization.Charting.Chart)
+        If orig IsNot Nothing Then
+            f.Location = orig.PointToScreen(Point.Empty)
+        Else
+            f.StartPosition = FormStartPosition.CenterParent
+        End If
 
         Dim ch As New DataVisualization.Charting.Chart()
         ch.Name = chartName & "_popup"
@@ -4909,14 +4929,41 @@ Partial Class Formtest
         Dim ca As New DataVisualization.Charting.ChartArea("Default")
         ch.ChartAreas.Add(ca)
 
+        ca.Position.Auto = False
+        ca.Position = New DataVisualization.Charting.ElementPosition(0, 0, 100, 100)
+
+        ' Use innerX/innerY/innerW/innerH from cfg
+        ca.InnerPlotPosition.Auto = False
+        Dim ix As Single = If(cfg.InnerX > 0, cfg.InnerX, 2.0F)
+        Dim iy As Single = If(cfg.InnerY > 0, cfg.InnerY, 2.0F)
+        Dim iw As Single = If(cfg.InnerW > 0, cfg.InnerW, 96.0F)
+        Dim ih As Single = If(cfg.InnerH > 0, cfg.InnerH, 96.0F)
+        ca.InnerPlotPosition = New DataVisualization.Charting.ElementPosition(ix, iy, iw, ih)
+
         ' Y range / autoscale
-        If cfg.AutoScaleY Then
+        If Not cfg.AutoScaleY Then
+            If cfg.YMin.HasValue Then ca.AxisY.Minimum = cfg.YMin.Value
+            If cfg.YMax.HasValue Then ca.AxisY.Maximum = cfg.YMax.Value
+        Else
             ca.AxisY.Minimum = Double.NaN
             ca.AxisY.Maximum = Double.NaN
-        Else
-            ca.AxisY.Minimum = If(cfg.YMin.HasValue, cfg.YMin.Value, Double.NaN)
-            ca.AxisY.Maximum = If(cfg.YMax.HasValue, cfg.YMax.Value, Double.NaN)
         End If
+
+        ' Simple grid / labels styling
+        ca.BackColor = Color.Black
+
+        ca.AxisX.LabelStyle.Enabled = False
+        ca.AxisX.MajorTickMark.Enabled = False
+        ca.AxisX.MinorTickMark.Enabled = False
+        ca.AxisX.MajorGrid.Enabled = True
+        ca.AxisX.MajorGrid.LineColor = Color.FromArgb(60, 60, 60)
+        ca.AxisX.MajorGrid.LineDashStyle = DataVisualization.Charting.ChartDashStyle.Dot
+
+        ca.AxisY.MajorGrid.Enabled = True
+        ca.AxisY.MajorGrid.LineColor = Color.FromArgb(80, 80, 80)
+        ca.AxisY.LabelStyle.ForeColor = Color.White
+        ca.AxisY.LabelStyle.Font = New Font("Segoe UI", 7.0F, FontStyle.Regular)
+        ca.AxisY.MajorTickMark.Enabled = False
 
         ' Simple grid / labels styling
         ca.BackColor = Color.Black
@@ -4930,8 +4977,13 @@ Partial Class Formtest
         ca.AxisY.MajorGrid.Enabled = True
         ca.AxisY.MajorGrid.LineColor = Color.FromArgb(80, 80, 80)
         ca.AxisY.LabelStyle.ForeColor = Color.White
-        ca.AxisY.LabelStyle.Font = New Font("Segoe UI", 7.0F)
+        ca.AxisY.LabelStyle.Font = New Font("Segoe UI", 7.0F, FontStyle.Regular)
         ca.AxisY.MajorTickMark.Enabled = False
+
+        ' Let Y-axis choose more gridlines when there's more height
+        ca.AxisY.IntervalAutoMode = DataVisualization.Charting.IntervalAutoMode.VariableCount
+        ca.AxisY.Interval = Double.NaN
+        ca.AxisY.MajorGrid.Interval = Double.NaN
 
         ' Series
         Dim s As New DataVisualization.Charting.Series("S1")
@@ -4944,9 +4996,6 @@ Partial Class Formtest
         ch.Series.Add(s)
 
         ' If original chart exists, copy its basic style (color, width)
-        Dim orig As DataVisualization.Charting.Chart =
-        TryCast(GetControlByName(chartName), DataVisualization.Charting.Chart)
-
         If orig IsNot Nothing AndAlso orig.Series.Count > 0 Then
             Dim s0 = orig.Series(0)
             s.BorderWidth = s0.BorderWidth
@@ -4959,12 +5008,14 @@ Partial Class Formtest
         ChartPopupForms(chartName) = f
 
         AddHandler f.FormClosing,
-        Sub(sender As Object, args As FormClosingEventArgs)
-            ChartPopupForms.Remove(chartName)
-        End Sub
+            Sub(sender As Object, args As FormClosingEventArgs)
+                ChartPopupForms.Remove(chartName)
+            End Sub
 
         f.Show(Me)
     End Sub
+
+
 
 
 
