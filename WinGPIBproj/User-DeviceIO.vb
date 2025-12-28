@@ -33,6 +33,10 @@ Partial Class Formtest
 
         Dim target = GetControlByName(resultControlName)
 
+        ' test only
+        'DetDbgLog($"AUTO DEBUG dev={deviceName}, cmd={commandOrPrefix}, target={resultControlName}")
+        'ShowCopyableDebug("Determine Debug", _detDbg.ToString())
+
         ' If this is a pushed value (CALC / fan-out) and there is no direct UI control,
         ' that's OK — linked controls (CHART/STATS/HISTORYGRID/BIGTEXT etc.) may still exist.
         If target Is Nothing AndAlso rawOverride Is Nothing Then
@@ -75,12 +79,21 @@ Partial Class Formtest
             If IsNativeEngine(deviceName) Then
 
                 Dim overloadSource As String = "disp"
+                Dim wantRaw As Boolean = False
+
                 If Not String.IsNullOrWhiteSpace(overloadToken) AndAlso overloadToken.Contains("|"c) Then
                     Dim sp = overloadToken.Split({"|"c}, 2)
                     overloadSource = sp(1).Trim().ToLowerInvariant()
+                    wantRaw = (overloadSource = "raw")
+                Else
+                    ' No overload info → if this result is driven by a DATASOURCE,
+                    ' prefer RAW data so auto-refresh works even without overload=
+                    Dim ds As DataSourceDef
+                    If DataSources IsNot Nothing AndAlso
+           DataSources.TryGetValue(resultControlName, ds) Then
+                        wantRaw = True
+                    End If
                 End If
-
-                Dim wantRaw As Boolean = (overloadSource = "raw")
 
                 ' NATIVE PATH: use existing UI query buttons/textboxes
                 raw = NativeQuery(deviceName, commandOrPrefix, requireRaw:=wantRaw)
@@ -123,6 +136,13 @@ Partial Class Formtest
         End If
 
         raw = If(raw, "").Trim()
+
+
+        ' test only
+        'MessageBox.Show($"RAW-trim: dev={deviceName}, cmd={commandOrPrefix}, target={resultControlName}, raw=[{raw}]")
+
+
+
 
         ' =========================================================
         '   OVERLOAD DETECT (overload=token|raw or token|disp)
@@ -309,14 +329,13 @@ Partial Class Formtest
                 Threading.Interlocked.Decrement(UserCalcDepth)
             End If
 
-
-
         Else
             ' Non-numeric reply: pass through raw text
             outText = raw
         End If
 
 FanOut:
+
         ' ============================
         '      FAN-OUT TO CONTROLS
         ' ============================

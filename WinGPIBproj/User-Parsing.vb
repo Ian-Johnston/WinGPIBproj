@@ -4832,57 +4832,6 @@ Partial Class Formtest
     End Function
 
 
-
-
-
-
-
-    ' ============================================================
-    '   DEBUG POPUP LOG (collect lines then show one MessageBox)
-    ' ============================================================
-    Private ReadOnly _detDbg As New System.Text.StringBuilder()
-
-    Private Sub DetDbgLog(msg As String)
-        _detDbg.AppendLine(msg)
-    End Sub
-
-
-    ' =========================================================
-    '   COPYABLE DEBUG POPUP
-    ' =========================================================
-    Private Sub ShowCopyableDebug(title As String, text As String)
-
-        Dim f As New Form()
-        f.Text = title
-        f.StartPosition = FormStartPosition.CenterParent
-        f.Size = New Size(900, 500)
-        f.MinimizeBox = False
-        f.MaximizeBox = False
-
-        Dim tb As New TextBox()
-        tb.Multiline = True
-        tb.ReadOnly = True
-        tb.ScrollBars = ScrollBars.Both
-        tb.WordWrap = False
-        tb.Dock = DockStyle.Fill
-        tb.Font = New Font("Consolas", 9.0!)
-        tb.Text = text
-
-        f.Controls.Add(tb)
-
-        ' Allow Ctrl+A
-        AddHandler tb.KeyDown,
-        Sub(s, e)
-            If e.Control AndAlso e.KeyCode = Keys.A Then
-                tb.SelectAll()
-                e.SuppressKeyPress = True
-            End If
-        End Sub
-
-        f.ShowDialog(Me)
-    End Sub
-
-
     Private Sub PopOutChart(chartName As String)
         Dim cfg As ChartConfig = Nothing
         If Not ChartSettings.TryGetValue(chartName, cfg) _
@@ -5018,6 +4967,73 @@ Partial Class Formtest
 
 
 
+
+
+
+
+
+
+
+    ' ============================================================
+    '   DEBUG POPUP LOG (collect lines then show one MessageBox)
+    ' ============================================================
+    Private ReadOnly _detDbg As New System.Text.StringBuilder()
+
+    Private Sub DetDbgLog(msg As String)
+        _detDbg.AppendLine(msg)
+    End Sub
+
+
+    ' =========================================================
+    '   COPYABLE DEBUG POPUP
+    ' =========================================================
+    Private Sub ShowCopyableDebug(title As String, text As String)
+
+        Dim f As New Form()
+        f.Text = title
+        f.StartPosition = FormStartPosition.CenterParent
+        f.Size = New Size(900, 500)
+        f.MinimizeBox = False
+        f.MaximizeBox = False
+
+        Dim tb As New TextBox()
+        tb.Multiline = True
+        tb.ReadOnly = True
+        tb.ScrollBars = ScrollBars.Both
+        tb.WordWrap = False
+        tb.Dock = DockStyle.Fill
+        tb.Font = New Font("Consolas", 9.0!)
+        tb.Text = text
+
+        f.Controls.Add(tb)
+
+        ' Allow Ctrl+A
+        AddHandler tb.KeyDown,
+        Sub(s, e)
+            If e.Control AndAlso e.KeyCode = Keys.A Then
+                tb.SelectAll()
+                e.SuppressKeyPress = True
+            End If
+        End Sub
+
+        f.ShowDialog(Me)
+    End Sub
+
+    ' how to use the above - example
+    ' test only
+    'DetDbgLog($"AUTO DEBUG dev={deviceName}, cmd={commandOrPrefix}, target={resultControlName}")
+    'ShowCopyableDebug("Determine Debug", _detDbg.ToString())
+
+
+
+
+    ' ALTERNATIVE DEBUG: runs for *all* paths that reach FanOut
+    'If String.Equals(resultControlName, "HP3245ADatasource",
+    '                StringComparison.OrdinalIgnoreCase) Then
+    '   MessageBox.Show(
+    '       $"OUTTEXT @FanOut: dev={deviceName}, cmd={commandOrPrefix}, " &
+    '       $"target={resultControlName}, outText=[{outText}]")
+    'End If
 
 
 End Class
