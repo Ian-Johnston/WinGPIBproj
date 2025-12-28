@@ -3155,6 +3155,7 @@ Partial Class Formtest
                     Dim device As String = ""
                     Dim command As String = ""
                     Dim overloadToken As String = ""
+                    Dim decimalFlag As Boolean = True
 
                     For Each part In parts
                         Dim kv = part.Split("="c)
@@ -3172,11 +3173,23 @@ Partial Class Formtest
                                 command = val
                             Case "overload"
                                 overloadToken = val
+                            Case "decimal"
+                                decimalFlag =
+            (val.Trim() = "1" OrElse
+             val.Equals("true", StringComparison.OrdinalIgnoreCase) OrElse
+             val.Equals("yes", StringComparison.OrdinalIgnoreCase))
                         End Select
                     Next
 
+                    'Debug.WriteLine($"DATASOURCE {resultName} decimal={decimalFlag}")
+
                     If resultName <> "" AndAlso device <> "" AndAlso command <> "" Then
-                        DataSources(resultName) = New DataSourceDef With {.Device = device, .Command = command, .OverloadToken = overloadToken}
+                        DataSources(resultName) = New DataSourceDef With {
+                        .Device = device,
+                        .Command = command,
+                        .OverloadToken = overloadToken,
+                        .ForceDecimal = decimalFlag
+                        }
                     End If
 
 
@@ -3602,6 +3615,7 @@ Partial Class Formtest
         Public Device As String
         Public Command As String
         Public OverloadToken As String
+        Public Property ForceDecimal As Boolean  ' True = decimal, False = raw/sci
     End Class
 
 
@@ -3897,49 +3911,49 @@ Partial Class Formtest
 
                 ' first token up to first space
                 Dim funcToken As String = rep
-                    Dim spIdx As Integer = rep.IndexOf(" "c)
-                    If spIdx > 0 Then funcToken = rep.Substring(0, spIdx).Trim()
+                Dim spIdx As Integer = rep.IndexOf(" "c)
+                If spIdx > 0 Then funcToken = rep.Substring(0, spIdx).Trim()
 
-                    Dim funcU As String = funcToken.ToUpperInvariant()
+                Dim funcU As String = funcToken.ToUpperInvariant()
 
-                    Dim matchIndex As Integer = -1
+                Dim matchIndex As Integer = -1
 
-                    For i As Integer = 0 To maps.Length - 1
-                        Dim m As String = maps(i)
-                        If m = "" Then Continue For
+                For i As Integer = 0 To maps.Length - 1
+                    Dim m As String = maps(i)
+                    If m = "" Then Continue For
 
-                        Dim exact As Boolean = False
-                        If m.StartsWith("="c) Then
-                            exact = True
-                            m = m.Substring(1)
-                        End If
-
-                        Dim mU As String = m.ToUpperInvariant()
-
-                        If exact Then
-                            If String.Equals(funcU, mU, StringComparison.OrdinalIgnoreCase) Then
-                                matchIndex = i
-                                Exit For
-                            End If
-                        Else
-                            ' starts-with match (order matters: put VOLT:AC before VOLT)
-                            If funcU.StartsWith(mU, StringComparison.OrdinalIgnoreCase) Then
-                                matchIndex = i
-                                Exit For
-                            End If
-                        End If
-                    Next
-
-                    If matchIndex >= 0 Then
-                        Dim sel As Integer = matchIndex + 1 ' +1 because index 0 is placeholder
-                        If sel >= 0 AndAlso sel < cb.Items.Count Then cb.SelectedIndex = sel
+                    Dim exact As Boolean = False
+                    If m.StartsWith("="c) Then
+                        exact = True
+                        m = m.Substring(1)
                     End If
 
-                Else
-                    ' ---------------------------
-                    ' NUMERIC MODE (existing)
-                    ' ---------------------------
-                    Dim num As Double
+                    Dim mU As String = m.ToUpperInvariant()
+
+                    If exact Then
+                        If String.Equals(funcU, mU, StringComparison.OrdinalIgnoreCase) Then
+                            matchIndex = i
+                            Exit For
+                        End If
+                    Else
+                        ' starts-with match (order matters: put VOLT:AC before VOLT)
+                        If funcU.StartsWith(mU, StringComparison.OrdinalIgnoreCase) Then
+                            matchIndex = i
+                            Exit For
+                        End If
+                    End If
+                Next
+
+                If matchIndex >= 0 Then
+                    Dim sel As Integer = matchIndex + 1 ' +1 because index 0 is placeholder
+                    If sel >= 0 AndAlso sel < cb.Items.Count Then cb.SelectedIndex = sel
+                End If
+
+            Else
+                ' ---------------------------
+                ' NUMERIC MODE (existing)
+                ' ---------------------------
+                Dim num As Double
                 If TryExtractFirstDouble(reply, num) Then
                     For i As Integer = 0 To cb.Items.Count - 1
                         Dim itemVal As Double

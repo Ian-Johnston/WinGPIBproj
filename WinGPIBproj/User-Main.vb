@@ -608,20 +608,33 @@ Partial Class Formtest
                 ' For native engine, explicitly request RAW numeric and feed it into RunQueryToResult
                 ' so we bypass any oddities in the generic GET RAW RESPONSE path.
 
+                ' NEW: pick up overload token from DATASOURCE (if any)
+                Dim ds As DataSourceDef = Nothing
+                Dim olTok As String = Nothing
+
+                If DataSources IsNot Nothing AndAlso
+       DataSources.TryGetValue(resultControlName, ds) AndAlso ds IsNot Nothing Then
+                    olTok = ds.OverloadToken     ' e.g. "9.90000000E+37|raw"
+                Else
+                    ' Fallback to whatever was parsed into overloadToken (if you have that in the tag)
+                    olTok = overloadToken
+                End If
+
                 If IsNativeEngine(deviceName) Then
                     Try
                         ' Always ask native engine for RAW numeric
                         Dim raw As String = NativeQuery(deviceName, commandOrPrefix, requireRaw:=True)
                         ' rawOverride ensures RunQueryToResult does not issue a second query
-                        RunQueryToResult(deviceName, commandOrPrefix, resultControlName, raw, overloadToken)
+                        RunQueryToResult(deviceName, commandOrPrefix, resultControlName, raw, olTok)
                     Catch ex As Exception
                         MessageBox.Show("Error in QUERY (native): " & ex.Message)
                     End Try
                 Else
                     ' Non-native: fall back to existing pipeline
-                    RunQueryToResult(deviceName, commandOrPrefix, resultControlName, Nothing, overloadToken)
+                    RunQueryToResult(deviceName, commandOrPrefix, resultControlName, Nothing, olTok)
                 End If
                 Return
+
 
 
             Case "SENDLINES"
@@ -1965,20 +1978,39 @@ Partial Class Formtest
     Private Function TryExtractFirstDouble(text As String, ByRef value As Double) As Boolean
         If String.IsNullOrWhiteSpace(text) Then Return False
 
-        ' split on common separators, take first token that parses
+        ' First, try the existing token-based method
         Dim tokens = text.Split({","c, ";"c, " "c, ControlChars.Cr, ControlChars.Lf},
                             StringSplitOptions.RemoveEmptyEntries)
 
         For Each tok In tokens
             Dim t = tok.Trim()
-            If Double.TryParse(t, Globalization.NumberStyles.Float,
-                           Globalization.CultureInfo.InvariantCulture, value) Then
+            If Double.TryParse(t,
+                           Globalization.NumberStyles.Float,
+                           Globalization.CultureInfo.InvariantCulture,
+                           value) Then
                 If Not Double.IsNaN(value) AndAlso Not Double.IsInfinity(value) Then Return True
             End If
         Next
 
+        ' Fallback: regex – finds first number even if glued to units, e.g. "+0.99998801E+00VDC"
+        Dim m = System.Text.RegularExpressions.Regex.Match(
+                text,
+                "[+-]?\d+(\.\d+)?([Ee][+-]?\d+)?",
+                System.Text.RegularExpressions.RegexOptions.CultureInvariant)
+
+        If m.Success Then
+            Dim s = m.Value
+            If Double.TryParse(s,
+                           Globalization.NumberStyles.Float,
+                           Globalization.CultureInfo.InvariantCulture,
+                           value) Then
+                If Not Double.IsNaN(value) AndAlso Not Double.IsInfinity(value) Then Return True
+            End If
+        End If
+
         Return False
     End Function
+
 
 
     Private Sub UpdateStatsPanel(panelName As String, sample As Double)

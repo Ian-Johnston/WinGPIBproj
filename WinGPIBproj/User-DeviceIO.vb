@@ -203,15 +203,12 @@ Partial Class Formtest
         ' =========================================================
         '   EXISTING FORMAT / SCALE / UNITS LOGIC (unchanged)
         ' =========================================================
-        Dim decCb As CheckBox = GetCheckboxFor(resultControlName, "FuncDecimal")
+        'Dim decCb As CheckBox = GetCheckboxFor(resultControlName, "FuncDecimal")           ' moved to config
 
         Dim scale As Double = CurrentUserScale
         Dim d As Double
 
-        If Double.TryParse(raw,
-                       Globalization.NumberStyles.Float,
-                       Globalization.CultureInfo.InvariantCulture,
-                       d) Then
+        If TryExtractFirstDouble(raw, d) Then
 
             Dim v As Double = d
 
@@ -219,8 +216,8 @@ Partial Class Formtest
             '    AUTO SCALE MODE LOGIC
             ' ============================
             If CurrentUserScaleIsAuto AndAlso
-   dev IsNot Nothing AndAlso
-   Not String.IsNullOrWhiteSpace(CurrentUserRangeQuery) Then
+               dev IsNot Nothing AndAlso
+               Not String.IsNullOrWhiteSpace(CurrentUserRangeQuery) Then
 
                 Dim cacheKey As String = deviceName & "||" & CurrentUserRangeQuery
                 Dim rngVal As Double
@@ -249,9 +246,9 @@ Partial Class Formtest
                         End If
 
                         If Double.TryParse(rngStr,
-                               Globalization.NumberStyles.Float,
-                               Globalization.CultureInfo.InvariantCulture,
-                               rngVal) Then
+                                           Globalization.NumberStyles.Float,
+                                           Globalization.CultureInfo.InvariantCulture,
+                                           rngVal) Then
 
                             ' Store for future use – and mark done so we never query again
                             UserRangeQueryCache(cacheKey) = rngVal
@@ -285,40 +282,62 @@ Partial Class Formtest
             ' ============================
             '      OUTPUT FORMATTING
             ' ============================
-            Dim valueStr As String
+            Dim numericStr As String   ' for charts / stats
+            Dim displayStr As String   ' for BIGTEXT
 
-            If decCb IsNot Nothing AndAlso decCb.Checked Then
-                valueStr = v.ToString("0.###############",
-                                  Globalization.CultureInfo.InvariantCulture)
-            ElseIf Math.Abs(v - d) > 0.0000000001R OrElse
-               Math.Abs(scale - 1.0R) > 0.0000000001R OrElse
-               CurrentUserScaleIsAuto Then
-
-                valueStr = v.ToString("G",
-                                  Globalization.CultureInfo.InvariantCulture)
-            Else
-                valueStr = raw
+            ' Look up DATASOURCE to see if user wants decimal or raw/sci
+            Dim useDecimal As Boolean = True
+            Dim ds As DataSourceDef = Nothing
+            If DataSources.TryGetValue(resultControlName, ds) AndAlso ds IsNot Nothing Then
+                useDecimal = ds.ForceDecimal
             End If
 
-            numericText = valueStr
+            ' Always generate a clean numeric string for internal use
+            numericStr = v.ToString("G",
+                                    Globalization.CultureInfo.InvariantCulture)
 
-            If Not String.IsNullOrEmpty(CurrentUserUnit) Then
-                numericWithUnitText = valueStr & "   " & CurrentUserUnit
+            If useDecimal Then
+                ' decimal=1 (or default) → show decimal formatted value in BIGTEXT
+                displayStr = v.ToString("0.###############", Globalization.CultureInfo.InvariantCulture)
             Else
-                numericWithUnitText = valueStr
+                ' decimal=0 → show instrument's raw string if present,
+                ' otherwise fall back to the clean numeric.
+                If Not String.IsNullOrWhiteSpace(raw) Then
+                    displayStr = raw.Trim()
+                Else
+                    displayStr = numericStr
+                End If
+            End If
+
+            Debug.WriteLine($"RAW for {resultControlName} = [{raw}]")
+
+
+            ' Charts / stats:
+            ' - When decimal=1, numericText is the clean numeric (BIGTEXT can reformat it).
+            ' - When decimal=0, leave numericText empty so BIGTEXT uses outText/raw instead.
+            If useDecimal Then
+                numericText = numericStr
+            Else
+                numericText = ""
+            End If
+
+
+            ' BIGTEXT uses displayStr (+ unit)
+            If Not String.IsNullOrEmpty(CurrentUserUnit) Then
+                numericWithUnitText = displayStr & "   " & CurrentUserUnit
+            Else
+                numericWithUnitText = displayStr
             End If
 
             outText = numericWithUnitText
 
             ' Publish numeric result for TRIGGER engine
-            ' v is the scaled numeric value you already computed
             Vars(resultControlName) = v
             Vars($"num:{resultControlName}") = v
             Vars($"bignum:{resultControlName}") = v
 
             ' Calc - Cache last numeric value for this stream
             ResultLastValue(resultControlName) = v
-            ' Prevent recursive calc -> push -> RunQueryToResult -> calc loops
             If Threading.Interlocked.Increment(UserCalcDepth) = 1 Then
                 Try
                     RecalcAllCalcs()
@@ -329,10 +348,14 @@ Partial Class Formtest
                 Threading.Interlocked.Decrement(UserCalcDepth)
             End If
 
+
         Else
-            ' Non-numeric reply: pass through raw text
+            ' Non-numeric reply: clear numeric fields and pass through raw text
+            numericText = ""
+            numericWithUnitText = ""
             outText = raw
         End If
+
 
 FanOut:
 
