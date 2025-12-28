@@ -7,6 +7,10 @@ Imports WinGPIBproj.OnOffLed
 
 Partial Class Formtest
 
+    ' === Add this at FORM level ===
+    Private Keypad1Panel As Control
+
+
     Private Sub BuildCustomGuiFromText(def As String)
 
         UserConfig_DataSaveEnabled = True   ' reset to default for this config
@@ -3181,7 +3185,18 @@ Partial Class Formtest
                         End Select
                     Next
 
-                    'Debug.WriteLine($"DATASOURCE {resultName} decimal={decimalFlag}")
+                    ' === Validate result name for internal variable use ===
+                    If Not String.IsNullOrWhiteSpace(resultName) Then
+                        Dim c As Char = resultName(0)
+                        ' Must start with a letter or underscore
+                        If Not (Char.IsLetter(c) OrElse c = "_"c) Then
+                            ShowConfigWarningPopup(
+    $"Invalid DATASOURCE result name '{resultName}'." & vbCrLf & vbCrLf &
+    "Result names must start with a letter or underscore " &
+    "for internal variables (e.g. CALC / LUA / trigger)."
+)
+                        End If
+                    End If
 
                     If resultName <> "" AndAlso device <> "" AndAlso command <> "" Then
                         DataSources(resultName) = New DataSourceDef With {
@@ -4979,6 +4994,72 @@ Partial Class Formtest
     End Sub
 
 
+    Private Sub FormMain_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
+        ' No keypad panel? bail.
+        If Keypad1Panel Is Nothing OrElse Not Keypad1Panel.Visible Then Return
+
+        Dim keyChar As Char = ChrW(0)
+
+        Select Case e.KeyCode
+            Case Keys.NumPad0, Keys.D0 : keyChar = "0"c
+            Case Keys.NumPad1, Keys.D1 : keyChar = "1"c
+            Case Keys.NumPad2, Keys.D2 : keyChar = "2"c
+            Case Keys.NumPad3, Keys.D3 : keyChar = "3"c
+            Case Keys.NumPad4, Keys.D4 : keyChar = "4"c
+            Case Keys.NumPad5, Keys.D5 : keyChar = "5"c
+            Case Keys.NumPad6, Keys.D6 : keyChar = "6"c
+            Case Keys.NumPad7, Keys.D7 : keyChar = "7"c
+            Case Keys.NumPad8, Keys.D8 : keyChar = "8"c
+            Case Keys.NumPad9, Keys.D9 : keyChar = "9"c
+
+            Case Keys.Decimal, Keys.OemPeriod
+                keyChar = "."c
+
+            Case Keys.Add
+                keyChar = "+"c
+
+            Case Keys.Subtract
+                keyChar = "-"c
+
+            Case Keys.Back
+                ' If you have a [←] / [DEL] keypad button, call it directly:
+                Dim backBtn = Keypad1Panel.Controls.
+                            OfType(Of Button)().
+                            FirstOrDefault(Function(b) b.Text = "←")
+                If backBtn IsNot Nothing Then
+                    backBtn.PerformClick()
+                    e.Handled = True
+                End If
+                Return
+
+            Case Keys.Enter, Keys.Return
+                ' If you have an [ENTER] / [OK] keypad button:
+                Dim enterBtn = Keypad1Panel.Controls.
+                             OfType(Of Button)().
+                             FirstOrDefault(Function(b) b.Text.Equals("ENTER", StringComparison.OrdinalIgnoreCase) _
+                                            OrElse b.Text.Equals("OK", StringComparison.OrdinalIgnoreCase))
+                If enterBtn IsNot Nothing Then
+                    enterBtn.PerformClick()
+                    e.Handled = True
+                End If
+                Return
+
+            Case Else
+                Return   ' ignore other keys
+        End Select
+
+        If keyChar = ChrW(0) Then Return
+
+        ' Find the keypad button whose Text matches the key and "click" it
+        Dim btn = Keypad1Panel.Controls.
+                OfType(Of Button)().
+                FirstOrDefault(Function(b) b.Text = keyChar.ToString())
+
+        If btn IsNot Nothing Then
+            btn.PerformClick()   ' reuses your existing keypad click logic
+            e.Handled = True
+        End If
+    End Sub
 
 
 

@@ -2110,4 +2110,7 @@ into the app and extending it's capabilities. and also to purchase faulty test g
   <metadata name="Timer16.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>1675, 27</value>
   </metadata>
+  <metadata name="Timer17.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 64</value>
+  </metadata>
 </root>

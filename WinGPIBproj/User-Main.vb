@@ -3543,6 +3543,60 @@ Partial Class Formtest
     End Sub
 
 
+    Private Sub ShowConfigWarningPopup(msg As String)
+
+        Dim f As New Form()
+        With f
+            .FormBorderStyle = FormBorderStyle.FixedDialog
+            .ControlBox = False
+            .MinimizeBox = False
+            .MaximizeBox = False
+            .ShowInTaskbar = False
+            .StartPosition = FormStartPosition.Manual
+            .Text = "WinGPIB – Config Warning"
+            .Size = New Size(420, 160)
+            .TopMost = True
+        End With
+
+        ' Centre on main WinGPIB form (Me)
+        Dim owner As Form = Me
+        Dim offsetY As Integer = 200
+        f.Location = New Point(
+    Me.Left + (Me.Width - f.Width) \ 2,
+    Me.Top + (Me.Height - f.Height) \ 2 + offsetY)
+
+        Dim lbl As New Label()
+        With lbl
+            .Dock = DockStyle.Fill
+            .TextAlign = ContentAlignment.MiddleCenter
+            .Font = New Font("Segoe UI", 10.0F, FontStyle.Regular)
+            .Text = msg
+        End With
+        f.Controls.Add(lbl)
+
+        ' Auto-close after 5 seconds
+        ' Auto-close after 5 seconds  (use existing Timer17)
+        Timer17.Stop()
+        Timer17.Interval = 10000
+
+        Dim closer As EventHandler = Nothing
+        closer =
+    Sub(s, e)
+        Timer17.Stop()
+        RemoveHandler Timer17.Tick, closer   ' prevent stacking handlers
+        f.Close()
+        f.Dispose()
+    End Sub
+
+        AddHandler Timer17.Tick, closer
+        Timer17.Start()
+
+
+        f.Show(owner)   ' modeless, doesn’t block loading
+    End Sub
+
+
+
     Private Sub HideUserInitPopup()
         If UserInitPopup IsNot Nothing Then
             Try

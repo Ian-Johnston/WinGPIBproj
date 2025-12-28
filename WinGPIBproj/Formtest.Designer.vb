@@ -955,6 +955,7 @@ Partial Class Formtest
         Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
+        Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.GroupBox9.SuspendLayout
@@ -12114,4 +12115,5 @@ Partial Class Formtest
     Friend WithEvents LabelUSERtab1 As Label
     Friend WithEvents ShowFiles4 As Button
     Friend WithEvents ButtonLoadTxtRefresh As Button
+    Friend WithEvents Timer17 As Timer
 End Class

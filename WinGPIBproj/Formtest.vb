@@ -35,6 +35,7 @@ Imports System.Text
 Imports System.Text.RegularExpressions
 Imports IODevices
 Imports MoonSharp.Interpreter
+Imports System.Reflection
 
 
 Public Class Formtest
@@ -158,6 +159,13 @@ Public Class Formtest
         End If
 
     End Sub
+
+
+    'Protected Overrides Sub OnHandleCreated(e As EventArgs)
+    'MyBase.OnHandleCreated(e)
+    'Me.DoubleBuffered = True
+    'End Sub
+
 
     'Sub formtest_close()
     '    IODevice.DisposeAll()
@@ -773,6 +781,9 @@ Public Class Formtest
 
             ' User tab
             ButtonLoadTxtRefresh.Enabled = False
+
+            ' For USER tab keypad
+            Me.KeyPreview = True
 
 
 
@@ -2748,6 +2759,7 @@ Public Class Formtest
         End Using
 
     End Sub
+
 
 
 End Class
