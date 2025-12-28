@@ -570,73 +570,24 @@ Partial Class Formtest
 
 
             Case "QUERY"
+                ' Single-shot read via button.
+                ' For native engine, explicitly request RAW numeric and feed it into RunQueryToResult
+                ' so we bypass any oddities in the generic GET RAW RESPONSE path.
 
-                ' Single immediate query
-                RunQueryToResult(deviceName, commandOrPrefix, resultControlName, Nothing, overloadToken)
-
-                ' Check for an Auto checkbox (FuncAuto) for this result control
-                Dim autoCb As CheckBox = GetCheckboxFor(resultControlName, "FuncAuto")
-
-                If autoCb IsNot Nothing AndAlso autoCb.Checked Then
-
-                    Const MIN_AUTOREAD_MS As Integer = 1
-                    Const MAX_AUTOREAD_MS As Integer = 60000
-
-                    Dim intervalMs As Integer = 2000
-
-                    Dim param As String = GetCheckboxParam(autoCb)
-                    If Not String.IsNullOrEmpty(param) Then
-                        Dim numeric As String = ""
-                        For Each ch As Char In param
-                            If Char.IsDigit(ch) OrElse ch = "."c Then numeric &= ch
-                        Next
-
-                        Dim secs As Double
-                        If Double.TryParse(numeric,
-                                           Globalization.NumberStyles.Float,
-                                           Globalization.CultureInfo.InvariantCulture,
-                                           secs) AndAlso secs > 0.0R Then
-                            intervalMs = CInt(Math.Ceiling(secs * 1000.0R))
-                        End If
-                    End If
-
-                    If intervalMs < MIN_AUTOREAD_MS Then intervalMs = MIN_AUTOREAD_MS
-                    If intervalMs > MAX_AUTOREAD_MS Then intervalMs = MAX_AUTOREAD_MS
-
-                    If String.Equals(deviceName, "dev2", StringComparison.OrdinalIgnoreCase) Then
-                        ' --- slot #2 / dev2 ---
-                        AutoReadDeviceName2 = deviceName
-                        AutoReadCommand2 = commandOrPrefix
-                        AutoReadResultControl2 = resultControlName
-                        AutoReadOverloadToken2 = overloadToken
-
-                        Timer16.Interval = intervalMs
-                        Timer16.Enabled = True
-                    Else
-                        ' --- slot #1 / dev1 ---
-                        AutoReadDeviceName = deviceName
-                        AutoReadCommand = commandOrPrefix
-                        AutoReadResultControl = resultControlName
-                        AutoReadOverloadToken = overloadToken
-
-                        Timer5.Interval = intervalMs
-                        Timer5.Enabled = True
-                    End If
-
+                If IsNativeEngine(deviceName) Then
+                    Try
+                        ' Always ask native engine for RAW numeric
+                        Dim raw As String = NativeQuery(deviceName, commandOrPrefix, requireRaw:=True)
+                        ' rawOverride ensures RunQueryToResult does not issue a second query
+                        RunQueryToResult(deviceName, commandOrPrefix, resultControlName, raw, overloadToken)
+                    Catch ex As Exception
+                        MessageBox.Show("Error in QUERY (native): " & ex.Message)
+                    End Try
                 Else
-                    ' Auto refresh OFF for this specific device
-                    If String.Equals(deviceName, "dev2", StringComparison.OrdinalIgnoreCase) Then
-                        Timer16.Enabled = False
-                        AutoReadDeviceName2 = ""
-                        AutoReadCommand2 = ""
-                        AutoReadResultControl2 = ""
-                    Else
-                        Timer5.Enabled = False
-                        AutoReadDeviceName = ""
-                        AutoReadCommand = ""
-                        AutoReadResultControl = ""
-                    End If
+                    ' Non-native: fall back to existing pipeline
+                    RunQueryToResult(deviceName, commandOrPrefix, resultControlName, Nothing, overloadToken)
                 End If
+                Return
 
 
             Case "SENDLINES"
@@ -647,9 +598,9 @@ Partial Class Formtest
                     Exit Sub
                 End If
 
-                ' ===============================
+                ' ================================
                 ' NATIVE engine → use NativeSend()
-                ' ===============================
+                ' ================================
                 If IsNativeEngine(deviceName) Then
 
                     For Each raw In valCtrl.Lines
