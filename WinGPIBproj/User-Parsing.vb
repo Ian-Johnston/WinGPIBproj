@@ -10,6 +10,9 @@ Partial Class Formtest
     ' === Add this at FORM level ===
     Private Keypad1Panel As Control
 
+    ' label font size for AxisY
+    Dim labelSize As Single = 7.0F
+
 
     Private Sub BuildCustomGuiFromText(def As String)
 
@@ -2260,7 +2263,6 @@ Partial Class Formtest
                     Dim innerH As Single = 96.0F
 
                     Dim usedPositional As Boolean = False
-
                     Dim popup As Boolean = False
 
                     ' ------------------------------------------------------------
@@ -2406,6 +2408,10 @@ Partial Class Formtest
                             Case "popup"
                                 Dim v = val.ToLowerInvariant()
                                 popup = (v = "1" OrElse v = "true" OrElse v = "yes")
+
+            ' NEW: labelsize
+                            Case "labelsize"
+                                Single.TryParse(val, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, labelSize)
                         End Select
                     Next
 
@@ -2475,7 +2481,7 @@ Partial Class Formtest
                     ca.AxisY.MajorGrid.Enabled = True
                     ca.AxisY.MajorGrid.LineColor = Color.FromArgb(80, 80, 80)
                     ca.AxisY.LabelStyle.ForeColor = Color.White
-                    ca.AxisY.LabelStyle.Font = New Font("Segoe UI", 7.0F)
+                    ca.AxisY.LabelStyle.Font = New Font("Segoe UI", labelSize)   ' UPDATED
                     ca.AxisY.MajorTickMark.Enabled = False
 
                     ' ---- series ----
@@ -2492,39 +2498,42 @@ Partial Class Formtest
 
                     ' Remember config for pop-out charts
                     ChartSettings(chartName) = New ChartConfig With {
-    .ChartName = chartName,
-    .ResultTarget = resultTarget,
-    .YMin = yMin,
-    .YMax = yMax,
-    .XStep = xStep,
-    .MaxPoints = maxPoints,
-    .AutoScaleY = autoScaleY,
-    .Popup = popup,
-    .Width = w,
-    .Height = h,
-    .InnerX = innerX,
-    .InnerY = innerY,
-    .InnerW = innerW,
-    .InnerH = innerH
-}
+        .ChartName = chartName,
+        .ResultTarget = resultTarget,
+        .YMin = yMin,
+        .YMax = yMax,
+        .XStep = xStep,
+        .MaxPoints = maxPoints,
+        .AutoScaleY = autoScaleY,
+        .Popup = popup,
+        .Width = w,
+        .Height = h,
+        .InnerX = innerX,
+        .InnerY = innerY,
+        .InnerW = innerW,
+        .InnerH = innerH
+    }
 
                     ' Store chart binding so it can be updated even without a source TextBox
                     Dim yMinStr As String = If(yMin.HasValue, yMin.Value.ToString(Globalization.CultureInfo.InvariantCulture), "")
                     Dim yMaxStr As String = If(yMax.HasValue, yMax.Value.ToString(Globalization.CultureInfo.InvariantCulture), "")
                     Dim autoStr As String = If(autoScaleY, "1", "0")
 
-                    ch.Tag = "CHART|" & resultTarget & "|" & yMinStr & "|" & yMaxStr & "|" & xStep.ToString(Globalization.CultureInfo.InvariantCulture) & "|" & maxPoints.ToString(Globalization.CultureInfo.InvariantCulture) & "|" & autoStr
+                    ch.Tag = "CHART|" & resultTarget & "|" & yMinStr & "|" & yMaxStr & "|" &
+             xStep.ToString(Globalization.CultureInfo.InvariantCulture) & "|" &
+             maxPoints.ToString(Globalization.CultureInfo.InvariantCulture) & "|" &
+             autoStr
 
                     ' ---- bind to textbox ----
                     Dim src = TryCast(GetControlByName(resultTarget), TextBox)
                     If src IsNot Nothing Then
                         UpdateChartFromText(ch, src.Text, yMin, yMax, xStep, maxPoints, autoScaleY)
                         AddHandler src.TextChanged,
-                            Sub(senderSrc As Object, eSrc As EventArgs)
-                                UpdateChartFromText(ch,
-                                                    DirectCast(senderSrc, TextBox).Text,
-                                                    yMin, yMax, xStep, maxPoints, autoScaleY)
-                            End Sub
+            Sub(senderSrc As Object, eSrc As EventArgs)
+                UpdateChartFromText(ch,
+                                    DirectCast(senderSrc, TextBox).Text,
+                                    yMin, yMax, xStep, maxPoints, autoScaleY)
+            End Sub
                     End If
                     Continue For
 
@@ -4940,7 +4949,8 @@ Partial Class Formtest
         ca.AxisY.MajorGrid.Enabled = True
         ca.AxisY.MajorGrid.LineColor = Color.FromArgb(80, 80, 80)
         ca.AxisY.LabelStyle.ForeColor = Color.White
-        ca.AxisY.LabelStyle.Font = New Font("Segoe UI", 7.0F, FontStyle.Regular)
+        'ca.AxisY.LabelStyle.Font = New Font("Segoe UI", 7.0F, FontStyle.Regular)
+        ca.AxisX.LabelStyle.Font = New Font("Segoe UI", labelSize, FontStyle.Regular)
         ca.AxisY.MajorTickMark.Enabled = False
 
         ' Simple grid / labels styling
@@ -4955,7 +4965,8 @@ Partial Class Formtest
         ca.AxisY.MajorGrid.Enabled = True
         ca.AxisY.MajorGrid.LineColor = Color.FromArgb(80, 80, 80)
         ca.AxisY.LabelStyle.ForeColor = Color.White
-        ca.AxisY.LabelStyle.Font = New Font("Segoe UI", 7.0F, FontStyle.Regular)
+        'ca.AxisY.LabelStyle.Font = New Font("Segoe UI", 7.0F, FontStyle.Regular)
+        ca.AxisY.LabelStyle.Font = New Font("Segoe UI", labelSize, FontStyle.Regular)
         ca.AxisY.MajorTickMark.Enabled = False
 
         ' Let Y-axis choose more gridlines when there's more height
