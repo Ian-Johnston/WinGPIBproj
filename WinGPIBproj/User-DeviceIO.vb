@@ -52,6 +52,13 @@ Partial Class Formtest
             Exit Sub
         End If
 
+        ' Single READ button sync units
+        Try
+            SyncUserUnitsAndScaleFromCheckedRadios()
+        Catch
+            ' Best-effort only – never let a units sync failure kill the read
+        End Try
+
         Dim raw As String = ""
         Dim outText As String = ""
 

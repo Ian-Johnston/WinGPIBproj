@@ -316,6 +316,32 @@ Partial Class Formtest
         UserKeypadMode = "fixed"
         ' UserKeypadPopupPosValid = False
 
+        ' Close any popup HISTORYGRID windows
+        If HistoryGridPopupForms IsNot Nothing Then
+            Dim forms() As Form = HistoryGridPopupForms.Values.ToArray()
+            HistoryGridPopupForms.Clear()
+
+            For Each f As Form In forms
+                If f IsNot Nothing AndAlso Not f.IsDisposed Then
+                    f.Close()
+                    f.Dispose()
+                End If
+            Next
+        End If
+
+        ' Close any popup CHART windows
+        If ChartPopupForms IsNot Nothing Then
+            Dim forms() As Form = ChartPopupForms.Values.ToArray()
+            ChartPopupForms.Clear()
+
+            For Each f As Form In forms
+                If f IsNot Nothing AndAlso Not f.IsDisposed Then
+                    f.Close()
+                    f.Dispose()
+                End If
+            Next
+        End If
+
         ' After a reset, REFRESH is no longer valid until a load succeeds again
         ButtonLoadTxtRefresh.Enabled = False
         'LastUserConfigPath = ""
