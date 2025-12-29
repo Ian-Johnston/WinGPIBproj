@@ -10,8 +10,6 @@ Partial Class Formtest
     ' === Add this at FORM level ===
     Private Keypad1Panel As Control
 
-    ' label font size for AxisY
-    Dim labelSize As Single = 7.0F
 
 
     Private Sub BuildCustomGuiFromText(def As String)
@@ -2262,6 +2260,9 @@ Partial Class Formtest
                     Dim innerW As Single = 96.0F
                     Dim innerH As Single = 96.0F
 
+                    ' font size for y-axis
+                    Dim labelSize As Single = 7.0F
+
                     Dim usedPositional As Boolean = False
                     Dim popup As Boolean = False
 
@@ -2404,14 +2405,13 @@ Partial Class Formtest
                                 Single.TryParse(val, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, innerW)
                             Case "innerh"
                                 Single.TryParse(val, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, innerH)
+                            Case "labelsize"
+                                Single.TryParse(val, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, labelSize)
 
                             Case "popup"
                                 Dim v = val.ToLowerInvariant()
                                 popup = (v = "1" OrElse v = "true" OrElse v = "yes")
 
-            ' NEW: labelsize
-                            Case "labelsize"
-                                Single.TryParse(val, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, labelSize)
                         End Select
                     Next
 
@@ -2481,7 +2481,7 @@ Partial Class Formtest
                     ca.AxisY.MajorGrid.Enabled = True
                     ca.AxisY.MajorGrid.LineColor = Color.FromArgb(80, 80, 80)
                     ca.AxisY.LabelStyle.ForeColor = Color.White
-                    ca.AxisY.LabelStyle.Font = New Font("Segoe UI", labelSize)   ' UPDATED
+                    ca.AxisY.LabelStyle.Font = New Font("Segoe UI", labelSize)
                     ca.AxisY.MajorTickMark.Enabled = False
 
                     ' ---- series ----
@@ -2511,7 +2511,8 @@ Partial Class Formtest
         .InnerX = innerX,
         .InnerY = innerY,
         .InnerW = innerW,
-        .InnerH = innerH
+        .InnerH = innerH,
+        .LabelSize = labelSize
     }
 
                     ' Store chart binding so it can be updated even without a source TextBox
@@ -4919,12 +4920,17 @@ Partial Class Formtest
         ca.Position.Auto = False
         ca.Position = New DataVisualization.Charting.ElementPosition(0, 0, 100, 100)
 
-        ' Use innerX/innerY/innerW/innerH from cfg
+        ' Use innerX/innerY/innerW/innerH/labelsize from cfg
         ca.InnerPlotPosition.Auto = False
         Dim ix As Single = If(cfg.InnerX > 0, cfg.InnerX, 2.0F)
         Dim iy As Single = If(cfg.InnerY > 0, cfg.InnerY, 2.0F)
         Dim iw As Single = If(cfg.InnerW > 0, cfg.InnerW, 96.0F)
         Dim ih As Single = If(cfg.InnerH > 0, cfg.InnerH, 96.0F)
+
+        Dim ls As Single = If(cfg.labelsize > 0, cfg.labelsize, 7.0F)
+        'Dim rawLs As Double = If(cfg.labelsize > 0, cfg.labelsize, 7.0R)
+        'Dim ls As Single = CSng(Math.Round(rawLs, 8))
+
         ca.InnerPlotPosition = New DataVisualization.Charting.ElementPosition(ix, iy, iw, ih)
 
         ' Y range / autoscale
@@ -4939,23 +4945,32 @@ Partial Class Formtest
         ' Simple grid / labels styling
         ca.BackColor = Color.Black
 
-        ca.AxisX.LabelStyle.Enabled = False
+        ca.AxisX.LabelStyle.Enabled = False         ' disabled x-axis labels
+        ca.AxisX.LabelStyle.ForeColor = Color.White
+        ca.AxisX.LabelStyle.Format = "0"        ' secs only
         ca.AxisX.MajorTickMark.Enabled = False
         ca.AxisX.MinorTickMark.Enabled = False
         ca.AxisX.MajorGrid.Enabled = True
         ca.AxisX.MajorGrid.LineColor = Color.FromArgb(60, 60, 60)
         ca.AxisX.MajorGrid.LineDashStyle = DataVisualization.Charting.ChartDashStyle.Dot
 
+        ca.AxisX.Title = "Time (s)"
+        ca.AxisX.TitleFont = New Font("Segoe UI", 8.0F, FontStyle.Regular)
+
+        ca.AxisX.Interval = 0.5R
+        ca.AxisX.MajorGrid.Interval = 0.5R
+
         ca.AxisY.MajorGrid.Enabled = True
         ca.AxisY.MajorGrid.LineColor = Color.FromArgb(80, 80, 80)
         ca.AxisY.LabelStyle.ForeColor = Color.White
+
+        ca.AxisY.LabelStyle.Format = "0.########"                   ' Limit Y-axis label decimals to max 8 dp
+
         'ca.AxisY.LabelStyle.Font = New Font("Segoe UI", 7.0F, FontStyle.Regular)
-        ca.AxisX.LabelStyle.Font = New Font("Segoe UI", labelSize, FontStyle.Regular)
+        ca.AxisX.LabelStyle.Font = New Font("Segoe UI", ls, FontStyle.Regular)
         ca.AxisY.MajorTickMark.Enabled = False
 
-        ' Simple grid / labels styling
-        ca.BackColor = Color.Black
-        ca.AxisX.LabelStyle.Enabled = False
+        ' Simple grid styling
         ca.AxisX.MajorTickMark.Enabled = False
         ca.AxisX.MinorTickMark.Enabled = False
         ca.AxisX.MajorGrid.Enabled = True
@@ -4966,7 +4981,7 @@ Partial Class Formtest
         ca.AxisY.MajorGrid.LineColor = Color.FromArgb(80, 80, 80)
         ca.AxisY.LabelStyle.ForeColor = Color.White
         'ca.AxisY.LabelStyle.Font = New Font("Segoe UI", 7.0F, FontStyle.Regular)
-        ca.AxisY.LabelStyle.Font = New Font("Segoe UI", labelSize, FontStyle.Regular)
+        ca.AxisY.LabelStyle.Font = New Font("Segoe UI", ls, FontStyle.Regular)
         ca.AxisY.MajorTickMark.Enabled = False
 
         ' Let Y-axis choose more gridlines when there's more height

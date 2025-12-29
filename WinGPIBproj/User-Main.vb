@@ -117,6 +117,8 @@ Partial Class Formtest
     ' CHART popup support
     Private ChartSettings As New Dictionary(Of String, ChartConfig)(StringComparer.OrdinalIgnoreCase)
     Private ChartPopupForms As New Dictionary(Of String, Form)(StringComparer.OrdinalIgnoreCase)
+    Private ReadOnly ChartStartTimes As New Dictionary(Of String, DateTime)
+
 
 
 
@@ -160,6 +162,7 @@ Partial Class Formtest
         Public Property InnerY As Single
         Public Property InnerW As Single
         Public Property InnerH As Single
+        Public Property labelsize As Single
     End Class
 
 
@@ -1522,6 +1525,11 @@ Partial Class Formtest
 
         ch.Invalidate()
     End Sub
+
+
+
+
+
 
 
     ' Datasource
