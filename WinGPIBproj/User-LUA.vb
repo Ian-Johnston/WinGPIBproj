@@ -148,7 +148,8 @@ Partial Class Formtest
                                           If String.IsNullOrWhiteSpace(devName) OrElse String.IsNullOrWhiteSpace(cmd) Then Return ""
 
                                           If IsNativeEngine(devName) Then
-                                              Return NativeQuery(devName, cmd)
+                                              ' Use the same raw fast-path we use for DATASOURCE etc.
+                                              Return NativeQuery(devName, cmd, requireRaw:=True)
                                           Else
                                               Dim dev As IODevices.IODevice = Nothing
                                               Select Case devName.ToLowerInvariant()
