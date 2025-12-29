@@ -154,6 +154,12 @@ Partial Class Formtest
                 Continue For
             End If
 
+            ' BOOTCOMMANDS; device=...; commandlist=...
+            If line.StartsWith("BOOTCOMMANDS", StringComparison.OrdinalIgnoreCase) Then
+                HandleBootCommandsLine(line)
+                Continue For
+            End If
+
             ' LUASCRIPTBEGIN;name=MyScript
             If line.StartsWith("LUASCRIPTBEGIN", StringComparison.OrdinalIgnoreCase) Then
                 luaScriptName = GetParam(line, "name")
@@ -179,6 +185,14 @@ Partial Class Formtest
                     End Select
                 End If
             End If
+
+            ' -------- INLINE COMMENT SUPPORT ( ;; ) --------
+            Dim commentIdx As Integer = line.IndexOf(";;", StringComparison.Ordinal)
+            If commentIdx >= 0 Then
+                line = line.Substring(0, commentIdx).TrimEnd()
+                If line = "" Then Continue For
+            End If
+            ' -----------------------------------------------
 
             Dim parts = line.Split(";"c)
             If parts.Length < 2 Then Continue For
@@ -5085,6 +5099,100 @@ Partial Class Formtest
             btn.PerformClick()   ' reuses your existing keypad click logic
             e.Handled = True
         End If
+    End Sub
+
+
+    Private Sub HandleBootCommandsLine(line As String)
+        ' Expected config:
+        '   BOOTCOMMANDS;
+        '      device=dev2;
+        '      commandlist=CMD1,CMD2,CMD3
+        '
+        ' The logical-line joiner will already have turned it into:
+        '   "BOOTCOMMANDS;device=dev2;commandlist=CMD1,CMD2,CMD3"
+
+        Dim deviceName As String = ""
+        Dim commandList As String = ""
+
+        Dim work As String = line.Trim()
+        Dim segments As String() = work.Split(";"c)
+
+        For Each seg As String In segments
+            Dim t As String = seg.Trim()
+            If t.Length = 0 Then Continue For
+
+            ' First segment: "BOOTCOMMANDS" or "BOOTCOMMANDS=dev2" (future-proof)
+            If t.StartsWith("BOOTCOMMANDS", StringComparison.OrdinalIgnoreCase) Then
+                Dim idx As Integer = t.IndexOf("="c)
+                If idx >= 0 AndAlso idx < t.Length - 1 Then
+                    Dim rest As String = t.Substring(idx + 1).Trim()
+                    If rest.StartsWith("device=", StringComparison.OrdinalIgnoreCase) Then
+                        deviceName = rest.Substring("device=".Length).Trim()
+                    Else
+                        deviceName = rest
+                    End If
+                End If
+                Continue For
+            End If
+
+            ' Normal key=value segments: device=..., commandlist=...
+            Dim eqIdx As Integer = t.IndexOf("="c)
+            If eqIdx <= 0 OrElse eqIdx >= t.Length - 1 Then Continue For
+
+            Dim key As String = t.Substring(0, eqIdx).Trim().ToLowerInvariant()
+            Dim val As String = t.Substring(eqIdx + 1).Trim()
+
+            Select Case key
+                Case "device"
+                    deviceName = val
+                Case "commandlist"
+                    commandList = val
+            End Select
+        Next
+
+        If String.IsNullOrWhiteSpace(deviceName) OrElse String.IsNullOrWhiteSpace(commandList) Then
+            AppendLog("[BOOT] bootcommands line missing device or commandlist: " & line)
+            Return
+        End If
+
+        ' Split commandlist on commas → individual commands (STRING, not Char)
+        Dim cmds As New List(Of String)
+        For Each c As String In commandList.Split(","c)
+            Dim cmd As String = c.Trim()
+            If cmd <> "" Then cmds.Add(cmd)
+        Next
+
+        If cmds.Count = 0 Then
+            AppendLog("[BOOT] bootcommands commandlist empty for device " & deviceName)
+            Return
+        End If
+
+        RunBootCommands(deviceName, cmds)
+    End Sub
+
+
+    Private Sub RunBootCommands(deviceName As String, commands As IEnumerable(Of String))
+        If String.IsNullOrWhiteSpace(deviceName) OrElse commands Is Nothing Then Return
+
+        ' For now, support bootcommands only when using native engine,
+        ' so behaviour exactly matches CASE "SEND" with NativeSend.
+        If Not IsNativeEngine(deviceName) Then
+            AppendLog("[BOOT] bootcommands currently only supported with native engine for " & deviceName)
+            Return
+        End If
+
+        For Each cmdRaw As String In commands
+            Dim cmd As String = cmdRaw.Trim()
+            If cmd = "" Then Continue For
+
+            Try
+                ' EXACTLY the same native path as your CASE "SEND"
+                NativeSend(deviceName, cmd)
+                AppendLog($"[BOOT] {deviceName} << {cmd}")
+            Catch ex As Exception
+                AppendLog($"[BOOT] Error sending '{cmd}' to {deviceName}: {ex.Message}")
+            End Try
+        Next
     End Sub
 
 
