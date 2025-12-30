@@ -42,6 +42,11 @@ Public Class Formtest
 
     'Inherits Form
 
+    ' q.ResponseAsString replacement var
+    Dim respRaw As String
+    Dim respNorm As String
+
+    ' Misc.
     Dim strParts() As String
     Dim intPos As Integer
     Dim strData As String = ""
@@ -181,7 +186,7 @@ Public Class Formtest
         Try
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.051"
+            BannerText1 = "WinGPIB   V4.052"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
             ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -1239,7 +1244,7 @@ Public Class Formtest
 
         If result = 0 Then
 
-            txtr1b.Text = q.ResponseAsString
+            txtr1b.Text = respNorm
             s &= "device response time:" & Str(q.timeend.Subtract(q.timestart).TotalSeconds) & " s" & vbCrLf
             s &= "thread wait time:" & Str(q.timestart.Subtract(q.timecall).TotalSeconds) & " s" & vbCrLf
 
@@ -1314,7 +1319,7 @@ Public Class Formtest
 
         If result = 0 Then
 
-            txtr2b.Text = q.ResponseAsString
+            txtr2b.Text = respNorm
             s &= "device response time:" & Str(q.timeend.Subtract(q.timestart).TotalSeconds) & " s" & vbCrLf
             s &= "thread wait time:" & Str(q.timestart.Subtract(q.timecall).TotalSeconds) & " s" & vbCrLf
 
@@ -1497,10 +1502,16 @@ Public Class Formtest
 
         Try
 
+            ' Centralize raw + normalized response
+            respRaw = q.ResponseAsString
+            'respRaw = TextBox3.Text            ' Test locale issue
+            'respRaw = "10.123.456,987"            ' Test locale issue
+            respNorm = NormalizeNumericResponse(respRaw)
+
             ' Fast query mode (used by User tab determine etc) - avoid slow processing
             If USERdev1fastquery Then
                 ' Always capture raw response for determine etc
-                USERdev1output2 = If(q.ResponseAsString, "")
+                USERdev1output2 = If(respNorm, "")
                 ' Also keep a display copy if you want
                 USERdev1output = If(txtr1a_disp Is Nothing, "", txtr1a_disp.Text)
 
@@ -1512,23 +1523,23 @@ Public Class Formtest
 
             If q.status = 0 And Dev1TextResponse.Checked = False Then
 
-                inst_value1F = q.ResponseAsString   ' for PDVS2mini calibration
+                inst_value1F = respNorm   ' for PDVS2mini calibration
 
                 ' Update CMD line only if it was used
                 If CMDlineOp = True Then
                     ' load the command line variable with the response
-                    TextBoxDev1CMD.AppendText(Environment.NewLine & ">    " & q.ResponseAsString & Environment.NewLine)
+                    TextBoxDev1CMD.AppendText(Environment.NewLine & ">    " & respNorm & Environment.NewLine)
                     CMDlineOp = False
                 End If
 
                 If Dev13457Aseven.Checked = False Then
-                    txtr1a.Text = q.ResponseAsString
+                    txtr1a.Text = respNorm
                 End If
 
                 ' Enable 7th digit mode for 3457A DMM only. Send extra command after TARM SGL to get the additional data
                 If Dev13457Aseven.Checked = True Then
 
-                    temp3457A_Dev1 = q.ResponseAsString
+                    temp3457A_Dev1 = respNorm
 
                     If Dev1_3457A = True Then    ' 7th digit process
                         inst_value1_3457A_2 = CDbl(Val(temp3457A_Dev1))             ' convert digit 7 to double
@@ -1701,7 +1712,7 @@ Public Class Formtest
 
             ' Response expected is text not numerical
             If q.status = 0 And Dev1TextResponse.Checked = True Then
-                txtr1a.Text = q.ResponseAsString
+                txtr1a.Text = respNorm
             Else
                 s &= "error " & q.errcode & vbCrLf
             End If
@@ -1733,9 +1744,13 @@ Public Class Formtest
 
         Try
 
+            ' Centralize raw + normalized response
+            respRaw = q.ResponseAsString
+            respNorm = NormalizeNumericResponse(respRaw)
+
             ' Fast query mode (used by User tab determine etc) - avoid slow processing
             If USERdev2fastquery Then
-                USERdev2output2 = If(q.ResponseAsString, "")
+                USERdev2output2 = If(respNorm, "")
                 USERdev2output = If(txtr2a_disp Is Nothing, "", txtr2a_disp.Text)
 
                 OutputReceiveddev2 = True
@@ -1749,20 +1764,20 @@ Public Class Formtest
                 ' Update CMD line only if it was used
                 If CMDlineOp = True Then
                     ' load the command line variable with the response
-                    TextBoxDev2CMD.AppendText(Environment.NewLine & ">    " & q.ResponseAsString & Environment.NewLine)
+                    TextBoxDev2CMD.AppendText(Environment.NewLine & ">    " & respNorm & Environment.NewLine)
                     CMDlineOp = False
                 End If
 
 
                 If Dev23457Aseven.Checked = False Then
-                    txtr2a.Text = q.ResponseAsString
+                    txtr2a.Text = respNorm
                 End If
 
 
                 ' Enable 7th digit mode for 3457A DMM only. Send extra command after TARM SGL to get the additional data
                 If Dev23457Aseven.Checked = True Then
 
-                    temp3457A_Dev2 = q.ResponseAsString
+                    temp3457A_Dev2 = respNorm
 
                     If Dev2_3457A = True Then    ' 7th digit process
                         inst_value2_3457A_2 = CDbl(Val(temp3457A_Dev2))             ' convert digit 7 to double
@@ -1935,7 +1950,7 @@ Public Class Formtest
 
             ' Response expected is text not numerical
             If q.status = 0 And Dev2TextResponse.Checked = True Then
-                txtr2a.Text = q.ResponseAsString
+                txtr2a.Text = respNorm
             Else
                 s &= "error " & q.errcode & vbCrLf
             End If
@@ -1961,6 +1976,76 @@ Public Class Formtest
         'Jumpout:
 
     End Sub
+
+
+    ' Normalize numeric device response to an invariant-style string
+    Private Function NormalizeNumericResponse(raw As String) As String
+
+        ' NOTE: This is string based manipulation.
+        ' Might have been easier converting to double and manipulating there, but could get rounding issues.
+
+        If String.IsNullOrWhiteSpace(raw) Then Return raw
+
+        Dim trimmed As String = raw.Trim()
+
+        ' Split exponent part (E or e) so we don't touch it
+        Dim expIndex As Integer = trimmed.IndexOfAny(New Char() {"e"c, "E"c})
+        Dim mainPart As String
+        Dim expPart As String = ""
+
+        If expIndex >= 0 Then
+            mainPart = trimmed.Substring(0, expIndex)
+            expPart = trimmed.Substring(expIndex)   ' includes 'E' and exponent
+        Else
+            mainPart = trimmed
+        End If
+
+        ' Remove spaces in the main numeric part only
+        mainPart = mainPart.Replace(" ", "")
+
+        Dim hasDot As Boolean = mainPart.Contains("."c)
+        Dim hasComma As Boolean = mainPart.Contains(","c)
+
+        Dim normalizedMain As String = mainPart
+
+        If hasDot AndAlso hasComma Then
+            ' Both '.' and ',' present:
+            ' - whichever appears last is decimal separator
+            ' - the other is thousands/grouping separator
+            Dim lastDot As Integer = mainPart.LastIndexOf("."c)
+            Dim lastComma As Integer = mainPart.LastIndexOf(","c)
+
+            Dim decimalChar As Char
+            Dim groupChar As Char
+
+            If lastDot > lastComma Then
+                decimalChar = "."c
+                groupChar = ","c
+            Else
+                decimalChar = ","c
+                groupChar = "."c
+            End If
+
+            ' Remove grouping char, keep digits identical
+            normalizedMain = mainPart.Replace(groupChar.ToString(), "")
+
+            ' If decimal is comma, convert it to dot
+            If decimalChar = ","c Then
+                normalizedMain = normalizedMain.Replace(","c, "."c)
+            End If
+
+        ElseIf hasComma AndAlso Not hasDot Then
+            ' Only comma present → treat as decimal separator
+            normalizedMain = mainPart.Replace(","c, "."c)
+
+        Else
+            ' Only dot or neither → leave as-is
+            normalizedMain = mainPart
+        End If
+
+        ' Reattach exponent part unchanged
+        Return normalizedMain & expPart
+    End Function
 
 
     'suggest correct address format:

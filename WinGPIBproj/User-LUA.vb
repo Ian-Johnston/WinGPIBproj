@@ -167,7 +167,7 @@ Partial Class Formtest
                                               Dim status As Integer = dev.QueryBlocking(fullCmd, q, False)
 
                                               If status = 0 AndAlso q IsNot Nothing Then
-                                                  Return q.ResponseAsString.Trim()
+                                                  Return respNorm.Trim()
                                               End If
 
                                               If q IsNot Nothing Then

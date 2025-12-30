@@ -109,7 +109,7 @@ Partial Class Formtest
 
                 If status = 0 AndAlso q IsNot Nothing Then
 
-                    raw = q.ResponseAsString.Trim()
+                    raw = respNorm.Trim()
 
                 ElseIf q IsNot Nothing Then
 
@@ -240,8 +240,10 @@ Partial Class Formtest
                             ' Range query via standalone path
                             Dim rq As IODevices.IOQuery = Nothing
                             Dim st2 As Integer = dev.QueryBlocking(CurrentUserRangeQuery & TermStr2(), rq, False)
+
                             If st2 = 0 AndAlso rq IsNot Nothing Then
-                                rngStr = rq.ResponseAsString.Trim()
+                                'rngStr = rq.ResponseAsString.Trim()                            ' Original potentially unsafe ResponseAsString
+                                rngStr = NormalizeNumericResponse(rq.ResponseAsString).Trim()   ' locale-safe as it uses the helper (Formtest.vb)
                             End If
                         End If
 
@@ -671,7 +673,7 @@ FanOut:
         Dim q As IODevices.IOQuery = Nothing
         Dim status = dev.QueryBlocking(cmd & TermStr2(), q, False)
         If status = 0 AndAlso q IsNot Nothing Then
-            Return q.ResponseAsString
+            Return respNorm
         End If
 
         Return ""

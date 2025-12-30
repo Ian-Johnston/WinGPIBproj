@@ -951,11 +951,12 @@ Partial Class Formtest
         Me.Timer5 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer15 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer16 = New System.Windows.Forms.Timer(Me.components)
+        Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
+        Me.TextBox3 = New System.Windows.Forms.TextBox()
         Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
-        Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.GroupBox9.SuspendLayout
@@ -3177,6 +3178,7 @@ Partial Class Formtest
         '
         'GroupBox8
         '
+        Me.GroupBox8.Controls.Add(Me.TextBox3)
         Me.GroupBox8.Controls.Add(Me.btncreate2)
         Me.GroupBox8.Controls.Add(Me.ProfDev1_8)
         Me.GroupBox8.Controls.Add(Me.ProfDev1_7)
@@ -11059,6 +11061,14 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
+        'TextBox3
+        '
+        Me.TextBox3.Location = New System.Drawing.Point(324, 92)
+        Me.TextBox3.Name = "TextBox3"
+        Me.TextBox3.Size = New System.Drawing.Size(72, 20)
+        Me.TextBox3.TabIndex = 123
+        Me.TextBox3.Visible = False
+        '
         'OnOffLed2
         '
         Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
@@ -12116,4 +12126,5 @@ Partial Class Formtest
     Friend WithEvents ShowFiles4 As Button
     Friend WithEvents ButtonLoadTxtRefresh As Button
     Friend WithEvents Timer17 As Timer
+    Friend WithEvents TextBox3 As TextBox
 End Class

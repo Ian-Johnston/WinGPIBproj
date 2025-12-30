@@ -1759,7 +1759,7 @@ Partial Class Formtest
             Dim q As IODevices.IOQuery = Nothing
             Dim st As Integer = dev.QueryBlocking(queryCommand & TermStr2(), q, False)
             If st = 0 AndAlso q IsNot Nothing Then
-                raw = q.ResponseAsString
+                raw = respNorm
             Else
                 raw = "ERR " & st & If(q IsNot Nothing AndAlso Not String.IsNullOrEmpty(q.errmsg), ": " & q.errmsg, "")
             End If

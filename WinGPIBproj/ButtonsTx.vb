@@ -1754,7 +1754,7 @@ Partial Class Formtest
 
         If result = 0 Then
 
-            txtr1b.Text = q.ResponseAsString
+            txtr1b.Text = respNorm
             s &= "device response time:" & Str(q.timeend.Subtract(q.timestart).TotalSeconds) & " s" & vbCrLf
             s &= "thread wait time:" & Str(q.timestart.Subtract(q.timecall).TotalSeconds) & " s" & vbCrLf
 

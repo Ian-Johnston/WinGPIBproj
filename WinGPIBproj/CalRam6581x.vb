@@ -399,12 +399,12 @@ Partial Class Formtest
             Cbdev1(q)
 
             ' Update status and text file
-            LabelCalRamByte6581.Text = q.ResponseAsString
+            LabelCalRamByte6581.Text = respNorm
             Me.Refresh()
-            IO.File.AppendAllText(RAMfilename6581, q.ResponseAsString & Environment.NewLine)
+            IO.File.AppendAllText(RAMfilename6581, respNorm & Environment.NewLine)
 
             ' Add data to JSON structure
-            constantsList.Add(New With {.Index = i, .Value = q.ResponseAsString})
+            constantsList.Add(New With {.Index = i, .Value = respNorm})
 
             Threading.Thread.Sleep(10)
         Next
