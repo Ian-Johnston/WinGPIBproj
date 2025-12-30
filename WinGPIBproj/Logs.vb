@@ -126,7 +126,9 @@ Partial Class Formtest
         ' Chart 1 - Device 1 only
         If (EnableChart1.Checked = True And EnableChart2.Checked = False And RunChart = True And Dev1GPIBActivity = True) Then
 
-            inst_value1FChart = CDbl(Val(txtr1a.Text))
+            'inst_value1FChart = CDbl(Val(txtr1a.Text))
+            inst_value1FChart = CDbl(Val(NormalizeNumericResponse(txtr1a.Text)))
+
             inst_value1FChart = AvgVal(inst_value1FChart, 1)
             Dev1ChartValue.Text = Format(inst_value1FChart, "0.#########")
             txtr1achart = Format(inst_value1FChart, "#0.00000000")
@@ -178,7 +180,8 @@ Partial Class Formtest
         ' Chart 2 - Device 2 only
         If (EnableChart2.Checked = True And EnableChart1.Checked = False And RunChart = True And Dev2GPIBActivity = True) Then
 
-            inst_value2FChart = CDbl(Val(txtr2a.Text))
+            'inst_value2FChart = CDbl(Val(txtr2a.Text))
+            inst_value2FChart = CDbl(Val(NormalizeNumericResponse(txtr2a.Text)))
             inst_value2FChart = AvgVal(inst_value2FChart, 2)
             Dev2ChartValue.Text = Format(inst_value2FChart, "0.#########")
             txtr2achart = Format(inst_value2FChart, "#0.00000000")
@@ -232,10 +235,13 @@ Partial Class Formtest
         ' Chart 1 & 2 - Device 1 & Device 2
         If (EnableChart1.Checked = True And EnableChart2.Checked = True And RunChart = True And Dev2GPIBActivity = True) Then
 
-            inst_value1FChart = CDbl(Val(txtr1a.Text))
+            'inst_value1FChart = CDbl(Val(txtr1a.Text))
+            inst_value1FChart = CDbl(Val(NormalizeNumericResponse(txtr1a.Text)))
+
             inst_value1FChart = AvgVal(inst_value1FChart, 1)
             Dev1ChartValue.Text = Format(inst_value1FChart, "0.#########")
-            inst_value2FChart = CDbl(Val(txtr2a.Text))
+            'inst_value2FChart = CDbl(Val(txtr2a.Text))
+            inst_value2FChart = CDbl(Val(NormalizeNumericResponse(txtr2a.Text)))
             inst_value2FChart = AvgVal(inst_value2FChart, 2)
             Dev2ChartValue.Text = Format(inst_value2FChart, "0.#########")
             txtr1achart = Format(inst_value1FChart, "#0.00000000")
@@ -394,7 +400,8 @@ Partial Class Formtest
 
             If (ENotationDecimal.Checked = True And TestLen > 4) Then
 
-                txtr1alogged = Format(CDbl(Val(txtr1a.Text)), "#0.0000000000")
+                'txtr1alogged = Format(CDbl(Val(txtr1a.Text)), "#0.0000000000")
+                txtr1alogged = Format(CDbl(Val(NormalizeNumericResponse(txtr1a.Text))), "#0.0000000000")
 
                 Dim txtname1fixed As String = txtname1.Text.PadRight(10)
                 Dim txtr1aloggedfixed As String = txtr1alogged.PadRight(14)
@@ -451,7 +458,9 @@ Partial Class Formtest
 
             If (ENotationDecimal.Checked = True And TestLen > 4) Then
 
-                txtr2alogged = Format(CDbl(Val(txtr2a.Text)), "#0.0000000000")
+                'txtr2alogged = Format(CDbl(Val(txtr2a.Text)), "#0.0000000000")
+                txtr2alogged = Format(CDbl(Val(NormalizeNumericResponse(txtr2a.Text))), "#0.0000000000")
+
 
                 Dim txtname2fixed As String = txtname2.Text.PadRight(10)
                 Dim txtr2aloggedfixed As String = txtr2alogged.PadRight(14)
@@ -1061,27 +1070,62 @@ Partial Class Formtest
                 End If
 
                 If (ENotationDecimal.Checked = True) Then
-                    'decimal
-                    file.WriteLine(Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname1.Text & CSVdelimit & DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit & Format(Val(txtr1a.Text), "#0.0000000000") & CSVdelimit & LabelTemperature.Text & CSVdelimit & LabelHumidity.Text)
-                    CSVwrite.Text = Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname1.Text & CSVdelimit & DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit & Format(Val(txtr1a.Text), "#0.0000000000") & CSVdelimit & LabelTemperature.Text & CSVdelimit & LabelHumidity.Text
+                    ' decimal
+                    Dim v1 As Double = Val(NormalizeNumericResponse(txtr1a.Text))
+                    file.WriteLine(Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname1.Text & CSVdelimit &
+                           DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit &
+                           v1.ToString("#0.0000000000", Globalization.CultureInfo.InvariantCulture) & CSVdelimit &
+                           LabelTemperature.Text & CSVdelimit & LabelHumidity.Text)
+
+                    CSVwrite.Text = Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname1.Text & CSVdelimit &
+                            DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit &
+                            v1.ToString("#0.0000000000", Globalization.CultureInfo.InvariantCulture) & CSVdelimit &
+                            LabelTemperature.Text & CSVdelimit & LabelHumidity.Text
                 Else
-                    'e-notation
-                    file.WriteLine(Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname1.Text & CSVdelimit & DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit & txtr1a.Text & CSVdelimit & LabelTemperature.Text & CSVdelimit & LabelHumidity.Text)
-                    CSVwrite.Text = Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname1.Text & CSVdelimit & DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit & txtr1a.Text & CSVdelimit & LabelTemperature.Text & CSVdelimit & LabelHumidity.Text
+                    ' e-notation (numeric-only, from normalized value)
+                    Dim v1 As Double = Val(NormalizeNumericResponse(txtr1a.Text))
+                    Dim eStr1 As String = v1.ToString("0.0000000000E+00", Globalization.CultureInfo.InvariantCulture)
+
+                    file.WriteLine(Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname1.Text & CSVdelimit &
+                           DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit &
+                           eStr1 & CSVdelimit & LabelTemperature.Text & CSVdelimit & LabelHumidity.Text)
+
+                    CSVwrite.Text = Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname1.Text & CSVdelimit &
+                            DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit &
+                            eStr1 & CSVdelimit & LabelTemperature.Text & CSVdelimit & LabelHumidity.Text
                 End If
+
             Else
+                ' No Temp/Hum logging → use 0.0,0.0
                 If (ENotationDecimal.Checked = True) Then
-                    'decimal
-                    file.WriteLine(Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname1.Text & CSVdelimit & DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit & Format(Val(txtr1a.Text), "#0.0000000000") & CSVdelimit & "0.0" & CSVdelimit & "0.0")
-                    CSVwrite.Text = Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname1.Text & CSVdelimit & DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit & Format(Val(txtr1a.Text), "#0.0000000000") & CSVdelimit & "0.0" & CSVdelimit & "0.0"
+                    ' decimal
+                    Dim v1 As Double = Val(NormalizeNumericResponse(txtr1a.Text))
+                    file.WriteLine(Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname1.Text & CSVdelimit &
+                           DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit &
+                           v1.ToString("#0.0000000000", Globalization.CultureInfo.InvariantCulture) & CSVdelimit &
+                           "0.0" & CSVdelimit & "0.0")
+
+                    CSVwrite.Text = Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname1.Text & CSVdelimit &
+                            DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit &
+                            v1.ToString("#0.0000000000", Globalization.CultureInfo.InvariantCulture) & CSVdelimit &
+                            "0.0" & CSVdelimit & "0.0"
                 Else
-                    'e-notation
-                    file.WriteLine(Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname1.Text & CSVdelimit & DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit & txtr1a.Text & CSVdelimit & "0.0" & CSVdelimit & "0.0")
-                    CSVwrite.Text = Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname1.Text & CSVdelimit & DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit & txtr1a.Text & CSVdelimit & "0.0" & CSVdelimit & "0.0"
+                    ' e-notation
+                    Dim v1 As Double = Val(NormalizeNumericResponse(txtr1a.Text))
+                    Dim eStr1 As String = v1.ToString("0.0000000000E+00", Globalization.CultureInfo.InvariantCulture)
+
+                    file.WriteLine(Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname1.Text & CSVdelimit &
+                           DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit &
+                           eStr1 & CSVdelimit & "0.0" & CSVdelimit & "0.0")
+
+                    CSVwrite.Text = Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname1.Text & CSVdelimit &
+                            DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit &
+                            eStr1 & CSVdelimit & "0.0" & CSVdelimit & "0.0"
                 End If
             End If
 
         End If
+
 
 
         ' Device 2 updates
@@ -1094,27 +1138,61 @@ Partial Class Formtest
 
             If (TempHumLogs.Checked = True And TempHumConnected = True) Then
                 If (ENotationDecimal.Checked = True) Then
-                    'decimal
-                    file.WriteLine(Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname2.Text & CSVdelimit & DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit & Format(Val(txtr2a.Text), "#0.0000000000") & CSVdelimit & LabelTemperature.Text & CSVdelimit & LabelHumidity.Text)
-                    CSVwrite.Text = Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname2.Text & CSVdelimit & DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit & Format(Val(txtr2a.Text), "#0.0000000000") & CSVdelimit & LabelTemperature.Text & CSVdelimit & LabelHumidity.Text
+                    ' decimal
+                    Dim v2 As Double = Val(NormalizeNumericResponse(txtr2a.Text))
+                    file.WriteLine(Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname2.Text & CSVdelimit &
+                           DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit &
+                           v2.ToString("#0.0000000000", Globalization.CultureInfo.InvariantCulture) & CSVdelimit &
+                           LabelTemperature.Text & CSVdelimit & LabelHumidity.Text)
+
+                    CSVwrite.Text = Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname2.Text & CSVdelimit &
+                            DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit &
+                            v2.ToString("#0.0000000000", Globalization.CultureInfo.InvariantCulture) & CSVdelimit &
+                            LabelTemperature.Text & CSVdelimit & LabelHumidity.Text
                 Else
-                    'e-notation
-                    file.WriteLine(Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname2.Text & CSVdelimit & DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit & txtr2a.Text & CSVdelimit & LabelTemperature.Text & CSVdelimit & LabelHumidity.Text)
-                    CSVwrite.Text = Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname2.Text & CSVdelimit & DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit & txtr2a.Text & CSVdelimit & LabelTemperature.Text & CSVdelimit & LabelHumidity.Text
+                    ' e-notation (numeric-only, from normalized value)
+                    Dim v2 As Double = Val(NormalizeNumericResponse(txtr2a.Text))
+                    Dim eStr2 As String = v2.ToString("0.0000000000E+00", Globalization.CultureInfo.InvariantCulture)
+
+                    file.WriteLine(Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname2.Text & CSVdelimit &
+                           DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit &
+                           eStr2 & CSVdelimit & LabelTemperature.Text & CSVdelimit & LabelHumidity.Text)
+
+                    CSVwrite.Text = Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname2.Text & CSVdelimit &
+                            DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit &
+                            eStr2 & CSVdelimit & LabelTemperature.Text & CSVdelimit & LabelHumidity.Text
                 End If
             Else
+                ' No Temp/Hum logging → 0.0,0.0
                 If (ENotationDecimal.Checked = True) Then
-                    'decimal
-                    file.WriteLine(Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname2.Text & CSVdelimit & DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit & Format(Val(txtr2a.Text), "#0.0000000000") & CSVdelimit & "0.0" & CSVdelimit & "0.0")
-                    CSVwrite.Text = Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname2.Text & CSVdelimit & DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit & Format(Val(txtr2a.Text), "#0.0000000000") & CSVdelimit & "0.0" & CSVdelimit & "0.0"
+                    ' decimal
+                    Dim v2 As Double = Val(NormalizeNumericResponse(txtr2a.Text))
+                    file.WriteLine(Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname2.Text & CSVdelimit &
+                           DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit &
+                           v2.ToString("#0.0000000000", Globalization.CultureInfo.InvariantCulture) & CSVdelimit &
+                           "0.0" & CSVdelimit & "0.0")
+
+                    CSVwrite.Text = Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname2.Text & CSVdelimit &
+                            DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit &
+                            v2.ToString("#0.0000000000", Globalization.CultureInfo.InvariantCulture) & CSVdelimit &
+                            "0.0" & CSVdelimit & "0.0"
                 Else
-                    'e-notation
-                    file.WriteLine(Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname2.Text & CSVdelimit & DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit & txtr2a.Text & CSVdelimit & "0.0" & CSVdelimit & "0.0")
-                    CSVwrite.Text = Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname2.Text & CSVdelimit & DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit & txtr2a.Text & CSVdelimit & "0.0" & CSVdelimit & "0.0"
+                    ' e-notation
+                    Dim v2 As Double = Val(NormalizeNumericResponse(txtr2a.Text))
+                    Dim eStr2 As String = v2.ToString("0.0000000000E+00", Globalization.CultureInfo.InvariantCulture)
+
+                    file.WriteLine(Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname2.Text & CSVdelimit &
+                           DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit &
+                           eStr2 & CSVdelimit & "0.0" & CSVdelimit & "0.0")
+
+                    CSVwrite.Text = Format(Math.Floor(IndexCount), "0") & CSVdelimit & txtname2.Text & CSVdelimit &
+                            DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss") & CSVdelimit &
+                            eStr2 & CSVdelimit & "0.0" & CSVdelimit & "0.0"
                 End If
             End If
 
         End If
+
 
 
         ' CSV entries per device - Dual logging

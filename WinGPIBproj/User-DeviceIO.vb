@@ -89,8 +89,7 @@ Partial Class Formtest
                     ' No overload info → if this result is driven by a DATASOURCE,
                     ' prefer RAW data so auto-refresh works even without overload=
                     Dim ds As DataSourceDef
-                    If DataSources IsNot Nothing AndAlso
-           DataSources.TryGetValue(resultControlName, ds) Then
+                    If DataSources IsNot Nothing AndAlso DataSources.TryGetValue(resultControlName, ds) Then
                         wantRaw = True
                     End If
                 End If

@@ -1510,10 +1510,24 @@ Public Class Formtest
 
             ' Fast query mode (used by User tab determine etc) - avoid slow processing
             If USERdev1fastquery Then
-                ' Always capture raw response for determine etc
-                USERdev1output2 = If(respNorm, "")
-                ' Also keep a display copy if you want
-                USERdev1output = If(txtr1a_disp Is Nothing, "", txtr1a_disp.Text)
+                Dim source As String
+
+                ' If caller asked for raw text (resptext), give them the untouched instrument string
+                If USERdev1rawoutput Then
+                    source = If(respRaw, "")
+                Else
+                    ' Otherwise use the normalized form (locale-safe)
+                    source = If(respNorm, "")
+                End If
+
+                ' USERdev1output2 = raw/normalized instrument response
+                USERdev1output2 = source
+
+                ' USERdev1output = what the USER tab will normally "display"
+                USERdev1output = source
+
+                ' IMPORTANT: also update the DEVICES tab textbox so you see the value there
+                txtr1a.Text = source
 
                 OutputReceiveddev1 = True
                 Exit Sub
@@ -1750,8 +1764,17 @@ Public Class Formtest
 
             ' Fast query mode (used by User tab determine etc) - avoid slow processing
             If USERdev2fastquery Then
-                USERdev2output2 = If(respNorm, "")
-                USERdev2output = If(txtr2a_disp Is Nothing, "", txtr2a_disp.Text)
+                Dim source As String
+
+                If USERdev2rawoutput Then
+                    source = If(respRaw, "")
+                Else
+                    source = If(respNorm, "")
+                End If
+
+                USERdev2output2 = source
+                USERdev2output = source
+                txtr2a.Text = source
 
                 OutputReceiveddev2 = True
                 Exit Sub
