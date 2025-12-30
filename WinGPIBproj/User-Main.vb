@@ -1082,11 +1082,26 @@ Partial Class Formtest
             Exit Sub
         End If
 
-        If useNative Then
-            NativeSend(deviceName, command)   ' <-- deferred click inside NativeSend
-        Else
-            dev.SendAsync(command, True)
-        End If
+        ' Allow multiple commands separated by commas, e.g.
+        '   command=*CLS,:CONF:VOLT:DC
+        Dim cmdParts As String() = command.Split(","c)
+
+        For Each part As String In cmdParts
+            Dim singleCmd As String = part.Trim()
+            If singleCmd = "" Then Continue For
+
+            Try
+                If useNative Then
+                    ' Same path as SEND buttons for native engine
+                    NativeSend(deviceName, singleCmd)
+                Else
+                    ' Standalone engine path
+                    dev.SendAsync(singleCmd, True)
+                End If
+            Catch ex As Exception
+                AppendLog($"[RADIO] Error sending '{singleCmd}' to {deviceName}: {ex.Message}")
+            End Try
+        Next
 
     End Sub
 

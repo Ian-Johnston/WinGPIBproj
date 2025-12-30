@@ -85,18 +85,31 @@ Partial Class Formtest
             End If
 
             Dim startsIndented As Boolean =
-            rawLine.Length > 0 AndAlso Char.IsWhiteSpace(rawLine(0))
+        rawLine.Length > 0 AndAlso Char.IsWhiteSpace(rawLine(0))
 
             If pending Is Nothing Then
                 pending = lineTrimmed
             Else
-                Dim pendingEndsWithSemi As Boolean =
-                pending.TrimEnd().EndsWith(";", StringComparison.Ordinal)
+                Dim trimmedPending As String = pending.TrimStart()
+                Dim pendingIsBoot As Boolean =
+            trimmedPending.StartsWith("BOOTCOMMANDS", StringComparison.OrdinalIgnoreCase)
 
-                ' Continuation rule:
-                ' - continuation lines must be indented
-                ' - and previous pending line must end with ";"
-                If startsIndented AndAlso pendingEndsWithSemi Then
+                Dim pendingEndsWithSemi As Boolean =
+            pending.TrimEnd().EndsWith(";", StringComparison.Ordinal)
+
+                Dim join As Boolean
+
+                If pendingIsBoot Then
+                    ' For BOOTCOMMANDS blocks:
+                    ' any indented line is treated as continuation
+                    join = startsIndented
+                Else
+                    ' Original rule for everything else:
+                    ' continuation only if previous ends with ";" and next is indented
+                    join = (startsIndented AndAlso pendingEndsWithSemi)
+                End If
+
+                If join Then
                     pending &= lineTrimmed
                 Else
                     ' flush previous logical line
@@ -104,6 +117,7 @@ Partial Class Formtest
                     pending = lineTrimmed
                 End If
             End If
+
 
             ' Start LUA block only when NOT already in one (must be checked here so it can begin on a logical line)
             If lineTrimmed.StartsWith("LUASCRIPTBEGIN", StringComparison.OrdinalIgnoreCase) Then
