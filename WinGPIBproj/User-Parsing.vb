@@ -7,9 +7,12 @@ Imports WinGPIBproj.OnOffLed
 
 Partial Class Formtest
 
-    ' === Add this at FORM level ===
     Private Keypad1Panel As Control
 
+    ' Sub-tab support
+    Private UserTabControl As TabControl = Nothing
+    Private UserTabPages As New Dictionary(Of String, TabPage)(StringComparer.OrdinalIgnoreCase)
+    Private CurrentUserContainer As Control = Nothing
 
 
     Private Sub BuildCustomGuiFromText(def As String)
@@ -48,6 +51,11 @@ Partial Class Formtest
         GroupBoxCustom.Controls.Clear()
         LuaScriptsByName.Clear()
 
+        ' Reset sub-tab layout state
+        UserTabControl = Nothing
+        UserTabPages.Clear()
+        CurrentUserContainer = Nothing
+
         CurrentUserScale = 1.0   ' reset scale each time we load a layout
         CurrentUserUnit = ""
 
@@ -62,6 +70,7 @@ Partial Class Formtest
 
         For Each rawLine In physicalLines
 
+            ' First detect LUA using the original text (no comment stripping)
             Dim trimmedEnd As String = rawLine.TrimEnd()
             Dim lineTrimmed As String = trimmedEnd.Trim()
 
@@ -72,44 +81,44 @@ Partial Class Formtest
                     luaLines.Clear()
                     inLuaScript = False
                 Else
-                    ' store ORIGINAL rawLine to preserve indentation
+                    ' store ORIGINAL rawLine to preserve indentation in LUA
                     luaLines.Add(rawLine)
                 End If
                 Continue For
             End If
-            ' ===================================================
+
+            ' For NON-LUA lines, strip any inline ";;" comment BEFORE we do joins
+            Dim effectiveLine As String = rawLine
+            Dim ccIdx As Integer = effectiveLine.IndexOf(";;", StringComparison.Ordinal)
+            If ccIdx >= 0 Then
+                effectiveLine = effectiveLine.Substring(0, ccIdx)
+            End If
+
+            trimmedEnd = effectiveLine.TrimEnd()
+            lineTrimmed = trimmedEnd.Trim()
 
             ' Skip empty/comment lines (do NOT flush pending)
-            If lineTrimmed = "" OrElse lineTrimmed.StartsWith(";") Then
+            If lineTrimmed = "" OrElse lineTrimmed.StartsWith(";"c) Then
                 Continue For
             End If
 
             Dim startsIndented As Boolean =
-        rawLine.Length > 0 AndAlso Char.IsWhiteSpace(rawLine(0))
+        effectiveLine.Length > 0 AndAlso Char.IsWhiteSpace(effectiveLine(0))
 
             If pending Is Nothing Then
                 pending = lineTrimmed
             Else
-                Dim trimmedPending As String = pending.TrimStart()
-                Dim pendingIsBoot As Boolean =
-            trimmedPending.StartsWith("BOOTCOMMANDS", StringComparison.OrdinalIgnoreCase)
-
                 Dim pendingEndsWithSemi As Boolean =
             pending.TrimEnd().EndsWith(";", StringComparison.Ordinal)
 
-                Dim join As Boolean
+                ' NEW: detect if current pending block is a BOOTCOMMANDS block
+                Dim isBootBlock As Boolean =
+            pending.TrimStart().StartsWith("BOOTCOMMANDS", StringComparison.OrdinalIgnoreCase)
 
-                If pendingIsBoot Then
-                    ' For BOOTCOMMANDS blocks:
-                    ' any indented line is treated as continuation
-                    join = startsIndented
-                Else
-                    ' Original rule for everything else:
-                    ' continuation only if previous ends with ";" and next is indented
-                    join = (startsIndented AndAlso pendingEndsWithSemi)
-                End If
-
-                If join Then
+                ' Continuation rule:
+                ' - continuation lines must be indented
+                ' - AND (previous pending line ends with ";" OR we are inside BOOTCOMMANDS block)
+                If startsIndented AndAlso (pendingEndsWithSemi OrElse isBootBlock) Then
                     pending &= lineTrimmed
                 Else
                     ' flush previous logical line
@@ -117,7 +126,6 @@ Partial Class Formtest
                     pending = lineTrimmed
                 End If
             End If
-
 
             ' Start LUA block only when NOT already in one (must be checked here so it can begin on a logical line)
             If lineTrimmed.StartsWith("LUASCRIPTBEGIN", StringComparison.OrdinalIgnoreCase) Then
@@ -139,6 +147,8 @@ Partial Class Formtest
         If pending IsNot Nothing Then
             logicalLines.Add(pending.Trim())
         End If
+
+
 
         ' -----------------------------
         ' Existing parser works on logical lines
@@ -231,6 +241,65 @@ Partial Class Formtest
                     If kv.ContainsKey("h") Then GroupBoxCustom.Height = CInt(kv("h"))
 
                     Continue For
+
+
+                Case "TAB"
+
+                    Dim kv = ParseNamedParams(parts)
+
+                    Dim tabName As String = Nothing
+                    If kv.ContainsKey("name") Then
+                        tabName = kv("name").Trim()
+                    End If
+                    If String.IsNullOrEmpty(tabName) Then
+                        tabName = "Tab" & (UserTabPages.Count + 1).ToString()
+                    End If
+
+                    ' First TAB: create the TabControl and move existing controls to a "Main" tab
+                    If UserTabControl Is Nothing Then
+
+                        UserTabControl = New TabControl()
+                        UserTabControl.Name = "UserSubTabs"
+                        UserTabControl.Left = 5
+                        UserTabControl.Top = 15
+                        UserTabControl.Width = GroupBoxCustom.ClientSize.Width - 10
+                        UserTabControl.Height = GroupBoxCustom.ClientSize.Height - 20
+                        UserTabControl.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
+
+                        ' Default "Main" tab containing everything created before the first TAB;
+                        Dim mainPage As New TabPage("Main")
+                        mainPage.Name = "tabMain"
+
+                        Dim existingCount As Integer = GroupBoxCustom.Controls.Count
+                        If existingCount > 0 Then
+                            Dim existing(existingCount - 1) As Control
+                            GroupBoxCustom.Controls.CopyTo(existing, 0)
+                            GroupBoxCustom.Controls.Clear()
+                            For Each c As Control In existing
+                                mainPage.Controls.Add(c)
+                            Next
+                        End If
+
+                        UserTabPages("Main") = mainPage
+                        UserTabControl.TabPages.Add(mainPage)
+
+                        GroupBoxCustom.Controls.Add(UserTabControl)
+                    End If
+
+                    ' Reuse tab if name already seen, otherwise create
+                    Dim targetPage As TabPage = Nothing
+                    If Not UserTabPages.TryGetValue(tabName, targetPage) Then
+                        targetPage = New TabPage(tabName)
+                        targetPage.Name = "tab" & tabName
+                        UserTabPages(tabName) = targetPage
+                        UserTabControl.TabPages.Add(targetPage)
+                    End If
+
+                    ' From now on, controls go onto this tab
+                    CurrentUserContainer = targetPage
+
+                    Continue For
+
 
 
                 Case "TEXTBOX"
@@ -336,7 +405,7 @@ Partial Class Formtest
                     lbl.Text = labelText
                     lbl.AutoSize = True
                     lbl.Location = New Point(x, y)
-                    GroupBoxCustom.Controls.Add(lbl)
+                    AddToUserContainer(lbl)
 
                     ' TextBox to the right of label
                     Dim tb As New TextBox()
@@ -358,7 +427,7 @@ Partial Class Formtest
                     AddHandler tb.Enter, AddressOf UserKeypad_SetTarget
                     AddHandler tb.MouseDown, AddressOf UserKeypad_SetTarget
 
-                    GroupBoxCustom.Controls.Add(tb)
+                    AddToUserContainer(tb)
 
                     ' Publish initial (empty or preset) value once
                     PublishTextBox(tb.Name, tb.Text)
@@ -459,7 +528,7 @@ Partial Class Formtest
                         End If
 
                         AddHandler b.Click, AddressOf CustomButton_Click
-                        GroupBoxCustom.Controls.Add(b)
+                        AddToUserContainer(b)
 
                         ' Register button for trigger engine fire:
                         If Not String.IsNullOrWhiteSpace(b.Name) Then
@@ -513,7 +582,7 @@ Partial Class Formtest
                     bPos.Size = New Size(wPos, hPos)
 
                     AddHandler bPos.Click, AddressOf CustomButton_Click
-                    GroupBoxCustom.Controls.Add(bPos)
+                    AddToUserContainer(bPos)
 
                     ' Positional buttons don't have a name -> triggers can't fire them unless you invent one.
                     ' If you want, you can optionally auto-name them here, but leaving unchanged per your comment.
@@ -623,7 +692,7 @@ Partial Class Formtest
 
                     End If
 
-                    GroupBoxCustom.Controls.Add(cb)
+                    AddToUserContainer(cb)
 
                     Continue For
 
@@ -730,7 +799,7 @@ Partial Class Formtest
                         RegisterDynamicControl(name, lbl)
                     End If
 
-                    GroupBoxCustom.Controls.Add(lbl)
+                    AddToUserContainer(lbl)
 
                     Continue For
 
@@ -887,7 +956,7 @@ Partial Class Formtest
                         lbl.Text = caption
                         lbl.AutoSize = True
                         lbl.Location = New Point(x, y)
-                        GroupBoxCustom.Controls.Add(lbl)
+                        AddToUserContainer(lbl)
 
                         cb.Location = New Point(x + lbl.PreferredWidth + 8, y - 3)
                     Else
@@ -941,7 +1010,7 @@ Partial Class Formtest
                     End If
 
                     AddHandler cb.SelectedIndexChanged, AddressOf Dropdown_SelectedIndexChanged
-                    GroupBoxCustom.Controls.Add(cb)
+                    AddToUserContainer(cb)
 
 
                 Case "RADIOGROUP"
@@ -1006,7 +1075,7 @@ Partial Class Formtest
                     gb.Location = New Point(x, y)
                     gb.Size = New Size(w, h)
 
-                    GroupBoxCustom.Controls.Add(gb)
+                    AddToUserContainer(gb)
 
                     Continue For
 
@@ -1309,7 +1378,7 @@ Partial Class Formtest
                     gb.Size = New Size(width + 60, 70)
                     gb.Name = "GB_Slider_" & controlName
                     GroupBoxCustom.BackColor = Me.BackColor
-                    GroupBoxCustom.Controls.Add(gb)
+                    AddToUserContainer(gb)
 
                     ' Value label
                     Dim lblValue As New Label()
@@ -1403,7 +1472,7 @@ Partial Class Formtest
                     hrLine.Width = w
                     hrLine.Location = New Point(x, y)
 
-                    GroupBoxCustom.Controls.Add(hrLine)
+                    AddToUserContainer(hrLine)
                     Continue For
 
 
@@ -1446,7 +1515,7 @@ Partial Class Formtest
                     ln.Height = h
                     ln.Location = New Point(x, y)
 
-                    GroupBoxCustom.Controls.Add(ln)
+                    AddToUserContainer(ln)
                     Continue For
 
 
@@ -1611,7 +1680,7 @@ Partial Class Formtest
                     lbl.Text = caption
                     lbl.AutoSize = True
                     lbl.Location = New Point(x, y + 3)
-                    GroupBoxCustom.Controls.Add(lbl)
+                    AddToUserContainer(lbl)
 
                     ' -----------------------
                     ' Spinner (NumericUpDown)
@@ -1651,7 +1720,7 @@ Partial Class Formtest
 
                     AddHandler nud.ValueChanged, AddressOf Spinner_ValueChanged
 
-                    GroupBoxCustom.Controls.Add(nud)
+                    AddToUserContainer(nud)
                     Continue For
 
 
@@ -1731,7 +1800,7 @@ Partial Class Formtest
                     lbl.Text = caption
                     lbl.AutoSize = True
                     lbl.Location = New Point(x, y + 2)
-                    GroupBoxCustom.Controls.Add(lbl)
+                    AddToUserContainer(lbl)
 
                     ' LED panel
                     Dim led As New Panel()
@@ -1747,7 +1816,7 @@ Partial Class Formtest
                     ' Tag: marker + colours
                     'led.Tag = $"LED|{onColor.ToArgb}|{offColor.ToArgb}|{badColor.ToArgb}"
 
-                    GroupBoxCustom.Controls.Add(led)
+                    AddToUserContainer(led)
                     Continue For
 
 
@@ -1873,7 +1942,7 @@ Partial Class Formtest
                         panel.BorderStyle = If(borderOn, BorderStyle.FixedSingle, BorderStyle.None)
                         panel.BackColor = GroupBoxCustom.BackColor
 
-                        GroupBoxCustom.Controls.Add(panel)
+                        AddToUserContainer(panel)
 
                         ' --- BIG TEXT label ---
                         Dim lbl As New Label()
@@ -1999,7 +2068,7 @@ Partial Class Formtest
                     lbl.Text = labelText
                     lbl.AutoSize = True
                     lbl.Location = New Point(x, y)
-                    GroupBoxCustom.Controls.Add(lbl)
+                    AddToUserContainer(lbl)
 
                     ' Multiline TextBox below the label
                     Dim tb As New TextBox()
@@ -2018,7 +2087,7 @@ Partial Class Formtest
                         tb.Lines = initLines
                     End If
 
-                    GroupBoxCustom.Controls.Add(tb)
+                    AddToUserContainer(tb)
 
                     If Not hasExplicitCoords Then
                         autoY += lbl.Height + h + 8
@@ -2135,7 +2204,7 @@ Partial Class Formtest
                     b.Tag = tagStr
 
                     AddHandler b.Click, AddressOf ToggleButton_Click
-                    GroupBoxCustom.Controls.Add(b)
+                    AddToUserContainer(b)
                     Continue For
 
 
@@ -2200,7 +2269,7 @@ Partial Class Formtest
                         lbl.Text = caption
                         lbl.AutoSize = True
                         lbl.Location = New Point(x, y + 7)
-                        GroupBoxCustom.Controls.Add(lbl)
+                        AddToUserContainer(lbl)
                         capW = lbl.PreferredWidth + 8
                     End If
 
@@ -2210,7 +2279,7 @@ Partial Class Formtest
                     pnl.Location = New Point(x + capW, y)
                     pnl.Size = New Size(w, h)
                     'pnl.BorderStyle = BorderStyle.FixedSingle
-                    GroupBoxCustom.Controls.Add(pnl)
+                    AddToUserContainer(pnl)
 
                     ' Two buttons
                     Dim bL As New Button()
@@ -2461,7 +2530,7 @@ Partial Class Formtest
                         lblCap.Name = "Lbl_" & chartName
 
                         RegisterDynamicControl(lblCap.Name, lblCap) ' so invisibility hides it too
-                        GroupBoxCustom.Controls.Add(lblCap)
+                        AddToUserContainer(lblCap)
 
                         chartTop = y + lblCap.Height + 3
                     End If
@@ -2522,7 +2591,7 @@ Partial Class Formtest
                     ser.MarkerColor = plotColor
                     ch.Series.Add(ser)
 
-                    GroupBoxCustom.Controls.Add(ch)
+                    AddToUserContainer(ch)
 
                     ' Remember config for pop-out charts
                     ChartSettings(chartName) = New ChartConfig With {
@@ -2647,7 +2716,7 @@ Partial Class Formtest
                     gb.Location = New Point(x, y)
                     gb.Size = New Size(w, h)
                     gb.Tag = "STATSPANEL|" & resultTarget & "|" & fmt
-                    GroupBoxCustom.Controls.Add(gb)
+                    AddToUserContainer(gb)
 
                     ' ---- init state/rows ----
                     If Not StatsState.ContainsKey(panelName) Then
@@ -2928,7 +2997,7 @@ Partial Class Formtest
                         lbl.Text = caption
                         lbl.AutoSize = True
                         lbl.Location = New Point(x, y)
-                        GroupBoxCustom.Controls.Add(lbl)
+                        AddToUserContainer(lbl)
                         topY = y + lbl.Height + 3
                     End If
 
@@ -3001,7 +3070,7 @@ Partial Class Formtest
                         dgv.Columns(0).DefaultCellStyle.Font = New Font("Segoe UI", 9.0F, FontStyle.Bold)
                     End If
 
-                    GroupBoxCustom.Controls.Add(dgv)
+                    AddToUserContainer(dgv)
 
                     ' Keep a reference to the grid for popup logic (CLEARHISTORY)
                     HistoryGrids(gridName) = dgv
@@ -3329,7 +3398,7 @@ Partial Class Formtest
                         lbl.Text = caption
                         lbl.AutoSize = True
                         lbl.Location = New Point(x, y + 6)
-                        GroupBoxCustom.Controls.Add(lbl)
+                        AddToUserContainer(lbl)
                         capW = lbl.PreferredWidth + 8
                     End If
 
@@ -3338,7 +3407,7 @@ Partial Class Formtest
                     pnl.Name = "MB_" & name
                     pnl.Location = New Point(x + capW, y)
                     pnl.Size = New Size(items.Length * w + (items.Length - 1) * gap, h)
-                    GroupBoxCustom.Controls.Add(pnl)
+                    AddToUserContainer(pnl)
 
                     ' --- base tag ---
                     Dim tagBase As String =
@@ -3433,7 +3502,7 @@ Partial Class Formtest
 
                         UserKeypadFixedPanel = CreateUserKeypadPanel(name, caption, w, h, targetLabelOn)
                         UserKeypadFixedPanel.Location = New Point(x, y)
-                        GroupBoxCustom.Controls.Add(UserKeypadFixedPanel)
+                        AddToUserContainer(UserKeypadFixedPanel)
 
                     Else
                         ' Recreate-safe: EnsureKeypadPopup should internally handle Nothing/IsDisposed.
@@ -3502,7 +3571,7 @@ Partial Class Formtest
 
         Dim cache As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
 
-        For Each ctrl As Control In GroupBoxCustom.Controls
+        For Each ctrl As Control In GetUserDetermineControls()
             Dim gb As GroupBox = TryCast(ctrl, GroupBox)
             If gb Is Nothing Then Continue For
             If Not gb.Name.StartsWith("RG_", StringComparison.OrdinalIgnoreCase) Then Continue For
@@ -3910,7 +3979,7 @@ Partial Class Formtest
         ' test only
         '_detDbg.Clear()                ' TESTING ONLY
 
-        For Each ctrl As Control In GroupBoxCustom.Controls
+        For Each ctrl As Control In GetUserDetermineControls()
 
             Dim cb As ComboBox = TryCast(ctrl, ComboBox)
             If cb Is Nothing Then Continue For
@@ -4034,7 +4103,7 @@ Partial Class Formtest
 
     Private Sub ApplyDetermineSliders()
 
-        For Each ctrl As Control In GroupBoxCustom.Controls
+        For Each ctrl As Control In GetUserDetermineControls()
 
             ' Your sliders live inside a GroupBox you create per slider
             Dim gb As GroupBox = TryCast(ctrl, GroupBox)
@@ -4117,7 +4186,7 @@ Partial Class Formtest
 
     Private Sub ApplyDetermineSpinners()
 
-        For Each ctrl As Control In GroupBoxCustom.Controls
+        For Each ctrl As Control In GetUserDetermineControls()
 
             Dim nud As NumericUpDown = TryCast(ctrl, NumericUpDown)
             If nud Is Nothing Then Continue For
@@ -4178,7 +4247,7 @@ Partial Class Formtest
 
         Dim cache As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
 
-        For Each ctrl As Control In GroupBoxCustom.Controls
+        For Each ctrl As Control In GetUserDetermineControls()
 
             Dim b As Button = TryCast(ctrl, Button)
             If b Is Nothing Then Continue For
@@ -4382,7 +4451,7 @@ Partial Class Formtest
 
         Dim cache As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
 
-        For Each ctrl As Control In GroupBoxCustom.Controls
+        For Each ctrl As Control In GetUserDetermineControls()
 
             Dim pnl As Panel = TryCast(ctrl, Panel)
             If pnl Is Nothing Then Continue For
@@ -4451,7 +4520,7 @@ Partial Class Formtest
 
         Dim cache As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
 
-        For Each ctrl As Control In GroupBoxCustom.Controls
+        For Each ctrl As Control In GetUserDetermineControls()
 
             Dim pnl As Panel = TryCast(ctrl, Panel)
             If pnl Is Nothing Then Continue For
@@ -5117,75 +5186,117 @@ Partial Class Formtest
 
 
     Private Sub HandleBootCommandsLine(line As String)
+
         ' Expected config:
         '   BOOTCOMMANDS;
         '      device=dev2;
+        '      DelayPerCmd=0.2;
         '      commandlist=CMD1,CMD2,CMD3
         '
         ' The logical-line joiner will already have turned it into:
-        '   "BOOTCOMMANDS;device=dev2;commandlist=CMD1,CMD2,CMD3"
+        '   "BOOTCOMMANDS;device=dev2;DelayPerCmd=0.2;commandlist=CMD1,CMD2,CMD3"
+
+        Debug.WriteLine($"BOOTDBG LINE = [{line}]")
 
         Dim deviceName As String = ""
         Dim commandList As String = ""
+        Dim delaySeconds As Double = 0.0R
 
         Dim work As String = line.Trim()
         Dim segments As String() = work.Split(";"c)
 
         For Each seg As String In segments
-            Dim t As String = seg.Trim()
+            Debug.WriteLine($"BOOTDBG RAW SEG   = [{seg}]")
+
+            Dim t As String = seg
+
+            ' Strip inline ;; comment from this segment only
+            Dim ccIdx As Integer = t.IndexOf(";;", StringComparison.Ordinal)
+            If ccIdx >= 0 Then
+                t = t.Substring(0, ccIdx)
+            End If
+
+            t = t.Trim()
+            Debug.WriteLine($"BOOTDBG CLEAN SEG = [{t}]")
+
             If t.Length = 0 Then Continue For
 
-            ' First segment: "BOOTCOMMANDS" or "BOOTCOMMANDS=dev2" (future-proof)
+            ' First token: BOOTCOMMANDS (ignore any trailing content in that segment)
             If t.StartsWith("BOOTCOMMANDS", StringComparison.OrdinalIgnoreCase) Then
-                Dim idx As Integer = t.IndexOf("="c)
-                If idx >= 0 AndAlso idx < t.Length - 1 Then
-                    Dim rest As String = t.Substring(idx + 1).Trim()
-                    If rest.StartsWith("device=", StringComparison.OrdinalIgnoreCase) Then
-                        deviceName = rest.Substring("device=".Length).Trim()
-                    Else
-                        deviceName = rest
-                    End If
-                End If
                 Continue For
             End If
 
-            ' Normal key=value segments: device=..., commandlist=...
+            ' Normal key=value segments: device=..., DelayPerCmd=..., commandlist=...
             Dim eqIdx As Integer = t.IndexOf("="c)
             If eqIdx <= 0 OrElse eqIdx >= t.Length - 1 Then Continue For
 
             Dim key As String = t.Substring(0, eqIdx).Trim().ToLowerInvariant()
             Dim val As String = t.Substring(eqIdx + 1).Trim()
 
+            Debug.WriteLine($"BOOTDBG KV SEG key=[{key}] val=[{val}]")
+
             Select Case key
                 Case "device"
                     deviceName = val
+
+                Case "delaypercmd"
+                    Dim d As Double
+                    If Double.TryParse(val,
+                               Globalization.NumberStyles.Float,
+                               Globalization.CultureInfo.InvariantCulture,
+                               d) AndAlso d >= 0.0R Then
+                        delaySeconds = d
+                    End If
+
                 Case "commandlist"
                     commandList = val
             End Select
         Next
+
+        Debug.WriteLine($"BOOTDBG DEVICE = [{deviceName}]")
+        Debug.WriteLine($"BOOTDBG DELAY  = [{delaySeconds}]")
+        Debug.WriteLine($"BOOTDBG CMDLIST RAW = [{commandList}]")
 
         If String.IsNullOrWhiteSpace(deviceName) OrElse String.IsNullOrWhiteSpace(commandList) Then
             AppendLog("[BOOT] bootcommands line missing device or commandlist: " & line)
             Return
         End If
 
-        ' Split commandlist on commas → individual commands (STRING, not Char)
+        ' Split commandlist on commas → individual commands
         Dim cmds As New List(Of String)
+
         For Each c As String In commandList.Split(","c)
-            Dim cmd As String = c.Trim()
+            Dim token As String = c
+            Debug.WriteLine($"BOOTDBG RAW CMD   = [{token}]")
+
+            ' Strip inline ;; comment from the command token
+            Dim ccIdx As Integer = token.IndexOf(";;", StringComparison.Ordinal)
+            If ccIdx >= 0 Then
+                token = token.Substring(0, ccIdx)
+            End If
+
+            Dim cmd As String = token.Trim()
+            Debug.WriteLine($"BOOTDBG CLEAN CMD = [{cmd}]")
+
             If cmd <> "" Then cmds.Add(cmd)
         Next
+
+        Debug.WriteLine($"BOOTDBG CMD COUNT = {cmds.Count}")
 
         If cmds.Count = 0 Then
             AppendLog("[BOOT] bootcommands commandlist empty for device " & deviceName)
             Return
         End If
 
-        RunBootCommands(deviceName, cmds)
+        RunBootCommands(deviceName, cmds, delaySeconds)
     End Sub
 
 
-    Private Sub RunBootCommands(deviceName As String, commands As IEnumerable(Of String))
+
+    Private Sub RunBootCommands(deviceName As String,
+                            commands As IEnumerable(Of String),
+                            Optional delaySeconds As Double = 0.0R)
+
         If String.IsNullOrWhiteSpace(deviceName) OrElse commands Is Nothing Then Return
 
         ' For now, support bootcommands only when using native engine,
@@ -5203,12 +5314,63 @@ Partial Class Formtest
                 ' EXACTLY the same native path as your CASE "SEND"
                 NativeSend(deviceName, cmd)
                 AppendLog($"[BOOT] {deviceName} << {cmd}")
+
+                ' NEW: optional delay between commands (seconds → ms)
+                If delaySeconds > 0.0R Then
+                    Threading.Thread.Sleep(CInt(delaySeconds * 1000.0R))
+                End If
+
             Catch ex As Exception
                 AppendLog($"[BOOT] Error sending '{cmd}' to {deviceName}: {ex.Message}")
             End Try
         Next
     End Sub
 
+
+    Private Sub AddToUserContainer(ctrl As Control)
+        Dim parent As Control
+
+        If UserTabControl Is Nothing Then
+            ' No sub-tabs in use: everything goes directly on GroupBoxCustom
+            parent = GroupBoxCustom
+        Else
+            ' Sub-tabs active: prefer current tab page, fall back to first tab if needed
+            If CurrentUserContainer IsNot Nothing Then
+                parent = CurrentUserContainer
+            ElseIf UserTabControl.TabPages.Count > 0 Then
+                parent = UserTabControl.TabPages(0)
+            Else
+                parent = GroupBoxCustom
+            End If
+        End If
+
+        parent.Controls.Add(ctrl)
+    End Sub
+
+
+    ' Return all top-level user controls, including those on sub-tabs
+    Private Function GetUserDetermineControls() As List(Of Control)
+
+        Dim result As New List(Of Control)
+
+        For Each ctrl As Control In GroupBoxCustom.Controls
+            Dim tc As TabControl = TryCast(ctrl, TabControl)
+            If tc Is Nothing Then
+                ' Normal child of GroupBoxCustom (old behaviour)
+                result.Add(ctrl)
+            Else
+                ' Include children of each TabPage
+                For Each page As TabPage In tc.TabPages
+                    For Each child As Control In page.Controls
+                        result.Add(child)
+                    Next
+                Next
+            End If
+        Next
+
+        Return result
+
+    End Function
 
 
 
