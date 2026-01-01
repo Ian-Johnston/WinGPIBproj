@@ -53,6 +53,8 @@ Partial Class Formtest
     Private StatsState As New Dictionary(Of String, RunningStatsState)(StringComparer.OrdinalIgnoreCase)
     ' Holds the per-panel UI row outputs (label -> value label)
     Private StatsRows As New Dictionary(Of String, List(Of StatsRow))(StringComparer.OrdinalIgnoreCase)
+    ' Per-stats-panel font size
+    Private StatsFontSize As New Dictionary(Of String, Single)(StringComparer.OrdinalIgnoreCase)
 
     ' History grid runtime state
     Private HistoryPpmRef As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
@@ -267,6 +269,9 @@ Partial Class Formtest
         UiById.Clear()
         InvisFuncToTargets.Clear()
         InvisFuncDefaultVisible.Clear()
+
+        ' Clear Stats user vars
+        StatsFontSize.Clear()
 
         ' Remove all dynamically created controls
         GroupBoxCustom.SuspendLayout()
