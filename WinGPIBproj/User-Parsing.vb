@@ -2850,7 +2850,7 @@ Partial Class Formtest
                     If Not StatsRows.ContainsKey(panelName) Then StatsRows(panelName) = New List(Of StatsRow)()
                     If Not StatsState.ContainsKey(panelName) Then StatsState(panelName) = New RunningStatsState()
 
-                    ' === NEW: font size + dynamic line height ===
+                    ' font size + dynamic line height
                     Dim fs As Single = 8.25F
                     If StatsFontSize.ContainsKey(panelName) Then
                         fs = StatsFontSize(panelName)
@@ -2859,10 +2859,11 @@ Partial Class Formtest
                     Dim lineHeight As Integer = CInt(Math.Ceiling(fs * 2.0F))
                     Dim rowY As Integer = 18 + (StatsRows(panelName).Count * lineHeight)
 
-                    ' === NEW: dynamic column spacing for value label ===
-                    Dim rightPadding As Integer = 12
-                    Dim nameColumnWidth As Integer = CInt(fs * 10)          ' label column width scaled by font
-                    Dim valueX As Integer = Math.Max(nameColumnWidth, gb.Width \ 2)
+                    ' dynamic column spacing for value label
+                    'Dim rightPadding As Integer = 12
+                    'Dim nameColumnWidth As Integer = CInt(fs * 10)          ' label column width scaled by font
+                    'Dim valueX As Integer = Math.Max(nameColumnWidth, gb.Width \ 2)
+                    Dim valueX As Integer = CInt(gb.ClientSize.Width * 0.5)
 
                     Dim lblName As New Label()
                     lblName.AutoSize = True
