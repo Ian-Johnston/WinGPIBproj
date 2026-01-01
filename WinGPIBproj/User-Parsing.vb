@@ -2862,8 +2862,13 @@ Partial Class Formtest
                     ' dynamic column spacing for value label
                     'Dim rightPadding As Integer = 12
                     'Dim nameColumnWidth As Integer = CInt(fs * 10)          ' label column width scaled by font
-                    'Dim valueX As Integer = Math.Max(nameColumnWidth, gb.Width \ 2)
-                    Dim valueX As Integer = CInt(gb.ClientSize.Width * 0.5)
+
+                    'Dim valueX As Integer = CInt(gb.ClientSize.Width * 0.5)
+
+                    Dim nameWidth As Integer = CInt(fs * 9)
+                    Dim valueX As Integer = nameWidth + 15
+
+                    'Dim valueX As Integer = gb.ClientSize.Width - 110
 
                     Dim lblName As New Label()
                     lblName.AutoSize = True
