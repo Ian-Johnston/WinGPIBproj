@@ -910,6 +910,7 @@ Partial Class Formtest
         Me.Label121 = New System.Windows.Forms.Label()
         Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage14 = New System.Windows.Forms.TabPage()
+        Me.ButtonEditor = New System.Windows.Forms.Button()
         Me.ButtonLoadTxtRefresh = New System.Windows.Forms.Button()
         Me.ShowFiles4 = New System.Windows.Forms.Button()
         Me.ButtonResetTxt = New System.Windows.Forms.Button()
@@ -10683,6 +10684,7 @@ Partial Class Formtest
         '
         'TabPage14
         '
+        Me.TabPage14.Controls.Add(Me.ButtonEditor)
         Me.TabPage14.Controls.Add(Me.ButtonLoadTxtRefresh)
         Me.TabPage14.Controls.Add(Me.ShowFiles4)
         Me.TabPage14.Controls.Add(Me.ButtonResetTxt)
@@ -10694,6 +10696,15 @@ Partial Class Formtest
         Me.TabPage14.TabIndex = 14
         Me.TabPage14.Text = "User"
         Me.TabPage14.UseVisualStyleBackColor = True
+        '
+        'ButtonEditor
+        '
+        Me.ButtonEditor.Location = New System.Drawing.Point(761, 8)
+        Me.ButtonEditor.Name = "ButtonEditor"
+        Me.ButtonEditor.Size = New System.Drawing.Size(84, 23)
+        Me.ButtonEditor.TabIndex = 4
+        Me.ButtonEditor.Text = "Edit Config."
+        Me.ButtonEditor.UseVisualStyleBackColor = True
         '
         'ButtonLoadTxtRefresh
         '
@@ -12127,4 +12138,5 @@ Partial Class Formtest
     Friend WithEvents ButtonLoadTxtRefresh As Button
     Friend WithEvents Timer17 As Timer
     Friend WithEvents TextBox3 As TextBox
+    Friend WithEvents ButtonEditor As Button
 End Class

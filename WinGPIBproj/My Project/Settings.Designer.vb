@@ -6845,6 +6845,18 @@ Namespace My
                 Me("UserGui_TextboxStateJson") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("")>  _
+        Public Property UserGui_Editor() As String
+            Get
+                Return CType(Me("UserGui_Editor"),String)
+            End Get
+            Set
+                Me("UserGui_Editor") = value
+            End Set
+        End Property
     End Class
 End Namespace
 

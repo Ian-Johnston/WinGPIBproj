@@ -3645,5 +3645,51 @@ Partial Class Formtest
     End Sub
 
 
+    Private Sub ButtonEditor_Click(sender As Object, e As EventArgs) Handles ButtonEditor.Click
+
+        Dim cfgPath As String = Nothing
+
+        ' 1) Prefer the last loaded user config, if it exists
+        If Not String.IsNullOrWhiteSpace(LastUserConfigPath) AndAlso
+           IO.File.Exists(LastUserConfigPath) Then
+
+            cfgPath = LastUserConfigPath
+
+        Else
+            ' 2) Otherwise, let the user pick a file (same base logic as ButtonLoadTxt_Click)
+
+            Using dlg As New OpenFileDialog()
+                dlg.Title = "Select Config File to Edit"
+                dlg.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*"
+
+                ' Base folder: prefer CSVfilepath.Text if it is a valid directory,
+                ' else fall back to Documents\WinGPIBdata
+                Dim baseDir As String = CSVfilepath.Text
+                If String.IsNullOrWhiteSpace(baseDir) OrElse Not IO.Directory.Exists(baseDir) Then
+                    Dim documentsPath As String = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+                    baseDir = IO.Path.Combine(documentsPath, "WinGPIBdata")
+                End If
+
+                ' Force dialog into \WinGPIBdata\Devices
+                Dim devicesDir As String = IO.Path.Combine(baseDir, "Devices")
+                IO.Directory.CreateDirectory(devicesDir)
+
+                dlg.InitialDirectory = devicesDir
+
+                If dlg.ShowDialog() <> DialogResult.OK Then Exit Sub
+
+                cfgPath = dlg.FileName
+            End Using
+        End If
+
+        If String.IsNullOrWhiteSpace(cfgPath) Then Exit Sub
+
+        ' 3) Open the editor on that path
+        Dim f As New FormUserConfigEditor(cfgPath)
+
+        f.Show(Me)   ' or f.ShowDialog(Me) if you prefer modal
+    End Sub
+
+
 
 End Class

@@ -1708,5 +1708,8 @@ QFORMAT NUM</Value>
     <Setting Name="UserGui_TextboxStateJson" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="UserGui_Editor" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>
