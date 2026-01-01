@@ -2656,6 +2656,9 @@ Partial Class Formtest
                     Dim fmt As String = "G6"
                     Dim fontSize As Single = 8.25F
 
+                    Dim colLeftDefault As Integer = 0
+                    Dim colRightDefault As Integer = 0
+
                     ' ---- read header fields (positional OR named) ----
                     If parts.Length >= 4 Then
                         ' Try named header first
@@ -2686,7 +2689,7 @@ Partial Class Formtest
 
                     If panelName = "" OrElse resultTarget = "" Then Continue For
 
-                    ' ---- parse tail tokens (x= y= w= h= format=) ----
+                    ' ---- parse tail tokens (x= y= w= h= format= fontsize= colleftpos= colrightpos=) ----
                     For i As Integer = 4 To parts.Length - 1
                         Dim p = parts(i).Trim()
                         If Not p.Contains("="c) Then Continue For
@@ -2704,11 +2707,15 @@ Partial Class Formtest
                             Case "h" : ParseIntField(val, h)
                             Case "format"
                                 If val <> "" Then fmt = val
-                            Case "f", "font", "fontsize"   ' NEW
-                                Dim fs As Integer
-                                If Integer.TryParse(val, fs) Then
-                                    fontSize = CSng(fs)
+                            Case "fontsize"
+                                Dim fsInt As Integer
+                                If Integer.TryParse(val, fsInt) Then
+                                    fontSize = CSng(fsInt)
                                 End If
+                            Case "colleftpos"
+                                Integer.TryParse(val, colLeftDefault)
+                            Case "colrightpos"
+                                Integer.TryParse(val, colRightDefault)
                         End Select
                     Next
 
@@ -2724,7 +2731,10 @@ Partial Class Formtest
                     gb.Tag = "STATSPANEL|" & resultTarget & "|" & fmt
                     AddToUserContainer(gb)
 
+                    ' Per-panel settings
                     StatsFontSize(panelName) = fontSize
+                    StatsColLeft(panelName) = colLeftDefault
+                    StatsColRight(panelName) = colRightDefault
 
                     ' ---- init state/rows ----
                     If Not StatsState.ContainsKey(panelName) Then
@@ -2751,7 +2761,9 @@ Partial Class Formtest
                                 End If
                             End Sub
                     End If
+
                     Continue For
+
 
 
                 Case "STAT"
@@ -2762,6 +2774,9 @@ Partial Class Formtest
                     Dim funcKey As String = ""
                     Dim refTok As String = ""
                     Dim fmtOverride As String = ""   ' "F" or "E" or "G" prefix override (uses panel fmt digits)
+
+                    Dim colLeftAdjust As Integer = 0
+                    Dim colRightAdjust As Integer = 0
 
                     ' ---- header: named OR positional ----
                     If parts.Length >= 4 Then
@@ -2813,6 +2828,12 @@ Partial Class Formtest
                                 fmtOverride = "G"
                             End If
 
+                        ElseIf p.StartsWith("colleftpos=", StringComparison.OrdinalIgnoreCase) Then
+                            Integer.TryParse(p.Substring(11).Trim(), colLeftAdjust)
+
+                        ElseIf p.StartsWith("colrightpos=", StringComparison.OrdinalIgnoreCase) Then
+                            Integer.TryParse(p.Substring(12).Trim(), colRightAdjust)
+
                         ElseIf p.Contains("="c) Then
                             ' also allow named tokens: panel=, label=, func=, ref=, units=
                             Dim kv = p.Split("="c)
@@ -2859,24 +2880,26 @@ Partial Class Formtest
                     Dim lineHeight As Integer = CInt(Math.Ceiling(fs * 2.0F))
                     Dim rowY As Integer = 18 + (StatsRows(panelName).Count * lineHeight)
 
+                    ' Panel-wide base column offsets
+                    Dim baseLeft As Integer = 0
+                    Dim baseRight As Integer = 0
+
+                    If StatsColLeft.ContainsKey(panelName) Then baseLeft = StatsColLeft(panelName)
+                    If StatsColRight.ContainsKey(panelName) Then baseRight = StatsColRight(panelName)
+
+                    ' Effective per-row offsets = panel defaults + STAT overrides
+                    Dim effectiveLeft As Integer = baseLeft + colLeftAdjust
+                    Dim effectiveRight As Integer = baseRight + colRightAdjust
+
                     ' dynamic column spacing for value label
-                    'Dim rightPadding As Integer = 12
-                    'Dim nameColumnWidth As Integer = CInt(fs * 10)          ' label column width scaled by font
-
-                    'Dim valueX As Integer = CInt(gb.ClientSize.Width * 0.5)
-
                     Dim nameWidth As Integer = CInt(fs * 9)
-                    Dim valueX As Integer = nameWidth + 15
-
-                    'Dim valueX As Integer = gb.ClientSize.Width - 110
+                    Dim valueX As Integer = nameWidth + 15 + effectiveRight
 
                     Dim lblName As New Label()
                     lblName.AutoSize = True
                     lblName.Text = labelText
-                    lblName.Location = New Point(10, rowY)
+                    lblName.Location = New Point(10 + effectiveLeft, rowY)
                     lblName.ForeColor = SystemColors.ControlText
-                    'lblName.Font = New Font(lblName.Font.FontFamily, fs, lblName.Font.Style)
-                    'lblName.Font = New Font("Microsoft Sans Serif", fs, lblName.Font.Style)
                     lblName.Font = New Font(gb.Font.FontFamily, fs, lblName.Font.Style)
 
                     Dim lblVal As New Label()
@@ -2884,8 +2907,6 @@ Partial Class Formtest
                     lblVal.Text = ""
                     lblVal.Location = New Point(valueX, rowY)
                     lblVal.ForeColor = SystemColors.ControlText
-                    'lblVal.Font = New Font("Consolas", fs)
-                    'lblVal.Font = New Font("Microsoft Sans Serif", fs)
                     lblVal.Font = New Font(gb.Font.FontFamily, fs)
 
                     gb.Controls.Add(lblName)
@@ -2902,7 +2923,6 @@ Partial Class Formtest
                     ' Draw immediately if we already have samples
                     UpdateStatsPanel(panelName, Double.NaN)
                     Continue For
-
 
 
                 Case "HISTORYGRID"

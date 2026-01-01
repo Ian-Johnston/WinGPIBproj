@@ -55,6 +55,8 @@ Partial Class Formtest
     Private StatsRows As New Dictionary(Of String, List(Of StatsRow))(StringComparer.OrdinalIgnoreCase)
     ' Per-stats-panel font size
     Private StatsFontSize As New Dictionary(Of String, Single)(StringComparer.OrdinalIgnoreCase)
+    Private StatsColLeft As New Dictionary(Of String, Integer)(StringComparer.OrdinalIgnoreCase)
+    Private StatsColRight As New Dictionary(Of String, Integer)(StringComparer.OrdinalIgnoreCase)
 
     ' History grid runtime state
     Private HistoryPpmRef As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
@@ -272,6 +274,8 @@ Partial Class Formtest
 
         ' Clear Stats user vars
         StatsFontSize.Clear()
+        StatsColLeft.Clear()
+        StatsColRight.Clear()
 
         ' Remove all dynamically created controls
         GroupBoxCustom.SuspendLayout()
