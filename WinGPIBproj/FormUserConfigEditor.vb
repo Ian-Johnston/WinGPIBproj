@@ -126,12 +126,6 @@ Public Class FormUserConfigEditor
     Private Const WM_SETREDRAW As Integer = &HB
     Private Const EM_GETFIRSTVISIBLELINE As Integer = &HCE
     Private Const EM_LINESCROLL As Integer = &HB6
-    Private WithEvents lstBlocks As New ListBox()
-    Private ReadOnly _configPath As String
-    Private WithEvents txtEditor As New RichTextBox()
-    Private WithEvents btnSave As New Button()
-    Private WithEvents btnClose As New Button()
-    Private WithEvents pnlLineNumbers As New Panel()
 
     ' Context menu + find bar
     Private ctxEditor As ContextMenuStrip
@@ -144,6 +138,18 @@ Public Class FormUserConfigEditor
     Private _lastFindText As String = ""
     Private _lastFindIndex As Integer = -1
 
+    Private _configPath As String         ' was ReadOnly
+    Private WithEvents lstBlocks As New ListBox()
+    Private WithEvents txtEditor As New RichTextBox()
+    Private WithEvents btnSave As New Button()
+    Private WithEvents btnClose As New Button()
+    Private WithEvents pnlLineNumbers As New Panel()
+
+    Private lblLastSave As New Label()    ' NEW
+    Private txtFilePath As New TextBox()  ' NEW
+
+    Private suppressBlockSync As Boolean = False
+
     ' Optional: let caller know when a save happened (for auto-reload)
     Public Event ConfigSaved(path As String)
 
@@ -152,6 +158,17 @@ Public Class FormUserConfigEditor
     Private Shared Function SendMessage(hWnd As IntPtr, msg As Integer,
                                     wParam As IntPtr, lParam As IntPtr) As IntPtr
     End Function
+
+    <DllImport("user32.dll",
+           CharSet:=CharSet.Auto,
+           EntryPoint:="SendMessageW")>
+    Private Shared Function SendMessageTabs(hWnd As IntPtr,
+                                        msg As Integer,
+                                        wParam As Integer,
+                                        <[In]()> lParam As Integer()) As IntPtr
+    End Function
+
+    Private Const EM_SETTABSTOPS As Integer = &HCB
 
     Private Class BlockItem
         Public Property Display As String
@@ -211,22 +228,23 @@ Public Class FormUserConfigEditor
         Dim miDelete = New ToolStripMenuItem("Delete", Nothing, AddressOf CtxDelete)
         Dim miSelectAll = New ToolStripMenuItem("Select All", Nothing, AddressOf CtxSelectAll)
         Dim miDupLine = New ToolStripMenuItem("Duplicate Line", Nothing, AddressOf CtxDuplicateLine)
-        Dim miSave = New ToolStripMenuItem("Save", Nothing, Sub() SaveConfigFile())
+        Dim miSave = New ToolStripMenuItem("Save", Nothing, AddressOf btnSave_Click)   ' NEW
 
         ctxEditor.Items.AddRange(New ToolStripItem() {
         miUndo,
-        miSave,
         New ToolStripSeparator(),
         miCut, miCopy, miPaste, miDelete,
         New ToolStripSeparator(),
         miSelectAll,
         New ToolStripSeparator(),
-        miDupLine
+        miDupLine,
+        New ToolStripSeparator(),
+        miSave
     })
 
         txtEditor.ContextMenuStrip = ctxEditor
 
-        ' ---- Bottom panel with buttons ----
+        ' ---- Bottom panel with buttons + status ----
         Dim panelButtons As New Panel()
         panelButtons.Dock = DockStyle.Bottom
         panelButtons.Height = 40
@@ -248,8 +266,27 @@ Public Class FormUserConfigEditor
         btnClose.FlatStyle = FlatStyle.Standard
         btnClose.UseVisualStyleBackColor = True
 
+        ' --- Last save label ---
+        lblLastSave.AutoSize = False
+        lblLastSave.Left = btnClose.Right + 20
+        lblLastSave.Top = 11
+        lblLastSave.Width = 220
+        lblLastSave.Height = 18
+        lblLastSave.TextAlign = ContentAlignment.MiddleLeft
+        lblLastSave.Text = "Last save: (not yet)"
+
+        ' --- File path textbox (editable) ---
+        txtFilePath.Top = 8
+        txtFilePath.Left = lblLastSave.Right + 10
+        txtFilePath.Height = 22
+        txtFilePath.Width = panelButtons.Width - txtFilePath.Left - 10
+        txtFilePath.Anchor = AnchorStyles.Left Or AnchorStyles.Right Or AnchorStyles.Top
+        txtFilePath.Text = _configPath
+
         panelButtons.Controls.Add(btnSave)
         panelButtons.Controls.Add(btnClose)
+        panelButtons.Controls.Add(lblLastSave)
+        panelButtons.Controls.Add(txtFilePath)
 
         ' ---- Right panel with block list ----
         Dim panelRight As New Panel()
@@ -285,7 +322,7 @@ Public Class FormUserConfigEditor
         findPanel.Dock = DockStyle.Top
         findPanel.Height = 28
         findPanel.BackColor = SystemColors.Control    ' << light, normal WinForms bar
-        findPanel.Visible = False
+        findPanel.Visible = True
 
         Dim lblFind As New Label()
         lblFind.Text = "Find:"
@@ -354,15 +391,28 @@ Public Class FormUserConfigEditor
         editorHost.Dock = DockStyle.Fill
         editorHost.BackColor = Color.Black
 
-        ' Add in dock-friendly order inside host:
         editorHost.Controls.Add(txtEditor)       ' FILL
         editorHost.Controls.Add(pnlLineNumbers)  ' LEFT
         editorHost.Controls.Add(panelRight)      ' RIGHT
         editorHost.Controls.Add(findPanel)       ' TOP
 
-        ' ---- Add to form (bottom bar last) ----
         Me.Controls.Add(editorHost)
         Me.Controls.Add(panelButtons)
+
+        ' Match Notepad++ tab stop spacing: 4-space tabs
+        If txtEditor.IsHandleCreated Then
+            Dim tabStops() As Integer = {16}   ' 4 chars × 4 dialog units
+            SendMessageTabs(txtEditor.Handle, EM_SETTABSTOPS, tabStops.Length, tabStops)
+            txtEditor.Invalidate()
+        Else
+            ' If handle not yet created, set tabs once it is
+            AddHandler txtEditor.HandleCreated,
+        Sub()
+            Dim tabStops() As Integer = {16}
+            SendMessageTabs(txtEditor.Handle, EM_SETTABSTOPS, tabStops.Length, tabStops)
+            txtEditor.Invalidate()
+        End Sub
+        End If
 
         ' Load file on start
         LoadConfigFile()
@@ -373,8 +423,15 @@ Public Class FormUserConfigEditor
         Try
             If File.Exists(_configPath) Then
                 txtEditor.Text = File.ReadAllText(_configPath, Encoding.UTF8)
+
+                ' show path and last-write time
+                txtFilePath.Text = _configPath
+                Dim ts = File.GetLastWriteTime(_configPath)
+                lblLastSave.Text = "Last save: " & ts.ToString("yyyy-MM-dd HH:mm:ss")
             Else
                 txtEditor.Text = "; New User config file" & Environment.NewLine
+                txtFilePath.Text = _configPath
+                lblLastSave.Text = "Last save: (not yet)"
             End If
         Catch ex As Exception
             MessageBox.Show("Error loading config file:" & Environment.NewLine &
@@ -386,21 +443,54 @@ Public Class FormUserConfigEditor
 
         ColorizeConfig()
         RebuildBlockList()
+        SyncBlockSelectionToFirstVisibleLine()
     End Sub
+
 
 
     Private Sub SaveConfigFile()
         Try
-            File.WriteAllText(_configPath, txtEditor.Text, Encoding.UTF8)
+            Dim newPath As String = txtFilePath.Text.Trim()
+
+            If String.IsNullOrEmpty(newPath) Then
+                newPath = _configPath
+            End If
+
+            ' If user typed only a file name, keep original directory
+            If Not Path.IsPathRooted(newPath) Then
+                Dim baseDir As String = Path.GetDirectoryName(_configPath)
+                If String.IsNullOrEmpty(baseDir) Then
+                    baseDir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+                End If
+                newPath = Path.Combine(baseDir, newPath)
+            End If
+
+            ' Ensure folder exists
+            Dim dir As String = Path.GetDirectoryName(newPath)
+            If Not String.IsNullOrEmpty(dir) AndAlso Not Directory.Exists(dir) Then
+                Directory.CreateDirectory(dir)
+            End If
+
+            ' Write file
+            File.WriteAllText(newPath, txtEditor.Text, Encoding.UTF8)
+
+            ' Update current path + UI
+            _configPath = newPath
+            txtFilePath.Text = _configPath
+            lblLastSave.Text = "Last save: " & DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+            Me.Text = "User Config Editor - " & Path.GetFileName(_configPath)
+
             RaiseEvent ConfigSaved(_configPath)
+
         Catch ex As Exception
             MessageBox.Show("Error saving config file:" & Environment.NewLine &
-                            ex.Message,
-                            "Save Error",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Error)
+                        ex.Message,
+                        "Save Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error)
         End Try
     End Sub
+
 
     ' === Button handlers ===
 
@@ -427,15 +517,17 @@ Public Class FormUserConfigEditor
         Dim selLength = txtEditor.SelectionLength
 
         ' Remember current first visible line
-        Dim firstVisibleBefore As Integer = SendMessage(txtEditor.Handle,
-                                                   EM_GETFIRSTVISIBLELINE,
-                                                   IntPtr.Zero,
-                                                   IntPtr.Zero).ToInt32()
+        Dim firstVisibleBefore As Integer = SendMessage(
+        txtEditor.Handle,
+        EM_GETFIRSTVISIBLELINE,
+        IntPtr.Zero,
+        IntPtr.Zero
+    ).ToInt32()
 
         ' Freeze redraw
         SendMessage(txtEditor.Handle, WM_SETREDRAW, IntPtr.Zero, IntPtr.Zero)
 
-        ' ---- reset colours ----
+        ' ---- reset colours & font (single uniform font!) ----
         txtEditor.SelectAll()
         txtEditor.SelectionColor = Color.Gainsboro
         txtEditor.SelectionFont = txtEditor.Font
@@ -459,14 +551,14 @@ Public Class FormUserConfigEditor
             End While
 
             If firstNonSpace < lineEnd AndAlso text(firstNonSpace) = ";"c Then
+                ' Section header vs normal comment
                 If lineTextFull.Contains("########") Then
                     txtEditor.[Select](firstNonSpace, lineEnd - firstNonSpace)
                     txtEditor.SelectionColor = Color.DeepSkyBlue
-                    txtEditor.SelectionFont = New Font(txtEditor.Font, FontStyle.Bold)
+                    ' NOTE: no bold here – keep same font to avoid taller line
                 Else
                     txtEditor.[Select](firstNonSpace, lineEnd - firstNonSpace)
                     txtEditor.SelectionColor = Color.LimeGreen
-                    txtEditor.SelectionFont = txtEditor.Font
                 End If
 
             Else
@@ -476,14 +568,13 @@ Public Class FormUserConfigEditor
                     Dim start = lineStart + inlinePos
                     txtEditor.[Select](start, lineEnd - start)
                     txtEditor.SelectionColor = Color.LimeGreen
-                    txtEditor.SelectionFont = txtEditor.Font
                 End If
             End If
 
             idx = lineEnd + 1
         End While
 
-        ' 2) Block keywords
+        ' 2) Block keywords (DATASOURCE;, RADIO;, STATSPANEL; etc.)
         For Each kw In BlockKeywords
             Dim search As String = kw & ";"
             Dim pos As Integer = 0
@@ -493,22 +584,7 @@ Public Class FormUserConfigEditor
 
                 txtEditor.[Select](pos, kw.Length)
                 txtEditor.SelectionColor = Color.Cyan
-                txtEditor.SelectionFont = New Font(txtEditor.Font, FontStyle.Bold)
-
-                pos += search.Length
-            End While
-        Next
-
-        For Each kw In blockKeywords
-            Dim search As String = kw & ";"
-            Dim pos As Integer = 0
-            While True
-                pos = text.IndexOf(search, pos, StringComparison.OrdinalIgnoreCase)
-                If pos < 0 Then Exit While
-
-                txtEditor.[Select](pos, kw.Length)
-                txtEditor.SelectionColor = Color.Cyan
-                txtEditor.SelectionFont = New Font(txtEditor.Font, FontStyle.Bold)
+                ' IMPORTANT: do NOT change SelectionFont here anymore
 
                 pos += search.Length
             End While
@@ -524,7 +600,7 @@ Public Class FormUserConfigEditor
 
                 txtEditor.[Select](pos, key.Length)
                 txtEditor.SelectionColor = Color.Orange
-                txtEditor.SelectionFont = txtEditor.Font
+                ' Same font everywhere
 
                 pos += search.Length
             End While
@@ -534,10 +610,13 @@ Public Class FormUserConfigEditor
         txtEditor.[Select](selStart, selLength)
 
         ' Restore scroll position (first visible line)
-        Dim firstVisibleAfter As Integer = SendMessage(txtEditor.Handle,
-                                                   EM_GETFIRSTVISIBLELINE,
-                                                   IntPtr.Zero,
-                                                   IntPtr.Zero).ToInt32()
+        Dim firstVisibleAfter As Integer = SendMessage(
+        txtEditor.Handle,
+        EM_GETFIRSTVISIBLELINE,
+        IntPtr.Zero,
+        IntPtr.Zero
+    ).ToInt32()
+
         Dim delta As Integer = firstVisibleBefore - firstVisibleAfter
         If delta <> 0 Then
             SendMessage(txtEditor.Handle, EM_LINESCROLL, IntPtr.Zero, New IntPtr(delta))
@@ -591,10 +670,9 @@ Public Class FormUserConfigEditor
         Dim lines = txtEditor.Lines
         If lines Is Nothing OrElse lines.Length = 0 Then Return
 
-        ' If the Blocks list numbers are consistently off, adjust here.
-        ' Currently your DATASOURCE; is 2 higher in the Blocks list,
-        ' so we subtract 2 to align with what you see in the editor.
-        Const BlockLineOffset As Integer = -2   ' tweak to -1 / 0 / etc if needed
+        ' If every block is off by a constant amount, fix it here.
+        ' Currently: Blocks panel shows 53 where editor shows 51 → offset = -2
+        Const BlockLineOffset As Integer = 0   ' tweak if you ever change header layout
 
         For i As Integer = 0 To lines.Length - 1
             Dim raw = lines(i)
@@ -603,11 +681,11 @@ Public Class FormUserConfigEditor
             ' Skip pure comments and blank lines
             If trimmed = "" OrElse trimmed.StartsWith(";"c) Then Continue For
 
-            ' Is this a block keyword line? (e.g. "RADIO; ...")
+            ' Is this a block keyword line? (e.g. "RADIO;" / "DATASOURCE;" / "TAB;")
             Dim isBlock As Boolean = BlockKeywords.Any(
             Function(k) trimmed.StartsWith(k & ";", StringComparison.OrdinalIgnoreCase))
 
-            ' Also treat lines like "GpibEngineDev1=..." as "block" config lines
+            ' Also treat lines like "GpibEngineDev1=..." / "GpibEngineDev2=..." as block-style entries
             If Not isBlock AndAlso
            (trimmed.StartsWith("GpibEngineDev1", StringComparison.OrdinalIgnoreCase) OrElse
             trimmed.StartsWith("GpibEngineDev2", StringComparison.OrdinalIgnoreCase)) Then
@@ -618,7 +696,7 @@ Public Class FormUserConfigEditor
 
             Dim charIndex As Integer = txtEditor.GetFirstCharIndexFromLine(i)
 
-            ' Line number shown in Blocks panel (1-based, with offset tweak)
+            ' Display line number (1-based) with global offset
             Dim displayLine As Integer = i + 1 + BlockLineOffset
             If displayLine < 1 Then displayLine = 1
 
@@ -632,14 +710,31 @@ Public Class FormUserConfigEditor
     End Sub
 
 
-
     Private Sub lstBlocks_DoubleClick(sender As Object, e As EventArgs) Handles lstBlocks.DoubleClick
         Dim item = TryCast(lstBlocks.SelectedItem, BlockItem)
         If item Is Nothing Then Return
 
-        txtEditor.SelectionStart = item.CharIndex
+        ' Tell the auto-sync to skip the next scroll update
+        suppressBlockSync = True
+
+        Dim blockChar As Integer = item.CharIndex
+        Dim blockLine As Integer = txtEditor.GetLineFromCharIndex(blockChar)
+
+        ' How many lines of context above the block?
+        Const contextLines As Integer = 3
+
+        Dim firstVisibleLine As Integer = Math.Max(0, blockLine - contextLines)
+        Dim firstVisibleChar As Integer = txtEditor.GetFirstCharIndexFromLine(firstVisibleLine)
+
+        ' 1) Move caret to the earlier line and scroll so it’s near the top
+        txtEditor.SelectionStart = firstVisibleChar
         txtEditor.SelectionLength = 0
         txtEditor.ScrollToCaret()
+
+        ' 2) Now move caret back to the actual block start without extra scrolling
+        txtEditor.SelectionStart = blockChar
+        txtEditor.SelectionLength = 0
+
         txtEditor.Focus()
     End Sub
 
@@ -653,60 +748,49 @@ Public Class FormUserConfigEditor
         Dim totalLines As Integer = txtEditor.Lines.Length
         If totalLines <= 0 Then Return
 
-        ' First visible char & line
-        Dim firstCharIndex As Integer = txtEditor.GetCharIndexFromPosition(New Point(0, 0))
-        Dim firstLine As Integer = txtEditor.GetLineFromCharIndex(firstCharIndex)
+        ' First visible line (by hit-testing at top of editor)
+        Dim firstHitChar As Integer = txtEditor.GetCharIndexFromPosition(New Point(0, 0))
+        Dim firstLine As Integer = txtEditor.GetLineFromCharIndex(firstHitChar)
         If firstLine < 0 Then firstLine = 0
 
-        ' Last visible char & line – use Height-1 so we stay in client area
-        Dim lastCharIndex As Integer = txtEditor.GetCharIndexFromPosition(New Point(0, txtEditor.ClientSize.Height - 1))
-        Dim lastLine As Integer = txtEditor.GetLineFromCharIndex(lastCharIndex)
-
-        ' Clamp to existing lines
+        ' Last visible line (by hit-testing at bottom of editor)
+        Dim lastHitChar As Integer = txtEditor.GetCharIndexFromPosition(New Point(0, txtEditor.ClientSize.Height - 1))
+        Dim lastLine As Integer = txtEditor.GetLineFromCharIndex(lastHitChar)
         If lastLine >= totalLines Then lastLine = totalLines - 1
         If lastLine < firstLine Then Return
 
-        ' Measure actual line height
-        Dim firstPos As Point = txtEditor.GetPositionFromCharIndex(firstCharIndex)
-        Dim lineHeight As Integer
-
-        Dim nextLineFirstChar As Integer = txtEditor.GetFirstCharIndexFromLine(firstLine + 1)
-        If nextLineFirstChar >= 0 Then
-            Dim nextPos As Point = txtEditor.GetPositionFromCharIndex(nextLineFirstChar)
-            lineHeight = nextPos.Y - firstPos.Y
-            If lineHeight <= 0 Then lineHeight = txtEditor.Font.Height
-        Else
-            lineHeight = txtEditor.Font.Height
-        End If
-
-        ' Start y aligned to first visible line
-        Dim y As Integer = -firstPos.Y
-
-        ' Center text vertically in the line a bit
-        Dim textSize = TextRenderer.MeasureText("8", txtEditor.Font)
-        y += (lineHeight - textSize.Height) \ 2
-        y = y + 5
-
+        Dim lineFont As Font = txtEditor.Font
         Dim brush As Brush = Brushes.Gainsboro
 
+        ' Single tweak for how far down the number sits on each line
+        Const verticalNudge As Integer = 2   ' adjust 0..5 to taste
+
         For i As Integer = firstLine To lastLine
-            Dim lineNumberText = (i + 1).ToString()
 
-            Dim textWidth = TextRenderer.MeasureText(lineNumberText, txtEditor.Font).Width
-            Dim x = pnlLineNumbers.Width - 6 - textWidth
+            Dim lineFirstChar As Integer = txtEditor.GetFirstCharIndexFromLine(i)
+            If lineFirstChar < 0 Then Continue For
 
-            e.Graphics.DrawString(lineNumberText, txtEditor.Font, brush, x, y)
-            y += lineHeight
+            ' This Y is in the same coordinate system as the panel (they share a parent)
+            Dim linePos As Point = txtEditor.GetPositionFromCharIndex(lineFirstChar)
+            Dim y As Integer = linePos.Y + verticalNudge
+
+            Dim lineNumberText As String = (i + 1).ToString()
+            Dim textWidth As Integer = TextRenderer.MeasureText(lineNumberText, lineFont).Width
+            Dim x As Integer = pnlLineNumbers.Width - 6 - textWidth
+
+            e.Graphics.DrawString(lineNumberText, lineFont, brush, x, y)
         Next
     End Sub
 
 
     Private Sub txtEditor_VScroll(sender As Object, e As EventArgs) Handles txtEditor.VScroll
         pnlLineNumbers.Invalidate()
+        SyncBlockSelectionToFirstVisibleLine()
     End Sub
 
     Private Sub txtEditor_TextChanged(sender As Object, e As EventArgs) Handles txtEditor.TextChanged
         pnlLineNumbers.Invalidate()
+        SyncBlockSelectionToFirstVisibleLine()
     End Sub
 
     Private Sub txtEditor_Resize(sender As Object, e As EventArgs) Handles txtEditor.Resize
@@ -912,6 +996,55 @@ Public Class FormUserConfigEditor
             SendMessage(txtEditor.Handle, EM_LINESCROLL, IntPtr.Zero, New IntPtr(delta))
         End If
     End Sub
+
+
+    Private Sub SyncBlockSelectionToFirstVisibleLine()
+
+        ' If we just jumped to a block via double-click, skip one auto-sync
+        If suppressBlockSync Then
+            suppressBlockSync = False
+            Return
+        End If
+
+        If lstBlocks.Items.Count = 0 OrElse txtEditor.TextLength = 0 Then Return
+
+        ' First visible character & line in the editor
+        Dim firstVisibleChar As Integer =
+            txtEditor.GetCharIndexFromPosition(New Point(0, 0))
+        Dim firstVisibleLine As Integer =
+            txtEditor.GetLineFromCharIndex(firstVisibleChar)
+
+        Dim bestIdx As Integer = -1
+        Dim bestLine As Integer = Integer.MaxValue
+
+        ' Find the block whose header line is the first one at or below the top visible line
+        For i As Integer = 0 To lstBlocks.Items.Count - 1
+            Dim bi = TryCast(lstBlocks.Items(i), BlockItem)
+            If bi Is Nothing Then Continue For
+
+            Dim blockLine As Integer = txtEditor.GetLineFromCharIndex(bi.CharIndex)
+
+            ' We only care about blocks that are not above the visible area
+            If blockLine >= firstVisibleLine AndAlso blockLine < bestLine Then
+                bestLine = blockLine
+                bestIdx = i
+            End If
+        Next
+
+        ' If nothing found below/at the top, fall back to the last block in file
+        If bestIdx = -1 Then
+            bestIdx = lstBlocks.Items.Count - 1
+        End If
+
+        If bestIdx >= 0 AndAlso bestIdx < lstBlocks.Items.Count Then
+            If lstBlocks.SelectedIndex <> bestIdx Then
+                lstBlocks.SelectedIndex = bestIdx
+                ' Keep selection roughly in view in the block list
+                lstBlocks.TopIndex = Math.Max(0, bestIdx - 3)
+            End If
+        End If
+    End Sub
+
 
 
 End Class
