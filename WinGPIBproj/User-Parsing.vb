@@ -111,7 +111,7 @@ Partial Class Formtest
                 Dim pendingEndsWithSemi As Boolean =
             pending.TrimEnd().EndsWith(";", StringComparison.Ordinal)
 
-                ' NEW: detect if current pending block is a BOOTCOMMANDS block
+                ' Detect if current pending block is a BOOTCOMMANDS block
                 Dim isBootBlock As Boolean =
             pending.TrimStart().StartsWith("BOOTCOMMANDS", StringComparison.OrdinalIgnoreCase)
 
@@ -462,7 +462,7 @@ Partial Class Formtest
                     Dim hasName As Boolean = named.ContainsKey("name") OrElse named.ContainsKey("controlname")
 
                     Dim isAllNamed As Boolean =
-                        hasCaption OrElse hasAction OrElse hasDevice OrElse hasName   ' NEW
+                        hasCaption OrElse hasAction OrElse hasDevice OrElse hasName
 
                     ' ==================================================
                     ' ALL-NAMED MODE
@@ -1149,6 +1149,7 @@ Partial Class Formtest
                     Dim scale As Double = 1.0
                     Dim scaleIsAuto As Boolean = False
                     Dim rangeQueryForAuto As String = ""
+                    Dim autoMapSpec As String = ""
 
                     Dim scaleVal As String = ""
                     If tok.ContainsKey("scale") Then
@@ -1168,17 +1169,27 @@ Partial Class Formtest
                         Dim lower = scaleVal.ToLowerInvariant()
                         If lower.StartsWith("auto") Then
                             scaleIsAuto = True
-                            Dim pipeIdx As Integer = scaleVal.IndexOf("|"c)
-                            If pipeIdx >= 0 AndAlso pipeIdx < scaleVal.Length - 1 Then
-                                rangeQueryForAuto = scaleVal.Substring(pipeIdx + 1).Trim()
+
+                            ' New form: auto|<rangeQuery>|<mapSpec>
+                            Dim autoParts() As String = scaleVal.Split("|"c)
+                            If autoParts.Length >= 2 Then
+                                rangeQueryForAuto = autoParts(1).Trim()
+                            End If
+                            If autoParts.Length >= 3 Then
+                                autoMapSpec = autoParts(2).Trim().TrimEnd(";"c)
                             End If
                         Else
-                            Double.TryParse(scaleVal, Globalization.NumberStyles.Float,
-                                            Globalization.CultureInfo.InvariantCulture, scale)
+                            Double.TryParse(scaleVal,
+                                            Globalization.NumberStyles.Float,
+                                            Globalization.CultureInfo.InvariantCulture,
+                                            scale)
                         End If
                     End If
 
-                    ' NEW: decimal places (optional) dp=5
+
+
+
+                    ' Decimal places (optional) dp=5
                     Dim dpVal As Integer = -1
                     If tok.ContainsKey("dp") Then
                         Integer.TryParse(tok("dp"), dpVal)
@@ -1197,12 +1208,22 @@ Partial Class Formtest
                     rb.AutoSize = True
                     rb.Location = New Point(relX, relY)
 
-                    ' FIRST: set the base Tag (existing behaviour)
+                    ' FIRST: set the base Tag (device|command|scale OR device|command|AUTO|rangeQuery|MAP=...)
                     If scaleIsAuto Then
                         rb.Tag = deviceName & "|" & command & "|AUTO|" & rangeQueryForAuto
+                        If autoMapSpec <> "" Then
+                            rb.Tag = CStr(rb.Tag) & "|MAP=" & autoMapSpec
+                        End If
                     Else
                         rb.Tag = deviceName & "|" & command & "|" & scale.ToString(Globalization.CultureInfo.InvariantCulture)
                     End If
+
+
+
+
+                    ' Debug: see the tag we end up with
+                    'System.Diagnostics.Debug.WriteLine(
+                    '    "USER-RADIO-TAG: text='" & rb.Text & "' tag='" & CStr(rb.Tag) & "'")
 
                     ' THEN: append determine (optional)
                     ' determine=<query>|<expected>|resptext
@@ -1222,7 +1243,7 @@ Partial Class Formtest
                         End If
                     End If
 
-                    ' NEW: append DP info to Tag if specified
+                    ' Append DP info to Tag if specified
                     If dpVal >= 0 Then
                         rb.Tag = CStr(rb.Tag) & "|DP=" & dpVal.ToString()
                     End If
@@ -1230,6 +1251,7 @@ Partial Class Formtest
                     AddHandler rb.CheckedChanged, AddressOf Radio_CheckedChanged
                     gb.Controls.Add(rb)
                     Continue For
+
 
 
                 Case "SLIDER"
@@ -5246,7 +5268,7 @@ Partial Class Formtest
         ' The logical-line joiner will already have turned it into:
         '   "BOOTCOMMANDS;device=dev2;DelayPerCmd=0.2;commandlist=CMD1,CMD2,CMD3"
 
-        Debug.WriteLine($"BOOTDBG LINE = [{line}]")
+        'Debug.WriteLine($"BOOTDBG LINE = [{line}]")
 
         Dim deviceName As String = ""
         Dim commandList As String = ""
@@ -5256,7 +5278,7 @@ Partial Class Formtest
         Dim segments As String() = work.Split(";"c)
 
         For Each seg As String In segments
-            Debug.WriteLine($"BOOTDBG RAW SEG   = [{seg}]")
+            'Debug.WriteLine($"BOOTDBG RAW SEG   = [{seg}]")
 
             Dim t As String = seg
 
@@ -5267,7 +5289,7 @@ Partial Class Formtest
             End If
 
             t = t.Trim()
-            Debug.WriteLine($"BOOTDBG CLEAN SEG = [{t}]")
+            'Debug.WriteLine($"BOOTDBG CLEAN SEG = [{t}]")
 
             If t.Length = 0 Then Continue For
 
@@ -5283,7 +5305,7 @@ Partial Class Formtest
             Dim key As String = t.Substring(0, eqIdx).Trim().ToLowerInvariant()
             Dim val As String = t.Substring(eqIdx + 1).Trim()
 
-            Debug.WriteLine($"BOOTDBG KV SEG key=[{key}] val=[{val}]")
+            'Debug.WriteLine($"BOOTDBG KV SEG key=[{key}] val=[{val}]")
 
             Select Case key
                 Case "device"
@@ -5303,9 +5325,9 @@ Partial Class Formtest
             End Select
         Next
 
-        Debug.WriteLine($"BOOTDBG DEVICE = [{deviceName}]")
-        Debug.WriteLine($"BOOTDBG DELAY  = [{delaySeconds}]")
-        Debug.WriteLine($"BOOTDBG CMDLIST RAW = [{commandList}]")
+        'Debug.WriteLine($"BOOTDBG DEVICE = [{deviceName}]")
+        'Debug.WriteLine($"BOOTDBG DELAY  = [{delaySeconds}]")
+        'Debug.WriteLine($"BOOTDBG CMDLIST RAW = [{commandList}]")
 
         If String.IsNullOrWhiteSpace(deviceName) OrElse String.IsNullOrWhiteSpace(commandList) Then
             AppendLog("[BOOT] bootcommands line missing device or commandlist: " & line)
@@ -5317,7 +5339,7 @@ Partial Class Formtest
 
         For Each c As String In commandList.Split(","c)
             Dim token As String = c
-            Debug.WriteLine($"BOOTDBG RAW CMD   = [{token}]")
+            'Debug.WriteLine($"BOOTDBG RAW CMD   = [{token}]")
 
             ' Strip inline ;; comment from the command token
             Dim ccIdx As Integer = token.IndexOf(";;", StringComparison.Ordinal)
@@ -5326,12 +5348,12 @@ Partial Class Formtest
             End If
 
             Dim cmd As String = token.Trim()
-            Debug.WriteLine($"BOOTDBG CLEAN CMD = [{cmd}]")
+            'Debug.WriteLine($"BOOTDBG CLEAN CMD = [{cmd}]")
 
             If cmd <> "" Then cmds.Add(cmd)
         Next
 
-        Debug.WriteLine($"BOOTDBG CMD COUNT = {cmds.Count}")
+        'Debug.WriteLine($"BOOTDBG CMD COUNT = {cmds.Count}")
 
         If cmds.Count = 0 Then
             AppendLog("[BOOT] bootcommands commandlist empty for device " & deviceName)
@@ -5429,66 +5451,6 @@ Partial Class Formtest
 
 
 
-    ' ============================================================
-    '   DEBUG POPUP LOG (collect lines then show one MessageBox)
-    ' ============================================================
-    Private ReadOnly _detDbg As New System.Text.StringBuilder()
-
-    Private Sub DetDbgLog(msg As String)
-        _detDbg.AppendLine(msg)
-    End Sub
-
-
-    ' =========================================================
-    '   COPYABLE DEBUG POPUP
-    ' =========================================================
-    Private Sub ShowCopyableDebug(title As String, text As String)
-
-        Dim f As New Form()
-        f.Text = title
-        f.StartPosition = FormStartPosition.CenterParent
-        f.Size = New Size(900, 500)
-        f.MinimizeBox = False
-        f.MaximizeBox = False
-
-        Dim tb As New TextBox()
-        tb.Multiline = True
-        tb.ReadOnly = True
-        tb.ScrollBars = ScrollBars.Both
-        tb.WordWrap = False
-        tb.Dock = DockStyle.Fill
-        tb.Font = New Font("Consolas", 9.0!)
-        tb.Text = text
-
-        f.Controls.Add(tb)
-
-        ' Allow Ctrl+A
-        AddHandler tb.KeyDown,
-        Sub(s, e)
-            If e.Control AndAlso e.KeyCode = Keys.A Then
-                tb.SelectAll()
-                e.SuppressKeyPress = True
-            End If
-        End Sub
-
-        f.ShowDialog(Me)
-    End Sub
-
-    ' how to use the above - example
-    ' test only
-    'DetDbgLog($"AUTO DEBUG dev={deviceName}, cmd={commandOrPrefix}, target={resultControlName}")
-    'ShowCopyableDebug("Determine Debug", _detDbg.ToString())
-
-
-
-
-    ' ALTERNATIVE DEBUG: runs for *all* paths that reach FanOut
-    'If String.Equals(resultControlName, "HP3245ADatasource",
-    '                StringComparison.OrdinalIgnoreCase) Then
-    '   MessageBox.Show(
-    '       $"OUTTEXT @FanOut: dev={deviceName}, cmd={commandOrPrefix}, " &
-    '       $"target={resultControlName}, outText=[{outText}]")
-    'End If
 
 
 End Class

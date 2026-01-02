@@ -23,6 +23,8 @@ Partial Class Formtest
     ' Has the auto-range query already been sent for this selection?
     Private CurrentUserRangeQueryDone As Boolean = False
 
+    ' Skip the very next User display update after a mode/range change
+    Private UserSkipNextUserDisplay As Boolean = False
 
 
     Private Sub RunQueryToResult(deviceName As String,
@@ -221,14 +223,9 @@ Partial Class Formtest
                 Dim cacheKey As String = deviceName & "||" & CurrentUserRangeQuery
                 Dim rngVal As Double
 
-                ' If we already have a cached range, just use it – no GPIB traffic
-                If UserRangeQueryCache.TryGetValue(cacheKey, rngVal) Then
+                ' Always query current range in AUTO mode – one extra query per reading
+                If Not String.IsNullOrEmpty(CurrentUserRangeQuery) Then
 
-                    Dim dynScale As Double = ComputeAutoScaleFromRange(rngVal)
-                    v = d * dynScale
-
-                ElseIf Not CurrentUserRangeQueryDone Then
-                    ' Only allow the range query once per AUTO selection
                     Try
                         Dim rngStr As String = ""
 
@@ -246,32 +243,37 @@ Partial Class Formtest
                             End If
                         End If
 
+                        '                       System.Diagnostics.Debug.WriteLine(
+                        '   "USER-AUTO-RANGE: dev=" & deviceName &
+                        '   " query='" & CurrentUserRangeQuery & "'" &
+                        '   " replyRaw='" & rngStr & "'")
+
+
                         If Double.TryParse(rngStr,
                                            Globalization.NumberStyles.Float,
                                            Globalization.CultureInfo.InvariantCulture,
                                            rngVal) Then
 
-                            ' Store for future use – and mark done so we never query again
+                            ' Optional: keep latest range in cache if you use it elsewhere
                             UserRangeQueryCache(cacheKey) = rngVal
-                            CurrentUserRangeQueryDone = True
 
-                            Dim dynScale As Double = ComputeAutoScaleFromRange(rngVal)
-                            v = d * dynScale
+                            ' First try instrument-specific AUTO map; fall back to generic engineering scale
+                            If Not TryApplyAutoRangeMap(rngVal, d, v) Then
+                                Dim dynScale As Double = ComputeAutoScaleFromRange(rngVal)
+                                v = d * dynScale
+                            End If
                         Else
-                            ' Parse failed – still mark as done to avoid spamming
-                            CurrentUserRangeQueryDone = True
-                            v = d * scale    ' fallback
+                            ' Parse failed – fallback to fixed scale (likely 1.0)
+                            v = d * scale
                         End If
 
                     Catch
-                        ' Error – mark done so we don't keep retrying every tick
-                        CurrentUserRangeQueryDone = True
-                        v = d * scale        ' fallback
+                        ' Error – fallback to fixed scale
+                        v = d * scale
                     End Try
 
                 Else
-                    ' AUTO mode, but we've already done the one-shot query and nothing cached:
-                    ' fall back to fixed scale (likely 1.0 for AUTO entries).
+                    ' No AUTO range query defined; just use fixed scale
                     v = d * scale
                 End If
 
@@ -363,6 +365,13 @@ FanOut:
         ' ============================
         '      FAN-OUT TO CONTROLS
         ' ============================
+
+        ' Skip the very next display update after a mode/range change
+        If UserSkipNextUserDisplay Then
+            UserSkipNextUserDisplay = False
+            Exit Sub
+        End If
+
         Dim targets = GroupBoxCustom.Controls.Find(resultControlName, True)
 
         ' Fallback (only if the control isn't in GroupBoxCustom)
@@ -433,13 +442,12 @@ FanOut:
 
                 ElseIf numericWithUnitText <> "" Then
                     ' Normal label/BIGTEXT units=on
-                    ' If we formatted (DP or FMT), rebuild with units; otherwise keep original string
-                    If (CurrentUserDp >= 0 OrElse fmt <> "") AndAlso displayNumeric <> "" Then
-                        If Not String.IsNullOrEmpty(CurrentUserUnit) Then
-                            lbl.Text = displayNumeric & "   " & CurrentUserUnit
-                        Else
-                            lbl.Text = displayNumeric
-                        End If
+                    ' Only rebuild with DP/FMT when we also have a unit; otherwise keep existing text
+                    If (CurrentUserDp >= 0 OrElse fmt <> "") AndAlso
+                       displayNumeric <> "" AndAlso
+                       Not String.IsNullOrEmpty(CurrentUserUnit) Then
+
+                        lbl.Text = displayNumeric & "   " & CurrentUserUnit
                     Else
                         lbl.Text = numericWithUnitText
                     End If

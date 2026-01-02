@@ -44,6 +44,7 @@ Partial Class Formtest
     ' auto-scale state for USER tab
     Private CurrentUserScaleIsAuto As Boolean = False
     Private CurrentUserRangeQuery As String = ""
+    Private CurrentUserAutoMapSpec As String = ""
 
     ' Per-device GPIB engine selection for USER tab ("standalone" or "native")
     Private GpibEngineDev1 As String = "standalone"   ' default if not specified
@@ -122,6 +123,8 @@ Partial Class Formtest
     Private ChartSettings As New Dictionary(Of String, ChartConfig)(StringComparer.OrdinalIgnoreCase)
     Private ChartPopupForms As New Dictionary(Of String, Form)(StringComparer.OrdinalIgnoreCase)
     Private ReadOnly ChartStartTimes As New Dictionary(Of String, DateTime)
+
+
 
 
 
@@ -1008,13 +1011,34 @@ Partial Class Formtest
                 End If
             Else
                 Double.TryParse(parts(2),
-                Globalization.NumberStyles.Float,
-                Globalization.CultureInfo.InvariantCulture,
-                scale)
+                            Globalization.NumberStyles.Float,
+                            Globalization.CultureInfo.InvariantCulture,
+                            scale)
             End If
         End If
 
         CurrentUserScale = scale
+
+        ' ===============================
+        '   DP + MAP from Tag (all radios)
+        ' ===============================
+        CurrentUserDp = -1
+        CurrentUserAutoMapSpec = ""
+
+        Dim tp() As String = meta.Split("|"c)
+        For Each t In tp
+            Dim tt = t.Trim()
+
+            If tt.StartsWith("DP=", StringComparison.OrdinalIgnoreCase) Then
+                Dim dpn As Integer
+                If Integer.TryParse(tt.Substring(3), dpn) Then
+                    CurrentUserDp = dpn
+                End If
+
+            ElseIf tt.StartsWith("MAP=", StringComparison.OrdinalIgnoreCase) Then
+                CurrentUserAutoMapSpec = tt.Substring(4).Trim()
+            End If
+        Next
 
         ' ===============================
         '   MODE vs RANGE DETECTION
@@ -1024,6 +1048,9 @@ Partial Class Formtest
         Dim isModeRadio As Boolean = (lastSpace < 0)
 
         If isModeRadio Then
+            ' A mode change (DCV/ACV/etc) – skip next display update
+            UserSkipNextUserDisplay = True
+
             ' When changing mode (DCV/ACV etc), clear unit then
             ' re-sync from whichever RANGE radio is already selected
             CurrentUserUnit = ""
@@ -1043,29 +1070,15 @@ Partial Class Formtest
             SyncUserUnitsAndScaleFromCheckedRadios()
 
         Else
+            ' A range change – skip next display update
+            UserSkipNextUserDisplay = True
+
             ' RANGE radios: unit comes from the tail of the caption ("10 V" → "V")
             Dim unit As String = ""
             If lastSpace >= 0 AndAlso lastSpace < cap.Length - 1 Then
                 unit = cap.Substring(lastSpace + 1).Trim()
             End If
             CurrentUserUnit = unit
-
-            ' --- DP from Tag (if present) ---
-            Dim tagStr As String = TryCast(rb.Tag, String)
-            CurrentUserDp = -1
-            If Not String.IsNullOrEmpty(tagStr) Then
-                Dim tp() As String = tagStr.Split("|"c)
-                For Each t In tp
-                    Dim tt = t.Trim()
-                    If tt.StartsWith("DP=", StringComparison.OrdinalIgnoreCase) Then
-                        Dim dpn As Integer
-                        If Integer.TryParse(tt.Substring(3), dpn) Then
-                            CurrentUserDp = dpn
-                        End If
-                    End If
-                Next
-            End If
-
         End If
 
         ' ===============================
@@ -1705,6 +1718,124 @@ Partial Class Formtest
         Next
 
     End Sub
+
+
+    ' Try to apply instrument-specific AUTO range mapping from CurrentUserAutoMapSpec.
+    ' mapSpec format: "<rangeReply>:<unit>:<dp>,<rangeReply>:<unit>:<dp>,..."
+    ' Returns True if a mapping entry matched and scaledVal/unit/dp were updated.
+    Private Function TryApplyAutoRangeMap(rangeVal As Double,
+                                          originalVal As Double,
+                                          ByRef scaledVal As Double) As Boolean
+
+
+        'System.Diagnostics.Debug.WriteLine(
+        '"USER-AUTO-MAP-CALL: rangeVal=" &
+        'rangeVal.ToString("G", Globalization.CultureInfo.InvariantCulture) &
+        '" mapSpec='" & CurrentUserAutoMapSpec & "'")
+
+
+        Dim spec As String = CurrentUserAutoMapSpec
+        If String.IsNullOrWhiteSpace(spec) Then
+            Return False
+        End If
+
+        Dim a As Double = Math.Abs(rangeVal)
+        If Double.IsNaN(a) OrElse Double.IsInfinity(a) Then
+            Return False
+        End If
+
+        Dim entries() As String = spec.Split(","c)
+        For Each entry In entries
+            Dim e = entry.Trim()
+            If e = "" Then Continue For
+
+            Dim parts() As String = e.Split(":"c)
+            If parts.Length < 3 Then Continue For
+
+            Dim rangeMatch As Double
+            If Not Double.TryParse(parts(0).Trim(),
+                                   Globalization.NumberStyles.Float,
+                                   Globalization.CultureInfo.InvariantCulture,
+                                   rangeMatch) Then
+                Continue For
+            End If
+
+            ' Tolerant numeric compare
+            Dim targetAbs As Double = Math.Abs(rangeMatch)
+            Dim tol As Double = Math.Max(0.000000001, targetAbs * 0.000001)
+            If Math.Abs(a - targetAbs) > tol Then
+                Continue For
+            End If
+
+            Dim unit As String = parts(1).Trim()
+            Dim dpVal As Integer
+            Integer.TryParse(parts(2).Trim(), dpVal)
+
+            If unit <> "" Then
+                CurrentUserUnit = unit
+            End If
+            If dpVal >= 0 Then
+                CurrentUserDp = dpVal
+            End If
+
+            ' Derive scale factor from engineering prefix in unit
+            Dim scaleFactor As Double = 1.0
+            If unit.Length > 0 Then
+                Dim prefix As Char = unit(0)
+                Dim exp As Integer = 0
+
+                Select Case prefix
+                    Case "f"c
+                        exp = -15
+                    Case "p"c
+                        exp = -12
+                    Case "n"c
+                        exp = -9
+                    Case "u"c, "µ"c, "μ"c
+                        exp = -6
+                    Case "m"c
+                        exp = -3
+                    Case "k"c, "K"c
+                        exp = 3
+                    Case "M"c
+                        exp = 6
+                    Case "G"c
+                        exp = 9
+                    Case Else
+                        exp = 0
+                End Select
+
+                If exp <> 0 Then
+                    scaleFactor = Math.Pow(10.0, -exp)
+                End If
+            End If
+
+            scaledVal = originalVal * scaleFactor
+
+
+            'System.Diagnostics.Debug.WriteLine(
+            '"USER-AUTO-MAP-HARDTEST-HIT: rangeVal=" &
+            'rangeVal.ToString("G", Globalization.CultureInfo.InvariantCulture) &
+            '" unit='mV' dp=3 scaleFactor=1000")
+
+
+            '            System.Diagnostics.Debug.WriteLine(
+            '    "USER-AUTO-MAP-HIT: rangeVal=" &
+            '            rangeVal.ToString("G", Globalization.CultureInfo.InvariantCulture) &
+            '    " unit='" & unit & "'" &
+            '    " dp=" & dpVal &
+            '    " scaleFactor=" & scaleFactor.ToString("G", Globalization.CultureInfo.InvariantCulture))
+
+            'System.Diagnostics.Debug.WriteLine(
+            '"USER-AUTO-MAP-HARDTEST-HIT: rangeVal=" &
+            'rangeVal.ToString("G", Globalization.CultureInfo.InvariantCulture) &
+            '" unit='mV' dp=3 scaleFactor=1000")
+
+            Return True
+        Next
+
+        Return False
+    End Function
 
 
     ' Compute a display scale factor from a numeric range value
@@ -3454,6 +3585,7 @@ Partial Class Formtest
         ' Reset scale state (will be set from selected RANGE radio)
         CurrentUserScaleIsAuto = False
         CurrentUserRangeQuery = ""
+        CurrentUserAutoMapSpec = ""
         CurrentUserScale = 1.0
         CurrentUserRangeQueryDone = True
         CurrentUserDp = -1  ' reset DP here as well
@@ -3492,9 +3624,9 @@ Partial Class Formtest
                         Else
                             Dim sc As Double
                             If Double.TryParse(parts(2),
-                                               Globalization.NumberStyles.Float,
-                                               Globalization.CultureInfo.InvariantCulture,
-                                               sc) Then
+                                           Globalization.NumberStyles.Float,
+                                           Globalization.CultureInfo.InvariantCulture,
+                                           sc) Then
                                 CurrentUserScale = sc
                             Else
                                 CurrentUserScale = 1.0
@@ -3502,19 +3634,58 @@ Partial Class Formtest
                         End If
                     End If
 
-                    ' ---- DP from Tag (DP=n) ----
+                    ' ---- DP and MAP from Tag (DP=n, MAP=spec) ----
                     CurrentUserDp = -1
+                    CurrentUserAutoMapSpec = ""
                     Dim tp() As String = meta.Split("|"c)
                     For Each t In tp
                         Dim tt = t.Trim()
+
                         If tt.StartsWith("DP=", StringComparison.OrdinalIgnoreCase) Then
                             Dim dpn As Integer
                             If Integer.TryParse(tt.Substring(3), dpn) Then
                                 CurrentUserDp = dpn
                             End If
+
+                        ElseIf tt.StartsWith("MAP=", StringComparison.OrdinalIgnoreCase) Then
+                            CurrentUserAutoMapSpec = tt.Substring(4).Trim()
                         End If
                     Next
+
+                    'System.Diagnostics.Debug.WriteLine(
+                    '"USER-SYNC: mode=" & modeCaption &
+                    '" radio='" & rb.Text & "'" &
+                    '" meta='" & meta & "'" &
+                    '" mapSpec='" & CurrentUserAutoMapSpec & "'" &
+                    '" dp=" & CurrentUserDp)
+
+
+                    ' *** DEBUG: see what we ended up with for this checked RANGE radio ***
+                    'System.Diagnostics.Debug.WriteLine(
+                    '"USER-AUTO-CONFIG: mode=" & modeCaption &
+                    '" group='" & gb.Text & "'" &
+                    '" radioText='" & rb.Text & "'" &
+                    '" meta='" & meta & "'" &
+                    '" scaleIsAuto=" & CurrentUserScaleIsAuto &
+                    '" rangeQuery='" & CurrentUserRangeQuery & "'" &
+                    '" mapSpec='" & CurrentUserAutoMapSpec & "'" &
+                    '" dp=" & CurrentUserDp)
+
                 End If
+
+                ' TEMP: show what we have for K2001 DCV Auto
+                'If CurrentUserScaleIsAuto AndAlso
+                'modeCaption = "DCV" AndAlso
+                'rb.Text.Trim().Equals("Auto", StringComparison.OrdinalIgnoreCase) Then
+
+                'MsgBox("K2001 DCV Auto sync:" & vbCrLf &
+                '      "rb.Text = " & rb.Text & vbCrLf &
+                '     "Tag = " & CStr(meta) & vbCrLf &
+                '     "CurrentUserRangeQuery = " & CurrentUserRangeQuery & vbCrLf &
+                '     "CurrentUserAutoMapSpec = " & CurrentUserAutoMapSpec & vbCrLf &
+                '     "CurrentUserDp = " & CurrentUserDp.ToString())
+                'End If
+
 
                 ' Determine path also must (re)arm the one-shot range query
                 If CurrentUserScaleIsAuto AndAlso Not String.IsNullOrWhiteSpace(CurrentUserRangeQuery) Then
@@ -3523,11 +3694,16 @@ Partial Class Formtest
                     CurrentUserRangeQueryDone = True
                 End If
 
+
+
                 Exit Sub
             Next
         Next
 
+
+
     End Sub
+
 
 
     Private Sub ShowUserInitPopup()
