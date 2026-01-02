@@ -3,6 +3,7 @@ Imports System.IO
 Imports System.Runtime.InteropServices
 Imports System.Text
 Imports System.Text.RegularExpressions
+Imports System.Reflection
 
 
 Public Class FormUserConfigEditor
@@ -317,6 +318,7 @@ Public Class FormUserConfigEditor
         pnlLineNumbers.Width = 55
         pnlLineNumbers.BackColor = Color.FromArgb(25, 25, 25)
         AddHandler pnlLineNumbers.Paint, AddressOf pnlLineNumbers_Paint
+        EnableDoubleBuffer(pnlLineNumbers)
 
         ' ---- Find bar (top) ----
         findPanel = New Panel()
@@ -606,8 +608,8 @@ Public Class FormUserConfigEditor
             End While
         Next
 
-        ' 4) Numbers after "="  (e.g. default=1.234, x=500, ymin=-3.2e-6)
-        Dim numberPattern As New Regex("=(\s*)([-+]?\d+(\.\d+)?([eE][-+]?\d+)?)")
+        ' 4) Numbers after "=" or "<" or ">"  (e.g. default=1.234, x=500, ymin=-3.2e-6, > 1.123)
+        Dim numberPattern As New Regex("(?<=(<=|>=|=|<|>))\s*([-+]?\d+(\.\d+)?([eE][-+]?\d+)?)")
         For Each m As Match In numberPattern.Matches(text)
             Dim valuePart As Group = m.Groups(2)   ' just numeric text
             txtEditor.[Select](valuePart.Index, valuePart.Length)
@@ -926,10 +928,19 @@ Public Class FormUserConfigEditor
 
             Dim lineNumberText As String = (i + 1).ToString()
             Dim textWidth As Integer = TextRenderer.MeasureText(lineNumberText, lineFont).Width
-            Dim x As Integer = pnlLineNumbers.Width - 6 - textWidth
+            Dim x As Integer = pnlLineNumbers.Width - 6 - textWidth   ' right-justify
 
             e.Graphics.DrawString(lineNumberText, lineFont, brush, x, y)
         Next
+    End Sub
+
+    Private Sub EnableDoubleBuffer(panel As Panel)
+        Dim t = panel.GetType()
+        Dim pi = t.GetProperty("DoubleBuffered",
+                           BindingFlags.Instance Or BindingFlags.NonPublic)
+        If pi IsNot Nothing Then
+            pi.SetValue(panel, True, Nothing)
+        End If
     End Sub
 
 
