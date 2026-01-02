@@ -625,7 +625,58 @@ Public Class FormUserConfigEditor
             End If
         Next
 
-        ' 6) Multi-line commandlist=  (with inline ;; comments)
+        ' 6) Device keywords: dev1 / dev2
+        Dim deviceWords As String() = {"dev1", "dev2"}
+        For Each dw In deviceWords
+            Dim pos As Integer = 0
+            While True
+                pos = text.IndexOf(dw, pos, StringComparison.OrdinalIgnoreCase)
+                If pos < 0 Then Exit While
+
+                ' Don't match inside larger words (e.g. dev123)
+                Dim leftOk As Boolean =
+                (pos = 0 OrElse Not Char.IsLetterOrDigit(text(pos - 1)))
+                Dim rightOk As Boolean =
+                (pos + dw.Length >= text.Length OrElse
+                 Not Char.IsLetterOrDigit(text(pos + dw.Length)))
+
+                If leftOk AndAlso rightOk Then
+                    txtEditor.[Select](pos, dw.Length)
+                    txtEditor.SelectionColor = Color.Red
+                End If
+
+                pos += dw.Length
+            End While
+        Next
+
+        ' 7) Device keywords: dev1 / dev2
+        Dim standnativeWords As String() = {"standalone", "native"}
+
+        For Each dw In standnativeWords
+            Dim pos As Integer = 0
+
+            While True
+                pos = text.IndexOf(dw, pos, StringComparison.OrdinalIgnoreCase)
+                If pos < 0 Then Exit While
+
+                ' Don't match inside larger words (e.g. dev123)
+                Dim leftOk As Boolean =
+                (pos = 0 OrElse Not Char.IsLetterOrDigit(text(pos - 1)))
+                Dim rightOk As Boolean =
+                (pos + dw.Length >= text.Length OrElse
+                 Not Char.IsLetterOrDigit(text(pos + dw.Length)))
+
+                If leftOk AndAlso rightOk Then
+                    txtEditor.[Select](pos, dw.Length)
+                    txtEditor.SelectionColor = Color.Violet
+                    ' keep same font, no bold if you want it subtle
+                End If
+
+                pos += dw.Length
+            End While
+        Next
+
+        ' 8) Multi-line commandlist=  (with inline ;; comments)
         Dim clPattern As New Regex("(?i)\bcommandlist\s*=")
         For Each m As Match In clPattern.Matches(text)
             ' m.Index is at start of "commandlist"
@@ -704,29 +755,6 @@ Public Class FormUserConfigEditor
             End While
         Next
 
-        ' 7) Device keywords: dev1 / dev2
-        Dim deviceWords As String() = {"dev1", "dev2"}
-        For Each dw In deviceWords
-            Dim pos As Integer = 0
-            While True
-                pos = text.IndexOf(dw, pos, StringComparison.OrdinalIgnoreCase)
-                If pos < 0 Then Exit While
-
-                ' Don't match inside larger words (e.g. dev123)
-                Dim leftOk As Boolean =
-                (pos = 0 OrElse Not Char.IsLetterOrDigit(text(pos - 1)))
-                Dim rightOk As Boolean =
-                (pos + dw.Length >= text.Length OrElse
-                 Not Char.IsLetterOrDigit(text(pos + dw.Length)))
-
-                If leftOk AndAlso rightOk Then
-                    txtEditor.[Select](pos, dw.Length)
-                    txtEditor.SelectionColor = Color.MediumSpringGreen
-                End If
-
-                pos += dw.Length
-            End While
-        Next
 
         ' Restore caret/selection
         txtEditor.[Select](selStart, selLength)
