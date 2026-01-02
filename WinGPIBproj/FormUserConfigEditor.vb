@@ -551,18 +551,14 @@ Public Class FormUserConfigEditor
                 firstNonSpace += 1
             End While
 
-            ' ============================
             ' FULL LINE COMMENT → ALWAYS GREEN
-            ' ============================
             If firstNonSpace < lineEnd AndAlso text(firstNonSpace) = ";"c Then
                 txtEditor.Select(lineStart, lineEnd - lineStart)
                 txtEditor.SelectionColor = Color.LimeGreen
                 txtEditor.SelectionFont = txtEditor.Font
 
             Else
-                ' ============================
                 ' INLINE ;; COMMENT
-                ' ============================
                 Dim inlinePos = lineTextFull.IndexOf(";;", StringComparison.Ordinal)
                 If inlinePos >= 0 Then
                     Dim start = lineStart + inlinePos
@@ -575,26 +571,22 @@ Public Class FormUserConfigEditor
             idx = lineEnd + 1
         End While
 
-        ' 2) Block keywords (DATASOURCE;, RADIO;, STATSPANEL; etc.)
-        For Each lineIndex In Enumerable.Range(0, txtEditor.Lines.Length - 1)
+        ' 2) Block keywords (DATASOURCE;, RADIO;, STATSPANEL; etc.) – line-based to avoid K2001Datasource
+        For lineIndex As Integer = 0 To txtEditor.Lines.Length - 1
             Dim rawLine = txtEditor.Lines(lineIndex)
             If String.IsNullOrWhiteSpace(rawLine) Then Continue For
 
             Dim trimmed = rawLine.TrimStart()
             Dim lineStartCharIndex = txtEditor.GetFirstCharIndexFromLine(lineIndex)
+            Dim leadingSpaces = rawLine.Length - rawLine.TrimStart().Length
 
             For Each kw In BlockKeywords
                 Dim token = kw & ";"
-
                 If trimmed.StartsWith(token, StringComparison.OrdinalIgnoreCase) Then
-                    ' find where trimmed content begins in the actual text line
-                    Dim leadingSpaces = rawLine.Length - rawLine.TrimStart().Length
                     Dim paintPos = lineStartCharIndex + leadingSpaces
-
                     txtEditor.Select(paintPos, kw.Length)
                     txtEditor.SelectionColor = Color.Cyan
-
-                    Exit For   ' no need to test more keywords on this line
+                    Exit For
                 End If
             Next
         Next
@@ -616,80 +608,125 @@ Public Class FormUserConfigEditor
 
         ' 4) Numbers after "="  (e.g. default=1.234, x=500, ymin=-3.2e-6)
         Dim numberPattern As New Regex("=(\s*)([-+]?\d+(\.\d+)?([eE][-+]?\d+)?)")
-
         For Each m As Match In numberPattern.Matches(text)
             Dim valuePart As Group = m.Groups(2)   ' just numeric text
             txtEditor.[Select](valuePart.Index, valuePart.Length)
             txtEditor.SelectionColor = Color.DeepSkyBlue
         Next
 
-        ' 5) Device keywords: dev1 / dev2
-        Dim deviceWords As String() = {"dev1", "dev2"}
-
-        For Each dw In deviceWords
-            Dim pos As Integer = 0
-
-            While True
-                pos = text.IndexOf(dw, pos, StringComparison.OrdinalIgnoreCase)
-                If pos < 0 Then Exit While
-
-                ' Don't match inside larger words (e.g. dev123)
-                Dim leftOk As Boolean =
-                (pos = 0 OrElse Not Char.IsLetterOrDigit(text(pos - 1)))
-                Dim rightOk As Boolean =
-                (pos + dw.Length >= text.Length OrElse
-                 Not Char.IsLetterOrDigit(text(pos + dw.Length)))
-
-                If leftOk AndAlso rightOk Then
-                    txtEditor.[Select](pos, dw.Length)
-                    txtEditor.SelectionColor = Color.OrangeRed
-                    ' keep same font, no bold if you want it subtle
-                End If
-
-                pos += dw.Length
-            End While
-        Next
-
-        ' 5) Device keywords: dev1 / dev2
-        Dim standnativeWords As String() = {"standalone", "native"}
-
-        For Each dw In standnativeWords
-            Dim pos As Integer = 0
-
-            While True
-                pos = text.IndexOf(dw, pos, StringComparison.OrdinalIgnoreCase)
-                If pos < 0 Then Exit While
-
-                ' Don't match inside larger words (e.g. dev123)
-                Dim leftOk As Boolean =
-                (pos = 0 OrElse Not Char.IsLetterOrDigit(text(pos - 1)))
-                Dim rightOk As Boolean =
-                (pos + dw.Length >= text.Length OrElse
-                 Not Char.IsLetterOrDigit(text(pos + dw.Length)))
-
-                If leftOk AndAlso rightOk Then
-                    txtEditor.[Select](pos, dw.Length)
-                    txtEditor.SelectionColor = Color.Violet
-                    ' keep same font, no bold if you want it subtle
-                End If
-
-                pos += dw.Length
-            End While
-        Next
-
-        ' 6) Highlight command text after command= / commands= / determine=
+        ' 5) Single-line command-like fields: command= / commands= / determine=
+        '    (stop at ";" or end-of-line, so ";;" comments remain green)
         Dim cmdPattern As New Regex("(?i)\b(commands?|command|determine)\s*=\s*([^;\r\n]*)")
-
         For Each m As Match In cmdPattern.Matches(text)
-            Dim rhs As Group = m.Groups(2) ' everything after = up to semicolon or line end
-
+            Dim rhs As Group = m.Groups(2)
             If rhs.Length > 0 Then
                 txtEditor.Select(rhs.Index, rhs.Length)
                 txtEditor.SelectionColor = Color.Yellow
             End If
         Next
 
+        ' 6) Multi-line commandlist=  (with inline ;; comments)
+        Dim clPattern As New Regex("(?i)\bcommandlist\s*=")
+        For Each m As Match In clPattern.Matches(text)
+            ' m.Index is at start of "commandlist"
+            Dim equalsPos As Integer = text.IndexOf("="c, m.Index)
+            If equalsPos < 0 Then Continue For
 
+            ' First line bounds
+            Dim lineStart As Integer = text.LastIndexOf(ChrW(10), equalsPos)
+            If lineStart = -1 Then lineStart = 0 Else lineStart += 1
+            Dim lineEnd As Integer = text.IndexOf(ChrW(10), equalsPos)
+            If lineEnd = -1 Then lineEnd = length
+
+            ' Highlight from just after "=" to either ";;" or end-of-line
+            Dim rhsStart As Integer = equalsPos + 1
+            While rhsStart < lineEnd AndAlso Char.IsWhiteSpace(text(rhsStart))
+                rhsStart += 1
+            End While
+
+            Dim firstInlineComment As Integer = text.IndexOf(";;", rhsStart, StringComparison.Ordinal)
+            Dim rhsEnd As Integer = If(firstInlineComment >= 0 AndAlso firstInlineComment < lineEnd,
+                                   firstInlineComment,
+                                   lineEnd)
+
+            If rhsEnd > rhsStart Then
+                txtEditor.Select(rhsStart, rhsEnd - rhsStart)
+                txtEditor.SelectionColor = Color.Yellow
+            End If
+
+            ' Now scan continuation lines until block ends
+            Dim scanPos As Integer = lineEnd + 1
+            While scanPos < length
+                Dim contStart As Integer = scanPos
+                Dim contEnd As Integer = text.IndexOf(ChrW(10), contStart)
+                If contEnd = -1 Then contEnd = length
+
+                Dim lineText = text.Substring(contStart, contEnd - contStart)
+                Dim trimmed = lineText.Trim()
+
+                ' End of commandlist block?
+                If trimmed = "" Then Exit While
+                If trimmed.StartsWith(";"c) Then Exit While
+
+                ' New block keyword?
+                If BlockKeywords.Any(Function(kw) trimmed.StartsWith(kw & ";", StringComparison.OrdinalIgnoreCase)) Then
+                    Exit While
+                End If
+
+                ' New parameter line (something like "x=..." or "target=...")
+                Dim eqPos = lineText.IndexOf("="c)
+                If eqPos >= 0 Then
+                    Dim keyPart = lineText.Substring(0, eqPos).Trim()
+                    If ParamKeys.Any(Function(k) keyPart.Equals(k, StringComparison.OrdinalIgnoreCase)) Then
+                        Exit While
+                    End If
+                End If
+
+                ' Treat as continuation of commandlist: highlight from first non-space to ";;" or EOL
+                Dim firstNonSpace As Integer = contStart
+                While firstNonSpace < contEnd AndAlso Char.IsWhiteSpace(text(firstNonSpace))
+                    firstNonSpace += 1
+                End While
+
+                If firstNonSpace < contEnd Then
+                    Dim inlinePos2 As Integer = text.IndexOf(";;", firstNonSpace, StringComparison.Ordinal)
+                    Dim contRhsEnd As Integer = If(inlinePos2 >= 0 AndAlso inlinePos2 < contEnd,
+                                               inlinePos2,
+                                               contEnd)
+
+                    If contRhsEnd > firstNonSpace Then
+                        txtEditor.Select(firstNonSpace, contRhsEnd - firstNonSpace)
+                        txtEditor.SelectionColor = Color.Yellow
+                    End If
+                End If
+
+                scanPos = contEnd + 1
+            End While
+        Next
+
+        ' 7) Device keywords: dev1 / dev2
+        Dim deviceWords As String() = {"dev1", "dev2"}
+        For Each dw In deviceWords
+            Dim pos As Integer = 0
+            While True
+                pos = text.IndexOf(dw, pos, StringComparison.OrdinalIgnoreCase)
+                If pos < 0 Then Exit While
+
+                ' Don't match inside larger words (e.g. dev123)
+                Dim leftOk As Boolean =
+                (pos = 0 OrElse Not Char.IsLetterOrDigit(text(pos - 1)))
+                Dim rightOk As Boolean =
+                (pos + dw.Length >= text.Length OrElse
+                 Not Char.IsLetterOrDigit(text(pos + dw.Length)))
+
+                If leftOk AndAlso rightOk Then
+                    txtEditor.[Select](pos, dw.Length)
+                    txtEditor.SelectionColor = Color.MediumSpringGreen
+                End If
+
+                pos += dw.Length
+            End While
+        Next
 
         ' Restore caret/selection
         txtEditor.[Select](selStart, selLength)
@@ -713,7 +750,6 @@ Public Class FormUserConfigEditor
 
         _isColorizing = False
     End Sub
-
 
 
     Private Sub txtEditor_KeyDown(sender As Object, e As KeyEventArgs) Handles txtEditor.KeyDown
