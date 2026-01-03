@@ -31,21 +31,19 @@ Partial Class Formtest
         ' Only block if at least one required device is missing.
         If missingDev1 OrElse missingDev2 Then
             Dim msg As String =
-            "No GPIB devices are currently connected." & vbCrLf & vbCrLf &
-            "Start Device1 and/or Device2, then reload the User config."
+        "No GPIB devices are currently connected." & vbCrLf & vbCrLf &
+        "Start Device1 and/or Device2, then reload the User config."
 
             MessageBox.Show(msg, "WinGPIB",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning)
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning)
 
-            ' Reset the User tab instead of leaving it blank/half-built
+            ' This already restores LabelUSERtab1 and the blank state
             ResetUsertab()
-
-            LabelUSERtab1.Visible = True
-            LabelUSERtab1.BringToFront()
 
             Exit Sub
         End If
+
 
         ' Reset per-config runtime state
         Timer5.Enabled = False

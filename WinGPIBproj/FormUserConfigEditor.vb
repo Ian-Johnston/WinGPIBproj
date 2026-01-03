@@ -4,6 +4,7 @@ Imports System.Runtime.InteropServices
 Imports System.Text
 Imports System.Text.RegularExpressions
 Imports System.Reflection
+Imports System.Windows.Forms
 
 
 Public Class FormUserConfigEditor
@@ -142,7 +143,7 @@ Public Class FormUserConfigEditor
 
     Private _configPath As String         ' was ReadOnly
     Private WithEvents lstBlocks As New ListBox()
-    Private WithEvents txtEditor As New RichTextBox()
+    Private WithEvents txtEditor As New HardStopRichTextBox()
     Private WithEvents btnSave As New Button()
     Private WithEvents btnClose As New Button()
     Private WithEvents pnlLineNumbers As New Panel()
@@ -444,11 +445,139 @@ Public Class FormUserConfigEditor
                         MessageBoxIcon.Error)
         End Try
 
+        Try
+            If File.Exists(_configPath) Then
+                txtEditor.Text = File.ReadAllText(_configPath, Encoding.UTF8)
+
+                ' show path and last-write time
+                txtFilePath.Text = _configPath
+                Dim ts = File.GetLastWriteTime(_configPath)
+                lblLastSave.Text = "Last save: " & ts.ToString("yyyy-MM-dd HH:mm:ss")
+            Else
+                txtEditor.Text = "; New User config file" & Environment.NewLine
+                txtFilePath.Text = _configPath
+                lblLastSave.Text = "Last save: (not yet)"
+            End If
+        Catch ex As Exception
+            MessageBox.Show("Error loading config file:" & Environment.NewLine &
+                            ex.Message,
+                            "Load Error",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error)
+        End Try
+
+        ' === CONFIG LINT: check for missing trailing semicolons ===
+        CheckSemicolonsOnLoad()
+
         ColorizeConfig()
         RebuildBlockList()
         SyncBlockSelectionToFirstVisibleLine()
     End Sub
 
+
+    '--------------------------------------------------------------
+    ' Check that every non-comment, non-LUA, non simple KEY=VALUE
+    ' line ends with a semicolon.
+    '--------------------------------------------------------------
+    Private Sub CheckSemicolonsOnLoad()
+        Dim lines = txtEditor.Lines
+        If lines Is Nothing OrElse lines.Length = 0 Then Exit Sub
+
+        Dim badLines As New List(Of Integer)()
+        Dim inLua As Boolean = False
+        Dim inCmdList As Boolean = False
+
+        For i As Integer = 0 To lines.Length - 1
+            Dim raw As String = lines(i)
+            Dim trimmed As String = raw.Trim()
+
+            ' Skip completely blank lines
+            If trimmed = "" Then Continue For
+
+            ' ENTER COMMANDLIST IGNORE MODE
+            If trimmed.StartsWith("commandlist", StringComparison.OrdinalIgnoreCase) Then
+                inCmdList = True
+                Continue For
+            End If
+
+            ' IF IN COMMANDLIST, IGNORE UNTIL A LINE THAT ENDS WITH ";"
+            If inCmdList Then
+                ' strip inline ;; comments
+                Dim cmdText As String = raw
+                Dim p = cmdText.IndexOf(";;", StringComparison.Ordinal)
+                If p >= 0 Then
+                    cmdText = cmdText.Substring(0, p)
+                End If
+
+                cmdText = cmdText.TrimEnd()
+
+                ' terminate when a command line finally ends with ';'
+                If cmdText.EndsWith(";"c) Then
+                    inCmdList = False
+                End If
+
+                Continue For
+            End If
+
+            ' LUA BLOCKS: skip everything from LUASCRIPTBEGIN to LUASCRIPTEND
+            If trimmed.StartsWith("LUASCRIPTBEGIN", StringComparison.OrdinalIgnoreCase) Then
+                inLua = True
+                Continue For        ' do NOT check this line
+            End If
+
+            If trimmed.StartsWith("LUASCRIPTEND", StringComparison.OrdinalIgnoreCase) Then
+                inLua = False
+                Continue For        ' do NOT check this line
+            End If
+
+            If inLua Then
+                ' Any line inside the Lua block is ignored
+                Continue For
+            End If
+
+            ' Pure comment lines (after optional spaces)
+            If trimmed.StartsWith(";"c) Then Continue For
+
+            ' Simple KEY=VALUE directives with NO semicolons anywhere
+            ' e.g. DATASAVE=enabled, GpibEngineDev1=native
+            If trimmed.Contains("="c) AndAlso Not trimmed.Contains(";"c) Then
+                Continue For
+            End If
+
+            ' Strip inline ;; comments before checking
+            Dim effective As String = raw
+            Dim commentPos As Integer = effective.IndexOf(";;", StringComparison.Ordinal)
+            If commentPos >= 0 Then
+                effective = effective.Substring(0, commentPos)
+            End If
+
+            effective = effective.TrimEnd()
+            If effective = "" Then Continue For
+
+            Dim lastCharIndex As Integer = effective.Length - 1
+            If lastCharIndex >= 0 AndAlso effective(lastCharIndex) <> ";"c Then
+                ' store 1-based line number
+                badLines.Add(i + 1)
+            End If
+        Next
+
+        If badLines.Count > 0 Then
+            Dim preview As String = String.Join(", ", badLines.Take(30))
+            If badLines.Count > 30 Then
+                preview &= " ..."
+            End If
+
+            Dim msg As String =
+                "Config check: some lines do not end with ';' (ignoring comments, LUA," &
+                " and simple KEY=VALUE directives)." & vbCrLf & vbCrLf &
+                "Lines: " & preview
+
+            MessageBox.Show(msg,
+                            "Config Semicolon Check",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning)
+        End If
+    End Sub
 
 
     Private Sub SaveConfigFile()
@@ -1207,5 +1336,46 @@ Public Class FormUserConfigEditor
     End Sub
 
 
+End Class
 
+
+
+Public Class HardStopRichTextBox
+    Inherits RichTextBox
+
+    Private Const EM_LINESCROLL As Integer = &HB6
+    Private Const WM_MOUSEWHEEL As Integer = &H20A
+
+    ' NOTE: EntryPoint is the real API name; SendMessageWheel is just our VB name
+    <DllImport("user32.dll",
+               EntryPoint:="SendMessageW",
+               CharSet:=CharSet.Auto)>
+    Private Shared Function SendMessageWheel(hWnd As IntPtr,
+                                             msg As Integer,
+                                             wParam As IntPtr,
+                                             lParam As IntPtr) As IntPtr
+    End Function
+
+    Protected Overrides Sub WndProc(ByRef m As Message)
+        If m.Msg = WM_MOUSEWHEEL Then
+            Dim w As Long = m.WParam.ToInt64()
+            Dim delta As Integer = CInt((w >> 16) And &HFFFFS)
+
+            Dim steps As Integer = delta \ 120 ' +1/-1 per wheel notch
+            If steps <> 0 Then
+                ' Lines per notch (tweak 3 to taste)
+                Dim lines As Integer = -steps * 3
+
+                SendMessageWheel(Me.Handle,
+                                 EM_LINESCROLL,
+                                 IntPtr.Zero,
+                                 New IntPtr(lines))
+            End If
+
+            ' Swallow the message so base RTB doesn't apply smooth scrolling
+            Return
+        End If
+
+        MyBase.WndProc(m)
+    End Sub
 End Class
