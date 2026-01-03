@@ -1849,41 +1849,48 @@ Partial Class Formtest
     '   very small ranges -> n / µ / m
     '   mid ranges        -> base units
     '   large ranges      -> k / M
+
+    '   small ranges      -> m / µ / n
+    '   large ranges      -> k / M
     Private Function ComputeAutoScaleFromRange(rangeVal As Double) As Double
         Dim a As Double = Math.Abs(rangeVal)
+        Dim factor As Double
 
         If a <= 0 OrElse Double.IsNaN(a) OrElse Double.IsInfinity(a) Then
-            Return 1.0
+            factor = 1.0
+
+            ' Below 1 µ → n-units
+        ElseIf a < 0.000001 Then
+            factor = 1000000000.0     ' n
+
+            ' 1 µ .. < 1 m → µ-units
+        ElseIf a < 0.001 Then
+            factor = 1000000.0        ' µ
+
+            ' 1 m .. < 1 → m-units
+        ElseIf a < 1.0 Then
+            factor = 1000.0           ' m
+
+            ' 1 .. < 1 k → base units
+        ElseIf a < 1000.0 Then
+            factor = 1.0              ' base
+
+            ' 1 k .. < 1 M → k-units
+        ElseIf a < 1000000.0 Then
+            factor = 0.001            ' k
+
+            ' >= 1 M → M-units
+        Else
+            factor = 0.000001         ' M
         End If
 
-        ' Below 1 µ → n-units
-        If a < 0.000001 Then
-            Return 1000000000.0     ' n
-        End If
+        ' DEBUG: see what auto-scale is doing for each range
+        'Debug.WriteLine(
+        '$"[AutoScale] rangeVal={rangeVal}, abs={a}, factor={factor}")
 
-        ' 1 µ .. < 1 m → µ-units
-        If a < 0.001 Then
-            Return 1000000.0     ' µ
-        End If
-
-        ' 1 m .. < 1 → m-units
-        If a < 1.0 Then
-            Return 1000.0     ' m
-        End If
-
-        ' 1 .. < 1 k → base units
-        If a < 1000.0 Then
-            Return 1.0       ' base
-        End If
-
-        ' 1 k .. < 1 M → k-units
-        If a < 1000000.0 Then
-            Return 0.001    ' k
-        End If
-
-        ' >= 1 M → M-units
-        Return 0.000001        ' M
+        Return factor
     End Function
+
 
 
     Private Sub RunQueryToFile(deviceName As String,

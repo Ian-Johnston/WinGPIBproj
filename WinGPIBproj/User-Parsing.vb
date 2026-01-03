@@ -3566,17 +3566,17 @@ Partial Class Formtest
                     'End If
 
 
-                    Debug.WriteLine("==== MULTIBUTTON DEBUG =====")
-                    Debug.WriteLine("NAME: " & name)
+                    'Debug.WriteLine("==== MULTIBUTTON DEBUG =====")
+                    'Debug.WriteLine("NAME: " & name)
 
-                    Debug.WriteLine("ITEMS RAW:")
-                    Debug.WriteLine(If(itemsRaw, "<NULL>"))
+                    'Debug.WriteLine("ITEMS RAW:")
+                    'Debug.WriteLine(If(itemsRaw, "<NULL>"))
 
-                    Debug.WriteLine("COMMANDS RAW:")
-                    Debug.WriteLine(If(commandsRaw, "<NULL>"))
+                    'Debug.WriteLine("COMMANDS RAW:")
+                    'Debug.WriteLine(If(commandsRaw, "<NULL>"))
 
-                    Debug.WriteLine("DETMAP RAW:")
-                    Debug.WriteLine(If(detmapRaw, "<NULL>"))
+                    'Debug.WriteLine("DETMAP RAW:")
+                    'Debug.WriteLine(If(detmapRaw, "<NULL>"))
 
 
                     If tok.ContainsKey("x") Then ParseIntField(tok("x"), x)
@@ -3620,7 +3620,7 @@ Partial Class Formtest
                     End If
 
 
-                    Debug.WriteLine($"MB {name}: items={items.Length}, cmds={If(cmds Is Nothing, -1, cmds.Length)}, detmap={If(detmap Is Nothing, -1, detmap.Length)}")
+                    'Debug.WriteLine($"MB {name}: items={items.Length}, cmds={If(cmds Is Nothing, -1, cmds.Length)}, detmap={If(detmap Is Nothing, -1, detmap.Length)}")
 
 
                     ' --- caption label ---
