@@ -216,7 +216,9 @@ Partial Class Formtest
                 LoadCustomGuiFromFile(dlg.FileName)   ' sets LastUserConfigPath + restores textboxes
 
                 ButtonLoadTxtRefresh.Enabled = True
-                LabelUSERtab1.Visible = False
+                If GroupBoxCustom.Controls.Count > 1 Then   ' means UI actually built
+                    LabelUSERtab1.Visible = False
+                End If
 
             Catch ex As Exception
                 MessageBox.Show("Error loading layout file: " & ex.Message)
@@ -296,15 +298,18 @@ Partial Class Formtest
         ' Reset the title text
         GroupBoxCustom.Text = "User Defineable"
 
-        If LabelUSERtab1.IsDisposed Then
-            MessageBox.Show("LabelUSERtab1 was disposed (it must be outside the dynamic clear).")
-        Else
+        If LabelUSERtab1 IsNot Nothing AndAlso Not LabelUSERtab1.IsDisposed Then
+
+            ' Make absolutely sure it is parented correctly
             If LabelUSERtab1.Parent IsNot GroupBoxCustom Then
                 LabelUSERtab1.Parent = GroupBoxCustom
             End If
 
-            LabelUSERtab1.Visible = True
+            LabelUSERtab1.Visible = True      ' <<--- THIS guarantees it shows
             LabelUSERtab1.BringToFront()
+
+        Else
+            MessageBox.Show("LabelUSERtab1 is missing or disposed!", "Debug")
         End If
 
         ' Clear DATASOURCE + linked-control mappings
@@ -405,6 +410,7 @@ Partial Class Formtest
         Catch ex As Exception
             MessageBox.Show("REFRESH failed:" & vbCrLf & ex.ToString())
             LabelUSERtab1.Visible = True
+            LabelUSERtab1.BringToFront()
         Finally
             ' Re-enable if file still exists
             ButtonLoadTxtRefresh.Enabled = IO.File.Exists(LastUserConfigPath)

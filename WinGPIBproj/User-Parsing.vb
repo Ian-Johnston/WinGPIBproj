@@ -19,15 +19,31 @@ Partial Class Formtest
 
         UserConfig_DataSaveEnabled = True   ' reset to default for this config
 
-        ' Simple gate: require at least one device running
-        If Not gbox1.Enabled AndAlso Not gbox2.Enabled Then
-            MessageBox.Show(
+        ' --- Check whether this config actually needs dev1/dev2 ---
+        Dim needsDev1 As Boolean =
+        def.IndexOf("device=dev1", StringComparison.OrdinalIgnoreCase) >= 0
+        Dim needsDev2 As Boolean =
+        def.IndexOf("device=dev2", StringComparison.OrdinalIgnoreCase) >= 0
+
+        Dim missingDev1 As Boolean = needsDev1 AndAlso Not gbox1.Enabled
+        Dim missingDev2 As Boolean = needsDev2 AndAlso Not gbox2.Enabled
+
+        ' Only block if at least one required device is missing.
+        If missingDev1 OrElse missingDev2 Then
+            Dim msg As String =
             "No GPIB devices are currently connected." & vbCrLf & vbCrLf &
-            "Start Device1 and/or Device2, then reload the User config.",
-            "WinGPIB",
-            MessageBoxButtons.OK,
-            MessageBoxIcon.Warning
-            )
+            "Start Device1 and/or Device2, then reload the User config."
+
+            MessageBox.Show(msg, "WinGPIB",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning)
+
+            ' Reset the User tab instead of leaving it blank/half-built
+            ResetUsertab()
+
+            LabelUSERtab1.Visible = True
+            LabelUSERtab1.BringToFront()
+
             Exit Sub
         End If
 
@@ -158,22 +174,28 @@ Partial Class Formtest
             If line = "" OrElse line.StartsWith(";") Then Continue For
 
             ' Per-device GPIB engine selectors for USER tab
-            If line.StartsWith("GPIBenginedev1=", StringComparison.OrdinalIgnoreCase) Then
-                Dim val As String = line.Substring("GPIBenginedev1=".Length).Trim()
-                If String.Equals(val, "native", StringComparison.OrdinalIgnoreCase) Then
-                    GpibEngineDev1 = "native"
-                Else
-                    GpibEngineDev1 = "standalone"
+            If line.StartsWith("GPIBEngineDev1", StringComparison.OrdinalIgnoreCase) Then
+                Dim eq = line.IndexOf("="c)
+                If eq > 0 Then
+                    Dim val As String = line.Substring(eq + 1).Trim().TrimEnd(";"c)
+                    GpibEngineDev1 = If(
+            String.Equals(val, "native", StringComparison.OrdinalIgnoreCase),
+            "native",
+            "standalone"
+        )
                 End If
                 Continue For
             End If
 
-            If line.StartsWith("GPIBenginedev2=", StringComparison.OrdinalIgnoreCase) Then
-                Dim val As String = line.Substring("GPIBenginedev2=".Length).Trim()
-                If String.Equals(val, "native", StringComparison.OrdinalIgnoreCase) Then
-                    GpibEngineDev2 = "native"
-                Else
-                    GpibEngineDev2 = "standalone"
+            If line.StartsWith("GPIBEngineDev2", StringComparison.OrdinalIgnoreCase) Then
+                Dim eq = line.IndexOf("="c)
+                If eq > 0 Then
+                    Dim val As String = line.Substring(eq + 1).Trim().TrimEnd(";"c)
+                    GpibEngineDev2 = If(
+            String.Equals(val, "native", StringComparison.OrdinalIgnoreCase),
+            "native",
+            "standalone"
+        )
                 End If
                 Continue For
             End If
@@ -193,18 +215,24 @@ Partial Class Formtest
             End If
 
             ' -----------------------------
-            ' Simple KEY=VALUE directives (no semicolons)
-            ' e.g. DATASAVE=disabled
+            ' Simple KEY=VALUE directives (semicolon optional)
+            ' e.g. DATASAVE=enabled   or   DATASAVE=enabled;
             ' -----------------------------
-            If line.Contains("="c) AndAlso Not line.Contains(";"c) Then
-                Dim kv = line.Split({"="c}, 2)
+            If line.Contains("="c) Then
+                Dim clean = line.Trim()
+
+                ' remove trailing semicolon if present
+                clean = clean.TrimEnd(";"c)
+
+                Dim kv = clean.Split({"="c}, 2)
                 If kv.Length = 2 Then
                     Dim k = kv(0).Trim().ToLowerInvariant()
                     Dim v = kv(1).Trim().ToLowerInvariant()
 
                     Select Case k
                         Case "datasave"
-                            UserConfig_DataSaveEnabled = (v = "enabled" OrElse v = "true" OrElse v = "1")
+                            UserConfig_DataSaveEnabled =
+                    (v = "enabled" OrElse v = "true" OrElse v = "1")
                             Continue For
                     End Select
                 End If
@@ -1104,6 +1132,61 @@ Partial Class Formtest
                         End If
                     Next
 
+                    ' ============================
+                    '  NEW: multiline AUTO folding
+                    '  scale=auto;
+                    '     getrange=:VOLT:DC:RANG?;
+                    '     range1=0.2,mV,6;
+                    '     range2=2.0,V,7;
+                    '     ...
+                    ' becomes:
+                    '  scale=auto|:VOLT:DC:RANG?|0.2:mV:6,2.0:V:7,...
+                    ' ============================
+                    If tok.ContainsKey("scale") Then
+                        Dim s As String = tok("scale").Trim()
+                        If s.Equals("auto", StringComparison.OrdinalIgnoreCase) AndAlso tok.ContainsKey("getrange") Then
+
+                            Dim getRange As String = tok("getrange").Trim()
+
+                            Dim specs As New List(Of Tuple(Of Integer, String))()
+
+                            ' collect rangeN entries and sort by N
+                            For Each kvp In tok
+                                Dim key As String = kvp.Key
+                                If key.Length > 5 AndAlso key.StartsWith("range", StringComparison.OrdinalIgnoreCase) Then
+                                    Dim nStr As String = key.Substring(5)
+                                    Dim n As Integer
+                                    If Integer.TryParse(nStr, n) Then
+                                        Dim v As String = kvp.Value.Trim()
+                                        ' "0.2,mV,6" -> "0.2:mV:6"
+                                        v = v.Replace(",", ":")
+                                        specs.Add(Tuple.Create(n, v))
+                                    End If
+                                End If
+                            Next
+
+                            specs.Sort(Function(a, b) a.Item1.CompareTo(b.Item1))
+
+                            Dim partsList As New List(Of String)()
+                            For Each sItem In specs
+                                If sItem.Item2 <> "" Then partsList.Add(sItem.Item2)
+                            Next
+
+                            Dim newScale As String
+                            If partsList.Count > 0 Then
+                                newScale = "auto|" & getRange & "|" & String.Join(",", partsList)
+                            Else
+                                newScale = "auto|" & getRange
+                            End If
+
+                            ' overwrite scale so the original code sees the old one-line form
+                            tok("scale") = newScale
+                        End If
+                    End If
+                    ' ============================
+                    '  END multiline AUTO folding
+                    ' ============================
+
                     ' group name
                     If parts(1).Contains("="c) Then
                         If tok.ContainsKey("group") Then groupName = tok("group")
@@ -1167,27 +1250,71 @@ Partial Class Formtest
 
                     If scaleVal <> "" Then
                         Dim lower = scaleVal.ToLowerInvariant()
+
                         If lower.StartsWith("auto") Then
                             scaleIsAuto = True
 
-                            ' New form: auto|<rangeQuery>|<mapSpec>
-                            Dim autoParts() As String = scaleVal.Split("|"c)
-                            If autoParts.Length >= 2 Then
-                                rangeQueryForAuto = autoParts(1).Trim()
+                            ' ==============================
+                            '  NEW: multiline AUTO support
+                            '  scale=auto;
+                            '      getrange=:VOLT:DC:RANG?;
+                            '      range1=0.2,mV,6;
+                            '      range2=2.0,V,7;
+                            '      ...
+                            ' ==============================
+                            If tok.ContainsKey("getrange") Then
+                                ' Multiline style
+                                rangeQueryForAuto = tok("getrange").Trim()
+
+                                Dim specs As New List(Of Tuple(Of Integer, String))()
+
+                                ' collect rangeN entries and sort by N
+                                For Each kvp In tok
+                                    Dim key As String = kvp.Key
+                                    If key.Length > 5 AndAlso key.StartsWith("range", StringComparison.OrdinalIgnoreCase) Then
+                                        Dim nStr As String = key.Substring(5)
+                                        Dim n As Integer
+                                        If Integer.TryParse(nStr, n) Then
+                                            Dim v As String = kvp.Value.Trim()
+                                            ' "0.2,mV,6" -> "0.2:mV:6"
+                                            v = v.Replace(",", ":")
+                                            specs.Add(Tuple.Create(n, v))
+                                        End If
+                                    End If
+                                Next
+
+                                specs.Sort(Function(a, b) a.Item1.CompareTo(b.Item1))
+
+                                Dim partsList As New List(Of String)()
+                                For Each sItem In specs
+                                    If sItem.Item2 <> "" Then partsList.Add(sItem.Item2)
+                                Next
+
+                                If partsList.Count > 0 Then
+                                    autoMapSpec = String.Join(",", partsList)
+                                Else
+                                    autoMapSpec = ""
+                                End If
+
+                            Else
+                                ' OLD one-line form: auto|<rangeQuery>|<mapSpec>
+                                Dim autoParts() As String = scaleVal.Split("|"c)
+                                If autoParts.Length >= 2 Then
+                                    rangeQueryForAuto = autoParts(1).Trim()
+                                End If
+                                If autoParts.Length >= 3 Then
+                                    autoMapSpec = autoParts(2).Trim().TrimEnd(";"c)
+                                End If
                             End If
-                            If autoParts.Length >= 3 Then
-                                autoMapSpec = autoParts(2).Trim().TrimEnd(";"c)
-                            End If
+
                         Else
+                            ' Normal numeric scale
                             Double.TryParse(scaleVal,
-                                            Globalization.NumberStyles.Float,
-                                            Globalization.CultureInfo.InvariantCulture,
-                                            scale)
+                        Globalization.NumberStyles.Float,
+                        Globalization.CultureInfo.InvariantCulture,
+                        scale)
                         End If
                     End If
-
-
-
 
                     ' Decimal places (optional) dp=5
                     Dim dpVal As Integer = -1
@@ -1215,15 +1342,9 @@ Partial Class Formtest
                             rb.Tag = CStr(rb.Tag) & "|MAP=" & autoMapSpec
                         End If
                     Else
-                        rb.Tag = deviceName & "|" & command & "|" & scale.ToString(Globalization.CultureInfo.InvariantCulture)
+                        rb.Tag = deviceName & "|" & command & "|" &
+                                 scale.ToString(Globalization.CultureInfo.InvariantCulture)
                     End If
-
-
-
-
-                    ' Debug: see the tag we end up with
-                    'System.Diagnostics.Debug.WriteLine(
-                    '    "USER-RADIO-TAG: text='" & rb.Text & "' tag='" & CStr(rb.Tag) & "'")
 
                     ' THEN: append determine (optional)
                     ' determine=<query>|<expected>|resptext
@@ -1231,10 +1352,10 @@ Partial Class Formtest
                     If tok.ContainsKey("determine") Then
                         Dim det As String = tok("determine").Trim()
                         If det <> "" Then
-                            Dim dp() As String = det.Split("|"c)
-                            Dim detQ As String = If(dp.Length >= 1, dp(0).Trim(), "")
-                            Dim detE As String = If(dp.Length >= 2, dp(1).Trim(), "")
-                            Dim detF As String = If(dp.Length >= 3, dp(2).Trim().ToLowerInvariant(), "") ' optional
+                            Dim dp2() As String = det.Split("|"c)
+                            Dim detQ As String = If(dp2.Length >= 1, dp2(0).Trim(), "")
+                            Dim detE As String = If(dp2.Length >= 2, dp2(1).Trim(), "")
+                            Dim detF As String = If(dp2.Length >= 3, dp2(2).Trim().ToLowerInvariant(), "") ' optional
 
                             If detQ <> "" AndAlso detE <> "" Then
                                 rb.Tag = CStr(rb.Tag) & "|DETQ=" & detQ & "|DETE=" & detE
@@ -1251,7 +1372,6 @@ Partial Class Formtest
                     AddHandler rb.CheckedChanged, AddressOf Radio_CheckedChanged
                     gb.Controls.Add(rb)
                     Continue For
-
 
 
                 Case "SLIDER"
@@ -3414,9 +3534,13 @@ Partial Class Formtest
                     Dim tok As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
                     For i As Integer = 1 To parts.Length - 1
                         Dim t = parts(i).Trim()
+                        If t = "" Then Continue For
+
                         Dim eq = t.IndexOf("="c)
                         If eq > 0 AndAlso eq < t.Length - 1 Then
-                            tok(t.Substring(0, eq).Trim()) = t.Substring(eq + 1).Trim()
+                            Dim k = t.Substring(0, eq).Trim()
+                            Dim v = t.Substring(eq + 1).Trim().TrimEnd(";"c)
+                            If k <> "" Then tok(k) = v
                         End If
                     Next
 
@@ -3427,8 +3551,35 @@ Partial Class Formtest
                     If tok.ContainsKey("command") Then commandPrefix = tok("command")
                     If tok.ContainsKey("cmd") AndAlso commandPrefix = "" Then commandPrefix = tok("cmd")
 
-                    If tok.ContainsKey("items") Then itemsRaw = tok("items")
-                    If tok.ContainsKey("commands") Then commandsRaw = tok("commands")
+                    ' ---- multiline-aware for items / commands / detmap ----
+                    itemsRaw = ParseMultiValueField(parts, "items")
+                    'If itemsRaw = "" AndAlso tok.ContainsKey("items") Then
+                    'itemsRaw = tok("items")
+                    'End If
+
+                    commandsRaw = ParseMultiValueField(parts, "commands")
+                    'If commandsRaw = "" AndAlso tok.ContainsKey("commands") Then
+                    'commandsRaw = tok("commands")
+                    'End If
+
+                    detmapRaw = ParseMultiValueField(parts, "detmap")
+                    'If detmapRaw = "" AndAlso tok.ContainsKey("detmap") Then
+                    'detmapRaw = tok("detmap")
+                    'End If
+
+
+                    Debug.WriteLine("==== MULTIBUTTON DEBUG =====")
+                    Debug.WriteLine("NAME: " & name)
+
+                    Debug.WriteLine("ITEMS RAW:")
+                    Debug.WriteLine(If(itemsRaw, "<NULL>"))
+
+                    Debug.WriteLine("COMMANDS RAW:")
+                    Debug.WriteLine(If(commandsRaw, "<NULL>"))
+
+                    Debug.WriteLine("DETMAP RAW:")
+                    Debug.WriteLine(If(detmapRaw, "<NULL>"))
+
 
                     If tok.ContainsKey("x") Then ParseIntField(tok("x"), x)
                     If tok.ContainsKey("y") Then ParseIntField(tok("y"), y)
@@ -3441,27 +3592,38 @@ Partial Class Formtest
                     If tok.ContainsKey("oncolor") Then onColorName = tok("oncolor").ToLowerInvariant()
                     If tok.ContainsKey("offcolor") Then offColorName = tok("offcolor").ToLowerInvariant()
 
-                    If tok.ContainsKey("detmap") Then detmapRaw = tok("detmap").Trim()
-
                     If name = "" OrElse device = "" OrElse itemsRaw = "" Then Continue For
 
-                    Dim items = itemsRaw.Split(","c).Select(Function(s) s.Trim()).Where(Function(s) s <> "").ToArray()
+                    ' ====== build arrays first ======
+                    Dim items = itemsRaw.Split(","c).
+                        Select(Function(s) s.Trim()).
+                        Where(Function(s) s <> "").
+                        ToArray()
                     If items.Length < 2 OrElse items.Length > 10 Then Continue For
 
                     Dim cmds() As String = Nothing
                     If commandsRaw <> "" Then
-                        cmds = commandsRaw.Split(","c).Select(Function(s) s.Trim()).ToArray()
+                        cmds = commandsRaw.Split(","c).
+                            Select(Function(s) s.Trim()).
+                            Where(Function(s) s <> "").
+                            ToArray()
                         If cmds.Length <> items.Length Then Continue For
                     Else
                         If commandPrefix = "" Then Continue For
                     End If
 
-                    ' ---- detmap (optional, must match items count) ----
                     Dim detmap() As String = Nothing
                     If detmapRaw <> "" Then
-                        detmap = detmapRaw.Split(","c).Select(Function(s) s.Trim()).Where(Function(s) s <> "").ToArray()
+                        detmap = detmapRaw.Split(","c).
+                            Select(Function(s) s.Trim()).
+                            Where(Function(s) s <> "").
+                            ToArray()
                         If detmap.Length <> items.Length Then Continue For
                     End If
+
+
+                    Debug.WriteLine($"MB {name}: items={items.Length}, cmds={If(cmds Is Nothing, -1, cmds.Length)}, detmap={If(detmap Is Nothing, -1, detmap.Length)}")
+
 
                     ' --- caption label ---
                     Dim capW As Integer = 0
@@ -3487,14 +3649,13 @@ Partial Class Formtest
                         items.Length & "|-1" &
                         "|ONCLR=" & onColorName & "|OFFCLR=" & offColorName
 
-                    ' determine=<query>||resptext  (expected omitted in detmap mode)
+                    ' determine=<query>||resptext
                     If determineRaw <> "" Then
                         Dim dp() = determineRaw.Split("|"c)
                         Dim detQ As String = If(dp.Length >= 1, dp(0).Trim(), "")
                         Dim detE As String = If(dp.Length >= 2, dp(1).Trim(), "")
                         Dim detF As String = If(dp.Length >= 3, dp(2).Trim().ToLowerInvariant(), "")
 
-                        ' support determine=CONF?||resptext  (dp(1) empty)
                         If detQ <> "" Then
                             tagBase &= "|DETQ=" & detQ
                             If detE <> "" Then tagBase &= "|DETE=" & detE
@@ -3529,6 +3690,7 @@ Partial Class Formtest
 
                     ApplyMultiButtonVisual(pnl, -1)
                     Continue For
+
 
 
                 Case "KEYPAD"
@@ -3622,7 +3784,6 @@ Partial Class Formtest
         ApplyDetermineToggles()
         ApplyDetermineToggleDuals()
         ApplyDetermineMultiButtons()
-
 
     End Sub
 
@@ -3793,13 +3954,25 @@ Partial Class Formtest
     ' MINIMAL NAMED PARAM PARSER HELPERS
     Private Function ParseNamedParams(parts() As String) As Dictionary(Of String, String)
         Dim dict As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+
         For i As Integer = 1 To parts.Length - 1
             Dim s = parts(i).Trim()
-            If s.Contains("=") Then
+            If s = "" Then Continue For
+
+            ' Allow optional trailing semicolon: caption=Foo;  → caption=Foo
+            s = s.TrimEnd(";"c)
+
+            If s.Contains("="c) Then
                 Dim kv = s.Split({"="c}, 2)
-                dict(kv(0).Trim()) = kv(1).Trim()
+                Dim key = kv(0).Trim()
+                Dim val = kv(1).Trim().TrimEnd(";"c)   ' extra safety if value itself ends with ;
+
+                If key <> "" Then
+                    dict(key) = val
+                End If
             End If
         Next
+
         Return dict
     End Function
 
@@ -5443,6 +5616,54 @@ Partial Class Formtest
         Return result
 
     End Function
+
+
+    ' Multiline-aware parser for fields like:
+    '   commands=a,b,
+    '       c,d,
+    '       e;
+    ' or single-line:
+    '   commands=a,b,c,d,e;
+    Private Function ParseMultiValueField(parts() As String, key As String) As String
+        ' Join the whole MULTIBUTTON block back together so we can
+        ' reliably grab: key= ... up to the next semicolon.
+        Dim block As String = String.Join(";", parts)
+
+        ' Find "key=" (e.g. "items=" or "commands=" or "detmap=")
+        Dim idx As Integer = block.IndexOf(key & "=", StringComparison.OrdinalIgnoreCase)
+        If idx < 0 Then
+            Return ""
+        End If
+
+        ' Start of the value, just after "key="
+        idx += key.Length + 1
+
+        ' Value runs up to the next ';' or end of string
+        Dim endIdx As Integer = block.IndexOf(";"c, idx)
+        Dim raw As String
+        If endIdx >= 0 Then
+            raw = block.Substring(idx, endIdx - idx)
+        Else
+            raw = block.Substring(idx)
+        End If
+
+        ' Now raw is something like:
+        '   "ACV,
+        '    DCV,
+        '    R2W,
+        '    ..."
+        ' Split on commas, trim spaces/CRLF, drop empties
+        Dim vals =
+            raw.Split(","c).
+                Select(Function(s) s.Trim()).
+                Where(Function(s) s <> "").
+                ToArray()
+
+        Return String.Join(",", vals)
+    End Function
+
+
+
 
 
 

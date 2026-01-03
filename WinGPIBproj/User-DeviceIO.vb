@@ -110,13 +110,15 @@ Partial Class Formtest
 
                 If status = 0 AndAlso q IsNot Nothing Then
 
-                    raw = respNorm.Trim()
+                    ' SAFER: use the actual query response, not respNorm
+                    Dim resp As String = If(q.ResponseAsString, String.Empty)
+                    ' If you want locale-safe numeric normalisation, keep using your helper:
+                    raw = NormalizeNumericResponse(resp).Trim()
 
                 ElseIf q IsNot Nothing Then
-
                     ' Treat "Blocking" as a non-fatal "busy" condition – keep old value
                     If status = -1 AndAlso Not String.IsNullOrEmpty(q.errmsg) AndAlso
-               q.errmsg.IndexOf("Blocking", StringComparison.OrdinalIgnoreCase) >= 0 Then
+       q.errmsg.IndexOf("Blocking", StringComparison.OrdinalIgnoreCase) >= 0 Then
 
                         ' Just bail out without touching any controls
                         Exit Sub
@@ -127,6 +129,7 @@ Partial Class Formtest
                 Else
                     outText = "ERR " & status & " (no IOQuery)"
                 End If
+
 
                 ' If we already built an ERR string, skip numeric formatting and just output it
                 If outText.StartsWith("ERR ", StringComparison.OrdinalIgnoreCase) Then
@@ -291,7 +294,8 @@ Partial Class Formtest
             ' Look up DATASOURCE to see if user wants decimal or raw/sci
             Dim useDecimal As Boolean = True
             Dim ds As DataSourceDef = Nothing
-            If DataSources.TryGetValue(resultControlName, ds) AndAlso ds IsNot Nothing Then
+
+            If DataSources IsNot Nothing AndAlso DataSources.TryGetValue(resultControlName, ds) AndAlso ds IsNot Nothing Then
                 useDecimal = ds.ForceDecimal
             End If
 
@@ -564,7 +568,7 @@ FanOut:
 
         ' ---- HISTORYGRID (no TextBox required) ----
         Dim grids As List(Of String) = Nothing
-        If HistoryGridsByTarget.TryGetValue(resultControlName, grids) Then
+        If HistoryGridsByTarget IsNot Nothing AndAlso HistoryGridsByTarget.TryGetValue(resultControlName, grids) Then
             Dim dv As Double
             If TryExtractFirstDouble(feedText, dv) Then
                 For Each gridName In grids
@@ -572,6 +576,7 @@ FanOut:
                 Next
             End If
         End If
+
 
     End Sub
 
