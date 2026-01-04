@@ -396,6 +396,8 @@ Partial Class Formtest
             ' Query and get response
             Dim q As IOQuery = Nothing
             dev1.QueryBlocking(queryCommand, q, False)
+            Debug.WriteLine("BLOCKING DetermineQuery: ")
+
             Cbdev1(q)
 
             ' Update status and text file

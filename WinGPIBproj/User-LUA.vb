@@ -165,6 +165,8 @@ Partial Class Formtest
                                               Dim q As IODevices.IOQuery = Nothing
                                               Dim fullCmd As String = cmd & TermStr2()
                                               Dim status As Integer = dev.QueryBlocking(fullCmd, q, False)
+                                              Debug.WriteLine("BLOCKING DetermineQuery: " & status)
+
 
                                               If status = 0 AndAlso q IsNot Nothing Then
                                                   Return respNorm.Trim()

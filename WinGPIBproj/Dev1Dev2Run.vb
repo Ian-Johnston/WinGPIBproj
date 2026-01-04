@@ -643,6 +643,8 @@ Partial Class Formtest
                     If CheckBoxSendBlockingDev1.Checked = True Then
                         Dim q As IOQuery = Nothing
                         dev1.QueryBlocking(CommandStart1run.Text, q, True) 'simpler version with string parameter
+                        Debug.WriteLine("BLOCKING DetermineQuery: ")
+
                         Cbdev1(q)
                     Else
                         dev1.QueryAsync(CommandStart1run.Text, AddressOf Cbdev1, True)      ' 3457A mode is OFF so execute normal command
@@ -661,6 +663,8 @@ Partial Class Formtest
                     If CheckBoxSendBlockingDev1.Checked = True Then
                         Dim q As IOQuery = Nothing
                         dev1.QueryBlocking(CommandStart1run.Text, q, False) 'simpler version with string parameter
+                        Debug.WriteLine("BLOCKING DetermineQuery: ")
+
                         Cbdev1(q)
                     Else
                         dev1.QueryAsync(CommandStart1run.Text, AddressOf Cbdev1, False)
@@ -832,6 +836,8 @@ Partial Class Formtest
                     If CheckBoxSendBlockingDev2.Checked = True Then
                         Dim q As IOQuery = Nothing
                         dev2.QueryBlocking(CommandStart2run.Text, q, True) 'simpler version with string parameter
+                        Debug.WriteLine("BLOCKING DetermineQuery: ")
+
                         Cbdev2(q)
                     Else
 
@@ -852,6 +858,8 @@ Partial Class Formtest
                     If CheckBoxSendBlockingDev2.Checked = True Then
                         Dim q As IOQuery = Nothing
                         dev2.QueryBlocking(CommandStart2run.Text, q, False) 'simpler version with string parameter
+                        Debug.WriteLine("BLOCKING DetermineQuery: ")
+
                         Cbdev2(q)
                     Else
 

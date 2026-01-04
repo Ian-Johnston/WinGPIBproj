@@ -628,6 +628,8 @@ Partial Class Formtest
             For CalAddrtemp As Integer = 1 To 10 Step 1
                 Dim r As IOQuery = Nothing
                 dev1.QueryBlocking("MREAD " & CalAddrStart, r, False)
+                Debug.WriteLine("BLOCKING DetermineQuery: ")
+
                 Cbdev1(r)
                 System.Threading.Thread.Sleep(50)     ' 50mS delay
             Next
@@ -645,6 +647,8 @@ Partial Class Formtest
                 ' Send MREAD command and process reply
                 Dim q As IOQuery = Nothing
                 dev1.QueryBlocking("MREAD " & CalAddr, q, False)
+                Debug.WriteLine("BLOCKING DetermineQuery: ")
+
                 Cbdev1(q)
 
                 ' Store reply as hexadecimal and pad to 4 characters
@@ -787,6 +791,8 @@ Partial Class Formtest
             For CalAddrtemp As Integer = 1 To 10 Step 1
                 Dim r As IOQuery = Nothing
                 dev1.QueryBlocking("MREAD " & CalAddrStart, r, False)
+                Debug.WriteLine("BLOCKING DetermineQuery: ")
+
                 Cbdev1(r)
                 System.Threading.Thread.Sleep(50)     ' 50mS delay
             Next
@@ -804,6 +810,8 @@ Partial Class Formtest
                 ' Send MREAD command and process reply
                 Dim q As IOQuery = Nothing
                 dev1.QueryBlocking("MREAD " & CalAddr, q, False)
+                Debug.WriteLine("BLOCKING DetermineQuery: ")
+
                 Cbdev1(q)
 
                 ' Store reply as hexadecimal
@@ -960,6 +968,8 @@ Partial Class Formtest
             For CalAddrtemp As Integer = 1 To 10 Step 1
                 Dim r As IOQuery = Nothing
                 dev1.QueryBlocking("PEEK " & CalAddrStart3457A, r, False)
+                Debug.WriteLine("BLOCKING DetermineQuery: ")
+
                 Cbdev1(r)
                 System.Threading.Thread.Sleep(50)     ' 50mS delay
             Next
@@ -979,6 +989,8 @@ Partial Class Formtest
                 ' Send MREAD command with address and wait for reply
                 Dim q As IOQuery = Nothing
                 dev1.QueryBlocking("PEEK " & CalAddr3457A, q, False)
+                Debug.WriteLine("BLOCKING DetermineQuery: ")
+
                 Cbdev1(q)   ' Process reply which stores value in txtr1a.Text (see Formtest.vb)
 
                 ' Got reply, store it in array

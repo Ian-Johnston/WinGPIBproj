@@ -1748,6 +1748,8 @@ Partial Class Formtest
         End If
 
         result = dev1.QueryBlocking(txtq1b.Text, q, True) 'standard version with IOQuery parameter
+        Debug.WriteLine("BLOCKING DetermineQuery: " & result)
+
         'result = dev1.QueryBlocking(txtq1b.Text & TermStr2(), q, True) 'simpler version with string parameter, modified for BB3 operation
 
         s = "blocking command:'" & q.cmd & "'" & vbCrLf

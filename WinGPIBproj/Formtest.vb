@@ -1237,6 +1237,8 @@ Public Class Formtest
         btnq1b.Enabled = False
         'result = dev1.QueryBlocking(txtq1b.Text, q, True) 'standard version with IOQuery parameter
         result = dev1.QueryBlocking(txtq1b.Text & TermStr2(), q, True) 'simpler version with string parameter, modified for BB3 operation
+        Debug.WriteLine("BLOCKING DetermineQuery: " & result)
+
 
         btnq1b.Enabled = True
 
@@ -1303,6 +1305,8 @@ Public Class Formtest
         btnq2b.Enabled = False
 
         result = dev2.QueryBlocking(txtq2b.Text & TermStr2(), q, True) 'simpler version with string parameter, modified for BB3 operation
+        Debug.WriteLine("BLOCKING DetermineQuery: " & result)
+
 
         btnq2b.Enabled = True
 

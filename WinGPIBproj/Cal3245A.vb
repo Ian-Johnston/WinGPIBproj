@@ -538,6 +538,8 @@ Partial Class Formtest
         End If
 
         result = dev1.QueryBlocking(txtq1b.Text & TermStr2(), q, False)      'standard version with IOQuery parameter       PDVS2mini sub uses TRUE
+        Debug.WriteLine("BLOCKING DetermineQuery: " & result)
+
 
         s = "blocking command:'" & q.cmd & "'" & vbCrLf
 

@@ -1926,6 +1926,7 @@ Partial Class Formtest
         Else
             Dim q As IODevices.IOQuery = Nothing
             Dim st As Integer = dev.QueryBlocking(queryCommand & TermStr2(), q, False)
+            Debug.WriteLine("BLOCKING DetermineQuery: " & st)
             If st = 0 AndAlso q IsNot Nothing Then
                 raw = respNorm
             Else

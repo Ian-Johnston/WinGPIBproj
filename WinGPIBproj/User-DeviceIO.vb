@@ -98,6 +98,7 @@ Partial Class Formtest
 
                 ' NATIVE PATH: use existing UI query buttons/textboxes
                 raw = NativeQuery(deviceName, commandOrPrefix, requireRaw:=wantRaw)
+                Debug.WriteLine("GET RAW RESPONSE Query: " & raw)
 
             Else
 
@@ -107,6 +108,7 @@ Partial Class Formtest
 
                 Dim fullCmd As String = commandOrPrefix & TermStr2()
                 status = dev.QueryBlocking(fullCmd, q, False)
+                Debug.WriteLine("BLOCKING DetermineQuery: " & status)
 
                 If status = 0 AndAlso q IsNot Nothing Then
 
@@ -219,9 +221,7 @@ Partial Class Formtest
             ' ============================
             '    AUTO SCALE MODE LOGIC
             ' ============================
-            If CurrentUserScaleIsAuto AndAlso
-               dev IsNot Nothing AndAlso
-               Not String.IsNullOrWhiteSpace(CurrentUserRangeQuery) Then
+            If CurrentUserScaleIsAuto AndAlso dev IsNot Nothing AndAlso Not String.IsNullOrWhiteSpace(CurrentUserRangeQuery) AndAlso Not String.IsNullOrWhiteSpace(commandOrPrefix) Then
 
                 Dim cacheKey As String = deviceName & "||" & CurrentUserRangeQuery
                 Dim rngVal As Double
@@ -235,10 +235,12 @@ Partial Class Formtest
                         If IsNativeEngine(deviceName) Then
                             ' Range query via native engine path
                             rngStr = NativeQuery(deviceName, CurrentUserRangeQuery)
+                            Debug.WriteLine("AUTOSCALE Query: " & rngStr)
                         Else
                             ' Range query via standalone path
                             Dim rq As IODevices.IOQuery = Nothing
                             Dim st2 As Integer = dev.QueryBlocking(CurrentUserRangeQuery & TermStr2(), rq, False)
+                            Debug.WriteLine("BLOCKING DetermineQuery: " & st2)
 
                             If st2 = 0 AndAlso rq IsNot Nothing Then
                                 'rngStr = rq.ResponseAsString.Trim()                            ' Original potentially unsafe ResponseAsString
@@ -648,7 +650,7 @@ FanOut:
 
             If deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
                 USERdev1rawoutput = requireRaw
-                USERdev1fastquery = True          ' <<< ONLY HERE
+                USERdev1fastquery = True
             ElseIf deviceName.Equals("dev2", StringComparison.OrdinalIgnoreCase) Then
                 USERdev2rawoutput = requireRaw
                 USERdev2fastquery = True
@@ -666,7 +668,7 @@ FanOut:
             Finally
                 If deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
                     USERdev1rawoutput = False
-                    USERdev1fastquery = False     ' <<< RESET HERE
+                    USERdev1fastquery = False
                 ElseIf deviceName.Equals("dev2", StringComparison.OrdinalIgnoreCase) Then
                     USERdev2rawoutput = False
                     USERdev2fastquery = False
@@ -674,7 +676,7 @@ FanOut:
             End Try
         End If
 
-        ' Standalone engine path unchanged
+        ' STANDALONE engine path only:
         Dim dev As IODevices.IODevice = Nothing
         Select Case deviceName.ToLowerInvariant()
             Case "dev1" : dev = dev1
@@ -684,6 +686,7 @@ FanOut:
 
         Dim q As IODevices.IOQuery = Nothing
         Dim status = dev.QueryBlocking(cmd & TermStr2(), q, False)
+        Debug.WriteLine("BLOCKING DetermineQuery: " & cmd)
         If status = 0 AndAlso q IsNot Nothing Then
             Return respNorm
         End If
