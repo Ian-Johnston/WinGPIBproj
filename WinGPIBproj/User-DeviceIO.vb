@@ -35,6 +35,9 @@ Partial Class Formtest
 
         Dim target = GetControlByName(resultControlName)
 
+        ' Is this result backed by a DATASOURCE definition?
+        Dim isDataSource As Boolean = (DataSources IsNot Nothing AndAlso DataSources.ContainsKey(resultControlName))
+
         ' test only
         'DetDbgLog($"AUTO DEBUG dev={deviceName}, cmd={commandOrPrefix}, target={resultControlName}")
         'ShowCopyableDebug("Determine Debug", _detDbg.ToString())
@@ -59,11 +62,15 @@ Partial Class Formtest
         End If
 
         ' Single READ button sync units
-        Try
-            SyncUserUnitsAndScaleFromCheckedRadios()
-        Catch
-            ' Best-effort only – never let a units sync failure kill the read
-        End Try
+        ' Only do this for real device queries (rawOverride Is Nothing),
+        ' not for CALC fan-out (PushNumericResult), which passes rawOverride.
+        If rawOverride Is Nothing Then
+            Try
+                SyncUserUnitsAndScaleFromCheckedRadios()
+            Catch
+                ' Best-effort only – never let a units sync failure kill the read
+            End Try
+        End If
 
         Dim raw As String = ""
         Dim outText As String = ""
@@ -221,7 +228,7 @@ Partial Class Formtest
             ' ============================
             '    AUTO SCALE MODE LOGIC
             ' ============================
-            If CurrentUserScaleIsAuto AndAlso dev IsNot Nothing AndAlso Not String.IsNullOrWhiteSpace(CurrentUserRangeQuery) AndAlso Not String.IsNullOrWhiteSpace(commandOrPrefix) Then
+            If rawOverride Is Nothing AndAlso CurrentUserScaleIsAuto AndAlso dev IsNot Nothing AndAlso Not String.IsNullOrWhiteSpace(CurrentUserRangeQuery) AndAlso Not String.IsNullOrWhiteSpace(commandOrPrefix) Then
 
                 Dim cacheKey As String = deviceName & "||" & CurrentUserRangeQuery
                 Dim rngVal As Double
