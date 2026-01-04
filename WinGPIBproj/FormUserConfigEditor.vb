@@ -913,6 +913,14 @@ Public Class FormUserConfigEditor
 
     Private Sub txtEditor_KeyDown(sender As Object, e As KeyEventArgs) Handles txtEditor.KeyDown
 
+        ' --- TAB = 3 SPACES ---
+        If e.KeyCode = Keys.Tab Then
+            e.SuppressKeyPress = True
+            txtEditor.SelectedText = "   "
+            Return
+        End If
+
+        ' --- RNTER ---
         If e.KeyCode <> Keys.Enter Then Return
 
         Dim caretPos As Integer = txtEditor.SelectionStart
