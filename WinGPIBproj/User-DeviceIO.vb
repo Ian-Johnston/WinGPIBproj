@@ -151,12 +151,6 @@ Partial Class Formtest
         raw = If(raw, "").Trim()
 
 
-        ' test only
-        'MessageBox.Show($"RAW-trim: dev={deviceName}, cmd={commandOrPrefix}, target={resultControlName}, raw=[{raw}]")
-
-
-
-
         ' =========================================================
         '   OVERLOAD DETECT (overload=token|raw or token|disp)
         '   Default (no |suffix) = disp

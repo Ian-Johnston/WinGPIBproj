@@ -8,7 +8,7 @@ Imports System.Text
 Imports System.Threading
 Imports System.Windows.Forms.DataVisualization.Charting
 Imports IODevices
-
+Imports System.Threading.Tasks
 
 
 Partial Class Formtest
@@ -250,9 +250,23 @@ Partial Class Formtest
         ' Invalidate any in-flight async UI updates ASAP
         Threading.Interlocked.Increment(UserLayoutGen)
 
-        ' Stop User tab dev1 and dev2 timers ASAP
+        ' Stop FuncAuto is running
+        AutoJobs5.Clear()
+        AutoJobs16.Clear()
+
+        ' Stop Timers
+        Timer5.Enabled = False
+        Timer15.Enabled = False
+        Timer16.Enabled = False
         Me.Timer5.Stop()
+        Me.Timer15.Stop()
         Me.Timer16.Stop()
+
+        ' Clear QUERIESTOFILE auto state (Timer15)
+        Auto15DeviceName = ""
+        Auto15ScriptBoxName = ""
+        Auto15FilePathControl = ""
+        Auto15ResultControl = ""
 
         ' Reset LUA state completely
         inLuaScript = False
@@ -377,13 +391,9 @@ Partial Class Formtest
     End Sub
 
 
-    Private Sub ButtonLoadTxtRefresh_Click(sender As Object, e As EventArgs) Handles ButtonLoadTxtRefresh.Click
+    Private Async Sub ButtonLoadTxtRefresh_Click(sender As Object, e As EventArgs) Handles ButtonLoadTxtRefresh.Click
 
-        SaveUserTextboxState()
-        ResetUsertab()
-        LoadCustomGuiFromFile(LastUserConfigPath)
-        RestoreUserTextboxState()
-
+        ' Make sure we actually have something to refresh
         If String.IsNullOrWhiteSpace(LastUserConfigPath) OrElse Not IO.File.Exists(LastUserConfigPath) Then
             MessageBox.Show("No previously loaded config file to refresh.")
             ButtonLoadTxtRefresh.Enabled = False
@@ -392,19 +402,50 @@ Partial Class Formtest
 
         ButtonLoadTxtRefresh.Enabled = False
 
+        ' --------------------------------------
+        ' FIRST: turn off any FuncAuto checkbox
+        ' --------------------------------------
+        Dim stack As New Stack(Of Control)()
+        stack.Push(GroupBoxCustom)
+
+        While stack.Count > 0
+            Dim parent As Control = stack.Pop()
+
+            For Each child As Control In parent.Controls
+                Dim cb = TryCast(child, CheckBox)
+                If cb IsNot Nothing AndAlso
+                cb.Name.IndexOf("funcauto", StringComparison.OrdinalIgnoreCase) >= 0 Then
+                    cb.Checked = False   ' fires FuncAutoCheckbox_CheckedChanged → stops jobs & timers
+                End If
+
+                If child.HasChildren Then
+                    stack.Push(child)
+                End If
+            Next
+        End While
+
+        Await Task.Delay(500)   ' delay – UI still responsive
+
+        ' Let checkbox handlers run before we nuke UI
+        Application.DoEvents()
+
         Try
-            ' 1) Save textbox state before destroying controls
+            ' 1) Preserve any edited TEXTBOX contents for this config
             SaveUserTextboxState()
 
-            ' 2) Reset user tab (dispose dynamic controls, stop timers, clear dictionaries)
+            ' 2) Full reset: stops all timers (5/15/16), clears Auto jobs, LUTs, UI, etc.
             ResetUsertab()
 
-            ' 3) Reload config
+            ' 3) Give any in-flight FuncAuto / worker updates a moment to finish
+            '    against the now-empty layout, so they can't touch the new controls.
+            Application.DoEvents()
+            Threading.Thread.Sleep(10)   ' tweak if needed (e.g. 100–300ms)
+            Application.DoEvents()
+
+            ' 4) Reload config once
             LoadCustomGuiFromFile(LastUserConfigPath)
 
-            ' 4) Restore textbox values for this config
-            RestoreUserTextboxState()
-
+            ' 5) Hide the “instructions” label once we have a live layout
             LabelUSERtab1.Visible = False
 
         Catch ex As Exception
@@ -2059,6 +2100,9 @@ Partial Class Formtest
                                         filePathControlName As String,
                                         Optional resultControlName As String = "")
 
+        ' Remember layout generation so we can abort if REFRESH/RESET happens
+        Dim layoutGenAtStart As Integer = UserLayoutGen
+
         Dim scriptTb As TextBox = TryCast(GetControlByName(scriptControlName), TextBox)
         If scriptTb Is Nothing Then
             Timer15.Enabled = False
@@ -2066,6 +2110,7 @@ Partial Class Formtest
         End If
 
         For Each rawLine As String In scriptTb.Lines
+
             Dim line As String = rawLine.Trim()
             If line = "" Then Continue For
             If line.StartsWith(";"c) Then Continue For
