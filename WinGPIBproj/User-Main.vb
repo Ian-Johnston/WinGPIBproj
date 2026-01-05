@@ -430,22 +430,16 @@ Partial Class Formtest
         Application.DoEvents()
 
         Try
-            ' 1) Preserve any edited TEXTBOX contents for this config
+            ' Preserve any edited TEXTBOX contents for this config
             SaveUserTextboxState()
 
-            ' 2) Full reset: stops all timers (5/15/16), clears Auto jobs, LUTs, UI, etc.
+            ' Full reset: stops all timers (5/15/16), clears Auto jobs, LUTs, UI, etc.
             ResetUsertab()
 
-            ' 3) Give any in-flight FuncAuto / worker updates a moment to finish
-            '    against the now-empty layout, so they can't touch the new controls.
-            Application.DoEvents()
-            Threading.Thread.Sleep(10)   ' tweak if needed (e.g. 100–300ms)
-            Application.DoEvents()
-
-            ' 4) Reload config once
+            ' Reload config once
             LoadCustomGuiFromFile(LastUserConfigPath)
 
-            ' 5) Hide the “instructions” label once we have a live layout
+            ' Hide the “instructions” label once we have a live layout
             LabelUSERtab1.Visible = False
 
         Catch ex As Exception
