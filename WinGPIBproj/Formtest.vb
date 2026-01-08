@@ -26,6 +26,8 @@ Imports System.IO.Ports
 'Imports System.Drawing
 Imports System.Management
 Imports System.Net
+Imports System.Reflection
+Imports System.Runtime.InteropServices
 'Imports System.Xml.Serialization
 'Imports System.Configuration
 'Imports System.Text.RegularExpressions
@@ -35,12 +37,47 @@ Imports System.Text
 Imports System.Text.RegularExpressions
 Imports IODevices
 Imports MoonSharp.Interpreter
-Imports System.Reflection
 
 
 Public Class Formtest
 
-    'Inherits Form
+    ' IODevices form tracker
+    Private ioDevicesOffsetInitialized As Boolean = False
+    Private ioDevicesOffsetX As Integer
+    Private ioDevicesOffsetY As Integer
+    ' IODevices tracking – remember last main window position
+    Private lastMainLeft As Integer
+    Private lastMainTop As Integer
+    Private lastMainPosInit As Boolean = False
+
+    <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Shared Function FindWindow(lpClassName As String, lpWindowName As String) As IntPtr
+    End Function
+    <DllImport("user32.dll", SetLastError:=True)>
+    Private Shared Function SetWindowPos(hWnd As IntPtr,
+                                         hWndInsertAfter As IntPtr,
+                                         X As Integer,
+                                         Y As Integer,
+                                         cx As Integer,
+                                         cy As Integer,
+                                         uFlags As UInteger) As Boolean
+    End Function
+    Private Const SWP_NOSIZE As UInteger = &H1UI
+    Private Const SWP_NOZORDER As UInteger = &H4UI
+
+    <DllImport("user32.dll", SetLastError:=True)>
+    Private Shared Function GetWindowRect(hWnd As IntPtr, ByRef lpRect As RECT) As Boolean
+    End Function
+
+    Private Structure RECT
+        Public Left As Integer
+        Public Top As Integer
+        Public Right As Integer
+        Public Bottom As Integer
+    End Structure
+
+
+    ' ##########################################################################################################################
 
     ' q.ResponseAsString replacement var
     Dim respRaw As String
@@ -186,7 +223,7 @@ Public Class Formtest
         Try
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.063"
+            BannerText1 = "WinGPIB   V4.064"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
 
             ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
@@ -269,6 +306,19 @@ Public Class Formtest
                 comPort_ComboBox.SelectedItem = My.Settings.data333
                 comPORT = My.Settings.data333
             End If
+
+            ' Prologix Serial Device - Set DTR behaviour for all Prologix serial devices
+            IODevices.PrologixDeviceSerial.PrologixSerialDTREnable = My.Settings.PrologixSerialDTRenable
+            CheckBoxPrologixSerialDTR.Checked = My.Settings.PrologixSerialDTRenable
+
+            ' Serial COM Device - Set DTR/RTS behaviour for all serial COM port serial devices
+            IODevices.SerialDevice.SerialCOMDTREnable = My.Settings.SerialCOMDTREnable
+            CheckBoxSerialCOMDTREnable.Checked = My.Settings.SerialCOMDTREnable
+            IODevices.SerialDevice.SerialCOMRTSEnable = My.Settings.SerialCOMRTSEnable
+            CheckBoxSerialCOMRTSEnable.Checked = My.Settings.SerialCOMRTSEnable
+
+            ' IODevices window x-y tracker
+            CheckBoxIODevicesFormTracker.Checked = My.Settings.IODevicesFormTracker
 
             ' Recall all saved data
             txtname1.Text = My.Settings.data1
@@ -2872,6 +2922,103 @@ Public Class Formtest
 
     End Sub
 
+
+    Private Sub CheckBoxPrologixSerialDRT_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxPrologixSerialDTR.CheckedChanged
+
+        IODevices.PrologixDeviceSerial.PrologixSerialDTREnable = CheckBoxPrologixSerialDTR.Checked
+
+        Dim state = CheckBoxPrologixSerialDTR.Checked
+
+        IODevices.PrologixDeviceSerial.PrologixSerialDTREnable = state
+        My.Settings.PrologixSerialDTRenable = state
+
+        My.Settings.Save()
+
+    End Sub
+
+
+    Private Sub CheckBoxSerialCOMDTREnable_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxSerialCOMDTREnable.CheckedChanged
+
+        IODevices.SerialDevice.SerialCOMDTREnable = CheckBoxSerialCOMDTREnable.Checked
+
+        Dim state = CheckBoxSerialCOMDTREnable.Checked
+
+        IODevices.SerialDevice.SerialCOMDTREnable = state
+        My.Settings.SerialCOMDTREnable = state
+
+        My.Settings.Save()
+
+    End Sub
+
+
+    Private Sub CheckBoxSerialCOMRTSEnable_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxSerialCOMRTSEnable.CheckedChanged
+
+        IODevices.SerialDevice.SerialCOMRTSEnable = CheckBoxSerialCOMRTSEnable.Checked
+
+        Dim state = CheckBoxSerialCOMRTSEnable.Checked
+
+        IODevices.SerialDevice.SerialCOMRTSEnable = state
+        My.Settings.SerialCOMRTSEnable = state
+
+        My.Settings.Save()
+
+    End Sub
+
+
+    Private Sub FormMain_LocationChanged(sender As Object, e As EventArgs) Handles Me.LocationChanged
+        If Not My.Settings.IODevicesFormTracker Then
+            ' Even if tracking is off, keep lastMain* updated
+            lastMainLeft = Me.Left
+            lastMainTop = Me.Top
+            lastMainPosInit = True
+            Exit Sub
+        End If
+
+        Dim devicesCaption As String = "IO Devices"   ' exact title of the popup
+
+        Dim hWnd = FindWindow(Nothing, devicesCaption)
+        If hWnd = IntPtr.Zero Then
+            ' Popup not open – just remember current main pos
+            lastMainLeft = Me.Left
+            lastMainTop = Me.Top
+            lastMainPosInit = True
+            Exit Sub
+        End If
+
+        ' If this is the first time we see a move, just initialise
+        If Not lastMainPosInit Then
+            lastMainLeft = Me.Left
+            lastMainTop = Me.Top
+            lastMainPosInit = True
+            Exit Sub
+        End If
+
+        ' How far did the main form move since last time?
+        Dim dx As Integer = Me.Left - lastMainLeft
+        Dim dy As Integer = Me.Top - lastMainTop
+
+        ' Get the current popup position
+        Dim r As RECT
+        If GetWindowRect(hWnd, r) Then
+            Dim newX As Integer = r.Left + dx
+            Dim newY As Integer = r.Top + dy
+
+            SetWindowPos(hWnd, IntPtr.Zero, newX, newY, 0, 0, SWP_NOSIZE Or SWP_NOZORDER)
+        End If
+
+        ' Update stored main position for next move
+        lastMainLeft = Me.Left
+        lastMainTop = Me.Top
+    End Sub
+
+
+    Private Sub CheckBoxIODevicesFormTracker_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxIODevicesFormTracker.CheckedChanged
+
+        Dim state = CheckBoxIODevicesFormTracker.Checked
+        My.Settings.IODevicesFormTracker = state
+        My.Settings.Save()
+
+    End Sub
 
 End Class
 

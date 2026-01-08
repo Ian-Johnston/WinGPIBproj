@@ -130,7 +130,7 @@ Public Class FormUserConfigEditor
     Private Const EM_GETFIRSTVISIBLELINE As Integer = &HCE
     Private Const EM_LINESCROLL As Integer = &HB6
 
-    ' Context menu + find bar
+    ' Context menu + find bar + refresh
     Private ctxEditor As ContextMenuStrip
     Private editorHost As Panel
     Private findPanel As Panel
@@ -140,6 +140,7 @@ Public Class FormUserConfigEditor
     Private btnFindClose As Button
     Private _lastFindText As String = ""
     Private _lastFindIndex As Integer = -1
+    Private btnFindRefresh As Button
 
     Private _configPath As String         ' was ReadOnly
     Private WithEvents lstBlocks As New ListBox()
@@ -153,8 +154,8 @@ Public Class FormUserConfigEditor
 
     Private suppressBlockSync As Boolean = False
 
-    ' Optional: let caller know when a save happened (for auto-reload)
     Public Event ConfigSaved(path As String)
+    Public Event RefreshRequested(path As String)
 
 
     <DllImport("user32.dll", CharSet:=CharSet.Auto)>
@@ -269,25 +270,21 @@ Public Class FormUserConfigEditor
         btnClose.FlatStyle = FlatStyle.Standard
         btnClose.UseVisualStyleBackColor = True
 
-        ' --- Last save label ---
+        ' --- Last save label (bottom-left) ---
         lblLastSave.AutoSize = False
-        lblLastSave.Left = btnClose.Right + 20
+        lblLastSave.Left = 10
         lblLastSave.Top = 11
         lblLastSave.Width = 220
         lblLastSave.Height = 18
         lblLastSave.TextAlign = ContentAlignment.MiddleLeft
-        lblLastSave.Text = "Last save: (not yet)"
 
-        ' --- File path textbox (editable) ---
+        ' --- File path textbox (to the right of label) ---
+        txtFilePath.Left = lblLastSave.Right + 8
         txtFilePath.Top = 8
-        txtFilePath.Left = lblLastSave.Right + 10
         txtFilePath.Height = 22
-        txtFilePath.Width = panelButtons.Width - txtFilePath.Left - 10
-        txtFilePath.Anchor = AnchorStyles.Left Or AnchorStyles.Right Or AnchorStyles.Top
-        txtFilePath.Text = _configPath
+        txtFilePath.Width = 400          ' fixed width = tidy
+        txtFilePath.Anchor = AnchorStyles.Left Or AnchorStyles.Top
 
-        panelButtons.Controls.Add(btnSave)
-        panelButtons.Controls.Add(btnClose)
         panelButtons.Controls.Add(lblLastSave)
         panelButtons.Controls.Add(txtFilePath)
 
@@ -342,13 +339,12 @@ Public Class FormUserConfigEditor
         txtFind.Width = 220
         txtFind.BackColor = SystemColors.Window       ' << normal textbox colours
         txtFind.ForeColor = SystemColors.WindowText
-        AddHandler txtFind.KeyDown,
-    Sub(sender As Object, e As KeyEventArgs)
-        If e.KeyCode = Keys.Enter Then
-            e.SuppressKeyPress = True
-            DoFind(True)   ' same as Next
-        End If
-    End Sub
+        AddHandler txtFind.KeyDown, Sub(sender As Object, e As KeyEventArgs)
+                                        If e.KeyCode = Keys.Enter Then
+                                            e.SuppressKeyPress = True
+                                            DoFind(True)   ' same as Next
+                                        End If
+                                    End Sub
 
         btnFindNext = New Button()
         btnFindNext.Text = "Next"
@@ -364,31 +360,97 @@ Public Class FormUserConfigEditor
         btnFindPrev.Left = btnFindNext.Right + 4
         btnFindPrev.Top = 3
 
-        btnFindClose = New Button()
-        btnFindClose.Text = "X"
-        btnFindClose.Width = 30
-        btnFindClose.Height = 22
-        btnFindClose.Left = btnFindPrev.Right + 4
-        btnFindClose.Top = 3
+        btnFindRefresh = New Button()
+        btnFindRefresh.Text = "Save && Refresh"
+        btnFindRefresh.Width = 110
+        btnFindRefresh.Height = 22
+        btnFindRefresh.Top = 3
+        btnFindRefresh.FlatStyle = FlatStyle.Standard
+        btnFindRefresh.UseVisualStyleBackColor = True
 
-        ' NORMALISE FIND BUTTONS TO STANDARD LOOK
-        For Each b As Button In {btnFindNext, btnFindPrev, btnFindClose}
+        AddHandler btnFindRefresh.Click,
+            Sub()
+                ' SAVE (only if changed) + update the editor status label
+                Dim onDisk As String = ""
+                If IO.File.Exists(_configPath) Then
+                    onDisk = IO.File.ReadAllText(_configPath, System.Text.Encoding.UTF8)
+                End If
+
+                If Not String.Equals(onDisk, txtEditor.Text, StringComparison.Ordinal) Then
+                    SaveConfigFile() ' updates _configPath + lblLastSave already
+                Else
+                    lblLastSave.Text = "Last save: (no changes) " & DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                End If
+
+                ' REFRESH the User tab
+                RaiseEvent RefreshRequested(_configPath)
+            End Sub
+
+        ' Move Save/Close onto the find bar (top)
+        btnSave.Parent = findPanel
+        btnClose.Parent = findPanel
+
+        btnSave.Text = "Save"
+        btnClose.Text = "Close"
+
+        btnSave.Width = 70
+        btnSave.Height = 22
+        btnClose.Width = 70
+        btnClose.Height = 22
+
+        btnSave.Top = 3
+        btnClose.Top = 3
+
+        ' NORMALISE BUTTON LOOK
+        For Each b As Button In {btnFindNext, btnFindPrev, btnFindRefresh, btnSave, btnClose}
             b.FlatStyle = FlatStyle.Standard
-            b.UseVisualStyleBackColor = True          ' << let OS theme draw them
-            b.BackColor = SystemColors.Control        ' (mostly ignored if visual styles on)
+            b.UseVisualStyleBackColor = True
+            b.BackColor = SystemColors.Control
             b.ForeColor = SystemColors.ControlText
         Next
 
-
         AddHandler btnFindNext.Click, AddressOf BtnFindNext_Click
         AddHandler btnFindPrev.Click, AddressOf BtnFindPrev_Click
-        AddHandler btnFindClose.Click, AddressOf BtnFindClose_Click
+
+        ' --- Layout: Next/Prev near Find box; Save&Refresh/Save/Close right-aligned (NOT over blocks) ---
+        Dim rightPad As Integer = 8
+        Dim gap As Integer = 6
+
+        Dim layoutTopBar =
+            Sub()
+                ' Keep Next/Prev glued to Find box
+                btnFindNext.Left = txtFind.Right + 8
+                btnFindPrev.Left = btnFindNext.Right + 4
+
+                ' Right edge we can use = findPanel width minus the blocks panel width
+                Dim rightLimit As Integer = findPanel.ClientSize.Width - panelRight.Width - rightPad
+
+                ' Place the right-group: [Save&Refresh] [Save] [Close]
+                Dim x As Integer = rightLimit
+
+                btnClose.Left = x - btnClose.Width
+                x = btnClose.Left - gap
+
+                btnSave.Left = x - btnSave.Width
+                x = btnSave.Left - gap
+
+                btnFindRefresh.Left = x - btnFindRefresh.Width
+            End Sub
+
+        layoutTopBar()
+
+        AddHandler findPanel.Resize,
+            Sub()
+                layoutTopBar()
+            End Sub
 
         findPanel.Controls.Add(lblFind)
         findPanel.Controls.Add(txtFind)
         findPanel.Controls.Add(btnFindNext)
         findPanel.Controls.Add(btnFindPrev)
-        findPanel.Controls.Add(btnFindClose)
+        findPanel.Controls.Add(btnFindRefresh)
+        findPanel.Controls.Add(btnSave)
+        findPanel.Controls.Add(btnClose)
 
         ' ---- Host panel for editor / line numbers / blocks / find ----
         editorHost = New Panel()
@@ -411,15 +473,16 @@ Public Class FormUserConfigEditor
         Else
             ' If handle not yet created, set tabs once it is
             AddHandler txtEditor.HandleCreated,
-        Sub()
-            Dim tabStops() As Integer = {16}
-            SendMessageTabs(txtEditor.Handle, EM_SETTABSTOPS, tabStops.Length, tabStops)
-            txtEditor.Invalidate()
-        End Sub
+                Sub()
+                    Dim tabStops() As Integer = {16}
+                    SendMessageTabs(txtEditor.Handle, EM_SETTABSTOPS, tabStops.Length, tabStops)
+                    txtEditor.Invalidate()
+                End Sub
         End If
 
         ' Load file on start
         LoadConfigFile()
+
     End Sub
 
 
@@ -1386,4 +1449,5 @@ Public Class HardStopRichTextBox
 
         MyBase.WndProc(m)
     End Sub
+
 End Class

@@ -6857,6 +6857,54 @@ Namespace My
                 Me("UserGui_Editor") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("True")>  _
+        Public Property PrologixSerialDTRenable() As Boolean
+            Get
+                Return CType(Me("PrologixSerialDTRenable"),Boolean)
+            End Get
+            Set
+                Me("PrologixSerialDTRenable") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("True")>  _
+        Public Property SerialCOMDTREnable() As Boolean
+            Get
+                Return CType(Me("SerialCOMDTREnable"),Boolean)
+            End Get
+            Set
+                Me("SerialCOMDTREnable") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("True")>  _
+        Public Property SerialCOMRTSEnable() As Boolean
+            Get
+                Return CType(Me("SerialCOMRTSEnable"),Boolean)
+            End Get
+            Set
+                Me("SerialCOMRTSEnable") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property IODevicesFormTracker() As Boolean
+            Get
+                Return CType(Me("IODevicesFormTracker"),Boolean)
+            End Get
+            Set
+                Me("IODevicesFormTracker") = value
+            End Set
+        End Property
     End Class
 End Namespace
 

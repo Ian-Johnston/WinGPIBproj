@@ -918,6 +918,7 @@ Partial Class Formtest
         Me.GroupBoxCustom = New System.Windows.Forms.GroupBox()
         Me.TabPage13 = New System.Windows.Forms.TabPage()
         Me.GroupBox11 = New System.Windows.Forms.GroupBox()
+        Me.Label335 = New System.Windows.Forms.Label()
         Me.Label317 = New System.Windows.Forms.Label()
         Me.Label276 = New System.Windows.Forms.Label()
         Me.Label314 = New System.Windows.Forms.Label()
@@ -958,6 +959,12 @@ Partial Class Formtest
         Me.Timer15 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer16 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
+        Me.CheckBoxPrologixSerialDTR = New System.Windows.Forms.CheckBox()
+        Me.CheckBoxSerialCOMDTREnable = New System.Windows.Forms.CheckBox()
+        Me.CheckBoxSerialCOMRTSEnable = New System.Windows.Forms.CheckBox()
+        Me.CheckBoxIODevicesFormTracker = New System.Windows.Forms.CheckBox()
+        Me.Label336 = New System.Windows.Forms.Label()
+        Me.Label337 = New System.Windows.Forms.Label()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.GroupBox9.SuspendLayout
@@ -2445,7 +2452,7 @@ Partial Class Formtest
         'btnRestore
         '
         Me.btnRestore.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.btnRestore.Location = New System.Drawing.Point(10, 181)
+        Me.btnRestore.Location = New System.Drawing.Point(10, 340)
         Me.btnRestore.Name = "btnRestore"
         Me.btnRestore.Size = New System.Drawing.Size(90, 22)
         Me.btnRestore.TabIndex = 603
@@ -2456,7 +2463,7 @@ Partial Class Formtest
         'btnBackup
         '
         Me.btnBackup.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.btnBackup.Location = New System.Drawing.Point(10, 150)
+        Me.btnBackup.Location = New System.Drawing.Point(10, 309)
         Me.btnBackup.Name = "btnBackup"
         Me.btnBackup.Size = New System.Drawing.Size(90, 22)
         Me.btnBackup.TabIndex = 602
@@ -2491,7 +2498,7 @@ Partial Class Formtest
         'CheckBoxEnableTooltips
         '
         Me.CheckBoxEnableTooltips.AutoSize = True
-        Me.CheckBoxEnableTooltips.Location = New System.Drawing.Point(11, 69)
+        Me.CheckBoxEnableTooltips.Location = New System.Drawing.Point(11, 61)
         Me.CheckBoxEnableTooltips.Name = "CheckBoxEnableTooltips"
         Me.CheckBoxEnableTooltips.Size = New System.Drawing.Size(112, 17)
         Me.CheckBoxEnableTooltips.TabIndex = 601
@@ -2503,7 +2510,7 @@ Partial Class Formtest
         'CheckBoxAllowSaveAnytime
         '
         Me.CheckBoxAllowSaveAnytime.AutoSize = True
-        Me.CheckBoxAllowSaveAnytime.Location = New System.Drawing.Point(11, 46)
+        Me.CheckBoxAllowSaveAnytime.Location = New System.Drawing.Point(11, 38)
         Me.CheckBoxAllowSaveAnytime.Name = "CheckBoxAllowSaveAnytime"
         Me.CheckBoxAllowSaveAnytime.Size = New System.Drawing.Size(264, 17)
         Me.CheckBoxAllowSaveAnytime.TabIndex = 593
@@ -2634,7 +2641,7 @@ Partial Class Formtest
         'ButtonCheckUpdates
         '
         Me.ButtonCheckUpdates.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.ButtonCheckUpdates.Location = New System.Drawing.Point(11, 268)
+        Me.ButtonCheckUpdates.Location = New System.Drawing.Point(11, 408)
         Me.ButtonCheckUpdates.Name = "ButtonCheckUpdates"
         Me.ButtonCheckUpdates.Size = New System.Drawing.Size(112, 22)
         Me.ButtonCheckUpdates.TabIndex = 606
@@ -2656,7 +2663,7 @@ Partial Class Formtest
         'CheckBoxTheme
         '
         Me.CheckBoxTheme.AutoSize = True
-        Me.CheckBoxTheme.Location = New System.Drawing.Point(11, 92)
+        Me.CheckBoxTheme.Location = New System.Drawing.Point(698, 38)
         Me.CheckBoxTheme.Name = "CheckBoxTheme"
         Me.CheckBoxTheme.Size = New System.Drawing.Size(112, 17)
         Me.CheckBoxTheme.TabIndex = 609
@@ -10764,6 +10771,13 @@ Partial Class Formtest
         '
         'GroupBox11
         '
+        Me.GroupBox11.Controls.Add(Me.Label337)
+        Me.GroupBox11.Controls.Add(Me.Label336)
+        Me.GroupBox11.Controls.Add(Me.CheckBoxIODevicesFormTracker)
+        Me.GroupBox11.Controls.Add(Me.CheckBoxSerialCOMRTSEnable)
+        Me.GroupBox11.Controls.Add(Me.CheckBoxSerialCOMDTREnable)
+        Me.GroupBox11.Controls.Add(Me.CheckBoxPrologixSerialDTR)
+        Me.GroupBox11.Controls.Add(Me.Label335)
         Me.GroupBox11.Controls.Add(Me.CheckBoxTheme)
         Me.GroupBox11.Controls.Add(Me.Label317)
         Me.GroupBox11.Controls.Add(Me.Label276)
@@ -10787,10 +10801,20 @@ Partial Class Formtest
         Me.GroupBox11.TabIndex = 589
         Me.GroupBox11.TabStop = False
         '
+        'Label335
+        '
+        Me.Label335.AutoSize = True
+        Me.Label335.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label335.Location = New System.Drawing.Point(9, 285)
+        Me.Label335.Name = "Label335"
+        Me.Label335.Size = New System.Drawing.Size(78, 15)
+        Me.Label335.TabIndex = 614
+        Me.Label335.Text = "PROFILES:"
+        '
         'Label317
         '
         Me.Label317.AutoSize = True
-        Me.Label317.Location = New System.Drawing.Point(129, 273)
+        Me.Label317.Location = New System.Drawing.Point(129, 413)
         Me.Label317.Name = "Label317"
         Me.Label317.Size = New System.Drawing.Size(200, 13)
         Me.Label317.TabIndex = 608
@@ -10800,7 +10824,7 @@ Partial Class Formtest
         '
         Me.Label276.AutoSize = True
         Me.Label276.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label276.Location = New System.Drawing.Point(8, 239)
+        Me.Label276.Location = New System.Drawing.Point(8, 385)
         Me.Label276.Name = "Label276"
         Me.Label276.Size = New System.Drawing.Size(134, 15)
         Me.Label276.TabIndex = 607
@@ -10809,7 +10833,7 @@ Partial Class Formtest
         'Label314
         '
         Me.Label314.AutoSize = True
-        Me.Label314.Location = New System.Drawing.Point(106, 186)
+        Me.Label314.Location = New System.Drawing.Point(106, 345)
         Me.Label314.Name = "Label314"
         Me.Label314.Size = New System.Drawing.Size(303, 13)
         Me.Label314.TabIndex = 605
@@ -10818,7 +10842,7 @@ Partial Class Formtest
         'Label307
         '
         Me.Label307.AutoSize = True
-        Me.Label307.Location = New System.Drawing.Point(106, 155)
+        Me.Label307.Location = New System.Drawing.Point(106, 314)
         Me.Label307.Name = "Label307"
         Me.Label307.Size = New System.Drawing.Size(394, 13)
         Me.Label307.TabIndex = 604
@@ -10828,7 +10852,7 @@ Partial Class Formtest
         'TextBox2
         '
         Me.TextBox2.BorderStyle = System.Windows.Forms.BorderStyle.None
-        Me.TextBox2.Location = New System.Drawing.Point(594, 138)
+        Me.TextBox2.Location = New System.Drawing.Point(595, 268)
         Me.TextBox2.Name = "TextBox2"
         Me.TextBox2.ReadOnly = True
         Me.TextBox2.Size = New System.Drawing.Size(251, 13)
@@ -10838,7 +10862,7 @@ Partial Class Formtest
         'TextBox1
         '
         Me.TextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None
-        Me.TextBox1.Location = New System.Drawing.Point(594, 121)
+        Me.TextBox1.Location = New System.Drawing.Point(595, 251)
         Me.TextBox1.Name = "TextBox1"
         Me.TextBox1.ReadOnly = True
         Me.TextBox1.Size = New System.Drawing.Size(251, 13)
@@ -10857,7 +10881,7 @@ Partial Class Formtest
         'Label247
         '
         Me.Label247.AutoSize = True
-        Me.Label247.Location = New System.Drawing.Point(532, 121)
+        Me.Label247.Location = New System.Drawing.Point(533, 251)
         Me.Label247.Name = "Label247"
         Me.Label247.Size = New System.Drawing.Size(55, 13)
         Me.Label247.TabIndex = 596
@@ -10866,7 +10890,7 @@ Partial Class Formtest
         'Label10
         '
         Me.Label10.AutoSize = True
-        Me.Label10.Location = New System.Drawing.Point(290, 121)
+        Me.Label10.Location = New System.Drawing.Point(9, 251)
         Me.Label10.Name = "Label10"
         Me.Label10.Size = New System.Drawing.Size(225, 13)
         Me.Label10.TabIndex = 595
@@ -10874,7 +10898,7 @@ Partial Class Formtest
         '
         'TextBoxTextEditor
         '
-        Me.TextBoxTextEditor.Location = New System.Drawing.Point(11, 118)
+        Me.TextBoxTextEditor.Location = New System.Drawing.Point(242, 248)
         Me.TextBoxTextEditor.Name = "TextBoxTextEditor"
         Me.TextBoxTextEditor.Size = New System.Drawing.Size(273, 20)
         Me.TextBoxTextEditor.TabIndex = 594
@@ -10885,9 +10909,9 @@ Partial Class Formtest
         Me.Label6.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label6.Location = New System.Drawing.Point(8, 14)
         Me.Label6.Name = "Label6"
-        Me.Label6.Size = New System.Drawing.Size(78, 15)
+        Me.Label6.Size = New System.Drawing.Size(120, 15)
         Me.Label6.TabIndex = 592
-        Me.Label6.Text = "SETTINGS:"
+        Me.Label6.Text = "MISC. SETTINGS:"
         '
         'TabPage6
         '
@@ -11119,6 +11143,74 @@ Partial Class Formtest
         'Timer14
         '
         Me.Timer14.Interval = 50
+        '
+        'CheckBoxPrologixSerialDTR
+        '
+        Me.CheckBoxPrologixSerialDTR.AutoSize = True
+        Me.CheckBoxPrologixSerialDTR.Location = New System.Drawing.Point(12, 122)
+        Me.CheckBoxPrologixSerialDTR.Name = "CheckBoxPrologixSerialDTR"
+        Me.CheckBoxPrologixSerialDTR.Size = New System.Drawing.Size(382, 17)
+        Me.CheckBoxPrologixSerialDTR.TabIndex = 615
+        Me.CheckBoxPrologixSerialDTR.Text = "Enable DTR for Prologix Serial Device  (disconnect and reconnect to apply)"
+        Me.ToolTip1.SetToolTip(Me.CheckBoxPrologixSerialDTR, "Checked, hovering over boxes/buttons will" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "offer hints, tips or info on function/" &
+        "use.")
+        Me.CheckBoxPrologixSerialDTR.UseVisualStyleBackColor = True
+        '
+        'CheckBoxSerialCOMDTREnable
+        '
+        Me.CheckBoxSerialCOMDTREnable.AutoSize = True
+        Me.CheckBoxSerialCOMDTREnable.Location = New System.Drawing.Point(12, 145)
+        Me.CheckBoxSerialCOMDTREnable.Name = "CheckBoxSerialCOMDTREnable"
+        Me.CheckBoxSerialCOMDTREnable.Size = New System.Drawing.Size(369, 17)
+        Me.CheckBoxSerialCOMDTREnable.TabIndex = 616
+        Me.CheckBoxSerialCOMDTREnable.Text = "Enable DTR for Serial COM Device  (disconnect and reconnect to apply)"
+        Me.ToolTip1.SetToolTip(Me.CheckBoxSerialCOMDTREnable, "Checked, hovering over boxes/buttons will" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "offer hints, tips or info on function/" &
+        "use.")
+        Me.CheckBoxSerialCOMDTREnable.UseVisualStyleBackColor = True
+        '
+        'CheckBoxSerialCOMRTSEnable
+        '
+        Me.CheckBoxSerialCOMRTSEnable.AutoSize = True
+        Me.CheckBoxSerialCOMRTSEnable.Location = New System.Drawing.Point(12, 168)
+        Me.CheckBoxSerialCOMRTSEnable.Name = "CheckBoxSerialCOMRTSEnable"
+        Me.CheckBoxSerialCOMRTSEnable.Size = New System.Drawing.Size(368, 17)
+        Me.CheckBoxSerialCOMRTSEnable.TabIndex = 617
+        Me.CheckBoxSerialCOMRTSEnable.Text = "Enable RTS for Serial COM Device  (disconnect and reconnect to apply)"
+        Me.ToolTip1.SetToolTip(Me.CheckBoxSerialCOMRTSEnable, "Checked, hovering over boxes/buttons will" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "offer hints, tips or info on function/" &
+        "use.")
+        Me.CheckBoxSerialCOMRTSEnable.UseVisualStyleBackColor = True
+        '
+        'CheckBoxIODevicesFormTracker
+        '
+        Me.CheckBoxIODevicesFormTracker.AutoSize = True
+        Me.CheckBoxIODevicesFormTracker.Location = New System.Drawing.Point(12, 191)
+        Me.CheckBoxIODevicesFormTracker.Name = "CheckBoxIODevicesFormTracker"
+        Me.CheckBoxIODevicesFormTracker.Size = New System.Drawing.Size(213, 17)
+        Me.CheckBoxIODevicesFormTracker.TabIndex = 618
+        Me.CheckBoxIODevicesFormTracker.Text = "Move IODevices window with main app"
+        Me.ToolTip1.SetToolTip(Me.CheckBoxIODevicesFormTracker, "Checked, hovering over boxes/buttons will" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "offer hints, tips or info on function/" &
+        "use.")
+        Me.CheckBoxIODevicesFormTracker.UseVisualStyleBackColor = True
+        '
+        'Label336
+        '
+        Me.Label336.AutoSize = True
+        Me.Label336.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label336.Location = New System.Drawing.Point(8, 96)
+        Me.Label336.Name = "Label336"
+        Me.Label336.Size = New System.Drawing.Size(148, 15)
+        Me.Label336.TabIndex = 619
+        Me.Label336.Text = "INTERFACE DEVICES:"
+        '
+        'Label337
+        '
+        Me.Label337.AutoSize = True
+        Me.Label337.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label337.Location = New System.Drawing.Point(9, 227)
+        Me.Label337.Name = "Label337"
+        Me.Label337.Size = New System.Drawing.Size(100, 15)
+        Me.Label337.TabIndex = 620
+        Me.Label337.Text = "TEXT EDITOR:"
         '
         'Formtest
         '
@@ -12139,4 +12231,11 @@ Partial Class Formtest
     Friend WithEvents Timer17 As Timer
     Friend WithEvents TextBox3 As TextBox
     Friend WithEvents ButtonEditor As Button
+    Friend WithEvents Label335 As Label
+    Friend WithEvents Label337 As Label
+    Friend WithEvents Label336 As Label
+    Friend WithEvents CheckBoxIODevicesFormTracker As CheckBox
+    Friend WithEvents CheckBoxSerialCOMRTSEnable As CheckBox
+    Friend WithEvents CheckBoxSerialCOMDTREnable As CheckBox
+    Friend WithEvents CheckBoxPrologixSerialDTR As CheckBox
 End Class
