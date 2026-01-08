@@ -158,6 +158,7 @@ Public Class FormUserConfigEditor
     Public Event RefreshRequested(path As String)
 
 
+
     <DllImport("user32.dll", CharSet:=CharSet.Auto)>
     Private Shared Function SendMessage(hWnd As IntPtr, msg As Integer,
                                     wParam As IntPtr, lParam As IntPtr) As IntPtr
