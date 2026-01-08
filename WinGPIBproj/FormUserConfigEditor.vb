@@ -7,7 +7,6 @@ Imports System.Reflection
 Imports System.Windows.Forms
 
 
-
 Public Class FormUserConfigEditor
     Inherits Form
 
