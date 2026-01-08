@@ -283,7 +283,7 @@ Public Class FormUserConfigEditor
         txtFilePath.Left = lblLastSave.Right + 8
         txtFilePath.Top = 8
         txtFilePath.Height = 22
-        txtFilePath.Width = 400          ' fixed width = tidy
+        txtFilePath.Width = 500          ' fixed width = tidy
         txtFilePath.Anchor = AnchorStyles.Left Or AnchorStyles.Top
 
         panelButtons.Controls.Add(lblLastSave)
