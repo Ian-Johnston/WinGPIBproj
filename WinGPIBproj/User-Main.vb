@@ -187,6 +187,8 @@ Partial Class Formtest
 
     Private Sub ButtonLoadTxt_Click(sender As Object, e As EventArgs) Handles ButtonLoadTxt.Click
 
+        'ResetUsertab()
+
         UserConfig_DataSaveEnabled = True
 
         Using dlg As New OpenFileDialog()

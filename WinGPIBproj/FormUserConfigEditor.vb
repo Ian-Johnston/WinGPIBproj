@@ -1419,6 +1419,9 @@ Public Class HardStopRichTextBox
 
     Private Const EM_LINESCROLL As Integer = &HB6
     Private Const WM_MOUSEWHEEL As Integer = &H20A
+    Private Const WM_MOUSEACTIVATE As Integer = &H21
+    Private Const MA_ACTIVATE As Integer = 1
+
 
     ' NOTE: EntryPoint is the real API name; SendMessageWheel is just our VB name
     <DllImport("user32.dll",
@@ -1431,6 +1434,13 @@ Public Class HardStopRichTextBox
     End Function
 
     Protected Overrides Sub WndProc(ByRef m As Message)
+
+        ' Fix: first click activates AND positions caret (do not eat the click)
+        If m.Msg = WM_MOUSEACTIVATE Then
+            m.Result = CType(MA_ACTIVATE, IntPtr)
+            Return
+        End If
+
         If m.Msg = WM_MOUSEWHEEL Then
             Dim w As Long = m.WParam.ToInt64()
             Dim delta As Integer = CInt((w >> 16) And &HFFFFS)
@@ -1452,5 +1462,6 @@ Public Class HardStopRichTextBox
 
         MyBase.WndProc(m)
     End Sub
+
 
 End Class
