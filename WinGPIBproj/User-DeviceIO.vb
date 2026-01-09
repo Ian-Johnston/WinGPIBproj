@@ -49,16 +49,18 @@ Partial Class Formtest
             Exit Sub
         End If
 
-        ' Resolve device name (we still resolve dev for standalone path + auto-scale query)
+        ' Resolve device ONLY for real device queries (CALC/pushed results pass rawOverride)
         Dim dev As IODevices.IODevice = Nothing
-        Select Case deviceName.ToLowerInvariant()
-            Case "dev1" : dev = dev1
-            Case "dev2" : dev = dev2
-        End Select
+        If rawOverride Is Nothing Then
+            Select Case deviceName.ToLowerInvariant()
+                Case "dev1" : dev = dev1
+                Case "dev2" : dev = dev2
+            End Select
 
-        If dev Is Nothing Then
-            MessageBox.Show("Unknown device: " & deviceName)
-            Exit Sub
+            If dev Is Nothing Then
+                MessageBox.Show("Unknown device: " & deviceName)
+                Exit Sub
+            End If
         End If
 
         ' Single READ button sync units
@@ -306,16 +308,18 @@ Partial Class Formtest
             numericStr = v.ToString("G",
                                     Globalization.CultureInfo.InvariantCulture)
 
-            If useDecimal Then
-                ' decimal=1 (or default) → show decimal formatted value in BIGTEXT
-                displayStr = v.ToString("0.###############", Globalization.CultureInfo.InvariantCulture)
+            If rawOverride IsNot Nothing Then
+                ' CALC / pushed result: keep the pushed formatted text (e.g. "1.000000")
+                displayStr = raw.Trim()
             Else
-                ' decimal=0 → show instrument's raw string if present,
-                ' otherwise fall back to the clean numeric.
-                If Not String.IsNullOrWhiteSpace(raw) Then
-                    displayStr = raw.Trim()
+                If useDecimal Then
+                    displayStr = v.ToString("0.###############", Globalization.CultureInfo.InvariantCulture)
                 Else
-                    displayStr = numericStr
+                    If Not String.IsNullOrWhiteSpace(raw) Then
+                        displayStr = raw.Trim()
+                    Else
+                        displayStr = numericStr
+                    End If
                 End If
             End If
 
@@ -441,6 +445,7 @@ FanOut:
                         displayNumeric = dv.ToString(fmt,
                                                      Globalization.CultureInfo.InvariantCulture)
                     End If
+
                 End If
 
                 If unitsOff AndAlso numericText <> "" Then

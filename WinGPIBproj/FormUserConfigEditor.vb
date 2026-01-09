@@ -191,6 +191,8 @@ Public Class FormUserConfigEditor
         Me.Text = "User Config Editor - " & Path.GetFileName(configPath)
         Me.StartPosition = FormStartPosition.CenterParent
 
+        Me.TopMost = False     ' make sure it is NOT always-on-top
+
         ' --- Load size from settings or fall back to default ---
         Dim defaultSize As New Size(900, 700)
         Dim s As String = My.Settings.UserGui_Editor

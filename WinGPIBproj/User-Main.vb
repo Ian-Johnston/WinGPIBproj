@@ -134,6 +134,7 @@ Partial Class Formtest
         Public OutResult As String
         Public Expr As String
         Public Deps As List(Of String)
+        Public OutFmt As String
     End Class
 
 
@@ -399,6 +400,8 @@ Partial Class Formtest
 
         ButtonLoadTxtRefresh.Enabled = False
 
+        ShowUserInitPopup()
+
         ' --------------------------------------
         ' FIRST: turn off any FuncAuto checkbox
         ' --------------------------------------
@@ -447,6 +450,8 @@ Partial Class Formtest
             ' Re-enable if file still exists
             ButtonLoadTxtRefresh.Enabled = IO.File.Exists(LastUserConfigPath)
         End Try
+
+        HideUserInitPopup()
 
     End Sub
 
@@ -3523,7 +3528,7 @@ Partial Class Formtest
                 End If
 
                 ResultLastValue(cd.OutResult) = dvOut
-                PushNumericResult(cd.OutResult, dvOut)
+                PushNumericResult(cd.OutResult, dvOut, cd.OutFmt)
 
                 progressed = True
             Next
@@ -3533,10 +3538,21 @@ Partial Class Formtest
     End Sub
 
 
-    Private Sub PushNumericResult(resultName As String, dv As Double)
-        Dim outText As String = dv.ToString("G", Globalization.CultureInfo.InvariantCulture)
-        RunQueryToResult("dev1", "", resultName, rawOverride:=outText)
+    Private Sub PushNumericResult(resultName As String,
+                              dv As Double,
+                              Optional outFmt As String = Nothing)
+
+        Dim outText As String
+
+        If Not String.IsNullOrWhiteSpace(outFmt) Then
+            outText = dv.ToString(outFmt, Globalization.CultureInfo.InvariantCulture)
+        Else
+            outText = dv.ToString("G", Globalization.CultureInfo.InvariantCulture)
+        End If
+
+        RunQueryToResult("", "", resultName, rawOverride:=outText)
     End Sub
+
 
 
     Private Sub SetResultFromSpec(spec As String)
@@ -3905,7 +3921,7 @@ Partial Class Formtest
             If _userCfgEditor.WindowState = FormWindowState.Minimized Then
                 _userCfgEditor.WindowState = FormWindowState.Normal
             End If
-            _userCfgEditor.BringToFront()
+            _userCfgEditor.Show()
             _userCfgEditor.Activate()
             Exit Sub
         End If
@@ -3926,9 +3942,11 @@ Partial Class Formtest
                 _userCfgEditor = Nothing
             End Sub
 
-        _userCfgEditor.Show(Me)
+        ' IMPORTANT: do NOT pass Me as owner
+        _userCfgEditor.Show()
 
     End Sub
+
 
 
 

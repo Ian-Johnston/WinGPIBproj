@@ -1253,7 +1253,7 @@ Partial Class Formtest
                             scaleIsAuto = True
 
                             ' ==============================
-                            '  NEW: multiline AUTO support
+                            '  multiline AUTO support
                             '  scale=auto;
                             '      getrange=:VOLT:DC:RANG?;
                             '      range1=0.2,mV,6;
@@ -4136,10 +4136,13 @@ Partial Class Formtest
 
     Private Sub ParseCalcLine(parts() As String)
         ' CALC;result=PPM;expr=(YourDMM-Ref)/Ref*1000000
+        ' Optional format suffix: expr=<math>|<fmt>   e.g. expr=HP3245ADatasource*1|F6
+
         If parts Is Nothing OrElse parts.Length < 2 Then Exit Sub
 
         Dim outResult As String = ""
         Dim expr As String = ""
+        Dim outFmt As String = ""   ' NEW
 
         For i As Integer = 1 To parts.Length - 1
             Dim tok As String = If(parts(i), "").Trim()
@@ -4154,6 +4157,7 @@ Partial Class Formtest
             Select Case key
                 Case "result", "name", "out"
                     outResult = val
+
                 Case "expr", "expression"
                     expr = val
             End Select
@@ -4161,15 +4165,24 @@ Partial Class Formtest
 
         If outResult = "" OrElse expr = "" Then Exit Sub
 
-        ' Build dependencies: identifiers in expr that are not numbers/operators
+        ' --- NEW: split expr into math + optional format suffix "math|F6" ---
+        Dim p As Integer = expr.LastIndexOf("|"c)
+        If p > 0 AndAlso p < expr.Length - 1 Then
+            outFmt = expr.Substring(p + 1).Trim()
+            expr = expr.Substring(0, p).Trim()
+        End If
+
+        ' Build dependencies from the math expression only
         Dim deps As List(Of String) = ExtractCalcDeps(expr)
 
         ' Store
         Dim cd As New CalcDef With {
         .OutResult = outResult.Trim(),
         .Expr = expr,
-        .Deps = deps
+        .Deps = deps,
+        .OutFmt = outFmt          ' NEW (requires CalcDef.OutFmt As String)
     }
+
         CalcDefs(cd.OutResult) = cd
 
         ' Reverse map deps -> outResults
