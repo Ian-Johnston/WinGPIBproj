@@ -8,10 +8,10 @@ Imports System.Runtime.InteropServices
 
 ' Vérifiez les valeurs des attributs de l'assembly
 
-<Assembly: AssemblyTitle("PDVS2_GPIB")>
+<Assembly: AssemblyTitle("WinGPIB")>
 <Assembly: AssemblyDescription("")>
 <Assembly: AssemblyCompany("Microsoft")>
-<Assembly: AssemblyProduct("PDVS2_GPIB")>
+<Assembly: AssemblyProduct("WinGPIB")>
 <Assembly: AssemblyCopyright("Copyright © Microsoft 2016")>
 <Assembly: AssemblyTrademark("")>
 

@@ -157,6 +157,11 @@ Public Class FormUserConfigEditor
     Public Event ConfigSaved(path As String)
     Public Event RefreshRequested(path As String)
 
+    Private ReadOnly _colorizeTimer As New Timer() With {.Interval = 120}
+    Private _pendingColorize As Boolean = False
+    Private _colorizeAfterEnter As Boolean = False
+    Private _loadingConfig As Boolean = False
+
 
 
     <DllImport("user32.dll", CharSet:=CharSet.Auto)>
@@ -190,8 +195,7 @@ Public Class FormUserConfigEditor
 
         Me.Text = "User Config Editor - " & Path.GetFileName(configPath)
         Me.StartPosition = FormStartPosition.CenterParent
-
-        Me.TopMost = False     ' make sure it is NOT always-on-top
+        Me.TopMost = False
 
         ' --- Load size from settings or fall back to default ---
         Dim defaultSize As New Size(900, 700)
@@ -205,7 +209,7 @@ Public Class FormUserConfigEditor
                 Dim tmpW, tmpH As Integer
                 If Integer.TryParse(parts(0).Trim(), tmpW) AndAlso
                Integer.TryParse(parts(1).Trim(), tmpH) AndAlso
-               tmpW > 400 AndAlso tmpH > 300 Then   ' basic sanity
+               tmpW > 400 AndAlso tmpH > 300 Then
                     w = tmpW
                     h = tmpH
                 End If
@@ -235,7 +239,7 @@ Public Class FormUserConfigEditor
         Dim miDelete = New ToolStripMenuItem("Delete", Nothing, AddressOf CtxDelete)
         Dim miSelectAll = New ToolStripMenuItem("Select All", Nothing, AddressOf CtxSelectAll)
         Dim miDupLine = New ToolStripMenuItem("Duplicate Line", Nothing, AddressOf CtxDuplicateLine)
-        Dim miSave = New ToolStripMenuItem("Save", Nothing, AddressOf btnSave_Click)   ' NEW
+        Dim miSave = New ToolStripMenuItem("Save", Nothing, AddressOf btnSave_Click)
 
         ctxEditor.Items.AddRange(New ToolStripItem() {
         miUndo,
@@ -285,7 +289,7 @@ Public Class FormUserConfigEditor
         txtFilePath.Left = lblLastSave.Right + 8
         txtFilePath.Top = 8
         txtFilePath.Height = 22
-        txtFilePath.Width = 500          ' fixed width = tidy
+        txtFilePath.Width = 500
         txtFilePath.Anchor = AnchorStyles.Left Or AnchorStyles.Top
 
         panelButtons.Controls.Add(lblLastSave)
@@ -325,13 +329,13 @@ Public Class FormUserConfigEditor
         findPanel = New Panel()
         findPanel.Dock = DockStyle.Top
         findPanel.Height = 28
-        findPanel.BackColor = SystemColors.Control    ' << light, normal WinForms bar
+        findPanel.BackColor = SystemColors.Control
         findPanel.Visible = True
 
         Dim lblFind As New Label()
         lblFind.Text = "Find:"
         lblFind.AutoSize = True
-        lblFind.ForeColor = SystemColors.ControlText  ' << normal text colour
+        lblFind.ForeColor = SystemColors.ControlText
         lblFind.BackColor = Color.Transparent
         lblFind.Left = 8
         lblFind.Top = 7
@@ -340,14 +344,15 @@ Public Class FormUserConfigEditor
         txtFind.Left = 50
         txtFind.Top = 4
         txtFind.Width = 220
-        txtFind.BackColor = SystemColors.Window       ' << normal textbox colours
+        txtFind.BackColor = SystemColors.Window
         txtFind.ForeColor = SystemColors.WindowText
-        AddHandler txtFind.KeyDown, Sub(sender As Object, e As KeyEventArgs)
-                                        If e.KeyCode = Keys.Enter Then
-                                            e.SuppressKeyPress = True
-                                            DoFind(True)   ' same as Next
-                                        End If
-                                    End Sub
+        AddHandler txtFind.KeyDown,
+        Sub(sender As Object, e As KeyEventArgs)
+            If e.KeyCode = Keys.Enter Then
+                e.SuppressKeyPress = True
+                DoFind(True)
+            End If
+        End Sub
 
         btnFindNext = New Button()
         btnFindNext.Text = "Next"
@@ -372,22 +377,20 @@ Public Class FormUserConfigEditor
         btnFindRefresh.UseVisualStyleBackColor = True
 
         AddHandler btnFindRefresh.Click,
-            Sub()
-                ' SAVE (only if changed) + update the editor status label
-                Dim onDisk As String = ""
-                If IO.File.Exists(_configPath) Then
-                    onDisk = IO.File.ReadAllText(_configPath, System.Text.Encoding.UTF8)
-                End If
+        Sub()
+            Dim onDisk As String = ""
+            If IO.File.Exists(_configPath) Then
+                onDisk = IO.File.ReadAllText(_configPath, System.Text.Encoding.UTF8)
+            End If
 
-                If Not String.Equals(onDisk, txtEditor.Text, StringComparison.Ordinal) Then
-                    SaveConfigFile() ' updates _configPath + lblLastSave already
-                Else
-                    lblLastSave.Text = "Last save: (no changes) " & DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
-                End If
+            If Not String.Equals(onDisk, txtEditor.Text, StringComparison.Ordinal) Then
+                SaveConfigFile()
+            Else
+                lblLastSave.Text = "Last save: (no changes) " & DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+            End If
 
-                ' REFRESH the User tab
-                RaiseEvent RefreshRequested(_configPath)
-            End Sub
+            RaiseEvent RefreshRequested(_configPath)
+        End Sub
 
         ' Move Save/Close onto the find bar (top)
         btnSave.Parent = findPanel
@@ -404,7 +407,6 @@ Public Class FormUserConfigEditor
         btnSave.Top = 3
         btnClose.Top = 3
 
-        ' NORMALISE BUTTON LOOK
         For Each b As Button In {btnFindNext, btnFindPrev, btnFindRefresh, btnSave, btnClose}
             b.FlatStyle = FlatStyle.Standard
             b.UseVisualStyleBackColor = True
@@ -415,37 +417,33 @@ Public Class FormUserConfigEditor
         AddHandler btnFindNext.Click, AddressOf BtnFindNext_Click
         AddHandler btnFindPrev.Click, AddressOf BtnFindPrev_Click
 
-        ' --- Layout: Next/Prev near Find box; Save&Refresh/Save/Close right-aligned (NOT over blocks) ---
         Dim rightPad As Integer = 8
         Dim gap As Integer = 6
 
         Dim layoutTopBar =
-            Sub()
-                ' Keep Next/Prev glued to Find box
-                btnFindNext.Left = txtFind.Right + 8
-                btnFindPrev.Left = btnFindNext.Right + 4
+        Sub()
+            btnFindNext.Left = txtFind.Right + 8
+            btnFindPrev.Left = btnFindNext.Right + 4
 
-                ' Right edge we can use = findPanel width minus the blocks panel width
-                Dim rightLimit As Integer = findPanel.ClientSize.Width - panelRight.Width - rightPad
+            Dim rightLimit As Integer = findPanel.ClientSize.Width - panelRight.Width - rightPad
 
-                ' Place the right-group: [Save&Refresh] [Save] [Close]
-                Dim x As Integer = rightLimit
+            Dim x As Integer = rightLimit
 
-                btnClose.Left = x - btnClose.Width
-                x = btnClose.Left - gap
+            btnClose.Left = x - btnClose.Width
+            x = btnClose.Left - gap
 
-                btnSave.Left = x - btnSave.Width
-                x = btnSave.Left - gap
+            btnSave.Left = x - btnSave.Width
+            x = btnSave.Left - gap
 
-                btnFindRefresh.Left = x - btnFindRefresh.Width
-            End Sub
+            btnFindRefresh.Left = x - btnFindRefresh.Width
+        End Sub
 
         layoutTopBar()
 
         AddHandler findPanel.Resize,
-            Sub()
-                layoutTopBar()
-            End Sub
+        Sub()
+            layoutTopBar()
+        End Sub
 
         findPanel.Controls.Add(lblFind)
         findPanel.Controls.Add(txtFind)
@@ -460,37 +458,46 @@ Public Class FormUserConfigEditor
         editorHost.Dock = DockStyle.Fill
         editorHost.BackColor = Color.Black
 
-        editorHost.Controls.Add(txtEditor)       ' FILL
-        editorHost.Controls.Add(pnlLineNumbers)  ' LEFT
-        editorHost.Controls.Add(panelRight)      ' RIGHT
-        editorHost.Controls.Add(findPanel)       ' TOP
+        editorHost.Controls.Add(txtEditor)
+        editorHost.Controls.Add(pnlLineNumbers)
+        editorHost.Controls.Add(panelRight)
+        editorHost.Controls.Add(findPanel)
 
         Me.Controls.Add(editorHost)
         Me.Controls.Add(panelButtons)
 
         ' Match Notepad++ tab stop spacing: 4-space tabs
         If txtEditor.IsHandleCreated Then
-            Dim tabStops() As Integer = {16}   ' 4 chars × 4 dialog units
+            Dim tabStops() As Integer = {16}
             SendMessageTabs(txtEditor.Handle, EM_SETTABSTOPS, tabStops.Length, tabStops)
             txtEditor.Invalidate()
         Else
-            ' If handle not yet created, set tabs once it is
             AddHandler txtEditor.HandleCreated,
-                Sub()
-                    Dim tabStops() As Integer = {16}
-                    SendMessageTabs(txtEditor.Handle, EM_SETTABSTOPS, tabStops.Length, tabStops)
-                    txtEditor.Invalidate()
-                End Sub
+            Sub()
+                Dim tabStops() As Integer = {16}
+                SendMessageTabs(txtEditor.Handle, EM_SETTABSTOPS, tabStops.Length, tabStops)
+                txtEditor.Invalidate()
+            End Sub
         End If
 
-        ' Load file on start
-        LoadConfigFile()
+        ' NEW: debounce timer for colourize after ENTER (ONLY colourize!)
+        AddHandler _colorizeTimer.Tick,
+        Sub()
+            _colorizeTimer.Stop()
+            If _pendingColorize Then
+                _pendingColorize = False
+                ColorizeConfig()
+            End If
+        End Sub
 
+        LoadConfigFile()
     End Sub
 
 
     Private Sub LoadConfigFile()
         Try
+            _loadingConfig = True
+
             If File.Exists(_configPath) Then
                 txtEditor.Text = File.ReadAllText(_configPath, Encoding.UTF8)
 
@@ -503,33 +510,15 @@ Public Class FormUserConfigEditor
                 txtFilePath.Text = _configPath
                 lblLastSave.Text = "Last save: (not yet)"
             End If
+
         Catch ex As Exception
             MessageBox.Show("Error loading config file:" & Environment.NewLine &
-                        ex.Message,
-                        "Load Error",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error)
-        End Try
-
-        Try
-            If File.Exists(_configPath) Then
-                txtEditor.Text = File.ReadAllText(_configPath, Encoding.UTF8)
-
-                ' show path and last-write time
-                txtFilePath.Text = _configPath
-                Dim ts = File.GetLastWriteTime(_configPath)
-                lblLastSave.Text = "Last save: " & ts.ToString("yyyy-MM-dd HH:mm:ss")
-            Else
-                txtEditor.Text = "; New User config file" & Environment.NewLine
-                txtFilePath.Text = _configPath
-                lblLastSave.Text = "Last save: (not yet)"
-            End If
-        Catch ex As Exception
-            MessageBox.Show("Error loading config file:" & Environment.NewLine &
-                            ex.Message,
-                            "Load Error",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Error)
+                    ex.Message,
+                    "Load Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error)
+        Finally
+            _loadingConfig = False
         End Try
 
         ' === CONFIG LINT: check for missing trailing semicolons ===
@@ -986,7 +975,7 @@ Public Class FormUserConfigEditor
             Return
         End If
 
-        ' --- RNTER ---
+        ' --- ENTER ---
         If e.KeyCode <> Keys.Enter Then Return
 
         Dim caretPos As Integer = txtEditor.SelectionStart
@@ -998,23 +987,29 @@ Public Class FormUserConfigEditor
 
         ' 1) If this line IS a block keyword (e.g. "RADIO;") → indent next
         Dim isBlockHeader As Boolean =
-            BlockKeywords.Any(Function(k) trimmed.StartsWith(k & ";", StringComparison.OrdinalIgnoreCase))
+        BlockKeywords.Any(Function(k) trimmed.StartsWith(k & ";", StringComparison.OrdinalIgnoreCase))
 
         If isBlockHeader Then
             e.SuppressKeyPress = True
             Dim indent As String = "   "    ' 3-space default indent
             txtEditor.SelectedText = Environment.NewLine & indent
-            Return
-        End If
-
-        ' 2) Otherwise: auto-indent based on existing indentation
-        Dim leadingWhitespace As String =
+        Else
+            ' 2) Otherwise: auto-indent based on existing indentation
+            Dim leadingWhitespace As String =
             New String(currentLine.TakeWhile(Function(c) Char.IsWhiteSpace(c)).ToArray())
 
-        If String.IsNullOrEmpty(leadingWhitespace) Then Return
+            If Not String.IsNullOrEmpty(leadingWhitespace) Then
+                e.SuppressKeyPress = True
+                txtEditor.SelectedText = Environment.NewLine & leadingWhitespace
+            End If
+            ' (If no whitespace, let default Enter happen)
+        End If
 
-        e.SuppressKeyPress = True
-        txtEditor.SelectedText = Environment.NewLine & leadingWhitespace
+        ' Fast colour update: line you were on + the new/current line
+        BeginInvoke(New Action(Sub()
+                                   Dim li As Integer = txtEditor.GetLineFromCharIndex(txtEditor.SelectionStart)
+                                   ColorizeLinesQuick(li - 1, li)
+                               End Sub))
 
     End Sub
 
@@ -1148,14 +1143,20 @@ Public Class FormUserConfigEditor
 
 
     Private Sub txtEditor_VScroll(sender As Object, e As EventArgs) Handles txtEditor.VScroll
+        If _isColorizing Then Return
+
         pnlLineNumbers.Invalidate()
         SyncBlockSelectionToFirstVisibleLine()
     End Sub
 
+
     Private Sub txtEditor_TextChanged(sender As Object, e As EventArgs) Handles txtEditor.TextChanged
+        If _isColorizing Then Return
+
         pnlLineNumbers.Invalidate()
         SyncBlockSelectionToFirstVisibleLine()
     End Sub
+
 
     Private Sub txtEditor_Resize(sender As Object, e As EventArgs) Handles txtEditor.Resize
         pnlLineNumbers.Invalidate()
@@ -1407,6 +1408,164 @@ Public Class FormUserConfigEditor
                 lstBlocks.TopIndex = Math.Max(0, bestIdx - 3)
             End If
         End If
+    End Sub
+
+
+    Private Sub ColorizeLinesQuick(startLine As Integer, endLine As Integer)
+
+        If _isColorizing Then Return
+        If txtEditor.TextLength = 0 Then Return
+
+        If startLine < 0 Then startLine = 0
+        If endLine < 0 Then Return
+        If endLine >= txtEditor.Lines.Length Then endLine = txtEditor.Lines.Length - 1
+        If startLine > endLine Then Return
+
+        _isColorizing = True
+
+        Dim selStart = txtEditor.SelectionStart
+        Dim selLength = txtEditor.SelectionLength
+
+        ' Freeze redraw
+        SendMessage(txtEditor.Handle, WM_SETREDRAW, IntPtr.Zero, IntPtr.Zero)
+
+        Try
+            For lineIndex As Integer = startLine To endLine
+
+                Dim lineStartChar As Integer = txtEditor.GetFirstCharIndexFromLine(lineIndex)
+                If lineStartChar < 0 Then Continue For
+
+                Dim lineEndChar As Integer
+                If lineIndex < txtEditor.Lines.Length - 1 Then
+                    lineEndChar = txtEditor.GetFirstCharIndexFromLine(lineIndex + 1)
+                    If lineEndChar < 0 Then lineEndChar = txtEditor.TextLength
+                Else
+                    lineEndChar = txtEditor.TextLength
+                End If
+
+                Dim lineLen As Integer = Math.Max(0, lineEndChar - lineStartChar)
+                If lineLen = 0 Then Continue For
+
+                Dim rawLine As String = txtEditor.Text.Substring(lineStartChar, lineLen)
+                Dim trimmedLine As String = rawLine.TrimStart()
+
+                ' Reset this line to base colour
+                txtEditor.Select(lineStartChar, lineLen)
+                txtEditor.SelectionColor = Color.Gainsboro
+                txtEditor.SelectionFont = txtEditor.Font
+
+                ' ---- FULL LINE COMMENT (first non-space is ;) ----
+                Dim firstNonSpaceOffset As Integer = 0
+                While firstNonSpaceOffset < rawLine.Length AndAlso Char.IsWhiteSpace(rawLine(firstNonSpaceOffset))
+                    firstNonSpaceOffset += 1
+                End While
+
+                If firstNonSpaceOffset < rawLine.Length AndAlso rawLine(firstNonSpaceOffset) = ";"c Then
+                    txtEditor.Select(lineStartChar, lineLen)
+                    txtEditor.SelectionColor = Color.LimeGreen
+                    Continue For
+                End If
+
+                ' ---- INLINE ;; COMMENT ----
+                Dim inlinePos As Integer = rawLine.IndexOf(";;", StringComparison.Ordinal)
+                If inlinePos >= 0 Then
+                    txtEditor.Select(lineStartChar + inlinePos, lineLen - inlinePos)
+                    txtEditor.SelectionColor = Color.LimeGreen
+                End If
+
+                ' ---- BLOCK KEYWORDS (only if line starts with "KW;") ----
+                For Each kw In BlockKeywords
+                    Dim token As String = kw & ";"
+                    If trimmedLine.StartsWith(token, StringComparison.OrdinalIgnoreCase) Then
+                        Dim leadingSpaces As Integer = rawLine.Length - rawLine.TrimStart().Length
+                        txtEditor.Select(lineStartChar + leadingSpaces, kw.Length)
+                        txtEditor.SelectionColor = Color.Cyan
+                        Exit For
+                    End If
+                Next
+
+                ' ---- PARAM KEYS before '=' ----
+                For Each key In ParamKeys
+                    Dim search As String = key & "="
+                    Dim p As Integer = 0
+                    While True
+                        p = rawLine.IndexOf(search, p, StringComparison.OrdinalIgnoreCase)
+                        If p < 0 Then Exit While
+                        txtEditor.Select(lineStartChar + p, key.Length)
+                        txtEditor.SelectionColor = Color.Orange
+                        p += search.Length
+                    End While
+                Next
+
+                ' ---- NUMBERS after =, <, >, <=, >= (line only) ----
+                Dim numberPattern As New Regex("(?<=(<=|>=|=|<|>))\s*([-+]?\d+(\.\d+)?([eE][-+]?\d+)?)")
+                For Each m As Match In numberPattern.Matches(rawLine)
+                    Dim g As Group = m.Groups(2)
+                    txtEditor.Select(lineStartChar + g.Index, g.Length)
+                    txtEditor.SelectionColor = Color.DeepSkyBlue
+                Next
+
+                ' ---- command / commands / determine RHS ----
+                Dim cmdPattern As New Regex("(?i)\b(commands?|command|determine)\s*=\s*([^;\r\n]*)")
+                For Each m As Match In cmdPattern.Matches(rawLine)
+                    Dim rhs As Group = m.Groups(2)
+                    If rhs.Length > 0 Then
+                        txtEditor.Select(lineStartChar + rhs.Index, rhs.Length)
+                        txtEditor.SelectionColor = Color.Yellow
+                    End If
+                Next
+
+                ' ---- dev1/dev2 ----
+                For Each dw In New String() {"dev1", "dev2"}
+                    Dim p As Integer = 0
+                    While True
+                        p = rawLine.IndexOf(dw, p, StringComparison.OrdinalIgnoreCase)
+                        If p < 0 Then Exit While
+
+                        Dim leftOk As Boolean = (p = 0 OrElse Not Char.IsLetterOrDigit(rawLine(p - 1)))
+                        Dim rightOk As Boolean = (p + dw.Length >= rawLine.Length OrElse Not Char.IsLetterOrDigit(rawLine(p + dw.Length)))
+
+                        If leftOk AndAlso rightOk Then
+                            txtEditor.Select(lineStartChar + p, dw.Length)
+                            txtEditor.SelectionColor = Color.Red
+                        End If
+
+                        p += dw.Length
+                    End While
+                Next
+
+                ' ---- standalone/native ----
+                For Each dw In New String() {"standalone", "native"}
+                    Dim p As Integer = 0
+                    While True
+                        p = rawLine.IndexOf(dw, p, StringComparison.OrdinalIgnoreCase)
+                        If p < 0 Then Exit While
+
+                        Dim leftOk As Boolean = (p = 0 OrElse Not Char.IsLetterOrDigit(rawLine(p - 1)))
+                        Dim rightOk As Boolean = (p + dw.Length >= rawLine.Length OrElse Not Char.IsLetterOrDigit(rawLine(p + dw.Length)))
+
+                        If leftOk AndAlso rightOk Then
+                            txtEditor.Select(lineStartChar + p, dw.Length)
+                            txtEditor.SelectionColor = Color.Violet
+                        End If
+
+                        p += dw.Length
+                    End While
+                Next
+
+            Next
+
+        Finally
+            ' Restore caret/selection
+            txtEditor.Select(selStart, selLength)
+
+            ' Re-enable redraw
+            SendMessage(txtEditor.Handle, WM_SETREDRAW, New IntPtr(1), IntPtr.Zero)
+            txtEditor.Invalidate()
+
+            _isColorizing = False
+        End Try
+
     End Sub
 
 
