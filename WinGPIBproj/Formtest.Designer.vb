@@ -205,6 +205,10 @@ Partial Class Formtest
         Me.Button3245A_CHA = New System.Windows.Forms.Button()
         Me.Button3245A_CHB = New System.Windows.Forms.Button()
         Me.ButtonLUA = New System.Windows.Forms.Button()
+        Me.CheckBoxPrologixSerialDTR = New System.Windows.Forms.CheckBox()
+        Me.CheckBoxSerialCOMDTREnable = New System.Windows.Forms.CheckBox()
+        Me.CheckBoxSerialCOMRTSEnable = New System.Windows.Forms.CheckBox()
+        Me.CheckBoxIODevicesFormTracker = New System.Windows.Forms.CheckBox()
         Me.LabelUSERtab1 = New System.Windows.Forms.Label()
         Me.CheckBoxR6581RetrieveREF = New System.Windows.Forms.CheckBox()
         Me.SerialPort1 = New System.IO.Ports.SerialPort(Me.components)
@@ -918,6 +922,8 @@ Partial Class Formtest
         Me.GroupBoxCustom = New System.Windows.Forms.GroupBox()
         Me.TabPage13 = New System.Windows.Forms.TabPage()
         Me.GroupBox11 = New System.Windows.Forms.GroupBox()
+        Me.Label337 = New System.Windows.Forms.Label()
+        Me.Label336 = New System.Windows.Forms.Label()
         Me.Label335 = New System.Windows.Forms.Label()
         Me.Label317 = New System.Windows.Forms.Label()
         Me.Label276 = New System.Windows.Forms.Label()
@@ -959,12 +965,6 @@ Partial Class Formtest
         Me.Timer15 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer16 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
-        Me.CheckBoxPrologixSerialDTR = New System.Windows.Forms.CheckBox()
-        Me.CheckBoxSerialCOMDTREnable = New System.Windows.Forms.CheckBox()
-        Me.CheckBoxSerialCOMRTSEnable = New System.Windows.Forms.CheckBox()
-        Me.CheckBoxIODevicesFormTracker = New System.Windows.Forms.CheckBox()
-        Me.Label336 = New System.Windows.Forms.Label()
-        Me.Label337 = New System.Windows.Forms.Label()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.GroupBox9.SuspendLayout
@@ -2908,6 +2908,46 @@ Partial Class Formtest
         Me.ButtonLUA.Text = "LUA Acknowledgement"
         Me.ToolTip1.SetToolTip(Me.ButtonLUA, "LUA Notice")
         Me.ButtonLUA.UseVisualStyleBackColor = True
+        '
+        'CheckBoxPrologixSerialDTR
+        '
+        Me.CheckBoxPrologixSerialDTR.AutoSize = True
+        Me.CheckBoxPrologixSerialDTR.Location = New System.Drawing.Point(12, 122)
+        Me.CheckBoxPrologixSerialDTR.Name = "CheckBoxPrologixSerialDTR"
+        Me.CheckBoxPrologixSerialDTR.Size = New System.Drawing.Size(382, 17)
+        Me.CheckBoxPrologixSerialDTR.TabIndex = 615
+        Me.CheckBoxPrologixSerialDTR.Text = "Enable DTR for Prologix Serial Device  (disconnect and reconnect to apply)"
+        Me.CheckBoxPrologixSerialDTR.UseVisualStyleBackColor = True
+        '
+        'CheckBoxSerialCOMDTREnable
+        '
+        Me.CheckBoxSerialCOMDTREnable.AutoSize = True
+        Me.CheckBoxSerialCOMDTREnable.Location = New System.Drawing.Point(12, 145)
+        Me.CheckBoxSerialCOMDTREnable.Name = "CheckBoxSerialCOMDTREnable"
+        Me.CheckBoxSerialCOMDTREnable.Size = New System.Drawing.Size(369, 17)
+        Me.CheckBoxSerialCOMDTREnable.TabIndex = 616
+        Me.CheckBoxSerialCOMDTREnable.Text = "Enable DTR for Serial COM Device  (disconnect and reconnect to apply)"
+        Me.CheckBoxSerialCOMDTREnable.UseVisualStyleBackColor = True
+        '
+        'CheckBoxSerialCOMRTSEnable
+        '
+        Me.CheckBoxSerialCOMRTSEnable.AutoSize = True
+        Me.CheckBoxSerialCOMRTSEnable.Location = New System.Drawing.Point(12, 168)
+        Me.CheckBoxSerialCOMRTSEnable.Name = "CheckBoxSerialCOMRTSEnable"
+        Me.CheckBoxSerialCOMRTSEnable.Size = New System.Drawing.Size(368, 17)
+        Me.CheckBoxSerialCOMRTSEnable.TabIndex = 617
+        Me.CheckBoxSerialCOMRTSEnable.Text = "Enable RTS for Serial COM Device  (disconnect and reconnect to apply)"
+        Me.CheckBoxSerialCOMRTSEnable.UseVisualStyleBackColor = True
+        '
+        'CheckBoxIODevicesFormTracker
+        '
+        Me.CheckBoxIODevicesFormTracker.AutoSize = True
+        Me.CheckBoxIODevicesFormTracker.Location = New System.Drawing.Point(12, 191)
+        Me.CheckBoxIODevicesFormTracker.Name = "CheckBoxIODevicesFormTracker"
+        Me.CheckBoxIODevicesFormTracker.Size = New System.Drawing.Size(213, 17)
+        Me.CheckBoxIODevicesFormTracker.TabIndex = 618
+        Me.CheckBoxIODevicesFormTracker.Text = "Move IODevices window with main app"
+        Me.CheckBoxIODevicesFormTracker.UseVisualStyleBackColor = True
         '
         'LabelUSERtab1
         '
@@ -10801,6 +10841,26 @@ Partial Class Formtest
         Me.GroupBox11.TabIndex = 589
         Me.GroupBox11.TabStop = False
         '
+        'Label337
+        '
+        Me.Label337.AutoSize = True
+        Me.Label337.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label337.Location = New System.Drawing.Point(9, 227)
+        Me.Label337.Name = "Label337"
+        Me.Label337.Size = New System.Drawing.Size(100, 15)
+        Me.Label337.TabIndex = 620
+        Me.Label337.Text = "TEXT EDITOR:"
+        '
+        'Label336
+        '
+        Me.Label336.AutoSize = True
+        Me.Label336.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label336.Location = New System.Drawing.Point(8, 96)
+        Me.Label336.Name = "Label336"
+        Me.Label336.Size = New System.Drawing.Size(148, 15)
+        Me.Label336.TabIndex = 619
+        Me.Label336.Text = "INTERFACE DEVICES:"
+        '
         'Label335
         '
         Me.Label335.AutoSize = True
@@ -11143,74 +11203,6 @@ Partial Class Formtest
         'Timer14
         '
         Me.Timer14.Interval = 50
-        '
-        'CheckBoxPrologixSerialDTR
-        '
-        Me.CheckBoxPrologixSerialDTR.AutoSize = True
-        Me.CheckBoxPrologixSerialDTR.Location = New System.Drawing.Point(12, 122)
-        Me.CheckBoxPrologixSerialDTR.Name = "CheckBoxPrologixSerialDTR"
-        Me.CheckBoxPrologixSerialDTR.Size = New System.Drawing.Size(382, 17)
-        Me.CheckBoxPrologixSerialDTR.TabIndex = 615
-        Me.CheckBoxPrologixSerialDTR.Text = "Enable DTR for Prologix Serial Device  (disconnect and reconnect to apply)"
-        Me.ToolTip1.SetToolTip(Me.CheckBoxPrologixSerialDTR, "Checked, hovering over boxes/buttons will" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "offer hints, tips or info on function/" &
-        "use.")
-        Me.CheckBoxPrologixSerialDTR.UseVisualStyleBackColor = True
-        '
-        'CheckBoxSerialCOMDTREnable
-        '
-        Me.CheckBoxSerialCOMDTREnable.AutoSize = True
-        Me.CheckBoxSerialCOMDTREnable.Location = New System.Drawing.Point(12, 145)
-        Me.CheckBoxSerialCOMDTREnable.Name = "CheckBoxSerialCOMDTREnable"
-        Me.CheckBoxSerialCOMDTREnable.Size = New System.Drawing.Size(369, 17)
-        Me.CheckBoxSerialCOMDTREnable.TabIndex = 616
-        Me.CheckBoxSerialCOMDTREnable.Text = "Enable DTR for Serial COM Device  (disconnect and reconnect to apply)"
-        Me.ToolTip1.SetToolTip(Me.CheckBoxSerialCOMDTREnable, "Checked, hovering over boxes/buttons will" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "offer hints, tips or info on function/" &
-        "use.")
-        Me.CheckBoxSerialCOMDTREnable.UseVisualStyleBackColor = True
-        '
-        'CheckBoxSerialCOMRTSEnable
-        '
-        Me.CheckBoxSerialCOMRTSEnable.AutoSize = True
-        Me.CheckBoxSerialCOMRTSEnable.Location = New System.Drawing.Point(12, 168)
-        Me.CheckBoxSerialCOMRTSEnable.Name = "CheckBoxSerialCOMRTSEnable"
-        Me.CheckBoxSerialCOMRTSEnable.Size = New System.Drawing.Size(368, 17)
-        Me.CheckBoxSerialCOMRTSEnable.TabIndex = 617
-        Me.CheckBoxSerialCOMRTSEnable.Text = "Enable RTS for Serial COM Device  (disconnect and reconnect to apply)"
-        Me.ToolTip1.SetToolTip(Me.CheckBoxSerialCOMRTSEnable, "Checked, hovering over boxes/buttons will" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "offer hints, tips or info on function/" &
-        "use.")
-        Me.CheckBoxSerialCOMRTSEnable.UseVisualStyleBackColor = True
-        '
-        'CheckBoxIODevicesFormTracker
-        '
-        Me.CheckBoxIODevicesFormTracker.AutoSize = True
-        Me.CheckBoxIODevicesFormTracker.Location = New System.Drawing.Point(12, 191)
-        Me.CheckBoxIODevicesFormTracker.Name = "CheckBoxIODevicesFormTracker"
-        Me.CheckBoxIODevicesFormTracker.Size = New System.Drawing.Size(213, 17)
-        Me.CheckBoxIODevicesFormTracker.TabIndex = 618
-        Me.CheckBoxIODevicesFormTracker.Text = "Move IODevices window with main app"
-        Me.ToolTip1.SetToolTip(Me.CheckBoxIODevicesFormTracker, "Checked, hovering over boxes/buttons will" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "offer hints, tips or info on function/" &
-        "use.")
-        Me.CheckBoxIODevicesFormTracker.UseVisualStyleBackColor = True
-        '
-        'Label336
-        '
-        Me.Label336.AutoSize = True
-        Me.Label336.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label336.Location = New System.Drawing.Point(8, 96)
-        Me.Label336.Name = "Label336"
-        Me.Label336.Size = New System.Drawing.Size(148, 15)
-        Me.Label336.TabIndex = 619
-        Me.Label336.Text = "INTERFACE DEVICES:"
-        '
-        'Label337
-        '
-        Me.Label337.AutoSize = True
-        Me.Label337.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label337.Location = New System.Drawing.Point(9, 227)
-        Me.Label337.Name = "Label337"
-        Me.Label337.Size = New System.Drawing.Size(100, 15)
-        Me.Label337.TabIndex = 620
-        Me.Label337.Text = "TEXT EDITOR:"
         '
         'Formtest
         '
