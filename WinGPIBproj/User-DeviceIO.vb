@@ -33,6 +33,7 @@ Partial Class Formtest
                                 Optional rawOverride As String = Nothing,
                                 Optional overloadToken As String = Nothing)
 
+        Dim genSnapshot As Integer = Threading.Interlocked.CompareExchange(UserLayoutGen, 0, 0)
         Dim target = GetControlByName(resultControlName)
 
         ' Is this result backed by a DATASOURCE definition?
@@ -81,6 +82,8 @@ Partial Class Formtest
         Dim numericText As String = ""
         Dim numericWithUnitText As String = ""
 
+        If genSnapshot <> Threading.Interlocked.CompareExchange(UserLayoutGen, 0, 0) Then Exit Sub
+
         ' =========================================================
         '   GET RAW RESPONSE (native or standalone)
         ' =========================================================
@@ -105,6 +108,8 @@ Partial Class Formtest
                     End If
                 End If
 
+                If genSnapshot <> Threading.Interlocked.CompareExchange(UserLayoutGen, 0, 0) Then Exit Sub
+
                 ' NATIVE PATH: use existing UI query buttons/textboxes
                 raw = NativeQuery(deviceName, commandOrPrefix, requireRaw:=wantRaw)
                 Debug.WriteLine("GET RAW RESPONSE Query: " & raw)
@@ -114,6 +119,8 @@ Partial Class Formtest
                 ' STANDALONE PATH: original IODevices QueryBlocking behaviour
                 Dim q As IODevices.IOQuery = Nothing
                 Dim status As Integer
+
+                If genSnapshot <> Threading.Interlocked.CompareExchange(UserLayoutGen, 0, 0) Then Exit Sub
 
                 Dim fullCmd As String = commandOrPrefix & TermStr2()
                 status = dev.QueryBlocking(fullCmd, q, False)
@@ -236,10 +243,14 @@ Partial Class Formtest
                         Dim rngStr As String = ""
 
                         If IsNativeEngine(deviceName) Then
+                            If genSnapshot <> Threading.Interlocked.CompareExchange(UserLayoutGen, 0, 0) Then Exit Sub
+
                             ' Range query via native engine path
                             rngStr = NativeQuery(deviceName, CurrentUserRangeQuery)
                             Debug.WriteLine("AUTOSCALE Query: " & rngStr)
                         Else
+                            If genSnapshot <> Threading.Interlocked.CompareExchange(UserLayoutGen, 0, 0) Then Exit Sub
+
                             ' Range query via standalone path
                             Dim rq As IODevices.IOQuery = Nothing
                             Dim st2 As Integer = dev.QueryBlocking(CurrentUserRangeQuery & TermStr2(), rq, False)

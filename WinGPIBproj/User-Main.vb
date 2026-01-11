@@ -250,6 +250,17 @@ Partial Class Formtest
         ' Invalidate any in-flight async UI updates ASAP
         Threading.Interlocked.Increment(UserLayoutGen)
 
+        ' Abort any in-flight / queued IO immediately (prevents bleed-through during reset)
+        Try
+            If dev1 IsNot Nothing Then dev1.AbortAllTasks()
+        Catch
+        End Try
+
+        Try
+            If dev2 IsNot Nothing Then dev2.AbortAllTasks()
+        Catch
+        End Try
+
         ' Stop FuncAuto is running
         AutoJobs5.Clear()
         AutoJobs16.Clear()
@@ -383,6 +394,17 @@ Partial Class Formtest
                 End If
             Next
         End If
+
+        ' Again, abort any in-flight / queued IO immediately (prevents bleed-through during reset)
+        Try
+            If dev1 IsNot Nothing Then dev1.AbortAllTasks()
+        Catch
+        End Try
+
+        Try
+            If dev2 IsNot Nothing Then dev2.AbortAllTasks()
+        Catch
+        End Try
 
         ' After a reset, REFRESH is no longer valid until a load succeeds again
         ButtonLoadTxtRefresh.Enabled = False
