@@ -1151,10 +1151,15 @@ Public Class FormUserConfigEditor
 
 
     Private Sub txtEditor_TextChanged(sender As Object, e As EventArgs) Handles txtEditor.TextChanged
-        If _isColorizing Then Return
+        If _isColorizing OrElse _loadingConfig Then Return
 
         pnlLineNumbers.Invalidate()
-        SyncBlockSelectionToFirstVisibleLine()
+
+        ' Rebuild block list so line numbers stay correct while editing
+        BeginInvoke(New Action(Sub()
+                                   RebuildBlockList()
+                                   SyncBlockSelectionToFirstVisibleLine()
+                               End Sub))
     End Sub
 
 
