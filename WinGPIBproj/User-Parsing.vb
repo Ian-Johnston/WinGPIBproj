@@ -1975,6 +1975,7 @@ Partial Class Formtest
                         Dim borderOn As Boolean = True
                         Dim unitsOn As Boolean = True
                         Dim fmt As String = ""
+                        Dim popup As Boolean = False        ' popup function
 
                         ' ------------------------------------------------------------
                         ' Parse first fields:
@@ -2021,6 +2022,15 @@ Partial Class Formtest
 
                                     Case "format"
                                         fmt = val
+
+                                    Case "popup"
+                                        Select Case val.ToLowerInvariant()
+                                            Case "1", "on", "true", "yes"
+                                                popup = True
+                                            Case Else
+                                                popup = False
+                                        End Select
+
                                 End Select
                             Next
                         Else
@@ -2082,7 +2092,9 @@ Partial Class Formtest
                         panel.BorderStyle = If(borderOn, BorderStyle.FixedSingle, BorderStyle.None)
                         panel.BackColor = GroupBoxCustom.BackColor
 
-                        AddToUserContainer(panel)
+                        If Not popup Then
+                            AddToUserContainer(panel)
+                        End If
 
                         ' --- BIG TEXT label ---
                         Dim lbl As New Label()
@@ -2108,7 +2120,13 @@ Partial Class Formtest
                             lbl.Tag = String.Join("|", tagParts)
                         End If
 
-                        panel.Controls.Add(lbl)
+                        If popup Then
+                            ' Create/show popup using this label as a template (font/tag/border already set)
+                            EnsureBigTextPopup(controlName, lbl, x, y, w, h, caption)
+                        Else
+                            panel.Controls.Add(lbl)
+                        End If
+
                     End If
                     Continue For
 

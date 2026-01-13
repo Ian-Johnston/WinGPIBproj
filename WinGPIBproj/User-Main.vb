@@ -125,6 +125,8 @@ Partial Class Formtest
     Private ReadOnly ChartStartTimes As New Dictionary(Of String, DateTime)
 
     Private _userCfgEditor As FormUserConfigEditor = Nothing
+    Private BigTextPopupForms As New Dictionary(Of String, Form)
+    Private BigTextPopupLabels As New Dictionary(Of String, Label)
 
 
 
@@ -273,6 +275,47 @@ Partial Class Formtest
         Me.Timer15.Stop()
         Me.Timer16.Stop()
 
+        ' ---- HARD STOP any user-auto state that can re-arm on next tick ----
+        UserSkipNextUserDisplay = False
+
+        ' If you have any “busy” interlocks used by timers, clear them too
+        Threading.Interlocked.Exchange(UserAutoBusy, 0)
+        Threading.Interlocked.Exchange(UserAutoBusy2, 0)
+
+        ' If you cache “last read” command(s) for auto refresh, clear them
+        AutoReadDeviceName = ""
+        AutoReadCommand = ""
+        AutoReadResultControl = ""
+        AutoReadDeviceName2 = ""
+        AutoReadCommand2 = ""
+        AutoReadResultControl2 = ""
+
+        ' If you keep any “auto refresh enabled” flags, clear them here too (names may differ)
+        ' UserAutoEnabled = False
+        ' UserAutoEnabled2 = False
+
+        ' Clear per-config Units/Scale/Range state (AUTO range query was leaking across configs)
+        CurrentUserScale = 1.0R
+        CurrentUserScaleIsAuto = False
+        CurrentUserUnit = ""
+        CurrentUserDp = -1
+        CurrentUserRangeQuery = ""
+        ' (optional, if you have an auto-map structure)
+        ' CurrentUserAutoRangeMapName = ""
+
+        ' ---- Clear native-engine capture outputs (prevents overload/token checks using stale text) ----
+        USERdev1output = ""
+        USERdev1output2 = ""
+        USERdev2output = ""
+        USERdev2output2 = ""
+
+        ' ---- Clear last “result” caches used by CALC/trigger pipelines ----
+        Vars.Clear()
+        ResultLastValue.Clear()   ' you already do this later; keep it, but clearing here is fine
+
+        ' ---- Clear any “current selected device” / “current instrument” globals if you have them ----
+        ' CurrentUserDeviceName = ""
+
         ' Clear QUERIESTOFILE auto state (Timer15)
         Auto15DeviceName = ""
         Auto15ScriptBoxName = ""
@@ -307,6 +350,10 @@ Partial Class Formtest
         StatsColLeft.Clear()
         StatsColRight.Clear()
 
+        ' ---- Stop any pending BeginInvoke/Invoke UI updates from older config ----
+        ' Bump generation AGAIN right before you start removing controls
+        Threading.Interlocked.Increment(UserLayoutGen)
+
         ' Remove all dynamically created controls
         GroupBoxCustom.SuspendLayout()
         Try
@@ -340,6 +387,11 @@ Partial Class Formtest
         ' Clear DATASOURCE + linked-control mappings
         DataSources.Clear()
         HistoryGridsByTarget.Clear()
+
+        ' ---- Clear chart/hist settings dictionaries too (prevents stale bindings firing) ----
+        If ChartSettings IsNot Nothing Then ChartSettings.Clear()
+        If ChartPopupForms IsNot Nothing Then ChartPopupForms.Clear()   ' you also dispose later; ok
+        If HistoryGridPopupForms IsNot Nothing Then HistoryGridPopupForms.Clear()
 
         ' If you implemented the multi-job schedulers
         AutoJobs5.Clear()
@@ -394,6 +446,21 @@ Partial Class Formtest
                 End If
             Next
         End If
+
+        ' Close any popup BIGTEXT windows
+        If BigTextPopupForms IsNot Nothing Then
+            Dim forms() As Form = BigTextPopupForms.Values.ToArray()
+            BigTextPopupForms.Clear()
+            BigTextPopupLabels.Clear()
+
+            For Each f As Form In forms
+                If f IsNot Nothing AndAlso Not f.IsDisposed Then
+                    f.Close()
+                    f.Dispose()
+                End If
+            Next
+        End If
+
 
         ' Again, abort any in-flight / queued IO immediately (prevents bleed-through during reset)
         Try
@@ -3971,6 +4038,53 @@ Partial Class Formtest
 
     End Sub
 
+
+    Private Sub EnsureBigTextPopup(key As String,
+                                   srcLabel As Label,
+                                   x As Integer,
+                                   y As Integer,
+                                   w As Integer,
+                                   h As Integer,
+                                   caption As String)
+
+        Dim f As Form = Nothing
+        Dim lbl As Label = Nothing
+
+        If Not BigTextPopupForms.TryGetValue(key, f) OrElse f Is Nothing OrElse f.IsDisposed Then
+
+            f = New Form()
+            f.Text = If(String.IsNullOrWhiteSpace(caption), key, caption)
+            f.StartPosition = FormStartPosition.Manual
+            f.Location = Me.PointToScreen(New Point(x, y))
+            f.Size = New Size(Math.Max(w + 40, 300), Math.Max(h + 60, 120))
+            f.FormBorderStyle = FormBorderStyle.SizableToolWindow
+
+            lbl = New Label()
+            lbl.Name = key
+            lbl.Dock = DockStyle.Fill
+            lbl.TextAlign = ContentAlignment.MiddleCenter
+            lbl.Font = srcLabel.Font
+            lbl.Tag = srcLabel.Tag
+            lbl.BorderStyle = srcLabel.BorderStyle
+            lbl.Text = srcLabel.Text
+
+            f.Controls.Add(lbl)
+            f.TopMost = True
+            f.Show()
+
+            BigTextPopupForms(key) = f
+            BigTextPopupLabels(key) = lbl
+
+        Else
+            lbl = BigTextPopupLabels(key)
+            If f.WindowState = FormWindowState.Minimized Then
+                f.WindowState = FormWindowState.Normal
+            End If
+            f.Show()
+            f.BringToFront()
+        End If
+
+    End Sub
 
 
 

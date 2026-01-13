@@ -373,7 +373,6 @@ Partial Class Formtest
                 Threading.Interlocked.Decrement(UserCalcDepth)
             End If
 
-
         Else
             ' Non-numeric reply: clear numeric fields and pass through raw text
             numericText = ""
@@ -490,7 +489,69 @@ FanOut:
 
         Next
 
+        ' ---- BIGTEXT POPUP update (honour BIGTEXT_FMT + CurrentUserDp + unitsOff) ----
+        If BigTextPopupLabels IsNot Nothing Then
+            Dim popLbl As Label = Nothing
+            If BigTextPopupLabels.TryGetValue(resultControlName, popLbl) Then
+                If popLbl IsNot Nothing AndAlso Not popLbl.IsDisposed Then
+
+                    Dim tagStr As String = TryCast(popLbl.Tag, String)
+
+                    Dim unitsOff As Boolean = False
+                    Dim fmt As String = ""
+
+                    If Not String.IsNullOrEmpty(tagStr) Then
+                        Dim tp() As String = tagStr.Split("|"c)
+                        For Each t In tp
+                            Dim tt As String = t.Trim()
+                            If tt.Equals("BIGTEXT_UNITS_OFF", StringComparison.OrdinalIgnoreCase) Then
+                                unitsOff = True
+                            ElseIf tt.StartsWith("BIGTEXT_FMT=", StringComparison.OrdinalIgnoreCase) Then
+                                fmt = tt.Substring("BIGTEXT_FMT=".Length).Trim()
+                            End If
+                        Next
+                    End If
+
+                    ' Choose base numeric string (prefer numericText, then parse from outText)
+                    Dim baseNumeric As String = numericText
+                    If String.IsNullOrWhiteSpace(baseNumeric) Then baseNumeric = outText
+
+                    Dim displayNumeric As String = baseNumeric
+                    Dim dv2 As Double
+
+                    If Double.TryParse(baseNumeric,
+                               Globalization.NumberStyles.Float,
+                               Globalization.CultureInfo.InvariantCulture,
+                               dv2) Then
+
+                        ' 1) dp from RADIO (CurrentUserDp) wins
+                        If CurrentUserDp >= 0 Then
+                            displayNumeric = dv2.ToString("F" & CurrentUserDp,
+                                                  Globalization.CultureInfo.InvariantCulture)
+
+                            ' 2) else BIGTEXT format= (BIGTEXT_FMT=) if present
+                        ElseIf fmt <> "" Then
+                            displayNumeric = dv2.ToString(fmt,
+                                                  Globalization.CultureInfo.InvariantCulture)
+                        End If
+                    End If
+
+                    If unitsOff Then
+                        popLbl.Text = displayNumeric
+                    Else
+                        If Not String.IsNullOrEmpty(CurrentUserUnit) Then
+                            popLbl.Text = displayNumeric & "   " & CurrentUserUnit
+                        Else
+                            popLbl.Text = displayNumeric
+                        End If
+                    End If
+
+                End If
+            End If
+        End If
+
         GroupBoxCustom.ResumeLayout(False)
+
 
         ' UPDATED LINKED CONTROLS (no TextBox required)
         Dim feedText As String = If(numericWithUnitText <> "", numericWithUnitText, outText)

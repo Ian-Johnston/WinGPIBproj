@@ -223,8 +223,10 @@ Public Class Formtest
         Try
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.067"
-            BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only"
+            BannerText1 = "WinGPIB   V4.068"
+            BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
+            Me.Text = BannerText1 & "                                                        " & BannerText2.ToString()
+
 
             ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
             ' doesn't exist then copy it from C:\Users\[username]\OneDrive\Documents to C:\Users\[username]\Documents folder
@@ -2199,27 +2201,6 @@ Public Class Formtest
         If ButtonDev1Run.Text = "Stop" Or ButtonDev2Run.Text = "Stop" Or ButtonDev12Run.Text = "Stop" Then
             UpdateStopwatchLabel()
         End If
-
-
-
-        ' Banner title text animation
-        ' Generate a random number of spaces between the two parts (e.g., between 5 and 20 spaces)
-        Dim random As New Random()
-        Dim randomSpaces As Integer = random.Next(30, 36)
-
-        ' Create a StringBuilder to construct the final text with random spaces
-        Dim result As New StringBuilder()
-        result.Append(BannerText1) ' Append the first part
-
-        ' Append the random spaces
-        For i As Integer = 1 To randomSpaces
-            result.Append(" ")
-        Next
-
-        result.Append(BannerText2) ' Append the second part
-
-        ' Set the form text
-        Me.Text = result.ToString()
 
     End Sub
 
