@@ -3092,9 +3092,9 @@ Partial Class Formtest
         'cboDev2Device
         '
         Me.cboDev2Device.FormattingEnabled = True
-        Me.cboDev2Device.Location = New System.Drawing.Point(70, 16)
+        Me.cboDev2Device.Location = New System.Drawing.Point(78, 16)
         Me.cboDev2Device.Name = "cboDev2Device"
-        Me.cboDev2Device.Size = New System.Drawing.Size(121, 21)
+        Me.cboDev2Device.Size = New System.Drawing.Size(111, 21)
         Me.cboDev2Device.TabIndex = 535
         '
         'ProfDev2_12
@@ -3190,7 +3190,7 @@ Partial Class Formtest
         'Label15
         '
         Me.Label15.AutoSize = True
-        Me.Label15.Location = New System.Drawing.Point(14, 20)
+        Me.Label15.Location = New System.Drawing.Point(21, 20)
         Me.Label15.Name = "Label15"
         Me.Label15.Size = New System.Drawing.Size(52, 13)
         Me.Label15.TabIndex = 525
@@ -3257,7 +3257,7 @@ Partial Class Formtest
         'Label4
         '
         Me.Label4.AutoSize = True
-        Me.Label4.Location = New System.Drawing.Point(17, 74)
+        Me.Label4.Location = New System.Drawing.Point(17, 73)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(59, 13)
         Me.Label4.TabIndex = 518
@@ -3265,7 +3265,7 @@ Partial Class Formtest
         '
         'txtname2
         '
-        Me.txtname2.Location = New System.Drawing.Point(77, 47)
+        Me.txtname2.Location = New System.Drawing.Point(77, 45)
         Me.txtname2.Name = "txtname2"
         Me.txtname2.Size = New System.Drawing.Size(240, 20)
         Me.txtname2.TabIndex = 517
@@ -3273,7 +3273,7 @@ Partial Class Formtest
         '
         'txtaddr2
         '
-        Me.txtaddr2.Location = New System.Drawing.Point(77, 70)
+        Me.txtaddr2.Location = New System.Drawing.Point(77, 69)
         Me.txtaddr2.Name = "txtaddr2"
         Me.txtaddr2.Size = New System.Drawing.Size(240, 20)
         Me.txtaddr2.TabIndex = 516
@@ -3283,7 +3283,7 @@ Partial Class Formtest
         '
         Me.Label2.AutoSize = True
         Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.Location = New System.Drawing.Point(20, 51)
+        Me.Label2.Location = New System.Drawing.Point(20, 49)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(55, 13)
         Me.Label2.TabIndex = 515
@@ -3322,9 +3322,9 @@ Partial Class Formtest
         'cboDev1Device
         '
         Me.cboDev1Device.FormattingEnabled = True
-        Me.cboDev1Device.Location = New System.Drawing.Point(69, 16)
+        Me.cboDev1Device.Location = New System.Drawing.Point(77, 16)
         Me.cboDev1Device.Name = "cboDev1Device"
-        Me.cboDev1Device.Size = New System.Drawing.Size(121, 21)
+        Me.cboDev1Device.Size = New System.Drawing.Size(111, 21)
         Me.cboDev1Device.TabIndex = 514
         '
         'ProfDev1_12
@@ -3430,7 +3430,7 @@ Partial Class Formtest
         'Label16
         '
         Me.Label16.AutoSize = True
-        Me.Label16.Location = New System.Drawing.Point(13, 20)
+        Me.Label16.Location = New System.Drawing.Point(20, 20)
         Me.Label16.Name = "Label16"
         Me.Label16.Size = New System.Drawing.Size(52, 13)
         Me.Label16.TabIndex = 504
@@ -3487,7 +3487,7 @@ Partial Class Formtest
         'Label3
         '
         Me.Label3.AutoSize = True
-        Me.Label3.Location = New System.Drawing.Point(15, 74)
+        Me.Label3.Location = New System.Drawing.Point(15, 73)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(59, 13)
         Me.Label3.TabIndex = 496
@@ -3495,7 +3495,7 @@ Partial Class Formtest
         '
         'txtaddr1
         '
-        Me.txtaddr1.Location = New System.Drawing.Point(76, 70)
+        Me.txtaddr1.Location = New System.Drawing.Point(76, 69)
         Me.txtaddr1.Name = "txtaddr1"
         Me.txtaddr1.Size = New System.Drawing.Size(240, 20)
         Me.txtaddr1.TabIndex = 495
@@ -3503,7 +3503,7 @@ Partial Class Formtest
         '
         'txtname1
         '
-        Me.txtname1.Location = New System.Drawing.Point(76, 47)
+        Me.txtname1.Location = New System.Drawing.Point(76, 45)
         Me.txtname1.Name = "txtname1"
         Me.txtname1.Size = New System.Drawing.Size(240, 20)
         Me.txtname1.TabIndex = 494
@@ -3513,7 +3513,7 @@ Partial Class Formtest
         '
         Me.Label1.AutoSize = True
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.Location = New System.Drawing.Point(19, 51)
+        Me.Label1.Location = New System.Drawing.Point(19, 49)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(55, 13)
         Me.Label1.TabIndex = 493
