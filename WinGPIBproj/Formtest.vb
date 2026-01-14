@@ -660,6 +660,12 @@ Public Class Formtest
             ToolTip1.SetToolTip(ProfDev1_11, My.Settings.data584)
             ToolTip1.SetToolTip(ProfDev1_12, My.Settings.data613)
 
+            ' Misc tooltips config
+            ToolTip1.OwnerDraw = True
+            ToolTip1.InitialDelay = 5   ' ms before first show (default is 1000)
+            ToolTip1.ReshowDelay = 5    ' delay when moving between controls
+            ToolTip1.AutoPopDelay = 15000 ' how long it stays visible
+
             ' Check to make sure that one of them is set TRUE, and also detect if more than one is set TRUE
             Dim checkboxesDev1() As CheckBox = {ProfDev1_1, ProfDev1_2, ProfDev1_3, ProfDev1_4, ProfDev1_5, ProfDev1_6, ProfDev1_7, ProfDev1_8, ProfDev1_9, ProfDev1_10, ProfDev1_11, ProfDev1_12}
             Dim checkedCountDev1 As Integer = 0
@@ -882,12 +888,91 @@ Public Class Formtest
             ' For USER tab keypad
             Me.KeyPreview = True
 
+            ToolTip1.SetToolTip(Label16, String.Join(Environment.NewLine, New String() {
+        My.Settings.data1,
+        My.Settings.data1b,
+        My.Settings.data1c,
+        My.Settings.data139,
+        My.Settings.data155,
+        My.Settings.data171,
+        My.Settings.data349,
+        My.Settings.data375,
+        My.Settings.data526,
+        My.Settings.data555,
+        My.Settings.data584,
+        My.Settings.data613
+    })
+)
+
+            ToolTip1.SetToolTip(Label15, String.Join(Environment.NewLine, New String() {
+        My.Settings.data2,
+        My.Settings.data2b,
+        My.Settings.data2c,
+        My.Settings.data91,
+        My.Settings.data107,
+        My.Settings.data123,
+        My.Settings.data401,
+        My.Settings.data427,
+        My.Settings.data642,
+        My.Settings.data671,
+        My.Settings.data700,
+        My.Settings.data729
+    })
+)
+
+
 
 
         Catch ex As Exception
             MessageBox.Show($"Error during load: {ex.Message}")
         End Try
 
+    End Sub
+
+
+    ' Large tooltips
+    Private Sub ToolTip1_Draw(sender As Object, e As DrawToolTipEventArgs) _
+    Handles ToolTip1.Draw
+
+        Using f As New Font("Segoe UI", 12.0F)
+            e.Graphics.FillRectangle(SystemBrushes.Info, e.Bounds)
+
+            Dim rc As Rectangle = New Rectangle(
+            e.Bounds.X + 6,
+            e.Bounds.Y + 4,
+            e.Bounds.Width - 12,
+            e.Bounds.Height - 8
+        )
+
+            TextRenderer.DrawText(
+            e.Graphics,
+            e.ToolTipText,
+            f,
+            rc,
+            Color.Black,
+            TextFormatFlags.Left Or TextFormatFlags.VerticalCenter Or TextFormatFlags.NoPrefix Or TextFormatFlags.NoClipping
+        )
+        End Using
+    End Sub
+
+
+    ' Large tooltips
+    Private Sub ToolTip1_Popup(sender As Object, e As PopupEventArgs) _
+    Handles ToolTip1.Popup
+
+        Dim tt As ToolTip = CType(sender, ToolTip)
+        Dim text As String = tt.GetToolTip(e.AssociatedControl)
+
+        Using f As New Font("Segoe UI", 12.0F)
+            Dim sz = TextRenderer.MeasureText(
+            text,
+            f,
+            New Size(1200, Integer.MaxValue),
+            TextFormatFlags.WordBreak
+        )
+
+            e.ToolTipSize = New Size(sz.Width + 14, sz.Height + 8)
+        End Using
     End Sub
 
 
