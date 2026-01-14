@@ -930,6 +930,23 @@ Partial Class Formtest
         End If
 
 
+        ' Refresh dropdown names after saving
+        Dim dev1Sel As Integer = cboDev1Device.SelectedIndex
+        Dim dev2Sel As Integer = cboDev2Device.SelectedIndex
+
+        _suppressDev1Sync = True
+        _suppressDev2Sync = True
+
+        PopulateDeviceDropdownsFromNames()
+
+        ' restore selection (only if it was valid)
+        If dev1Sel >= 0 AndAlso dev1Sel < cboDev1Device.Items.Count Then cboDev1Device.SelectedIndex = dev1Sel
+        If dev2Sel >= 0 AndAlso dev2Sel < cboDev2Device.Items.Count Then cboDev2Device.SelectedIndex = dev2Sel
+
+        _suppressDev1Sync = False
+        _suppressDev2Sync = False
+
+
         ' Save the settings to persist the changes
         My.Settings.Save()
 
@@ -1016,6 +1033,8 @@ Partial Class Formtest
 
         txtOperationDev1.Text = My.Settings.data509
 
+        If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 0
+
 
     End Sub
 
@@ -1093,6 +1112,8 @@ Partial Class Formtest
 
         txtOperationDev1.Text = My.Settings.data510
 
+        If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 1
+
     End Sub
 
     ' Device 1 profile 3
@@ -1169,6 +1190,8 @@ Partial Class Formtest
 
         txtOperationDev1.Text = My.Settings.data511
 
+        If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 2
+
     End Sub
 
     ' Device 1 profile 4
@@ -1239,6 +1262,8 @@ Partial Class Formtest
         Dev1IntEnable.Checked = My.Settings.data490
 
         txtOperationDev1.Text = My.Settings.data512
+
+        If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 3
 
     End Sub
 
@@ -1311,6 +1336,8 @@ Partial Class Formtest
 
         txtOperationDev1.Text = My.Settings.data513
 
+        If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 4
+
     End Sub
 
     ' Device 1 profile 6
@@ -1381,6 +1408,8 @@ Partial Class Formtest
         Dev1IntEnable.Checked = My.Settings.data494
 
         txtOperationDev1.Text = My.Settings.data514
+
+        If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 5
 
     End Sub
 
@@ -1454,6 +1483,8 @@ Partial Class Formtest
 
         txtOperationDev1.Text = My.Settings.data515
 
+        If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 6
+
     End Sub
 
 
@@ -1526,6 +1557,8 @@ Partial Class Formtest
 
         txtOperationDev1.Text = My.Settings.data516
 
+        If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 7
+
     End Sub
 
     Private Sub ProfDev1_9_Click(sender As Object, e As EventArgs) Handles ProfDev1_9.Click
@@ -1586,6 +1619,8 @@ Partial Class Formtest
         Dev1Regex.Checked = My.Settings.data551
         Dev1DecimalNumDPs.Text = My.Settings.data552
         txtOperationDev1.Text = My.Settings.data554
+
+        If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 8
 
     End Sub
 
@@ -1648,6 +1683,8 @@ Partial Class Formtest
         Dev1DecimalNumDPs.Text = My.Settings.data581
         txtOperationDev1.Text = My.Settings.data583
 
+        If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 9
+
     End Sub
 
     Private Sub ProfDev1_11_Click(sender As Object, e As EventArgs) Handles ProfDev1_11.Click
@@ -1709,6 +1746,8 @@ Partial Class Formtest
         Dev1DecimalNumDPs.Text = My.Settings.data610
         txtOperationDev1.Text = My.Settings.data612
 
+        If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 10
+
     End Sub
 
     Private Sub ProfDev1_12_Click(sender As Object, e As EventArgs) Handles ProfDev1_12.Click
@@ -1769,6 +1808,8 @@ Partial Class Formtest
         Dev1Regex.Checked = My.Settings.data638
         Dev1DecimalNumDPs.Text = My.Settings.data639
         txtOperationDev1.Text = My.Settings.data641
+
+        If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 11
 
     End Sub
 
@@ -1848,6 +1889,8 @@ Partial Class Formtest
 
         txtOperationDev2.Text = My.Settings.data517
 
+        If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 0
+
     End Sub
 
     ' Device 2 profile 2
@@ -1924,6 +1967,8 @@ Partial Class Formtest
 
         txtOperationDev2.Text = My.Settings.data518
 
+        If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 1
+
     End Sub
 
     ' Device 2 profile 3
@@ -1999,6 +2044,8 @@ Partial Class Formtest
 
         txtOperationDev2.Text = My.Settings.data519
 
+        If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 2
+
     End Sub
 
     ' Device 2 profile 4
@@ -2071,6 +2118,8 @@ Partial Class Formtest
 
         txtOperationDev2.Text = My.Settings.data520
 
+        If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 3
+
     End Sub
 
     ' Device 2 profile 5
@@ -2141,6 +2190,8 @@ Partial Class Formtest
         Dev2SendQuery.Checked = My.Settings.data493
 
         txtOperationDev2.Text = My.Settings.data521
+
+        If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 4
 
     End Sub
 
@@ -2213,6 +2264,8 @@ Partial Class Formtest
 
         txtOperationDev2.Text = My.Settings.data522
 
+        If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 5
+
     End Sub
 
     ' Device 2 profile 7
@@ -2283,6 +2336,8 @@ Partial Class Formtest
         Dev2SendQuery.Checked = My.Settings.data497
 
         txtOperationDev2.Text = My.Settings.data523
+
+        If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 6
 
     End Sub
 
@@ -2356,6 +2411,8 @@ Partial Class Formtest
 
         txtOperationDev2.Text = My.Settings.data524
 
+        If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 7
+
     End Sub
 
 
@@ -2419,6 +2476,8 @@ Partial Class Formtest
         Dev2DecimalNumDPs.Text = My.Settings.data668
         txtOperationDev2.Text = My.Settings.data670
 
+        If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 8
+
     End Sub
 
     Private Sub ProfDev2_10_Click(sender As Object, e As EventArgs) Handles ProfDev2_10.Click
@@ -2479,6 +2538,8 @@ Partial Class Formtest
         Dev2Regex.Checked = My.Settings.data696
         Dev2DecimalNumDPs.Text = My.Settings.data697
         txtOperationDev2.Text = My.Settings.data699
+
+        If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 9
 
     End Sub
 
@@ -2541,6 +2602,8 @@ Partial Class Formtest
         Dev2DecimalNumDPs.Text = My.Settings.data726
         txtOperationDev2.Text = My.Settings.data728
 
+        If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 10
+
     End Sub
 
     Private Sub ProfDev2_12_Click(sender As Object, e As EventArgs) Handles ProfDev2_12.Click
@@ -2601,6 +2664,8 @@ Partial Class Formtest
         Dev2Regex.Checked = My.Settings.data754
         Dev2DecimalNumDPs.Text = My.Settings.data755
         txtOperationDev2.Text = My.Settings.data757
+
+        If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 11
 
     End Sub
 

@@ -159,6 +159,11 @@ Public Class Formtest
 
     Dim PDVS2miniCalAvailable As Boolean = 0
 
+    ' Prevents dropdown->checkbox->dropdown event loops
+    Private _suppressDev1Sync As Boolean = False
+    Private _suppressDev2Sync As Boolean = False
+
+
 
 
     ' SHUTTING DOWN WinGPIB
@@ -249,6 +254,7 @@ Public Class Formtest
                     My.Computer.FileSystem.CopyDirectory(strPathOD, strPath, True)
                 End If
             End If
+
 
             ' get available COM ports
             comPORT = ""
@@ -666,6 +672,27 @@ Public Class Formtest
             ToolTip1.ReshowDelay = 5    ' delay when moving between controls
             ToolTip1.AutoPopDelay = 15000 ' how long it stays visible
 
+
+            ' Dropdown init (must be before any checkbox->dropdown sync can run)
+            AddHandler cboDev1Device.SelectedIndexChanged, AddressOf cboDev1Device_SelectedIndexChanged
+            AddHandler cboDev2Device.SelectedIndexChanged, AddressOf cboDev2Device_SelectedIndexChanged
+
+            _suppressDev1Sync = True
+            _suppressDev2Sync = True
+
+            cboDev1Device.DropDownStyle = ComboBoxStyle.DropDownList
+            cboDev2Device.DropDownStyle = ComboBoxStyle.DropDownList
+
+            cboDev1Device.Items.Clear()
+            cboDev2Device.Items.Clear()
+
+            PopulateDeviceDropdownsFromNames()
+
+            ' No selection until we know which checkbox is active
+            cboDev1Device.SelectedIndex = -1
+            cboDev2Device.SelectedIndex = -1
+
+
             ' Check to make sure that one of them is set TRUE, and also detect if more than one is set TRUE
             Dim checkboxesDev1() As CheckBox = {ProfDev1_1, ProfDev1_2, ProfDev1_3, ProfDev1_4, ProfDev1_5, ProfDev1_6, ProfDev1_7, ProfDev1_8, ProfDev1_9, ProfDev1_10, ProfDev1_11, ProfDev1_12}
             Dim checkedCountDev1 As Integer = 0
@@ -888,7 +915,182 @@ Public Class Formtest
             ' For USER tab keypad
             Me.KeyPreview = True
 
-            ToolTip1.SetToolTip(Label16, String.Join(Environment.NewLine, New String() {
+
+            'ToolTip1.SetToolTip(Label16, String.Join(Environment.NewLine, New String() {
+            'My.Settings.data1,
+            'My.Settings.data1b,
+            'My.Settings.data1c,
+            'My.Settings.data139,
+            'My.Settings.data155,
+            'My.Settings.data171,
+            'My.Settings.data349,
+            'My.Settings.data375,
+            'My.Settings.data526,
+            'My.Settings.data555,
+            'My.Settings.data584,
+            'My.Settings.data613
+            '})
+            ')
+
+            'ToolTip1.SetToolTip(Label15, String.Join(Environment.NewLine, New String() {
+            'My.Settings.data2,
+            'My.Settings.data2b,
+            'My.Settings.data2c,
+            'My.Settings.data91,
+            'My.Settings.data107,
+            'My.Settings.data123,
+            'My.Settings.data401,
+            'My.Settings.data427,
+            'My.Settings.data642,
+            'My.Settings.data671,
+            'My.Settings.data700,
+            'My.Settings.data729
+            '})
+            ')
+
+
+
+            ' Final dropdown sync to reflect whichever profile ended up selected
+            SyncDev1DropdownFromCheckbox()
+            SyncDev2DropdownFromCheckbox()
+
+            _suppressDev1Sync = False
+            _suppressDev2Sync = False
+
+
+
+
+
+
+
+
+
+        Catch ex As Exception
+            MessageBox.Show($"Error during load: {ex.Message}")
+        End Try
+
+    End Sub
+
+
+
+
+
+
+
+
+
+    Private Sub SyncDev1DropdownFromCheckbox()
+        'If cboDev1Device.Items.Count = 0 Then Exit Sub
+
+        For i As Integer = 1 To 12
+            Dim cb = CType(Me.Controls.Find($"ProfDev1_{i}", True).FirstOrDefault(), CheckBox)
+            If cb IsNot Nothing AndAlso cb.Checked Then
+                cboDev1Device.SelectedIndex = i - 1
+                Exit For
+            End If
+        Next
+    End Sub
+
+
+    Private Sub SyncDev2DropdownFromCheckbox()
+        'If cboDev2Device.Items.Count = 0 Then Exit Sub
+
+        For i As Integer = 1 To 12
+            Dim cb = CType(Me.Controls.Find($"ProfDev2_{i}", True).FirstOrDefault(), CheckBox)
+            If cb IsNot Nothing AndAlso cb.Checked Then
+                cboDev2Device.SelectedIndex = i - 1
+                Exit For
+            End If
+        Next
+    End Sub
+
+
+    Private Sub cboDev1Device_SelectedIndexChanged(sender As Object, e As EventArgs)
+
+        If _suppressDev1Sync Then Return
+        If cboDev1Device.Items.Count = 0 Then Return
+        If cboDev1Device.SelectedIndex < 0 Then Return
+
+        Dim n As Integer = cboDev1Device.SelectedIndex + 1
+
+        _suppressDev1Sync = True
+        ProfDev1_1.Checked = (n = 1)
+        ProfDev1_2.Checked = (n = 2)
+        ProfDev1_3.Checked = (n = 3)
+        ProfDev1_4.Checked = (n = 4)
+        ProfDev1_5.Checked = (n = 5)
+        ProfDev1_6.Checked = (n = 6)
+        ProfDev1_7.Checked = (n = 7)
+        ProfDev1_8.Checked = (n = 8)
+        ProfDev1_9.Checked = (n = 9)
+        ProfDev1_10.Checked = (n = 10)
+        ProfDev1_11.Checked = (n = 11)
+        ProfDev1_12.Checked = (n = 12)
+        _suppressDev1Sync = False
+
+        Select Case n
+            Case 1 : ProfDev1_1_Click(ProfDev1_1, EventArgs.Empty)
+            Case 2 : ProfDev1_2_Click(ProfDev1_2, EventArgs.Empty)
+            Case 3 : ProfDev1_3_Click(ProfDev1_3, EventArgs.Empty)
+            Case 4 : ProfDev1_4_Click(ProfDev1_4, EventArgs.Empty)
+            Case 5 : ProfDev1_5_Click(ProfDev1_5, EventArgs.Empty)
+            Case 6 : ProfDev1_6_Click(ProfDev1_6, EventArgs.Empty)
+            Case 7 : ProfDev1_7_Click(ProfDev1_7, EventArgs.Empty)
+            Case 8 : ProfDev1_8_Click(ProfDev1_8, EventArgs.Empty)
+            Case 9 : ProfDev1_9_Click(ProfDev1_9, EventArgs.Empty)
+            Case 10 : ProfDev1_10_Click(ProfDev1_10, EventArgs.Empty)
+            Case 11 : ProfDev1_11_Click(ProfDev1_11, EventArgs.Empty)
+            Case 12 : ProfDev1_12_Click(ProfDev1_12, EventArgs.Empty)
+        End Select
+
+    End Sub
+
+
+
+    Private Sub cboDev2Device_SelectedIndexChanged(sender As Object, e As EventArgs)
+
+        If _suppressDev2Sync Then Return
+        If cboDev2Device.Items.Count = 0 Then Return
+        If cboDev2Device.SelectedIndex < 0 Then Return
+
+        Dim n As Integer = cboDev2Device.SelectedIndex + 1
+
+        _suppressDev2Sync = True
+        ProfDev2_1.Checked = (n = 1)
+        ProfDev2_2.Checked = (n = 2)
+        ProfDev2_3.Checked = (n = 3)
+        ProfDev2_4.Checked = (n = 4)
+        ProfDev2_5.Checked = (n = 5)
+        ProfDev2_6.Checked = (n = 6)
+        ProfDev2_7.Checked = (n = 7)
+        ProfDev2_8.Checked = (n = 8)
+        ProfDev2_9.Checked = (n = 9)
+        ProfDev2_10.Checked = (n = 10)
+        ProfDev2_11.Checked = (n = 11)
+        ProfDev2_12.Checked = (n = 12)
+        _suppressDev2Sync = False
+
+        Select Case n
+            Case 1 : ProfDev2_1_Click(ProfDev2_1, EventArgs.Empty)
+            Case 2 : ProfDev2_2_Click(ProfDev2_2, EventArgs.Empty)
+            Case 3 : ProfDev2_3_Click(ProfDev2_3, EventArgs.Empty)
+            Case 4 : ProfDev2_4_Click(ProfDev2_4, EventArgs.Empty)
+            Case 5 : ProfDev2_5_Click(ProfDev2_5, EventArgs.Empty)
+            Case 6 : ProfDev2_6_Click(ProfDev2_6, EventArgs.Empty)
+            Case 7 : ProfDev2_7_Click(ProfDev2_7, EventArgs.Empty)
+            Case 8 : ProfDev2_8_Click(ProfDev2_8, EventArgs.Empty)
+            Case 9 : ProfDev2_9_Click(ProfDev2_9, EventArgs.Empty)
+            Case 10 : ProfDev2_10_Click(ProfDev2_10, EventArgs.Empty)
+            Case 11 : ProfDev2_11_Click(ProfDev2_11, EventArgs.Empty)
+            Case 12 : ProfDev2_12_Click(ProfDev2_12, EventArgs.Empty)
+        End Select
+
+    End Sub
+
+
+
+    Private Function Dev1ProfileNames() As String()
+        Return New String() {
         My.Settings.data1,
         My.Settings.data1b,
         My.Settings.data1c,
@@ -901,10 +1103,11 @@ Public Class Formtest
         My.Settings.data555,
         My.Settings.data584,
         My.Settings.data613
-    })
-)
+    }
+    End Function
 
-            ToolTip1.SetToolTip(Label15, String.Join(Environment.NewLine, New String() {
+    Private Function Dev2ProfileNames() As String()
+        Return New String() {
         My.Settings.data2,
         My.Settings.data2b,
         My.Settings.data2c,
@@ -917,17 +1120,39 @@ Public Class Formtest
         My.Settings.data671,
         My.Settings.data700,
         My.Settings.data729
-    })
-)
+    }
+    End Function
 
 
+    Private Sub PopulateDeviceDropdownsFromNames()
 
+        cboDev1Device.DropDownStyle = ComboBoxStyle.DropDownList
+        cboDev2Device.DropDownStyle = ComboBoxStyle.DropDownList
 
-        Catch ex As Exception
-            MessageBox.Show($"Error during load: {ex.Message}")
-        End Try
+        cboDev1Device.Items.Clear()
+        cboDev2Device.Items.Clear()
+
+        Dim d1 = Dev1ProfileNames()
+        For i As Integer = 0 To 11
+            Dim name = If(String.IsNullOrWhiteSpace(d1(i)), $"Dev1 Profile {i + 1}", d1(i))
+            cboDev1Device.Items.Add(name)
+        Next
+
+        Dim d2 = Dev2ProfileNames()
+        For i As Integer = 0 To 11
+            Dim name = If(String.IsNullOrWhiteSpace(d2(i)), $"Dev2 Profile {i + 1}", d2(i))
+            cboDev2Device.Items.Add(name)
+        Next
 
     End Sub
+
+
+
+
+
+
+
+
 
 
     ' Large tooltips
@@ -1127,6 +1352,7 @@ Public Class Formtest
             ProfDev1_12.Enabled = False
             txtaddr1.Enabled = False
             lstIntf1.Enabled = False
+            cboDev1Device.Enabled = False
 
         End If
 
@@ -1209,6 +1435,7 @@ Public Class Formtest
             ProfDev2_12.Enabled = False
             txtaddr2.Enabled = False
             lstIntf2.Enabled = False
+            cboDev2Device.Enabled = False
 
             Enable3245AControls()
 
@@ -1336,6 +1563,8 @@ Public Class Formtest
             ProfDev2_12.Enabled = False
             txtaddr2.Enabled = False
             lstIntf2.Enabled = False
+            cboDev1Device.Enabled = False
+            cboDev2Device.Enabled = False
 
         End If
 
@@ -2379,6 +2608,9 @@ Public Class Formtest
         ProfDev2_12.Enabled = True
         txtaddr2.Enabled = True
         lstIntf2.Enabled = True
+
+        cboDev1Device.Enabled = True
+        cboDev2Device.Enabled = True
 
         Dev1IntEnable.Enabled = True
         Dev2IntEnable.Enabled = True
