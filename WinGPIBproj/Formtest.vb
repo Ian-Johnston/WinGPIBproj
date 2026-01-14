@@ -223,7 +223,7 @@ Public Class Formtest
         Try
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.068"
+            BannerText1 = "WinGPIB   V4.069"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
             Me.Text = BannerText1 & "                                                        " & BannerText2.ToString()
 
@@ -642,6 +642,10 @@ Public Class Formtest
             ProfDev1_6.Checked = My.Settings.Dev1Prof6
             ProfDev1_7.Checked = My.Settings.Dev1Prof7
             ProfDev1_8.Checked = My.Settings.Dev1Prof8
+            ProfDev1_9.Checked = My.Settings.Dev1Prof9
+            ProfDev1_10.Checked = My.Settings.Dev1Prof10
+            ProfDev1_11.Checked = My.Settings.Dev1Prof11
+            ProfDev1_12.Checked = My.Settings.Dev1Prof12
 
             ToolTip1.SetToolTip(ProfDev1_1, My.Settings.data1)
             ToolTip1.SetToolTip(ProfDev1_2, My.Settings.data1b)
@@ -651,9 +655,13 @@ Public Class Formtest
             ToolTip1.SetToolTip(ProfDev1_6, My.Settings.data171)
             ToolTip1.SetToolTip(ProfDev1_7, My.Settings.data349)
             ToolTip1.SetToolTip(ProfDev1_8, My.Settings.data375)
+            ToolTip1.SetToolTip(ProfDev1_9, My.Settings.data526)
+            ToolTip1.SetToolTip(ProfDev1_10, My.Settings.data555)
+            ToolTip1.SetToolTip(ProfDev1_11, My.Settings.data584)
+            ToolTip1.SetToolTip(ProfDev1_12, My.Settings.data613)
 
             ' Check to make sure that one of them is set TRUE, and also detect if more than one is set TRUE
-            Dim checkboxesDev1() As CheckBox = {ProfDev1_1, ProfDev1_2, ProfDev1_3, ProfDev1_4, ProfDev1_5, ProfDev1_6, ProfDev1_7, ProfDev1_8}
+            Dim checkboxesDev1() As CheckBox = {ProfDev1_1, ProfDev1_2, ProfDev1_3, ProfDev1_4, ProfDev1_5, ProfDev1_6, ProfDev1_7, ProfDev1_8, ProfDev1_9, ProfDev1_10, ProfDev1_11, ProfDev1_12}
             Dim checkedCountDev1 As Integer = 0
             For i As Integer = 0 To checkboxesDev1.Length - 1
                 checkboxesDev1(i).Checked = My.Settings($"Dev1Prof{i + 1}")
@@ -697,6 +705,18 @@ Public Class Formtest
             If ProfDev1_8.Checked = True Then
                 ProfDev1_8_Click(ProfDev1_8, EventArgs.Empty)
             End If
+            If ProfDev1_9.Checked = True Then
+                ProfDev1_9_Click(ProfDev1_9, EventArgs.Empty)
+            End If
+            If ProfDev1_10.Checked = True Then
+                ProfDev1_10_Click(ProfDev1_10, EventArgs.Empty)
+            End If
+            If ProfDev1_11.Checked = True Then
+                ProfDev1_11_Click(ProfDev1_11, EventArgs.Empty)
+            End If
+            If ProfDev1_12.Checked = True Then
+                ProfDev1_12_Click(ProfDev1_12, EventArgs.Empty)
+            End If
 
 
             ' Get saved settings Dev 2
@@ -708,6 +728,10 @@ Public Class Formtest
             ProfDev2_6.Checked = My.Settings.Dev2Prof6
             ProfDev2_7.Checked = My.Settings.Dev2Prof7
             ProfDev2_8.Checked = My.Settings.Dev2Prof8
+            ProfDev2_9.Checked = My.Settings.Dev2Prof9
+            ProfDev2_10.Checked = My.Settings.Dev2Prof10
+            ProfDev2_11.Checked = My.Settings.Dev2Prof11
+            ProfDev2_12.Checked = My.Settings.Dev2Prof12
 
             ToolTip1.SetToolTip(ProfDev2_1, My.Settings.data2)
             ToolTip1.SetToolTip(ProfDev2_2, My.Settings.data2b)
@@ -717,9 +741,13 @@ Public Class Formtest
             ToolTip1.SetToolTip(ProfDev2_6, My.Settings.data123)
             ToolTip1.SetToolTip(ProfDev2_7, My.Settings.data401)
             ToolTip1.SetToolTip(ProfDev2_8, My.Settings.data427)
+            ToolTip1.SetToolTip(ProfDev2_9, My.Settings.data642)
+            ToolTip1.SetToolTip(ProfDev2_10, My.Settings.data671)
+            ToolTip1.SetToolTip(ProfDev2_11, My.Settings.data700)
+            ToolTip1.SetToolTip(ProfDev2_12, My.Settings.data729)
 
             ' Check to make sure that one of them is set TRUE, and also detect if more than one is set TRUE
-            Dim checkboxesDev2() As CheckBox = {ProfDev2_1, ProfDev2_2, ProfDev2_3, ProfDev2_4, ProfDev2_5, ProfDev2_6, ProfDev2_7, ProfDev2_8}
+            Dim checkboxesDev2() As CheckBox = {ProfDev2_1, ProfDev2_2, ProfDev2_3, ProfDev2_4, ProfDev2_5, ProfDev2_6, ProfDev2_7, ProfDev2_8, ProfDev2_9, ProfDev2_10, ProfDev2_11, ProfDev2_12}
             Dim checkedCountDev2 As Integer = 0
             For i As Integer = 0 To checkboxesDev2.Length - 1
                 checkboxesDev2(i).Checked = My.Settings($"Dev2Prof{i + 1}")
@@ -762,6 +790,18 @@ Public Class Formtest
             End If
             If ProfDev2_8.Checked = True Then
                 ProfDev2_8_Click(ProfDev2_8, EventArgs.Empty)
+            End If
+            If ProfDev2_9.Checked = True Then
+                ProfDev2_9_Click(ProfDev2_9, EventArgs.Empty)
+            End If
+            If ProfDev2_10.Checked = True Then
+                ProfDev2_10_Click(ProfDev2_10, EventArgs.Empty)
+            End If
+            If ProfDev2_11.Checked = True Then
+                ProfDev2_11_Click(ProfDev2_11, EventArgs.Empty)
+            End If
+            If ProfDev2_12.Checked = True Then
+                ProfDev2_12_Click(ProfDev2_12, EventArgs.Empty)
             End If
 
             ' PDVS2mini
@@ -996,6 +1036,10 @@ Public Class Formtest
             ProfDev1_6.Enabled = False
             ProfDev1_7.Enabled = False
             ProfDev1_8.Enabled = False
+            ProfDev1_9.Enabled = False
+            ProfDev1_10.Enabled = False
+            ProfDev1_11.Enabled = False
+            ProfDev1_12.Enabled = False
             txtaddr1.Enabled = False
             lstIntf1.Enabled = False
 
@@ -1074,6 +1118,10 @@ Public Class Formtest
             ProfDev2_6.Enabled = False
             ProfDev2_7.Enabled = False
             ProfDev2_8.Enabled = False
+            ProfDev2_9.Enabled = False
+            ProfDev2_10.Enabled = False
+            ProfDev2_11.Enabled = False
+            ProfDev2_12.Enabled = False
             txtaddr2.Enabled = False
             lstIntf2.Enabled = False
 
@@ -1183,6 +1231,10 @@ Public Class Formtest
             ProfDev1_6.Enabled = False
             ProfDev1_7.Enabled = False
             ProfDev1_8.Enabled = False
+            ProfDev1_9.Enabled = False
+            ProfDev1_10.Enabled = False
+            ProfDev1_11.Enabled = False
+            ProfDev1_12.Enabled = False
             txtaddr1.Enabled = False
             lstIntf1.Enabled = False
             ProfDev2_1.Enabled = False
@@ -1193,6 +1245,10 @@ Public Class Formtest
             ProfDev2_6.Enabled = False
             ProfDev2_7.Enabled = False
             ProfDev2_8.Enabled = False
+            ProfDev2_9.Enabled = False
+            ProfDev2_10.Enabled = False
+            ProfDev2_11.Enabled = False
+            ProfDev2_12.Enabled = False
             txtaddr2.Enabled = False
             lstIntf2.Enabled = False
 
@@ -2218,6 +2274,10 @@ Public Class Formtest
         ProfDev1_6.Enabled = True
         ProfDev1_7.Enabled = True
         ProfDev1_8.Enabled = True
+        ProfDev1_9.Enabled = True
+        ProfDev1_10.Enabled = True
+        ProfDev1_11.Enabled = True
+        ProfDev1_12.Enabled = True
         txtaddr1.Enabled = True
         lstIntf1.Enabled = True
         ProfDev2_1.Enabled = True
@@ -2228,6 +2288,10 @@ Public Class Formtest
         ProfDev2_6.Enabled = True
         ProfDev2_7.Enabled = True
         ProfDev2_8.Enabled = True
+        ProfDev2_9.Enabled = True
+        ProfDev2_10.Enabled = True
+        ProfDev2_11.Enabled = True
+        ProfDev2_12.Enabled = True
         txtaddr2.Enabled = True
         lstIntf2.Enabled = True
 
@@ -2639,6 +2703,10 @@ Public Class Formtest
         If ProfDev1_6.Checked Then ToolTip1.SetToolTip(ProfDev1_6, txtname1.Text)
         If ProfDev1_7.Checked Then ToolTip1.SetToolTip(ProfDev1_7, txtname1.Text)
         If ProfDev1_8.Checked Then ToolTip1.SetToolTip(ProfDev1_8, txtname1.Text)
+        If ProfDev1_9.Checked Then ToolTip1.SetToolTip(ProfDev1_9, txtname1.Text)
+        If ProfDev1_10.Checked Then ToolTip1.SetToolTip(ProfDev1_10, txtname1.Text)
+        If ProfDev1_11.Checked Then ToolTip1.SetToolTip(ProfDev1_11, txtname1.Text)
+        If ProfDev1_12.Checked Then ToolTip1.SetToolTip(ProfDev1_12, txtname1.Text)
     End Sub
 
 
@@ -2659,6 +2727,10 @@ Public Class Formtest
         If ProfDev2_6.Checked Then ToolTip1.SetToolTip(ProfDev2_6, txtname2.Text)
         If ProfDev2_7.Checked Then ToolTip1.SetToolTip(ProfDev2_7, txtname2.Text)
         If ProfDev2_8.Checked Then ToolTip1.SetToolTip(ProfDev2_8, txtname2.Text)
+        If ProfDev2_9.Checked Then ToolTip1.SetToolTip(ProfDev2_9, txtname2.Text)
+        If ProfDev2_10.Checked Then ToolTip1.SetToolTip(ProfDev2_10, txtname2.Text)
+        If ProfDev2_11.Checked Then ToolTip1.SetToolTip(ProfDev2_11, txtname2.Text)
+        If ProfDev2_12.Checked Then ToolTip1.SetToolTip(ProfDev2_12, txtname2.Text)
     End Sub
 
 
@@ -2674,6 +2746,10 @@ Public Class Formtest
         allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_6))
         allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_7))
         allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_8))
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_9))
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_10))
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_11))
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_12))
 
         ' Set combined tooltips as the tooltip for IODeviceLabel
         ToolTip1.SetToolTip(IODeviceLabel1, String.Join(Environment.NewLine, allTooltips))
@@ -2692,6 +2768,10 @@ Public Class Formtest
         allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_6))
         allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_7))
         allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_8))
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_9))
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_10))
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_11))
+        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_12))
 
         ' Set combined tooltips as the tooltip for IODeviceLabel
         ToolTip1.SetToolTip(IODeviceLabel2, String.Join(Environment.NewLine, allTooltips))

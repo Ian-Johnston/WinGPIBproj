@@ -105,6 +105,10 @@ Partial Class Formtest
         My.Settings.Dev1Prof6 = ProfDev1_6.Checked
         My.Settings.Dev1Prof7 = ProfDev1_7.Checked
         My.Settings.Dev1Prof8 = ProfDev1_8.Checked
+        My.Settings.Dev1Prof9 = ProfDev1_9.Checked
+        My.Settings.Dev1Prof10 = ProfDev1_10.Checked
+        My.Settings.Dev1Prof11 = ProfDev1_11.Checked
+        My.Settings.Dev1Prof12 = ProfDev1_12.Checked
         My.Settings.Dev2Prof1 = ProfDev2_1.Checked
         My.Settings.Dev2Prof2 = ProfDev2_2.Checked
         My.Settings.Dev2Prof3 = ProfDev2_3.Checked
@@ -113,6 +117,10 @@ Partial Class Formtest
         My.Settings.Dev2Prof6 = ProfDev2_6.Checked
         My.Settings.Dev2Prof7 = ProfDev2_7.Checked
         My.Settings.Dev2Prof8 = ProfDev2_8.Checked
+        My.Settings.Dev2Prof9 = ProfDev2_9.Checked
+        My.Settings.Dev2Prof10 = ProfDev2_10.Checked
+        My.Settings.Dev2Prof11 = ProfDev2_11.Checked
+        My.Settings.Dev2Prof12 = ProfDev2_12.Checked
 
         ' Save general settings
         My.Settings.data11 = CSVfilename.Text
@@ -393,6 +401,138 @@ Partial Class Formtest
         End If
 
 
+        ' Save Dev1 Profile 9
+        If (ProfDev1_9.Checked = True) Then
+            My.Settings.data526 = txtname1.Text
+            My.Settings.data527 = CommandStart1.Text
+            My.Settings.data528 = CommandStart1run.Text
+            My.Settings.data529 = CommandStop1.Text
+            My.Settings.data530 = lstIntf1.SelectedIndex
+            My.Settings.data531 = txtaddr1.Text
+            My.Settings.data532 = Dev1SampleRate.Text
+            My.Settings.data533 = Dev1PollingEnable.Checked
+            My.Settings.data534 = Dev1removeletters.Checked
+            My.Settings.data535 = IgnoreErrors1.Checked
+            My.Settings.data536 = Dev1TerminatorEnable.Checked
+            My.Settings.data537 = CheckBoxSendBlockingDev1.Checked
+            My.Settings.data538 = Dev1STBMask.Text
+            My.Settings.data539 = Div1000Dev1.Checked
+            My.Settings.data540 = Dev13457Aseven.Checked
+            My.Settings.data541 = Dev1TerminatorEnable2.Checked
+            My.Settings.data542 = Dev1K2001isolatedata.Checked
+            My.Settings.data543 = Dev1K2001isolatedataCHAR.Text
+            My.Settings.data544 = Mult1000Dev1.Checked
+            My.Settings.data545 = Val(Dev1Timeout.Text)
+            My.Settings.data546 = Val(Dev1delayop.Text)
+            My.Settings.data547 = txtq1d.Text
+            My.Settings.data548 = Val(Dev1pauseDurationInSeconds.Text)
+            My.Settings.data549 = Val(Dev1runStopwatchEveryInMins.Text)
+            My.Settings.data550 = Dev1IntEnable.Checked
+            My.Settings.data551 = Dev1Regex.Checked
+            My.Settings.data552 = Dev1DecimalNumDPs.Text
+            My.Settings.data553 = Dev1IntEnable.Checked
+            My.Settings.data554 = txtOperationDev1.Text
+        End If
+
+        ' Save Dev1 Profile 10
+        If (ProfDev1_10.Checked = True) Then
+            My.Settings.data555 = txtname1.Text
+            My.Settings.data556 = CommandStart1.Text
+            My.Settings.data557 = CommandStart1run.Text
+            My.Settings.data558 = CommandStop1.Text
+            My.Settings.data559 = lstIntf1.SelectedIndex
+            My.Settings.data560 = txtaddr1.Text
+            My.Settings.data561 = Dev1SampleRate.Text
+            My.Settings.data562 = Dev1PollingEnable.Checked
+            My.Settings.data563 = Dev1removeletters.Checked
+            My.Settings.data564 = IgnoreErrors1.Checked
+            My.Settings.data565 = Dev1TerminatorEnable.Checked
+            My.Settings.data566 = CheckBoxSendBlockingDev1.Checked
+            My.Settings.data567 = Dev1STBMask.Text
+            My.Settings.data568 = Div1000Dev1.Checked
+            My.Settings.data569 = Dev13457Aseven.Checked
+            My.Settings.data570 = Dev1TerminatorEnable2.Checked
+            My.Settings.data571 = Dev1K2001isolatedata.Checked
+            My.Settings.data572 = Dev1K2001isolatedataCHAR.Text
+            My.Settings.data573 = Mult1000Dev1.Checked
+            My.Settings.data574 = Val(Dev1Timeout.Text)
+            My.Settings.data575 = Val(Dev1delayop.Text)
+            My.Settings.data576 = txtq1d.Text
+            My.Settings.data577 = Val(Dev1pauseDurationInSeconds.Text)
+            My.Settings.data578 = Val(Dev1runStopwatchEveryInMins.Text)
+            My.Settings.data579 = Dev1IntEnable.Checked
+            My.Settings.data580 = Dev1Regex.Checked
+            My.Settings.data581 = Dev1DecimalNumDPs.Text
+            My.Settings.data582 = Dev1IntEnable.Checked
+            My.Settings.data583 = txtOperationDev1.Text
+        End If
+
+        ' Save Dev1 Profile 11
+        If (ProfDev1_11.Checked = True) Then
+            My.Settings.data584 = txtname1.Text
+            My.Settings.data585 = CommandStart1.Text
+            My.Settings.data586 = CommandStart1run.Text
+            My.Settings.data587 = CommandStop1.Text
+            My.Settings.data588 = lstIntf1.SelectedIndex
+            My.Settings.data589 = txtaddr1.Text
+            My.Settings.data590 = Dev1SampleRate.Text
+            My.Settings.data591 = Dev1PollingEnable.Checked
+            My.Settings.data592 = Dev1removeletters.Checked
+            My.Settings.data593 = IgnoreErrors1.Checked
+            My.Settings.data594 = Dev1TerminatorEnable.Checked
+            My.Settings.data595 = CheckBoxSendBlockingDev1.Checked
+            My.Settings.data596 = Dev1STBMask.Text
+            My.Settings.data597 = Div1000Dev1.Checked
+            My.Settings.data598 = Dev13457Aseven.Checked
+            My.Settings.data599 = Dev1TerminatorEnable2.Checked
+            My.Settings.data600 = Dev1K2001isolatedata.Checked
+            My.Settings.data601 = Dev1K2001isolatedataCHAR.Text
+            My.Settings.data602 = Mult1000Dev1.Checked
+            My.Settings.data603 = Val(Dev1Timeout.Text)
+            My.Settings.data604 = Val(Dev1delayop.Text)
+            My.Settings.data605 = txtq1d.Text
+            My.Settings.data606 = Val(Dev1pauseDurationInSeconds.Text)
+            My.Settings.data607 = Val(Dev1runStopwatchEveryInMins.Text)
+            My.Settings.data608 = Dev1IntEnable.Checked
+            My.Settings.data609 = Dev1Regex.Checked
+            My.Settings.data610 = Dev1DecimalNumDPs.Text
+            My.Settings.data611 = Dev1IntEnable.Checked
+            My.Settings.data612 = txtOperationDev1.Text
+        End If
+
+        ' Save Dev1 Profile 12
+        If (ProfDev1_12.Checked = True) Then
+            My.Settings.data613 = txtname1.Text
+            My.Settings.data614 = CommandStart1.Text
+            My.Settings.data615 = CommandStart1run.Text
+            My.Settings.data616 = CommandStop1.Text
+            My.Settings.data617 = lstIntf1.SelectedIndex
+            My.Settings.data618 = txtaddr1.Text
+            My.Settings.data619 = Dev1SampleRate.Text
+            My.Settings.data620 = Dev1PollingEnable.Checked
+            My.Settings.data621 = Dev1removeletters.Checked
+            My.Settings.data622 = IgnoreErrors1.Checked
+            My.Settings.data623 = Dev1TerminatorEnable.Checked
+            My.Settings.data624 = CheckBoxSendBlockingDev1.Checked
+            My.Settings.data625 = Dev1STBMask.Text
+            My.Settings.data626 = Div1000Dev1.Checked
+            My.Settings.data627 = Dev13457Aseven.Checked
+            My.Settings.data628 = Dev1TerminatorEnable2.Checked
+            My.Settings.data629 = Dev1K2001isolatedata.Checked
+            My.Settings.data630 = Dev1K2001isolatedataCHAR.Text
+            My.Settings.data631 = Mult1000Dev1.Checked
+            My.Settings.data632 = Val(Dev1Timeout.Text)
+            My.Settings.data633 = Val(Dev1delayop.Text)
+            My.Settings.data634 = txtq1d.Text
+            My.Settings.data635 = Val(Dev1pauseDurationInSeconds.Text)
+            My.Settings.data636 = Val(Dev1runStopwatchEveryInMins.Text)
+            My.Settings.data637 = Dev1IntEnable.Checked
+            My.Settings.data638 = Dev1Regex.Checked
+            My.Settings.data639 = Dev1DecimalNumDPs.Text
+            My.Settings.data640 = Dev1IntEnable.Checked
+            My.Settings.data641 = txtOperationDev1.Text
+        End If
+
         ' Save Dev2 Profile 1
         If (ProfDev2_1.Checked = True) Then
             My.Settings.data2 = txtname2.Text
@@ -657,6 +797,139 @@ Partial Class Formtest
             My.Settings.data524 = txtOperationDev2.Text
         End If
 
+        ' Save Dev2 Profile 9
+        If (ProfDev2_9.Checked = True) Then
+            My.Settings.data642 = txtname2.Text
+            My.Settings.data643 = CommandStart2.Text
+            My.Settings.data644 = CommandStart2run.Text
+            My.Settings.data645 = CommandStop2.Text
+            My.Settings.data646 = lstIntf2.SelectedIndex
+            My.Settings.data647 = txtaddr2.Text
+            My.Settings.data648 = Dev2SampleRate.Text
+            My.Settings.data649 = Dev2PollingEnable.Checked
+            My.Settings.data650 = Dev2removeletters.Checked
+            My.Settings.data651 = IgnoreErrors2.Checked
+            My.Settings.data652 = Dev2TerminatorEnable.Checked
+            My.Settings.data653 = CheckBoxSendBlockingDev2.Checked
+            My.Settings.data654 = Dev2STBMask.Text
+            My.Settings.data655 = Div1000Dev2.Checked
+            My.Settings.data656 = Dev23457Aseven.Checked
+            My.Settings.data657 = Dev2TerminatorEnable2.Checked
+            My.Settings.data658 = Dev2K2001isolatedata.Checked
+            My.Settings.data659 = Dev2K2001isolatedataCHAR.Text
+            My.Settings.data660 = Mult1000Dev2.Checked
+            My.Settings.data661 = Val(Dev2Timeout.Text)
+            My.Settings.data662 = Val(Dev2delayop.Text)
+            My.Settings.data663 = txtq2d.Text
+            My.Settings.data664 = Val(Dev2pauseDurationInSeconds.Text)
+            My.Settings.data665 = Val(Dev2runStopwatchEveryInMins.Text)
+            My.Settings.data666 = Dev2IntEnable.Checked
+            My.Settings.data667 = Dev2Regex.Checked
+            My.Settings.data668 = Dev2DecimalNumDPs.Text
+            My.Settings.data669 = Dev2IntEnable.Checked
+            My.Settings.data670 = txtOperationDev2.Text
+        End If
+
+        ' Save Dev2 Profile 10
+        If (ProfDev2_10.Checked = True) Then
+            My.Settings.data671 = txtname2.Text
+            My.Settings.data672 = CommandStart2.Text
+            My.Settings.data673 = CommandStart2run.Text
+            My.Settings.data674 = CommandStop2.Text
+            My.Settings.data675 = lstIntf2.SelectedIndex
+            My.Settings.data676 = txtaddr2.Text
+            My.Settings.data677 = Dev2SampleRate.Text
+            My.Settings.data678 = Dev2PollingEnable.Checked
+            My.Settings.data679 = Dev2removeletters.Checked
+            My.Settings.data680 = IgnoreErrors2.Checked
+            My.Settings.data681 = Dev2TerminatorEnable.Checked
+            My.Settings.data682 = CheckBoxSendBlockingDev2.Checked
+            My.Settings.data683 = Dev2STBMask.Text
+            My.Settings.data684 = Div1000Dev2.Checked
+            My.Settings.data685 = Dev23457Aseven.Checked
+            My.Settings.data686 = Dev2TerminatorEnable2.Checked
+            My.Settings.data687 = Dev2K2001isolatedata.Checked
+            My.Settings.data688 = Dev2K2001isolatedataCHAR.Text
+            My.Settings.data689 = Mult1000Dev2.Checked
+            My.Settings.data690 = Val(Dev2Timeout.Text)
+            My.Settings.data691 = Val(Dev2delayop.Text)
+            My.Settings.data692 = txtq2d.Text
+            My.Settings.data693 = Val(Dev2pauseDurationInSeconds.Text)
+            My.Settings.data694 = Val(Dev2runStopwatchEveryInMins.Text)
+            My.Settings.data695 = Dev2IntEnable.Checked
+            My.Settings.data696 = Dev2Regex.Checked
+            My.Settings.data697 = Dev2DecimalNumDPs.Text
+            My.Settings.data698 = Dev2IntEnable.Checked
+            My.Settings.data699 = txtOperationDev2.Text
+        End If
+
+        ' Save Dev2 Profile 11
+        If (ProfDev2_11.Checked = True) Then
+            My.Settings.data700 = txtname2.Text
+            My.Settings.data701 = CommandStart2.Text
+            My.Settings.data702 = CommandStart2run.Text
+            My.Settings.data703 = CommandStop2.Text
+            My.Settings.data704 = lstIntf2.SelectedIndex
+            My.Settings.data705 = txtaddr2.Text
+            My.Settings.data706 = Dev2SampleRate.Text
+            My.Settings.data707 = Dev2PollingEnable.Checked
+            My.Settings.data708 = Dev2removeletters.Checked
+            My.Settings.data709 = IgnoreErrors2.Checked
+            My.Settings.data710 = Dev2TerminatorEnable.Checked
+            My.Settings.data711 = CheckBoxSendBlockingDev2.Checked
+            My.Settings.data712 = Dev2STBMask.Text
+            My.Settings.data713 = Div1000Dev2.Checked
+            My.Settings.data714 = Dev23457Aseven.Checked
+            My.Settings.data715 = Dev2TerminatorEnable2.Checked
+            My.Settings.data716 = Dev2K2001isolatedata.Checked
+            My.Settings.data717 = Dev2K2001isolatedataCHAR.Text
+            My.Settings.data718 = Mult1000Dev2.Checked
+            My.Settings.data719 = Val(Dev2Timeout.Text)
+            My.Settings.data720 = Val(Dev2delayop.Text)
+            My.Settings.data721 = txtq2d.Text
+            My.Settings.data722 = Val(Dev2pauseDurationInSeconds.Text)
+            My.Settings.data723 = Val(Dev2runStopwatchEveryInMins.Text)
+            My.Settings.data724 = Dev2IntEnable.Checked
+            My.Settings.data725 = Dev2Regex.Checked
+            My.Settings.data726 = Dev2DecimalNumDPs.Text
+            My.Settings.data727 = Dev2IntEnable.Checked
+            My.Settings.data728 = txtOperationDev2.Text
+        End If
+
+        ' Save Dev2 Profile 12
+        If (ProfDev2_12.Checked = True) Then
+            My.Settings.data729 = txtname2.Text
+            My.Settings.data730 = CommandStart2.Text
+            My.Settings.data731 = CommandStart2run.Text
+            My.Settings.data732 = CommandStop2.Text
+            My.Settings.data733 = lstIntf2.SelectedIndex
+            My.Settings.data734 = txtaddr2.Text
+            My.Settings.data735 = Dev2SampleRate.Text
+            My.Settings.data736 = Dev2PollingEnable.Checked
+            My.Settings.data737 = Dev2removeletters.Checked
+            My.Settings.data738 = IgnoreErrors2.Checked
+            My.Settings.data739 = Dev2TerminatorEnable.Checked
+            My.Settings.data740 = CheckBoxSendBlockingDev2.Checked
+            My.Settings.data741 = Dev2STBMask.Text
+            My.Settings.data742 = Div1000Dev2.Checked
+            My.Settings.data743 = Dev23457Aseven.Checked
+            My.Settings.data744 = Dev2TerminatorEnable2.Checked
+            My.Settings.data745 = Dev2K2001isolatedata.Checked
+            My.Settings.data746 = Dev2K2001isolatedataCHAR.Text
+            My.Settings.data747 = Mult1000Dev2.Checked
+            My.Settings.data748 = Val(Dev2Timeout.Text)
+            My.Settings.data749 = Val(Dev2delayop.Text)
+            My.Settings.data750 = txtq2d.Text
+            My.Settings.data751 = Val(Dev2pauseDurationInSeconds.Text)
+            My.Settings.data752 = Val(Dev2runStopwatchEveryInMins.Text)
+            My.Settings.data753 = Dev2IntEnable.Checked
+            My.Settings.data754 = Dev2Regex.Checked
+            My.Settings.data755 = Dev2DecimalNumDPs.Text
+            My.Settings.data756 = Dev2IntEnable.Checked
+            My.Settings.data757 = txtOperationDev2.Text
+        End If
+
+
         ' Save the settings to persist the changes
         My.Settings.Save()
 
@@ -681,6 +954,10 @@ Partial Class Formtest
             ProfDev1_6.Checked = False
             ProfDev1_7.Checked = False
             ProfDev1_8.Checked = False
+            ProfDev1_9.Checked = False
+            ProfDev1_10.Checked = False
+            ProfDev1_11.Checked = False
+            ProfDev1_12.Checked = False
         Else
             ProfDev1_1.Checked = True
             ProfDev1_2.Checked = False
@@ -690,6 +967,10 @@ Partial Class Formtest
             ProfDev1_6.Checked = False
             ProfDev1_7.Checked = False
             ProfDev1_8.Checked = False
+            ProfDev1_9.Checked = False
+            ProfDev1_10.Checked = False
+            ProfDev1_11.Checked = False
+            ProfDev1_12.Checked = False
         End If
 
         txtname1.Text = My.Settings.data1
@@ -750,6 +1031,10 @@ Partial Class Formtest
             ProfDev1_6.Checked = False
             ProfDev1_7.Checked = False
             ProfDev1_8.Checked = False
+            ProfDev1_9.Checked = False
+            ProfDev1_10.Checked = False
+            ProfDev1_11.Checked = False
+            ProfDev1_12.Checked = False
         Else
             ProfDev1_1.Checked = False
             ProfDev1_2.Checked = True
@@ -759,6 +1044,10 @@ Partial Class Formtest
             ProfDev1_6.Checked = False
             ProfDev1_7.Checked = False
             ProfDev1_8.Checked = False
+            ProfDev1_9.Checked = False
+            ProfDev1_10.Checked = False
+            ProfDev1_11.Checked = False
+            ProfDev1_12.Checked = False
         End If
 
         txtname1.Text = My.Settings.data1b
@@ -818,6 +1107,10 @@ Partial Class Formtest
             ProfDev1_6.Checked = False
             ProfDev1_7.Checked = False
             ProfDev1_8.Checked = False
+            ProfDev1_9.Checked = False
+            ProfDev1_10.Checked = False
+            ProfDev1_11.Checked = False
+            ProfDev1_12.Checked = False
         Else
             ProfDev1_1.Checked = False
             ProfDev1_2.Checked = False
@@ -827,6 +1120,10 @@ Partial Class Formtest
             ProfDev1_6.Checked = False
             ProfDev1_7.Checked = False
             ProfDev1_8.Checked = False
+            ProfDev1_9.Checked = False
+            ProfDev1_10.Checked = False
+            ProfDev1_11.Checked = False
+            ProfDev1_12.Checked = False
         End If
 
         txtname1.Text = My.Settings.data1c
@@ -886,6 +1183,10 @@ Partial Class Formtest
             ProfDev1_6.Checked = False
             ProfDev1_7.Checked = False
             ProfDev1_8.Checked = False
+            ProfDev1_9.Checked = False
+            ProfDev1_10.Checked = False
+            ProfDev1_11.Checked = False
+            ProfDev1_12.Checked = False
         Else
             ProfDev1_1.Checked = False
             ProfDev1_2.Checked = False
@@ -895,6 +1196,10 @@ Partial Class Formtest
             ProfDev1_6.Checked = False
             ProfDev1_7.Checked = False
             ProfDev1_8.Checked = False
+            ProfDev1_9.Checked = False
+            ProfDev1_10.Checked = False
+            ProfDev1_11.Checked = False
+            ProfDev1_12.Checked = False
         End If
 
         txtname1.Text = My.Settings.data139
@@ -949,6 +1254,10 @@ Partial Class Formtest
             ProfDev1_6.Checked = False
             ProfDev1_7.Checked = False
             ProfDev1_8.Checked = False
+            ProfDev1_9.Checked = False
+            ProfDev1_10.Checked = False
+            ProfDev1_11.Checked = False
+            ProfDev1_12.Checked = False
         Else
             ProfDev1_1.Checked = False
             ProfDev1_2.Checked = False
@@ -958,6 +1267,10 @@ Partial Class Formtest
             ProfDev1_6.Checked = False
             ProfDev1_7.Checked = False
             ProfDev1_8.Checked = False
+            ProfDev1_9.Checked = False
+            ProfDev1_10.Checked = False
+            ProfDev1_11.Checked = False
+            ProfDev1_12.Checked = False
         End If
 
         txtname1.Text = My.Settings.data155
@@ -1012,6 +1325,10 @@ Partial Class Formtest
             'ProfDev1_6.Checked = False
             ProfDev1_7.Checked = False
             ProfDev1_8.Checked = False
+            ProfDev1_9.Checked = False
+            ProfDev1_10.Checked = False
+            ProfDev1_11.Checked = False
+            ProfDev1_12.Checked = False
         Else
             ProfDev1_1.Checked = False
             ProfDev1_2.Checked = False
@@ -1021,6 +1338,10 @@ Partial Class Formtest
             ProfDev1_6.Checked = True
             ProfDev1_7.Checked = False
             ProfDev1_8.Checked = False
+            ProfDev1_9.Checked = False
+            ProfDev1_10.Checked = False
+            ProfDev1_11.Checked = False
+            ProfDev1_12.Checked = False
         End If
 
         txtname1.Text = My.Settings.data171
@@ -1075,6 +1396,10 @@ Partial Class Formtest
             ProfDev1_6.Checked = False
             'ProfDev1_7.Checked = False
             ProfDev1_8.Checked = False
+            ProfDev1_9.Checked = False
+            ProfDev1_10.Checked = False
+            ProfDev1_11.Checked = False
+            ProfDev1_12.Checked = False
         Else
             ProfDev1_1.Checked = False
             ProfDev1_2.Checked = False
@@ -1084,6 +1409,10 @@ Partial Class Formtest
             ProfDev1_6.Checked = False
             ProfDev1_7.Checked = True
             ProfDev1_8.Checked = False
+            ProfDev1_9.Checked = False
+            ProfDev1_10.Checked = False
+            ProfDev1_11.Checked = False
+            ProfDev1_12.Checked = False
         End If
 
         txtname1.Text = My.Settings.data349
@@ -1140,6 +1469,10 @@ Partial Class Formtest
             ProfDev1_6.Checked = False
             ProfDev1_7.Checked = False
             'ProfDev1_8.Checked = False
+            ProfDev1_9.Checked = False
+            ProfDev1_10.Checked = False
+            ProfDev1_11.Checked = False
+            ProfDev1_12.Checked = False
         Else
             ProfDev1_1.Checked = False
             ProfDev1_2.Checked = False
@@ -1149,6 +1482,10 @@ Partial Class Formtest
             ProfDev1_6.Checked = False
             ProfDev1_7.Checked = False
             ProfDev1_8.Checked = True
+            ProfDev1_9.Checked = False
+            ProfDev1_10.Checked = False
+            ProfDev1_11.Checked = False
+            ProfDev1_12.Checked = False
         End If
 
         txtname1.Text = My.Settings.data375
@@ -1191,6 +1528,250 @@ Partial Class Formtest
 
     End Sub
 
+    Private Sub ProfDev1_9_Click(sender As Object, e As EventArgs) Handles ProfDev1_9.Click
+
+        If (ProfDev1_9.Checked = True) Then
+            ProfDev1_1.Checked = False
+            ProfDev1_2.Checked = False
+            ProfDev1_3.Checked = False
+            ProfDev1_4.Checked = False
+            ProfDev1_5.Checked = False
+            ProfDev1_6.Checked = False
+            ProfDev1_7.Checked = False
+            ProfDev1_8.Checked = False
+
+            ProfDev1_10.Checked = False
+            ProfDev1_11.Checked = False
+            ProfDev1_12.Checked = False
+        Else
+            ProfDev1_1.Checked = False
+            ProfDev1_2.Checked = False
+            ProfDev1_3.Checked = False
+            ProfDev1_4.Checked = False
+            ProfDev1_5.Checked = False
+            ProfDev1_6.Checked = False
+            ProfDev1_7.Checked = False
+            ProfDev1_8.Checked = False
+            ProfDev1_9.Checked = True
+            ProfDev1_10.Checked = False
+            ProfDev1_11.Checked = False
+            ProfDev1_12.Checked = False
+        End If
+
+        txtname1.Text = My.Settings.data526
+        CommandStart1.Text = My.Settings.data527
+        CommandStart1run.Text = My.Settings.data528
+        CommandStop1.Text = My.Settings.data529
+        lstIntf1.SelectedIndex = My.Settings.data530
+        txtaddr1.Text = My.Settings.data531
+        Dev1SampleRate.Text = My.Settings.data532
+        Dev1PollingEnable.Checked = My.Settings.data533
+        Dev1removeletters.Checked = My.Settings.data534
+        IgnoreErrors1.Checked = My.Settings.data535
+        Dev1TerminatorEnable.Checked = My.Settings.data536
+        CheckBoxSendBlockingDev1.Checked = My.Settings.data537
+        Dev1STBMask.Text = My.Settings.data538
+        Div1000Dev1.Checked = My.Settings.data539
+        Dev13457Aseven.Checked = My.Settings.data540
+        Dev1TerminatorEnable2.Checked = My.Settings.data541
+        Dev1K2001isolatedata.Checked = My.Settings.data542
+        Dev1K2001isolatedataCHAR.Text = My.Settings.data543
+        Mult1000Dev1.Checked = My.Settings.data544
+        Dev1Timeout.Text = My.Settings.data545
+        Dev1delayop.Text = My.Settings.data546
+        txtq1d.Text = My.Settings.data547
+        Dev1pauseDurationInSeconds.Text = My.Settings.data548
+        Dev1runStopwatchEveryInMins.Text = My.Settings.data549
+        Dev1IntEnable.Checked = My.Settings.data550
+        Dev1Regex.Checked = My.Settings.data551
+        Dev1DecimalNumDPs.Text = My.Settings.data552
+        txtOperationDev1.Text = My.Settings.data554
+
+    End Sub
+
+    Private Sub ProfDev1_10_Click(sender As Object, e As EventArgs) Handles ProfDev1_10.Click
+
+        If (ProfDev1_10.Checked = True) Then
+            ProfDev1_1.Checked = False
+            ProfDev1_2.Checked = False
+            ProfDev1_3.Checked = False
+            ProfDev1_4.Checked = False
+            ProfDev1_5.Checked = False
+            ProfDev1_6.Checked = False
+            ProfDev1_7.Checked = False
+            ProfDev1_8.Checked = False
+            ProfDev1_9.Checked = False
+
+            ProfDev1_11.Checked = False
+            ProfDev1_12.Checked = False
+        Else
+            ProfDev1_1.Checked = False
+            ProfDev1_2.Checked = False
+            ProfDev1_3.Checked = False
+            ProfDev1_4.Checked = False
+            ProfDev1_5.Checked = False
+            ProfDev1_6.Checked = False
+            ProfDev1_7.Checked = False
+            ProfDev1_8.Checked = False
+            ProfDev1_9.Checked = False
+            ProfDev1_10.Checked = True
+            ProfDev1_11.Checked = False
+            ProfDev1_12.Checked = False
+        End If
+
+        txtname1.Text = My.Settings.data555
+        CommandStart1.Text = My.Settings.data556
+        CommandStart1run.Text = My.Settings.data557
+        CommandStop1.Text = My.Settings.data558
+        lstIntf1.SelectedIndex = My.Settings.data559
+        txtaddr1.Text = My.Settings.data560
+        Dev1SampleRate.Text = My.Settings.data561
+        Dev1PollingEnable.Checked = My.Settings.data562
+        Dev1removeletters.Checked = My.Settings.data563
+        IgnoreErrors1.Checked = My.Settings.data564
+        Dev1TerminatorEnable.Checked = My.Settings.data565
+        CheckBoxSendBlockingDev1.Checked = My.Settings.data566
+        Dev1STBMask.Text = My.Settings.data567
+        Div1000Dev1.Checked = My.Settings.data568
+        Dev13457Aseven.Checked = My.Settings.data569
+        Dev1TerminatorEnable2.Checked = My.Settings.data570
+        Dev1K2001isolatedata.Checked = My.Settings.data571
+        Dev1K2001isolatedataCHAR.Text = My.Settings.data572
+        Mult1000Dev1.Checked = My.Settings.data573
+        Dev1Timeout.Text = My.Settings.data574
+        Dev1delayop.Text = My.Settings.data575
+        txtq1d.Text = My.Settings.data576
+        Dev1pauseDurationInSeconds.Text = My.Settings.data577
+        Dev1runStopwatchEveryInMins.Text = My.Settings.data578
+        Dev1IntEnable.Checked = My.Settings.data579
+        Dev1Regex.Checked = My.Settings.data580
+        Dev1DecimalNumDPs.Text = My.Settings.data581
+        txtOperationDev1.Text = My.Settings.data583
+
+    End Sub
+
+    Private Sub ProfDev1_11_Click(sender As Object, e As EventArgs) Handles ProfDev1_11.Click
+
+        If (ProfDev1_11.Checked = True) Then
+            ProfDev1_1.Checked = False
+            ProfDev1_2.Checked = False
+            ProfDev1_3.Checked = False
+            ProfDev1_4.Checked = False
+            ProfDev1_5.Checked = False
+            ProfDev1_6.Checked = False
+            ProfDev1_7.Checked = False
+            ProfDev1_8.Checked = False
+            ProfDev1_9.Checked = False
+            ProfDev1_10.Checked = False
+
+            ProfDev1_12.Checked = False
+        Else
+            ProfDev1_1.Checked = False
+            ProfDev1_2.Checked = False
+            ProfDev1_3.Checked = False
+            ProfDev1_4.Checked = False
+            ProfDev1_5.Checked = False
+            ProfDev1_6.Checked = False
+            ProfDev1_7.Checked = False
+            ProfDev1_8.Checked = False
+            ProfDev1_9.Checked = False
+            ProfDev1_10.Checked = False
+            ProfDev1_12.Checked = False
+            ProfDev1_11.Checked = True
+        End If
+
+        txtname1.Text = My.Settings.data584
+        CommandStart1.Text = My.Settings.data585
+        CommandStart1run.Text = My.Settings.data586
+        CommandStop1.Text = My.Settings.data587
+        lstIntf1.SelectedIndex = My.Settings.data588
+        txtaddr1.Text = My.Settings.data589
+        Dev1SampleRate.Text = My.Settings.data590
+        Dev1PollingEnable.Checked = My.Settings.data591
+        Dev1removeletters.Checked = My.Settings.data592
+        IgnoreErrors1.Checked = My.Settings.data593
+        Dev1TerminatorEnable.Checked = My.Settings.data594
+        CheckBoxSendBlockingDev1.Checked = My.Settings.data595
+        Dev1STBMask.Text = My.Settings.data596
+        Div1000Dev1.Checked = My.Settings.data597
+        Dev13457Aseven.Checked = My.Settings.data598
+        Dev1TerminatorEnable2.Checked = My.Settings.data599
+        Dev1K2001isolatedata.Checked = My.Settings.data600
+        Dev1K2001isolatedataCHAR.Text = My.Settings.data601
+        Mult1000Dev1.Checked = My.Settings.data602
+        Dev1Timeout.Text = My.Settings.data603
+        Dev1delayop.Text = My.Settings.data604
+        txtq1d.Text = My.Settings.data605
+        Dev1pauseDurationInSeconds.Text = My.Settings.data606
+        Dev1runStopwatchEveryInMins.Text = My.Settings.data607
+        Dev1IntEnable.Checked = My.Settings.data608
+        Dev1Regex.Checked = My.Settings.data609
+        Dev1DecimalNumDPs.Text = My.Settings.data610
+        txtOperationDev1.Text = My.Settings.data612
+
+    End Sub
+
+    Private Sub ProfDev1_12_Click(sender As Object, e As EventArgs) Handles ProfDev1_12.Click
+
+        If (ProfDev1_12.Checked = True) Then
+            ProfDev1_1.Checked = False
+            ProfDev1_2.Checked = False
+            ProfDev1_3.Checked = False
+            ProfDev1_4.Checked = False
+            ProfDev1_5.Checked = False
+            ProfDev1_6.Checked = False
+            ProfDev1_7.Checked = False
+            ProfDev1_8.Checked = False
+            ProfDev1_9.Checked = False
+            ProfDev1_10.Checked = False
+            ProfDev1_11.Checked = False
+
+        Else
+            ProfDev1_1.Checked = False
+            ProfDev1_2.Checked = False
+            ProfDev1_3.Checked = False
+            ProfDev1_4.Checked = False
+            ProfDev1_5.Checked = False
+            ProfDev1_6.Checked = False
+            ProfDev1_7.Checked = False
+            ProfDev1_8.Checked = False
+            ProfDev1_9.Checked = False
+            ProfDev1_10.Checked = False
+            ProfDev1_11.Checked = False
+            ProfDev1_12.Checked = True
+        End If
+
+        txtname1.Text = My.Settings.data613
+        CommandStart1.Text = My.Settings.data614
+        CommandStart1run.Text = My.Settings.data615
+        CommandStop1.Text = My.Settings.data616
+        lstIntf1.SelectedIndex = My.Settings.data617
+        txtaddr1.Text = My.Settings.data618
+        Dev1SampleRate.Text = My.Settings.data619
+        Dev1PollingEnable.Checked = My.Settings.data620
+        Dev1removeletters.Checked = My.Settings.data621
+        IgnoreErrors1.Checked = My.Settings.data622
+        Dev1TerminatorEnable.Checked = My.Settings.data623
+        CheckBoxSendBlockingDev1.Checked = My.Settings.data624
+        Dev1STBMask.Text = My.Settings.data625
+        Div1000Dev1.Checked = My.Settings.data626
+        Dev13457Aseven.Checked = My.Settings.data627
+        Dev1TerminatorEnable2.Checked = My.Settings.data628
+        Dev1K2001isolatedata.Checked = My.Settings.data629
+        Dev1K2001isolatedataCHAR.Text = My.Settings.data630
+        Mult1000Dev1.Checked = My.Settings.data631
+        Dev1Timeout.Text = My.Settings.data632
+        Dev1delayop.Text = My.Settings.data633
+        txtq1d.Text = My.Settings.data634
+        Dev1pauseDurationInSeconds.Text = My.Settings.data635
+        Dev1runStopwatchEveryInMins.Text = My.Settings.data636
+        Dev1IntEnable.Checked = My.Settings.data637
+        Dev1Regex.Checked = My.Settings.data638
+        Dev1DecimalNumDPs.Text = My.Settings.data639
+        txtOperationDev1.Text = My.Settings.data641
+
+    End Sub
+
 
     ' Device 2 profile 1
     Private Sub ProfDev2_1_Click(sender As Object, e As EventArgs) Handles ProfDev2_1.Click
@@ -1205,6 +1786,10 @@ Partial Class Formtest
             ProfDev2_6.Checked = False
             ProfDev2_7.Checked = False
             ProfDev2_8.Checked = False
+            ProfDev2_9.Checked = False
+            ProfDev2_10.Checked = False
+            ProfDev2_11.Checked = False
+            ProfDev2_12.Checked = False
         Else
             ProfDev2_1.Checked = True
             ProfDev2_2.Checked = False
@@ -1214,6 +1799,10 @@ Partial Class Formtest
             ProfDev2_6.Checked = False
             ProfDev2_7.Checked = False
             ProfDev2_8.Checked = False
+            ProfDev2_9.Checked = False
+            ProfDev2_10.Checked = False
+            ProfDev2_11.Checked = False
+            ProfDev2_12.Checked = False
         End If
 
         txtname2.Text = My.Settings.data2
@@ -1273,6 +1862,10 @@ Partial Class Formtest
             ProfDev2_6.Checked = False
             ProfDev2_7.Checked = False
             ProfDev2_8.Checked = False
+            ProfDev2_9.Checked = False
+            ProfDev2_10.Checked = False
+            ProfDev2_11.Checked = False
+            ProfDev2_12.Checked = False
         Else
             ProfDev2_1.Checked = False
             ProfDev2_2.Checked = True
@@ -1282,6 +1875,10 @@ Partial Class Formtest
             ProfDev2_6.Checked = False
             ProfDev2_7.Checked = False
             ProfDev2_8.Checked = False
+            ProfDev2_9.Checked = False
+            ProfDev2_10.Checked = False
+            ProfDev2_11.Checked = False
+            ProfDev2_12.Checked = False
         End If
 
         txtname2.Text = My.Settings.data2b
@@ -1341,6 +1938,10 @@ Partial Class Formtest
             ProfDev2_6.Checked = False
             ProfDev2_7.Checked = False
             ProfDev2_8.Checked = False
+            ProfDev2_9.Checked = False
+            ProfDev2_10.Checked = False
+            ProfDev2_11.Checked = False
+            ProfDev2_12.Checked = False
         Else
             ProfDev2_1.Checked = False
             ProfDev2_2.Checked = False
@@ -1350,6 +1951,10 @@ Partial Class Formtest
             ProfDev2_6.Checked = False
             ProfDev2_7.Checked = False
             ProfDev2_8.Checked = False
+            ProfDev2_9.Checked = False
+            ProfDev2_10.Checked = False
+            ProfDev2_11.Checked = False
+            ProfDev2_12.Checked = False
         End If
 
         txtname2.Text = My.Settings.data2c
@@ -1408,6 +2013,10 @@ Partial Class Formtest
             ProfDev2_6.Checked = False
             ProfDev2_7.Checked = False
             ProfDev2_8.Checked = False
+            ProfDev2_9.Checked = False
+            ProfDev2_10.Checked = False
+            ProfDev2_11.Checked = False
+            ProfDev2_12.Checked = False
         Else
             ProfDev2_1.Checked = False
             ProfDev2_2.Checked = False
@@ -1417,6 +2026,10 @@ Partial Class Formtest
             ProfDev2_6.Checked = False
             ProfDev2_7.Checked = False
             ProfDev2_8.Checked = False
+            ProfDev2_9.Checked = False
+            ProfDev2_10.Checked = False
+            ProfDev2_11.Checked = False
+            ProfDev2_12.Checked = False
         End If
 
         txtname2.Text = My.Settings.data91
@@ -1472,6 +2085,10 @@ Partial Class Formtest
             ProfDev2_6.Checked = False
             ProfDev2_7.Checked = False
             ProfDev2_8.Checked = False
+            ProfDev2_9.Checked = False
+            ProfDev2_10.Checked = False
+            ProfDev2_11.Checked = False
+            ProfDev2_12.Checked = False
         Else
             ProfDev2_1.Checked = False
             ProfDev2_2.Checked = False
@@ -1481,6 +2098,10 @@ Partial Class Formtest
             ProfDev2_6.Checked = False
             ProfDev2_7.Checked = False
             ProfDev2_8.Checked = False
+            ProfDev2_9.Checked = False
+            ProfDev2_10.Checked = False
+            ProfDev2_11.Checked = False
+            ProfDev2_12.Checked = False
         End If
 
         txtname2.Text = My.Settings.data107
@@ -1535,6 +2156,10 @@ Partial Class Formtest
             'ProfDev2_6.Checked = False
             ProfDev2_7.Checked = False
             ProfDev2_8.Checked = False
+            ProfDev2_9.Checked = False
+            ProfDev2_10.Checked = False
+            ProfDev2_11.Checked = False
+            ProfDev2_12.Checked = False
         Else
             ProfDev2_1.Checked = False
             ProfDev2_2.Checked = False
@@ -1544,6 +2169,10 @@ Partial Class Formtest
             ProfDev2_6.Checked = True
             ProfDev2_7.Checked = False
             ProfDev2_8.Checked = False
+            ProfDev2_9.Checked = False
+            ProfDev2_10.Checked = False
+            ProfDev2_11.Checked = False
+            ProfDev2_12.Checked = False
         End If
 
         txtname2.Text = My.Settings.data123
@@ -1598,6 +2227,10 @@ Partial Class Formtest
             ProfDev2_6.Checked = False
             'ProfDev2_7.Checked = False
             ProfDev2_8.Checked = False
+            ProfDev2_9.Checked = False
+            ProfDev2_10.Checked = False
+            ProfDev2_11.Checked = False
+            ProfDev2_12.Checked = False
         Else
             ProfDev2_1.Checked = False
             ProfDev2_2.Checked = False
@@ -1605,8 +2238,12 @@ Partial Class Formtest
             ProfDev2_4.Checked = False
             ProfDev2_5.Checked = False
             ProfDev2_6.Checked = False
-            'ProfDev2_7.Checked = False
+            ProfDev2_7.Checked = True
             ProfDev2_8.Checked = False
+            ProfDev2_9.Checked = False
+            ProfDev2_10.Checked = False
+            ProfDev2_11.Checked = False
+            ProfDev2_12.Checked = False
         End If
 
         txtname2.Text = My.Settings.data401
@@ -1662,6 +2299,10 @@ Partial Class Formtest
             ProfDev2_6.Checked = False
             ProfDev2_7.Checked = False
             'ProfDev2_8.Checked = False
+            ProfDev2_9.Checked = False
+            ProfDev2_10.Checked = False
+            ProfDev2_11.Checked = False
+            ProfDev2_12.Checked = False
         Else
             ProfDev2_1.Checked = False
             ProfDev2_2.Checked = False
@@ -1670,7 +2311,11 @@ Partial Class Formtest
             ProfDev2_5.Checked = False
             ProfDev2_6.Checked = False
             ProfDev2_7.Checked = False
-            'ProfDev2_8.Checked = False
+            ProfDev2_8.Checked = True
+            ProfDev2_9.Checked = False
+            ProfDev2_10.Checked = False
+            ProfDev2_11.Checked = False
+            ProfDev2_12.Checked = False
         End If
 
         txtname2.Text = My.Settings.data427
@@ -1712,6 +2357,253 @@ Partial Class Formtest
         txtOperationDev2.Text = My.Settings.data524
 
     End Sub
+
+
+
+    Private Sub ProfDev2_9_Click(sender As Object, e As EventArgs) Handles ProfDev2_9.Click
+
+        If (ProfDev2_9.Checked = True) Then
+            ProfDev2_1.Checked = False
+            ProfDev2_2.Checked = False
+            ProfDev2_3.Checked = False
+            ProfDev2_4.Checked = False
+            ProfDev2_5.Checked = False
+            ProfDev2_6.Checked = False
+            ProfDev2_7.Checked = False
+            ProfDev2_8.Checked = False
+
+            ProfDev2_10.Checked = False
+            ProfDev2_11.Checked = False
+            ProfDev2_12.Checked = False
+        Else
+            ProfDev2_1.Checked = False
+            ProfDev2_2.Checked = False
+            ProfDev2_3.Checked = False
+            ProfDev2_4.Checked = False
+            ProfDev2_5.Checked = False
+            ProfDev2_6.Checked = False
+            ProfDev2_7.Checked = False
+            ProfDev2_8.Checked = False
+            ProfDev2_9.Checked = True
+            ProfDev2_10.Checked = False
+            ProfDev2_11.Checked = False
+            ProfDev2_12.Checked = False
+        End If
+
+        txtname2.Text = My.Settings.data642
+        CommandStart2.Text = My.Settings.data643
+        CommandStart2run.Text = My.Settings.data644
+        CommandStop2.Text = My.Settings.data645
+        lstIntf2.SelectedIndex = My.Settings.data646
+        txtaddr2.Text = My.Settings.data647
+        Dev2SampleRate.Text = My.Settings.data648
+        Dev2PollingEnable.Checked = My.Settings.data649
+        Dev2removeletters.Checked = My.Settings.data650
+        IgnoreErrors2.Checked = My.Settings.data651
+        Dev2TerminatorEnable.Checked = My.Settings.data652
+        CheckBoxSendBlockingDev2.Checked = My.Settings.data653
+        Dev2STBMask.Text = My.Settings.data654
+        Div1000Dev2.Checked = My.Settings.data655
+        Dev23457Aseven.Checked = My.Settings.data656
+        Dev2TerminatorEnable2.Checked = My.Settings.data657
+        Dev2K2001isolatedata.Checked = My.Settings.data658
+        Dev2K2001isolatedataCHAR.Text = My.Settings.data659
+        Mult1000Dev2.Checked = My.Settings.data660
+        Dev2Timeout.Text = My.Settings.data661
+        Dev2delayop.Text = My.Settings.data662
+        txtq2d.Text = My.Settings.data663
+        Dev2pauseDurationInSeconds.Text = My.Settings.data664
+        Dev2runStopwatchEveryInMins.Text = My.Settings.data665
+        Dev2IntEnable.Checked = My.Settings.data666
+        Dev2Regex.Checked = My.Settings.data667
+        Dev2DecimalNumDPs.Text = My.Settings.data668
+        txtOperationDev2.Text = My.Settings.data670
+
+    End Sub
+
+    Private Sub ProfDev2_10_Click(sender As Object, e As EventArgs) Handles ProfDev2_10.Click
+
+        If (ProfDev2_10.Checked = True) Then
+            ProfDev2_1.Checked = False
+            ProfDev2_2.Checked = False
+            ProfDev2_3.Checked = False
+            ProfDev2_4.Checked = False
+            ProfDev2_5.Checked = False
+            ProfDev2_6.Checked = False
+            ProfDev2_7.Checked = False
+            ProfDev2_8.Checked = False
+            ProfDev2_9.Checked = False
+
+            ProfDev2_11.Checked = False
+            ProfDev2_12.Checked = False
+        Else
+            ProfDev2_1.Checked = False
+            ProfDev2_2.Checked = False
+            ProfDev2_3.Checked = False
+            ProfDev2_4.Checked = False
+            ProfDev2_5.Checked = False
+            ProfDev2_6.Checked = False
+            ProfDev2_7.Checked = False
+            ProfDev2_8.Checked = False
+            ProfDev2_9.Checked = False
+            ProfDev2_10.Checked = True
+            ProfDev2_11.Checked = False
+            ProfDev2_12.Checked = False
+        End If
+
+        txtname2.Text = My.Settings.data671
+        CommandStart2.Text = My.Settings.data672
+        CommandStart2run.Text = My.Settings.data673
+        CommandStop2.Text = My.Settings.data674
+        lstIntf2.SelectedIndex = My.Settings.data675
+        txtaddr2.Text = My.Settings.data676
+        Dev2SampleRate.Text = My.Settings.data677
+        Dev2PollingEnable.Checked = My.Settings.data678
+        Dev2removeletters.Checked = My.Settings.data679
+        IgnoreErrors2.Checked = My.Settings.data680
+        Dev2TerminatorEnable.Checked = My.Settings.data681
+        CheckBoxSendBlockingDev2.Checked = My.Settings.data682
+        Dev2STBMask.Text = My.Settings.data683
+        Div1000Dev2.Checked = My.Settings.data684
+        Dev23457Aseven.Checked = My.Settings.data685
+        Dev2TerminatorEnable2.Checked = My.Settings.data686
+        Dev2K2001isolatedata.Checked = My.Settings.data687
+        Dev2K2001isolatedataCHAR.Text = My.Settings.data688
+        Mult1000Dev2.Checked = My.Settings.data689
+        Dev2Timeout.Text = My.Settings.data690
+        Dev2delayop.Text = My.Settings.data691
+        txtq2d.Text = My.Settings.data692
+        Dev2pauseDurationInSeconds.Text = My.Settings.data693
+        Dev2runStopwatchEveryInMins.Text = My.Settings.data694
+        Dev2IntEnable.Checked = My.Settings.data695
+        Dev2Regex.Checked = My.Settings.data696
+        Dev2DecimalNumDPs.Text = My.Settings.data697
+        txtOperationDev2.Text = My.Settings.data699
+
+    End Sub
+
+    Private Sub ProfDev2_11_Click(sender As Object, e As EventArgs) Handles ProfDev2_11.Click
+
+        If (ProfDev2_11.Checked = True) Then
+            ProfDev2_1.Checked = False
+            ProfDev2_2.Checked = False
+            ProfDev2_3.Checked = False
+            ProfDev2_4.Checked = False
+            ProfDev2_5.Checked = False
+            ProfDev2_6.Checked = False
+            ProfDev2_7.Checked = False
+            ProfDev2_8.Checked = False
+            ProfDev2_9.Checked = False
+            ProfDev2_10.Checked = False
+
+            ProfDev2_12.Checked = False
+        Else
+            ProfDev2_1.Checked = False
+            ProfDev2_2.Checked = False
+            ProfDev2_3.Checked = False
+            ProfDev2_4.Checked = False
+            ProfDev2_5.Checked = False
+            ProfDev2_6.Checked = False
+            ProfDev2_7.Checked = False
+            ProfDev2_8.Checked = False
+            ProfDev2_9.Checked = False
+            ProfDev2_10.Checked = False
+            ProfDev2_11.Checked = True
+            ProfDev2_12.Checked = False
+        End If
+
+        txtname2.Text = My.Settings.data700
+        CommandStart2.Text = My.Settings.data701
+        CommandStart2run.Text = My.Settings.data702
+        CommandStop2.Text = My.Settings.data703
+        lstIntf2.SelectedIndex = My.Settings.data704
+        txtaddr2.Text = My.Settings.data705
+        Dev2SampleRate.Text = My.Settings.data706
+        Dev2PollingEnable.Checked = My.Settings.data707
+        Dev2removeletters.Checked = My.Settings.data708
+        IgnoreErrors2.Checked = My.Settings.data709
+        Dev2TerminatorEnable.Checked = My.Settings.data710
+        CheckBoxSendBlockingDev2.Checked = My.Settings.data711
+        Dev2STBMask.Text = My.Settings.data712
+        Div1000Dev2.Checked = My.Settings.data713
+        Dev23457Aseven.Checked = My.Settings.data714
+        Dev2TerminatorEnable2.Checked = My.Settings.data715
+        Dev2K2001isolatedata.Checked = My.Settings.data716
+        Dev2K2001isolatedataCHAR.Text = My.Settings.data717
+        Mult1000Dev2.Checked = My.Settings.data718
+        Dev2Timeout.Text = My.Settings.data719
+        Dev2delayop.Text = My.Settings.data720
+        txtq2d.Text = My.Settings.data721
+        Dev2pauseDurationInSeconds.Text = My.Settings.data722
+        Dev2runStopwatchEveryInMins.Text = My.Settings.data723
+        Dev2IntEnable.Checked = My.Settings.data724
+        Dev2Regex.Checked = My.Settings.data725
+        Dev2DecimalNumDPs.Text = My.Settings.data726
+        txtOperationDev2.Text = My.Settings.data728
+
+    End Sub
+
+    Private Sub ProfDev2_12_Click(sender As Object, e As EventArgs) Handles ProfDev2_12.Click
+
+        If (ProfDev2_12.Checked = True) Then
+            ProfDev2_1.Checked = False
+            ProfDev2_2.Checked = False
+            ProfDev2_3.Checked = False
+            ProfDev2_4.Checked = False
+            ProfDev2_5.Checked = False
+            ProfDev2_6.Checked = False
+            ProfDev2_7.Checked = False
+            ProfDev2_8.Checked = False
+            ProfDev2_9.Checked = False
+            ProfDev2_10.Checked = False
+            ProfDev2_11.Checked = False
+
+        Else
+            ProfDev2_1.Checked = False
+            ProfDev2_2.Checked = False
+            ProfDev2_3.Checked = False
+            ProfDev2_4.Checked = False
+            ProfDev2_5.Checked = False
+            ProfDev2_6.Checked = False
+            ProfDev2_7.Checked = False
+            ProfDev2_8.Checked = False
+            ProfDev2_9.Checked = False
+            ProfDev2_10.Checked = False
+            ProfDev2_11.Checked = False
+            ProfDev2_12.Checked = True
+        End If
+
+        txtname2.Text = My.Settings.data729
+        CommandStart2.Text = My.Settings.data730
+        CommandStart2run.Text = My.Settings.data731
+        CommandStop2.Text = My.Settings.data732
+        lstIntf2.SelectedIndex = My.Settings.data733
+        txtaddr2.Text = My.Settings.data734
+        Dev2SampleRate.Text = My.Settings.data735
+        Dev2PollingEnable.Checked = My.Settings.data736
+        Dev2removeletters.Checked = My.Settings.data737
+        IgnoreErrors2.Checked = My.Settings.data738
+        Dev2TerminatorEnable.Checked = My.Settings.data739
+        CheckBoxSendBlockingDev2.Checked = My.Settings.data740
+        Dev2STBMask.Text = My.Settings.data741
+        Div1000Dev2.Checked = My.Settings.data742
+        Dev23457Aseven.Checked = My.Settings.data743
+        Dev2TerminatorEnable2.Checked = My.Settings.data744
+        Dev2K2001isolatedata.Checked = My.Settings.data745
+        Dev2K2001isolatedataCHAR.Text = My.Settings.data746
+        Mult1000Dev2.Checked = My.Settings.data747
+        Dev2Timeout.Text = My.Settings.data748
+        Dev2delayop.Text = My.Settings.data749
+        txtq2d.Text = My.Settings.data750
+        Dev2pauseDurationInSeconds.Text = My.Settings.data751
+        Dev2runStopwatchEveryInMins.Text = My.Settings.data752
+        Dev2IntEnable.Checked = My.Settings.data753
+        Dev2Regex.Checked = My.Settings.data754
+        Dev2DecimalNumDPs.Text = My.Settings.data755
+        txtOperationDev2.Text = My.Settings.data757
+
+    End Sub
+
 
 
     ' Backup application settings to a file

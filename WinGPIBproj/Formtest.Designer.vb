@@ -965,6 +965,14 @@ Partial Class Formtest
         Me.Timer15 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer16 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
+        Me.ProfDev1_9 = New System.Windows.Forms.CheckBox()
+        Me.ProfDev1_10 = New System.Windows.Forms.CheckBox()
+        Me.ProfDev1_11 = New System.Windows.Forms.CheckBox()
+        Me.ProfDev1_12 = New System.Windows.Forms.CheckBox()
+        Me.ProfDev2_12 = New System.Windows.Forms.CheckBox()
+        Me.ProfDev2_11 = New System.Windows.Forms.CheckBox()
+        Me.ProfDev2_10 = New System.Windows.Forms.CheckBox()
+        Me.ProfDev2_9 = New System.Windows.Forms.CheckBox()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.GroupBox9.SuspendLayout
@@ -3049,6 +3057,10 @@ Partial Class Formtest
         '
         'GroupBox9
         '
+        Me.GroupBox9.Controls.Add(Me.ProfDev2_12)
+        Me.GroupBox9.Controls.Add(Me.ProfDev2_11)
+        Me.GroupBox9.Controls.Add(Me.ProfDev2_10)
+        Me.GroupBox9.Controls.Add(Me.ProfDev2_9)
         Me.GroupBox9.Controls.Add(Me.btncreate3)
         Me.GroupBox9.Controls.Add(Me.ProfDev2_8)
         Me.GroupBox9.Controls.Add(Me.ProfDev2_7)
@@ -3226,6 +3238,10 @@ Partial Class Formtest
         '
         'GroupBox8
         '
+        Me.GroupBox8.Controls.Add(Me.ProfDev1_12)
+        Me.GroupBox8.Controls.Add(Me.ProfDev1_11)
+        Me.GroupBox8.Controls.Add(Me.ProfDev1_10)
+        Me.GroupBox8.Controls.Add(Me.ProfDev1_9)
         Me.GroupBox8.Controls.Add(Me.TextBox3)
         Me.GroupBox8.Controls.Add(Me.btncreate2)
         Me.GroupBox8.Controls.Add(Me.ProfDev1_8)
@@ -11204,6 +11220,86 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
+        'ProfDev1_9
+        '
+        Me.ProfDev1_9.AutoSize = True
+        Me.ProfDev1_9.Location = New System.Drawing.Point(227, 19)
+        Me.ProfDev1_9.Name = "ProfDev1_9"
+        Me.ProfDev1_9.RightToLeft = System.Windows.Forms.RightToLeft.Yes
+        Me.ProfDev1_9.Size = New System.Drawing.Size(15, 14)
+        Me.ProfDev1_9.TabIndex = 510
+        Me.ProfDev1_9.UseVisualStyleBackColor = True
+        '
+        'ProfDev1_10
+        '
+        Me.ProfDev1_10.AutoSize = True
+        Me.ProfDev1_10.Location = New System.Drawing.Point(246, 19)
+        Me.ProfDev1_10.Name = "ProfDev1_10"
+        Me.ProfDev1_10.RightToLeft = System.Windows.Forms.RightToLeft.Yes
+        Me.ProfDev1_10.Size = New System.Drawing.Size(15, 14)
+        Me.ProfDev1_10.TabIndex = 511
+        Me.ProfDev1_10.UseVisualStyleBackColor = True
+        '
+        'ProfDev1_11
+        '
+        Me.ProfDev1_11.AutoSize = True
+        Me.ProfDev1_11.Location = New System.Drawing.Point(265, 19)
+        Me.ProfDev1_11.Name = "ProfDev1_11"
+        Me.ProfDev1_11.RightToLeft = System.Windows.Forms.RightToLeft.Yes
+        Me.ProfDev1_11.Size = New System.Drawing.Size(15, 14)
+        Me.ProfDev1_11.TabIndex = 512
+        Me.ProfDev1_11.UseVisualStyleBackColor = True
+        '
+        'ProfDev1_12
+        '
+        Me.ProfDev1_12.AutoSize = True
+        Me.ProfDev1_12.Location = New System.Drawing.Point(284, 19)
+        Me.ProfDev1_12.Name = "ProfDev1_12"
+        Me.ProfDev1_12.RightToLeft = System.Windows.Forms.RightToLeft.Yes
+        Me.ProfDev1_12.Size = New System.Drawing.Size(15, 14)
+        Me.ProfDev1_12.TabIndex = 513
+        Me.ProfDev1_12.UseVisualStyleBackColor = True
+        '
+        'ProfDev2_12
+        '
+        Me.ProfDev2_12.AutoSize = True
+        Me.ProfDev2_12.Location = New System.Drawing.Point(285, 16)
+        Me.ProfDev2_12.Name = "ProfDev2_12"
+        Me.ProfDev2_12.RightToLeft = System.Windows.Forms.RightToLeft.Yes
+        Me.ProfDev2_12.Size = New System.Drawing.Size(15, 14)
+        Me.ProfDev2_12.TabIndex = 534
+        Me.ProfDev2_12.UseVisualStyleBackColor = True
+        '
+        'ProfDev2_11
+        '
+        Me.ProfDev2_11.AutoSize = True
+        Me.ProfDev2_11.Location = New System.Drawing.Point(266, 16)
+        Me.ProfDev2_11.Name = "ProfDev2_11"
+        Me.ProfDev2_11.RightToLeft = System.Windows.Forms.RightToLeft.Yes
+        Me.ProfDev2_11.Size = New System.Drawing.Size(15, 14)
+        Me.ProfDev2_11.TabIndex = 533
+        Me.ProfDev2_11.UseVisualStyleBackColor = True
+        '
+        'ProfDev2_10
+        '
+        Me.ProfDev2_10.AutoSize = True
+        Me.ProfDev2_10.Location = New System.Drawing.Point(247, 16)
+        Me.ProfDev2_10.Name = "ProfDev2_10"
+        Me.ProfDev2_10.RightToLeft = System.Windows.Forms.RightToLeft.Yes
+        Me.ProfDev2_10.Size = New System.Drawing.Size(15, 14)
+        Me.ProfDev2_10.TabIndex = 532
+        Me.ProfDev2_10.UseVisualStyleBackColor = True
+        '
+        'ProfDev2_9
+        '
+        Me.ProfDev2_9.AutoSize = True
+        Me.ProfDev2_9.Location = New System.Drawing.Point(228, 16)
+        Me.ProfDev2_9.Name = "ProfDev2_9"
+        Me.ProfDev2_9.RightToLeft = System.Windows.Forms.RightToLeft.Yes
+        Me.ProfDev2_9.Size = New System.Drawing.Size(15, 14)
+        Me.ProfDev2_9.TabIndex = 531
+        Me.ProfDev2_9.UseVisualStyleBackColor = True
+        '
         'Formtest
         '
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None
@@ -12230,4 +12326,12 @@ Partial Class Formtest
     Friend WithEvents CheckBoxSerialCOMRTSEnable As CheckBox
     Friend WithEvents CheckBoxSerialCOMDTREnable As CheckBox
     Friend WithEvents CheckBoxPrologixSerialDTR As CheckBox
+    Friend WithEvents ProfDev2_12 As CheckBox
+    Friend WithEvents ProfDev2_11 As CheckBox
+    Friend WithEvents ProfDev2_10 As CheckBox
+    Friend WithEvents ProfDev2_9 As CheckBox
+    Friend WithEvents ProfDev1_12 As CheckBox
+    Friend WithEvents ProfDev1_11 As CheckBox
+    Friend WithEvents ProfDev1_10 As CheckBox
+    Friend WithEvents ProfDev1_9 As CheckBox
 End Class
