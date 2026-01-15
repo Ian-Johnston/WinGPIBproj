@@ -29,7 +29,6 @@ Partial Class Formtest
     Private Sub CheckBoxAllowSaveAnytime_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxAllowSaveAnytime.CheckedChanged
 
         My.Settings.data505 = CheckBoxAllowSaveAnytime.Checked          ' save off immediately
-        My.Settings.Save()
 
     End Sub
 
@@ -42,7 +41,6 @@ Partial Class Formtest
         End If
 
         My.Settings.data507 = CheckBoxEnableTooltips.Checked          ' save off immediately
-        My.Settings.Save()
 
     End Sub
 
@@ -50,7 +48,6 @@ Partial Class Formtest
 
         TextEditorPath = TextBoxTextEditor.Text ' Adjust the path as needed
         My.Settings.data506 = TextBoxTextEditor.Text          ' save off immediately
-        My.Settings.Save()
         'Process.Start(notepadPlusPlusPath, strPath & "\" & "GPIBchannels.txt")
 
     End Sub
@@ -94,7 +91,22 @@ Partial Class Formtest
 
     End Sub
 
+
     Private Sub ButtonSaveSettings_Click(sender As Object, e As EventArgs) Handles ButtonSaveSettings.Click
+
+        SaveSettings()
+
+    End Sub
+
+
+    Private Sub ButtonSaveSettings2_Click(sender As Object, e As EventArgs) Handles ButtonSaveSettings2.Click
+
+        SaveSettings()
+
+    End Sub
+
+
+    Private Sub SaveSettings()
 
         ' Profile selection flags Dev 1 & 2 (1..20)
         My.Settings.Dev1Prof1 = (Dev1ProfileNumber() = 1)

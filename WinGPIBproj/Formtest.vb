@@ -167,6 +167,8 @@ Public Class Formtest
     Private _dev1Profile As Integer = 1
     Private _dev2Profile As Integer = 1
 
+    'Private _loading As Boolean = False
+
 
     ' SHUTTING DOWN WinGPIB
     Private Sub Formtest_FormClosing(ByVal sender As System.Object, ByVal e As System.Windows.Forms.FormClosingEventArgs) Handles MyBase.FormClosing
@@ -229,8 +231,13 @@ Public Class Formtest
 
         Try
 
+            '_loading = True
+
+            'Dim sw As New Stopwatch()
+            'sw.Start()
+
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.070"
+            BannerText1 = "WinGPIB   V4.071"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
             Me.Text = BannerText1 & "                                                        " & BannerText2.ToString()
 
@@ -256,7 +263,6 @@ Public Class Formtest
                     My.Computer.FileSystem.CopyDirectory(strPathOD, strPath, True)
                 End If
             End If
-
 
             ' get available COM ports
             comPORT = ""
@@ -637,9 +643,69 @@ Public Class Formtest
             CheckBoxArithmetic.Checked = My.Settings.data336        ' temp/hum checkbox
             TextBoxTempHumSample.Text = My.Settings.data504
 
-            'myVariable1 = TextBoxTempUnits.Text
-            'myVariable2 = TextBoxHumUnits.Text
-            ' Profiles (dropdowns) - replaces the old 12x2 checkbox matrix
+            ' PDVS2mini
+            TextBox3458Asn.Text = My.Settings.data469       ' 3458A serial number
+            TextBoxUser.Text = My.Settings.data470          ' User/Company
+            TextBoxLOWSHUT.Text = My.Settings.data471
+            TextBoxCENABLE.Text = My.Settings.data472
+            TextBoxOLMA.Text = My.Settings.data473
+            TextBoxFULLMA.Text = My.Settings.data474
+            TextBoxSERIAL.Text = My.Settings.data475
+            TextBoxSOAK.Text = My.Settings.data476
+            TextBoxDC.Text = My.Settings.data477
+            TextBoxCD.Text = My.Settings.data478
+            CalStep.Text = My.Settings.data479
+            CalAccuracy.Text = My.Settings.data480
+            CalStepFinal.Text = My.Settings.data481
+            CalAccuracyFinal.Text = My.Settings.data482
+            PDVS2delay.Text = My.Settings.data483
+            TextBoxSer.Text = ""
+            TextBoxdegC.Text = ""
+            Dev1Units.Text = My.Settings.data500
+            Dev2Units.Text = My.Settings.data501
+
+            DisableAllButtonsInGroupBox2ExceptPDVS2miniSave()
+
+            Label229.Enabled = False
+            LabelTemperature3.Enabled = False
+            volts11.Enabled = False
+            ButtonDacSpan10down.Enabled = False
+            ButtonDacSpan10.Enabled = False
+            ButtonDacSpan10Up.Enabled = False
+            LabeldacSpan10Cal.Enabled = False
+            Label150.Enabled = False
+            DacSpan10.Enabled = False
+            LabeldacSpan10Delta.Enabled = False
+            Default11.Enabled = False
+            Label149.Enabled = False
+
+            WryTech.Checked = My.Settings.data503
+
+            ButtonR6581upload.Enabled = False
+            ButtonR6581commitEEprom.Enabled = False
+
+
+            ' Settings
+            CheckBoxAllowSaveAnytime.Checked = My.Settings.data505
+
+            TextBoxTextEditor.Text = My.Settings.data506
+            CheckBoxEnableTooltips.Checked = My.Settings.data507
+
+            '3458A CalRam
+            CalRam3458APreRun.Text = My.Settings.data508
+
+
+            'If String.IsNullOrWhiteSpace(TextBoxTextEditor.Text) Then
+            'TextBoxTextEditor.Text = "C:\Windows\System32\notepad.exe"
+            'My.Settings.data506 = "C:\Windows\System32\notepad.exe"
+            'My.Settings.Save()
+            'End If
+
+            If CheckBoxEnableTooltips.Checked = True Then
+                ToolTip1.Active = True
+            Else
+                ToolTip1.Active = False
+            End If
 
             ToolTip1.SetToolTip(cboDev1Device, "Select Dev1 profile")
             ToolTip1.SetToolTip(cboDev2Device, "Select Dev2 profile")
@@ -649,6 +715,18 @@ Public Class Formtest
             ToolTip1.InitialDelay = 500   ' ms before first show (default is 1000)
             ToolTip1.ReshowDelay = 5    ' delay when moving between controls
             ToolTip1.AutoPopDelay = 15000 ' how long it stays visible
+
+            Dev1ChartValue.Text = ""
+            Dev2ChartValue.Text = ""
+
+            ' 3245A Dev2
+            Disable3245AControls()
+
+            ' User tab
+            ButtonLoadTxtRefresh.Enabled = False
+
+            ' For USER tab keypad
+            Me.KeyPreview = True
 
             ' Dropdown init (profile selectors)
             AddHandler cboDev1Device.SelectedIndexChanged, AddressOf cboDev1Device_SelectedIndexChanged
@@ -673,8 +751,12 @@ Public Class Formtest
 
             _suppressDev1Sync = False
             _suppressDev2Sync = False
+
+
         Catch ex As Exception
             MessageBox.Show($"Error during load: {ex.Message}")
+        Finally
+            '_loading = False
         End Try
 
     End Sub
@@ -2828,8 +2910,6 @@ Public Class Formtest
         IODevices.PrologixDeviceSerial.PrologixSerialDTREnable = state
         My.Settings.PrologixSerialDTRenable = state
 
-        My.Settings.Save()
-
     End Sub
 
 
@@ -2842,8 +2922,6 @@ Public Class Formtest
         IODevices.SerialDevice.SerialCOMDTREnable = state
         My.Settings.SerialCOMDTREnable = state
 
-        My.Settings.Save()
-
     End Sub
 
 
@@ -2855,8 +2933,6 @@ Public Class Formtest
 
         IODevices.SerialDevice.SerialCOMRTSEnable = state
         My.Settings.SerialCOMRTSEnable = state
-
-        My.Settings.Save()
 
     End Sub
 
@@ -2912,7 +2988,6 @@ Public Class Formtest
 
         Dim state = CheckBoxIODevicesFormTracker.Checked
         My.Settings.IODevicesFormTracker = state
-        My.Settings.Save()
 
     End Sub
 
