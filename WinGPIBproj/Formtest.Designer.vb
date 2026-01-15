@@ -3106,6 +3106,7 @@ Partial Class Formtest
         Me.ProfDev2_12.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev2_12.TabIndex = 534
         Me.ProfDev2_12.UseVisualStyleBackColor = True
+        Me.ProfDev2_12.Visible = False
         '
         'ProfDev2_11
         '
@@ -3116,6 +3117,7 @@ Partial Class Formtest
         Me.ProfDev2_11.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev2_11.TabIndex = 533
         Me.ProfDev2_11.UseVisualStyleBackColor = True
+        Me.ProfDev2_11.Visible = False
         '
         'ProfDev2_10
         '
@@ -3126,6 +3128,7 @@ Partial Class Formtest
         Me.ProfDev2_10.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev2_10.TabIndex = 532
         Me.ProfDev2_10.UseVisualStyleBackColor = True
+        Me.ProfDev2_10.Visible = False
         '
         'ProfDev2_9
         '
@@ -3136,6 +3139,7 @@ Partial Class Formtest
         Me.ProfDev2_9.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev2_9.TabIndex = 531
         Me.ProfDev2_9.UseVisualStyleBackColor = True
+        Me.ProfDev2_9.Visible = False
         '
         'ProfDev2_8
         '
@@ -3146,6 +3150,7 @@ Partial Class Formtest
         Me.ProfDev2_8.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev2_8.TabIndex = 530
         Me.ProfDev2_8.UseVisualStyleBackColor = True
+        Me.ProfDev2_8.Visible = False
         '
         'ProfDev2_7
         '
@@ -3156,6 +3161,7 @@ Partial Class Formtest
         Me.ProfDev2_7.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev2_7.TabIndex = 529
         Me.ProfDev2_7.UseVisualStyleBackColor = True
+        Me.ProfDev2_7.Visible = False
         '
         'ProfDev2_6
         '
@@ -3166,6 +3172,7 @@ Partial Class Formtest
         Me.ProfDev2_6.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev2_6.TabIndex = 528
         Me.ProfDev2_6.UseVisualStyleBackColor = True
+        Me.ProfDev2_6.Visible = False
         '
         'ProfDev2_5
         '
@@ -3176,6 +3183,7 @@ Partial Class Formtest
         Me.ProfDev2_5.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev2_5.TabIndex = 527
         Me.ProfDev2_5.UseVisualStyleBackColor = True
+        Me.ProfDev2_5.Visible = False
         '
         'ProfDev2_4
         '
@@ -3186,6 +3194,7 @@ Partial Class Formtest
         Me.ProfDev2_4.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev2_4.TabIndex = 526
         Me.ProfDev2_4.UseVisualStyleBackColor = True
+        Me.ProfDev2_4.Visible = False
         '
         'Label15
         '
@@ -3205,6 +3214,7 @@ Partial Class Formtest
         Me.ProfDev2_3.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev2_3.TabIndex = 524
         Me.ProfDev2_3.UseVisualStyleBackColor = True
+        Me.ProfDev2_3.Visible = False
         '
         'ProfDev2_2
         '
@@ -3215,6 +3225,7 @@ Partial Class Formtest
         Me.ProfDev2_2.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev2_2.TabIndex = 523
         Me.ProfDev2_2.UseVisualStyleBackColor = True
+        Me.ProfDev2_2.Visible = False
         '
         'ProfDev2_1
         '
@@ -3225,6 +3236,7 @@ Partial Class Formtest
         Me.ProfDev2_1.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev2_1.TabIndex = 522
         Me.ProfDev2_1.UseVisualStyleBackColor = True
+        Me.ProfDev2_1.Visible = False
         '
         'Label18
         '
@@ -3336,6 +3348,7 @@ Partial Class Formtest
         Me.ProfDev1_12.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev1_12.TabIndex = 513
         Me.ProfDev1_12.UseVisualStyleBackColor = True
+        Me.ProfDev1_12.Visible = False
         '
         'ProfDev1_11
         '
@@ -3346,6 +3359,7 @@ Partial Class Formtest
         Me.ProfDev1_11.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev1_11.TabIndex = 512
         Me.ProfDev1_11.UseVisualStyleBackColor = True
+        Me.ProfDev1_11.Visible = False
         '
         'ProfDev1_10
         '
@@ -3356,6 +3370,7 @@ Partial Class Formtest
         Me.ProfDev1_10.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev1_10.TabIndex = 511
         Me.ProfDev1_10.UseVisualStyleBackColor = True
+        Me.ProfDev1_10.Visible = False
         '
         'ProfDev1_9
         '
@@ -3366,6 +3381,7 @@ Partial Class Formtest
         Me.ProfDev1_9.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev1_9.TabIndex = 510
         Me.ProfDev1_9.UseVisualStyleBackColor = True
+        Me.ProfDev1_9.Visible = False
         '
         'ProfDev1_8
         '
@@ -3376,6 +3392,7 @@ Partial Class Formtest
         Me.ProfDev1_8.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev1_8.TabIndex = 509
         Me.ProfDev1_8.UseVisualStyleBackColor = True
+        Me.ProfDev1_8.Visible = False
         '
         'ProfDev1_7
         '
@@ -3386,6 +3403,7 @@ Partial Class Formtest
         Me.ProfDev1_7.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev1_7.TabIndex = 508
         Me.ProfDev1_7.UseVisualStyleBackColor = True
+        Me.ProfDev1_7.Visible = False
         '
         'ProfDev1_6
         '
@@ -3396,6 +3414,7 @@ Partial Class Formtest
         Me.ProfDev1_6.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev1_6.TabIndex = 507
         Me.ProfDev1_6.UseVisualStyleBackColor = True
+        Me.ProfDev1_6.Visible = False
         '
         'ProfDev1_5
         '
@@ -3406,6 +3425,7 @@ Partial Class Formtest
         Me.ProfDev1_5.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev1_5.TabIndex = 506
         Me.ProfDev1_5.UseVisualStyleBackColor = True
+        Me.ProfDev1_5.Visible = False
         '
         'ProfDev1_4
         '
@@ -3416,6 +3436,7 @@ Partial Class Formtest
         Me.ProfDev1_4.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev1_4.TabIndex = 505
         Me.ProfDev1_4.UseVisualStyleBackColor = True
+        Me.ProfDev1_4.Visible = False
         '
         'IODeviceLabel1
         '
@@ -3445,6 +3466,7 @@ Partial Class Formtest
         Me.ProfDev1_3.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev1_3.TabIndex = 503
         Me.ProfDev1_3.UseVisualStyleBackColor = True
+        Me.ProfDev1_3.Visible = False
         '
         'ProfDev1_2
         '
@@ -3455,6 +3477,7 @@ Partial Class Formtest
         Me.ProfDev1_2.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev1_2.TabIndex = 502
         Me.ProfDev1_2.UseVisualStyleBackColor = True
+        Me.ProfDev1_2.Visible = False
         '
         'ProfDev1_1
         '
@@ -3465,6 +3488,7 @@ Partial Class Formtest
         Me.ProfDev1_1.Size = New System.Drawing.Size(15, 14)
         Me.ProfDev1_1.TabIndex = 501
         Me.ProfDev1_1.UseVisualStyleBackColor = True
+        Me.ProfDev1_1.Visible = False
         '
         'Label17
         '

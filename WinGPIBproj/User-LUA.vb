@@ -7,7 +7,6 @@ Imports MoonSharp.Interpreter.Interop
 
 Partial Class Formtest
 
-
     ' LUA
     Dim inLuaScript As Boolean = False
     Dim luaScriptName As String = ""
@@ -272,6 +271,13 @@ Partial Class Formtest
                                            End If
                                        End Sub, Action(Of String, Object))
 
+        ' Expose Polynomials
+        _lua.Globals("polyeval") = DynValue.NewCallback(AddressOf Lua_PolyEval)
+        _lua.Globals("solve2") = DynValue.NewCallback(AddressOf Lua_Solve2)
+        _lua.Globals("solve3") = DynValue.NewCallback(AddressOf Lua_Solve3)
+        _lua.Globals("solve4") = DynValue.NewCallback(AddressOf Lua_Solve4)
+        _lua.Globals("realroots") = DynValue.NewCallback(AddressOf Lua_RealRoots)
+
         ' Expose now() to Lua: returns current system time (hour/min/sec)
         _lua.Globals("now") = CType(Function() As Table
                                         Dim t = DateTime.Now
@@ -341,6 +347,117 @@ Partial Class Formtest
         Return ""
     End Function
 
+
+    ' MoonSharp callback: polyeval(x, a0, a1, a2, ...)
+    ' - a0..an are coefficients for: a0 + a1*x + a2*x^2 + ...
+    Private Function Lua_PolyEval(ctx As ScriptExecutionContext, args As CallbackArguments) As DynValue
+        Try
+            If args Is Nothing OrElse args.Count < 2 Then
+                Return DynValue.NewNumber(0R)
+            End If
+
+            Dim x As Double = LuaArgToDouble(args(0))
+            Dim coeffs(args.Count - 2) As Double
+            For i As Integer = 1 To args.Count - 1
+                coeffs(i - 1) = LuaArgToDouble(args(i))
+            Next
+
+            Dim y As Double = PolynomialSolvers.PolyEval(x, coeffs)
+            Return DynValue.NewNumber(y)
+
+        Catch ex As Exception
+            AppendLog("[LUA] PolyEval ERROR: " & ex.Message)
+            Return DynValue.NewNumber(0R)
+        End Try
+    End Function
+
+
+    Private Function LuaArgToDouble(v As DynValue) As Double
+        If v Is Nothing Then Return Double.NaN
+        If v.Type = DataType.Number Then Return v.Number
+        If v.Type = DataType.String Then
+            Dim d As Double
+            If Double.TryParse(v.String, NumberStyles.Float, CultureInfo.InvariantCulture, d) Then
+                Return d
+            End If
+        End If
+        Return Double.NaN
+    End Function
+
+
+    Private Function Lua_Solve2(ctx As ScriptExecutionContext, args As CallbackArguments) As DynValue
+        Dim a = LuaArgToDouble(args(0)) : Dim b = LuaArgToDouble(args(1)) : Dim c = LuaArgToDouble(args(2))
+        Dim r = PolynomialSolvers.SolveQuadratic(a, b, c)
+        Return RootsToLuaTable(r)
+    End Function
+
+    Private Function Lua_Solve3(ctx As ScriptExecutionContext, args As CallbackArguments) As DynValue
+        Dim a = LuaArgToDouble(args(0)) : Dim b = LuaArgToDouble(args(1)) : Dim c = LuaArgToDouble(args(2)) : Dim d = LuaArgToDouble(args(3))
+        Dim r = PolynomialSolvers.SolveCubic(a, b, c, d)
+        Return RootsToLuaTable(r)
+    End Function
+
+    Private Function Lua_Solve4(ctx As ScriptExecutionContext, args As CallbackArguments) As DynValue
+        Dim a = LuaArgToDouble(args(0)) : Dim b = LuaArgToDouble(args(1)) : Dim c = LuaArgToDouble(args(2)) : Dim d = LuaArgToDouble(args(3)) : Dim e = LuaArgToDouble(args(4))
+        Dim r = PolynomialSolvers.SolveQuartic(a, b, c, d, e)
+        Return RootsToLuaTable(r)
+    End Function
+
+    Private Function Lua_RealRoots(ctx As ScriptExecutionContext, args As CallbackArguments) As DynValue
+        ' realroots( rootsTable [, tol] )
+        Dim tol As Double = 0.0000000001
+        If args.Count >= 2 AndAlso args(1).Type = DataType.Number Then tol = args(1).Number
+
+        Dim t = args(0).Table
+        Dim lst As New List(Of Global.System.Numerics.Complex)
+
+        For Each pair In t.Pairs
+            Dim s As String = pair.Value.String
+            lst.Add(ParseComplexString(s))
+        Next
+
+        Dim rr = PolynomialSolvers.RealRoots(lst.ToArray(), tol)
+        Dim outT = New Table(_lua)
+        For i As Integer = 0 To rr.Length - 1
+            outT.Set(i + 1, DynValue.NewNumber(rr(i)))
+        Next
+        Return DynValue.NewTable(outT)
+    End Function
+
+    Private Function RootsToLuaTable(r() As Global.System.Numerics.Complex) As DynValue
+        Dim t As New Table(_lua)
+        For i As Integer = 0 To r.Length - 1
+            t.Set(i + 1, DynValue.NewString(FormatComplex(r(i))))
+        Next
+        Return DynValue.NewTable(t)
+    End Function
+
+    Private Function FormatComplex(z As Global.System.Numerics.Complex) As String
+        ' Fixed-point so ParseComplexString doesn't get confused by E-notation
+        Dim a = z.Real.ToString("0.################", CultureInfo.InvariantCulture)
+        Dim bi = z.Imaginary
+
+        ' Clamp tiny imag to 0
+        If Math.Abs(bi) < 0.000000000001 Then bi = 0R
+
+        Dim b = Math.Abs(bi).ToString("0.################", CultureInfo.InvariantCulture)
+        Dim sign = If(bi >= 0, "+", "-")
+        Return a & sign & b & "i"
+    End Function
+
+    Private Function ParseComplexString(s As String) As Global.System.Numerics.Complex
+        ' expects "a+bi" or "a-bi" (created by FormatComplex)
+        s = s.Replace(" ", "").Trim()
+        Dim idx = s.LastIndexOf("+"c)
+        If idx < 0 Then idx = s.LastIndexOf("-"c, s.Length - 2) ' allow leading minus
+        If idx <= 0 Then Return New Global.System.Numerics.Complex(Double.Parse(s, CultureInfo.InvariantCulture), 0)
+
+        Dim aStr = s.Substring(0, idx)
+        Dim bStr = s.Substring(idx, s.Length - idx).Replace("i", "")
+        Dim a = Double.Parse(aStr, CultureInfo.InvariantCulture)
+        Dim b = Double.Parse(bStr, CultureInfo.InvariantCulture)
+        Return New Global.System.Numerics.Complex(a, b)
+    End Function
 
 
 End Class
