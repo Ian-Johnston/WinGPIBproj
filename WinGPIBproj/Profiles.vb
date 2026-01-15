@@ -99,13 +99,6 @@ Partial Class Formtest
     End Sub
 
 
-    Private Sub ButtonSaveSettings2_Click(sender As Object, e As EventArgs) Handles ButtonSaveSettings2.Click
-
-        SaveSettings()
-
-    End Sub
-
-
     Private Sub SaveSettings()
 
         ' Profile selection flags Dev 1 & 2 (1..20)
