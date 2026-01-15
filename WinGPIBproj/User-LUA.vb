@@ -277,6 +277,14 @@ Partial Class Formtest
         _lua.Globals("solve3") = DynValue.NewCallback(AddressOf Lua_Solve3)
         _lua.Globals("solve4") = DynValue.NewCallback(AddressOf Lua_Solve4)
         _lua.Globals("realroots") = DynValue.NewCallback(AddressOf Lua_RealRoots)
+        _lua.Globals("realrootssorted") = DynValue.NewCallback(AddressOf Lua_RealRootsSorted)
+        _lua.Globals("polyfit") = DynValue.NewCallback(AddressOf Lua_PolyFit)
+        _lua.Globals("polyder") = DynValue.NewCallback(AddressOf Lua_PolyDer)
+        _lua.Globals("polyint") = DynValue.NewCallback(AddressOf Lua_PolyInt)
+        _lua.Globals("ppmerror") = DynValue.NewCallback(AddressOf Lua_PpmError)
+        _lua.Globals("twopointcal") = DynValue.NewCallback(AddressOf Lua_TwoPointCal)
+        _lua.Globals("applycal") = DynValue.NewCallback(AddressOf Lua_ApplyCal)
+        _lua.Globals("linefit") = DynValue.NewCallback(AddressOf Lua_LineFit)
 
         ' Expose now() to Lua: returns current system time (hour/min/sec)
         _lua.Globals("now") = CType(Function() As Table
@@ -422,6 +430,133 @@ Partial Class Formtest
             outT.Set(i + 1, DynValue.NewNumber(rr(i)))
         Next
         Return DynValue.NewTable(outT)
+    End Function
+
+    Private Function Lua_RealRootsSorted(ctx As ScriptExecutionContext, args As CallbackArguments) As DynValue
+        ' realrootssorted( rootsTable [, tol] )
+        Dim tol As Double = 0.0000000001
+        If args.Count >= 2 AndAlso args(1).Type = DataType.Number Then tol = args(1).Number
+
+        Dim t = args(0).Table
+        Dim lst As New List(Of Global.System.Numerics.Complex)
+        For Each pair In t.Pairs
+            Dim s As String = pair.Value.String
+            lst.Add(ParseComplexString(s))
+        Next
+
+        Dim rr = PolynomialSolvers.RealRootsSorted(lst.ToArray(), tol)
+        Dim outT = New Table(_lua)
+        For i As Integer = 0 To rr.Length - 1
+            outT.Set(i + 1, DynValue.NewNumber(rr(i)))
+        Next
+        Return DynValue.NewTable(outT)
+    End Function
+
+    Private Function Lua_PolyFit(ctx As ScriptExecutionContext, args As CallbackArguments) As DynValue
+        ' polyfit(xsTable, ysTable, degree) -> coeffs table {a0..adeg}
+        Dim xs = LuaTableToDoubleArray(args(0).Table)
+        Dim ys = LuaTableToDoubleArray(args(1).Table)
+        Dim deg As Integer = CInt(args(2).Number)
+
+        Dim coeffs = PolynomialSolvers.PolyFit(xs, ys, deg)
+        Dim t As New Table(_lua)
+        For i As Integer = 0 To coeffs.Length - 1
+            t.Set(i + 1, DynValue.NewNumber(coeffs(i)))
+        Next
+        Return DynValue.NewTable(t)
+    End Function
+
+    Private Function Lua_PolyDer(ctx As ScriptExecutionContext, args As CallbackArguments) As DynValue
+        ' polyder(coeffsTable OR varargs...) -> coeffs table
+        Dim coeffs As Double()
+        If args.Count >= 1 AndAlso args(0).Type = DataType.Table Then
+            coeffs = LuaTableToDoubleArray(args(0).Table)
+        Else
+            coeffs = New Double(args.Count - 1) {}
+            For i As Integer = 0 To args.Count - 1
+                coeffs(i) = LuaArgToDouble(args(i))
+            Next
+        End If
+
+        Dim d = PolynomialSolvers.PolyDer(coeffs)
+        Dim t As New Table(_lua)
+        For i As Integer = 0 To d.Length - 1
+            t.Set(i + 1, DynValue.NewNumber(d(i)))
+        Next
+        Return DynValue.NewTable(t)
+    End Function
+
+    Private Function Lua_PolyInt(ctx As ScriptExecutionContext, args As CallbackArguments) As DynValue
+        ' polyint(coeffsTable [, c0]) -> coeffs table
+        Dim coeffs = LuaTableToDoubleArray(args(0).Table)
+        Dim c0 As Double = 0R
+        If args.Count >= 2 AndAlso args(1).Type = DataType.Number Then c0 = args(1).Number
+
+        Dim integ = PolynomialSolvers.PolyInt(coeffs, c0)
+        Dim t As New Table(_lua)
+        For i As Integer = 0 To integ.Length - 1
+            t.Set(i + 1, DynValue.NewNumber(integ(i)))
+        Next
+        Return DynValue.NewTable(t)
+    End Function
+
+    Private Function Lua_PpmError(ctx As ScriptExecutionContext, args As CallbackArguments) As DynValue
+        ' ppmerror(measured, nominal)
+        Dim measured = LuaArgToDouble(args(0))
+        Dim nominal = LuaArgToDouble(args(1))
+        Dim ppm = PolynomialSolvers.PpmError(measured, nominal)
+        Return DynValue.NewNumber(ppm)
+    End Function
+
+    Private Function Lua_TwoPointCal(ctx As ScriptExecutionContext, args As CallbackArguments) As DynValue
+        ' twopointcal(meas1,true1,meas2,true2) -> {gain, offset}
+        Dim meas1 = LuaArgToDouble(args(0))
+        Dim true1 = LuaArgToDouble(args(1))
+        Dim meas2 = LuaArgToDouble(args(2))
+        Dim true2 = LuaArgToDouble(args(3))
+
+        Dim go = PolynomialSolvers.TwoPointCal(meas1, true1, meas2, true2)
+        Dim t As New Table(_lua)
+        t.Set(1, DynValue.NewNumber(go(0))) ' gain
+        t.Set(2, DynValue.NewNumber(go(1))) ' offset
+        Return DynValue.NewTable(t)
+    End Function
+
+    Private Function Lua_ApplyCal(ctx As ScriptExecutionContext, args As CallbackArguments) As DynValue
+        ' applycal(measured, gain, offset)
+        Dim measured = LuaArgToDouble(args(0))
+        Dim gain = LuaArgToDouble(args(1))
+        Dim offset = LuaArgToDouble(args(2))
+        Dim v = PolynomialSolvers.ApplyCal(measured, gain, offset)
+        Return DynValue.NewNumber(v)
+    End Function
+
+    Private Function Lua_LineFit(ctx As ScriptExecutionContext, args As CallbackArguments) As DynValue
+        ' linefit(xsTable, ysTable) -> {m, b, r2}
+        Dim xs = LuaTableToDoubleArray(args(0).Table)
+        Dim ys = LuaTableToDoubleArray(args(1).Table)
+        Dim mb = PolynomialSolvers.LineFit(xs, ys)
+
+        Dim t As New Table(_lua)
+        t.Set(1, DynValue.NewNumber(mb(0))) ' m
+        t.Set(2, DynValue.NewNumber(mb(1))) ' b
+        t.Set(3, DynValue.NewNumber(mb(2))) ' r2
+        Return DynValue.NewTable(t)
+    End Function
+
+    Private Function LuaTableToDoubleArray(t As Table) As Double()
+        Dim lst As New List(Of Double)
+        For Each pair In t.Pairs
+            If pair.Value.Type = DataType.Number Then
+                lst.Add(pair.Value.Number)
+            ElseIf pair.Value.Type = DataType.String Then
+                Dim d As Double
+                If Double.TryParse(pair.Value.String, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, d) Then
+                    lst.Add(d)
+                End If
+            End If
+        Next
+        Return lst.ToArray()
     End Function
 
     Private Function RootsToLuaTable(r() As Global.System.Numerics.Complex) As DynValue

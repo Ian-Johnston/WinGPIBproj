@@ -778,11 +778,11 @@ Partial Class Formtest
                             Dim t As String = parts(i).Trim()
                             If Not t.Contains("="c) Then Continue For
 
-                            Dim kv = t.Split("="c)
-                            If kv.Length <> 2 Then Continue For
+                            Dim eqPos As Integer = t.IndexOf("="c)
+                            If eqPos <= 0 Then Continue For
 
-                            Dim key = kv(0).Trim().ToLowerInvariant()
-                            Dim val = kv(1).Trim()
+                            Dim key As String = t.Substring(0, eqPos).Trim().ToLowerInvariant()
+                            Dim val As String = t.Substring(eqPos + 1).Trim()
 
                             Select Case key
                                 Case "name"

@@ -3094,7 +3094,7 @@ Partial Class Formtest
         Me.cboDev2Device.FormattingEnabled = True
         Me.cboDev2Device.Location = New System.Drawing.Point(78, 16)
         Me.cboDev2Device.Name = "cboDev2Device"
-        Me.cboDev2Device.Size = New System.Drawing.Size(111, 21)
+        Me.cboDev2Device.Size = New System.Drawing.Size(130, 21)
         Me.cboDev2Device.TabIndex = 535
         '
         'ProfDev2_12
@@ -3111,7 +3111,7 @@ Partial Class Formtest
         'ProfDev2_11
         '
         Me.ProfDev2_11.AutoSize = True
-        Me.ProfDev2_11.Location = New System.Drawing.Point(377, 20)
+        Me.ProfDev2_11.Location = New System.Drawing.Point(378, 20)
         Me.ProfDev2_11.Name = "ProfDev2_11"
         Me.ProfDev2_11.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.ProfDev2_11.Size = New System.Drawing.Size(15, 14)
@@ -3122,7 +3122,7 @@ Partial Class Formtest
         'ProfDev2_10
         '
         Me.ProfDev2_10.AutoSize = True
-        Me.ProfDev2_10.Location = New System.Drawing.Point(359, 20)
+        Me.ProfDev2_10.Location = New System.Drawing.Point(361, 20)
         Me.ProfDev2_10.Name = "ProfDev2_10"
         Me.ProfDev2_10.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.ProfDev2_10.Size = New System.Drawing.Size(15, 14)
@@ -3133,7 +3133,7 @@ Partial Class Formtest
         'ProfDev2_9
         '
         Me.ProfDev2_9.AutoSize = True
-        Me.ProfDev2_9.Location = New System.Drawing.Point(341, 20)
+        Me.ProfDev2_9.Location = New System.Drawing.Point(344, 20)
         Me.ProfDev2_9.Name = "ProfDev2_9"
         Me.ProfDev2_9.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.ProfDev2_9.Size = New System.Drawing.Size(15, 14)
@@ -3144,7 +3144,7 @@ Partial Class Formtest
         'ProfDev2_8
         '
         Me.ProfDev2_8.AutoSize = True
-        Me.ProfDev2_8.Location = New System.Drawing.Point(323, 20)
+        Me.ProfDev2_8.Location = New System.Drawing.Point(327, 20)
         Me.ProfDev2_8.Name = "ProfDev2_8"
         Me.ProfDev2_8.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.ProfDev2_8.Size = New System.Drawing.Size(15, 14)
@@ -3155,7 +3155,7 @@ Partial Class Formtest
         'ProfDev2_7
         '
         Me.ProfDev2_7.AutoSize = True
-        Me.ProfDev2_7.Location = New System.Drawing.Point(305, 20)
+        Me.ProfDev2_7.Location = New System.Drawing.Point(310, 20)
         Me.ProfDev2_7.Name = "ProfDev2_7"
         Me.ProfDev2_7.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.ProfDev2_7.Size = New System.Drawing.Size(15, 14)
@@ -3166,7 +3166,7 @@ Partial Class Formtest
         'ProfDev2_6
         '
         Me.ProfDev2_6.AutoSize = True
-        Me.ProfDev2_6.Location = New System.Drawing.Point(287, 20)
+        Me.ProfDev2_6.Location = New System.Drawing.Point(293, 20)
         Me.ProfDev2_6.Name = "ProfDev2_6"
         Me.ProfDev2_6.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.ProfDev2_6.Size = New System.Drawing.Size(15, 14)
@@ -3177,7 +3177,7 @@ Partial Class Formtest
         'ProfDev2_5
         '
         Me.ProfDev2_5.AutoSize = True
-        Me.ProfDev2_5.Location = New System.Drawing.Point(269, 20)
+        Me.ProfDev2_5.Location = New System.Drawing.Point(276, 20)
         Me.ProfDev2_5.Name = "ProfDev2_5"
         Me.ProfDev2_5.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.ProfDev2_5.Size = New System.Drawing.Size(15, 14)
@@ -3188,7 +3188,7 @@ Partial Class Formtest
         'ProfDev2_4
         '
         Me.ProfDev2_4.AutoSize = True
-        Me.ProfDev2_4.Location = New System.Drawing.Point(251, 20)
+        Me.ProfDev2_4.Location = New System.Drawing.Point(259, 20)
         Me.ProfDev2_4.Name = "ProfDev2_4"
         Me.ProfDev2_4.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.ProfDev2_4.Size = New System.Drawing.Size(15, 14)
@@ -3208,7 +3208,7 @@ Partial Class Formtest
         'ProfDev2_3
         '
         Me.ProfDev2_3.AutoSize = True
-        Me.ProfDev2_3.Location = New System.Drawing.Point(233, 20)
+        Me.ProfDev2_3.Location = New System.Drawing.Point(242, 20)
         Me.ProfDev2_3.Name = "ProfDev2_3"
         Me.ProfDev2_3.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.ProfDev2_3.Size = New System.Drawing.Size(15, 14)
@@ -3219,7 +3219,7 @@ Partial Class Formtest
         'ProfDev2_2
         '
         Me.ProfDev2_2.AutoSize = True
-        Me.ProfDev2_2.Location = New System.Drawing.Point(215, 20)
+        Me.ProfDev2_2.Location = New System.Drawing.Point(225, 20)
         Me.ProfDev2_2.Name = "ProfDev2_2"
         Me.ProfDev2_2.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.ProfDev2_2.Size = New System.Drawing.Size(15, 14)
@@ -3230,7 +3230,7 @@ Partial Class Formtest
         'ProfDev2_1
         '
         Me.ProfDev2_1.AutoSize = True
-        Me.ProfDev2_1.Location = New System.Drawing.Point(197, 20)
+        Me.ProfDev2_1.Location = New System.Drawing.Point(208, 20)
         Me.ProfDev2_1.Name = "ProfDev2_1"
         Me.ProfDev2_1.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.ProfDev2_1.Size = New System.Drawing.Size(15, 14)
@@ -3336,7 +3336,7 @@ Partial Class Formtest
         Me.cboDev1Device.FormattingEnabled = True
         Me.cboDev1Device.Location = New System.Drawing.Point(77, 16)
         Me.cboDev1Device.Name = "cboDev1Device"
-        Me.cboDev1Device.Size = New System.Drawing.Size(111, 21)
+        Me.cboDev1Device.Size = New System.Drawing.Size(130, 21)
         Me.cboDev1Device.TabIndex = 514
         '
         'ProfDev1_12
@@ -3353,7 +3353,7 @@ Partial Class Formtest
         'ProfDev1_11
         '
         Me.ProfDev1_11.AutoSize = True
-        Me.ProfDev1_11.Location = New System.Drawing.Point(376, 20)
+        Me.ProfDev1_11.Location = New System.Drawing.Point(377, 20)
         Me.ProfDev1_11.Name = "ProfDev1_11"
         Me.ProfDev1_11.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.ProfDev1_11.Size = New System.Drawing.Size(15, 14)
@@ -3364,7 +3364,7 @@ Partial Class Formtest
         'ProfDev1_10
         '
         Me.ProfDev1_10.AutoSize = True
-        Me.ProfDev1_10.Location = New System.Drawing.Point(358, 20)
+        Me.ProfDev1_10.Location = New System.Drawing.Point(360, 20)
         Me.ProfDev1_10.Name = "ProfDev1_10"
         Me.ProfDev1_10.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.ProfDev1_10.Size = New System.Drawing.Size(15, 14)
@@ -3375,7 +3375,7 @@ Partial Class Formtest
         'ProfDev1_9
         '
         Me.ProfDev1_9.AutoSize = True
-        Me.ProfDev1_9.Location = New System.Drawing.Point(340, 20)
+        Me.ProfDev1_9.Location = New System.Drawing.Point(343, 20)
         Me.ProfDev1_9.Name = "ProfDev1_9"
         Me.ProfDev1_9.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.ProfDev1_9.Size = New System.Drawing.Size(15, 14)
@@ -3386,7 +3386,7 @@ Partial Class Formtest
         'ProfDev1_8
         '
         Me.ProfDev1_8.AutoSize = True
-        Me.ProfDev1_8.Location = New System.Drawing.Point(322, 20)
+        Me.ProfDev1_8.Location = New System.Drawing.Point(326, 20)
         Me.ProfDev1_8.Name = "ProfDev1_8"
         Me.ProfDev1_8.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.ProfDev1_8.Size = New System.Drawing.Size(15, 14)
@@ -3397,7 +3397,7 @@ Partial Class Formtest
         'ProfDev1_7
         '
         Me.ProfDev1_7.AutoSize = True
-        Me.ProfDev1_7.Location = New System.Drawing.Point(304, 20)
+        Me.ProfDev1_7.Location = New System.Drawing.Point(309, 20)
         Me.ProfDev1_7.Name = "ProfDev1_7"
         Me.ProfDev1_7.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.ProfDev1_7.Size = New System.Drawing.Size(15, 14)
@@ -3408,7 +3408,7 @@ Partial Class Formtest
         'ProfDev1_6
         '
         Me.ProfDev1_6.AutoSize = True
-        Me.ProfDev1_6.Location = New System.Drawing.Point(286, 20)
+        Me.ProfDev1_6.Location = New System.Drawing.Point(292, 20)
         Me.ProfDev1_6.Name = "ProfDev1_6"
         Me.ProfDev1_6.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.ProfDev1_6.Size = New System.Drawing.Size(15, 14)
@@ -3419,7 +3419,7 @@ Partial Class Formtest
         'ProfDev1_5
         '
         Me.ProfDev1_5.AutoSize = True
-        Me.ProfDev1_5.Location = New System.Drawing.Point(268, 20)
+        Me.ProfDev1_5.Location = New System.Drawing.Point(275, 20)
         Me.ProfDev1_5.Name = "ProfDev1_5"
         Me.ProfDev1_5.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.ProfDev1_5.Size = New System.Drawing.Size(15, 14)
@@ -3430,7 +3430,7 @@ Partial Class Formtest
         'ProfDev1_4
         '
         Me.ProfDev1_4.AutoSize = True
-        Me.ProfDev1_4.Location = New System.Drawing.Point(250, 20)
+        Me.ProfDev1_4.Location = New System.Drawing.Point(258, 20)
         Me.ProfDev1_4.Name = "ProfDev1_4"
         Me.ProfDev1_4.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.ProfDev1_4.Size = New System.Drawing.Size(15, 14)
@@ -3460,7 +3460,7 @@ Partial Class Formtest
         'ProfDev1_3
         '
         Me.ProfDev1_3.AutoSize = True
-        Me.ProfDev1_3.Location = New System.Drawing.Point(232, 20)
+        Me.ProfDev1_3.Location = New System.Drawing.Point(241, 20)
         Me.ProfDev1_3.Name = "ProfDev1_3"
         Me.ProfDev1_3.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.ProfDev1_3.Size = New System.Drawing.Size(15, 14)
@@ -3471,7 +3471,7 @@ Partial Class Formtest
         'ProfDev1_2
         '
         Me.ProfDev1_2.AutoSize = True
-        Me.ProfDev1_2.Location = New System.Drawing.Point(214, 20)
+        Me.ProfDev1_2.Location = New System.Drawing.Point(224, 20)
         Me.ProfDev1_2.Name = "ProfDev1_2"
         Me.ProfDev1_2.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.ProfDev1_2.Size = New System.Drawing.Size(15, 14)
@@ -3482,7 +3482,7 @@ Partial Class Formtest
         'ProfDev1_1
         '
         Me.ProfDev1_1.AutoSize = True
-        Me.ProfDev1_1.Location = New System.Drawing.Point(196, 20)
+        Me.ProfDev1_1.Location = New System.Drawing.Point(207, 20)
         Me.ProfDev1_1.Name = "ProfDev1_1"
         Me.ProfDev1_1.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.ProfDev1_1.Size = New System.Drawing.Size(15, 14)

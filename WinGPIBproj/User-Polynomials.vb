@@ -189,4 +189,195 @@ Public Module PolynomialSolvers
         Return lst.ToArray()
     End Function
 
+    ' =========================================================================
+    '  METROLOGY / CALIBRATION HELPERS
+
+    ' Returns only real roots and sorts ascending.
+    ' Also clamps tiny -0 to 0 for nicer display.
+    Public Function RealRootsSorted(roots As Global.System.Numerics.Complex(),
+                                   Optional tol As Double = 0.0000000001) As Double()
+        Dim rr = RealRoots(roots, tol)
+        Array.Sort(rr)
+        For i As Integer = 0 To rr.Length - 1
+            If Math.Abs(rr(i)) < tol Then rr(i) = 0R
+        Next
+        Return rr
+    End Function
+
+    ' Two-point linear calibration.
+    ' Returns {gain, offset} such that: true = gain * measured + offset
+    Public Function TwoPointCal(meas1 As Double, true1 As Double,
+                               meas2 As Double, true2 As Double) As Double()
+        If meas2 = meas1 Then Throw New ArgumentException("meas2 must differ from meas1")
+        Dim gain As Double = (true2 - true1) / (meas2 - meas1)
+        Dim offset As Double = true1 - gain * meas1
+        Return {gain, offset}
+    End Function
+
+    ' Apply linear calibration: true = gain*measured + offset
+    Public Function ApplyCal(measured As Double, gain As Double, offset As Double) As Double
+        Return gain * measured + offset
+    End Function
+
+    ' Parts-per-million error relative to nominal: (measured-nominal)/nominal * 1e6
+    Public Function PpmError(measured As Double, nominal As Double) As Double
+        If nominal = 0R Then Throw New ArgumentException("nominal must be non-zero")
+        Return (measured - nominal) / nominal * 1000000.0R
+    End Function
+
+    ' Least-squares straight line fit: y = m*x + b
+    ' Returns {m, b, r2}
+    Public Function LineFit(xs() As Double, ys() As Double) As Double()
+        If xs Is Nothing OrElse ys Is Nothing Then Throw New ArgumentException("xs/ys must not be Nothing")
+        If xs.Length <> ys.Length OrElse xs.Length < 2 Then Throw New ArgumentException("xs/ys must be same length >= 2")
+
+        Dim n As Integer = xs.Length
+        Dim sx As Double = 0R, sy As Double = 0R, sxx As Double = 0R, sxy As Double = 0R
+        For i As Integer = 0 To n - 1
+            Dim x = xs(i) : Dim y = ys(i)
+            sx += x : sy += y
+            sxx += x * x
+            sxy += x * y
+        Next
+
+        Dim denom As Double = n * sxx - sx * sx
+        If denom = 0R Then Throw New ArgumentException("LineFit: singular (all x identical?)")
+
+        Dim m As Double = (n * sxy - sx * sy) / denom
+        Dim b As Double = (sy - m * sx) / n
+
+        ' r^2
+        Dim ymean As Double = sy / n
+        Dim ssTot As Double = 0R
+        Dim ssRes As Double = 0R
+        For i As Integer = 0 To n - 1
+            Dim yi = ys(i)
+            Dim fi = m * xs(i) + b
+            ssTot += (yi - ymean) * (yi - ymean)
+            ssRes += (yi - fi) * (yi - fi)
+        Next
+        Dim r2 As Double = If(ssTot = 0R, 1.0R, 1.0R - (ssRes / ssTot))
+
+        Return {m, b, r2}
+    End Function
+
+    ' Polynomial derivative.
+    ' coeffs = {a0,a1,a2,...} => d/dx = {a1, 2*a2, 3*a3, ...}
+    Public Function PolyDer(coeffs() As Double) As Double()
+        If coeffs Is Nothing OrElse coeffs.Length <= 1 Then Return Array.Empty(Of Double)()
+        Dim out(coeffs.Length - 2) As Double
+        For i As Integer = 1 To coeffs.Length - 1
+            out(i - 1) = coeffs(i) * i
+        Next
+        Return out
+    End Function
+
+    ' Polynomial integral.
+    ' coeffs = {a0,a1,a2,...} => ∫ = {c0, a0/1, a1/2, a2/3, ...}
+    Public Function PolyInt(coeffs() As Double, Optional c0 As Double = 0R) As Double()
+        If coeffs Is Nothing OrElse coeffs.Length = 0 Then Return {c0}
+        Dim out(coeffs.Length) As Double
+        out(0) = c0
+        For i As Integer = 0 To coeffs.Length - 1
+            out(i + 1) = coeffs(i) / (i + 1)
+        Next
+        Return out
+    End Function
+
+    ' Least-squares polynomial fit (metrology calibration curves).
+    ' Returns coefficients {a0,a1,...,adeg} for: y = a0 + a1*x + ... + adeg*x^deg
+    Public Function PolyFit(xs() As Double, ys() As Double, degree As Integer) As Double()
+        If xs Is Nothing OrElse ys Is Nothing Then Throw New ArgumentException("xs/ys must not be Nothing")
+        If xs.Length <> ys.Length OrElse xs.Length = 0 Then Throw New ArgumentException("xs/ys must be same non-zero length")
+        If degree < 0 Then Throw New ArgumentException("degree must be >= 0")
+        If xs.Length < degree + 1 Then Throw New ArgumentException("need at least degree+1 points")
+
+        Dim n As Integer = xs.Length
+        Dim m As Integer = degree + 1
+
+        ' Build normal equations: (V^T V) a = V^T y
+        Dim ata(m - 1, m - 1) As Double
+        Dim aty(m - 1) As Double
+
+        For i As Integer = 0 To n - 1
+            Dim x As Double = xs(i)
+            Dim y As Double = ys(i)
+
+            ' powers(0)=1, powers(1)=x, ...
+            Dim powers(m - 1) As Double
+            powers(0) = 1.0R
+            For p As Integer = 1 To m - 1
+                powers(p) = powers(p - 1) * x
+            Next
+
+            For row As Integer = 0 To m - 1
+                aty(row) += powers(row) * y
+                For col As Integer = 0 To m - 1
+                    ata(row, col) += powers(row) * powers(col)
+                Next
+            Next
+        Next
+
+        Return SolveLinearSystemGaussian(ata, aty)
+    End Function
+
+    ' Gaussian elimination with partial pivoting.
+    Private Function SolveLinearSystemGaussian(a(,) As Double, b() As Double) As Double()
+        Dim n As Integer = b.Length
+        Dim Awork(n - 1, n - 1) As Double
+        Dim x(n - 1) As Double
+        Dim bwork(n - 1) As Double
+
+        Array.Copy(b, bwork, n)
+        For i As Integer = 0 To n - 1
+            For j As Integer = 0 To n - 1
+                Awork(i, j) = a(i, j)
+            Next
+        Next
+
+        For k As Integer = 0 To n - 1
+            ' pivot
+            Dim piv As Integer = k
+            Dim maxAbs As Double = Math.Abs(Awork(k, k))
+            For i As Integer = k + 1 To n - 1
+                Dim v = Math.Abs(Awork(i, k))
+                If v > maxAbs Then
+                    maxAbs = v
+                    piv = i
+                End If
+            Next
+            If maxAbs = 0R Then Throw New ArgumentException("Singular matrix in PolyFit/LineFit")
+
+            If piv <> k Then
+                For j As Integer = k To n - 1
+                    Dim tmp = Awork(k, j)
+                    Awork(k, j) = Awork(piv, j)
+                    Awork(piv, j) = tmp
+                Next
+                Dim tb = bwork(k) : bwork(k) = bwork(piv) : bwork(piv) = tb
+            End If
+
+            ' eliminate
+            Dim akk As Double = Awork(k, k)
+            For i As Integer = k + 1 To n - 1
+                Dim f As Double = Awork(i, k) / akk
+                Awork(i, k) = 0R
+                For j As Integer = k + 1 To n - 1
+                    Awork(i, j) -= f * Awork(k, j)
+                Next
+                bwork(i) -= f * bwork(k)
+            Next
+        Next
+
+        ' back-substitute
+        For i As Integer = n - 1 To 0 Step -1
+            Dim s As Double = bwork(i)
+            For j As Integer = i + 1 To n - 1
+                s -= Awork(i, j) * x(j)
+            Next
+            x(i) = s / Awork(i, i)
+        Next
+
+        Return x
+    End Function
 End Module
