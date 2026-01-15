@@ -219,19 +219,7 @@ Partial Class Formtest
         Me.Label133 = New System.Windows.Forms.Label()
         Me.GroupBox9 = New System.Windows.Forms.GroupBox()
         Me.cboDev2Device = New System.Windows.Forms.ComboBox()
-        Me.ProfDev2_12 = New System.Windows.Forms.CheckBox()
-        Me.ProfDev2_11 = New System.Windows.Forms.CheckBox()
-        Me.ProfDev2_10 = New System.Windows.Forms.CheckBox()
-        Me.ProfDev2_9 = New System.Windows.Forms.CheckBox()
-        Me.ProfDev2_8 = New System.Windows.Forms.CheckBox()
-        Me.ProfDev2_7 = New System.Windows.Forms.CheckBox()
-        Me.ProfDev2_6 = New System.Windows.Forms.CheckBox()
-        Me.ProfDev2_5 = New System.Windows.Forms.CheckBox()
-        Me.ProfDev2_4 = New System.Windows.Forms.CheckBox()
         Me.Label15 = New System.Windows.Forms.Label()
-        Me.ProfDev2_3 = New System.Windows.Forms.CheckBox()
-        Me.ProfDev2_2 = New System.Windows.Forms.CheckBox()
-        Me.ProfDev2_1 = New System.Windows.Forms.CheckBox()
         Me.Label18 = New System.Windows.Forms.Label()
         Me.IODeviceLabel2 = New System.Windows.Forms.Label()
         Me.lstIntf2 = New System.Windows.Forms.ComboBox()
@@ -241,20 +229,8 @@ Partial Class Formtest
         Me.Label2 = New System.Windows.Forms.Label()
         Me.GroupBox8 = New System.Windows.Forms.GroupBox()
         Me.cboDev1Device = New System.Windows.Forms.ComboBox()
-        Me.ProfDev1_12 = New System.Windows.Forms.CheckBox()
-        Me.ProfDev1_11 = New System.Windows.Forms.CheckBox()
-        Me.ProfDev1_10 = New System.Windows.Forms.CheckBox()
-        Me.ProfDev1_9 = New System.Windows.Forms.CheckBox()
-        Me.ProfDev1_8 = New System.Windows.Forms.CheckBox()
-        Me.ProfDev1_7 = New System.Windows.Forms.CheckBox()
-        Me.ProfDev1_6 = New System.Windows.Forms.CheckBox()
-        Me.ProfDev1_5 = New System.Windows.Forms.CheckBox()
-        Me.ProfDev1_4 = New System.Windows.Forms.CheckBox()
         Me.IODeviceLabel1 = New System.Windows.Forms.Label()
         Me.Label16 = New System.Windows.Forms.Label()
-        Me.ProfDev1_3 = New System.Windows.Forms.CheckBox()
-        Me.ProfDev1_2 = New System.Windows.Forms.CheckBox()
-        Me.ProfDev1_1 = New System.Windows.Forms.CheckBox()
         Me.Label17 = New System.Windows.Forms.Label()
         Me.lstIntf1 = New System.Windows.Forms.ComboBox()
         Me.Label3 = New System.Windows.Forms.Label()
@@ -3062,20 +3038,8 @@ Partial Class Formtest
         'GroupBox9
         '
         Me.GroupBox9.Controls.Add(Me.cboDev2Device)
-        Me.GroupBox9.Controls.Add(Me.ProfDev2_12)
-        Me.GroupBox9.Controls.Add(Me.ProfDev2_11)
-        Me.GroupBox9.Controls.Add(Me.ProfDev2_10)
-        Me.GroupBox9.Controls.Add(Me.ProfDev2_9)
         Me.GroupBox9.Controls.Add(Me.btncreate3)
-        Me.GroupBox9.Controls.Add(Me.ProfDev2_8)
-        Me.GroupBox9.Controls.Add(Me.ProfDev2_7)
-        Me.GroupBox9.Controls.Add(Me.ProfDev2_6)
-        Me.GroupBox9.Controls.Add(Me.ProfDev2_5)
-        Me.GroupBox9.Controls.Add(Me.ProfDev2_4)
         Me.GroupBox9.Controls.Add(Me.Label15)
-        Me.GroupBox9.Controls.Add(Me.ProfDev2_3)
-        Me.GroupBox9.Controls.Add(Me.ProfDev2_2)
-        Me.GroupBox9.Controls.Add(Me.ProfDev2_1)
         Me.GroupBox9.Controls.Add(Me.Label18)
         Me.GroupBox9.Controls.Add(Me.IODeviceLabel2)
         Me.GroupBox9.Controls.Add(Me.lstIntf2)
@@ -3094,107 +3058,8 @@ Partial Class Formtest
         Me.cboDev2Device.FormattingEnabled = True
         Me.cboDev2Device.Location = New System.Drawing.Point(78, 16)
         Me.cboDev2Device.Name = "cboDev2Device"
-        Me.cboDev2Device.Size = New System.Drawing.Size(130, 21)
+        Me.cboDev2Device.Size = New System.Drawing.Size(238, 21)
         Me.cboDev2Device.TabIndex = 535
-        '
-        'ProfDev2_12
-        '
-        Me.ProfDev2_12.AutoSize = True
-        Me.ProfDev2_12.Location = New System.Drawing.Point(395, 20)
-        Me.ProfDev2_12.Name = "ProfDev2_12"
-        Me.ProfDev2_12.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev2_12.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev2_12.TabIndex = 534
-        Me.ProfDev2_12.UseVisualStyleBackColor = True
-        Me.ProfDev2_12.Visible = False
-        '
-        'ProfDev2_11
-        '
-        Me.ProfDev2_11.AutoSize = True
-        Me.ProfDev2_11.Location = New System.Drawing.Point(378, 20)
-        Me.ProfDev2_11.Name = "ProfDev2_11"
-        Me.ProfDev2_11.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev2_11.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev2_11.TabIndex = 533
-        Me.ProfDev2_11.UseVisualStyleBackColor = True
-        Me.ProfDev2_11.Visible = False
-        '
-        'ProfDev2_10
-        '
-        Me.ProfDev2_10.AutoSize = True
-        Me.ProfDev2_10.Location = New System.Drawing.Point(361, 20)
-        Me.ProfDev2_10.Name = "ProfDev2_10"
-        Me.ProfDev2_10.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev2_10.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev2_10.TabIndex = 532
-        Me.ProfDev2_10.UseVisualStyleBackColor = True
-        Me.ProfDev2_10.Visible = False
-        '
-        'ProfDev2_9
-        '
-        Me.ProfDev2_9.AutoSize = True
-        Me.ProfDev2_9.Location = New System.Drawing.Point(344, 20)
-        Me.ProfDev2_9.Name = "ProfDev2_9"
-        Me.ProfDev2_9.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev2_9.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev2_9.TabIndex = 531
-        Me.ProfDev2_9.UseVisualStyleBackColor = True
-        Me.ProfDev2_9.Visible = False
-        '
-        'ProfDev2_8
-        '
-        Me.ProfDev2_8.AutoSize = True
-        Me.ProfDev2_8.Location = New System.Drawing.Point(327, 20)
-        Me.ProfDev2_8.Name = "ProfDev2_8"
-        Me.ProfDev2_8.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev2_8.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev2_8.TabIndex = 530
-        Me.ProfDev2_8.UseVisualStyleBackColor = True
-        Me.ProfDev2_8.Visible = False
-        '
-        'ProfDev2_7
-        '
-        Me.ProfDev2_7.AutoSize = True
-        Me.ProfDev2_7.Location = New System.Drawing.Point(310, 20)
-        Me.ProfDev2_7.Name = "ProfDev2_7"
-        Me.ProfDev2_7.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev2_7.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev2_7.TabIndex = 529
-        Me.ProfDev2_7.UseVisualStyleBackColor = True
-        Me.ProfDev2_7.Visible = False
-        '
-        'ProfDev2_6
-        '
-        Me.ProfDev2_6.AutoSize = True
-        Me.ProfDev2_6.Location = New System.Drawing.Point(293, 20)
-        Me.ProfDev2_6.Name = "ProfDev2_6"
-        Me.ProfDev2_6.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev2_6.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev2_6.TabIndex = 528
-        Me.ProfDev2_6.UseVisualStyleBackColor = True
-        Me.ProfDev2_6.Visible = False
-        '
-        'ProfDev2_5
-        '
-        Me.ProfDev2_5.AutoSize = True
-        Me.ProfDev2_5.Location = New System.Drawing.Point(276, 20)
-        Me.ProfDev2_5.Name = "ProfDev2_5"
-        Me.ProfDev2_5.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev2_5.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev2_5.TabIndex = 527
-        Me.ProfDev2_5.UseVisualStyleBackColor = True
-        Me.ProfDev2_5.Visible = False
-        '
-        'ProfDev2_4
-        '
-        Me.ProfDev2_4.AutoSize = True
-        Me.ProfDev2_4.Location = New System.Drawing.Point(259, 20)
-        Me.ProfDev2_4.Name = "ProfDev2_4"
-        Me.ProfDev2_4.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev2_4.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev2_4.TabIndex = 526
-        Me.ProfDev2_4.UseVisualStyleBackColor = True
-        Me.ProfDev2_4.Visible = False
         '
         'Label15
         '
@@ -3204,39 +3069,6 @@ Partial Class Formtest
         Me.Label15.Size = New System.Drawing.Size(52, 13)
         Me.Label15.TabIndex = 525
         Me.Label15.Text = "PROFILE"
-        '
-        'ProfDev2_3
-        '
-        Me.ProfDev2_3.AutoSize = True
-        Me.ProfDev2_3.Location = New System.Drawing.Point(242, 20)
-        Me.ProfDev2_3.Name = "ProfDev2_3"
-        Me.ProfDev2_3.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev2_3.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev2_3.TabIndex = 524
-        Me.ProfDev2_3.UseVisualStyleBackColor = True
-        Me.ProfDev2_3.Visible = False
-        '
-        'ProfDev2_2
-        '
-        Me.ProfDev2_2.AutoSize = True
-        Me.ProfDev2_2.Location = New System.Drawing.Point(225, 20)
-        Me.ProfDev2_2.Name = "ProfDev2_2"
-        Me.ProfDev2_2.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev2_2.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev2_2.TabIndex = 523
-        Me.ProfDev2_2.UseVisualStyleBackColor = True
-        Me.ProfDev2_2.Visible = False
-        '
-        'ProfDev2_1
-        '
-        Me.ProfDev2_1.AutoSize = True
-        Me.ProfDev2_1.Location = New System.Drawing.Point(208, 20)
-        Me.ProfDev2_1.Name = "ProfDev2_1"
-        Me.ProfDev2_1.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev2_1.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev2_1.TabIndex = 522
-        Me.ProfDev2_1.UseVisualStyleBackColor = True
-        Me.ProfDev2_1.Visible = False
         '
         'Label18
         '
@@ -3251,11 +3083,11 @@ Partial Class Formtest
         '
         Me.IODeviceLabel2.AutoSize = True
         Me.IODeviceLabel2.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.IODeviceLabel2.Location = New System.Drawing.Point(418, 10)
+        Me.IODeviceLabel2.Location = New System.Drawing.Point(398, 10)
         Me.IODeviceLabel2.Name = "IODeviceLabel2"
-        Me.IODeviceLabel2.Size = New System.Drawing.Size(43, 13)
+        Me.IODeviceLabel2.Size = New System.Drawing.Size(63, 13)
         Me.IODeviceLabel2.TabIndex = 514
-        Me.IODeviceLabel2.Text = "DEV 2"
+        Me.IODeviceLabel2.Text = "DEVICE 2"
         '
         'lstIntf2
         '
@@ -3304,21 +3136,9 @@ Partial Class Formtest
         'GroupBox8
         '
         Me.GroupBox8.Controls.Add(Me.cboDev1Device)
-        Me.GroupBox8.Controls.Add(Me.ProfDev1_12)
-        Me.GroupBox8.Controls.Add(Me.ProfDev1_11)
-        Me.GroupBox8.Controls.Add(Me.ProfDev1_10)
-        Me.GroupBox8.Controls.Add(Me.ProfDev1_9)
         Me.GroupBox8.Controls.Add(Me.btncreate2)
-        Me.GroupBox8.Controls.Add(Me.ProfDev1_8)
-        Me.GroupBox8.Controls.Add(Me.ProfDev1_7)
-        Me.GroupBox8.Controls.Add(Me.ProfDev1_6)
-        Me.GroupBox8.Controls.Add(Me.ProfDev1_5)
-        Me.GroupBox8.Controls.Add(Me.ProfDev1_4)
         Me.GroupBox8.Controls.Add(Me.IODeviceLabel1)
         Me.GroupBox8.Controls.Add(Me.Label16)
-        Me.GroupBox8.Controls.Add(Me.ProfDev1_3)
-        Me.GroupBox8.Controls.Add(Me.ProfDev1_2)
-        Me.GroupBox8.Controls.Add(Me.ProfDev1_1)
         Me.GroupBox8.Controls.Add(Me.Label17)
         Me.GroupBox8.Controls.Add(Me.lstIntf1)
         Me.GroupBox8.Controls.Add(Me.Label3)
@@ -3336,117 +3156,18 @@ Partial Class Formtest
         Me.cboDev1Device.FormattingEnabled = True
         Me.cboDev1Device.Location = New System.Drawing.Point(77, 16)
         Me.cboDev1Device.Name = "cboDev1Device"
-        Me.cboDev1Device.Size = New System.Drawing.Size(130, 21)
+        Me.cboDev1Device.Size = New System.Drawing.Size(238, 21)
         Me.cboDev1Device.TabIndex = 514
-        '
-        'ProfDev1_12
-        '
-        Me.ProfDev1_12.AutoSize = True
-        Me.ProfDev1_12.Location = New System.Drawing.Point(394, 20)
-        Me.ProfDev1_12.Name = "ProfDev1_12"
-        Me.ProfDev1_12.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev1_12.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev1_12.TabIndex = 513
-        Me.ProfDev1_12.UseVisualStyleBackColor = True
-        Me.ProfDev1_12.Visible = False
-        '
-        'ProfDev1_11
-        '
-        Me.ProfDev1_11.AutoSize = True
-        Me.ProfDev1_11.Location = New System.Drawing.Point(377, 20)
-        Me.ProfDev1_11.Name = "ProfDev1_11"
-        Me.ProfDev1_11.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev1_11.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev1_11.TabIndex = 512
-        Me.ProfDev1_11.UseVisualStyleBackColor = True
-        Me.ProfDev1_11.Visible = False
-        '
-        'ProfDev1_10
-        '
-        Me.ProfDev1_10.AutoSize = True
-        Me.ProfDev1_10.Location = New System.Drawing.Point(360, 20)
-        Me.ProfDev1_10.Name = "ProfDev1_10"
-        Me.ProfDev1_10.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev1_10.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev1_10.TabIndex = 511
-        Me.ProfDev1_10.UseVisualStyleBackColor = True
-        Me.ProfDev1_10.Visible = False
-        '
-        'ProfDev1_9
-        '
-        Me.ProfDev1_9.AutoSize = True
-        Me.ProfDev1_9.Location = New System.Drawing.Point(343, 20)
-        Me.ProfDev1_9.Name = "ProfDev1_9"
-        Me.ProfDev1_9.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev1_9.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev1_9.TabIndex = 510
-        Me.ProfDev1_9.UseVisualStyleBackColor = True
-        Me.ProfDev1_9.Visible = False
-        '
-        'ProfDev1_8
-        '
-        Me.ProfDev1_8.AutoSize = True
-        Me.ProfDev1_8.Location = New System.Drawing.Point(326, 20)
-        Me.ProfDev1_8.Name = "ProfDev1_8"
-        Me.ProfDev1_8.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev1_8.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev1_8.TabIndex = 509
-        Me.ProfDev1_8.UseVisualStyleBackColor = True
-        Me.ProfDev1_8.Visible = False
-        '
-        'ProfDev1_7
-        '
-        Me.ProfDev1_7.AutoSize = True
-        Me.ProfDev1_7.Location = New System.Drawing.Point(309, 20)
-        Me.ProfDev1_7.Name = "ProfDev1_7"
-        Me.ProfDev1_7.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev1_7.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev1_7.TabIndex = 508
-        Me.ProfDev1_7.UseVisualStyleBackColor = True
-        Me.ProfDev1_7.Visible = False
-        '
-        'ProfDev1_6
-        '
-        Me.ProfDev1_6.AutoSize = True
-        Me.ProfDev1_6.Location = New System.Drawing.Point(292, 20)
-        Me.ProfDev1_6.Name = "ProfDev1_6"
-        Me.ProfDev1_6.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev1_6.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev1_6.TabIndex = 507
-        Me.ProfDev1_6.UseVisualStyleBackColor = True
-        Me.ProfDev1_6.Visible = False
-        '
-        'ProfDev1_5
-        '
-        Me.ProfDev1_5.AutoSize = True
-        Me.ProfDev1_5.Location = New System.Drawing.Point(275, 20)
-        Me.ProfDev1_5.Name = "ProfDev1_5"
-        Me.ProfDev1_5.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev1_5.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev1_5.TabIndex = 506
-        Me.ProfDev1_5.UseVisualStyleBackColor = True
-        Me.ProfDev1_5.Visible = False
-        '
-        'ProfDev1_4
-        '
-        Me.ProfDev1_4.AutoSize = True
-        Me.ProfDev1_4.Location = New System.Drawing.Point(258, 20)
-        Me.ProfDev1_4.Name = "ProfDev1_4"
-        Me.ProfDev1_4.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev1_4.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev1_4.TabIndex = 505
-        Me.ProfDev1_4.UseVisualStyleBackColor = True
-        Me.ProfDev1_4.Visible = False
         '
         'IODeviceLabel1
         '
         Me.IODeviceLabel1.AutoSize = True
         Me.IODeviceLabel1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.IODeviceLabel1.Location = New System.Drawing.Point(419, 10)
+        Me.IODeviceLabel1.Location = New System.Drawing.Point(399, 10)
         Me.IODeviceLabel1.Name = "IODeviceLabel1"
-        Me.IODeviceLabel1.Size = New System.Drawing.Size(43, 13)
+        Me.IODeviceLabel1.Size = New System.Drawing.Size(63, 13)
         Me.IODeviceLabel1.TabIndex = 499
-        Me.IODeviceLabel1.Text = "DEV 1"
+        Me.IODeviceLabel1.Text = "DEVICE 1"
         '
         'Label16
         '
@@ -3456,39 +3177,6 @@ Partial Class Formtest
         Me.Label16.Size = New System.Drawing.Size(52, 13)
         Me.Label16.TabIndex = 504
         Me.Label16.Text = "PROFILE"
-        '
-        'ProfDev1_3
-        '
-        Me.ProfDev1_3.AutoSize = True
-        Me.ProfDev1_3.Location = New System.Drawing.Point(241, 20)
-        Me.ProfDev1_3.Name = "ProfDev1_3"
-        Me.ProfDev1_3.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev1_3.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev1_3.TabIndex = 503
-        Me.ProfDev1_3.UseVisualStyleBackColor = True
-        Me.ProfDev1_3.Visible = False
-        '
-        'ProfDev1_2
-        '
-        Me.ProfDev1_2.AutoSize = True
-        Me.ProfDev1_2.Location = New System.Drawing.Point(224, 20)
-        Me.ProfDev1_2.Name = "ProfDev1_2"
-        Me.ProfDev1_2.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev1_2.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev1_2.TabIndex = 502
-        Me.ProfDev1_2.UseVisualStyleBackColor = True
-        Me.ProfDev1_2.Visible = False
-        '
-        'ProfDev1_1
-        '
-        Me.ProfDev1_1.AutoSize = True
-        Me.ProfDev1_1.Location = New System.Drawing.Point(207, 20)
-        Me.ProfDev1_1.Name = "ProfDev1_1"
-        Me.ProfDev1_1.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProfDev1_1.Size = New System.Drawing.Size(15, 14)
-        Me.ProfDev1_1.TabIndex = 501
-        Me.ProfDev1_1.UseVisualStyleBackColor = True
-        Me.ProfDev1_1.Visible = False
         '
         'Label17
         '
@@ -12156,17 +11844,9 @@ Partial Class Formtest
     Friend WithEvents Label172 As Label
     Friend WithEvents Label174 As Label
     Friend WithEvents GroupBox8 As GroupBox
-    Friend WithEvents ProfDev1_8 As CheckBox
-    Friend WithEvents ProfDev1_7 As CheckBox
-    Friend WithEvents ProfDev1_6 As CheckBox
-    Friend WithEvents ProfDev1_5 As CheckBox
-    Friend WithEvents ProfDev1_4 As CheckBox
     Friend WithEvents IODeviceLabel1 As Label
     Friend WithEvents btncreate2 As Button
     Friend WithEvents Label16 As Label
-    Friend WithEvents ProfDev1_3 As CheckBox
-    Friend WithEvents ProfDev1_2 As CheckBox
-    Friend WithEvents ProfDev1_1 As CheckBox
     Friend WithEvents Label17 As Label
     Friend WithEvents lstIntf1 As ComboBox
     Friend WithEvents Label3 As Label
@@ -12174,16 +11854,8 @@ Partial Class Formtest
     Friend WithEvents txtname1 As TextBox
     Friend WithEvents Label1 As Label
     Friend WithEvents GroupBox9 As GroupBox
-    Friend WithEvents ProfDev2_8 As CheckBox
-    Friend WithEvents ProfDev2_7 As CheckBox
-    Friend WithEvents ProfDev2_6 As CheckBox
-    Friend WithEvents ProfDev2_5 As CheckBox
-    Friend WithEvents ProfDev2_4 As CheckBox
     Friend WithEvents btncreate3 As Button
     Friend WithEvents Label15 As Label
-    Friend WithEvents ProfDev2_3 As CheckBox
-    Friend WithEvents ProfDev2_2 As CheckBox
-    Friend WithEvents ProfDev2_1 As CheckBox
     Friend WithEvents Label18 As Label
     Friend WithEvents IODeviceLabel2 As Label
     Friend WithEvents lstIntf2 As ComboBox
@@ -12362,14 +12034,6 @@ Partial Class Formtest
     Friend WithEvents CheckBoxSerialCOMRTSEnable As CheckBox
     Friend WithEvents CheckBoxSerialCOMDTREnable As CheckBox
     Friend WithEvents CheckBoxPrologixSerialDTR As CheckBox
-    Friend WithEvents ProfDev2_12 As CheckBox
-    Friend WithEvents ProfDev2_11 As CheckBox
-    Friend WithEvents ProfDev2_10 As CheckBox
-    Friend WithEvents ProfDev2_9 As CheckBox
-    Friend WithEvents ProfDev1_12 As CheckBox
-    Friend WithEvents ProfDev1_11 As CheckBox
-    Friend WithEvents ProfDev1_10 As CheckBox
-    Friend WithEvents ProfDev1_9 As CheckBox
     Friend WithEvents cboDev2Device As ComboBox
     Friend WithEvents cboDev1Device As ComboBox
 End Class

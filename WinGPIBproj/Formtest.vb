@@ -163,7 +163,9 @@ Public Class Formtest
     Private _suppressDev1Sync As Boolean = False
     Private _suppressDev2Sync As Boolean = False
 
-
+    ' Selected profile (1..12) for each device (replaces the old checkbox matrix)
+    Private _dev1Profile As Integer = 1
+    Private _dev2Profile As Integer = 1
 
 
     ' SHUTTING DOWN WinGPIB
@@ -637,334 +639,40 @@ Public Class Formtest
 
             'myVariable1 = TextBoxTempUnits.Text
             'myVariable2 = TextBoxHumUnits.Text
+            ' Profiles (dropdowns) - replaces the old 12x2 checkbox matrix
 
-
-            ' Get saved settings Dev 1
-            ProfDev1_1.Checked = My.Settings.Dev1Prof1
-            ProfDev1_2.Checked = My.Settings.Dev1Prof2
-            ProfDev1_3.Checked = My.Settings.Dev1Prof3
-            ProfDev1_4.Checked = My.Settings.Dev1Prof4
-            ProfDev1_5.Checked = My.Settings.Dev1Prof5
-            ProfDev1_6.Checked = My.Settings.Dev1Prof6
-            ProfDev1_7.Checked = My.Settings.Dev1Prof7
-            ProfDev1_8.Checked = My.Settings.Dev1Prof8
-            ProfDev1_9.Checked = My.Settings.Dev1Prof9
-            ProfDev1_10.Checked = My.Settings.Dev1Prof10
-            ProfDev1_11.Checked = My.Settings.Dev1Prof11
-            ProfDev1_12.Checked = My.Settings.Dev1Prof12
-
-            ToolTip1.SetToolTip(ProfDev1_1, My.Settings.data1)
-            ToolTip1.SetToolTip(ProfDev1_2, My.Settings.data1b)
-            ToolTip1.SetToolTip(ProfDev1_3, My.Settings.data1c)
-            ToolTip1.SetToolTip(ProfDev1_4, My.Settings.data139)
-            ToolTip1.SetToolTip(ProfDev1_5, My.Settings.data155)
-            ToolTip1.SetToolTip(ProfDev1_6, My.Settings.data171)
-            ToolTip1.SetToolTip(ProfDev1_7, My.Settings.data349)
-            ToolTip1.SetToolTip(ProfDev1_8, My.Settings.data375)
-            ToolTip1.SetToolTip(ProfDev1_9, My.Settings.data526)
-            ToolTip1.SetToolTip(ProfDev1_10, My.Settings.data555)
-            ToolTip1.SetToolTip(ProfDev1_11, My.Settings.data584)
-            ToolTip1.SetToolTip(ProfDev1_12, My.Settings.data613)
+            ToolTip1.SetToolTip(cboDev1Device, "Select Dev1 profile")
+            ToolTip1.SetToolTip(cboDev2Device, "Select Dev2 profile")
 
             ' Misc tooltips config
             ToolTip1.OwnerDraw = True
-            ToolTip1.InitialDelay = 5   ' ms before first show (default is 1000)
+            ToolTip1.InitialDelay = 500   ' ms before first show (default is 1000)
             ToolTip1.ReshowDelay = 5    ' delay when moving between controls
             ToolTip1.AutoPopDelay = 15000 ' how long it stays visible
 
-
-            ' Dropdown init (must be before any checkbox->dropdown sync can run)
+            ' Dropdown init (profile selectors)
             AddHandler cboDev1Device.SelectedIndexChanged, AddressOf cboDev1Device_SelectedIndexChanged
             AddHandler cboDev2Device.SelectedIndexChanged, AddressOf cboDev2Device_SelectedIndexChanged
 
             _suppressDev1Sync = True
             _suppressDev2Sync = True
 
-            cboDev1Device.DropDownStyle = ComboBoxStyle.DropDownList
-            cboDev2Device.DropDownStyle = ComboBoxStyle.DropDownList
-
-            cboDev1Device.Items.Clear()
-            cboDev2Device.Items.Clear()
-
             PopulateDeviceDropdownsFromNames()
 
-            ' No selection until we know which checkbox is active
-            cboDev1Device.SelectedIndex = -1
-            cboDev2Device.SelectedIndex = -1
+            Dim savedDev1 As Integer = GetSavedDev1Profile()
+            Dim savedDev2 As Integer = GetSavedDev2Profile()
 
+            If savedDev1 < 1 OrElse savedDev1 > 20 Then savedDev1 = 1
+            If savedDev2 < 1 OrElse savedDev2 > 20 Then savedDev2 = 1
 
-            ' Check to make sure that one of them is set TRUE, and also detect if more than one is set TRUE
-            Dim checkboxesDev1() As CheckBox = {ProfDev1_1, ProfDev1_2, ProfDev1_3, ProfDev1_4, ProfDev1_5, ProfDev1_6, ProfDev1_7, ProfDev1_8, ProfDev1_9, ProfDev1_10, ProfDev1_11, ProfDev1_12}
-            Dim checkedCountDev1 As Integer = 0
-            For i As Integer = 0 To checkboxesDev1.Length - 1
-                checkboxesDev1(i).Checked = My.Settings($"Dev1Prof{i + 1}")
-                If checkboxesDev1(i).Checked Then
-                    checkedCountDev1 += 1
-                End If
-            Next
-            If checkedCountDev1 = 0 Then
-                ' If none of the checkboxes are checked, set ProfDev1_1 to true
-                ProfDev1_1.Checked = True
-            ElseIf checkedCountDev1 > 1 Then
-                ' If more than one checkbox is checked, set ProfDev1_1 to true and the rest to false
-                ProfDev1_1.Checked = True
-                For i As Integer = 1 To checkboxesDev1.Length - 1
-                    checkboxesDev1(i).Checked = False
-                Next
-            End If
+            cboDev1Device.SelectedIndex = savedDev1 - 1
+            cboDev2Device.SelectedIndex = savedDev2 - 1
 
-            ' Load settings per Profile selected
-            If ProfDev1_1.Checked = True Then
-                ProfDev1_1_Click(ProfDev1_1, EventArgs.Empty)
-            End If
-            If ProfDev1_2.Checked = True Then
-                ProfDev1_2_Click(ProfDev1_2, EventArgs.Empty)
-            End If
-            If ProfDev1_3.Checked = True Then
-                ProfDev1_3_Click(ProfDev1_3, EventArgs.Empty)
-            End If
-            If ProfDev1_4.Checked = True Then
-                ProfDev1_4_Click(ProfDev1_4, EventArgs.Empty)
-            End If
-            If ProfDev1_5.Checked = True Then
-                ProfDev1_5_Click(ProfDev1_5, EventArgs.Empty)
-            End If
-            If ProfDev1_6.Checked = True Then
-                ProfDev1_6_Click(ProfDev1_6, EventArgs.Empty)
-            End If
-            If ProfDev1_7.Checked = True Then
-                ProfDev1_7_Click(ProfDev1_7, EventArgs.Empty)
-            End If
-            If ProfDev1_8.Checked = True Then
-                ProfDev1_8_Click(ProfDev1_8, EventArgs.Empty)
-            End If
-            If ProfDev1_9.Checked = True Then
-                ProfDev1_9_Click(ProfDev1_9, EventArgs.Empty)
-            End If
-            If ProfDev1_10.Checked = True Then
-                ProfDev1_10_Click(ProfDev1_10, EventArgs.Empty)
-            End If
-            If ProfDev1_11.Checked = True Then
-                ProfDev1_11_Click(ProfDev1_11, EventArgs.Empty)
-            End If
-            If ProfDev1_12.Checked = True Then
-                ProfDev1_12_Click(ProfDev1_12, EventArgs.Empty)
-            End If
-
-
-            ' Get saved settings Dev 2
-            ProfDev2_1.Checked = My.Settings.Dev2Prof1
-            ProfDev2_2.Checked = My.Settings.Dev2Prof2
-            ProfDev2_3.Checked = My.Settings.Dev2Prof3
-            ProfDev2_4.Checked = My.Settings.Dev2Prof4
-            ProfDev2_5.Checked = My.Settings.Dev2Prof5
-            ProfDev2_6.Checked = My.Settings.Dev2Prof6
-            ProfDev2_7.Checked = My.Settings.Dev2Prof7
-            ProfDev2_8.Checked = My.Settings.Dev2Prof8
-            ProfDev2_9.Checked = My.Settings.Dev2Prof9
-            ProfDev2_10.Checked = My.Settings.Dev2Prof10
-            ProfDev2_11.Checked = My.Settings.Dev2Prof11
-            ProfDev2_12.Checked = My.Settings.Dev2Prof12
-
-            ToolTip1.SetToolTip(ProfDev2_1, My.Settings.data2)
-            ToolTip1.SetToolTip(ProfDev2_2, My.Settings.data2b)
-            ToolTip1.SetToolTip(ProfDev2_3, My.Settings.data2c)
-            ToolTip1.SetToolTip(ProfDev2_4, My.Settings.data91)
-            ToolTip1.SetToolTip(ProfDev2_5, My.Settings.data107)
-            ToolTip1.SetToolTip(ProfDev2_6, My.Settings.data123)
-            ToolTip1.SetToolTip(ProfDev2_7, My.Settings.data401)
-            ToolTip1.SetToolTip(ProfDev2_8, My.Settings.data427)
-            ToolTip1.SetToolTip(ProfDev2_9, My.Settings.data642)
-            ToolTip1.SetToolTip(ProfDev2_10, My.Settings.data671)
-            ToolTip1.SetToolTip(ProfDev2_11, My.Settings.data700)
-            ToolTip1.SetToolTip(ProfDev2_12, My.Settings.data729)
-
-            ' Check to make sure that one of them is set TRUE, and also detect if more than one is set TRUE
-            Dim checkboxesDev2() As CheckBox = {ProfDev2_1, ProfDev2_2, ProfDev2_3, ProfDev2_4, ProfDev2_5, ProfDev2_6, ProfDev2_7, ProfDev2_8, ProfDev2_9, ProfDev2_10, ProfDev2_11, ProfDev2_12}
-            Dim checkedCountDev2 As Integer = 0
-            For i As Integer = 0 To checkboxesDev2.Length - 1
-                checkboxesDev2(i).Checked = My.Settings($"Dev2Prof{i + 1}")
-                If checkboxesDev2(i).Checked Then
-                    checkedCountDev2 += 1
-                End If
-            Next
-            If checkedCountDev2 = 0 Then
-                ' If none of the checkboxes are checked, set ProfDev2_1 to true
-                ProfDev2_1.Checked = True
-            ElseIf checkedCountDev2 > 1 Then
-                ' If more than one checkbox is checked, set ProfDev2_1 to true and the rest to false
-                ProfDev2_1.Checked = True
-                For i As Integer = 1 To checkboxesDev2.Length - 1
-                    checkboxesDev2(i).Checked = False
-                Next
-            End If
-
-            ' Load settings per Profile selected
-            If ProfDev2_1.Checked = True Then
-                ProfDev2_1_Click(ProfDev2_1, EventArgs.Empty)
-            End If
-            If ProfDev2_2.Checked = True Then
-                ProfDev2_2_Click(ProfDev2_2, EventArgs.Empty)
-            End If
-            If ProfDev2_3.Checked = True Then
-                ProfDev2_3_Click(ProfDev2_3, EventArgs.Empty)
-            End If
-            If ProfDev2_4.Checked = True Then
-                ProfDev2_4_Click(ProfDev2_4, EventArgs.Empty)
-            End If
-            If ProfDev2_5.Checked = True Then
-                ProfDev2_5_Click(ProfDev2_5, EventArgs.Empty)
-            End If
-            If ProfDev2_6.Checked = True Then
-                ProfDev2_6_Click(ProfDev2_6, EventArgs.Empty)
-            End If
-            If ProfDev2_7.Checked = True Then
-                ProfDev2_7_Click(ProfDev2_7, EventArgs.Empty)
-            End If
-            If ProfDev2_8.Checked = True Then
-                ProfDev2_8_Click(ProfDev2_8, EventArgs.Empty)
-            End If
-            If ProfDev2_9.Checked = True Then
-                ProfDev2_9_Click(ProfDev2_9, EventArgs.Empty)
-            End If
-            If ProfDev2_10.Checked = True Then
-                ProfDev2_10_Click(ProfDev2_10, EventArgs.Empty)
-            End If
-            If ProfDev2_11.Checked = True Then
-                ProfDev2_11_Click(ProfDev2_11, EventArgs.Empty)
-            End If
-            If ProfDev2_12.Checked = True Then
-                ProfDev2_12_Click(ProfDev2_12, EventArgs.Empty)
-            End If
-
-            ' PDVS2mini
-            TextBox3458Asn.Text = My.Settings.data469       ' 3458A serial number
-            TextBoxUser.Text = My.Settings.data470          ' User/Company
-            TextBoxLOWSHUT.Text = My.Settings.data471
-            TextBoxCENABLE.Text = My.Settings.data472
-            TextBoxOLMA.Text = My.Settings.data473
-            TextBoxFULLMA.Text = My.Settings.data474
-            TextBoxSERIAL.Text = My.Settings.data475
-            TextBoxSOAK.Text = My.Settings.data476
-            TextBoxDC.Text = My.Settings.data477
-            TextBoxCD.Text = My.Settings.data478
-            CalStep.Text = My.Settings.data479
-            CalAccuracy.Text = My.Settings.data480
-            CalStepFinal.Text = My.Settings.data481
-            CalAccuracyFinal.Text = My.Settings.data482
-            PDVS2delay.Text = My.Settings.data483
-            TextBoxSer.Text = ""
-            TextBoxdegC.Text = ""
-            Dev1Units.Text = My.Settings.data500
-            Dev2Units.Text = My.Settings.data501
-            DisableAllButtonsInGroupBox2ExceptPDVS2miniSave()
-            Label229.Enabled = False
-            LabelTemperature3.Enabled = False
-            volts11.Enabled = False
-            ButtonDacSpan10down.Enabled = False
-            ButtonDacSpan10.Enabled = False
-            ButtonDacSpan10Up.Enabled = False
-            LabeldacSpan10Cal.Enabled = False
-            Label150.Enabled = False
-            DacSpan10.Enabled = False
-            LabeldacSpan10Delta.Enabled = False
-            Default11.Enabled = False
-            Label149.Enabled = False
-            WryTech.Checked = My.Settings.data503
-
-            'btncreate2.Enabled = True
-            'btncreate3.Enabled = True
-
-            ButtonR6581upload.Enabled = False
-            ButtonR6581commitEEprom.Enabled = False
-
-            ' Settings
-            CheckBoxAllowSaveAnytime.Checked = My.Settings.data505
-            TextBoxTextEditor.Text = My.Settings.data506
-            CheckBoxEnableTooltips.Checked = My.Settings.data507
-
-            '3458A CalRam
-            CalRam3458APreRun.Text = My.Settings.data508
-
-            If String.IsNullOrWhiteSpace(TextBoxTextEditor.Text) Then
-                TextBoxTextEditor.Text = "C:\Windows\System32\notepad.exe"
-                My.Settings.data506 = "C:\Windows\System32\notepad.exe"
-                My.Settings.Save()
-            End If
-
-            If CheckBoxEnableTooltips.Checked = True Then
-                ToolTip1.Active = True
-            Else
-                ToolTip1.Active = False
-            End If
-
-            ' Tooltip durations - If enabled
-            ToolTip1.AutoPopDelay = 10000   ' Time in milliseconds tooltip stays visible
-            ToolTip1.InitialDelay = 100     ' Delay before tooltip appears
-            ToolTip1.ReshowDelay = 100      ' Delay before tooltip reappears if user moves away and back
-
-            Dev1ChartValue.Text = ""
-            Dev2ChartValue.Text = ""
-
-            ' 3245A Dev2
-            Disable3245AControls()
-
-            ' User tab
-            ButtonLoadTxtRefresh.Enabled = False
-
-            ' For USER tab keypad
-            Me.KeyPreview = True
-
-
-            'ToolTip1.SetToolTip(Label16, String.Join(Environment.NewLine, New String() {
-            'My.Settings.data1,
-            'My.Settings.data1b,
-            'My.Settings.data1c,
-            'My.Settings.data139,
-            'My.Settings.data155,
-            'My.Settings.data171,
-            'My.Settings.data349,
-            'My.Settings.data375,
-            'My.Settings.data526,
-            'My.Settings.data555,
-            'My.Settings.data584,
-            'My.Settings.data613
-            '})
-            ')
-
-            'ToolTip1.SetToolTip(Label15, String.Join(Environment.NewLine, New String() {
-            'My.Settings.data2,
-            'My.Settings.data2b,
-            'My.Settings.data2c,
-            'My.Settings.data91,
-            'My.Settings.data107,
-            'My.Settings.data123,
-            'My.Settings.data401,
-            'My.Settings.data427,
-            'My.Settings.data642,
-            'My.Settings.data671,
-            'My.Settings.data700,
-            'My.Settings.data729
-            '})
-            ')
-
-
-
-            ' Final dropdown sync to reflect whichever profile ended up selected
-            SyncDev1DropdownFromCheckbox()
-            SyncDev2DropdownFromCheckbox()
+            SetDev1SelectedProfile(savedDev1, True)
+            SetDev2SelectedProfile(savedDev2, True)
 
             _suppressDev1Sync = False
             _suppressDev2Sync = False
-
-
-
-
-
-
-
-
-
         Catch ex As Exception
             MessageBox.Show($"Error during load: {ex.Message}")
         End Try
@@ -979,115 +687,29 @@ Public Class Formtest
 
 
 
-    Private Sub SyncDev1DropdownFromCheckbox()
-        'If cboDev1Device.Items.Count = 0 Then Exit Sub
-
-        For i As Integer = 1 To 12
-            Dim cb = CType(Me.Controls.Find($"ProfDev1_{i}", True).FirstOrDefault(), CheckBox)
-            If cb IsNot Nothing AndAlso cb.Checked Then
-                cboDev1Device.SelectedIndex = i - 1
-                Exit For
-            End If
-        Next
-    End Sub
+    ' SyncDev1DropdownFromCheckbox removed (checkboxes deleted)
 
 
-    Private Sub SyncDev2DropdownFromCheckbox()
-        'If cboDev2Device.Items.Count = 0 Then Exit Sub
 
-        For i As Integer = 1 To 12
-            Dim cb = CType(Me.Controls.Find($"ProfDev2_{i}", True).FirstOrDefault(), CheckBox)
-            If cb IsNot Nothing AndAlso cb.Checked Then
-                cboDev2Device.SelectedIndex = i - 1
-                Exit For
-            End If
-        Next
-    End Sub
-
-
+    ' SyncDev2DropdownFromCheckbox removed (checkboxes deleted)
     Private Sub cboDev1Device_SelectedIndexChanged(sender As Object, e As EventArgs)
 
         If _suppressDev1Sync Then Return
         If cboDev1Device.Items.Count = 0 Then Return
         If cboDev1Device.SelectedIndex < 0 Then Return
 
-        Dim n As Integer = cboDev1Device.SelectedIndex + 1
-
-        _suppressDev1Sync = True
-        ProfDev1_1.Checked = (n = 1)
-        ProfDev1_2.Checked = (n = 2)
-        ProfDev1_3.Checked = (n = 3)
-        ProfDev1_4.Checked = (n = 4)
-        ProfDev1_5.Checked = (n = 5)
-        ProfDev1_6.Checked = (n = 6)
-        ProfDev1_7.Checked = (n = 7)
-        ProfDev1_8.Checked = (n = 8)
-        ProfDev1_9.Checked = (n = 9)
-        ProfDev1_10.Checked = (n = 10)
-        ProfDev1_11.Checked = (n = 11)
-        ProfDev1_12.Checked = (n = 12)
-        _suppressDev1Sync = False
-
-        Select Case n
-            Case 1 : ProfDev1_1_Click(ProfDev1_1, EventArgs.Empty)
-            Case 2 : ProfDev1_2_Click(ProfDev1_2, EventArgs.Empty)
-            Case 3 : ProfDev1_3_Click(ProfDev1_3, EventArgs.Empty)
-            Case 4 : ProfDev1_4_Click(ProfDev1_4, EventArgs.Empty)
-            Case 5 : ProfDev1_5_Click(ProfDev1_5, EventArgs.Empty)
-            Case 6 : ProfDev1_6_Click(ProfDev1_6, EventArgs.Empty)
-            Case 7 : ProfDev1_7_Click(ProfDev1_7, EventArgs.Empty)
-            Case 8 : ProfDev1_8_Click(ProfDev1_8, EventArgs.Empty)
-            Case 9 : ProfDev1_9_Click(ProfDev1_9, EventArgs.Empty)
-            Case 10 : ProfDev1_10_Click(ProfDev1_10, EventArgs.Empty)
-            Case 11 : ProfDev1_11_Click(ProfDev1_11, EventArgs.Empty)
-            Case 12 : ProfDev1_12_Click(ProfDev1_12, EventArgs.Empty)
-        End Select
+        SetDev1SelectedProfile(cboDev1Device.SelectedIndex + 1, True)
 
     End Sub
-
-
-
     Private Sub cboDev2Device_SelectedIndexChanged(sender As Object, e As EventArgs)
 
         If _suppressDev2Sync Then Return
         If cboDev2Device.Items.Count = 0 Then Return
         If cboDev2Device.SelectedIndex < 0 Then Return
 
-        Dim n As Integer = cboDev2Device.SelectedIndex + 1
-
-        _suppressDev2Sync = True
-        ProfDev2_1.Checked = (n = 1)
-        ProfDev2_2.Checked = (n = 2)
-        ProfDev2_3.Checked = (n = 3)
-        ProfDev2_4.Checked = (n = 4)
-        ProfDev2_5.Checked = (n = 5)
-        ProfDev2_6.Checked = (n = 6)
-        ProfDev2_7.Checked = (n = 7)
-        ProfDev2_8.Checked = (n = 8)
-        ProfDev2_9.Checked = (n = 9)
-        ProfDev2_10.Checked = (n = 10)
-        ProfDev2_11.Checked = (n = 11)
-        ProfDev2_12.Checked = (n = 12)
-        _suppressDev2Sync = False
-
-        Select Case n
-            Case 1 : ProfDev2_1_Click(ProfDev2_1, EventArgs.Empty)
-            Case 2 : ProfDev2_2_Click(ProfDev2_2, EventArgs.Empty)
-            Case 3 : ProfDev2_3_Click(ProfDev2_3, EventArgs.Empty)
-            Case 4 : ProfDev2_4_Click(ProfDev2_4, EventArgs.Empty)
-            Case 5 : ProfDev2_5_Click(ProfDev2_5, EventArgs.Empty)
-            Case 6 : ProfDev2_6_Click(ProfDev2_6, EventArgs.Empty)
-            Case 7 : ProfDev2_7_Click(ProfDev2_7, EventArgs.Empty)
-            Case 8 : ProfDev2_8_Click(ProfDev2_8, EventArgs.Empty)
-            Case 9 : ProfDev2_9_Click(ProfDev2_9, EventArgs.Empty)
-            Case 10 : ProfDev2_10_Click(ProfDev2_10, EventArgs.Empty)
-            Case 11 : ProfDev2_11_Click(ProfDev2_11, EventArgs.Empty)
-            Case 12 : ProfDev2_12_Click(ProfDev2_12, EventArgs.Empty)
-        End Select
+        SetDev2SelectedProfile(cboDev2Device.SelectedIndex + 1, True)
 
     End Sub
-
-
 
     Private Function Dev1ProfileNames() As String()
         Return New String() {
@@ -1102,7 +724,15 @@ Public Class Formtest
         My.Settings.data526,
         My.Settings.data555,
         My.Settings.data584,
-        My.Settings.data613
+        My.Settings.data613,
+        My.Settings.data758,
+        My.Settings.data787,
+        My.Settings.data816,
+        My.Settings.data845,
+        My.Settings.data874,
+        My.Settings.data903,
+        My.Settings.data932,
+        My.Settings.data961
     }
     End Function
 
@@ -1119,7 +749,15 @@ Public Class Formtest
         My.Settings.data642,
         My.Settings.data671,
         My.Settings.data700,
-        My.Settings.data729
+        My.Settings.data729,
+        My.Settings.data990,
+        My.Settings.data1019,
+        My.Settings.data1048,
+        My.Settings.data1077,
+        My.Settings.data1106,
+        My.Settings.data1135,
+        My.Settings.data1164,
+        My.Settings.data1193
     }
     End Function
 
@@ -1133,13 +771,13 @@ Public Class Formtest
         cboDev2Device.Items.Clear()
 
         Dim d1 = Dev1ProfileNames()
-        For i As Integer = 0 To 11
+        For i As Integer = 0 To 19
             Dim name = If(String.IsNullOrWhiteSpace(d1(i)), $"Dev1 Profile {i + 1}", d1(i))
             cboDev1Device.Items.Add(name)
         Next
 
         Dim d2 = Dev2ProfileNames()
-        For i As Integer = 0 To 11
+        For i As Integer = 0 To 19
             Dim name = If(String.IsNullOrWhiteSpace(d2(i)), $"Dev2 Profile {i + 1}", d2(i))
             cboDev2Device.Items.Add(name)
         Next
@@ -1338,18 +976,6 @@ Public Class Formtest
             btnBackup.Enabled = False
             btnRestore.Enabled = False
             ButtonAvailableComPorts.Enabled = False
-            ProfDev1_1.Enabled = False
-            ProfDev1_2.Enabled = False
-            ProfDev1_3.Enabled = False
-            ProfDev1_4.Enabled = False
-            ProfDev1_5.Enabled = False
-            ProfDev1_6.Enabled = False
-            ProfDev1_7.Enabled = False
-            ProfDev1_8.Enabled = False
-            ProfDev1_9.Enabled = False
-            ProfDev1_10.Enabled = False
-            ProfDev1_11.Enabled = False
-            ProfDev1_12.Enabled = False
             txtaddr1.Enabled = False
             lstIntf1.Enabled = False
             cboDev1Device.Enabled = False
@@ -1421,18 +1047,6 @@ Public Class Formtest
             btnBackup.Enabled = False
             btnRestore.Enabled = False
             ButtonAvailableComPorts.Enabled = False
-            ProfDev2_1.Enabled = False
-            ProfDev2_2.Enabled = False
-            ProfDev2_3.Enabled = False
-            ProfDev2_4.Enabled = False
-            ProfDev2_5.Enabled = False
-            ProfDev2_6.Enabled = False
-            ProfDev2_7.Enabled = False
-            ProfDev2_8.Enabled = False
-            ProfDev2_9.Enabled = False
-            ProfDev2_10.Enabled = False
-            ProfDev2_11.Enabled = False
-            ProfDev2_12.Enabled = False
             txtaddr2.Enabled = False
             lstIntf2.Enabled = False
             cboDev2Device.Enabled = False
@@ -1535,32 +1149,8 @@ Public Class Formtest
             btnBackup.Enabled = False
             btnRestore.Enabled = False
             ButtonAvailableComPorts.Enabled = False
-            ProfDev1_1.Enabled = False
-            ProfDev1_2.Enabled = False
-            ProfDev1_3.Enabled = False
-            ProfDev1_4.Enabled = False
-            ProfDev1_5.Enabled = False
-            ProfDev1_6.Enabled = False
-            ProfDev1_7.Enabled = False
-            ProfDev1_8.Enabled = False
-            ProfDev1_9.Enabled = False
-            ProfDev1_10.Enabled = False
-            ProfDev1_11.Enabled = False
-            ProfDev1_12.Enabled = False
             txtaddr1.Enabled = False
             lstIntf1.Enabled = False
-            ProfDev2_1.Enabled = False
-            ProfDev2_2.Enabled = False
-            ProfDev2_3.Enabled = False
-            ProfDev2_4.Enabled = False
-            ProfDev2_5.Enabled = False
-            ProfDev2_6.Enabled = False
-            ProfDev2_7.Enabled = False
-            ProfDev2_8.Enabled = False
-            ProfDev2_9.Enabled = False
-            ProfDev2_10.Enabled = False
-            ProfDev2_11.Enabled = False
-            ProfDev2_12.Enabled = False
             txtaddr2.Enabled = False
             lstIntf2.Enabled = False
             cboDev1Device.Enabled = False
@@ -2580,32 +2170,8 @@ Public Class Formtest
         btnBackup.Enabled = True
         btnRestore.Enabled = True
         ButtonAvailableComPorts.Enabled = True
-        ProfDev1_1.Enabled = True
-        ProfDev1_2.Enabled = True
-        ProfDev1_3.Enabled = True
-        ProfDev1_4.Enabled = True
-        ProfDev1_5.Enabled = True
-        ProfDev1_6.Enabled = True
-        ProfDev1_7.Enabled = True
-        ProfDev1_8.Enabled = True
-        ProfDev1_9.Enabled = True
-        ProfDev1_10.Enabled = True
-        ProfDev1_11.Enabled = True
-        ProfDev1_12.Enabled = True
         txtaddr1.Enabled = True
         lstIntf1.Enabled = True
-        ProfDev2_1.Enabled = True
-        ProfDev2_2.Enabled = True
-        ProfDev2_3.Enabled = True
-        ProfDev2_4.Enabled = True
-        ProfDev2_5.Enabled = True
-        ProfDev2_6.Enabled = True
-        ProfDev2_7.Enabled = True
-        ProfDev2_8.Enabled = True
-        ProfDev2_9.Enabled = True
-        ProfDev2_10.Enabled = True
-        ProfDev2_11.Enabled = True
-        ProfDev2_12.Enabled = True
         txtaddr2.Enabled = True
         lstIntf2.Enabled = True
 
@@ -3012,18 +2578,6 @@ Public Class Formtest
 
     ' Method to update tooltips only for checked checkboxes
     Private Sub UpdateCheckedTooltips1()
-        If ProfDev1_1.Checked Then ToolTip1.SetToolTip(ProfDev1_1, txtname1.Text)
-        If ProfDev1_2.Checked Then ToolTip1.SetToolTip(ProfDev1_2, txtname1.Text)
-        If ProfDev1_3.Checked Then ToolTip1.SetToolTip(ProfDev1_3, txtname1.Text)
-        If ProfDev1_4.Checked Then ToolTip1.SetToolTip(ProfDev1_4, txtname1.Text)
-        If ProfDev1_5.Checked Then ToolTip1.SetToolTip(ProfDev1_5, txtname1.Text)
-        If ProfDev1_6.Checked Then ToolTip1.SetToolTip(ProfDev1_6, txtname1.Text)
-        If ProfDev1_7.Checked Then ToolTip1.SetToolTip(ProfDev1_7, txtname1.Text)
-        If ProfDev1_8.Checked Then ToolTip1.SetToolTip(ProfDev1_8, txtname1.Text)
-        If ProfDev1_9.Checked Then ToolTip1.SetToolTip(ProfDev1_9, txtname1.Text)
-        If ProfDev1_10.Checked Then ToolTip1.SetToolTip(ProfDev1_10, txtname1.Text)
-        If ProfDev1_11.Checked Then ToolTip1.SetToolTip(ProfDev1_11, txtname1.Text)
-        If ProfDev1_12.Checked Then ToolTip1.SetToolTip(ProfDev1_12, txtname1.Text)
     End Sub
 
 
@@ -3036,18 +2590,6 @@ Public Class Formtest
 
     ' Method to update tooltips only for checked checkboxes
     Private Sub UpdateCheckedTooltips2()
-        If ProfDev2_1.Checked Then ToolTip1.SetToolTip(ProfDev2_1, txtname2.Text)
-        If ProfDev2_2.Checked Then ToolTip1.SetToolTip(ProfDev2_2, txtname2.Text)
-        If ProfDev2_3.Checked Then ToolTip1.SetToolTip(ProfDev2_3, txtname2.Text)
-        If ProfDev2_4.Checked Then ToolTip1.SetToolTip(ProfDev2_4, txtname2.Text)
-        If ProfDev2_5.Checked Then ToolTip1.SetToolTip(ProfDev2_5, txtname2.Text)
-        If ProfDev2_6.Checked Then ToolTip1.SetToolTip(ProfDev2_6, txtname2.Text)
-        If ProfDev2_7.Checked Then ToolTip1.SetToolTip(ProfDev2_7, txtname2.Text)
-        If ProfDev2_8.Checked Then ToolTip1.SetToolTip(ProfDev2_8, txtname2.Text)
-        If ProfDev2_9.Checked Then ToolTip1.SetToolTip(ProfDev2_9, txtname2.Text)
-        If ProfDev2_10.Checked Then ToolTip1.SetToolTip(ProfDev2_10, txtname2.Text)
-        If ProfDev2_11.Checked Then ToolTip1.SetToolTip(ProfDev2_11, txtname2.Text)
-        If ProfDev2_12.Checked Then ToolTip1.SetToolTip(ProfDev2_12, txtname2.Text)
     End Sub
 
 
@@ -3055,18 +2597,6 @@ Public Class Formtest
         Dim allTooltips As New List(Of String)
 
         ' Collect tooltips from each checkbox
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_1))
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_2))
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_3))
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_4))
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_5))
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_6))
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_7))
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_8))
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_9))
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_10))
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_11))
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev1_12))
 
         ' Set combined tooltips as the tooltip for IODeviceLabel
         ToolTip1.SetToolTip(IODeviceLabel1, String.Join(Environment.NewLine, allTooltips))
@@ -3077,18 +2607,6 @@ Public Class Formtest
         Dim allTooltips As New List(Of String)
 
         ' Collect tooltips from each checkbox
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_1))
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_2))
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_3))
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_4))
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_5))
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_6))
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_7))
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_8))
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_9))
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_10))
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_11))
-        allTooltips.Add(ToolTip1.GetToolTip(ProfDev2_12))
 
         ' Set combined tooltips as the tooltip for IODeviceLabel
         ToolTip1.SetToolTip(IODeviceLabel2, String.Join(Environment.NewLine, allTooltips))
@@ -3396,6 +2914,167 @@ Public Class Formtest
         My.Settings.IODevicesFormTracker = state
         My.Settings.Save()
 
+    End Sub
+
+    Private Function GetSavedDev1Profile() As Integer
+        If My.Settings.Dev1Prof1 Then Return 1
+        If My.Settings.Dev1Prof2 Then Return 2
+        If My.Settings.Dev1Prof3 Then Return 3
+        If My.Settings.Dev1Prof4 Then Return 4
+        If My.Settings.Dev1Prof5 Then Return 5
+        If My.Settings.Dev1Prof6 Then Return 6
+        If My.Settings.Dev1Prof7 Then Return 7
+        If My.Settings.Dev1Prof8 Then Return 8
+        If My.Settings.Dev1Prof9 Then Return 9
+        If My.Settings.Dev1Prof10 Then Return 10
+        If My.Settings.Dev1Prof11 Then Return 11
+        If My.Settings.Dev1Prof12 Then Return 12
+        If My.Settings.Dev1Prof13 Then Return 13
+        If My.Settings.Dev1Prof14 Then Return 14
+        If My.Settings.Dev1Prof15 Then Return 15
+        If My.Settings.Dev1Prof16 Then Return 16
+        If My.Settings.Dev1Prof17 Then Return 17
+        If My.Settings.Dev1Prof18 Then Return 18
+        If My.Settings.Dev1Prof19 Then Return 19
+        If My.Settings.Dev1Prof20 Then Return 20
+        Return 1
+    End Function
+
+    Private Function GetSavedDev2Profile() As Integer
+        If My.Settings.Dev2Prof1 Then Return 1
+        If My.Settings.Dev2Prof2 Then Return 2
+        If My.Settings.Dev2Prof3 Then Return 3
+        If My.Settings.Dev2Prof4 Then Return 4
+        If My.Settings.Dev2Prof5 Then Return 5
+        If My.Settings.Dev2Prof6 Then Return 6
+        If My.Settings.Dev2Prof7 Then Return 7
+        If My.Settings.Dev2Prof8 Then Return 8
+        If My.Settings.Dev2Prof9 Then Return 9
+        If My.Settings.Dev2Prof10 Then Return 10
+        If My.Settings.Dev2Prof11 Then Return 11
+        If My.Settings.Dev2Prof12 Then Return 12
+        If My.Settings.Dev2Prof13 Then Return 13
+        If My.Settings.Dev2Prof14 Then Return 14
+        If My.Settings.Dev2Prof15 Then Return 15
+        If My.Settings.Dev2Prof16 Then Return 16
+        If My.Settings.Dev2Prof17 Then Return 17
+        If My.Settings.Dev2Prof18 Then Return 18
+        If My.Settings.Dev2Prof19 Then Return 19
+        If My.Settings.Dev2Prof20 Then Return 20
+        Return 1
+    End Function
+
+    Private Function Dev1ProfileNumber() As Integer
+        Return _dev1Profile
+    End Function
+
+    Private Function Dev2ProfileNumber() As Integer
+        Return _dev2Profile
+    End Function
+
+    Private Sub SetDev1SelectedProfile(n As Integer, Optional loadNow As Boolean = True)
+        If n < 1 OrElse n > 20 Then n = 1
+        _dev1Profile = n
+
+        ' Persist selection using existing Settings booleans (keeps compatibility with old config)
+        My.Settings.Dev1Prof1 = (n = 1)
+        My.Settings.Dev1Prof2 = (n = 2)
+        My.Settings.Dev1Prof3 = (n = 3)
+        My.Settings.Dev1Prof4 = (n = 4)
+        My.Settings.Dev1Prof5 = (n = 5)
+        My.Settings.Dev1Prof6 = (n = 6)
+        My.Settings.Dev1Prof7 = (n = 7)
+        My.Settings.Dev1Prof8 = (n = 8)
+        My.Settings.Dev1Prof9 = (n = 9)
+        My.Settings.Dev1Prof10 = (n = 10)
+        My.Settings.Dev1Prof11 = (n = 11)
+        My.Settings.Dev1Prof12 = (n = 12)
+
+        My.Settings.Dev1Prof13 = (n = 13)
+        My.Settings.Dev1Prof14 = (n = 14)
+        My.Settings.Dev1Prof15 = (n = 15)
+        My.Settings.Dev1Prof16 = (n = 16)
+        My.Settings.Dev1Prof17 = (n = 17)
+        My.Settings.Dev1Prof18 = (n = 18)
+        My.Settings.Dev1Prof19 = (n = 19)
+        My.Settings.Dev1Prof20 = (n = 20)
+        If loadNow Then
+            Select Case n
+                Case 1 : LoadDev1Profile_1()
+                Case 2 : LoadDev1Profile_2()
+                Case 3 : LoadDev1Profile_3()
+                Case 4 : LoadDev1Profile_4()
+                Case 5 : LoadDev1Profile_5()
+                Case 6 : LoadDev1Profile_6()
+                Case 7 : LoadDev1Profile_7()
+                Case 8 : LoadDev1Profile_8()
+                Case 9 : LoadDev1Profile_9()
+                Case 10 : LoadDev1Profile_10()
+                Case 11 : LoadDev1Profile_11()
+                Case 12 : LoadDev1Profile_12()
+                Case 13 : LoadDev1Profile_13()
+                Case 14 : LoadDev1Profile_14()
+                Case 15 : LoadDev1Profile_15()
+                Case 16 : LoadDev1Profile_16()
+                Case 17 : LoadDev1Profile_17()
+                Case 18 : LoadDev1Profile_18()
+                Case 19 : LoadDev1Profile_19()
+                Case 20 : LoadDev1Profile_20()
+
+            End Select
+        End If
+    End Sub
+
+    Private Sub SetDev2SelectedProfile(n As Integer, Optional loadNow As Boolean = True)
+        If n < 1 OrElse n > 20 Then n = 1
+        _dev2Profile = n
+
+        My.Settings.Dev2Prof1 = (n = 1)
+        My.Settings.Dev2Prof2 = (n = 2)
+        My.Settings.Dev2Prof3 = (n = 3)
+        My.Settings.Dev2Prof4 = (n = 4)
+        My.Settings.Dev2Prof5 = (n = 5)
+        My.Settings.Dev2Prof6 = (n = 6)
+        My.Settings.Dev2Prof7 = (n = 7)
+        My.Settings.Dev2Prof8 = (n = 8)
+        My.Settings.Dev2Prof9 = (n = 9)
+        My.Settings.Dev2Prof10 = (n = 10)
+        My.Settings.Dev2Prof11 = (n = 11)
+        My.Settings.Dev2Prof12 = (n = 12)
+
+        My.Settings.Dev2Prof13 = (n = 13)
+        My.Settings.Dev2Prof14 = (n = 14)
+        My.Settings.Dev2Prof15 = (n = 15)
+        My.Settings.Dev2Prof16 = (n = 16)
+        My.Settings.Dev2Prof17 = (n = 17)
+        My.Settings.Dev2Prof18 = (n = 18)
+        My.Settings.Dev2Prof19 = (n = 19)
+        My.Settings.Dev2Prof20 = (n = 20)
+        If loadNow Then
+            Select Case n
+                Case 1 : LoadDev2Profile_1()
+                Case 2 : LoadDev2Profile_2()
+                Case 3 : LoadDev2Profile_3()
+                Case 4 : LoadDev2Profile_4()
+                Case 5 : LoadDev2Profile_5()
+                Case 6 : LoadDev2Profile_6()
+                Case 7 : LoadDev2Profile_7()
+                Case 8 : LoadDev2Profile_8()
+                Case 9 : LoadDev2Profile_9()
+                Case 10 : LoadDev2Profile_10()
+                Case 11 : LoadDev2Profile_11()
+                Case 12 : LoadDev2Profile_12()
+                Case 13 : LoadDev2Profile_13()
+                Case 14 : LoadDev2Profile_14()
+                Case 15 : LoadDev2Profile_15()
+                Case 16 : LoadDev2Profile_16()
+                Case 17 : LoadDev2Profile_17()
+                Case 18 : LoadDev2Profile_18()
+                Case 19 : LoadDev2Profile_19()
+                Case 20 : LoadDev2Profile_20()
+
+            End Select
+        End If
     End Sub
 
 End Class
