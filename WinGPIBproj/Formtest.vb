@@ -237,7 +237,7 @@ Public Class Formtest
             'sw.Start()
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.071"
+            BannerText1 = "WinGPIB   V4.072"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
             Me.Text = BannerText1 & "                                                        " & BannerText2.ToString()
 
@@ -846,6 +846,13 @@ Public Class Formtest
 
     Private Sub PopulateDeviceDropdownsFromNames()
 
+        cboDev1Device.DrawMode = DrawMode.OwnerDrawFixed
+        cboDev2Device.DrawMode = DrawMode.OwnerDrawFixed
+
+        AddHandler cboDev1Device.DrawItem, AddressOf ProfileCombo_DrawItem
+        AddHandler cboDev2Device.DrawItem, AddressOf ProfileCombo_DrawItem
+
+
         cboDev1Device.DropDownStyle = ComboBoxStyle.DropDownList
         cboDev2Device.DropDownStyle = ComboBoxStyle.DropDownList
 
@@ -854,17 +861,56 @@ Public Class Formtest
 
         Dim d1 = Dev1ProfileNames()
         For i As Integer = 0 To 19
-            Dim name = If(String.IsNullOrWhiteSpace(d1(i)), $"Dev1 Profile {i + 1}", d1(i))
-            cboDev1Device.Items.Add(name)
+            'Dim baseName = If(String.IsNullOrWhiteSpace(d1(i)), $"Dev1 Profile {i + 1}", d1(i))
+            Dim baseName = If(String.IsNullOrWhiteSpace(d1(i)), $"Dev1 Profile", d1(i))
+            cboDev1Device.Items.Add($"{i + 1}|{baseName}")
         Next
 
         Dim d2 = Dev2ProfileNames()
         For i As Integer = 0 To 19
-            Dim name = If(String.IsNullOrWhiteSpace(d2(i)), $"Dev2 Profile {i + 1}", d2(i))
-            cboDev2Device.Items.Add(name)
+            'Dim baseName = If(String.IsNullOrWhiteSpace(d2(i)), $"Dev2 Profile {i + 1}", d2(i))
+            Dim baseName = If(String.IsNullOrWhiteSpace(d2(i)), $"Dev2 Profile", d2(i))
+            cboDev2Device.Items.Add($"{i + 1}|{baseName}")
         Next
 
     End Sub
+
+    Private Sub ProfileCombo_DrawItem(sender As Object, e As DrawItemEventArgs)
+        e.DrawBackground()
+        If e.Index < 0 Then Return
+
+        Dim cb = DirectCast(sender, ComboBox)
+        Dim raw As String = cb.Items(e.Index).ToString()
+
+        Dim slotPart As String = raw
+        Dim namePart As String = ""
+
+        Dim p = raw.IndexOf("|"c)
+        If p >= 0 Then
+            slotPart = raw.Substring(0, p).Trim()
+            namePart = raw.Substring(p + 1)
+        End If
+
+        ' Column layout
+        Dim slotWidth As Integer = 20   ' adjust if you want (pixels)
+        Dim gap As Integer = 2          ' adjust if you want (pixels)
+
+        Dim rSlot As New Rectangle(e.Bounds.X, e.Bounds.Y, slotWidth, e.Bounds.Height)
+        Dim rName As New Rectangle(e.Bounds.X + slotWidth + gap, e.Bounds.Y, e.Bounds.Width - slotWidth - gap, e.Bounds.Height)
+
+        Dim fore As Color = If((e.State And DrawItemState.Selected) = DrawItemState.Selected, SystemColors.HighlightText, cb.ForeColor)
+
+        ' Right-align slot, left-align name (perfect alignment regardless of font)
+        TextRenderer.DrawText(e.Graphics, slotPart & ".", cb.Font, rSlot, fore, TextFormatFlags.Right Or TextFormatFlags.VerticalCenter Or TextFormatFlags.NoPrefix)
+        TextRenderer.DrawText(e.Graphics, namePart, cb.Font, rName, fore, TextFormatFlags.Left Or TextFormatFlags.VerticalCenter Or TextFormatFlags.NoPrefix)
+
+        e.DrawFocusRectangle()
+    End Sub
+
+
+
+
+
 
 
 
