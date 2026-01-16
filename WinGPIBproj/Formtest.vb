@@ -862,14 +862,16 @@ Public Class Formtest
         Dim d1 = Dev1ProfileNames()
         For i As Integer = 0 To 19
             'Dim baseName = If(String.IsNullOrWhiteSpace(d1(i)), $"Dev1 Profile {i + 1}", d1(i))
-            Dim baseName = If(String.IsNullOrWhiteSpace(d1(i)), $"Dev1 Profile", d1(i))
+            'Dim baseName = If(String.IsNullOrWhiteSpace(d1(i)), $"Dev1 Profile", d1(i))
+            Dim baseName = If(String.IsNullOrWhiteSpace(d1(i)), $"  ", d1(i))
             cboDev1Device.Items.Add($"{i + 1}|{baseName}")
         Next
 
         Dim d2 = Dev2ProfileNames()
         For i As Integer = 0 To 19
             'Dim baseName = If(String.IsNullOrWhiteSpace(d2(i)), $"Dev2 Profile {i + 1}", d2(i))
-            Dim baseName = If(String.IsNullOrWhiteSpace(d2(i)), $"Dev2 Profile", d2(i))
+            'Dim baseName = If(String.IsNullOrWhiteSpace(d2(i)), $"Dev2 Profile", d2(i))
+            Dim baseName = If(String.IsNullOrWhiteSpace(d2(i)), $"  ", d2(i))
             cboDev2Device.Items.Add($"{i + 1}|{baseName}")
         Next
 
