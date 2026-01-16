@@ -187,6 +187,52 @@ Partial Class Formtest
     End Class
 
 
+    Private Sub ButtonUserTabGuide_Click(sender As Object, e As EventArgs) Handles ButtonUserTabGuide.Click
+
+        Try
+            ' Base folder
+            Dim baseDir As String = CSVfilepath.Text
+            If String.IsNullOrWhiteSpace(baseDir) OrElse Not IO.Directory.Exists(baseDir) Then
+                Dim documentsPath As String =
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+                baseDir = IO.Path.Combine(documentsPath, "WinGPIBdata")
+            End If
+
+            ' User guide location: \WinGPIBdata\Devices\Config Files
+            Dim pdfPath As String = IO.Path.Combine(
+            baseDir,
+            "Devices",
+            "Config Files",
+            "WinGPIB_User_Tab_INSTRUCTIONS.pdf"
+        )
+
+            If Not IO.File.Exists(pdfPath) Then
+                MessageBox.Show(
+                "User guide not found:" & vbCrLf & pdfPath,
+                "WinGPIB",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning
+            )
+                Exit Sub
+            End If
+
+            ' Open PDF with default viewer
+            Process.Start(New ProcessStartInfo(pdfPath) With {
+            .UseShellExecute = True
+        })
+
+        Catch ex As Exception
+            MessageBox.Show(
+            "Failed to open user guide:" & vbCrLf & ex.Message,
+            "WinGPIB",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Error
+        )
+        End Try
+
+    End Sub
+
+
     Private Sub ButtonLoadTxt_Click(sender As Object, e As EventArgs) Handles ButtonLoadTxt.Click
 
         'ResetUsertab()

@@ -8,6 +8,10 @@ Imports System.Runtime.Serialization.Formatters.Binary
 
 Partial Class Formtest
 
+    ' Help ma boab!....hindsight is a great thing eh!....If I could wind the clock back I'd do the profiles a different way instead of over 1000 entries in SETTINGS.SETTINGS.
+    ' It's currently all over the place with a lack of indexing and adding more profile slots over the years....dang!
+    ' I can't change it as it will result in breaking/losing the existing stored data for the users. Oh well!
+
     ' Profile selection vars
     Dim ProfDev1checked_1 As Boolean = True
     Dim ProfDev1checked_2 As Boolean = False
