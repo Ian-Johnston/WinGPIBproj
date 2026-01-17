@@ -237,7 +237,7 @@ Public Class Formtest
             'sw.Start()
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.073"
+            BannerText1 = "WinGPIB   V4.074"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
             Me.Text = BannerText1 & "                                                        " & BannerText2.ToString()
 
@@ -281,6 +281,14 @@ Public Class Formtest
 
             ' Initially enable all controls on PDVS2mini groupbox
             GroupBox2.Enabled = True
+
+            'Move/Copy disable at boot
+            ButtonMOVEdev1.Enabled = False
+            ButtonCOPYdev1.Enabled = False
+            TextBoxMoveCopydev1.Enabled = False
+            ButtonMOVEdev2.Enabled = False
+            ButtonCOPYdev2.Enabled = False
+            TextBoxMoveCopydev2.Enabled = False
 
             ResetCSV.Enabled = True
             TempHumLogs.Enabled = False
@@ -2640,6 +2648,14 @@ Public Class Formtest
             btnq2a.Enabled = False
             btns2c.Enabled = False
             ButtonDev12Run.Enabled = False
+
+            ButtonMOVEdev1.Enabled = True
+            ButtonCOPYdev1.Enabled = True
+            TextBoxMoveCopydev1.Enabled = True
+            ButtonMOVEdev2.Enabled = True
+            ButtonCOPYdev2.Enabled = True
+            TextBoxMoveCopydev2.Enabled = True
+
         End If
 
         If EditMode.Checked = False Then
@@ -2665,6 +2681,13 @@ Public Class Formtest
             btnq2a.Enabled = True
             btns2c.Enabled = True
             ButtonDev12Run.Enabled = True
+
+            ButtonMOVEdev1.Enabled = False
+            ButtonCOPYdev1.Enabled = False
+            TextBoxMoveCopydev1.Enabled = False
+            ButtonMOVEdev2.Enabled = False
+            ButtonCOPYdev2.Enabled = False
+            TextBoxMoveCopydev2.Enabled = False
         End If
 
 

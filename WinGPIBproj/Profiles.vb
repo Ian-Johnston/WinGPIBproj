@@ -3254,4 +3254,248 @@ Partial Class Formtest
         Return False
     End Function
 
+
+
+
+    ' MOVE/COPY functionality
+    Private Function ParseTargetProfileSlot(text As String) As Integer
+        Dim n As Integer
+        If Not Integer.TryParse(If(text, "").Trim(), n) Then Return -1
+        If n < 1 OrElse n > 20 Then Return -1
+        Return n
+    End Function
+
+    Private Sub MoveCopyProfileDev1(isMove As Boolean)
+
+        Dim src As Integer = Dev1ProfileNumber()
+        Dim dst As Integer = ParseTargetProfileSlot(TextBoxMoveCopydev1.Text)
+
+        If dst < 0 Then
+            MessageBox.Show(Me, "Enter target profile slot 1..20")
+            Exit Sub
+        End If
+
+        If dst = src Then
+            MessageBox.Show(Me, "Target slot is the same as the current slot")
+            Exit Sub
+        End If
+
+        ' Ensure source profile is saved
+        SaveSettings()
+
+        ' Write source profile into destination slot WITHOUT loading it
+        SetDev1SelectedProfile(dst, loadNow:=False)
+        SaveSettings()
+
+        ' If MOVE, clear the SOURCE slot (name + data) by selecting it and saving blanks/defaults
+        If isMove Then
+            SetDev1SelectedProfile(src, loadNow:=False)
+            ClearDev1CurrentSlotToDefaults()
+        End If
+
+        ' Restore original selection without reloading UI
+        SetDev1SelectedProfile(src, loadNow:=False)
+
+        MessageBox.Show(Me,
+        If(isMove, "Moved", "Copied") &
+        $" Dev1 profile {src} → {dst}", "WinGPIB")
+
+    End Sub
+
+    Private Sub MoveCopyProfileDev2(isMove As Boolean)
+
+        Dim src As Integer = Dev2ProfileNumber()
+        Dim dst As Integer = ParseTargetProfileSlot(TextBoxMoveCopydev2.Text)
+
+        If dst < 0 Then
+            MessageBox.Show(Me, "Enter target profile slot 1..20")
+            Exit Sub
+        End If
+
+        If dst = src Then
+            MessageBox.Show(Me, "Target slot is the same as the current slot")
+            Exit Sub
+        End If
+
+        SaveSettings()
+
+        SetDev2SelectedProfile(dst, loadNow:=False)
+        SaveSettings()
+
+        If isMove Then
+            SetDev2SelectedProfile(src, loadNow:=False)
+            ClearDev2CurrentSlotToDefaults()
+        End If
+
+        SetDev2SelectedProfile(src, loadNow:=False)
+
+        MessageBox.Show(Me,
+        If(isMove, "Moved", "Copied") &
+        $" Dev2 profile {src} → {dst}", "WinGPIB")
+
+    End Sub
+
+    Private Sub ButtonCOPYdev1_Click(sender As Object, e As EventArgs) _
+    Handles ButtonCOPYdev1.Click
+
+        MoveCopyProfileDev1(isMove:=False)
+
+    End Sub
+
+    Private Sub ButtonMOVEdev1_Click(sender As Object, e As EventArgs) _
+    Handles ButtonMOVEdev1.Click
+
+        MoveCopyProfileDev1(isMove:=True)
+
+    End Sub
+
+    Private Sub ButtonCOPYdev2_Click(sender As Object, e As EventArgs) _
+    Handles ButtonCOPYdev2.Click
+
+        MoveCopyProfileDev2(isMove:=False)
+
+    End Sub
+
+    Private Sub ButtonMOVEdev2_Click(sender As Object, e As EventArgs) _
+    Handles ButtonMOVEdev2.Click
+
+        MoveCopyProfileDev2(isMove:=True)
+
+    End Sub
+
+    Private Sub ClearDev1ProfileName(profile As Integer)
+
+        Dim key As String = Nothing
+
+        Select Case profile
+            Case 1 : key = "data1"
+            Case 2 : key = "data33"
+            Case 3 : key = "data61"
+            Case 4 : key = "data89"
+            Case 5 : key = "data117"
+            Case 6 : key = "data145"
+            Case 7 : key = "data173"
+            Case 8 : key = "data201"
+            Case 9 : key = "data229"
+            Case 10 : key = "data257"
+            Case 11 : key = "data285"
+            Case 12 : key = "data313"
+            Case 13 : key = "data341"
+            Case 14 : key = "data369"
+            Case 15 : key = "data397"
+            Case 16 : key = "data425"
+            Case 17 : key = "data453"
+            Case 18 : key = "data481"
+            Case 19 : key = "data509"
+            Case 20 : key = "data537"
+            Case Else
+                Exit Sub
+        End Select
+
+        Dim v As Object = My.Settings(key)
+        If TypeOf v Is String Then
+            My.Settings(key) = ""
+            My.Settings.Save()
+        Else
+            ' Safety: do not crash if this "name" key is not actually a string
+            ' (Optional) Debug.Print($"ClearDev1ProfileName: {key} is {If(v Is Nothing, "Nothing", v.GetType().Name)}")
+        End If
+
+    End Sub
+
+
+    Private Sub ClearDev2ProfileName(profile As Integer)
+
+        Dim key As String = Nothing
+
+        Select Case profile
+            Case 1 : key = "data565"
+            Case 2 : key = "data593"
+            Case 3 : key = "data621"
+            Case 4 : key = "data649"
+            Case 5 : key = "data677"
+            Case 6 : key = "data705"
+            Case 7 : key = "data733"
+            Case 8 : key = "data761"
+            Case 9 : key = "data789"
+            Case 10 : key = "data817"
+            Case 11 : key = "data845"
+            Case 12 : key = "data873"
+            Case 13 : key = "data901"
+            Case 14 : key = "data929"
+            Case 15 : key = "data957"
+            Case 16 : key = "data985"
+            Case 17 : key = "data1013"
+            Case 18 : key = "data1041"
+            Case 19 : key = "data1069"
+            Case 20 : key = "data1097"
+            Case Else
+                Exit Sub
+        End Select
+
+        Dim v As Object = My.Settings(key)
+        If TypeOf v Is String Then
+            My.Settings(key) = ""
+            My.Settings.Save()
+        Else
+            ' Safety: do not crash if this "name" key is not actually a string
+            ' (Optional) Debug.Print($"ClearDev2ProfileName: {key} is {If(v Is Nothing, "Nothing", v.GetType().Name)}")
+        End If
+
+    End Sub
+
+    ' Clears the currently selected DEV1 profile slot by writing blanks/defaults then SaveSettings()
+    Private Sub ClearDev1CurrentSlotToDefaults()
+
+        ' ---- clear strings ----
+        txtname1.Text = ""
+        txtaddr1.Text = ""
+        CommandStart1.Text = ""
+        CommandStart1run.Text = ""
+        CommandStop1.Text = ""
+        Dev1STBMask.Text = ""
+        txtq1d.Text = ""
+        txtOperationDev1.Text = ""
+        Dev1K2001isolatedataCHAR.Text = "N"
+
+        ' ---- defaults you asked for ----
+        Dev1PollingEnable.Checked = True
+        IgnoreErrors1.Checked = True
+        Dev1Timeout.Text = "5000"
+        Dev1delayop.Text = "1"
+        Dev1DecimalNumDPs.Text = "8"
+        Dev1SampleRate.Text = "5"
+
+        ' Write all fields for THIS slot back into My.Settings
+        SaveSettings()
+
+    End Sub
+
+
+    Private Sub ClearDev2CurrentSlotToDefaults()
+
+        txtname2.Text = ""
+        txtaddr2.Text = ""
+        CommandStart2.Text = ""
+        CommandStart2run.Text = ""
+        CommandStop2.Text = ""
+        Dev2STBMask.Text = ""
+        txtq2d.Text = ""
+        txtOperationDev2.Text = ""
+        Dev2K2001isolatedataCHAR.Text = "N"
+
+        Dev2PollingEnable.Checked = True
+        IgnoreErrors2.Checked = True
+        Dev2Timeout.Text = "5000"
+        Dev2delayop.Text = "1"
+        Dev2DecimalNumDPs.Text = "8"
+        Dev2SampleRate.Text = "5"
+
+        SaveSettings()
+
+    End Sub
+
+
+
+
 End Class

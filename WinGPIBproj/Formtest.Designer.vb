@@ -358,8 +358,6 @@ Partial Class Formtest
         Me.Label215 = New System.Windows.Forms.Label()
         Me.Label214 = New System.Windows.Forms.Label()
         Me.Label213 = New System.Windows.Forms.Label()
-        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.Label212 = New System.Windows.Forms.Label()
         Me.Label211 = New System.Windows.Forms.Label()
         Me.Label210 = New System.Windows.Forms.Label()
@@ -641,7 +639,6 @@ Partial Class Formtest
         Me.Label269 = New System.Windows.Forms.Label()
         Me.PictureBox9 = New System.Windows.Forms.PictureBox()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
-        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.Label145 = New System.Windows.Forms.Label()
         Me.Label79 = New System.Windows.Forms.Label()
         Me.Label81 = New System.Windows.Forms.Label()
@@ -897,8 +894,8 @@ Partial Class Formtest
         Me.CalAccuracyFinal = New System.Windows.Forms.TextBox()
         Me.Label117 = New System.Windows.Forms.Label()
         Me.Label121 = New System.Windows.Forms.Label()
-        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage14 = New System.Windows.Forms.TabPage()
+        Me.ButtonUserTabGuide = New System.Windows.Forms.Button()
         Me.ButtonEditor = New System.Windows.Forms.Button()
         Me.ButtonLoadTxtRefresh = New System.Windows.Forms.Button()
         Me.ShowFiles4 = New System.Windows.Forms.Button()
@@ -949,7 +946,16 @@ Partial Class Formtest
         Me.Timer15 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer16 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
-        Me.ButtonUserTabGuide = New System.Windows.Forms.Button()
+        Me.ButtonMOVEdev1 = New System.Windows.Forms.Button()
+        Me.ButtonCOPYdev1 = New System.Windows.Forms.Button()
+        Me.TextBoxMoveCopydev1 = New System.Windows.Forms.TextBox()
+        Me.TextBoxMoveCopydev2 = New System.Windows.Forms.TextBox()
+        Me.ButtonCOPYdev2 = New System.Windows.Forms.Button()
+        Me.ButtonMOVEdev2 = New System.Windows.Forms.Button()
+        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.GroupBox9.SuspendLayout
@@ -3037,7 +3043,10 @@ Partial Class Formtest
         '
         'GroupBox9
         '
+        Me.GroupBox9.Controls.Add(Me.TextBoxMoveCopydev2)
         Me.GroupBox9.Controls.Add(Me.cboDev2Device)
+        Me.GroupBox9.Controls.Add(Me.ButtonCOPYdev2)
+        Me.GroupBox9.Controls.Add(Me.ButtonMOVEdev2)
         Me.GroupBox9.Controls.Add(Me.btncreate3)
         Me.GroupBox9.Controls.Add(Me.Label15)
         Me.GroupBox9.Controls.Add(Me.Label18)
@@ -3135,6 +3144,9 @@ Partial Class Formtest
         '
         'GroupBox8
         '
+        Me.GroupBox8.Controls.Add(Me.TextBoxMoveCopydev1)
+        Me.GroupBox8.Controls.Add(Me.ButtonCOPYdev1)
+        Me.GroupBox8.Controls.Add(Me.ButtonMOVEdev1)
         Me.GroupBox8.Controls.Add(Me.cboDev1Device)
         Me.GroupBox8.Controls.Add(Me.btncreate2)
         Me.GroupBox8.Controls.Add(Me.IODeviceLabel1)
@@ -4586,26 +4598,6 @@ Partial Class Formtest
         Me.Label213.Size = New System.Drawing.Size(19, 13)
         Me.Label213.TabIndex = 537
         Me.Label213.Text = "Tx"
-        '
-        'OnOffLed2
-        '
-        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
-        Me.OnOffLed2.Name = "OnOffLed2"
-        Me.OnOffLed2.OffText = Nothing
-        Me.OnOffLed2.OnText = Nothing
-        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed2.TabIndex = 536
-        '
-        'OnOffLed1
-        '
-        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
-        Me.OnOffLed1.Name = "OnOffLed1"
-        Me.OnOffLed1.OffText = Nothing
-        Me.OnOffLed1.OnText = Nothing
-        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed1.TabIndex = 535
         '
         'Label212
         '
@@ -7705,16 +7697,6 @@ Partial Class Formtest
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "PDVS2mini  "
         '
-        'OnOffLed4
-        '
-        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
-        Me.OnOffLed4.Name = "OnOffLed4"
-        Me.OnOffLed4.OffText = Nothing
-        Me.OnOffLed4.OnText = Nothing
-        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed4.TabIndex = 797
-        '
         'Label145
         '
         Me.Label145.AutoSize = True
@@ -10540,16 +10522,6 @@ Partial Class Formtest
         Me.Label121.TabIndex = 554
         Me.Label121.Text = "Comms Delay (mS)"
         '
-        'OnOffLed3
-        '
-        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
-        Me.OnOffLed3.Name = "OnOffLed3"
-        Me.OnOffLed3.OffText = Nothing
-        Me.OnOffLed3.OnText = Nothing
-        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed3.TabIndex = 796
-        '
         'TabPage14
         '
         Me.TabPage14.Controls.Add(Me.ButtonUserTabGuide)
@@ -10565,6 +10537,15 @@ Partial Class Formtest
         Me.TabPage14.TabIndex = 14
         Me.TabPage14.Text = "User"
         Me.TabPage14.UseVisualStyleBackColor = True
+        '
+        'ButtonUserTabGuide
+        '
+        Me.ButtonUserTabGuide.Location = New System.Drawing.Point(788, 8)
+        Me.ButtonUserTabGuide.Name = "ButtonUserTabGuide"
+        Me.ButtonUserTabGuide.Size = New System.Drawing.Size(84, 23)
+        Me.ButtonUserTabGuide.TabIndex = 5
+        Me.ButtonUserTabGuide.Text = "User Guide"
+        Me.ButtonUserTabGuide.UseVisualStyleBackColor = True
         '
         'ButtonEditor
         '
@@ -11016,14 +10997,101 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
-        'ButtonUserTabGuide
+        'ButtonMOVEdev1
         '
-        Me.ButtonUserTabGuide.Location = New System.Drawing.Point(788, 8)
-        Me.ButtonUserTabGuide.Name = "ButtonUserTabGuide"
-        Me.ButtonUserTabGuide.Size = New System.Drawing.Size(84, 23)
-        Me.ButtonUserTabGuide.TabIndex = 5
-        Me.ButtonUserTabGuide.Text = "User Guide"
-        Me.ButtonUserTabGuide.UseVisualStyleBackColor = True
+        Me.ButtonMOVEdev1.Location = New System.Drawing.Point(319, 16)
+        Me.ButtonMOVEdev1.Name = "ButtonMOVEdev1"
+        Me.ButtonMOVEdev1.Size = New System.Drawing.Size(20, 22)
+        Me.ButtonMOVEdev1.TabIndex = 515
+        Me.ButtonMOVEdev1.Text = "M"
+        Me.ToolTip1.SetToolTip(Me.ButtonMOVEdev1, "Move")
+        Me.ButtonMOVEdev1.UseVisualStyleBackColor = True
+        '
+        'ButtonCOPYdev1
+        '
+        Me.ButtonCOPYdev1.Location = New System.Drawing.Point(339, 16)
+        Me.ButtonCOPYdev1.Name = "ButtonCOPYdev1"
+        Me.ButtonCOPYdev1.Size = New System.Drawing.Size(20, 22)
+        Me.ButtonCOPYdev1.TabIndex = 516
+        Me.ButtonCOPYdev1.Text = "C"
+        Me.ToolTip1.SetToolTip(Me.ButtonCOPYdev1, "Copy")
+        Me.ButtonCOPYdev1.UseVisualStyleBackColor = True
+        '
+        'TextBoxMoveCopydev1
+        '
+        Me.TextBoxMoveCopydev1.Location = New System.Drawing.Point(360, 17)
+        Me.TextBoxMoveCopydev1.Name = "TextBoxMoveCopydev1"
+        Me.TextBoxMoveCopydev1.Size = New System.Drawing.Size(19, 20)
+        Me.TextBoxMoveCopydev1.TabIndex = 517
+        Me.ToolTip1.SetToolTip(Me.TextBoxMoveCopydev1, "MOVE/COPY Target (Dev1)")
+        '
+        'TextBoxMoveCopydev2
+        '
+        Me.TextBoxMoveCopydev2.Location = New System.Drawing.Point(361, 17)
+        Me.TextBoxMoveCopydev2.Name = "TextBoxMoveCopydev2"
+        Me.TextBoxMoveCopydev2.Size = New System.Drawing.Size(19, 20)
+        Me.TextBoxMoveCopydev2.TabIndex = 520
+        Me.ToolTip1.SetToolTip(Me.TextBoxMoveCopydev2, "MOVE/COPY Target (Dev2)")
+        '
+        'ButtonCOPYdev2
+        '
+        Me.ButtonCOPYdev2.Location = New System.Drawing.Point(340, 16)
+        Me.ButtonCOPYdev2.Name = "ButtonCOPYdev2"
+        Me.ButtonCOPYdev2.Size = New System.Drawing.Size(20, 22)
+        Me.ButtonCOPYdev2.TabIndex = 519
+        Me.ButtonCOPYdev2.Text = "C"
+        Me.ToolTip1.SetToolTip(Me.ButtonCOPYdev2, "Copy")
+        Me.ButtonCOPYdev2.UseVisualStyleBackColor = True
+        '
+        'ButtonMOVEdev2
+        '
+        Me.ButtonMOVEdev2.Location = New System.Drawing.Point(320, 16)
+        Me.ButtonMOVEdev2.Name = "ButtonMOVEdev2"
+        Me.ButtonMOVEdev2.Size = New System.Drawing.Size(20, 22)
+        Me.ButtonMOVEdev2.TabIndex = 518
+        Me.ButtonMOVEdev2.Text = "M"
+        Me.ToolTip1.SetToolTip(Me.ButtonMOVEdev2, "Move")
+        Me.ButtonMOVEdev2.UseVisualStyleBackColor = True
+        '
+        'OnOffLed2
+        '
+        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
+        Me.OnOffLed2.Name = "OnOffLed2"
+        Me.OnOffLed2.OffText = Nothing
+        Me.OnOffLed2.OnText = Nothing
+        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed2.TabIndex = 536
+        '
+        'OnOffLed1
+        '
+        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
+        Me.OnOffLed1.Name = "OnOffLed1"
+        Me.OnOffLed1.OffText = Nothing
+        Me.OnOffLed1.OnText = Nothing
+        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed1.TabIndex = 535
+        '
+        'OnOffLed4
+        '
+        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
+        Me.OnOffLed4.Name = "OnOffLed4"
+        Me.OnOffLed4.OffText = Nothing
+        Me.OnOffLed4.OnText = Nothing
+        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed4.TabIndex = 797
+        '
+        'OnOffLed3
+        '
+        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
+        Me.OnOffLed3.Name = "OnOffLed3"
+        Me.OnOffLed3.OffText = Nothing
+        Me.OnOffLed3.OnText = Nothing
+        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed3.TabIndex = 796
         '
         'Formtest
         '
@@ -12036,4 +12104,10 @@ Partial Class Formtest
     Friend WithEvents cboDev2Device As ComboBox
     Friend WithEvents cboDev1Device As ComboBox
     Friend WithEvents ButtonUserTabGuide As Button
+    Friend WithEvents TextBoxMoveCopydev1 As TextBox
+    Friend WithEvents ButtonCOPYdev1 As Button
+    Friend WithEvents ButtonMOVEdev1 As Button
+    Friend WithEvents TextBoxMoveCopydev2 As TextBox
+    Friend WithEvents ButtonCOPYdev2 As Button
+    Friend WithEvents ButtonMOVEdev2 As Button
 End Class
