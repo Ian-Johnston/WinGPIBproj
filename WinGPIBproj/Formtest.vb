@@ -300,6 +300,7 @@ Public Class Formtest
             lstIntf1.Items.Add("Prologix Serial")
             lstIntf1.Items.Add("Prologix Ethernet")
             lstIntf1.Items.Add("NI-GPIB-232CT-A")
+            'lstIntf1.Items.Add("XYPHRO UsbGpib (USBTMC)")
             lstIntf1.SelectedIndex = 0
 
             lstIntf2.Items.Add("VISA")
@@ -309,6 +310,7 @@ Public Class Formtest
             lstIntf2.Items.Add("Prologix Serial")
             lstIntf2.Items.Add("Prologix Ethernet")
             lstIntf2.Items.Add("NI-GPIB-232CT-A")
+            'lstIntf2.Items.Add("XYPHRO UsbGpib (USBTMC)")
             lstIntf2.SelectedIndex = 0
 
             ' Temp/Hum sensor
@@ -1024,6 +1026,7 @@ Public Class Formtest
                 Case 4 : dev = New PrologixDeviceSerial(name, address)
                 Case 5 : dev = New PrologixDeviceEthernet(name, address)
                 Case 6 : dev = New GPIB_NI_232CT_A(name, address)
+                Case 7 : dev = New XyphroUsbGpibDevice(name, address, True)                 ' not currently implemented
                 Case Else : Return Nothing
             End Select
 

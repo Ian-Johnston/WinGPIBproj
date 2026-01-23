@@ -3453,10 +3453,11 @@ Partial Class Formtest
         CommandStart1.Text = ""
         CommandStart1run.Text = ""
         CommandStop1.Text = ""
-        Dev1STBMask.Text = ""
         txtq1d.Text = ""
         txtOperationDev1.Text = ""
         Dev1K2001isolatedataCHAR.Text = "N"
+        Dev1STBMask.Text = "16"
+        Dev1IntEnable.Checked = False
 
         ' ---- defaults you asked for ----
         Dev1PollingEnable.Checked = True
@@ -3479,10 +3480,11 @@ Partial Class Formtest
         CommandStart2.Text = ""
         CommandStart2run.Text = ""
         CommandStop2.Text = ""
-        Dev2STBMask.Text = ""
         txtq2d.Text = ""
         txtOperationDev2.Text = ""
         Dev2K2001isolatedataCHAR.Text = "N"
+        Dev2STBMask.Text = "16"
+        Dev2IntEnable.Checked = False
 
         Dev2PollingEnable.Checked = True
         IgnoreErrors2.Checked = True
