@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea3 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend3 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series3 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -205,6 +205,12 @@ Partial Class Formtest
         Me.Button3245A_CHA = New System.Windows.Forms.Button()
         Me.Button3245A_CHB = New System.Windows.Forms.Button()
         Me.ButtonLUA = New System.Windows.Forms.Button()
+        Me.ButtonMOVEdev1 = New System.Windows.Forms.Button()
+        Me.ButtonCOPYdev1 = New System.Windows.Forms.Button()
+        Me.TextBoxMoveCopydev1 = New System.Windows.Forms.TextBox()
+        Me.TextBoxMoveCopydev2 = New System.Windows.Forms.TextBox()
+        Me.ButtonCOPYdev2 = New System.Windows.Forms.Button()
+        Me.ButtonMOVEdev2 = New System.Windows.Forms.Button()
         Me.CheckBoxPrologixSerialDTR = New System.Windows.Forms.CheckBox()
         Me.CheckBoxSerialCOMDTREnable = New System.Windows.Forms.CheckBox()
         Me.CheckBoxSerialCOMRTSEnable = New System.Windows.Forms.CheckBox()
@@ -358,6 +364,8 @@ Partial Class Formtest
         Me.Label215 = New System.Windows.Forms.Label()
         Me.Label214 = New System.Windows.Forms.Label()
         Me.Label213 = New System.Windows.Forms.Label()
+        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.Label212 = New System.Windows.Forms.Label()
         Me.Label211 = New System.Windows.Forms.Label()
         Me.Label210 = New System.Windows.Forms.Label()
@@ -639,6 +647,7 @@ Partial Class Formtest
         Me.Label269 = New System.Windows.Forms.Label()
         Me.PictureBox9 = New System.Windows.Forms.PictureBox()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
+        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.Label145 = New System.Windows.Forms.Label()
         Me.Label79 = New System.Windows.Forms.Label()
         Me.Label81 = New System.Windows.Forms.Label()
@@ -894,6 +903,7 @@ Partial Class Formtest
         Me.CalAccuracyFinal = New System.Windows.Forms.TextBox()
         Me.Label117 = New System.Windows.Forms.Label()
         Me.Label121 = New System.Windows.Forms.Label()
+        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage14 = New System.Windows.Forms.TabPage()
         Me.ButtonUserTabGuide = New System.Windows.Forms.Button()
         Me.ButtonEditor = New System.Windows.Forms.Button()
@@ -946,16 +956,6 @@ Partial Class Formtest
         Me.Timer15 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer16 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
-        Me.ButtonMOVEdev1 = New System.Windows.Forms.Button()
-        Me.ButtonCOPYdev1 = New System.Windows.Forms.Button()
-        Me.TextBoxMoveCopydev1 = New System.Windows.Forms.TextBox()
-        Me.TextBoxMoveCopydev2 = New System.Windows.Forms.TextBox()
-        Me.ButtonCOPYdev2 = New System.Windows.Forms.Button()
-        Me.ButtonMOVEdev2 = New System.Windows.Forms.Button()
-        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.GroupBox9.SuspendLayout
@@ -2310,9 +2310,9 @@ Partial Class Formtest
         '
         'btncreate2
         '
-        Me.btncreate2.Location = New System.Drawing.Point(324, 47)
+        Me.btncreate2.Location = New System.Drawing.Point(376, 47)
         Me.btncreate2.Name = "btncreate2"
-        Me.btncreate2.Size = New System.Drawing.Size(90, 40)
+        Me.btncreate2.Size = New System.Drawing.Size(84, 40)
         Me.btncreate2.TabIndex = 500
         Me.btncreate2.Text = "Connect to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "I/O Device 1"
         Me.ToolTip1.SetToolTip(Me.btncreate2, "Connect to Device 1 only")
@@ -2320,9 +2320,9 @@ Partial Class Formtest
         '
         'btncreate3
         '
-        Me.btncreate3.Location = New System.Drawing.Point(324, 47)
+        Me.btncreate3.Location = New System.Drawing.Point(376, 47)
         Me.btncreate3.Name = "btncreate3"
-        Me.btncreate3.Size = New System.Drawing.Size(90, 40)
+        Me.btncreate3.Size = New System.Drawing.Size(84, 40)
         Me.btncreate3.TabIndex = 521
         Me.btncreate3.Text = "Connect to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "I/O Device 2"
         Me.ToolTip1.SetToolTip(Me.btncreate3, "Connect to Device 2 only")
@@ -2903,6 +2903,62 @@ Partial Class Formtest
         Me.ToolTip1.SetToolTip(Me.ButtonLUA, "LUA Notice")
         Me.ButtonLUA.UseVisualStyleBackColor = True
         '
+        'ButtonMOVEdev1
+        '
+        Me.ButtonMOVEdev1.Location = New System.Drawing.Point(319, 16)
+        Me.ButtonMOVEdev1.Name = "ButtonMOVEdev1"
+        Me.ButtonMOVEdev1.Size = New System.Drawing.Size(20, 22)
+        Me.ButtonMOVEdev1.TabIndex = 515
+        Me.ButtonMOVEdev1.Text = "M"
+        Me.ToolTip1.SetToolTip(Me.ButtonMOVEdev1, "Move")
+        Me.ButtonMOVEdev1.UseVisualStyleBackColor = True
+        '
+        'ButtonCOPYdev1
+        '
+        Me.ButtonCOPYdev1.Location = New System.Drawing.Point(339, 16)
+        Me.ButtonCOPYdev1.Name = "ButtonCOPYdev1"
+        Me.ButtonCOPYdev1.Size = New System.Drawing.Size(20, 22)
+        Me.ButtonCOPYdev1.TabIndex = 516
+        Me.ButtonCOPYdev1.Text = "C"
+        Me.ToolTip1.SetToolTip(Me.ButtonCOPYdev1, "Copy")
+        Me.ButtonCOPYdev1.UseVisualStyleBackColor = True
+        '
+        'TextBoxMoveCopydev1
+        '
+        Me.TextBoxMoveCopydev1.Location = New System.Drawing.Point(360, 17)
+        Me.TextBoxMoveCopydev1.Name = "TextBoxMoveCopydev1"
+        Me.TextBoxMoveCopydev1.Size = New System.Drawing.Size(19, 20)
+        Me.TextBoxMoveCopydev1.TabIndex = 517
+        Me.ToolTip1.SetToolTip(Me.TextBoxMoveCopydev1, "MOVE/COPY Target (Dev1)")
+        '
+        'TextBoxMoveCopydev2
+        '
+        Me.TextBoxMoveCopydev2.Location = New System.Drawing.Point(361, 17)
+        Me.TextBoxMoveCopydev2.Name = "TextBoxMoveCopydev2"
+        Me.TextBoxMoveCopydev2.Size = New System.Drawing.Size(19, 20)
+        Me.TextBoxMoveCopydev2.TabIndex = 520
+        Me.ToolTip1.SetToolTip(Me.TextBoxMoveCopydev2, "MOVE/COPY Target (Dev2)")
+        '
+        'ButtonCOPYdev2
+        '
+        Me.ButtonCOPYdev2.Location = New System.Drawing.Point(340, 16)
+        Me.ButtonCOPYdev2.Name = "ButtonCOPYdev2"
+        Me.ButtonCOPYdev2.Size = New System.Drawing.Size(20, 22)
+        Me.ButtonCOPYdev2.TabIndex = 519
+        Me.ButtonCOPYdev2.Text = "C"
+        Me.ToolTip1.SetToolTip(Me.ButtonCOPYdev2, "Copy")
+        Me.ButtonCOPYdev2.UseVisualStyleBackColor = True
+        '
+        'ButtonMOVEdev2
+        '
+        Me.ButtonMOVEdev2.Location = New System.Drawing.Point(320, 16)
+        Me.ButtonMOVEdev2.Name = "ButtonMOVEdev2"
+        Me.ButtonMOVEdev2.Size = New System.Drawing.Size(20, 22)
+        Me.ButtonMOVEdev2.TabIndex = 518
+        Me.ButtonMOVEdev2.Text = "M"
+        Me.ToolTip1.SetToolTip(Me.ButtonMOVEdev2, "Move")
+        Me.ButtonMOVEdev2.UseVisualStyleBackColor = True
+        '
         'CheckBoxPrologixSerialDTR
         '
         Me.CheckBoxPrologixSerialDTR.AutoSize = True
@@ -3120,7 +3176,7 @@ Partial Class Formtest
         '
         Me.txtname2.Location = New System.Drawing.Point(77, 45)
         Me.txtname2.Name = "txtname2"
-        Me.txtname2.Size = New System.Drawing.Size(240, 20)
+        Me.txtname2.Size = New System.Drawing.Size(294, 20)
         Me.txtname2.TabIndex = 517
         Me.txtname2.Text = "KEITHLEY"
         '
@@ -3128,7 +3184,7 @@ Partial Class Formtest
         '
         Me.txtaddr2.Location = New System.Drawing.Point(77, 69)
         Me.txtaddr2.Name = "txtaddr2"
-        Me.txtaddr2.Size = New System.Drawing.Size(240, 20)
+        Me.txtaddr2.Size = New System.Drawing.Size(294, 20)
         Me.txtaddr2.TabIndex = 516
         Me.txtaddr2.Text = "GPIB1::23::INSTR"
         '
@@ -3221,7 +3277,7 @@ Partial Class Formtest
         '
         Me.txtaddr1.Location = New System.Drawing.Point(76, 69)
         Me.txtaddr1.Name = "txtaddr1"
-        Me.txtaddr1.Size = New System.Drawing.Size(240, 20)
+        Me.txtaddr1.Size = New System.Drawing.Size(294, 20)
         Me.txtaddr1.TabIndex = 495
         Me.txtaddr1.Text = "GPIB1::22::INSTR"
         '
@@ -3229,7 +3285,7 @@ Partial Class Formtest
         '
         Me.txtname1.Location = New System.Drawing.Point(76, 45)
         Me.txtname1.Name = "txtname1"
-        Me.txtname1.Size = New System.Drawing.Size(240, 20)
+        Me.txtname1.Size = New System.Drawing.Size(294, 20)
         Me.txtname1.TabIndex = 494
         Me.txtname1.Text = "HP3458A"
         '
@@ -4599,6 +4655,26 @@ Partial Class Formtest
         Me.Label213.TabIndex = 537
         Me.Label213.Text = "Tx"
         '
+        'OnOffLed2
+        '
+        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
+        Me.OnOffLed2.Name = "OnOffLed2"
+        Me.OnOffLed2.OffText = Nothing
+        Me.OnOffLed2.OnText = Nothing
+        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed2.TabIndex = 536
+        '
+        'OnOffLed1
+        '
+        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
+        Me.OnOffLed1.Name = "OnOffLed1"
+        Me.OnOffLed1.OffText = Nothing
+        Me.OnOffLed1.OnText = Nothing
+        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed1.TabIndex = 535
+        '
         'Label212
         '
         Me.Label212.AutoSize = True
@@ -5830,22 +5906,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea1.BackColor = System.Drawing.Color.Black
-        ChartArea1.BorderColor = System.Drawing.Color.White
-        ChartArea1.BorderWidth = 2
-        ChartArea1.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea1)
-        Legend1.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend1)
+        ChartArea3.BackColor = System.Drawing.Color.Black
+        ChartArea3.BorderColor = System.Drawing.Color.White
+        ChartArea3.BorderWidth = 2
+        ChartArea3.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea3)
+        Legend3.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend3)
         Me.Chart1.Location = New System.Drawing.Point(-32, 168)
         Me.Chart1.Name = "Chart1"
-        Series1.ChartArea = "ChartArea1"
-        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series1.Color = System.Drawing.Color.Yellow
-        Series1.Enabled = False
-        Series1.Legend = "Legend1"
-        Series1.Name = "Series1"
-        Me.Chart1.Series.Add(Series1)
+        Series3.ChartArea = "ChartArea1"
+        Series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series3.Color = System.Drawing.Color.Yellow
+        Series3.Enabled = False
+        Series3.Legend = "Legend1"
+        Series3.Name = "Series1"
+        Me.Chart1.Series.Add(Series3)
         Me.Chart1.Size = New System.Drawing.Size(1120, 434)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -7696,6 +7772,16 @@ Partial Class Formtest
         Me.TabPage5.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "PDVS2mini  "
+        '
+        'OnOffLed4
+        '
+        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
+        Me.OnOffLed4.Name = "OnOffLed4"
+        Me.OnOffLed4.OffText = Nothing
+        Me.OnOffLed4.OnText = Nothing
+        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed4.TabIndex = 797
         '
         'Label145
         '
@@ -10522,6 +10608,16 @@ Partial Class Formtest
         Me.Label121.TabIndex = 554
         Me.Label121.Text = "Comms Delay (mS)"
         '
+        'OnOffLed3
+        '
+        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
+        Me.OnOffLed3.Name = "OnOffLed3"
+        Me.OnOffLed3.OffText = Nothing
+        Me.OnOffLed3.OnText = Nothing
+        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed3.TabIndex = 796
+        '
         'TabPage14
         '
         Me.TabPage14.Controls.Add(Me.ButtonUserTabGuide)
@@ -10996,102 +11092,6 @@ Partial Class Formtest
         'Timer14
         '
         Me.Timer14.Interval = 50
-        '
-        'ButtonMOVEdev1
-        '
-        Me.ButtonMOVEdev1.Location = New System.Drawing.Point(319, 16)
-        Me.ButtonMOVEdev1.Name = "ButtonMOVEdev1"
-        Me.ButtonMOVEdev1.Size = New System.Drawing.Size(20, 22)
-        Me.ButtonMOVEdev1.TabIndex = 515
-        Me.ButtonMOVEdev1.Text = "M"
-        Me.ToolTip1.SetToolTip(Me.ButtonMOVEdev1, "Move")
-        Me.ButtonMOVEdev1.UseVisualStyleBackColor = True
-        '
-        'ButtonCOPYdev1
-        '
-        Me.ButtonCOPYdev1.Location = New System.Drawing.Point(339, 16)
-        Me.ButtonCOPYdev1.Name = "ButtonCOPYdev1"
-        Me.ButtonCOPYdev1.Size = New System.Drawing.Size(20, 22)
-        Me.ButtonCOPYdev1.TabIndex = 516
-        Me.ButtonCOPYdev1.Text = "C"
-        Me.ToolTip1.SetToolTip(Me.ButtonCOPYdev1, "Copy")
-        Me.ButtonCOPYdev1.UseVisualStyleBackColor = True
-        '
-        'TextBoxMoveCopydev1
-        '
-        Me.TextBoxMoveCopydev1.Location = New System.Drawing.Point(360, 17)
-        Me.TextBoxMoveCopydev1.Name = "TextBoxMoveCopydev1"
-        Me.TextBoxMoveCopydev1.Size = New System.Drawing.Size(19, 20)
-        Me.TextBoxMoveCopydev1.TabIndex = 517
-        Me.ToolTip1.SetToolTip(Me.TextBoxMoveCopydev1, "MOVE/COPY Target (Dev1)")
-        '
-        'TextBoxMoveCopydev2
-        '
-        Me.TextBoxMoveCopydev2.Location = New System.Drawing.Point(361, 17)
-        Me.TextBoxMoveCopydev2.Name = "TextBoxMoveCopydev2"
-        Me.TextBoxMoveCopydev2.Size = New System.Drawing.Size(19, 20)
-        Me.TextBoxMoveCopydev2.TabIndex = 520
-        Me.ToolTip1.SetToolTip(Me.TextBoxMoveCopydev2, "MOVE/COPY Target (Dev2)")
-        '
-        'ButtonCOPYdev2
-        '
-        Me.ButtonCOPYdev2.Location = New System.Drawing.Point(340, 16)
-        Me.ButtonCOPYdev2.Name = "ButtonCOPYdev2"
-        Me.ButtonCOPYdev2.Size = New System.Drawing.Size(20, 22)
-        Me.ButtonCOPYdev2.TabIndex = 519
-        Me.ButtonCOPYdev2.Text = "C"
-        Me.ToolTip1.SetToolTip(Me.ButtonCOPYdev2, "Copy")
-        Me.ButtonCOPYdev2.UseVisualStyleBackColor = True
-        '
-        'ButtonMOVEdev2
-        '
-        Me.ButtonMOVEdev2.Location = New System.Drawing.Point(320, 16)
-        Me.ButtonMOVEdev2.Name = "ButtonMOVEdev2"
-        Me.ButtonMOVEdev2.Size = New System.Drawing.Size(20, 22)
-        Me.ButtonMOVEdev2.TabIndex = 518
-        Me.ButtonMOVEdev2.Text = "M"
-        Me.ToolTip1.SetToolTip(Me.ButtonMOVEdev2, "Move")
-        Me.ButtonMOVEdev2.UseVisualStyleBackColor = True
-        '
-        'OnOffLed2
-        '
-        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
-        Me.OnOffLed2.Name = "OnOffLed2"
-        Me.OnOffLed2.OffText = Nothing
-        Me.OnOffLed2.OnText = Nothing
-        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed2.TabIndex = 536
-        '
-        'OnOffLed1
-        '
-        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
-        Me.OnOffLed1.Name = "OnOffLed1"
-        Me.OnOffLed1.OffText = Nothing
-        Me.OnOffLed1.OnText = Nothing
-        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed1.TabIndex = 535
-        '
-        'OnOffLed4
-        '
-        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
-        Me.OnOffLed4.Name = "OnOffLed4"
-        Me.OnOffLed4.OffText = Nothing
-        Me.OnOffLed4.OnText = Nothing
-        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed4.TabIndex = 797
-        '
-        'OnOffLed3
-        '
-        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
-        Me.OnOffLed3.Name = "OnOffLed3"
-        Me.OnOffLed3.OffText = Nothing
-        Me.OnOffLed3.OnText = Nothing
-        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed3.TabIndex = 796
         '
         'Formtest
         '

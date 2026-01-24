@@ -346,91 +346,23 @@ Public Class Formtest
             ' IODevices window x-y tracker
             CheckBoxIODevicesFormTracker.Checked = My.Settings.IODevicesFormTracker
 
-            ' Recall all saved data
-            txtname1.Text = My.Settings.data1
-            txtaddr1.Text = My.Settings.data3
-            CommandStart1.Text = My.Settings.data5
-            CommandStop1.Text = My.Settings.data7
-            Dev1SampleRate.Text = My.Settings.data9
+            ' Recall misc saved data
             CSVfilename.Text = My.Settings.data11
-            'CSVfilepath.Text = My.Settings.data12
             XaxisPoints.Text = My.Settings.data13
             Dev1Max.Text = My.Settings.data14
             Dev1Min.Text = My.Settings.data15
             txtname3.Text = My.Settings.data16
-            CommandStart1run.Text = My.Settings.data17
             Dev12SampleRate.Text = My.Settings.data19
             CSVdelimit = My.Settings.data29
-
             TempOffset.Text = My.Settings.data78
-
             TextBoxAvgWindow.Text = My.Settings.data525
-
-            ' Load Device 1 default profile 1
-            lstIntf1.SelectedIndex = My.Settings.data33
-            txtname1.Text = My.Settings.data1
-            txtaddr1.Text = My.Settings.data3
-            CommandStart1.Text = My.Settings.data5
-            CommandStart1run.Text = My.Settings.data17
-            CommandStop1.Text = My.Settings.data7
-            Dev1SampleRate.Text = My.Settings.data9
-            Dev1STBMask.Text = My.Settings.data66
-            Div1000Dev1.Checked = My.Settings.data72
-            Dev1PollingEnable.Checked = My.Settings.data36
-            Dev1removeletters.Checked = My.Settings.data37
-            IgnoreErrors1.Checked = My.Settings.data38
-            Dev1TerminatorEnable.Checked = My.Settings.data39
-            CheckBoxSendBlockingDev1.Checked = My.Settings.data40
-            Dev13457Aseven.Checked = My.Settings.data79
-            Dev1TerminatorEnable2.Checked = My.Settings.data85
-            Dev1K2001isolatedata.Checked = My.Settings.data207
-            Dev1K2001isolatedataCHAR.Text = My.Settings.data208
-            Mult1000Dev1.Checked = My.Settings.data225
-            Dev1Timeout.Text = My.Settings.data231
-            Dev1delayop.Text = My.Settings.data243
-            txtq1d.Text = My.Settings.data271
-            Dev1pauseDurationInSeconds.Text = My.Settings.data272
-            Dev1runStopwatchEveryInMins.Text = My.Settings.data273
-            Dev1IntEnable.Checked = My.Settings.data274
-            Dev1Regex.Checked = My.Settings.data337
-            Dev1DecimalNumDPs.Text = My.Settings.data453
-            txtOperationDev1.Text = My.Settings.data509
-
-
-            ' Load Device 2 default profile 1
-            lstIntf2.SelectedIndex = My.Settings.data30
-            txtname2.Text = My.Settings.data2
-            txtaddr2.Text = My.Settings.data4
-            CommandStart2.Text = My.Settings.data6
-            CommandStart2run.Text = My.Settings.data18
-            CommandStop2.Text = My.Settings.data8
-            Dev2SampleRate.Text = My.Settings.data10
-            Dev2STBMask.Text = My.Settings.data67
-            Div1000Dev2.Checked = My.Settings.data75
-            Dev2PollingEnable.Checked = My.Settings.data51
-            Dev2removeletters.Checked = My.Settings.data52
-            IgnoreErrors2.Checked = My.Settings.data53
-            Dev2TerminatorEnable.Checked = My.Settings.data54
-            CheckBoxSendBlockingDev2.Checked = My.Settings.data55
-            Dev23457Aseven.Checked = My.Settings.data80
-            Dev2TerminatorEnable2.Checked = My.Settings.data86
-            Dev2K2001isolatedata.Checked = My.Settings.data195
-            Dev2K2001isolatedataCHAR.Text = My.Settings.data196
-            Mult1000Dev2.Checked = My.Settings.data219
-            Dev2Timeout.Text = My.Settings.data237
-            Dev2delayop.Text = My.Settings.data249
-            txtq2d.Text = My.Settings.data295
-            Dev2pauseDurationInSeconds.Text = My.Settings.data296
-            Dev2runStopwatchEveryInMins.Text = My.Settings.data297
-            Dev2IntEnable.Checked = My.Settings.data298
-            Dev2Regex.Checked = My.Settings.data343
-            Dev2DecimalNumDPs.Text = My.Settings.data461
-            txtOperationDev2.Text = My.Settings.data510
-
-            ' Load Live Chart settings
             XaxisPoints.Text = My.Settings.data255
+            CheckBoxAllowSaveAnytime.Checked = My.Settings.data505
+            TextBoxTextEditor.Text = My.Settings.data506
+            CheckBoxEnableTooltips.Checked = My.Settings.data507
+            CalRam3458APreRun.Text = My.Settings.data508
 
-            ' recall with X amount of dp's and if no DP saved then recall as X.0
+            ' Recall with X amount of dp's and if no DP saved then recall as X.0
             Dim storedValue As Double = My.Settings.data256
             Dim formattedValue As String
             If storedValue - Math.Floor(storedValue) = 0 Then
@@ -440,7 +372,7 @@ Public Class Formtest
             End If
             Dev1Max.Text = formattedValue
 
-            ' recall with X amount of dp's and if no DP saved then recall as X.0
+            ' Recall with X amount of dp's and if no DP saved then recall as X.0
             storedValue = My.Settings.data257
             If storedValue - Math.Floor(storedValue) = 0 Then
                 formattedValue = My.Settings.data257.ToString("0.0")
@@ -449,7 +381,7 @@ Public Class Formtest
             End If
             Dev1Min.Text = formattedValue
 
-            ' recall with X amount of dp's and if no DP saved then recall as X.0
+            ' Recall with X amount of dp's and if no DP saved then recall as X.0
             storedValue = My.Settings.data258
             If storedValue - Math.Floor(storedValue) = 0 Then
                 formattedValue = My.Settings.data258.ToString("0.0")
@@ -458,7 +390,7 @@ Public Class Formtest
             End If
             LCTempMax.Text = formattedValue
 
-            ' recall with X amount of dp's and if no DP saved then recall as X.0
+            ' Recall with X amount of dp's and if no DP saved then recall as X.0
             storedValue = My.Settings.data259
             If storedValue - Math.Floor(storedValue) = 0 Then
                 formattedValue = My.Settings.data259.ToString("0.0")
@@ -471,23 +403,8 @@ Public Class Formtest
             CheckBoxDevice2Hide.Enabled = False
             CheckBoxTempHide.Enabled = False
 
-
             Device1nameLive.Text = ""
             Device2nameLive.Text = ""
-
-            ' recall default PDVS2mini counts saved
-            Default0.Text = My.Settings.data260
-            Default1.Text = My.Settings.data261
-            Default2.Text = My.Settings.data262
-            Default3.Text = My.Settings.data263
-            Default4.Text = My.Settings.data264
-            Default5.Text = My.Settings.data265
-            Default6.Text = My.Settings.data266
-            Default7.Text = My.Settings.data267
-            Default8.Text = My.Settings.data268
-            Default9.Text = My.Settings.data269
-            Default10.Text = My.Settings.data270
-            Default11.Text = My.Settings.data502
 
             If CSVdelimit = "," Then
                 CSVdelimiterComma.Checked = True
@@ -500,22 +417,6 @@ Public Class Formtest
             If (CSVfilepath.Text = "") Then
                 CSVfilepath.Text = strPath
             End If
-
-            ' Check that the CSV file specified exists, if it doesn't then create a new blank CSV file
-            ' On my Win10 laptop the install wizard pops up and it itself regenerates the Log.csv file......so looks like this sub not req'd?
-            'If System.IO.File.Exists(strPath & "\" & "Log.csv") Then
-            'the file exists
-            'Else
-            'the file doesn't exist
-            'System.IO.File.Create(CSVfilepath.Text & "\" & CSVfilename.Text).Dispose()
-
-            'Dialog2.Warning1 = "CSV file has been created:"
-            'Dialog2.Warning2 = "File = " & CSVfilename.Text
-            'Dialog2.Warning3 = ""
-            ''Dialog2.Show() ' this method positions anywhere!
-            'Dialog2.ShowDialog(Me)  ' this method positions centre of parent form, and requires to hit OK to return back to parent
-            'End If
-
 
             ' Set Timer4 duration
             Me.Timer4.Interval = 100
@@ -547,6 +448,7 @@ Public Class Formtest
             ButtonCalramDump3457A.Enabled = False
             ButtonCalramDump3458A.Enabled = False
 
+            ' Live Chart
             ' label style
             Chart1.ChartAreas(0).AxisY.LabelStyle.Font = New Font("Microsoft Sans Serif", 9)
             Chart1.ChartAreas(0).AxisY2.LabelStyle.Font = New Font("Microsoft Sans Serif", 9)
@@ -633,6 +535,7 @@ Public Class Formtest
 
             ButtonRefreshPorts.Enabled = True
 
+            ' Temp/Hum
             TextBoxProtocolInput.Text = My.Settings.data319
             TextBoxParseLeft.Text = My.Settings.data320
             TextBoxParseRight.Text = My.Settings.data321
@@ -647,13 +550,24 @@ Public Class Formtest
             TextBoxSerialPortStop.Text = My.Settings.data330
             TextBoxSerialPortHand.Text = My.Settings.data331
             ComboBoxPort.SelectedItem = My.Settings.data332         ' temp/hum
-            comPort_ComboBox.SelectedItem = My.Settings.data333     ' PDVS2mini
             CheckBoxParseLeftRight.Checked = My.Settings.data334    ' temp/hum checkbox
             CheckBoxRegex.Checked = My.Settings.data335             ' temp/hum checkbox
             CheckBoxArithmetic.Checked = My.Settings.data336        ' temp/hum checkbox
             TextBoxTempHumSample.Text = My.Settings.data504
 
             ' PDVS2mini
+            Default0.Text = My.Settings.data260            ' Recall default PDVS2mini counts saved
+            Default1.Text = My.Settings.data261
+            Default2.Text = My.Settings.data262
+            Default3.Text = My.Settings.data263
+            Default4.Text = My.Settings.data264
+            Default5.Text = My.Settings.data265
+            Default6.Text = My.Settings.data266
+            Default7.Text = My.Settings.data267
+            Default8.Text = My.Settings.data268
+            Default9.Text = My.Settings.data269
+            Default10.Text = My.Settings.data270
+            Default11.Text = My.Settings.data502
             TextBox3458Asn.Text = My.Settings.data469       ' 3458A serial number
             TextBoxUser.Text = My.Settings.data470          ' User/Company
             TextBoxLOWSHUT.Text = My.Settings.data471
@@ -673,6 +587,8 @@ Public Class Formtest
             TextBoxdegC.Text = ""
             Dev1Units.Text = My.Settings.data500
             Dev2Units.Text = My.Settings.data501
+            WryTech.Checked = My.Settings.data503
+            comPort_ComboBox.SelectedItem = My.Settings.data333
 
             DisableAllButtonsInGroupBox2ExceptPDVS2miniSave()
 
@@ -689,27 +605,8 @@ Public Class Formtest
             Default11.Enabled = False
             Label149.Enabled = False
 
-            WryTech.Checked = My.Settings.data503
-
             ButtonR6581upload.Enabled = False
             ButtonR6581commitEEprom.Enabled = False
-
-
-            ' Settings
-            CheckBoxAllowSaveAnytime.Checked = My.Settings.data505
-
-            TextBoxTextEditor.Text = My.Settings.data506
-            CheckBoxEnableTooltips.Checked = My.Settings.data507
-
-            '3458A CalRam
-            CalRam3458APreRun.Text = My.Settings.data508
-
-
-            'If String.IsNullOrWhiteSpace(TextBoxTextEditor.Text) Then
-            'TextBoxTextEditor.Text = "C:\Windows\System32\notepad.exe"
-            'My.Settings.data506 = "C:\Windows\System32\notepad.exe"
-            'My.Settings.Save()
-            'End If
 
             If CheckBoxEnableTooltips.Checked = True Then
                 ToolTip1.Active = True
@@ -770,10 +667,6 @@ Public Class Formtest
         End Try
 
     End Sub
-
-
-
-
 
 
 
@@ -861,7 +754,6 @@ Public Class Formtest
 
         AddHandler cboDev1Device.DrawItem, AddressOf ProfileCombo_DrawItem
         AddHandler cboDev2Device.DrawItem, AddressOf ProfileCombo_DrawItem
-
 
         cboDev1Device.DropDownStyle = ComboBoxStyle.DropDownList
         cboDev2Device.DropDownStyle = ComboBoxStyle.DropDownList

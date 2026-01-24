@@ -185,6 +185,9 @@ Partial Class Formtest
             My.Settings.data231 = Val(Dev1Timeout.Text)
             My.Settings.data243 = Val(Dev1delayop.Text)
             My.Settings.data271 = txtq1d.Text
+            My.Settings.data1222 = txtq1a.Text
+            My.Settings.data1223 = txtq1b.Text
+            My.Settings.data1224 = txtq1c.Text
             My.Settings.data272 = Val(Dev1pauseDurationInSeconds.Text)
             My.Settings.data273 = Val(Dev1runStopwatchEveryInMins.Text)
             My.Settings.data274 = Dev1IntEnable.Checked
@@ -218,6 +221,9 @@ Partial Class Formtest
             My.Settings.data232 = Val(Dev1Timeout.Text)
             My.Settings.data244 = Val(Dev1delayop.Text)
             My.Settings.data275 = txtq1d.Text
+            My.Settings.data1225 = txtq1a.Text
+            My.Settings.data1226 = txtq1b.Text
+            My.Settings.data1227 = txtq1c.Text
             My.Settings.data276 = Val(Dev1pauseDurationInSeconds.Text)
             My.Settings.data277 = Val(Dev1runStopwatchEveryInMins.Text)
             My.Settings.data278 = Dev1IntEnable.Checked
@@ -251,6 +257,9 @@ Partial Class Formtest
             My.Settings.data233 = Val(Dev1Timeout.Text)
             My.Settings.data245 = Val(Dev1delayop.Text)
             My.Settings.data279 = txtq1d.Text
+            My.Settings.data1228 = txtq1a.Text
+            My.Settings.data1229 = txtq1b.Text
+            My.Settings.data1230 = txtq1c.Text
             My.Settings.data280 = Val(Dev1pauseDurationInSeconds.Text)
             My.Settings.data281 = Val(Dev1runStopwatchEveryInMins.Text)
             My.Settings.data282 = Dev1IntEnable.Checked
@@ -284,6 +293,9 @@ Partial Class Formtest
             My.Settings.data234 = Val(Dev1Timeout.Text)
             My.Settings.data246 = Val(Dev1delayop.Text)
             My.Settings.data283 = txtq1d.Text
+            My.Settings.data1231 = txtq1a.Text
+            My.Settings.data1232 = txtq1b.Text
+            My.Settings.data1233 = txtq1c.Text
             My.Settings.data284 = Val(Dev1pauseDurationInSeconds.Text)
             My.Settings.data285 = Val(Dev1runStopwatchEveryInMins.Text)
             My.Settings.data286 = Dev1IntEnable.Checked
@@ -317,6 +329,9 @@ Partial Class Formtest
             My.Settings.data235 = Val(Dev1Timeout.Text)
             My.Settings.data247 = Val(Dev1delayop.Text)
             My.Settings.data287 = txtq1d.Text
+            My.Settings.data1234 = txtq1a.Text
+            My.Settings.data1235 = txtq1b.Text
+            My.Settings.data1236 = txtq1c.Text
             My.Settings.data288 = Val(Dev1pauseDurationInSeconds.Text)
             My.Settings.data289 = Val(Dev1runStopwatchEveryInMins.Text)
             My.Settings.data290 = Dev1IntEnable.Checked
@@ -350,6 +365,9 @@ Partial Class Formtest
             My.Settings.data236 = Val(Dev1Timeout.Text)
             My.Settings.data248 = Val(Dev1delayop.Text)
             My.Settings.data291 = txtq1d.Text
+            My.Settings.data1237 = txtq1a.Text
+            My.Settings.data1238 = txtq1b.Text
+            My.Settings.data1239 = txtq1c.Text
             My.Settings.data292 = Val(Dev1pauseDurationInSeconds.Text)
             My.Settings.data293 = Val(Dev1runStopwatchEveryInMins.Text)
             My.Settings.data294 = Dev1IntEnable.Checked
@@ -383,6 +401,9 @@ Partial Class Formtest
             My.Settings.data368 = Val(Dev1Timeout.Text)
             My.Settings.data369 = Val(Dev1delayop.Text)
             My.Settings.data370 = txtq1d.Text
+            My.Settings.data1240 = txtq1a.Text
+            My.Settings.data1241 = txtq1b.Text
+            My.Settings.data1242 = txtq1c.Text
             My.Settings.data371 = Val(Dev1pauseDurationInSeconds.Text)
             My.Settings.data372 = Val(Dev1runStopwatchEveryInMins.Text)
             My.Settings.data373 = Dev1IntEnable.Checked
@@ -416,6 +437,9 @@ Partial Class Formtest
             My.Settings.data394 = Val(Dev1Timeout.Text)
             My.Settings.data395 = Val(Dev1delayop.Text)
             My.Settings.data396 = txtq1d.Text
+            My.Settings.data1243 = txtq1a.Text
+            My.Settings.data1244 = txtq1b.Text
+            My.Settings.data1245 = txtq1c.Text
             My.Settings.data397 = Val(Dev1pauseDurationInSeconds.Text)
             My.Settings.data398 = Val(Dev1runStopwatchEveryInMins.Text)
             My.Settings.data399 = Dev1IntEnable.Checked
@@ -450,6 +474,9 @@ Partial Class Formtest
             My.Settings.data545 = Val(Dev1Timeout.Text)
             My.Settings.data546 = Val(Dev1delayop.Text)
             My.Settings.data547 = txtq1d.Text
+            My.Settings.data1246 = txtq1a.Text
+            My.Settings.data1247 = txtq1b.Text
+            My.Settings.data1248 = txtq1c.Text
             My.Settings.data548 = Val(Dev1pauseDurationInSeconds.Text)
             My.Settings.data549 = Val(Dev1runStopwatchEveryInMins.Text)
             My.Settings.data550 = Dev1IntEnable.Checked
@@ -483,6 +510,9 @@ Partial Class Formtest
             My.Settings.data574 = Val(Dev1Timeout.Text)
             My.Settings.data575 = Val(Dev1delayop.Text)
             My.Settings.data576 = txtq1d.Text
+            My.Settings.data1249 = txtq1a.Text
+            My.Settings.data1250 = txtq1b.Text
+            My.Settings.data1251 = txtq1c.Text
             My.Settings.data577 = Val(Dev1pauseDurationInSeconds.Text)
             My.Settings.data578 = Val(Dev1runStopwatchEveryInMins.Text)
             My.Settings.data579 = Dev1IntEnable.Checked
@@ -516,6 +546,9 @@ Partial Class Formtest
             My.Settings.data603 = Val(Dev1Timeout.Text)
             My.Settings.data604 = Val(Dev1delayop.Text)
             My.Settings.data605 = txtq1d.Text
+            My.Settings.data1252 = txtq1a.Text
+            My.Settings.data1253 = txtq1b.Text
+            My.Settings.data1254 = txtq1c.Text
             My.Settings.data606 = Val(Dev1pauseDurationInSeconds.Text)
             My.Settings.data607 = Val(Dev1runStopwatchEveryInMins.Text)
             My.Settings.data608 = Dev1IntEnable.Checked
@@ -549,6 +582,9 @@ Partial Class Formtest
             My.Settings.data632 = Val(Dev1Timeout.Text)
             My.Settings.data633 = Val(Dev1delayop.Text)
             My.Settings.data634 = txtq1d.Text
+            My.Settings.data1255 = txtq1a.Text
+            My.Settings.data1256 = txtq1b.Text
+            My.Settings.data1257 = txtq1c.Text
             My.Settings.data635 = Val(Dev1pauseDurationInSeconds.Text)
             My.Settings.data636 = Val(Dev1runStopwatchEveryInMins.Text)
             My.Settings.data637 = Dev1IntEnable.Checked
@@ -582,6 +618,9 @@ Partial Class Formtest
             My.Settings.data777 = Val(Dev1Timeout.Text)
             My.Settings.data778 = Val(Dev1delayop.Text)
             My.Settings.data779 = txtq1d.Text
+            My.Settings.data1258 = txtq1a.Text
+            My.Settings.data1259 = txtq1b.Text
+            My.Settings.data1260 = txtq1c.Text
             My.Settings.data780 = Val(Dev1pauseDurationInSeconds.Text)
             My.Settings.data781 = Val(Dev1runStopwatchEveryInMins.Text)
             My.Settings.data782 = Dev1IntEnable.Checked
@@ -615,6 +654,9 @@ Partial Class Formtest
             My.Settings.data806 = Val(Dev1Timeout.Text)
             My.Settings.data807 = Val(Dev1delayop.Text)
             My.Settings.data808 = txtq1d.Text
+            My.Settings.data1261 = txtq1a.Text
+            My.Settings.data1262 = txtq1b.Text
+            My.Settings.data1263 = txtq1c.Text
             My.Settings.data809 = Val(Dev1pauseDurationInSeconds.Text)
             My.Settings.data810 = Val(Dev1runStopwatchEveryInMins.Text)
             My.Settings.data811 = Dev1IntEnable.Checked
@@ -648,6 +690,9 @@ Partial Class Formtest
             My.Settings.data835 = Val(Dev1Timeout.Text)
             My.Settings.data836 = Val(Dev1delayop.Text)
             My.Settings.data837 = txtq1d.Text
+            My.Settings.data1264 = txtq1a.Text
+            My.Settings.data1265 = txtq1b.Text
+            My.Settings.data1266 = txtq1c.Text
             My.Settings.data838 = Val(Dev1pauseDurationInSeconds.Text)
             My.Settings.data839 = Val(Dev1runStopwatchEveryInMins.Text)
             My.Settings.data840 = Dev1IntEnable.Checked
@@ -681,6 +726,9 @@ Partial Class Formtest
             My.Settings.data864 = Val(Dev1Timeout.Text)
             My.Settings.data865 = Val(Dev1delayop.Text)
             My.Settings.data866 = txtq1d.Text
+            My.Settings.data1267 = txtq1a.Text
+            My.Settings.data1268 = txtq1b.Text
+            My.Settings.data1269 = txtq1c.Text
             My.Settings.data867 = Val(Dev1pauseDurationInSeconds.Text)
             My.Settings.data868 = Val(Dev1runStopwatchEveryInMins.Text)
             My.Settings.data869 = Dev1IntEnable.Checked
@@ -714,6 +762,9 @@ Partial Class Formtest
             My.Settings.data893 = Val(Dev1Timeout.Text)
             My.Settings.data894 = Val(Dev1delayop.Text)
             My.Settings.data895 = txtq1d.Text
+            My.Settings.data1270 = txtq1a.Text
+            My.Settings.data1271 = txtq1b.Text
+            My.Settings.data1272 = txtq1c.Text
             My.Settings.data896 = Val(Dev1pauseDurationInSeconds.Text)
             My.Settings.data897 = Val(Dev1runStopwatchEveryInMins.Text)
             My.Settings.data898 = Dev1IntEnable.Checked
@@ -747,6 +798,9 @@ Partial Class Formtest
             My.Settings.data922 = Val(Dev1Timeout.Text)
             My.Settings.data923 = Val(Dev1delayop.Text)
             My.Settings.data924 = txtq1d.Text
+            My.Settings.data1273 = txtq1a.Text
+            My.Settings.data1274 = txtq1b.Text
+            My.Settings.data1275 = txtq1c.Text
             My.Settings.data925 = Val(Dev1pauseDurationInSeconds.Text)
             My.Settings.data926 = Val(Dev1runStopwatchEveryInMins.Text)
             My.Settings.data927 = Dev1IntEnable.Checked
@@ -780,6 +834,9 @@ Partial Class Formtest
             My.Settings.data951 = Val(Dev1Timeout.Text)
             My.Settings.data952 = Val(Dev1delayop.Text)
             My.Settings.data953 = txtq1d.Text
+            My.Settings.data1276 = txtq1a.Text
+            My.Settings.data1277 = txtq1b.Text
+            My.Settings.data1278 = txtq1c.Text
             My.Settings.data954 = Val(Dev1pauseDurationInSeconds.Text)
             My.Settings.data955 = Val(Dev1runStopwatchEveryInMins.Text)
             My.Settings.data956 = Dev1IntEnable.Checked
@@ -813,6 +870,9 @@ Partial Class Formtest
             My.Settings.data980 = Val(Dev1Timeout.Text)
             My.Settings.data981 = Val(Dev1delayop.Text)
             My.Settings.data982 = txtq1d.Text
+            My.Settings.data1279 = txtq1a.Text
+            My.Settings.data1280 = txtq1b.Text
+            My.Settings.data1281 = txtq1c.Text
             My.Settings.data983 = Val(Dev1pauseDurationInSeconds.Text)
             My.Settings.data984 = Val(Dev1runStopwatchEveryInMins.Text)
             My.Settings.data985 = Dev1IntEnable.Checked
@@ -847,6 +907,9 @@ Partial Class Formtest
             My.Settings.data237 = Val(Dev2Timeout.Text)
             My.Settings.data249 = Val(Dev2delayop.Text)
             My.Settings.data295 = txtq2d.Text
+            My.Settings.data1282 = txtq2a.Text
+            My.Settings.data1283 = txtq2b.Text
+            My.Settings.data1284 = txtq2c.Text
             My.Settings.data296 = Val(Dev2pauseDurationInSeconds.Text)
             My.Settings.data297 = Val(Dev2runStopwatchEveryInMins.Text)
             My.Settings.data298 = Dev2IntEnable.Checked
@@ -880,6 +943,9 @@ Partial Class Formtest
             My.Settings.data238 = Val(Dev2Timeout.Text)
             My.Settings.data250 = Val(Dev2delayop.Text)
             My.Settings.data299 = txtq2d.Text
+            My.Settings.data1285 = txtq2a.Text
+            My.Settings.data1286 = txtq2b.Text
+            My.Settings.data1287 = txtq2c.Text
             My.Settings.data300 = Val(Dev2pauseDurationInSeconds.Text)
             My.Settings.data301 = Val(Dev2runStopwatchEveryInMins.Text)
             My.Settings.data302 = Dev2IntEnable.Checked
@@ -913,6 +979,9 @@ Partial Class Formtest
             My.Settings.data239 = Val(Dev2Timeout.Text)
             My.Settings.data251 = Val(Dev2delayop.Text)
             My.Settings.data303 = txtq2d.Text
+            My.Settings.data1288 = txtq2a.Text
+            My.Settings.data1289 = txtq2b.Text
+            My.Settings.data1290 = txtq2c.Text
             My.Settings.data304 = Val(Dev2pauseDurationInSeconds.Text)
             My.Settings.data305 = Val(Dev2runStopwatchEveryInMins.Text)
             My.Settings.data306 = Dev2IntEnable.Checked
@@ -946,6 +1015,9 @@ Partial Class Formtest
             My.Settings.data240 = Val(Dev2Timeout.Text)
             My.Settings.data252 = Val(Dev2delayop.Text)
             My.Settings.data307 = txtq2d.Text
+            My.Settings.data1291 = txtq2a.Text
+            My.Settings.data1292 = txtq2b.Text
+            My.Settings.data1293 = txtq2c.Text
             My.Settings.data308 = Val(Dev2pauseDurationInSeconds.Text)
             My.Settings.data309 = Val(Dev2runStopwatchEveryInMins.Text)
             My.Settings.data310 = Dev2IntEnable.Checked
@@ -979,6 +1051,9 @@ Partial Class Formtest
             My.Settings.data241 = Val(Dev2Timeout.Text)
             My.Settings.data253 = Val(Dev2delayop.Text)
             My.Settings.data311 = txtq2d.Text
+            My.Settings.data1294 = txtq2a.Text
+            My.Settings.data1295 = txtq2b.Text
+            My.Settings.data1296 = txtq2c.Text
             My.Settings.data312 = Val(Dev2pauseDurationInSeconds.Text)
             My.Settings.data313 = Val(Dev2runStopwatchEveryInMins.Text)
             My.Settings.data314 = Dev2IntEnable.Checked
@@ -1012,6 +1087,9 @@ Partial Class Formtest
             My.Settings.data242 = Val(Dev2Timeout.Text)
             My.Settings.data254 = Val(Dev2delayop.Text)
             My.Settings.data315 = txtq2d.Text
+            My.Settings.data1297 = txtq2a.Text
+            My.Settings.data1298 = txtq2b.Text
+            My.Settings.data1299 = txtq2c.Text
             My.Settings.data316 = Val(Dev2pauseDurationInSeconds.Text)
             My.Settings.data317 = Val(Dev2runStopwatchEveryInMins.Text)
             My.Settings.data318 = Dev2IntEnable.Checked
@@ -1045,6 +1123,9 @@ Partial Class Formtest
             My.Settings.data420 = Val(Dev2Timeout.Text)
             My.Settings.data421 = Val(Dev2delayop.Text)
             My.Settings.data422 = txtq2d.Text
+            My.Settings.data1300 = txtq2a.Text
+            My.Settings.data1301 = txtq2b.Text
+            My.Settings.data1302 = txtq2c.Text
             My.Settings.data423 = Val(Dev2pauseDurationInSeconds.Text)
             My.Settings.data424 = Val(Dev2runStopwatchEveryInMins.Text)
             My.Settings.data425 = Dev2IntEnable.Checked
@@ -1078,6 +1159,9 @@ Partial Class Formtest
             My.Settings.data446 = Val(Dev2Timeout.Text)
             My.Settings.data447 = Val(Dev2delayop.Text)
             My.Settings.data448 = txtq2d.Text
+            My.Settings.data1303 = txtq2a.Text
+            My.Settings.data1304 = txtq2b.Text
+            My.Settings.data1305 = txtq2c.Text
             My.Settings.data449 = Val(Dev2pauseDurationInSeconds.Text)
             My.Settings.data450 = Val(Dev2runStopwatchEveryInMins.Text)
             My.Settings.data451 = Dev2IntEnable.Checked
@@ -1111,6 +1195,9 @@ Partial Class Formtest
             My.Settings.data661 = Val(Dev2Timeout.Text)
             My.Settings.data662 = Val(Dev2delayop.Text)
             My.Settings.data663 = txtq2d.Text
+            My.Settings.data1306 = txtq2a.Text
+            My.Settings.data1307 = txtq2b.Text
+            My.Settings.data1308 = txtq2c.Text
             My.Settings.data664 = Val(Dev2pauseDurationInSeconds.Text)
             My.Settings.data665 = Val(Dev2runStopwatchEveryInMins.Text)
             My.Settings.data666 = Dev2IntEnable.Checked
@@ -1144,6 +1231,9 @@ Partial Class Formtest
             My.Settings.data690 = Val(Dev2Timeout.Text)
             My.Settings.data691 = Val(Dev2delayop.Text)
             My.Settings.data692 = txtq2d.Text
+            My.Settings.data1309 = txtq2a.Text
+            My.Settings.data1310 = txtq2b.Text
+            My.Settings.data1311 = txtq2c.Text
             My.Settings.data693 = Val(Dev2pauseDurationInSeconds.Text)
             My.Settings.data694 = Val(Dev2runStopwatchEveryInMins.Text)
             My.Settings.data695 = Dev2IntEnable.Checked
@@ -1177,6 +1267,9 @@ Partial Class Formtest
             My.Settings.data719 = Val(Dev2Timeout.Text)
             My.Settings.data720 = Val(Dev2delayop.Text)
             My.Settings.data721 = txtq2d.Text
+            My.Settings.data1312 = txtq2a.Text
+            My.Settings.data1313 = txtq2b.Text
+            My.Settings.data1314 = txtq2c.Text
             My.Settings.data722 = Val(Dev2pauseDurationInSeconds.Text)
             My.Settings.data723 = Val(Dev2runStopwatchEveryInMins.Text)
             My.Settings.data724 = Dev2IntEnable.Checked
@@ -1210,6 +1303,9 @@ Partial Class Formtest
             My.Settings.data748 = Val(Dev2Timeout.Text)
             My.Settings.data749 = Val(Dev2delayop.Text)
             My.Settings.data750 = txtq2d.Text
+            My.Settings.data1315 = txtq2a.Text
+            My.Settings.data1316 = txtq2b.Text
+            My.Settings.data1317 = txtq2c.Text
             My.Settings.data751 = Val(Dev2pauseDurationInSeconds.Text)
             My.Settings.data752 = Val(Dev2runStopwatchEveryInMins.Text)
             My.Settings.data753 = Dev2IntEnable.Checked
@@ -1243,6 +1339,9 @@ Partial Class Formtest
             My.Settings.data1009 = Val(Dev2Timeout.Text)
             My.Settings.data1010 = Val(Dev2delayop.Text)
             My.Settings.data1011 = txtq2d.Text
+            My.Settings.data1318 = txtq2a.Text
+            My.Settings.data1319 = txtq2b.Text
+            My.Settings.data1320 = txtq2c.Text
             My.Settings.data1012 = Val(Dev2pauseDurationInSeconds.Text)
             My.Settings.data1013 = Val(Dev2runStopwatchEveryInMins.Text)
             My.Settings.data1014 = Dev2IntEnable.Checked
@@ -1276,6 +1375,9 @@ Partial Class Formtest
             My.Settings.data1038 = Val(Dev2Timeout.Text)
             My.Settings.data1039 = Val(Dev2delayop.Text)
             My.Settings.data1040 = txtq2d.Text
+            My.Settings.data1321 = txtq2a.Text
+            My.Settings.data1322 = txtq2b.Text
+            My.Settings.data1323 = txtq2c.Text
             My.Settings.data1041 = Val(Dev2pauseDurationInSeconds.Text)
             My.Settings.data1042 = Val(Dev2runStopwatchEveryInMins.Text)
             My.Settings.data1043 = Dev2IntEnable.Checked
@@ -1309,6 +1411,9 @@ Partial Class Formtest
             My.Settings.data1067 = Val(Dev2Timeout.Text)
             My.Settings.data1068 = Val(Dev2delayop.Text)
             My.Settings.data1069 = txtq2d.Text
+            My.Settings.data1324 = txtq2a.Text
+            My.Settings.data1325 = txtq2b.Text
+            My.Settings.data1326 = txtq2c.Text
             My.Settings.data1070 = Val(Dev2pauseDurationInSeconds.Text)
             My.Settings.data1071 = Val(Dev2runStopwatchEveryInMins.Text)
             My.Settings.data1072 = Dev2IntEnable.Checked
@@ -1342,6 +1447,9 @@ Partial Class Formtest
             My.Settings.data1096 = Val(Dev2Timeout.Text)
             My.Settings.data1097 = Val(Dev2delayop.Text)
             My.Settings.data1098 = txtq2d.Text
+            My.Settings.data1327 = txtq2a.Text
+            My.Settings.data1328 = txtq2b.Text
+            My.Settings.data1329 = txtq2c.Text
             My.Settings.data1099 = Val(Dev2pauseDurationInSeconds.Text)
             My.Settings.data1100 = Val(Dev2runStopwatchEveryInMins.Text)
             My.Settings.data1101 = Dev2IntEnable.Checked
@@ -1375,6 +1483,9 @@ Partial Class Formtest
             My.Settings.data1125 = Val(Dev2Timeout.Text)
             My.Settings.data1126 = Val(Dev2delayop.Text)
             My.Settings.data1127 = txtq2d.Text
+            My.Settings.data1330 = txtq2a.Text
+            My.Settings.data1331 = txtq2b.Text
+            My.Settings.data1332 = txtq2c.Text
             My.Settings.data1128 = Val(Dev2pauseDurationInSeconds.Text)
             My.Settings.data1129 = Val(Dev2runStopwatchEveryInMins.Text)
             My.Settings.data1130 = Dev2IntEnable.Checked
@@ -1408,6 +1519,9 @@ Partial Class Formtest
             My.Settings.data1154 = Val(Dev2Timeout.Text)
             My.Settings.data1155 = Val(Dev2delayop.Text)
             My.Settings.data1156 = txtq2d.Text
+            My.Settings.data1333 = txtq2a.Text
+            My.Settings.data1334 = txtq2b.Text
+            My.Settings.data1335 = txtq2c.Text
             My.Settings.data1157 = Val(Dev2pauseDurationInSeconds.Text)
             My.Settings.data1158 = Val(Dev2runStopwatchEveryInMins.Text)
             My.Settings.data1159 = Dev2IntEnable.Checked
@@ -1441,6 +1555,9 @@ Partial Class Formtest
             My.Settings.data1183 = Val(Dev2Timeout.Text)
             My.Settings.data1184 = Val(Dev2delayop.Text)
             My.Settings.data1185 = txtq2d.Text
+            My.Settings.data1336 = txtq2a.Text
+            My.Settings.data1337 = txtq2b.Text
+            My.Settings.data1338 = txtq2c.Text
             My.Settings.data1186 = Val(Dev2pauseDurationInSeconds.Text)
             My.Settings.data1187 = Val(Dev2runStopwatchEveryInMins.Text)
             My.Settings.data1188 = Dev2IntEnable.Checked
@@ -1474,6 +1591,9 @@ Partial Class Formtest
             My.Settings.data1212 = Val(Dev2Timeout.Text)
             My.Settings.data1213 = Val(Dev2delayop.Text)
             My.Settings.data1214 = txtq2d.Text
+            My.Settings.data1339 = txtq2a.Text
+            My.Settings.data1340 = txtq2b.Text
+            My.Settings.data1341 = txtq2c.Text
             My.Settings.data1215 = Val(Dev2pauseDurationInSeconds.Text)
             My.Settings.data1216 = Val(Dev2runStopwatchEveryInMins.Text)
             My.Settings.data1217 = Dev2IntEnable.Checked
@@ -1516,6 +1636,8 @@ Partial Class Formtest
     ' Device 1 profile 1
     Private Sub LoadDev1Profile_1()
 
+        'My.Settings.Reload()
+
 
         txtname1.Text = My.Settings.data1
         CommandStart1.Text = My.Settings.data5
@@ -1549,6 +1671,12 @@ Partial Class Formtest
         Dev1delayop.Text = My.Settings.data243
 
         txtq1d.Text = My.Settings.data271
+
+        txtq1a.Text = My.Settings.data1222
+
+        txtq1b.Text = My.Settings.data1223
+
+        txtq1c.Text = My.Settings.data1224
         Dev1pauseDurationInSeconds.Text = My.Settings.data272
         Dev1runStopwatchEveryInMins.Text = My.Settings.data273
         Dev1IntEnable.Checked = My.Settings.data274
@@ -1567,6 +1695,8 @@ Partial Class Formtest
 
     ' Device 1 profile 2
     Private Sub LoadDev1Profile_2()
+
+        'My.Settings.Reload()
 
 
         txtname1.Text = My.Settings.data1b
@@ -1601,6 +1731,12 @@ Partial Class Formtest
         Dev1delayop.Text = My.Settings.data244
 
         txtq1d.Text = My.Settings.data275
+
+        txtq1a.Text = My.Settings.data1225
+
+        txtq1b.Text = My.Settings.data1226
+
+        txtq1c.Text = My.Settings.data1227
         Dev1pauseDurationInSeconds.Text = My.Settings.data276
         Dev1runStopwatchEveryInMins.Text = My.Settings.data277
         Dev1IntEnable.Checked = My.Settings.data278
@@ -1618,6 +1754,8 @@ Partial Class Formtest
 
     ' Device 1 profile 3
     Private Sub LoadDev1Profile_3()
+
+        'My.Settings.Reload()
 
 
         txtname1.Text = My.Settings.data1c
@@ -1652,6 +1790,12 @@ Partial Class Formtest
         Dev1delayop.Text = My.Settings.data245
 
         txtq1d.Text = My.Settings.data279
+
+        txtq1a.Text = My.Settings.data1228
+
+        txtq1b.Text = My.Settings.data1229
+
+        txtq1c.Text = My.Settings.data1230
         Dev1pauseDurationInSeconds.Text = My.Settings.data280
         Dev1runStopwatchEveryInMins.Text = My.Settings.data281
         Dev1IntEnable.Checked = My.Settings.data282
@@ -1669,6 +1813,8 @@ Partial Class Formtest
 
     ' Device 1 profile 4
     Private Sub LoadDev1Profile_4()
+
+        'My.Settings.Reload()
 
 
         txtname1.Text = My.Settings.data139
@@ -1698,6 +1844,12 @@ Partial Class Formtest
         Dev1delayop.Text = My.Settings.data246
 
         txtq1d.Text = My.Settings.data283
+
+        txtq1a.Text = My.Settings.data1231
+
+        txtq1b.Text = My.Settings.data1232
+
+        txtq1c.Text = My.Settings.data1233
         Dev1pauseDurationInSeconds.Text = My.Settings.data284
         Dev1runStopwatchEveryInMins.Text = My.Settings.data285
         Dev1IntEnable.Checked = My.Settings.data286
@@ -1715,6 +1867,8 @@ Partial Class Formtest
 
     ' Device 1 profile 5
     Private Sub LoadDev1Profile_5()
+
+        'My.Settings.Reload()
 
 
         txtname1.Text = My.Settings.data155
@@ -1744,6 +1898,12 @@ Partial Class Formtest
         Dev1delayop.Text = My.Settings.data247
 
         txtq1d.Text = My.Settings.data287
+
+        txtq1a.Text = My.Settings.data1234
+
+        txtq1b.Text = My.Settings.data1235
+
+        txtq1c.Text = My.Settings.data1236
         Dev1pauseDurationInSeconds.Text = My.Settings.data288
         Dev1runStopwatchEveryInMins.Text = My.Settings.data289
         Dev1IntEnable.Checked = My.Settings.data290
@@ -1761,6 +1921,8 @@ Partial Class Formtest
 
     ' Device 1 profile 6
     Private Sub LoadDev1Profile_6()
+
+        'My.Settings.Reload()
 
 
         txtname1.Text = My.Settings.data171
@@ -1790,6 +1952,12 @@ Partial Class Formtest
         Dev1delayop.Text = My.Settings.data248
 
         txtq1d.Text = My.Settings.data291
+
+        txtq1a.Text = My.Settings.data1237
+
+        txtq1b.Text = My.Settings.data1238
+
+        txtq1c.Text = My.Settings.data1239
         Dev1pauseDurationInSeconds.Text = My.Settings.data292
         Dev1runStopwatchEveryInMins.Text = My.Settings.data293
         Dev1IntEnable.Checked = My.Settings.data294
@@ -1807,6 +1975,8 @@ Partial Class Formtest
 
     ' Device 1 profile 7
     Private Sub LoadDev1Profile_7()
+
+        'My.Settings.Reload()
 
 
         txtname1.Text = My.Settings.data349
@@ -1836,6 +2006,12 @@ Partial Class Formtest
         Dev1delayop.Text = My.Settings.data369
 
         txtq1d.Text = My.Settings.data370
+
+        txtq1a.Text = My.Settings.data1240
+
+        txtq1b.Text = My.Settings.data1241
+
+        txtq1c.Text = My.Settings.data1242
         Dev1pauseDurationInSeconds.Text = My.Settings.data371
         Dev1runStopwatchEveryInMins.Text = My.Settings.data372
         Dev1IntEnable.Checked = My.Settings.data373
@@ -1855,6 +2031,8 @@ Partial Class Formtest
 
     ' Device 1 profile 8
     Private Sub LoadDev1Profile_8()
+
+        'My.Settings.Reload()
 
 
         txtname1.Text = My.Settings.data375
@@ -1884,6 +2062,12 @@ Partial Class Formtest
         Dev1delayop.Text = My.Settings.data395
 
         txtq1d.Text = My.Settings.data396
+
+        txtq1a.Text = My.Settings.data1243
+
+        txtq1b.Text = My.Settings.data1244
+
+        txtq1c.Text = My.Settings.data1245
         Dev1pauseDurationInSeconds.Text = My.Settings.data397
         Dev1runStopwatchEveryInMins.Text = My.Settings.data398
         Dev1IntEnable.Checked = My.Settings.data399
@@ -1900,6 +2084,8 @@ Partial Class Formtest
     End Sub
 
     Private Sub LoadDev1Profile_9()
+
+        'My.Settings.Reload()
 
 
         txtname1.Text = My.Settings.data526
@@ -1924,6 +2110,9 @@ Partial Class Formtest
         Dev1Timeout.Text = My.Settings.data545
         Dev1delayop.Text = My.Settings.data546
         txtq1d.Text = My.Settings.data547
+        txtq1a.Text = My.Settings.data1246
+        txtq1b.Text = My.Settings.data1247
+        txtq1c.Text = My.Settings.data1248
         Dev1pauseDurationInSeconds.Text = My.Settings.data548
         Dev1runStopwatchEveryInMins.Text = My.Settings.data549
         Dev1IntEnable.Checked = My.Settings.data550
@@ -1936,6 +2125,8 @@ Partial Class Formtest
     End Sub
 
     Private Sub LoadDev1Profile_10()
+
+        'My.Settings.Reload()
 
 
         txtname1.Text = My.Settings.data555
@@ -1960,6 +2151,9 @@ Partial Class Formtest
         Dev1Timeout.Text = My.Settings.data574
         Dev1delayop.Text = My.Settings.data575
         txtq1d.Text = My.Settings.data576
+        txtq1a.Text = My.Settings.data1249
+        txtq1b.Text = My.Settings.data1250
+        txtq1c.Text = My.Settings.data1251
         Dev1pauseDurationInSeconds.Text = My.Settings.data577
         Dev1runStopwatchEveryInMins.Text = My.Settings.data578
         Dev1IntEnable.Checked = My.Settings.data579
@@ -1972,6 +2166,8 @@ Partial Class Formtest
     End Sub
 
     Private Sub LoadDev1Profile_11()
+
+        'My.Settings.Reload()
 
 
         txtname1.Text = My.Settings.data584
@@ -1996,6 +2192,9 @@ Partial Class Formtest
         Dev1Timeout.Text = My.Settings.data603
         Dev1delayop.Text = My.Settings.data604
         txtq1d.Text = My.Settings.data605
+        txtq1a.Text = My.Settings.data1252
+        txtq1b.Text = My.Settings.data1253
+        txtq1c.Text = My.Settings.data1254
         Dev1pauseDurationInSeconds.Text = My.Settings.data606
         Dev1runStopwatchEveryInMins.Text = My.Settings.data607
         Dev1IntEnable.Checked = My.Settings.data608
@@ -2008,6 +2207,8 @@ Partial Class Formtest
     End Sub
 
     Private Sub LoadDev1Profile_12()
+
+        'My.Settings.Reload()
 
 
         txtname1.Text = My.Settings.data613
@@ -2032,6 +2233,9 @@ Partial Class Formtest
         Dev1Timeout.Text = My.Settings.data632
         Dev1delayop.Text = My.Settings.data633
         txtq1d.Text = My.Settings.data634
+        txtq1a.Text = My.Settings.data1255
+        txtq1b.Text = My.Settings.data1256
+        txtq1c.Text = My.Settings.data1257
         Dev1pauseDurationInSeconds.Text = My.Settings.data635
         Dev1runStopwatchEveryInMins.Text = My.Settings.data636
         Dev1IntEnable.Checked = My.Settings.data637
@@ -2044,6 +2248,8 @@ Partial Class Formtest
     End Sub
 
     Private Sub LoadDev1Profile_13()
+
+        'My.Settings.Reload()
 
 
         txtname1.Text = My.Settings.data758
@@ -2068,6 +2274,9 @@ Partial Class Formtest
         Dev1Timeout.Text = My.Settings.data777
         Dev1delayop.Text = My.Settings.data778
         txtq1d.Text = My.Settings.data779
+        txtq1a.Text = My.Settings.data1258
+        txtq1b.Text = My.Settings.data1259
+        txtq1c.Text = My.Settings.data1260
         Dev1pauseDurationInSeconds.Text = My.Settings.data780
         Dev1runStopwatchEveryInMins.Text = My.Settings.data781
         Dev1IntEnable.Checked = My.Settings.data782
@@ -2080,6 +2289,8 @@ Partial Class Formtest
     End Sub
 
     Private Sub LoadDev1Profile_14()
+
+        'My.Settings.Reload()
 
 
         txtname1.Text = My.Settings.data787
@@ -2104,6 +2315,9 @@ Partial Class Formtest
         Dev1Timeout.Text = My.Settings.data806
         Dev1delayop.Text = My.Settings.data807
         txtq1d.Text = My.Settings.data808
+        txtq1a.Text = My.Settings.data1261
+        txtq1b.Text = My.Settings.data1262
+        txtq1c.Text = My.Settings.data1263
         Dev1pauseDurationInSeconds.Text = My.Settings.data809
         Dev1runStopwatchEveryInMins.Text = My.Settings.data810
         Dev1IntEnable.Checked = My.Settings.data811
@@ -2116,6 +2330,8 @@ Partial Class Formtest
     End Sub
 
     Private Sub LoadDev1Profile_15()
+
+        'My.Settings.Reload()
 
 
         txtname1.Text = My.Settings.data816
@@ -2140,6 +2356,9 @@ Partial Class Formtest
         Dev1Timeout.Text = My.Settings.data835
         Dev1delayop.Text = My.Settings.data836
         txtq1d.Text = My.Settings.data837
+        txtq1a.Text = My.Settings.data1264
+        txtq1b.Text = My.Settings.data1265
+        txtq1c.Text = My.Settings.data1266
         Dev1pauseDurationInSeconds.Text = My.Settings.data838
         Dev1runStopwatchEveryInMins.Text = My.Settings.data839
         Dev1IntEnable.Checked = My.Settings.data840
@@ -2152,6 +2371,8 @@ Partial Class Formtest
     End Sub
 
     Private Sub LoadDev1Profile_16()
+
+        'My.Settings.Reload()
 
 
         txtname1.Text = My.Settings.data845
@@ -2176,6 +2397,9 @@ Partial Class Formtest
         Dev1Timeout.Text = My.Settings.data864
         Dev1delayop.Text = My.Settings.data865
         txtq1d.Text = My.Settings.data866
+        txtq1a.Text = My.Settings.data1267
+        txtq1b.Text = My.Settings.data1268
+        txtq1c.Text = My.Settings.data1269
         Dev1pauseDurationInSeconds.Text = My.Settings.data867
         Dev1runStopwatchEveryInMins.Text = My.Settings.data868
         Dev1IntEnable.Checked = My.Settings.data869
@@ -2188,6 +2412,8 @@ Partial Class Formtest
     End Sub
 
     Private Sub LoadDev1Profile_17()
+
+        'My.Settings.Reload()
 
 
         txtname1.Text = My.Settings.data874
@@ -2212,6 +2438,9 @@ Partial Class Formtest
         Dev1Timeout.Text = My.Settings.data893
         Dev1delayop.Text = My.Settings.data894
         txtq1d.Text = My.Settings.data895
+        txtq1a.Text = My.Settings.data1270
+        txtq1b.Text = My.Settings.data1271
+        txtq1c.Text = My.Settings.data1272
         Dev1pauseDurationInSeconds.Text = My.Settings.data896
         Dev1runStopwatchEveryInMins.Text = My.Settings.data897
         Dev1IntEnable.Checked = My.Settings.data898
@@ -2224,6 +2453,8 @@ Partial Class Formtest
     End Sub
 
     Private Sub LoadDev1Profile_18()
+
+        'My.Settings.Reload()
 
 
         txtname1.Text = My.Settings.data903
@@ -2248,6 +2479,9 @@ Partial Class Formtest
         Dev1Timeout.Text = My.Settings.data922
         Dev1delayop.Text = My.Settings.data923
         txtq1d.Text = My.Settings.data924
+        txtq1a.Text = My.Settings.data1273
+        txtq1b.Text = My.Settings.data1274
+        txtq1c.Text = My.Settings.data1275
         Dev1pauseDurationInSeconds.Text = My.Settings.data925
         Dev1runStopwatchEveryInMins.Text = My.Settings.data926
         Dev1IntEnable.Checked = My.Settings.data927
@@ -2260,6 +2494,8 @@ Partial Class Formtest
     End Sub
 
     Private Sub LoadDev1Profile_19()
+
+        'My.Settings.Reload()
 
 
         txtname1.Text = My.Settings.data932
@@ -2284,6 +2520,9 @@ Partial Class Formtest
         Dev1Timeout.Text = My.Settings.data951
         Dev1delayop.Text = My.Settings.data952
         txtq1d.Text = My.Settings.data953
+        txtq1a.Text = My.Settings.data1276
+        txtq1b.Text = My.Settings.data1277
+        txtq1c.Text = My.Settings.data1278
         Dev1pauseDurationInSeconds.Text = My.Settings.data954
         Dev1runStopwatchEveryInMins.Text = My.Settings.data955
         Dev1IntEnable.Checked = My.Settings.data956
@@ -2296,6 +2535,8 @@ Partial Class Formtest
     End Sub
 
     Private Sub LoadDev1Profile_20()
+
+        'My.Settings.Reload()
 
 
         txtname1.Text = My.Settings.data961
@@ -2320,6 +2561,9 @@ Partial Class Formtest
         Dev1Timeout.Text = My.Settings.data980
         Dev1delayop.Text = My.Settings.data981
         txtq1d.Text = My.Settings.data982
+        txtq1a.Text = My.Settings.data1279
+        txtq1b.Text = My.Settings.data1280
+        txtq1c.Text = My.Settings.data1281
         Dev1pauseDurationInSeconds.Text = My.Settings.data983
         Dev1runStopwatchEveryInMins.Text = My.Settings.data984
         Dev1IntEnable.Checked = My.Settings.data985
@@ -2370,6 +2614,12 @@ Partial Class Formtest
         Dev2delayop.Text = My.Settings.data249
 
         txtq2d.Text = My.Settings.data295
+
+        txtq2a.Text = My.Settings.data1282
+
+        txtq2b.Text = My.Settings.data1283
+
+        txtq2c.Text = My.Settings.data1284
         Dev2pauseDurationInSeconds.Text = My.Settings.data296
         Dev2runStopwatchEveryInMins.Text = My.Settings.data297
         Dev2IntEnable.Checked = My.Settings.data298
@@ -2421,6 +2671,12 @@ Partial Class Formtest
         Dev2delayop.Text = My.Settings.data250
 
         txtq2d.Text = My.Settings.data299
+
+        txtq2a.Text = My.Settings.data1285
+
+        txtq2b.Text = My.Settings.data1286
+
+        txtq2c.Text = My.Settings.data1287
         Dev2pauseDurationInSeconds.Text = My.Settings.data300
         Dev2runStopwatchEveryInMins.Text = My.Settings.data301
         Dev2IntEnable.Checked = My.Settings.data302
@@ -2471,6 +2727,12 @@ Partial Class Formtest
         Dev2delayop.Text = My.Settings.data251
 
         txtq2d.Text = My.Settings.data303
+
+        txtq2a.Text = My.Settings.data1288
+
+        txtq2b.Text = My.Settings.data1289
+
+        txtq2c.Text = My.Settings.data1290
         Dev2pauseDurationInSeconds.Text = My.Settings.data304
         Dev2runStopwatchEveryInMins.Text = My.Settings.data305
         Dev2IntEnable.Checked = My.Settings.data306
@@ -2518,6 +2780,12 @@ Partial Class Formtest
         Dev2delayop.Text = My.Settings.data252
 
         txtq2d.Text = My.Settings.data307
+
+        txtq2a.Text = My.Settings.data1291
+
+        txtq2b.Text = My.Settings.data1292
+
+        txtq2c.Text = My.Settings.data1293
         Dev2pauseDurationInSeconds.Text = My.Settings.data308
         Dev2runStopwatchEveryInMins.Text = My.Settings.data309
         Dev2IntEnable.Checked = My.Settings.data310
@@ -2564,6 +2832,12 @@ Partial Class Formtest
         Dev2delayop.Text = My.Settings.data253
 
         txtq2d.Text = My.Settings.data311
+
+        txtq2a.Text = My.Settings.data1294
+
+        txtq2b.Text = My.Settings.data1295
+
+        txtq2c.Text = My.Settings.data1296
         Dev2pauseDurationInSeconds.Text = My.Settings.data312
         Dev2runStopwatchEveryInMins.Text = My.Settings.data313
         Dev2IntEnable.Checked = My.Settings.data314
@@ -2610,6 +2884,12 @@ Partial Class Formtest
         Dev2delayop.Text = My.Settings.data254
 
         txtq2d.Text = My.Settings.data315
+
+        txtq2a.Text = My.Settings.data1297
+
+        txtq2b.Text = My.Settings.data1298
+
+        txtq2c.Text = My.Settings.data1299
         Dev2pauseDurationInSeconds.Text = My.Settings.data316
         Dev2runStopwatchEveryInMins.Text = My.Settings.data317
         Dev2IntEnable.Checked = My.Settings.data318
@@ -2656,6 +2936,12 @@ Partial Class Formtest
         Dev2delayop.Text = My.Settings.data421
 
         txtq2d.Text = My.Settings.data422
+
+        txtq2a.Text = My.Settings.data1300
+
+        txtq2b.Text = My.Settings.data1301
+
+        txtq2c.Text = My.Settings.data1302
         Dev2pauseDurationInSeconds.Text = My.Settings.data423
         Dev2runStopwatchEveryInMins.Text = My.Settings.data424
         Dev2IntEnable.Checked = My.Settings.data425
@@ -2703,6 +2989,12 @@ Partial Class Formtest
         Dev2delayop.Text = My.Settings.data447
 
         txtq2d.Text = My.Settings.data448
+
+        txtq2a.Text = My.Settings.data1303
+
+        txtq2b.Text = My.Settings.data1304
+
+        txtq2c.Text = My.Settings.data1305
         Dev2pauseDurationInSeconds.Text = My.Settings.data449
         Dev2runStopwatchEveryInMins.Text = My.Settings.data450
         Dev2IntEnable.Checked = My.Settings.data451
@@ -2745,6 +3037,9 @@ Partial Class Formtest
         Dev2Timeout.Text = My.Settings.data661
         Dev2delayop.Text = My.Settings.data662
         txtq2d.Text = My.Settings.data663
+        txtq2a.Text = My.Settings.data1306
+        txtq2b.Text = My.Settings.data1307
+        txtq2c.Text = My.Settings.data1308
         Dev2pauseDurationInSeconds.Text = My.Settings.data664
         Dev2runStopwatchEveryInMins.Text = My.Settings.data665
         Dev2IntEnable.Checked = My.Settings.data666
@@ -2781,6 +3076,9 @@ Partial Class Formtest
         Dev2Timeout.Text = My.Settings.data690
         Dev2delayop.Text = My.Settings.data691
         txtq2d.Text = My.Settings.data692
+        txtq2a.Text = My.Settings.data1309
+        txtq2b.Text = My.Settings.data1310
+        txtq2c.Text = My.Settings.data1311
         Dev2pauseDurationInSeconds.Text = My.Settings.data693
         Dev2runStopwatchEveryInMins.Text = My.Settings.data694
         Dev2IntEnable.Checked = My.Settings.data695
@@ -2817,6 +3115,9 @@ Partial Class Formtest
         Dev2Timeout.Text = My.Settings.data719
         Dev2delayop.Text = My.Settings.data720
         txtq2d.Text = My.Settings.data721
+        txtq2a.Text = My.Settings.data1312
+        txtq2b.Text = My.Settings.data1313
+        txtq2c.Text = My.Settings.data1314
         Dev2pauseDurationInSeconds.Text = My.Settings.data722
         Dev2runStopwatchEveryInMins.Text = My.Settings.data723
         Dev2IntEnable.Checked = My.Settings.data724
@@ -2853,6 +3154,9 @@ Partial Class Formtest
         Dev2Timeout.Text = My.Settings.data748
         Dev2delayop.Text = My.Settings.data749
         txtq2d.Text = My.Settings.data750
+        txtq2a.Text = My.Settings.data1315
+        txtq2b.Text = My.Settings.data1316
+        txtq2c.Text = My.Settings.data1317
         Dev2pauseDurationInSeconds.Text = My.Settings.data751
         Dev2runStopwatchEveryInMins.Text = My.Settings.data752
         Dev2IntEnable.Checked = My.Settings.data753
@@ -2889,6 +3193,9 @@ Partial Class Formtest
         Dev2Timeout.Text = My.Settings.data1009
         Dev2delayop.Text = My.Settings.data1010
         txtq2d.Text = My.Settings.data1011
+        txtq2a.Text = My.Settings.data1318
+        txtq2b.Text = My.Settings.data1319
+        txtq2c.Text = My.Settings.data1320
         Dev2pauseDurationInSeconds.Text = My.Settings.data1012
         Dev2runStopwatchEveryInMins.Text = My.Settings.data1013
         Dev2IntEnable.Checked = My.Settings.data1014
@@ -2925,6 +3232,9 @@ Partial Class Formtest
         Dev2Timeout.Text = My.Settings.data1038
         Dev2delayop.Text = My.Settings.data1039
         txtq2d.Text = My.Settings.data1040
+        txtq2a.Text = My.Settings.data1321
+        txtq2b.Text = My.Settings.data1322
+        txtq2c.Text = My.Settings.data1323
         Dev2pauseDurationInSeconds.Text = My.Settings.data1041
         Dev2runStopwatchEveryInMins.Text = My.Settings.data1042
         Dev2IntEnable.Checked = My.Settings.data1043
@@ -2961,6 +3271,9 @@ Partial Class Formtest
         Dev2Timeout.Text = My.Settings.data1067
         Dev2delayop.Text = My.Settings.data1068
         txtq2d.Text = My.Settings.data1069
+        txtq2a.Text = My.Settings.data1324
+        txtq2b.Text = My.Settings.data1325
+        txtq2c.Text = My.Settings.data1326
         Dev2pauseDurationInSeconds.Text = My.Settings.data1070
         Dev2runStopwatchEveryInMins.Text = My.Settings.data1071
         Dev2IntEnable.Checked = My.Settings.data1072
@@ -2997,6 +3310,9 @@ Partial Class Formtest
         Dev2Timeout.Text = My.Settings.data1096
         Dev2delayop.Text = My.Settings.data1097
         txtq2d.Text = My.Settings.data1098
+        txtq2a.Text = My.Settings.data1327
+        txtq2b.Text = My.Settings.data1328
+        txtq2c.Text = My.Settings.data1329
         Dev2pauseDurationInSeconds.Text = My.Settings.data1099
         Dev2runStopwatchEveryInMins.Text = My.Settings.data1100
         Dev2IntEnable.Checked = My.Settings.data1101
@@ -3033,6 +3349,9 @@ Partial Class Formtest
         Dev2Timeout.Text = My.Settings.data1125
         Dev2delayop.Text = My.Settings.data1126
         txtq2d.Text = My.Settings.data1127
+        txtq2a.Text = My.Settings.data1330
+        txtq2b.Text = My.Settings.data1331
+        txtq2c.Text = My.Settings.data1332
         Dev2pauseDurationInSeconds.Text = My.Settings.data1128
         Dev2runStopwatchEveryInMins.Text = My.Settings.data1129
         Dev2IntEnable.Checked = My.Settings.data1130
@@ -3069,6 +3388,9 @@ Partial Class Formtest
         Dev2Timeout.Text = My.Settings.data1154
         Dev2delayop.Text = My.Settings.data1155
         txtq2d.Text = My.Settings.data1156
+        txtq2a.Text = My.Settings.data1333
+        txtq2b.Text = My.Settings.data1334
+        txtq2c.Text = My.Settings.data1335
         Dev2pauseDurationInSeconds.Text = My.Settings.data1157
         Dev2runStopwatchEveryInMins.Text = My.Settings.data1158
         Dev2IntEnable.Checked = My.Settings.data1159
@@ -3105,6 +3427,9 @@ Partial Class Formtest
         Dev2Timeout.Text = My.Settings.data1183
         Dev2delayop.Text = My.Settings.data1184
         txtq2d.Text = My.Settings.data1185
+        txtq2a.Text = My.Settings.data1336
+        txtq2b.Text = My.Settings.data1337
+        txtq2c.Text = My.Settings.data1338
         Dev2pauseDurationInSeconds.Text = My.Settings.data1186
         Dev2runStopwatchEveryInMins.Text = My.Settings.data1187
         Dev2IntEnable.Checked = My.Settings.data1188
@@ -3141,6 +3466,9 @@ Partial Class Formtest
         Dev2Timeout.Text = My.Settings.data1212
         Dev2delayop.Text = My.Settings.data1213
         txtq2d.Text = My.Settings.data1214
+        txtq2a.Text = My.Settings.data1339
+        txtq2b.Text = My.Settings.data1340
+        txtq2c.Text = My.Settings.data1341
         Dev2pauseDurationInSeconds.Text = My.Settings.data1215
         Dev2runStopwatchEveryInMins.Text = My.Settings.data1216
         Dev2IntEnable.Checked = My.Settings.data1217
