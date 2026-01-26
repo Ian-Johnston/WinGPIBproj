@@ -237,7 +237,7 @@ Public Class Formtest
             'sw.Start()
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.074"
+            BannerText1 = "WinGPIB   V4.075"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
             Me.Text = BannerText1 & "                                                        " & BannerText2.ToString()
 
@@ -631,6 +631,7 @@ Public Class Formtest
 
             ' User tab
             ButtonLoadTxtRefresh.Enabled = False
+            ButtonUserStart.Enabled = False
 
             ' For USER tab keypad
             Me.KeyPreview = True
@@ -667,6 +668,9 @@ Public Class Formtest
         End Try
 
     End Sub
+
+
+
 
 
 
@@ -3117,6 +3121,8 @@ Public Class Formtest
             End Select
         End If
     End Sub
+
+
 
 
 End Class

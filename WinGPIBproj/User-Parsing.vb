@@ -3793,13 +3793,16 @@ Partial Class Formtest
         ApplyInvisibilityDefaults()
 
         ' Apply initial instrument state to controls that have determine=...
-        ApplyDetermineRadios()
-        ApplyDetermineDropdowns()
-        ApplyDetermineSliders()
-        ApplyDetermineSpinners()
-        ApplyDetermineToggles()
-        ApplyDetermineToggleDuals()
-        ApplyDetermineMultiButtons()
+        ' IMPORTANT: determine=... can perform instrument IO (queries). Only run it when RUN is enabled.
+        If UserRunEnabled AndAlso Not UserInitSuppressSend Then
+            ApplyDetermineRadios()
+            ApplyDetermineDropdowns()
+            ApplyDetermineSliders()
+            ApplyDetermineSpinners()
+            ApplyDetermineToggles()
+            ApplyDetermineToggleDuals()
+            ApplyDetermineMultiButtons()
+        End If
 
     End Sub
 
@@ -3817,6 +3820,8 @@ Partial Class Formtest
     ' If omitted, numeric compare (respnum) is assumed (extract first number and compare).
     '
     Private Sub ApplyDetermineRadios()
+
+        If Not UserRunEnabled OrElse UserInitSuppressSend Then Exit Sub
 
         Dim cache As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
 
@@ -4252,6 +4257,8 @@ Partial Class Formtest
 
         ' test only
         '_detDbg.Clear()                ' TESTING ONLY
+
+        If Not UserRunEnabled OrElse UserInitSuppressSend Then Exit Sub
 
         For Each ctrl As Control In GetUserDetermineControls()
 

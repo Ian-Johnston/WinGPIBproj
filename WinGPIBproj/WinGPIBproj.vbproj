@@ -146,6 +146,9 @@
     <Compile Include="ButtonsTx.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="CalRam3478A.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="User-Polynomials.vb" />
     <Compile Include="FormUserConfigEditor.vb">
       <SubType>Form</SubType>

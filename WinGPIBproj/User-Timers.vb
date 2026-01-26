@@ -13,6 +13,9 @@ Partial Class Formtest
 
     ' Timer15 - Used to send block of GPIB commands from a TEXTAREA and logs the results to CSV
     Private Sub Timer15_Tick(sender As Object, e As EventArgs) Handles Timer15.Tick
+
+        If Not UserRunEnabled Then Exit Sub
+
         Dim autoCb As CheckBox = GetCheckboxFor(Auto15ScriptBoxName, "FuncAuto")
         If autoCb Is Nothing OrElse Not autoCb.Checked Then
             Timer15.Enabled = False
@@ -23,11 +26,15 @@ Partial Class Formtest
                                      Auto15ScriptBoxName,
                                      Auto15FilePathControl,
                                      Auto15ResultControl)
+
     End Sub
 
 
     ' Timer 5 - Used for dev1 FuncAuto
     Private Sub Timer5_Tick(sender As Object, e As EventArgs) Handles Timer5.Tick
+
+        If Not UserRunEnabled Then Exit Sub
+
         If AutoJobs5.Count = 0 Then
             Timer5.Enabled = False
             Exit Sub
@@ -50,11 +57,15 @@ Partial Class Formtest
                 j.NextDue = nowT + j.IntervalMs
             End Try
         Next
+
     End Sub
 
 
     ' Timer 16 - Used for dev2 FuncAuto
     Private Sub Timer16_Tick(sender As Object, e As EventArgs) Handles Timer16.Tick
+
+        If Not UserRunEnabled Then Exit Sub
+
         If AutoJobs16.Count = 0 Then
             Timer16.Enabled = False
             Exit Sub
@@ -77,6 +88,7 @@ Partial Class Formtest
                 j.NextDue = nowT + j.IntervalMs
             End Try
         Next
+
     End Sub
 
 

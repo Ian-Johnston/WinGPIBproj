@@ -128,6 +128,8 @@ Partial Class Formtest
     Private BigTextPopupForms As New Dictionary(Of String, Form)
     Private BigTextPopupLabels As New Dictionary(Of String, Label)
 
+    Public UserRunEnabled As Boolean = False
+
 
 
 
@@ -235,8 +237,6 @@ Partial Class Formtest
 
     Private Sub ButtonLoadTxt_Click(sender As Object, e As EventArgs) Handles ButtonLoadTxt.Click
 
-        'ResetUsertab()
-
         UserConfig_DataSaveEnabled = True
 
         Using dlg As New OpenFileDialog()
@@ -261,7 +261,10 @@ Partial Class Formtest
             ShowUserInitPopup()
 
             Try
+                UserRunEnabled = False
+                UserInitSuppressSend = True
                 LoadCustomGuiFromFile(dlg.FileName)   ' sets LastUserConfigPath + restores textboxes
+                UserInitSuppressSend = False
 
                 ButtonLoadTxtRefresh.Enabled = True
                 If GroupBoxCustom.Controls.Count > 1 Then   ' means UI actually built
@@ -278,6 +281,116 @@ Partial Class Formtest
 
         End Using
 
+        UserRunEnabled = False
+        ButtonUserStart.Enabled = True
+
+    End Sub
+
+
+    Private Sub ButtonUserStart_Click(sender As Object, e As EventArgs) Handles ButtonUserStart.Click
+
+        If ButtonUserStart.Text = "Run" Then
+            ButtonUserStart.Text = "Stop"
+            UserRunEnabled = True
+            StartUserRuntime()
+        Else
+            ButtonUserStart.Text = "Run"
+            UserRunEnabled = False
+            StopUserRuntime()
+        End If
+
+    End Sub
+
+
+    Private Sub StartUserRuntime()
+
+        ' Make sure we are not still suppressing events from load/build
+        Dim prevSuppress As Boolean = UserInitSuppressSend
+        UserInitSuppressSend = False
+
+        Try
+            ' Run determine logic ONCE when START is pressed (if you have these)
+            ApplyDetermineRadios()
+            ApplyDetermineDropdowns()
+            ApplyDetermineMultiButtons()
+
+            ' Kick any already-checked FUNCAUTO checkboxes (even if they were checked before RUN)
+            Dim stack As New Stack(Of Control)()
+            stack.Push(GroupBoxCustom)
+
+            While stack.Count > 0
+                Dim parent As Control = stack.Pop()
+
+                For Each c As Control In parent.Controls
+                    If c.HasChildren Then stack.Push(c)
+
+                    Dim cb = TryCast(c, CheckBox)
+                    If cb Is Nothing Then Continue For
+                    If Not cb.Checked Then Continue For
+
+                    Dim tagStr = TryCast(cb.Tag, String)
+                    If String.IsNullOrEmpty(tagStr) Then Continue For
+
+                    If tagStr.IndexOf("|FUNCAUTO|", StringComparison.OrdinalIgnoreCase) >= 0 Then
+                        ' Schedule it using the exact same logic as a normal check event
+                        FuncAutoCheckbox_CheckedChanged(cb, EventArgs.Empty)
+                    End If
+                Next
+            End While
+
+        Finally
+            UserInitSuppressSend = prevSuppress
+        End Try
+
+    End Sub
+
+
+    Private Sub StopUserRuntime()
+
+        ' ---- HARD STOP FuncAuto scheduler ----
+        AutoJobs5.Clear()
+        AutoJobs16.Clear()
+
+        Timer5.Enabled = False
+        Timer16.Enabled = False
+        Timer15.Enabled = False
+
+        Me.Timer5.Stop()
+        Me.Timer16.Stop()
+        Me.Timer15.Stop()
+
+        ' ---- Uncheck any FuncAuto checkbox(es) so UI reflects STOP ----
+        ' Do this with init-suppress so we don't re-trigger handlers / IO.
+        Dim prevSuppress As Boolean = UserInitSuppressSend
+        UserInitSuppressSend = True
+
+        Try
+            Dim stack As New Stack(Of Control)()
+            stack.Push(GroupBoxCustom)
+
+            While stack.Count > 0
+                Dim parent As Control = stack.Pop()
+
+                For Each c As Control In parent.Controls
+                    If c.HasChildren Then stack.Push(c)
+
+                    Dim cb = TryCast(c, CheckBox)
+                    If cb Is Nothing Then Continue For
+
+                    Dim tagStr = TryCast(cb.Tag, String)
+                    If String.IsNullOrEmpty(tagStr) Then Continue For
+
+                    ' Your parsing creates Tag as: resultName|FUNCAUTO|param
+                    If tagStr.IndexOf("|FUNCAUTO|", StringComparison.OrdinalIgnoreCase) >= 0 Then
+                        cb.Checked = False
+                    End If
+                Next
+            End While
+
+        Finally
+            UserInitSuppressSend = prevSuppress
+        End Try
+
     End Sub
 
 
@@ -286,6 +399,12 @@ Partial Class Formtest
         ' If a config is currently active, save any edited textbox values first
         If Not String.IsNullOrWhiteSpace(LastUserConfigPath) AndAlso IO.File.Exists(LastUserConfigPath) Then
             SaveUserTextboxState()
+        End If
+
+        If ButtonUserStart.Text = "Stop" Then
+            ButtonUserStart.Text = "Stop"
+            ButtonUserStart.Enabled = False
+            UserRunEnabled = False
         End If
 
         ResetUsertab()
@@ -427,7 +546,7 @@ Partial Class Formtest
             LabelUSERtab1.BringToFront()
 
         Else
-            MessageBox.Show("LabelUSERtab1 is missing or disposed!", "Debug")
+            MessageBox.Show("LabelUSERtab1 Is missing Or disposed!", "Debug")
         End If
 
         ' Clear DATASOURCE + linked-control mappings
@@ -521,7 +640,8 @@ Partial Class Formtest
 
         ' After a reset, REFRESH is no longer valid until a load succeeds again
         ButtonLoadTxtRefresh.Enabled = False
-        'LastUserConfigPath = ""
+        ButtonUserStart.Enabled = False
+        ButtonUserStart.Text = "Run"
 
     End Sub
 
@@ -530,14 +650,20 @@ Partial Class Formtest
 
         ' Make sure we actually have something to refresh
         If String.IsNullOrWhiteSpace(LastUserConfigPath) OrElse Not IO.File.Exists(LastUserConfigPath) Then
-            MessageBox.Show("No previously loaded config file to refresh.")
+            MessageBox.Show("No previously loaded config file To refresh.")
             ButtonLoadTxtRefresh.Enabled = False
+            ButtonUserStart.Enabled = False
             Exit Sub
         End If
 
         ButtonLoadTxtRefresh.Enabled = False
 
         ShowUserInitPopup()
+
+        ' REFRESH must be a "load only" operation (no instrument IO until RUN).
+        Dim prevSuppress As Boolean = UserInitSuppressSend
+        UserInitSuppressSend = True
+        UserRunEnabled = False
 
         ' --------------------------------------
         ' FIRST: turn off any FuncAuto checkbox
@@ -580,7 +706,7 @@ Partial Class Formtest
             LabelUSERtab1.Visible = False
 
         Catch ex As Exception
-            MessageBox.Show("REFRESH failed:" & vbCrLf & ex.ToString())
+            MessageBox.Show("REFRESH failed" & vbCrLf & ex.ToString())
             LabelUSERtab1.Visible = True
             LabelUSERtab1.BringToFront()
         Finally
@@ -588,7 +714,11 @@ Partial Class Formtest
             ButtonLoadTxtRefresh.Enabled = IO.File.Exists(LastUserConfigPath)
         End Try
 
+        UserInitSuppressSend = prevSuppress
         HideUserInitPopup()
+
+        ButtonUserStart.Enabled = True
+        ButtonUserStart.Text = "Run"
 
     End Sub
 
@@ -1778,6 +1908,8 @@ Partial Class Formtest
 
 
     Private Sub FuncAutoCheckbox_CheckedChanged(sender As Object, e As EventArgs)
+        If Not UserRunEnabled OrElse UserInitSuppressSend Then Exit Sub
+
         Dim cb = TryCast(sender, CheckBox)
         If cb Is Nothing Then Exit Sub
 
@@ -3326,6 +3458,8 @@ Partial Class Formtest
 
 
     Private Sub FuncTrigEnableCheckbox_CheckedChanged(sender As Object, e As EventArgs)
+        If Not UserRunEnabled OrElse UserInitSuppressSend Then Exit Sub
+
         Dim cb = TryCast(sender, CheckBox)
         If cb Is Nothing Then Exit Sub
 
