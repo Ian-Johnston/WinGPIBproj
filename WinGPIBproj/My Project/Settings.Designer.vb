@@ -16985,6 +16985,30 @@ Namespace My
                 Me("data1341") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property ThemeSet() As Boolean
+            Get
+                Return CType(Me("ThemeSet"),Boolean)
+            End Get
+            Set
+                Me("ThemeSet") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property ThemeSetCHART() As Boolean
+            Get
+                Return CType(Me("ThemeSetCHART"),Boolean)
+            End Get
+            Set
+                Me("ThemeSetCHART") = value
+            End Set
+        End Property
     End Class
 End Namespace
 

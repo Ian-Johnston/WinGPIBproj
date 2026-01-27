@@ -79,6 +79,11 @@ Public Class Chart
 
     Private Sub Formtest_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
 
+        ' Theme adjustment for Win11, otherwise disabled controls are hardly visible!
+        If My.Settings.ThemeSet = True Then
+            EnhanceTextBoxBorders(Me)
+            MakeButtonsWin10ish(Me)
+        End If
 
         ' Set Timer1 duration - Used for refresh of auto-Playback chart, i.e. auto reload of CSV
         Me.Timer1.Interval = 5000  ' 5secs
@@ -3575,6 +3580,97 @@ Public Class Chart
         AverageNoise()
 
     End Sub
+
+
+
+
+
+
+    Private Sub EnhanceTextBoxBorders(root As Control)
+        For Each c As Control In AllControls(root)
+
+            If TypeOf c Is TextBox Then
+                Dim tb = DirectCast(c, TextBox)
+
+                ' Skip only if already wrapped by OUR border panel
+                If TypeOf tb.Parent Is Panel AndAlso Equals(tb.Parent.Tag, "TB_BORDER") Then Continue For
+
+                Dim parent = tb.Parent
+
+                ' Remember Z-order position before re-parenting
+                Dim z = parent.Controls.GetChildIndex(tb)
+
+                ' Outer border panel (grey)
+                Dim border As New Panel With {
+                .Tag = "TB_BORDER",
+                .BackColor = Color.FromArgb(160, 160, 160),
+                .Location = tb.Location,
+                .Size = tb.Size,
+                .Anchor = tb.Anchor,
+                .Margin = tb.Margin,
+                .Padding = New Padding(1)
+            }
+
+                ' Inner panel (white) provides the padding/vertical offset
+                Dim inner As New Panel With {
+                .BackColor = Color.White,
+                .Dock = DockStyle.Fill,
+                .Padding = New Padding(0, 2, 0, 0)
+            }
+
+                ' TextBox inside
+                tb.BorderStyle = BorderStyle.None
+                tb.Multiline = True
+                tb.Dock = DockStyle.Fill
+                tb.Margin = New Padding(0)
+
+                ' Re-parent keeping original Z order
+                parent.Controls.Add(border)
+                parent.Controls.SetChildIndex(border, z)
+                border.Controls.Add(inner)
+                inner.Controls.Add(tb)
+            End If
+
+        Next
+    End Sub
+
+
+
+
+    Private Sub MakeButtonsWin10ish(root As Control)
+        For Each c As Control In AllControls(root)
+            If TypeOf c Is Button Then
+                Dim b = DirectCast(c, Button)
+
+                b.FlatStyle = FlatStyle.Flat
+                b.UseVisualStyleBackColor = False
+
+                b.FlatAppearance.BorderSize = 1
+                b.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200)
+
+                If b.Enabled Then
+                    b.BackColor = Color.White
+                    b.ForeColor = Color.Black
+                Else
+                    b.BackColor = Color.FromArgb(245, 245, 245)
+                    b.ForeColor = Color.FromArgb(80, 80, 80)
+                End If
+            End If
+        Next
+    End Sub
+
+
+    Private Iterator Function AllControls(root As Control) As IEnumerable(Of Control)
+        Dim stack As New Stack(Of Control)
+        stack.Push(root)
+        While stack.Count > 0
+            Dim parent = stack.Pop()
+            For Each child As Control In parent.Controls
+                Yield child
+                If child.HasChildren Then stack.Push(child)
+            Next
+        End While
+    End Function
 
 
 End Class

@@ -2199,6 +2199,10 @@ Partial Class Formtest
                     TextBoxNewChecksum.Text = "OO"                                  'checksum for unused calibration ranges should always be "OO" (0xFF)
                 Case Else
                     If ValueSum < 0 Then
+                        If TextBoxSerialNumber3478A.Text = Nothing Then
+                            MessageBox.Show("You cannot store a serial number using the edit functionality." & ControlChars.NewLine & "To store a serial number, answer No at the popup when backing up the calibration data")
+                            Exit Sub
+                        End If
                         ValueSum = ValueSum + 144
                     End If
                     CheckSum = Convert.ToByte(255 - ValueSum)                       'calculate the new checksum value

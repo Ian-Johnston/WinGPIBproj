@@ -35,6 +35,7 @@ Imports System.Runtime.InteropServices
 'Imports WinGPIBproj.Formtest
 Imports System.Text
 Imports System.Text.RegularExpressions
+Imports System.Windows.Forms.VisualStyles.VisualStyleElement.Button
 Imports IODevices
 Imports MoonSharp.Interpreter
 
@@ -167,6 +168,9 @@ Public Class Formtest
     Private _dev1Profile As Integer = 1
     Private _dev2Profile As Integer = 1
 
+
+
+
     'Private _loading As Boolean = False
 
 
@@ -231,13 +235,21 @@ Public Class Formtest
 
         Try
 
+            ' Theme adjustment for Win11, otherwise disabled controls are hardly visible!
+            If My.Settings.ThemeSet = True Then
+                EnhanceTextBoxBorders(Me)
+                MakeButtonsWin10ish(Me)
+            End If
+            CheckBoxThemeSet.Checked = My.Settings.ThemeSet
+
+
             '_loading = True
 
             'Dim sw As New Stopwatch()
             'sw.Start()
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.076"
+            BannerText1 = "WinGPIB   V4.077"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
             Me.Text = BannerText1 & "                                                        " & BannerText2.ToString()
 
@@ -660,7 +672,6 @@ Public Class Formtest
             _suppressDev1Sync = False
             _suppressDev2Sync = False
 
-
         Catch ex As Exception
             MessageBox.Show($"Error during load: {ex.Message}")
         Finally
@@ -984,6 +995,7 @@ Public Class Formtest
 
         If dev1 IsNot Nothing Then
             gbox1.Enabled = True
+            MakeButtonsWin10ish(gbox1)
 
             'examples of some settings
             dev1.maxtasks = 10
@@ -1055,6 +1067,7 @@ Public Class Formtest
 
         If dev2 IsNot Nothing Then
             gbox2.Enabled = True
+            MakeButtonsWin10ish(gbox2)
 
             'examples of some settings
             dev2.maxtasks = 10
@@ -1133,6 +1146,8 @@ Public Class Formtest
         'Dev2IntEnable.Enabled = False
 
         gbox12.Enabled = True
+        MakeButtonsWin10ish(gbox12)
+
         Dev1SampleRate.Enabled = False
         Dev2SampleRate.Enabled = False
         Dev12SampleRate.Enabled = True
@@ -1155,6 +1170,7 @@ Public Class Formtest
 
         If dev1 IsNot Nothing Then
             gbox1.Enabled = True
+            MakeButtonsWin10ish(gbox1)
 
             'examples of some settings
             dev1.maxtasks = 10
@@ -1199,6 +1215,7 @@ Public Class Formtest
         If dev2 IsNot Nothing Then
 
             gbox2.Enabled = True
+            MakeButtonsWin10ish(gbox2)
 
             'examples of some settings
             dev2.maxtasks = 10
@@ -2236,10 +2253,16 @@ Public Class Formtest
         btncreate2.Enabled = True
         btncreate3.Enabled = True
         'gboxdev.Enabled = True
+
         gbox1.Enabled = False
+        MakeButtonsWin10ish(gbox1)
         gbox2.Enabled = False
+        MakeButtonsWin10ish(gbox2)
 
         gbox12.Enabled = False
+        MakeButtonsWin10ish(gbox12)
+
+
         IODevice.DisposeAll()
 
         TextBoxDev1CMD.Enabled = False
@@ -2530,8 +2553,12 @@ Public Class Formtest
 
         If EditMode.Checked = True Then
             gbox1.Enabled = True
+            MakeButtonsWin10ish(gbox1)
             gbox2.Enabled = True
+            MakeButtonsWin10ish(gbox2)
             gbox12.Enabled = True
+            MakeButtonsWin10ish(gbox12)
+
             ButtonDev1Run.Enabled = False
             ButtonDev2Run.Enabled = False
             btncreate2.Enabled = False
@@ -2559,8 +2586,12 @@ Public Class Formtest
 
         If EditMode.Checked = False Then
             gbox1.Enabled = False
+            MakeButtonsWin10ish(gbox1)
             gbox2.Enabled = False
+            MakeButtonsWin10ish(gbox2)
+
             gbox12.Enabled = False
+            MakeButtonsWin10ish(gbox12)
 
             btncreate.Enabled = True
             btncreate2.Enabled = True
@@ -2570,8 +2601,6 @@ Public Class Formtest
             ButtonDev2PreRun.Enabled = True
 
             'gboxdev.Enabled = True
-
-            gbox12.Enabled = False
 
             btnq1b.Enabled = True
             btnq1a.Enabled = True
@@ -3122,6 +3151,96 @@ Public Class Formtest
         End If
     End Sub
 
+
+
+
+    Private Sub EnhanceTextBoxBorders(root As Control)
+        For Each c As Control In AllControls(root)
+
+            If TypeOf c Is TextBox Then
+                Dim tb = DirectCast(c, TextBox)
+
+                ' Skip if already wrapped (border panel)
+                If TypeOf tb.Parent Is Panel Then Continue For
+
+                Dim parent = tb.Parent
+
+                ' Outer border panel (grey)
+                Dim border As New Panel With {
+                .BackColor = Color.FromArgb(160, 160, 160),
+                .Location = tb.Location,
+                .Size = tb.Size,
+                .Anchor = tb.Anchor,
+                .Margin = tb.Margin,
+                .Padding = New Padding(1)
+            }
+
+                ' Inner panel (white) provides the padding/vertical offset
+                Dim inner As New Panel With {
+                .BackColor = Color.White,
+                .Dock = DockStyle.Fill,
+                .Padding = New Padding(0, 2, 0, 0) ' tweak 1..3 if needed
+            }
+
+                ' TextBox inside
+                tb.BorderStyle = BorderStyle.None
+                tb.Multiline = True
+                tb.Dock = DockStyle.Fill
+                tb.Margin = New Padding(0)
+
+                ' Re-parent
+                parent.Controls.Add(border)
+                border.BringToFront()
+                border.Controls.Add(inner)
+                inner.Controls.Add(tb)
+            End If
+
+        Next
+    End Sub
+
+
+
+    Private Sub MakeButtonsWin10ish(root As Control)
+        For Each c As Control In AllControls(root)
+            If TypeOf c Is Button Then
+                Dim b = DirectCast(c, Button)
+
+                b.FlatStyle = FlatStyle.Flat
+                b.UseVisualStyleBackColor = False
+
+                b.FlatAppearance.BorderSize = 1
+                b.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200)
+
+                If b.Enabled Then
+                    b.BackColor = Color.White
+                    b.ForeColor = Color.Black
+                Else
+                    b.BackColor = Color.FromArgb(245, 245, 245)
+                    b.ForeColor = Color.FromArgb(80, 80, 80)
+                End If
+            End If
+        Next
+    End Sub
+
+
+    Private Iterator Function AllControls(root As Control) As IEnumerable(Of Control)
+        Dim stack As New Stack(Of Control)
+        stack.Push(root)
+        While stack.Count > 0
+            Dim parent = stack.Pop()
+            For Each child As Control In parent.Controls
+                Yield child
+                If child.HasChildren Then stack.Push(child)
+            Next
+        End While
+    End Function
+
+
+    Private Sub TabControl1_SelectedIndexChanged(sender As Object, e As EventArgs) Handles TabControl1.SelectedIndexChanged
+        If My.Settings.ThemeSet Then
+            MakeButtonsWin10ish(TabControl1.SelectedTab)
+        End If
+    End Sub
 
 
 

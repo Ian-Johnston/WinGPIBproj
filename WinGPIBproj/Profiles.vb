@@ -96,6 +96,13 @@ Partial Class Formtest
     End Sub
 
 
+    Private Sub CheckBoxThemeSet_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxThemeSet.CheckedChanged
+
+        My.Settings.ThemeSet = CheckBoxThemeSet.Checked
+
+    End Sub
+
+
     Private Sub ButtonSaveSettings_Click(sender As Object, e As EventArgs) Handles ButtonSaveSettings.Click
 
         SaveSettings()
@@ -104,6 +111,8 @@ Partial Class Formtest
 
 
     Private Sub SaveSettings()
+
+        My.Settings.ThemeSet = CheckBoxThemeSet.Checked
 
         ' Profile selection flags Dev 1 & 2 (1..20)
         My.Settings.Dev1Prof1 = (Dev1ProfileNumber() = 1)
