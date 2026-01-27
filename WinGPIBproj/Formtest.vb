@@ -248,7 +248,7 @@ Public Class Formtest
             'sw.Start()
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.078"
+            BannerText1 = "WinGPIB   V4.079"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
             Me.Text = BannerText1 & "                                                        " & BannerText2.ToString()
 
@@ -3227,6 +3227,10 @@ Public Class Formtest
 
                     b.FlatAppearance.BorderSize = 1
                     b.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200)
+
+                    ' NEW: hover / pressed colours (Win10/11 style)
+                    b.FlatAppearance.MouseOverBackColor = Color.FromArgb(229, 241, 251)
+                    b.FlatAppearance.MouseDownBackColor = Color.FromArgb(204, 228, 247)
 
                     If b.Enabled Then
                         b.BackColor = Color.White
