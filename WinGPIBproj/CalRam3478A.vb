@@ -2763,7 +2763,7 @@ Partial Class Formtest
     Private Sub ButtonUG3478A_Click(sender As Object, e As EventArgs) Handles ButtonUG3478A.Click
 
         'Setup the path and file for the 3478A Tab user guide
-        Dim filePath As String = System.IO.Path.Combine(CSVfilepath.Text, "3478A_UserGuide.pdf")
+        Dim filePath As String = System.IO.Path.Combine(CSVfilepath.Text & "/Devices/Info/", "3478A_UserGuide.pdf")
 
         ' Check if the user guide file exists
         If Not System.IO.File.Exists(filePath) Then
@@ -2916,4 +2916,6 @@ Partial Class Formtest
         End If
         Return 0
     End Function
+
+
 End Class

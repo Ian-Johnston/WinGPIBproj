@@ -242,14 +242,13 @@ Public Class Formtest
             End If
             CheckBoxThemeSet.Checked = My.Settings.ThemeSet
 
-
             '_loading = True
 
             'Dim sw As New Stopwatch()
             'sw.Start()
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.077"
+            BannerText1 = "WinGPIB   V4.078"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
             Me.Text = BannerText1 & "                                                        " & BannerText2.ToString()
 
@@ -672,6 +671,12 @@ Public Class Formtest
             _suppressDev1Sync = False
             _suppressDev2Sync = False
 
+            MakeButtonsWin10ish(gbox1)
+            MakeButtonsWin10ish(GroupBox8)
+            MakeButtonsWin10ish(gbox2)
+            MakeButtonsWin10ish(GroupBox9)
+            MakeButtonsWin10ish(GroupBox12)
+
         Catch ex As Exception
             MessageBox.Show($"Error during load: {ex.Message}")
         Finally
@@ -996,6 +1001,7 @@ Public Class Formtest
         If dev1 IsNot Nothing Then
             gbox1.Enabled = True
             MakeButtonsWin10ish(gbox1)
+            MakeButtonsWin10ish(GroupBox8)
 
             'examples of some settings
             dev1.maxtasks = 10
@@ -1068,6 +1074,7 @@ Public Class Formtest
         If dev2 IsNot Nothing Then
             gbox2.Enabled = True
             MakeButtonsWin10ish(gbox2)
+            MakeButtonsWin10ish(GroupBox9)
 
             'examples of some settings
             dev2.maxtasks = 10
@@ -1171,6 +1178,7 @@ Public Class Formtest
         If dev1 IsNot Nothing Then
             gbox1.Enabled = True
             MakeButtonsWin10ish(gbox1)
+            MakeButtonsWin10ish(GroupBox8)
 
             'examples of some settings
             dev1.maxtasks = 10
@@ -1216,6 +1224,7 @@ Public Class Formtest
 
             gbox2.Enabled = True
             MakeButtonsWin10ish(gbox2)
+            MakeButtonsWin10ish(GroupBox9)
 
             'examples of some settings
             dev2.maxtasks = 10
@@ -2256,8 +2265,10 @@ Public Class Formtest
 
         gbox1.Enabled = False
         MakeButtonsWin10ish(gbox1)
+        MakeButtonsWin10ish(GroupBox8)
         gbox2.Enabled = False
         MakeButtonsWin10ish(gbox2)
+        MakeButtonsWin10ish(GroupBox9)
 
         gbox12.Enabled = False
         MakeButtonsWin10ish(gbox12)
@@ -2553,11 +2564,8 @@ Public Class Formtest
 
         If EditMode.Checked = True Then
             gbox1.Enabled = True
-            MakeButtonsWin10ish(gbox1)
             gbox2.Enabled = True
-            MakeButtonsWin10ish(gbox2)
             gbox12.Enabled = True
-            MakeButtonsWin10ish(gbox12)
 
             ButtonDev1Run.Enabled = False
             ButtonDev2Run.Enabled = False
@@ -2582,16 +2590,14 @@ Public Class Formtest
             ButtonCOPYdev2.Enabled = True
             TextBoxMoveCopydev2.Enabled = True
 
+
+
         End If
 
         If EditMode.Checked = False Then
             gbox1.Enabled = False
-            MakeButtonsWin10ish(gbox1)
             gbox2.Enabled = False
-            MakeButtonsWin10ish(gbox2)
-
             gbox12.Enabled = False
-            MakeButtonsWin10ish(gbox12)
 
             btncreate.Enabled = True
             btncreate2.Enabled = True
@@ -2618,6 +2624,11 @@ Public Class Formtest
             TextBoxMoveCopydev2.Enabled = False
         End If
 
+        MakeButtonsWin10ish(gbox1)
+        MakeButtonsWin10ish(GroupBox8)
+        MakeButtonsWin10ish(gbox2)
+        MakeButtonsWin10ish(GroupBox9)
+        MakeButtonsWin10ish(gbox12)
 
     End Sub
 
