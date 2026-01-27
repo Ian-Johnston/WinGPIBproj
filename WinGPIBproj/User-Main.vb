@@ -284,6 +284,8 @@ Partial Class Formtest
         UserRunEnabled = False
         ButtonUserStart.Enabled = True
 
+        MakeButtonsWin10ish(ButtonUserStart.Parent)     ' Win11 theme fix
+
     End Sub
 
 
@@ -408,6 +410,8 @@ Partial Class Formtest
         End If
 
         ResetUsertab()
+
+        MakeButtonsWin10ish(ButtonUserStart.Parent)     ' Win11 theme fix: restyle all buttons on this tab/container after state change
 
     End Sub
 
