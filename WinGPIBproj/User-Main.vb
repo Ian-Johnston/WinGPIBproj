@@ -200,11 +200,11 @@ Partial Class Formtest
                 baseDir = IO.Path.Combine(documentsPath, "WinGPIBdata")
             End If
 
-            ' User guide location: \WinGPIBdata\Devices\Config Files
+            ' User guide location: \WinGPIBdata\Devices\User Files
             Dim pdfPath As String = IO.Path.Combine(
             baseDir,
             "Devices",
-            "Config Files",
+            "Info",
             "WinGPIB_User_Tab_INSTRUCTIONS.pdf"
         )
 
