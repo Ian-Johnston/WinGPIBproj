@@ -204,6 +204,7 @@ Partial Class Formtest
             My.Settings.data453 = Dev1DecimalNumDPs.Text
             My.Settings.data484 = Dev1IntEnable.Checked
             My.Settings.data509 = txtOperationDev1.Text
+            My.Settings.data1342 = Dev1TextResponse.Checked
         End If
 
         ' Save Dev1 Profile 2
@@ -240,6 +241,7 @@ Partial Class Formtest
             My.Settings.data454 = Dev1DecimalNumDPs.Text
             My.Settings.data486 = Dev1IntEnable.Checked
             My.Settings.data510 = txtOperationDev1.Text
+            My.Settings.data1343 = Dev1TextResponse.Checked
         End If
 
         ' Save Dev1 Profile 3
@@ -276,6 +278,7 @@ Partial Class Formtest
             My.Settings.data455 = Dev1DecimalNumDPs.Text
             My.Settings.data488 = Dev1IntEnable.Checked
             My.Settings.data511 = txtOperationDev1.Text
+            My.Settings.data1344 = Dev1TextResponse.Checked
         End If
 
         ' Save Dev1 Profile 4
@@ -312,6 +315,7 @@ Partial Class Formtest
             My.Settings.data456 = Dev1DecimalNumDPs.Text
             My.Settings.data490 = Dev1IntEnable.Checked
             My.Settings.data512 = txtOperationDev1.Text
+            My.Settings.data1345 = Dev1TextResponse.Checked
         End If
 
         ' Save Dev1 Profile 5
@@ -348,6 +352,7 @@ Partial Class Formtest
             My.Settings.data457 = Dev1DecimalNumDPs.Text
             My.Settings.data492 = Dev1IntEnable.Checked
             My.Settings.data513 = txtOperationDev1.Text
+            My.Settings.data1346 = Dev1TextResponse.Checked
         End If
 
         ' Save Dev1 Profile 6
@@ -384,6 +389,7 @@ Partial Class Formtest
             My.Settings.data458 = Dev1DecimalNumDPs.Text
             My.Settings.data494 = Dev1IntEnable.Checked
             My.Settings.data514 = txtOperationDev1.Text
+            My.Settings.data1347 = Dev1TextResponse.Checked
         End If
 
         ' Save Dev1 Profile 7
@@ -420,6 +426,7 @@ Partial Class Formtest
             My.Settings.data459 = Dev1DecimalNumDPs.Text
             My.Settings.data496 = Dev1IntEnable.Checked
             My.Settings.data515 = txtOperationDev1.Text
+            My.Settings.data1348 = Dev1TextResponse.Checked
         End If
 
         ' Save Dev1 Profile 8
@@ -456,6 +463,7 @@ Partial Class Formtest
             My.Settings.data460 = Dev1DecimalNumDPs.Text
             My.Settings.data498 = Dev1IntEnable.Checked
             My.Settings.data516 = txtOperationDev1.Text
+            My.Settings.data1349 = Dev1TextResponse.Checked
         End If
 
 
@@ -493,6 +501,7 @@ Partial Class Formtest
             My.Settings.data552 = Dev1DecimalNumDPs.Text
             My.Settings.data553 = Dev1IntEnable.Checked
             My.Settings.data554 = txtOperationDev1.Text
+            My.Settings.data1350 = Dev1TextResponse.Checked
         End If
 
         ' Save Dev1 Profile 10
@@ -529,6 +538,7 @@ Partial Class Formtest
             My.Settings.data581 = Dev1DecimalNumDPs.Text
             My.Settings.data582 = Dev1IntEnable.Checked
             My.Settings.data583 = txtOperationDev1.Text
+            My.Settings.data1351 = Dev1TextResponse.Checked
         End If
 
         ' Save Dev1 Profile 11
@@ -565,6 +575,7 @@ Partial Class Formtest
             My.Settings.data610 = Dev1DecimalNumDPs.Text
             My.Settings.data611 = Dev1IntEnable.Checked
             My.Settings.data612 = txtOperationDev1.Text
+            My.Settings.data1352 = Dev1TextResponse.Checked
         End If
 
         ' Save Dev1 Profile 12
@@ -601,6 +612,7 @@ Partial Class Formtest
             My.Settings.data639 = Dev1DecimalNumDPs.Text
             My.Settings.data640 = Dev1IntEnable.Checked
             My.Settings.data641 = txtOperationDev1.Text
+            My.Settings.data1353 = Dev1TextResponse.Checked
         End If
 
         ' Save Dev1 Profile 13
@@ -637,6 +649,7 @@ Partial Class Formtest
             My.Settings.data784 = Dev1DecimalNumDPs.Text
             My.Settings.data785 = Dev1IntEnable.Checked
             My.Settings.data786 = txtOperationDev1.Text
+            My.Settings.data1354 = Dev1TextResponse.Checked
         End If
 
         ' Save Dev1 Profile 14
@@ -673,6 +686,7 @@ Partial Class Formtest
             My.Settings.data813 = Dev1DecimalNumDPs.Text
             My.Settings.data814 = Dev1IntEnable.Checked
             My.Settings.data815 = txtOperationDev1.Text
+            My.Settings.data1355 = Dev1TextResponse.Checked
         End If
 
         ' Save Dev1 Profile 15
@@ -709,6 +723,7 @@ Partial Class Formtest
             My.Settings.data842 = Dev1DecimalNumDPs.Text
             My.Settings.data843 = Dev1IntEnable.Checked
             My.Settings.data844 = txtOperationDev1.Text
+            My.Settings.data1356 = Dev1TextResponse.Checked
         End If
 
         ' Save Dev1 Profile 16
@@ -745,6 +760,7 @@ Partial Class Formtest
             My.Settings.data871 = Dev1DecimalNumDPs.Text
             My.Settings.data872 = Dev1IntEnable.Checked
             My.Settings.data873 = txtOperationDev1.Text
+            My.Settings.data1357 = Dev1TextResponse.Checked
         End If
 
         ' Save Dev1 Profile 17
@@ -781,6 +797,7 @@ Partial Class Formtest
             My.Settings.data900 = Dev1DecimalNumDPs.Text
             My.Settings.data901 = Dev1IntEnable.Checked
             My.Settings.data902 = txtOperationDev1.Text
+            My.Settings.data1358 = Dev1TextResponse.Checked
         End If
 
         ' Save Dev1 Profile 18
@@ -817,6 +834,7 @@ Partial Class Formtest
             My.Settings.data929 = Dev1DecimalNumDPs.Text
             My.Settings.data930 = Dev1IntEnable.Checked
             My.Settings.data931 = txtOperationDev1.Text
+            My.Settings.data1359 = Dev1TextResponse.Checked
         End If
 
         ' Save Dev1 Profile 19
@@ -853,6 +871,7 @@ Partial Class Formtest
             My.Settings.data958 = Dev1DecimalNumDPs.Text
             My.Settings.data959 = Dev1IntEnable.Checked
             My.Settings.data960 = txtOperationDev1.Text
+            My.Settings.data1360 = Dev1TextResponse.Checked
         End If
 
         ' Save Dev1 Profile 20
@@ -889,6 +908,7 @@ Partial Class Formtest
             My.Settings.data987 = Dev1DecimalNumDPs.Text
             My.Settings.data988 = Dev1IntEnable.Checked
             My.Settings.data989 = txtOperationDev1.Text
+            My.Settings.data1361 = Dev1TextResponse.Checked
         End If
 
 
@@ -926,6 +946,7 @@ Partial Class Formtest
             My.Settings.data461 = Dev2DecimalNumDPs.Text
             My.Settings.data485 = Dev2SendQuery.Checked
             My.Settings.data517 = txtOperationDev2.Text
+            My.Settings.data1362 = Dev2TextResponse.Checked
         End If
 
         ' Save Dev2 Profile 2
@@ -962,6 +983,7 @@ Partial Class Formtest
             My.Settings.data462 = Dev2DecimalNumDPs.Text
             My.Settings.data487 = Dev2SendQuery.Checked
             My.Settings.data518 = txtOperationDev2.Text
+            My.Settings.data1363 = Dev2TextResponse.Checked
         End If
 
         ' Save Dev2 Profile 3
@@ -998,6 +1020,7 @@ Partial Class Formtest
             My.Settings.data463 = Dev2DecimalNumDPs.Text
             My.Settings.data489 = Dev2SendQuery.Checked
             My.Settings.data519 = txtOperationDev2.Text
+            My.Settings.data1364 = Dev2TextResponse.Checked
         End If
 
         ' Save Dev2 Profile 4
@@ -1034,6 +1057,7 @@ Partial Class Formtest
             My.Settings.data464 = Dev2DecimalNumDPs.Text
             My.Settings.data491 = Dev2SendQuery.Checked
             My.Settings.data520 = txtOperationDev2.Text
+            My.Settings.data1365 = Dev2TextResponse.Checked
         End If
 
         ' Save Dev2 Profile 5
@@ -1070,6 +1094,7 @@ Partial Class Formtest
             My.Settings.data465 = Dev2DecimalNumDPs.Text
             My.Settings.data493 = Dev2SendQuery.Checked
             My.Settings.data521 = txtOperationDev2.Text
+            My.Settings.data1366 = Dev2TextResponse.Checked
         End If
 
         ' Save Dev2 Profile 6
@@ -1106,6 +1131,7 @@ Partial Class Formtest
             My.Settings.data466 = Dev2DecimalNumDPs.Text
             My.Settings.data495 = Dev2SendQuery.Checked
             My.Settings.data522 = txtOperationDev2.Text
+            My.Settings.data1367 = Dev2TextResponse.Checked
         End If
 
         ' Save Dev2 Profile 7
@@ -1142,6 +1168,7 @@ Partial Class Formtest
             My.Settings.data467 = Dev2DecimalNumDPs.Text
             My.Settings.data497 = Dev2SendQuery.Checked
             My.Settings.data523 = txtOperationDev2.Text
+            My.Settings.data1368 = Dev2TextResponse.Checked
         End If
 
         ' Save Dev2 Profile 8
@@ -1178,6 +1205,7 @@ Partial Class Formtest
             My.Settings.data468 = Dev2DecimalNumDPs.Text
             My.Settings.data499 = Dev2SendQuery.Checked
             My.Settings.data524 = txtOperationDev2.Text
+            My.Settings.data1369 = Dev2TextResponse.Checked
         End If
 
         ' Save Dev2 Profile 9
@@ -1214,6 +1242,7 @@ Partial Class Formtest
             My.Settings.data668 = Dev2DecimalNumDPs.Text
             My.Settings.data669 = Dev2IntEnable.Checked
             My.Settings.data670 = txtOperationDev2.Text
+            My.Settings.data1370 = Dev2TextResponse.Checked
         End If
 
         ' Save Dev2 Profile 10
@@ -1250,6 +1279,7 @@ Partial Class Formtest
             My.Settings.data697 = Dev2DecimalNumDPs.Text
             My.Settings.data698 = Dev2IntEnable.Checked
             My.Settings.data699 = txtOperationDev2.Text
+            My.Settings.data1371 = Dev2TextResponse.Checked
         End If
 
         ' Save Dev2 Profile 11
@@ -1286,6 +1316,7 @@ Partial Class Formtest
             My.Settings.data726 = Dev2DecimalNumDPs.Text
             My.Settings.data727 = Dev2IntEnable.Checked
             My.Settings.data728 = txtOperationDev2.Text
+            My.Settings.data1372 = Dev2TextResponse.Checked
         End If
 
         ' Save Dev2 Profile 12
@@ -1322,6 +1353,7 @@ Partial Class Formtest
             My.Settings.data755 = Dev2DecimalNumDPs.Text
             My.Settings.data756 = Dev2IntEnable.Checked
             My.Settings.data757 = txtOperationDev2.Text
+            My.Settings.data1373 = Dev2TextResponse.Checked
         End If
 
         ' Save Dev2 Profile 13
@@ -1358,6 +1390,7 @@ Partial Class Formtest
             My.Settings.data1016 = Dev2DecimalNumDPs.Text
             My.Settings.data1017 = Dev2SendQuery.Checked
             My.Settings.data1018 = txtOperationDev2.Text
+            My.Settings.data1374 = Dev2TextResponse.Checked
         End If
 
         ' Save Dev2 Profile 14
@@ -1394,6 +1427,7 @@ Partial Class Formtest
             My.Settings.data1045 = Dev2DecimalNumDPs.Text
             My.Settings.data1046 = Dev2SendQuery.Checked
             My.Settings.data1047 = txtOperationDev2.Text
+            My.Settings.data1375 = Dev2TextResponse.Checked
         End If
 
         ' Save Dev2 Profile 15
@@ -1430,6 +1464,7 @@ Partial Class Formtest
             My.Settings.data1074 = Dev2DecimalNumDPs.Text
             My.Settings.data1075 = Dev2SendQuery.Checked
             My.Settings.data1076 = txtOperationDev2.Text
+            My.Settings.data1376 = Dev2TextResponse.Checked
         End If
 
         ' Save Dev2 Profile 16
@@ -1466,6 +1501,7 @@ Partial Class Formtest
             My.Settings.data1103 = Dev2DecimalNumDPs.Text
             My.Settings.data1104 = Dev2SendQuery.Checked
             My.Settings.data1105 = txtOperationDev2.Text
+            My.Settings.data1377 = Dev2TextResponse.Checked
         End If
 
         ' Save Dev2 Profile 17
@@ -1502,6 +1538,7 @@ Partial Class Formtest
             My.Settings.data1132 = Dev2DecimalNumDPs.Text
             My.Settings.data1133 = Dev2SendQuery.Checked
             My.Settings.data1134 = txtOperationDev2.Text
+            My.Settings.data1378 = Dev2TextResponse.Checked
         End If
 
         ' Save Dev2 Profile 18
@@ -1538,6 +1575,7 @@ Partial Class Formtest
             My.Settings.data1161 = Dev2DecimalNumDPs.Text
             My.Settings.data1162 = Dev2SendQuery.Checked
             My.Settings.data1163 = txtOperationDev2.Text
+            My.Settings.data1379 = Dev2TextResponse.Checked
         End If
 
         ' Save Dev2 Profile 19
@@ -1574,6 +1612,7 @@ Partial Class Formtest
             My.Settings.data1190 = Dev2DecimalNumDPs.Text
             My.Settings.data1191 = Dev2SendQuery.Checked
             My.Settings.data1192 = txtOperationDev2.Text
+            My.Settings.data1380 = Dev2TextResponse.Checked
         End If
 
         ' Save Dev2 Profile 20
@@ -1610,6 +1649,7 @@ Partial Class Formtest
             My.Settings.data1219 = Dev2DecimalNumDPs.Text
             My.Settings.data1220 = Dev2SendQuery.Checked
             My.Settings.data1221 = txtOperationDev2.Text
+            My.Settings.data1381 = Dev2TextResponse.Checked
         End If
 
 
@@ -1697,6 +1737,8 @@ Partial Class Formtest
 
         txtOperationDev1.Text = My.Settings.data509
 
+        Dev1TextResponse.Checked = My.Settings.data1342
+
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 0
 
 
@@ -1757,6 +1799,8 @@ Partial Class Formtest
 
         txtOperationDev1.Text = My.Settings.data510
 
+        Dev1TextResponse.Checked = My.Settings.data1343
+
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 1
 
     End Sub
@@ -1816,6 +1860,8 @@ Partial Class Formtest
 
         txtOperationDev1.Text = My.Settings.data511
 
+        Dev1TextResponse.Checked = My.Settings.data1344
+
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 2
 
     End Sub
@@ -1869,6 +1915,8 @@ Partial Class Formtest
         Dev1IntEnable.Checked = My.Settings.data490
 
         txtOperationDev1.Text = My.Settings.data512
+
+        Dev1TextResponse.Checked = My.Settings.data1345
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 3
 
@@ -1924,6 +1972,8 @@ Partial Class Formtest
 
         txtOperationDev1.Text = My.Settings.data513
 
+        Dev1TextResponse.Checked = My.Settings.data1346
+
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 4
 
     End Sub
@@ -1977,6 +2027,8 @@ Partial Class Formtest
         Dev1IntEnable.Checked = My.Settings.data494
 
         txtOperationDev1.Text = My.Settings.data514
+
+        Dev1TextResponse.Checked = My.Settings.data1347
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 5
 
@@ -2033,6 +2085,8 @@ Partial Class Formtest
 
         txtOperationDev1.Text = My.Settings.data515
 
+        Dev1TextResponse.Checked = My.Settings.data1348
+
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 6
 
     End Sub
@@ -2088,6 +2142,8 @@ Partial Class Formtest
 
         txtOperationDev1.Text = My.Settings.data516
 
+        Dev1TextResponse.Checked = My.Settings.data1349
+
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 7
 
     End Sub
@@ -2128,6 +2184,8 @@ Partial Class Formtest
         Dev1Regex.Checked = My.Settings.data551
         Dev1DecimalNumDPs.Text = My.Settings.data552
         txtOperationDev1.Text = My.Settings.data554
+
+        Dev1TextResponse.Checked = My.Settings.data1350
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 8
 
@@ -2170,6 +2228,8 @@ Partial Class Formtest
         Dev1DecimalNumDPs.Text = My.Settings.data581
         txtOperationDev1.Text = My.Settings.data583
 
+        Dev1TextResponse.Checked = My.Settings.data1351
+
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 9
 
     End Sub
@@ -2210,6 +2270,8 @@ Partial Class Formtest
         Dev1Regex.Checked = My.Settings.data609
         Dev1DecimalNumDPs.Text = My.Settings.data610
         txtOperationDev1.Text = My.Settings.data612
+
+        Dev1TextResponse.Checked = My.Settings.data1352
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 10
 
@@ -2252,6 +2314,8 @@ Partial Class Formtest
         Dev1DecimalNumDPs.Text = My.Settings.data639
         txtOperationDev1.Text = My.Settings.data641
 
+        Dev1TextResponse.Checked = My.Settings.data1353
+
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 11
 
     End Sub
@@ -2292,6 +2356,8 @@ Partial Class Formtest
         Dev1Regex.Checked = My.Settings.data783
         Dev1DecimalNumDPs.Text = My.Settings.data784
         txtOperationDev1.Text = My.Settings.data786
+
+        Dev1TextResponse.Checked = My.Settings.data1354
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 12
 
@@ -2334,6 +2400,8 @@ Partial Class Formtest
         Dev1DecimalNumDPs.Text = My.Settings.data813
         txtOperationDev1.Text = My.Settings.data815
 
+        Dev1TextResponse.Checked = My.Settings.data1355
+
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 13
 
     End Sub
@@ -2374,6 +2442,8 @@ Partial Class Formtest
         Dev1Regex.Checked = My.Settings.data841
         Dev1DecimalNumDPs.Text = My.Settings.data842
         txtOperationDev1.Text = My.Settings.data844
+
+        Dev1TextResponse.Checked = My.Settings.data1356
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 14
 
@@ -2416,6 +2486,8 @@ Partial Class Formtest
         Dev1DecimalNumDPs.Text = My.Settings.data871
         txtOperationDev1.Text = My.Settings.data873
 
+        Dev1TextResponse.Checked = My.Settings.data1357
+
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 15
 
     End Sub
@@ -2456,6 +2528,8 @@ Partial Class Formtest
         Dev1Regex.Checked = My.Settings.data899
         Dev1DecimalNumDPs.Text = My.Settings.data900
         txtOperationDev1.Text = My.Settings.data902
+
+        Dev1TextResponse.Checked = My.Settings.data1358
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 16
 
@@ -2498,6 +2572,8 @@ Partial Class Formtest
         Dev1DecimalNumDPs.Text = My.Settings.data929
         txtOperationDev1.Text = My.Settings.data931
 
+        Dev1TextResponse.Checked = My.Settings.data1359
+
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 17
 
     End Sub
@@ -2539,6 +2615,8 @@ Partial Class Formtest
         Dev1DecimalNumDPs.Text = My.Settings.data958
         txtOperationDev1.Text = My.Settings.data960
 
+        Dev1TextResponse.Checked = My.Settings.data1360
+
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 18
 
     End Sub
@@ -2579,6 +2657,8 @@ Partial Class Formtest
         Dev1Regex.Checked = My.Settings.data986
         Dev1DecimalNumDPs.Text = My.Settings.data987
         txtOperationDev1.Text = My.Settings.data989
+
+        Dev1TextResponse.Checked = My.Settings.data1361
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 19
 
@@ -2640,6 +2720,8 @@ Partial Class Formtest
 
         txtOperationDev2.Text = My.Settings.data517
 
+        Dev2TextResponse.Checked = My.Settings.data1362
+
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 0
 
     End Sub
@@ -2697,6 +2779,8 @@ Partial Class Formtest
 
         txtOperationDev2.Text = My.Settings.data518
 
+        Dev2TextResponse.Checked = My.Settings.data1363
+
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 1
 
     End Sub
@@ -2753,6 +2837,8 @@ Partial Class Formtest
 
         txtOperationDev2.Text = My.Settings.data519
 
+        Dev2TextResponse.Checked = My.Settings.data1364
+
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 2
 
     End Sub
@@ -2806,6 +2892,8 @@ Partial Class Formtest
 
         txtOperationDev2.Text = My.Settings.data520
 
+        Dev2TextResponse.Checked = My.Settings.data1365
+
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 3
 
     End Sub
@@ -2857,6 +2945,8 @@ Partial Class Formtest
         Dev2SendQuery.Checked = My.Settings.data493
 
         txtOperationDev2.Text = My.Settings.data521
+
+        Dev2TextResponse.Checked = My.Settings.data1366
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 4
 
@@ -2910,6 +3000,8 @@ Partial Class Formtest
 
         txtOperationDev2.Text = My.Settings.data522
 
+        Dev2TextResponse.Checked = My.Settings.data1367
+
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 5
 
     End Sub
@@ -2961,6 +3053,8 @@ Partial Class Formtest
         Dev2SendQuery.Checked = My.Settings.data497
 
         txtOperationDev2.Text = My.Settings.data523
+
+        Dev2TextResponse.Checked = My.Settings.data1368
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 6
 
@@ -3015,6 +3109,8 @@ Partial Class Formtest
 
         txtOperationDev2.Text = My.Settings.data524
 
+        Dev2TextResponse.Checked = My.Settings.data1369
+
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 7
 
     End Sub
@@ -3056,6 +3152,8 @@ Partial Class Formtest
         Dev2DecimalNumDPs.Text = My.Settings.data668
         txtOperationDev2.Text = My.Settings.data670
 
+        Dev2TextResponse.Checked = My.Settings.data1370
+
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 8
 
     End Sub
@@ -3094,6 +3192,8 @@ Partial Class Formtest
         Dev2Regex.Checked = My.Settings.data696
         Dev2DecimalNumDPs.Text = My.Settings.data697
         txtOperationDev2.Text = My.Settings.data699
+
+        Dev2TextResponse.Checked = My.Settings.data1371
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 9
 
@@ -3134,6 +3234,8 @@ Partial Class Formtest
         Dev2DecimalNumDPs.Text = My.Settings.data726
         txtOperationDev2.Text = My.Settings.data728
 
+        Dev2TextResponse.Checked = My.Settings.data1372
+
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 10
 
     End Sub
@@ -3172,6 +3274,8 @@ Partial Class Formtest
         Dev2Regex.Checked = My.Settings.data754
         Dev2DecimalNumDPs.Text = My.Settings.data755
         txtOperationDev2.Text = My.Settings.data757
+
+        Dev2TextResponse.Checked = My.Settings.data1373
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 11
 
@@ -3212,6 +3316,8 @@ Partial Class Formtest
         Dev2DecimalNumDPs.Text = My.Settings.data1016
         txtOperationDev2.Text = My.Settings.data1018
 
+        Dev2TextResponse.Checked = My.Settings.data1374
+
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 12
 
     End Sub
@@ -3250,6 +3356,8 @@ Partial Class Formtest
         Dev2Regex.Checked = My.Settings.data1044
         Dev2DecimalNumDPs.Text = My.Settings.data1045
         txtOperationDev2.Text = My.Settings.data1047
+
+        Dev2TextResponse.Checked = My.Settings.data1375
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 13
 
@@ -3290,6 +3398,8 @@ Partial Class Formtest
         Dev2DecimalNumDPs.Text = My.Settings.data1074
         txtOperationDev2.Text = My.Settings.data1076
 
+        Dev2TextResponse.Checked = My.Settings.data1376
+
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 14
 
     End Sub
@@ -3328,6 +3438,8 @@ Partial Class Formtest
         Dev2Regex.Checked = My.Settings.data1102
         Dev2DecimalNumDPs.Text = My.Settings.data1103
         txtOperationDev2.Text = My.Settings.data1105
+
+        Dev2TextResponse.Checked = My.Settings.data1377
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 15
 
@@ -3368,6 +3480,8 @@ Partial Class Formtest
         Dev2DecimalNumDPs.Text = My.Settings.data1132
         txtOperationDev2.Text = My.Settings.data1134
 
+        Dev2TextResponse.Checked = My.Settings.data1378
+
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 16
 
     End Sub
@@ -3406,6 +3520,8 @@ Partial Class Formtest
         Dev2Regex.Checked = My.Settings.data1160
         Dev2DecimalNumDPs.Text = My.Settings.data1161
         txtOperationDev2.Text = My.Settings.data1163
+
+        Dev2TextResponse.Checked = My.Settings.data1379
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 17
 
@@ -3446,6 +3562,8 @@ Partial Class Formtest
         Dev2DecimalNumDPs.Text = My.Settings.data1190
         txtOperationDev2.Text = My.Settings.data1192
 
+        Dev2TextResponse.Checked = My.Settings.data1380
+
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 18
 
     End Sub
@@ -3484,6 +3602,8 @@ Partial Class Formtest
         Dev2Regex.Checked = My.Settings.data1218
         Dev2DecimalNumDPs.Text = My.Settings.data1219
         txtOperationDev2.Text = My.Settings.data1221
+
+        Dev2TextResponse.Checked = My.Settings.data1381
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 19
 

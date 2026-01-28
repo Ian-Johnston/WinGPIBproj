@@ -17009,6 +17009,498 @@ Namespace My
                 Me("ThemeSetCHART") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1342() As Boolean
+            Get
+                Return CType(Me("data1342"),Boolean)
+            End Get
+            Set
+                Me("data1342") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1343() As Boolean
+            Get
+                Return CType(Me("data1343"),Boolean)
+            End Get
+            Set
+                Me("data1343") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1344() As Boolean
+            Get
+                Return CType(Me("data1344"),Boolean)
+            End Get
+            Set
+                Me("data1344") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1345() As Boolean
+            Get
+                Return CType(Me("data1345"),Boolean)
+            End Get
+            Set
+                Me("data1345") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1346() As Boolean
+            Get
+                Return CType(Me("data1346"),Boolean)
+            End Get
+            Set
+                Me("data1346") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1347() As Boolean
+            Get
+                Return CType(Me("data1347"),Boolean)
+            End Get
+            Set
+                Me("data1347") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1348() As Boolean
+            Get
+                Return CType(Me("data1348"),Boolean)
+            End Get
+            Set
+                Me("data1348") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1349() As Boolean
+            Get
+                Return CType(Me("data1349"),Boolean)
+            End Get
+            Set
+                Me("data1349") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1350() As Boolean
+            Get
+                Return CType(Me("data1350"),Boolean)
+            End Get
+            Set
+                Me("data1350") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1351() As Boolean
+            Get
+                Return CType(Me("data1351"),Boolean)
+            End Get
+            Set
+                Me("data1351") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1352() As Boolean
+            Get
+                Return CType(Me("data1352"),Boolean)
+            End Get
+            Set
+                Me("data1352") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1353() As Boolean
+            Get
+                Return CType(Me("data1353"),Boolean)
+            End Get
+            Set
+                Me("data1353") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1354() As Boolean
+            Get
+                Return CType(Me("data1354"),Boolean)
+            End Get
+            Set
+                Me("data1354") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1355() As Boolean
+            Get
+                Return CType(Me("data1355"),Boolean)
+            End Get
+            Set
+                Me("data1355") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1356() As Boolean
+            Get
+                Return CType(Me("data1356"),Boolean)
+            End Get
+            Set
+                Me("data1356") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1357() As Boolean
+            Get
+                Return CType(Me("data1357"),Boolean)
+            End Get
+            Set
+                Me("data1357") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1358() As Boolean
+            Get
+                Return CType(Me("data1358"),Boolean)
+            End Get
+            Set
+                Me("data1358") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1359() As Boolean
+            Get
+                Return CType(Me("data1359"),Boolean)
+            End Get
+            Set
+                Me("data1359") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1360() As Boolean
+            Get
+                Return CType(Me("data1360"),Boolean)
+            End Get
+            Set
+                Me("data1360") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1361() As Boolean
+            Get
+                Return CType(Me("data1361"),Boolean)
+            End Get
+            Set
+                Me("data1361") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1362() As Boolean
+            Get
+                Return CType(Me("data1362"),Boolean)
+            End Get
+            Set
+                Me("data1362") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1363() As Boolean
+            Get
+                Return CType(Me("data1363"),Boolean)
+            End Get
+            Set
+                Me("data1363") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1364() As Boolean
+            Get
+                Return CType(Me("data1364"),Boolean)
+            End Get
+            Set
+                Me("data1364") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1365() As Boolean
+            Get
+                Return CType(Me("data1365"),Boolean)
+            End Get
+            Set
+                Me("data1365") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1366() As Boolean
+            Get
+                Return CType(Me("data1366"),Boolean)
+            End Get
+            Set
+                Me("data1366") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1367() As Boolean
+            Get
+                Return CType(Me("data1367"),Boolean)
+            End Get
+            Set
+                Me("data1367") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1368() As Boolean
+            Get
+                Return CType(Me("data1368"),Boolean)
+            End Get
+            Set
+                Me("data1368") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1369() As Boolean
+            Get
+                Return CType(Me("data1369"),Boolean)
+            End Get
+            Set
+                Me("data1369") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1370() As Boolean
+            Get
+                Return CType(Me("data1370"),Boolean)
+            End Get
+            Set
+                Me("data1370") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1371() As Boolean
+            Get
+                Return CType(Me("data1371"),Boolean)
+            End Get
+            Set
+                Me("data1371") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1372() As Boolean
+            Get
+                Return CType(Me("data1372"),Boolean)
+            End Get
+            Set
+                Me("data1372") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1373() As Boolean
+            Get
+                Return CType(Me("data1373"),Boolean)
+            End Get
+            Set
+                Me("data1373") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1374() As Boolean
+            Get
+                Return CType(Me("data1374"),Boolean)
+            End Get
+            Set
+                Me("data1374") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1375() As Boolean
+            Get
+                Return CType(Me("data1375"),Boolean)
+            End Get
+            Set
+                Me("data1375") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1376() As Boolean
+            Get
+                Return CType(Me("data1376"),Boolean)
+            End Get
+            Set
+                Me("data1376") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1377() As Boolean
+            Get
+                Return CType(Me("data1377"),Boolean)
+            End Get
+            Set
+                Me("data1377") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1378() As Boolean
+            Get
+                Return CType(Me("data1378"),Boolean)
+            End Get
+            Set
+                Me("data1378") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1379() As Boolean
+            Get
+                Return CType(Me("data1379"),Boolean)
+            End Get
+            Set
+                Me("data1379") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1380() As Boolean
+            Get
+                Return CType(Me("data1380"),Boolean)
+            End Get
+            Set
+                Me("data1380") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1381() As Boolean
+            Get
+                Return CType(Me("data1381"),Boolean)
+            End Get
+            Set
+                Me("data1381") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property Setting() As Boolean
+            Get
+                Return CType(Me("Setting"),Boolean)
+            End Get
+            Set
+                Me("Setting") = value
+            End Set
+        End Property
     End Class
 End Namespace
 

@@ -248,7 +248,7 @@ Public Class Formtest
             'sw.Start()
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.080"
+            BannerText1 = "WinGPIB   V4.081"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
             Me.Text = BannerText1 & "                                                        " & BannerText2.ToString()
 
@@ -1616,7 +1616,8 @@ Public Class Formtest
 
             If q.status = 0 And Dev1TextResponse.Checked = False Then
 
-                inst_value1F = respNorm   ' for PDVS2mini calibration
+                'inst_value1F = respNorm   ' for PDVS2mini calibration
+                inst_value1F = Val(respNorm)
 
                 ' Update CMD line only if it was used
                 If CMDlineOp = True Then
@@ -1667,15 +1668,9 @@ Public Class Formtest
 
                 ' Isolate numerical data even if text appears on left and right of data req'd. DP's are retained.
                 If Dev1Regex.Checked = True Then
-                    'txtr1a.Text = "abcde9.999873111E-01fghij"       ' for test only
-                    ' Regular expression pattern to match numbers with optional decimal points
-                    'Dim pattern As String = "(\d+(\.\d+)?)"
-                    Dim pattern As String = "[-+]?\d*\.?\d+([eE][-+]?\d+)?"     ' includes capacity for scientific notation
-                    ' Match the pattern in the input string
+                    Dim pattern As String = "[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?"
                     Dim match As Match = Regex.Match(txtr1a.Text, pattern)
-                    ' Check if a match is found
                     If match.Success Then
-                        ' Extract the matched numeric value
                         txtr1a.Text = match.Value
                     End If
                 End If
@@ -1915,14 +1910,9 @@ Public Class Formtest
 
                 ' Isolate numerical data even if text appears on left and right of data req'd. DP's are retained.
                 If Dev2Regex.Checked = True Then
-                    ' Regular expression pattern to match numbers with optional decimal points
-                    'Dim pattern As String = "(\d+(\.\d+)?)"
-                    Dim pattern As String = "[-+]?\d*\.?\d+([eE][-+]?\d+)?"
-                    ' Match the pattern in the input string
+                    Dim pattern As String = "[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?"
                     Dim match As Match = Regex.Match(txtr2a.Text, pattern)
-                    ' Check if a match is found
                     If match.Success Then
-                        ' Extract the matched numeric value
                         txtr2a.Text = match.Value
                     End If
                 End If
