@@ -391,7 +391,7 @@ Partial Class Chart
         '
         Me.ButtonYmaxInc.Location = New System.Drawing.Point(212, 114)
         Me.ButtonYmaxInc.Name = "ButtonYmaxInc"
-        Me.ButtonYmaxInc.Size = New System.Drawing.Size(30, 20)
+        Me.ButtonYmaxInc.Size = New System.Drawing.Size(30, 22)
         Me.ButtonYmaxInc.TabIndex = 80
         Me.ButtonYmaxInc.Text = ">"
         Me.ToolTip1.SetToolTip(Me.ButtonYmaxInc, "Increase Y-axis maximum value")
@@ -401,7 +401,7 @@ Partial Class Chart
         '
         Me.ButtonYmaxDec.Location = New System.Drawing.Point(179, 114)
         Me.ButtonYmaxDec.Name = "ButtonYmaxDec"
-        Me.ButtonYmaxDec.Size = New System.Drawing.Size(30, 20)
+        Me.ButtonYmaxDec.Size = New System.Drawing.Size(30, 22)
         Me.ButtonYmaxDec.TabIndex = 81
         Me.ButtonYmaxDec.Text = "<"
         Me.ToolTip1.SetToolTip(Me.ButtonYmaxDec, "Decrease Y-axis maximum value")
@@ -411,7 +411,7 @@ Partial Class Chart
         '
         Me.ButtonYminDec.Location = New System.Drawing.Point(179, 135)
         Me.ButtonYminDec.Name = "ButtonYminDec"
-        Me.ButtonYminDec.Size = New System.Drawing.Size(30, 20)
+        Me.ButtonYminDec.Size = New System.Drawing.Size(30, 22)
         Me.ButtonYminDec.TabIndex = 83
         Me.ButtonYminDec.Text = "<"
         Me.ToolTip1.SetToolTip(Me.ButtonYminDec, "Decrease Y-axis minimum value")
@@ -421,7 +421,7 @@ Partial Class Chart
         '
         Me.ButtonYminInc.Location = New System.Drawing.Point(212, 135)
         Me.ButtonYminInc.Name = "ButtonYminInc"
-        Me.ButtonYminInc.Size = New System.Drawing.Size(30, 20)
+        Me.ButtonYminInc.Size = New System.Drawing.Size(30, 22)
         Me.ButtonYminInc.TabIndex = 82
         Me.ButtonYminInc.Text = ">"
         Me.ToolTip1.SetToolTip(Me.ButtonYminInc, "Increase Y-axis minimum value")
@@ -1169,7 +1169,7 @@ Partial Class Chart
         Me.ShowFiles2.BackColor = System.Drawing.Color.WhiteSmoke
         Me.ShowFiles2.Location = New System.Drawing.Point(448, 10)
         Me.ShowFiles2.Name = "ShowFiles2"
-        Me.ShowFiles2.Size = New System.Drawing.Size(85, 22)
+        Me.ShowFiles2.Size = New System.Drawing.Size(106, 22)
         Me.ShowFiles2.TabIndex = 558
         Me.ShowFiles2.Text = "\WinGPIBdata"
         Me.ToolTip1.SetToolTip(Me.ShowFiles2, "Launch Windows File Explorer")
@@ -1179,7 +1179,7 @@ Partial Class Chart
         '
         Me.YaxisSave.Location = New System.Drawing.Point(212, 92)
         Me.YaxisSave.Name = "YaxisSave"
-        Me.YaxisSave.Size = New System.Drawing.Size(48, 20)
+        Me.YaxisSave.Size = New System.Drawing.Size(48, 22)
         Me.YaxisSave.TabIndex = 565
         Me.YaxisSave.Text = "SAVE"
         Me.ToolTip1.SetToolTip(Me.YaxisSave, "Save Min/Max to 1, 2, 3 or 4")
@@ -1189,7 +1189,7 @@ Partial Class Chart
         '
         Me.YaxisLoad.Location = New System.Drawing.Point(155, 9)
         Me.YaxisLoad.Name = "YaxisLoad"
-        Me.YaxisLoad.Size = New System.Drawing.Size(48, 20)
+        Me.YaxisLoad.Size = New System.Drawing.Size(48, 22)
         Me.YaxisLoad.TabIndex = 567
         Me.YaxisLoad.Text = "LOAD"
         Me.ToolTip1.SetToolTip(Me.YaxisLoad, "Load Y-Axis Min/Max to the graph")

@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea6 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend6 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series6 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -6016,9 +6016,9 @@ Partial Class Formtest
         '
         'ButtonDiffRecordedTempReset
         '
-        Me.ButtonDiffRecordedTempReset.Location = New System.Drawing.Point(998, 23)
+        Me.ButtonDiffRecordedTempReset.Location = New System.Drawing.Point(995, 19)
         Me.ButtonDiffRecordedTempReset.Name = "ButtonDiffRecordedTempReset"
-        Me.ButtonDiffRecordedTempReset.Size = New System.Drawing.Size(44, 20)
+        Me.ButtonDiffRecordedTempReset.Size = New System.Drawing.Size(50, 30)
         Me.ButtonDiffRecordedTempReset.TabIndex = 109
         Me.ButtonDiffRecordedTempReset.Text = "Reset"
         Me.ButtonDiffRecordedTempReset.UseVisualStyleBackColor = True
@@ -6035,9 +6035,9 @@ Partial Class Formtest
         '
         'ButtonDiffRecorded2Reset
         '
-        Me.ButtonDiffRecorded2Reset.Location = New System.Drawing.Point(772, 101)
+        Me.ButtonDiffRecorded2Reset.Location = New System.Drawing.Point(772, 97)
         Me.ButtonDiffRecorded2Reset.Name = "ButtonDiffRecorded2Reset"
-        Me.ButtonDiffRecorded2Reset.Size = New System.Drawing.Size(44, 20)
+        Me.ButtonDiffRecorded2Reset.Size = New System.Drawing.Size(50, 30)
         Me.ButtonDiffRecorded2Reset.TabIndex = 105
         Me.ButtonDiffRecorded2Reset.Text = "Reset"
         Me.ButtonDiffRecorded2Reset.UseVisualStyleBackColor = True
@@ -6055,9 +6055,9 @@ Partial Class Formtest
         '
         'ButtonDiffRecorded1Reset
         '
-        Me.ButtonDiffRecorded1Reset.Location = New System.Drawing.Point(771, 23)
+        Me.ButtonDiffRecorded1Reset.Location = New System.Drawing.Point(771, 19)
         Me.ButtonDiffRecorded1Reset.Name = "ButtonDiffRecorded1Reset"
-        Me.ButtonDiffRecorded1Reset.Size = New System.Drawing.Size(44, 20)
+        Me.ButtonDiffRecorded1Reset.Size = New System.Drawing.Size(50, 30)
         Me.ButtonDiffRecorded1Reset.TabIndex = 104
         Me.ButtonDiffRecorded1Reset.Text = "Reset"
         Me.ButtonDiffRecorded1Reset.UseVisualStyleBackColor = True
@@ -6125,22 +6125,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea6.BackColor = System.Drawing.Color.Black
-        ChartArea6.BorderColor = System.Drawing.Color.White
-        ChartArea6.BorderWidth = 2
-        ChartArea6.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea6)
-        Legend6.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend6)
+        ChartArea1.BackColor = System.Drawing.Color.Black
+        ChartArea1.BorderColor = System.Drawing.Color.White
+        ChartArea1.BorderWidth = 2
+        ChartArea1.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea1)
+        Legend1.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend1)
         Me.Chart1.Location = New System.Drawing.Point(-32, 168)
         Me.Chart1.Name = "Chart1"
-        Series6.ChartArea = "ChartArea1"
-        Series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series6.Color = System.Drawing.Color.Yellow
-        Series6.Enabled = False
-        Series6.Legend = "Legend1"
-        Series6.Name = "Series1"
-        Me.Chart1.Series.Add(Series6)
+        Series1.ChartArea = "ChartArea1"
+        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series1.Color = System.Drawing.Color.Yellow
+        Series1.Enabled = False
+        Series1.Legend = "Legend1"
+        Series1.Name = "Series1"
+        Me.Chart1.Series.Add(Series1)
         Me.Chart1.Size = New System.Drawing.Size(1120, 434)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
