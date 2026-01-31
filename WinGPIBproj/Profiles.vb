@@ -3744,10 +3744,18 @@ Partial Class Formtest
         SetDev1SelectedProfile(dst, loadNow:=False)
         SaveSettings()
 
+        ' Copy INFO text (stored in My.Settings, not in SaveSettings UI fields)
+        My.Settings(InfoKey(1, dst)) = CStr(My.Settings(InfoKey(1, src)))
+        My.Settings.Save()
+
+
         ' If MOVE, clear the SOURCE slot (name + data) by selecting it and saving blanks/defaults
         If isMove Then
             SetDev1SelectedProfile(src, loadNow:=False)
             ClearDev1CurrentSlotToDefaults()
+            ' Clear INFO text for source slot on MOVE
+            My.Settings(InfoKey(1, src)) = ""
+            My.Settings.Save()
         End If
 
         ' Restore original selection without reloading UI
@@ -3779,9 +3787,16 @@ Partial Class Formtest
         SetDev2SelectedProfile(dst, loadNow:=False)
         SaveSettings()
 
+        ' Copy INFO text (stored in My.Settings, not in SaveSettings UI fields)
+        My.Settings(InfoKey(2, dst)) = CStr(My.Settings(InfoKey(2, src)))
+        My.Settings.Save()
+
         If isMove Then
             SetDev2SelectedProfile(src, loadNow:=False)
             ClearDev2CurrentSlotToDefaults()
+            ' Clear INFO text for source slot on MOVE
+            My.Settings(InfoKey(2, src)) = ""
+            My.Settings.Save()
         End If
 
         SetDev2SelectedProfile(src, loadNow:=False)
@@ -3901,6 +3916,7 @@ Partial Class Formtest
 
     End Sub
 
+
     ' Clears the currently selected DEV1 profile slot by writing blanks/defaults then SaveSettings()
     Private Sub ClearDev1CurrentSlotToDefaults()
 
@@ -3923,6 +3939,8 @@ Partial Class Formtest
         Dev1delayop.Text = "1"
         Dev1DecimalNumDPs.Text = "8"
         Dev1SampleRate.Text = "5"
+
+        My.Settings(InfoKey(1, Dev1ProfileNumber())) = ""
 
         ' Write all fields for THIS slot back into My.Settings
         SaveSettings()
@@ -3950,8 +3968,161 @@ Partial Class Formtest
         Dev2DecimalNumDPs.Text = "8"
         Dev2SampleRate.Text = "5"
 
+        My.Settings(InfoKey(2, Dev2ProfileNumber())) = ""
+
         SaveSettings()
 
+    End Sub
+
+
+    ' Dev1 profiles 1..20 => data1382..data1401
+    ' Dev2 profiles 1..20 => data1402..data1421
+    Private Function InfoKey(dev As Integer, profileRaw As Integer) As String
+
+        Dim p As Integer = profileRaw
+
+        ' Accept either 0..19 (SelectedIndex) or 1..20 (slot number)
+        If p >= 0 AndAlso p <= 19 Then p += 1
+
+        If p < 1 Then p = 1
+        If p > 20 Then p = 20
+
+        Dim baseIdx As Integer = If(dev = 1, 1382, 1402)
+        Return "data" & (baseIdx + (p - 1)).ToString()
+
+    End Function
+
+
+
+
+
+    ' INFO button functionality
+    Private Sub ButtonDev1INFO_Click(sender As Object, e As EventArgs) Handles ButtonDev1INFO.Click
+
+        My.Settings.Reload()
+
+        Dim p As Integer = Dev1ProfileNumber()
+        Dim current As String = GetInfoText(1, p)
+
+        Dim edited As String = EditProfileInfo("Device 1 - Profile " & p.ToString() & " INFO", current)
+
+        If edited IsNot Nothing Then
+            SetInfoText(1, p, edited)
+            My.Settings.Save()
+            My.Settings.Reload() ' sanity: ensures it really persisted
+        End If
+
+    End Sub
+
+
+    Private Sub ButtonDev2INFO_Click(sender As Object, e As EventArgs) Handles ButtonDev2INFO.Click
+
+        My.Settings.Reload()
+
+        Dim p As Integer = Dev2ProfileNumber()
+        Dim current As String = GetInfoText(2, p)
+
+        Dim edited As String = EditProfileInfo("Device 2 - Profile " & p.ToString() & " INFO", current)
+
+        If edited IsNot Nothing Then
+            SetInfoText(2, p, edited)
+            My.Settings.Save()
+            My.Settings.Reload()
+        End If
+
+    End Sub
+
+
+    Private Function EditProfileInfo(ByVal title As String, ByVal initialText As String) As String
+
+        Dim resultText As String = Nothing
+
+        Dim f As New Form With {
+        .Text = title,
+        .StartPosition = FormStartPosition.CenterParent,
+        .Width = 700,
+        .Height = 500,
+        .MinimizeBox = False,
+        .MaximizeBox = False,
+        .ShowInTaskbar = False
+    }
+
+        Dim rtb As New RichTextBox With {
+        .Dock = DockStyle.Fill,
+        .Text = If(initialText, "")
+    }
+
+        Dim pnl As New FlowLayoutPanel With {
+        .Dock = DockStyle.Bottom,
+        .Height = 44,
+        .FlowDirection = FlowDirection.RightToLeft,
+        .Padding = New Padding(8),
+        .WrapContents = False
+    }
+
+        Dim btnSave As New Button With {.Text = "Save", .Width = 90, .Height = 28}
+
+        AddHandler btnSave.Click,
+        Sub()
+            resultText = rtb.Text
+            f.DialogResult = DialogResult.OK
+            f.Close()
+        End Sub
+
+        pnl.Controls.Add(btnSave)
+
+        ' IMPORTANT: add Bottom panel first so it isn't hidden by Dock=Fill control
+        f.Controls.Add(pnl)
+        f.Controls.Add(rtb)
+
+        If f.ShowDialog(Me) = DialogResult.OK Then
+            Return resultText
+        Else
+            Return Nothing
+        End If
+
+    End Function
+
+
+    ' Dev1 profiles 1..20 => data1382..data1401
+    ' Dev2 profiles 1..20 => data1402..data1421
+    Private Function InfoSettingName(ByVal dev As Integer, ByVal profileRaw As Integer) As String
+
+        ' Accept 0..19 OR 1..20
+        Dim p As Integer = profileRaw
+        If p >= 0 AndAlso p <= 19 Then p += 1
+
+        If p < 1 Then p = 1
+        If p > 20 Then p = 20
+
+        Dim baseIdx As Integer = If(dev = 1, 1382, 1402)
+        Dim idx As Integer = baseIdx + (p - 1)
+        Return "data" & idx.ToString()
+
+    End Function
+
+    Private Function GetInfoText(ByVal dev As Integer, ByVal profileRaw As Integer) As String
+        Dim key As String = InfoSettingName(dev, profileRaw)
+
+        Try
+            Dim obj = My.Settings(key)
+            Return If(obj Is Nothing, "", CStr(obj))
+        Catch ex As Exception
+            MessageBox.Show("Missing setting: " & key & vbCrLf &
+                            "Add it in Project Properties -> Settings (String, User scope).")
+            Return ""
+        End Try
+    End Function
+
+    Private Sub SetInfoText(ByVal dev As Integer, ByVal profileRaw As Integer, ByVal value As String)
+        Dim key As String = InfoSettingName(dev, profileRaw)
+
+        Try
+            My.Settings(key) = value
+        Catch ex As Exception
+            MessageBox.Show("Missing setting: " & key & vbCrLf &
+                            "Add it in Project Properties -> Settings (String, User scope).")
+        End Try
     End Sub
 
 
