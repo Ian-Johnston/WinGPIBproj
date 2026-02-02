@@ -3186,7 +3186,6 @@ Partial Class Formtest
         Me.ButtonDev1INFO.Size = New System.Drawing.Size(50, 21)
         Me.ButtonDev1INFO.TabIndex = 518
         Me.ButtonDev1INFO.Text = "INFO"
-        Me.ToolTip1.SetToolTip(Me.ButtonDev1INFO, "Connect to Device 1 only")
         Me.ButtonDev1INFO.UseVisualStyleBackColor = True
         '
         'ButtonDev2INFO
@@ -3196,7 +3195,6 @@ Partial Class Formtest
         Me.ButtonDev2INFO.Size = New System.Drawing.Size(50, 21)
         Me.ButtonDev2INFO.TabIndex = 536
         Me.ButtonDev2INFO.Text = "INFO"
-        Me.ToolTip1.SetToolTip(Me.ButtonDev2INFO, "Connect to Device 2 only")
         Me.ButtonDev2INFO.UseVisualStyleBackColor = True
         '
         'CheckBoxPrologixSerialDTR
