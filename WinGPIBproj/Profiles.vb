@@ -21,6 +21,14 @@ Partial Class Formtest
     Dim ProfDev2checked_3 As Boolean = False
     Dim TextEditorPath As String
 
+    ' INFO editor state (modeless) - keep Dev1/Dev2 separate
+    Private _infoFormDev1 As Form = Nothing
+    Private _infoFormDev2 As Form = Nothing
+    Private _infoOpenProfileDev1 As Integer = -1
+    Private _infoOpenProfileDev2 As Integer = -1
+
+
+
     ' 3458A Cal Pre-Run
     Private Sub BtnSave3458A_Click(sender As Object, e As EventArgs) Handles BtnSave3458A.Click
 
@@ -1687,6 +1695,8 @@ Partial Class Formtest
 
         'My.Settings.Reload()
 
+        CloseInfoEditor(1)
+
 
         txtname1.Text = My.Settings.data1
         CommandStart1.Text = My.Settings.data5
@@ -1749,6 +1759,8 @@ Partial Class Formtest
 
         'My.Settings.Reload()
 
+        CloseInfoEditor(1)
+
 
         txtname1.Text = My.Settings.data1b
         CommandStart1.Text = My.Settings.data5b
@@ -1809,6 +1821,8 @@ Partial Class Formtest
     Private Sub LoadDev1Profile_3()
 
         'My.Settings.Reload()
+
+        CloseInfoEditor(1)
 
 
         txtname1.Text = My.Settings.data1c
@@ -1871,6 +1885,8 @@ Partial Class Formtest
 
         'My.Settings.Reload()
 
+        CloseInfoEditor(1)
+
 
         txtname1.Text = My.Settings.data139
         CommandStart1.Text = My.Settings.data140
@@ -1926,6 +1942,8 @@ Partial Class Formtest
     Private Sub LoadDev1Profile_5()
 
         'My.Settings.Reload()
+
+        CloseInfoEditor(1)
 
 
         txtname1.Text = My.Settings.data155
@@ -1983,6 +2001,8 @@ Partial Class Formtest
 
         'My.Settings.Reload()
 
+        CloseInfoEditor(1)
+
 
         txtname1.Text = My.Settings.data171
         CommandStart1.Text = My.Settings.data172
@@ -2038,6 +2058,8 @@ Partial Class Formtest
     Private Sub LoadDev1Profile_7()
 
         'My.Settings.Reload()
+
+        CloseInfoEditor(1)
 
 
         txtname1.Text = My.Settings.data349
@@ -2097,6 +2119,8 @@ Partial Class Formtest
 
         'My.Settings.Reload()
 
+        CloseInfoEditor(1)
+
 
         txtname1.Text = My.Settings.data375
         CommandStart1.Text = My.Settings.data376
@@ -2152,6 +2176,8 @@ Partial Class Formtest
 
         'My.Settings.Reload()
 
+        CloseInfoEditor(1)
+
 
         txtname1.Text = My.Settings.data526
         CommandStart1.Text = My.Settings.data527
@@ -2194,6 +2220,8 @@ Partial Class Formtest
     Private Sub LoadDev1Profile_10()
 
         'My.Settings.Reload()
+
+        CloseInfoEditor(1)
 
 
         txtname1.Text = My.Settings.data555
@@ -2238,6 +2266,8 @@ Partial Class Formtest
 
         'My.Settings.Reload()
 
+        CloseInfoEditor(1)
+
 
         txtname1.Text = My.Settings.data584
         CommandStart1.Text = My.Settings.data585
@@ -2280,6 +2310,8 @@ Partial Class Formtest
     Private Sub LoadDev1Profile_12()
 
         'My.Settings.Reload()
+
+        CloseInfoEditor(1)
 
 
         txtname1.Text = My.Settings.data613
@@ -2324,6 +2356,8 @@ Partial Class Formtest
 
         'My.Settings.Reload()
 
+        CloseInfoEditor(1)
+
 
         txtname1.Text = My.Settings.data758
         CommandStart1.Text = My.Settings.data759
@@ -2366,6 +2400,8 @@ Partial Class Formtest
     Private Sub LoadDev1Profile_14()
 
         'My.Settings.Reload()
+
+        CloseInfoEditor(1)
 
 
         txtname1.Text = My.Settings.data787
@@ -2410,6 +2446,8 @@ Partial Class Formtest
 
         'My.Settings.Reload()
 
+        CloseInfoEditor(1)
+
 
         txtname1.Text = My.Settings.data816
         CommandStart1.Text = My.Settings.data817
@@ -2452,6 +2490,8 @@ Partial Class Formtest
     Private Sub LoadDev1Profile_16()
 
         'My.Settings.Reload()
+
+        CloseInfoEditor(1)
 
 
         txtname1.Text = My.Settings.data845
@@ -2496,6 +2536,8 @@ Partial Class Formtest
 
         'My.Settings.Reload()
 
+        CloseInfoEditor(1)
+
 
         txtname1.Text = My.Settings.data874
         CommandStart1.Text = My.Settings.data875
@@ -2538,6 +2580,8 @@ Partial Class Formtest
     Private Sub LoadDev1Profile_18()
 
         'My.Settings.Reload()
+
+        CloseInfoEditor(1)
 
 
         txtname1.Text = My.Settings.data903
@@ -2582,6 +2626,8 @@ Partial Class Formtest
 
         'My.Settings.Reload()
 
+        CloseInfoEditor(1)
+
 
         txtname1.Text = My.Settings.data932
         CommandStart1.Text = My.Settings.data933
@@ -2624,6 +2670,8 @@ Partial Class Formtest
     Private Sub LoadDev1Profile_20()
 
         'My.Settings.Reload()
+
+        CloseInfoEditor(1)
 
 
         txtname1.Text = My.Settings.data961
@@ -2669,6 +2717,8 @@ Partial Class Formtest
 
     ' Device 2 profile 1
     Private Sub LoadDev2Profile_1()
+
+        CloseInfoEditor(2)
 
 
         txtname2.Text = My.Settings.data2
@@ -2729,6 +2779,7 @@ Partial Class Formtest
     ' Device 2 profile 2
     Private Sub LoadDev2Profile_2()
 
+        CloseInfoEditor(2)
 
         txtname2.Text = My.Settings.data2b
         CommandStart2.Text = My.Settings.data6b
@@ -2788,6 +2839,7 @@ Partial Class Formtest
     ' Device 2 profile 3
     Private Sub LoadDev2Profile_3()
 
+        CloseInfoEditor(2)
 
         txtname2.Text = My.Settings.data2c
         CommandStart2.Text = My.Settings.data6c
@@ -2846,6 +2898,7 @@ Partial Class Formtest
     ' Device 2 profile 4
     Private Sub LoadDev2Profile_4()
 
+        CloseInfoEditor(2)
 
         txtname2.Text = My.Settings.data91
         CommandStart2.Text = My.Settings.data92
@@ -2901,6 +2954,7 @@ Partial Class Formtest
     ' Device 2 profile 5
     Private Sub LoadDev2Profile_5()
 
+        CloseInfoEditor(2)
 
         txtname2.Text = My.Settings.data107
         CommandStart2.Text = My.Settings.data108
@@ -2955,6 +3009,7 @@ Partial Class Formtest
     ' Device 2 profile 6
     Private Sub LoadDev2Profile_6()
 
+        CloseInfoEditor(2)
 
         txtname2.Text = My.Settings.data123
         CommandStart2.Text = My.Settings.data124
@@ -3009,6 +3064,7 @@ Partial Class Formtest
     ' Device 2 profile 7
     Private Sub LoadDev2Profile_7()
 
+        CloseInfoEditor(2)
 
         txtname2.Text = My.Settings.data401
         CommandStart2.Text = My.Settings.data402
@@ -3064,6 +3120,7 @@ Partial Class Formtest
     ' Device 2 profile 8
     Private Sub LoadDev2Profile_8()
 
+        CloseInfoEditor(2)
 
         txtname2.Text = My.Settings.data427
         CommandStart2.Text = My.Settings.data428
@@ -3119,6 +3176,7 @@ Partial Class Formtest
 
     Private Sub LoadDev2Profile_9()
 
+        CloseInfoEditor(2)
 
         txtname2.Text = My.Settings.data642
         CommandStart2.Text = My.Settings.data643
@@ -3160,6 +3218,7 @@ Partial Class Formtest
 
     Private Sub LoadDev2Profile_10()
 
+        CloseInfoEditor(2)
 
         txtname2.Text = My.Settings.data671
         CommandStart2.Text = My.Settings.data672
@@ -3201,6 +3260,7 @@ Partial Class Formtest
 
     Private Sub LoadDev2Profile_11()
 
+        CloseInfoEditor(2)
 
         txtname2.Text = My.Settings.data700
         CommandStart2.Text = My.Settings.data701
@@ -3242,6 +3302,7 @@ Partial Class Formtest
 
     Private Sub LoadDev2Profile_12()
 
+        CloseInfoEditor(2)
 
         txtname2.Text = My.Settings.data729
         CommandStart2.Text = My.Settings.data730
@@ -3283,6 +3344,7 @@ Partial Class Formtest
 
     Private Sub LoadDev2Profile_13()
 
+        CloseInfoEditor(2)
 
         txtname2.Text = My.Settings.data990
         CommandStart2.Text = My.Settings.data991
@@ -3324,6 +3386,7 @@ Partial Class Formtest
 
     Private Sub LoadDev2Profile_14()
 
+        CloseInfoEditor(2)
 
         txtname2.Text = My.Settings.data1019
         CommandStart2.Text = My.Settings.data1020
@@ -3365,6 +3428,7 @@ Partial Class Formtest
 
     Private Sub LoadDev2Profile_15()
 
+        CloseInfoEditor(2)
 
         txtname2.Text = My.Settings.data1048
         CommandStart2.Text = My.Settings.data1049
@@ -3406,6 +3470,7 @@ Partial Class Formtest
 
     Private Sub LoadDev2Profile_16()
 
+        CloseInfoEditor(2)
 
         txtname2.Text = My.Settings.data1077
         CommandStart2.Text = My.Settings.data1078
@@ -3447,6 +3512,7 @@ Partial Class Formtest
 
     Private Sub LoadDev2Profile_17()
 
+        CloseInfoEditor(2)
 
         txtname2.Text = My.Settings.data1106
         CommandStart2.Text = My.Settings.data1107
@@ -3488,6 +3554,7 @@ Partial Class Formtest
 
     Private Sub LoadDev2Profile_18()
 
+        CloseInfoEditor(2)
 
         txtname2.Text = My.Settings.data1135
         CommandStart2.Text = My.Settings.data1136
@@ -3529,6 +3596,7 @@ Partial Class Formtest
 
     Private Sub LoadDev2Profile_19()
 
+        CloseInfoEditor(2)
 
         txtname2.Text = My.Settings.data1164
         CommandStart2.Text = My.Settings.data1165
@@ -3570,6 +3638,7 @@ Partial Class Formtest
 
     Private Sub LoadDev2Profile_20()
 
+        CloseInfoEditor(2)
 
         txtname2.Text = My.Settings.data1193
         CommandStart2.Text = My.Settings.data1194
@@ -3724,6 +3793,8 @@ Partial Class Formtest
 
     Private Sub MoveCopyProfileDev1(isMove As Boolean)
 
+        CloseInfoEditor(1)
+
         Dim src As Integer = Dev1ProfileNumber()
         Dim dst As Integer = ParseTargetProfileSlot(TextBoxMoveCopydev1.Text)
 
@@ -3768,6 +3839,8 @@ Partial Class Formtest
     End Sub
 
     Private Sub MoveCopyProfileDev2(isMove As Boolean)
+
+        CloseInfoEditor(2)
 
         Dim src As Integer = Dev2ProfileNumber()
         Dim dst As Integer = ParseTargetProfileSlot(TextBoxMoveCopydev2.Text)
@@ -3993,43 +4066,15 @@ Partial Class Formtest
     End Function
 
 
-
-
-
-    ' INFO button functionality
     Private Sub ButtonDev1INFO_Click(sender As Object, e As EventArgs) Handles ButtonDev1INFO.Click
-
-        My.Settings.Reload()
-
         Dim p As Integer = Dev1ProfileNumber()
-        Dim current As String = GetInfoText(1, p)
-
-        Dim edited As String = EditProfileInfo("Device 1 - Profile " & p.ToString() & " INFO", current)
-
-        If edited IsNot Nothing Then
-            SetInfoText(1, p, edited)
-            My.Settings.Save()
-            My.Settings.Reload() ' sanity: ensures it really persisted
-        End If
-
+        ShowInfoEditorModeless(1, p)
     End Sub
 
 
     Private Sub ButtonDev2INFO_Click(sender As Object, e As EventArgs) Handles ButtonDev2INFO.Click
-
-        My.Settings.Reload()
-
         Dim p As Integer = Dev2ProfileNumber()
-        Dim current As String = GetInfoText(2, p)
-
-        Dim edited As String = EditProfileInfo("Device 2 - Profile " & p.ToString() & " INFO", current)
-
-        If edited IsNot Nothing Then
-            SetInfoText(2, p, edited)
-            My.Settings.Save()
-            My.Settings.Reload()
-        End If
-
+        ShowInfoEditorModeless(2, p)
     End Sub
 
 
@@ -4123,6 +4168,96 @@ Partial Class Formtest
             MessageBox.Show("Missing setting: " & key & vbCrLf &
                             "Add it in Project Properties -> Settings (String, User scope).")
         End Try
+    End Sub
+
+
+    Private Sub ShowInfoEditorModeless(ByVal dev As Integer, ByVal profile As Integer)
+
+        ' If already open for this device, close it (discarding edits)
+        CloseInfoEditor(dev)
+
+        Dim key As String = InfoKey(dev, profile)
+        Dim initialText As String = GetInfoText(dev, profile)
+
+        Dim f As New Form With {
+        .Text = If(dev = 1, "Device 1 - Profile ", "Device 2 - Profile ") & profile.ToString() & " INFO",
+        .StartPosition = FormStartPosition.CenterParent,
+        .Width = 700,
+        .Height = 500,
+        .MinimizeBox = False,
+        .MaximizeBox = False,
+        .ShowInTaskbar = False
+    }
+
+        Dim rtb As New RichTextBox With {
+        .Dock = DockStyle.Fill,
+        .Text = If(initialText, "")
+    }
+
+        Dim pnl As New FlowLayoutPanel With {
+        .Dock = DockStyle.Bottom,
+        .Height = 44,
+        .FlowDirection = FlowDirection.RightToLeft,
+        .Padding = New Padding(8),
+        .WrapContents = False
+    }
+
+        Dim btnSave As New Button With {.Text = "Save", .Width = 90, .Height = 28}
+
+        AddHandler btnSave.Click,
+        Sub()
+            SetInfoText(dev, profile, rtb.Text)
+            My.Settings.Save()
+            f.Close()
+        End Sub
+
+        pnl.Controls.Add(btnSave)
+        f.Controls.Add(pnl)
+        f.Controls.Add(rtb)
+
+        ' Track open window per device
+        If dev = 1 Then
+            _infoFormDev1 = f
+            _infoOpenProfileDev1 = profile
+        Else
+            _infoFormDev2 = f
+            _infoOpenProfileDev2 = profile
+        End If
+
+        ' Clean up references if user closes with the X (no save)
+        AddHandler f.FormClosed,
+        Sub()
+            If dev = 1 Then
+                _infoFormDev1 = Nothing
+                _infoOpenProfileDev1 = -1
+            Else
+                _infoFormDev2 = Nothing
+                _infoOpenProfileDev2 = -1
+            End If
+        End Sub
+
+        ' MODELLESS: main app still usable
+        f.Show(Me)
+
+    End Sub
+
+
+    Private Sub CloseInfoEditor(ByVal dev As Integer)
+
+        If dev = 1 Then
+            If _infoFormDev1 IsNot Nothing AndAlso Not _infoFormDev1.IsDisposed Then
+                _infoFormDev1.Close() ' discard edits
+            End If
+            _infoFormDev1 = Nothing
+            _infoOpenProfileDev1 = -1
+        Else
+            If _infoFormDev2 IsNot Nothing AndAlso Not _infoFormDev2.IsDisposed Then
+                _infoFormDev2.Close() ' discard edits
+            End If
+            _infoFormDev2 = Nothing
+            _infoOpenProfileDev2 = -1
+        End If
+
     End Sub
 
 

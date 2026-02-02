@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea4 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend4 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series4 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -211,6 +211,8 @@ Partial Class Formtest
         Me.TextBoxMoveCopydev2 = New System.Windows.Forms.TextBox()
         Me.ButtonCOPYdev2 = New System.Windows.Forms.Button()
         Me.ButtonMOVEdev2 = New System.Windows.Forms.Button()
+        Me.ButtonDev1INFO = New System.Windows.Forms.Button()
+        Me.ButtonDev2INFO = New System.Windows.Forms.Button()
         Me.CheckBoxPrologixSerialDTR = New System.Windows.Forms.CheckBox()
         Me.CheckBoxSerialCOMDTREnable = New System.Windows.Forms.CheckBox()
         Me.CheckBoxSerialCOMRTSEnable = New System.Windows.Forms.CheckBox()
@@ -1171,8 +1173,6 @@ Partial Class Formtest
         Me.Timer15 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer16 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
-        Me.ButtonDev1INFO = New System.Windows.Forms.Button()
-        Me.ButtonDev2INFO = New System.Windows.Forms.Button()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.GroupBox9.SuspendLayout
@@ -3178,6 +3178,26 @@ Partial Class Formtest
         Me.ButtonMOVEdev2.Text = "M"
         Me.ToolTip1.SetToolTip(Me.ButtonMOVEdev2, "Move")
         Me.ButtonMOVEdev2.UseVisualStyleBackColor = True
+        '
+        'ButtonDev1INFO
+        '
+        Me.ButtonDev1INFO.Location = New System.Drawing.Point(320, 94)
+        Me.ButtonDev1INFO.Name = "ButtonDev1INFO"
+        Me.ButtonDev1INFO.Size = New System.Drawing.Size(50, 21)
+        Me.ButtonDev1INFO.TabIndex = 518
+        Me.ButtonDev1INFO.Text = "INFO"
+        Me.ToolTip1.SetToolTip(Me.ButtonDev1INFO, "Connect to Device 1 only")
+        Me.ButtonDev1INFO.UseVisualStyleBackColor = True
+        '
+        'ButtonDev2INFO
+        '
+        Me.ButtonDev2INFO.Location = New System.Drawing.Point(321, 94)
+        Me.ButtonDev2INFO.Name = "ButtonDev2INFO"
+        Me.ButtonDev2INFO.Size = New System.Drawing.Size(50, 21)
+        Me.ButtonDev2INFO.TabIndex = 536
+        Me.ButtonDev2INFO.Text = "INFO"
+        Me.ToolTip1.SetToolTip(Me.ButtonDev2INFO, "Connect to Device 2 only")
+        Me.ButtonDev2INFO.UseVisualStyleBackColor = True
         '
         'CheckBoxPrologixSerialDTR
         '
@@ -6129,22 +6149,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea4.BackColor = System.Drawing.Color.Black
-        ChartArea4.BorderColor = System.Drawing.Color.White
-        ChartArea4.BorderWidth = 2
-        ChartArea4.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea4)
-        Legend4.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend4)
+        ChartArea1.BackColor = System.Drawing.Color.Black
+        ChartArea1.BorderColor = System.Drawing.Color.White
+        ChartArea1.BorderWidth = 2
+        ChartArea1.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea1)
+        Legend1.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend1)
         Me.Chart1.Location = New System.Drawing.Point(-32, 168)
         Me.Chart1.Name = "Chart1"
-        Series4.ChartArea = "ChartArea1"
-        Series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series4.Color = System.Drawing.Color.Yellow
-        Series4.Enabled = False
-        Series4.Legend = "Legend1"
-        Series4.Name = "Series1"
-        Me.Chart1.Series.Add(Series4)
+        Series1.ChartArea = "ChartArea1"
+        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series1.Color = System.Drawing.Color.Yellow
+        Series1.Enabled = False
+        Series1.Legend = "Legend1"
+        Series1.Name = "Series1"
+        Me.Chart1.Series.Add(Series1)
         Me.Chart1.Size = New System.Drawing.Size(1120, 434)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -13487,26 +13507,6 @@ Partial Class Formtest
         'Timer14
         '
         Me.Timer14.Interval = 50
-        '
-        'ButtonDev1INFO
-        '
-        Me.ButtonDev1INFO.Location = New System.Drawing.Point(286, 94)
-        Me.ButtonDev1INFO.Name = "ButtonDev1INFO"
-        Me.ButtonDev1INFO.Size = New System.Drawing.Size(84, 21)
-        Me.ButtonDev1INFO.TabIndex = 518
-        Me.ButtonDev1INFO.Text = "INFO"
-        Me.ToolTip1.SetToolTip(Me.ButtonDev1INFO, "Connect to Device 1 only")
-        Me.ButtonDev1INFO.UseVisualStyleBackColor = True
-        '
-        'ButtonDev2INFO
-        '
-        Me.ButtonDev2INFO.Location = New System.Drawing.Point(287, 94)
-        Me.ButtonDev2INFO.Name = "ButtonDev2INFO"
-        Me.ButtonDev2INFO.Size = New System.Drawing.Size(84, 21)
-        Me.ButtonDev2INFO.TabIndex = 536
-        Me.ButtonDev2INFO.Text = "INFO"
-        Me.ToolTip1.SetToolTip(Me.ButtonDev2INFO, "Connect to Device 2 only")
-        Me.ButtonDev2INFO.UseVisualStyleBackColor = True
         '
         'Formtest
         '
