@@ -21,6 +21,9 @@ Partial Class Formtest
 
     Private Sub ButtonCal3245A_Click(sender As Object, e As EventArgs) Handles ButtonCal3245A.Click
 
+        ' Set global flag
+        Cal3245AinProgress = True
+
         '3245A
         ' run appropriate routine depending on what needs calibrated. DCV is VOLTS only, DCV & DCI is VOLTS and CURRENT
 
@@ -135,6 +138,8 @@ Partial Class Formtest
             Dev1Timeout.Text = TimeoutSave          ' return timout on DEVICE tab back to original
             Calunderway = False
             Button3245Aabort.Enabled = False
+
+            Cal3245AinProgress = False
 
             Me.Refresh()
 
@@ -337,6 +342,7 @@ Partial Class Formtest
             End If
 
             If Abort3245A = True Then   ' abort calibration, reset vars and exit sub
+                Cal3245AinProgress = False
                 Abort3245A = False
                 Calnum = 1
                 Cal3245status.Text = "USER ABORTED......"
@@ -412,6 +418,7 @@ Partial Class Formtest
             For Calnum As Integer = CalStart To CalEnd      ' Loop
 
                 If Abort3245A = True Then   ' abort calibration, reset vars and exit sub
+                    Cal3245AinProgress = False
                     Abort3245A = False
                     Calnum = 1
                     Cal3245status.Text = "USER ABORTED......"
@@ -506,6 +513,7 @@ Partial Class Formtest
 
     Private Sub Button3245Aabort_Click(sender As Object, e As EventArgs) Handles Button3245Aabort.Click
 
+        Cal3245AinProgress = False
         Abort3245A = True
         Dev1Timeout.Text = TimeoutSave          ' return timout on DEVICE tab back to original
         Exit Sub
@@ -545,7 +553,7 @@ Partial Class Formtest
 
         If result = 0 Then
 
-            txtr1b.Text = respNorm
+            txtr1b.Text = q.ResponseAsString
             s &= "device response time:" & Str(q.timeend.Subtract(q.timestart).TotalSeconds) & " s" & vbCrLf
             s &= "thread wait time:" & Str(q.timestart.Subtract(q.timecall).TotalSeconds) & " s" & vbCrLf
 

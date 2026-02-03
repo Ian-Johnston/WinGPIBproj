@@ -168,7 +168,7 @@ Public Class Formtest
     Private _dev1Profile As Integer = 1
     Private _dev2Profile As Integer = 1
 
-
+    Public Cal3245AinProgress As Boolean = False
 
 
     'Private _loading As Boolean = False
@@ -248,7 +248,7 @@ Public Class Formtest
             'sw.Start()
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.084"
+            BannerText1 = "WinGPIB   V4.085"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
             Me.Text = BannerText1 & "                                                        " & BannerText2.ToString()
 
@@ -1314,7 +1314,6 @@ Public Class Formtest
         result = dev1.QueryBlocking(txtq1b.Text & TermStr2(), q, True) 'simpler version with string parameter, modified for BB3 operation
         Debug.WriteLine("BLOCKING DetermineQuery: " & result)
 
-
         btnq1b.Enabled = True
 
         s = "blocking command:'" & q.cmd & "'" & vbCrLf
@@ -1583,8 +1582,6 @@ Public Class Formtest
 
             ' Centralize raw + normalized response
             respRaw = q.ResponseAsString
-            'respRaw = TextBox3.Text            ' Test locale issue
-            'respRaw = "10.123.456,987"            ' Test locale issue
             respNorm = NormalizeNumericResponse(respRaw)
 
             ' Fast query mode (used by User tab determine etc) - avoid slow processing
@@ -1599,14 +1596,9 @@ Public Class Formtest
                     source = If(respNorm, "")
                 End If
 
-                ' USERdev1output2 = raw/normalized instrument response
-                USERdev1output2 = source
-
-                ' USERdev1output = what the USER tab will normally "display"
-                USERdev1output = source
-
-                ' IMPORTANT: also update the DEVICES tab textbox so you see the value there
-                txtr1a.Text = source
+                USERdev1output2 = source            ' USERdev1output2 = raw/normalized instrument response
+                USERdev1output = source             ' USERdev1output = what the USER tab will normally "display"
+                txtr1a.Text = source                ' IMPORTANT: also update the DEVICES tab textbox so you see the value there
 
                 OutputReceiveddev1 = True
                 Exit Sub
@@ -1814,7 +1806,6 @@ Public Class Formtest
             ' dev2.QueryAsync(txtq2a.Text, AddressOf cbdev2, True)
 
             OutputReceiveddev1 = True
-
 
         Catch ex As Exception
             txtr1astat.Text = q.cmd & " error in callback function:" & vbCrLf
