@@ -1008,37 +1008,52 @@ Partial Class Formtest
 
 
             Case "CLEARCHART"
-                ' deviceName is the chart name from the config, e.g. "ChartDMM"
-                Dim chartName As String = deviceName
 
-                ' 1) Clear the main in-panel chart (if present)
-                Dim chMain As DataVisualization.Charting.Chart =
-                TryCast(GetControlByName(chartName), DataVisualization.Charting.Chart)
+                ' deviceName can be a single chart name, or multiple separated by | or ,
+                Dim names As String() =
+                    If(deviceName, "").Split(New Char() {"§"c}, StringSplitOptions.RemoveEmptyEntries)
 
-                If chMain IsNot Nothing AndAlso chMain.Series.Count > 0 Then
-                    For Each s In chMain.Series
-                        s.Points.Clear()
-                    Next
-                End If
+                For Each nmRaw In names
 
-                ' 2) Clear the popup chart (if a popup window exists)
-                Dim popupForm As Form = Nothing
-                If ChartPopupForms IsNot Nothing AndAlso
-               ChartPopupForms.TryGetValue(chartName, popupForm) AndAlso
-               popupForm IsNot Nothing AndAlso Not popupForm.IsDisposed Then
+                    Dim chartName As String = nmRaw.Trim()
+                    If chartName = "" Then Continue For
 
-                    Dim chPopup As DataVisualization.Charting.Chart = Nothing
-                    For Each ctrl As Control In popupForm.Controls
-                        chPopup = TryCast(ctrl, DataVisualization.Charting.Chart)
-                        If chPopup IsNot Nothing Then Exit For
-                    Next
+                    ' =========================
+                    ' 1) Clear main in-panel chart
+                    ' =========================
+                    Dim chMain As DataVisualization.Charting.Chart =
+                        TryCast(GetControlByName(chartName), DataVisualization.Charting.Chart)
 
-                    If chPopup IsNot Nothing AndAlso chPopup.Series.Count > 0 Then
-                        For Each s In chPopup.Series
+                    If chMain IsNot Nothing Then
+                        For Each s In chMain.Series
                             s.Points.Clear()
                         Next
                     End If
-                End If
+
+                    ' =========================
+                    ' 2) Clear popup chart (if exists)
+                    ' =========================
+                    If ChartPopupForms IsNot Nothing Then
+
+                        Dim popupForm As Form = Nothing
+                        If ChartPopupForms.TryGetValue(chartName, popupForm) AndAlso
+                           popupForm IsNot Nothing AndAlso
+                           Not popupForm.IsDisposed Then
+
+                            For Each ctrl As Control In popupForm.Controls
+                                Dim chPopup = TryCast(ctrl, DataVisualization.Charting.Chart)
+                                If chPopup IsNot Nothing Then
+                                    For Each s In chPopup.Series
+                                        s.Points.Clear()
+                                    Next
+                                    Exit For
+                                End If
+                            Next
+
+                        End If
+                    End If
+
+                Next
 
                 Exit Sub
 
@@ -1089,13 +1104,22 @@ Partial Class Formtest
 
 
             Case "RESETSTATS"
-                ' deviceName holds panelName for RESETSTATS
-                Dim panelName As String = deviceName
+                ' deviceName can be a single Stats panel name, or multiple separated by §
+                Dim names As String() = If(deviceName, "").Split("§"c)
 
-                If StatsState.ContainsKey(panelName) Then
-                    StatsState(panelName).Reset()
-                    UpdateStatsPanel(panelName, Double.NaN) ' refresh display
-                End If
+                For Each nmRaw In names
+
+                    Dim panelName As String = nmRaw.Trim()
+                    If panelName = "" Then Continue For
+
+                    If StatsState.ContainsKey(panelName) Then
+                        StatsState(panelName).Reset()
+                        UpdateStatsPanel(panelName, Double.NaN) ' refresh display
+                    End If
+
+                Next
+
+                Exit Sub
 
 
             Case "CLEARHISTORY"
