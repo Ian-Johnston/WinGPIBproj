@@ -1161,6 +1161,17 @@ Partial Class Formtest
         Dim state As Integer = 0
         Integer.TryParse(tagParts(3), state)   ' 0 = OFF, 1 = ON
 
+        ' Pick up colors that were stored in the Tag by the parser
+        Dim onClr As String = "limegreen"
+        Dim offClr As String = "default"
+        For Each p As String In tagParts
+            If p.StartsWith("ONCLR=", StringComparison.OrdinalIgnoreCase) Then
+                onClr = p.Substring(6)
+            ElseIf p.StartsWith("OFFCLR=", StringComparison.OrdinalIgnoreCase) Then
+                offClr = p.Substring(7)
+            End If
+        Next
+
         ' Pick dev1/dev2 + native/standalone flag
         Dim dev As IODevices.IODevice = Nothing
         Dim useNative As Boolean = False
@@ -1191,12 +1202,12 @@ Partial Class Formtest
             End If
         End If
 
-        ' Update Tag with new state (PRESERVE any DETQ/DETE/DETF tokens)
+        ' Update Tag with new state (preserves ONCLR/OFFCLR/DET* tokens)
         tagParts(3) = newState.ToString(Globalization.CultureInfo.InvariantCulture)
         b.Tag = String.Join("|", tagParts)
 
-        ' Apply illumination
-        ApplyToggleVisual(b, newState)
+        ' Apply illumination using the per-control colors
+        ApplyToggleVisual(b, newState, onClr, offClr)
     End Sub
 
 
