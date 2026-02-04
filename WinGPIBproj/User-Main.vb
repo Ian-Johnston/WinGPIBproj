@@ -1188,19 +1188,26 @@ Partial Class Formtest
 
         Dim newState As Integer = If(state = 0, 1, 0)
 
-        If newState = 1 Then
-            If useNative Then
-                NativeSend(device, cmdOn & TermStr2())
-            Else
-                dev.SendAsync(cmdOn & TermStr2(), True)
-            End If
+        Dim cmdToSend As String = If(newState = 1, cmdOn, cmdOff)
+
+        ' Allow multi-command using § separator (e.g. "CMD1§CMD2§CMD3")
+        Dim cmds() As String
+        If cmdToSend.Contains("§"c) Then
+            cmds = cmdToSend.Split("§"c)
         Else
-            If useNative Then
-                NativeSend(device, cmdOff & TermStr2())
-            Else
-                dev.SendAsync(cmdOff & TermStr2(), True)
-            End If
+            cmds = New String() {cmdToSend}
         End If
+
+        For Each c As String In cmds
+            Dim one As String = If(c, "").Trim()
+            If one = "" Then Continue For
+
+            If useNative Then
+                NativeSend(device, one & TermStr2())
+            Else
+                dev.SendAsync(one & TermStr2(), True)
+            End If
+        Next
 
         ' Update Tag with new state (preserves ONCLR/OFFCLR/DET* tokens)
         tagParts(3) = newState.ToString(Globalization.CultureInfo.InvariantCulture)
