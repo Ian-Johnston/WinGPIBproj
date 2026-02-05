@@ -83,7 +83,7 @@ Public Class Formtest
     ' q.ResponseAsString replacement var
     Dim respRaw As String
     Dim respNorm As String
-    Dim respNormRequired As Boolean = False
+    Dim respUSERTABonly As Boolean = False
 
     ' Misc.
     Dim strParts() As String
@@ -249,7 +249,7 @@ Public Class Formtest
             'sw.Start()
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.089"
+            BannerText1 = "WinGPIB   V4.090"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
             Me.Text = BannerText1 & "                                                        " & BannerText2.ToString()
 
@@ -1582,7 +1582,7 @@ Public Class Formtest
         Try
 
             ' USER tab requires normalizing of q.ResponseAsString, else default q.ResponseAsString
-            If respNormRequired = True Then
+            If respUSERTABonly = True Then
                 ' Centralize raw + normalized response
                 respRaw = q.ResponseAsString
                 respNorm = NormalizeNumericResponse(respRaw)
@@ -1834,13 +1834,14 @@ Public Class Formtest
 
         Try
 
-            ' USER tab requires normalizing of q.ResponseAsString, else default q.ResponseAsString
-            If respNormRequired = True Then
-                ' Centralize raw + normalized response
+            ' USER tab requires normalizing of q.ResponseAsString
+            If respUSERTABonly = True Then
+
+                ' Always capture both
                 respRaw = q.ResponseAsString
                 respNorm = NormalizeNumericResponse(respRaw)
 
-                ' Fast query mode (used by User tab determine etc) - avoid slow processing
+                ' Fast query mode (User tab determine / triggers)
                 If USERdev2fastquery Then
                     Dim source As String
 
@@ -1857,7 +1858,9 @@ Public Class Formtest
                     OutputReceiveddev2 = True
                     Exit Sub
                 End If
+
             Else
+                ' Legacy behaviour (pre-USER tab)
                 respRaw = q.ResponseAsString
                 respNorm = q.ResponseAsString
             End If

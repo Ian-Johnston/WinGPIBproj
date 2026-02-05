@@ -673,7 +673,7 @@ FanOut:
             Try
                 OutputReceiveddev1 = False
                 txtq1a.Text = cmd
-                respNormRequired = True
+                respUSERTABonly = True
                 RunBtnq1aCore()
 
                 Dim sw As Diagnostics.Stopwatch = Diagnostics.Stopwatch.StartNew()
@@ -687,6 +687,7 @@ FanOut:
 
             Finally
                 USERdev1fastquery = False
+                respUSERTABonly = False
             End Try
 
         ElseIf deviceName.Equals("dev2", StringComparison.OrdinalIgnoreCase) Then
@@ -696,6 +697,7 @@ FanOut:
             Try
                 OutputReceiveddev2 = False
                 txtq2a.Text = cmd
+                respUSERTABonly = True
                 RunBtnq2aCore()
 
                 Dim sw As Diagnostics.Stopwatch = Diagnostics.Stopwatch.StartNew()
@@ -709,7 +711,7 @@ FanOut:
 
             Finally
                 USERdev2fastquery = False
-                respNormRequired = False
+                respUSERTABonly = False
             End Try
 
         End If
@@ -731,11 +733,11 @@ FanOut:
             If deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
                 USERdev1rawoutput = requireRaw
                 USERdev1fastquery = True
-                respNormRequired = True
+                respUSERTABonly = True
             ElseIf deviceName.Equals("dev2", StringComparison.OrdinalIgnoreCase) Then
                 USERdev2rawoutput = requireRaw
                 USERdev2fastquery = True
-                respNormRequired = True
+                respUSERTABonly = True
             End If
 
             Try
@@ -751,11 +753,11 @@ FanOut:
                 If deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
                     USERdev1rawoutput = False
                     USERdev1fastquery = False
-                    respNormRequired = False
+                    respUSERTABonly = False
                 ElseIf deviceName.Equals("dev2", StringComparison.OrdinalIgnoreCase) Then
                     USERdev2rawoutput = False
                     USERdev2fastquery = False
-                    respNormRequired = False
+                    respUSERTABonly = False
                 End If
             End Try
         End If
@@ -768,7 +770,7 @@ FanOut:
         End Select
         If dev Is Nothing Then Return ""
 
-        respNormRequired = True
+        respUSERTABonly = True
         Dim q As IODevices.IOQuery = Nothing
         Dim status = dev.QueryBlocking(cmd & TermStr2(), q, False)
         Debug.WriteLine("BLOCKING DetermineQuery: " & cmd)
@@ -782,7 +784,7 @@ FanOut:
 
             Return ""
         Finally
-            respNormRequired = False
+            respUSERTABonly = False
         End Try
 
     End Function

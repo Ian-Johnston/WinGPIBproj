@@ -315,6 +315,7 @@ Partial Class Formtest
             ApplyDetermineRadios()
             ApplyDetermineDropdowns()
             ApplyDetermineMultiButtons()
+            ApplyDetermineSpinners()
 
             ' Kick any already-checked FUNCAUTO checkboxes (even if they were checked before RUN)
             Dim stack As New Stack(Of Control)()

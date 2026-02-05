@@ -2688,7 +2688,7 @@ Partial Class Formtest
         'CalRam3458APreRun
         '
         Me.CalRam3458APreRun.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CalRam3458APreRun.Location = New System.Drawing.Point(229, 162)
+        Me.CalRam3458APreRun.Location = New System.Drawing.Point(221, 162)
         Me.CalRam3458APreRun.Multiline = True
         Me.CalRam3458APreRun.Name = "CalRam3458APreRun"
         Me.CalRam3458APreRun.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
@@ -2701,7 +2701,7 @@ Partial Class Formtest
         'BtnSave3458A
         '
         Me.BtnSave3458A.BackColor = System.Drawing.Color.PaleGreen
-        Me.BtnSave3458A.Location = New System.Drawing.Point(345, 134)
+        Me.BtnSave3458A.Location = New System.Drawing.Point(337, 134)
         Me.BtnSave3458A.Name = "BtnSave3458A"
         Me.BtnSave3458A.Size = New System.Drawing.Size(82, 25)
         Me.BtnSave3458A.TabIndex = 705
@@ -6371,7 +6371,7 @@ Partial Class Formtest
         'Label315
         '
         Me.Label315.AutoSize = True
-        Me.Label315.Location = New System.Drawing.Point(227, 146)
+        Me.Label315.Location = New System.Drawing.Point(219, 146)
         Me.Label315.Name = "Label315"
         Me.Label315.Size = New System.Drawing.Size(104, 13)
         Me.Label315.TabIndex = 601

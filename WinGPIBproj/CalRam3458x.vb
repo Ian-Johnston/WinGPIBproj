@@ -529,7 +529,7 @@ Partial Class Formtest
     Private Sub ButtonCalramDump_Click(sender As Object, e As EventArgs) Handles ButtonCalramDump3458A.Click
 
         '3458A
-        respNormRequired = False
+        respUSERTABonly = False
 
         ' run appropriate routine
 
@@ -896,7 +896,7 @@ Partial Class Formtest
     Private Sub ButtonCalramDump3457A_Click(sender As Object, e As EventArgs) Handles ButtonCalramDump3457A.Click
 
         ' 3457A
-        respNormRequired = False
+        respUSERTABonly = False
 
         If AddressRangeA.Checked = True Then
             CalAddrStart3457A = 64
@@ -966,7 +966,7 @@ Partial Class Formtest
 
 
             ' 10 dummy reads to set the interface up (some take a read or two to start getting valid data, buffer flush maybe)
-            CalramStatus.Text = "DUMMY READ - BUFFER FLUSH"
+            CalramStatus3457A.Text = "DUMMY READ - BUFFER FLUSH"
             For CalAddrtemp As Integer = 1 To 10 Step 1
                 Dim r As IOQuery = Nothing
                 dev1.QueryBlocking("PEEK " & CalAddrStart3457A, r, False)
@@ -1075,14 +1075,14 @@ Partial Class Formtest
         Abort3458A = True
         TextBoxCalRamFile.Text = ""
         TextBoxCalRamFile2.Text = ""
-        respNormRequired = False
+        respUSERTABonly = False
 
     End Sub
     Private Sub Button3457Aabort_Click(sender As Object, e As EventArgs) Handles Button3457Aabort.Click
 
         Abort3457A = True
         TextBoxCalRamFile3457A.Text = ""
-        respNormRequired = False
+        respUSERTABonly = False
 
     End Sub
 
