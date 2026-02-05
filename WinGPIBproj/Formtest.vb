@@ -83,6 +83,7 @@ Public Class Formtest
     ' q.ResponseAsString replacement var
     Dim respRaw As String
     Dim respNorm As String
+    Dim respNormRequired As Boolean = False
 
     ' Misc.
     Dim strParts() As String
@@ -248,7 +249,7 @@ Public Class Formtest
             'sw.Start()
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.088"
+            BannerText1 = "WinGPIB   V4.089"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
             Me.Text = BannerText1 & "                                                        " & BannerText2.ToString()
 
@@ -1580,36 +1581,45 @@ Public Class Formtest
 
         Try
 
-            ' Centralize raw + normalized response
-            respRaw = q.ResponseAsString
-            respNorm = NormalizeNumericResponse(respRaw)
+            ' USER tab requires normalizing of q.ResponseAsString, else default q.ResponseAsString
+            If respNormRequired = True Then
+                ' Centralize raw + normalized response
+                respRaw = q.ResponseAsString
+                respNorm = NormalizeNumericResponse(respRaw)
 
-            ' Fast query mode (used by User tab determine etc) - avoid slow processing
-            If USERdev1fastquery Then
-                Dim source As String
+                ' Fast query mode (used by User tab determine etc) - avoid slow processing
+                If USERdev1fastquery Then
+                    Dim source As String
 
-                ' If caller asked for raw text (resptext), give them the untouched instrument string
-                If USERdev1rawoutput Then
-                    source = If(respRaw, "")
-                Else
-                    ' Otherwise use the normalized form (locale-safe)
-                    source = If(respNorm, "")
+                    ' If caller asked for raw text (resptext), give them the untouched instrument string
+                    If USERdev1rawoutput Then
+                        source = If(respRaw, "")
+                    Else
+                        ' Otherwise use the normalized form (locale-safe)
+                        source = If(respNorm, "")
+                    End If
+
+                    USERdev1output2 = source            ' USERdev1output2 = raw/normalized instrument response
+                    USERdev1output = source             ' USERdev1output = what the USER tab will normally "display"
+                    txtr1a.Text = source                ' IMPORTANT: also update the DEVICES tab textbox so you see the value there
+
+                    OutputReceiveddev1 = True
+                    Exit Sub
                 End If
 
-                USERdev1output2 = source            ' USERdev1output2 = raw/normalized instrument response
-                USERdev1output = source             ' USERdev1output = what the USER tab will normally "display"
-                txtr1a.Text = source                ' IMPORTANT: also update the DEVICES tab textbox so you see the value there
-
-                OutputReceiveddev1 = True
-                Exit Sub
+            Else
+                ' Both should be q.ResponseAsString for compatibility outside of USER tab
+                respRaw = q.ResponseAsString
+                respNorm = q.ResponseAsString
             End If
 
             Dim s As String = "async command:'" & q.cmd & "'" & vbCrLf
 
             If q.status = 0 And Dev1TextResponse.Checked = False Then
 
-                'inst_value1F = respNorm   ' for PDVS2mini calibration
-                inst_value1F = Val(respNorm)
+                'inst_value1F = respNorm   ' for PDVS2mini calibration also
+                'inst_value1F = Val(respNorm)
+                inst_value1F = respNorm
 
                 ' Update CMD line only if it was used
                 If CMDlineOp = True Then
@@ -1769,8 +1779,6 @@ Public Class Formtest
                 DeviceTemperature.Text = LabelTemperature.Text
                 DeviceHumidity.Text = LabelHumidity.Text
 
-                s &= "device response time:" & q.timeend.Subtract(q.timestart).TotalSeconds.ToString() & " s" & vbCrLf
-
                 ' If timer running, i.e. not manual
                 If ButtonDev1Run.Text = "Stop" Or ButtonDev12Run.Text = "Stop" Then
                     Dev1GPIBActivity = True
@@ -1785,19 +1793,22 @@ Public Class Formtest
 
                 USERdev1output = txtr1a_disp.Text       ' User tab processed/display
 
+                's &= "device response time:" & q.timeend.Subtract(q.timestart).TotalSeconds.ToString() & " s" & vbCrLf
+
             Else
-                s &= "error " & q.errcode & vbCrLf
+                's &= "error " & q.errcode & vbCrLf
             End If
 
 
             ' Response expected is text not numerical
             If q.status = 0 And Dev1TextResponse.Checked = True Then
-                txtr1a.Text = respNorm
+                txtr1a.Text = respRaw
+                txtr1a_disp.Text = ""       ' can't show text
             Else
-                s &= "error " & q.errcode & vbCrLf
+                's &= "error " & q.errcode & vbCrLf
             End If
 
-
+            s &= "device response time:" & q.timeend.Subtract(q.timestart).TotalSeconds.ToString() & " s" & vbCrLf
             s &= "thread wait time:" & q.timestart.Subtract(q.timecall).TotalSeconds.ToString() & " s" & vbCrLf
 
             txtr1astat.Text = s
@@ -1823,31 +1834,41 @@ Public Class Formtest
 
         Try
 
-            ' Centralize raw + normalized response
-            respRaw = q.ResponseAsString
-            respNorm = NormalizeNumericResponse(respRaw)
+            ' USER tab requires normalizing of q.ResponseAsString, else default q.ResponseAsString
+            If respNormRequired = True Then
+                ' Centralize raw + normalized response
+                respRaw = q.ResponseAsString
+                respNorm = NormalizeNumericResponse(respRaw)
 
-            ' Fast query mode (used by User tab determine etc) - avoid slow processing
-            If USERdev2fastquery Then
-                Dim source As String
+                ' Fast query mode (used by User tab determine etc) - avoid slow processing
+                If USERdev2fastquery Then
+                    Dim source As String
 
-                If USERdev2rawoutput Then
-                    source = If(respRaw, "")
-                Else
-                    source = If(respNorm, "")
+                    If USERdev2rawoutput Then
+                        source = If(respRaw, "")
+                    Else
+                        source = If(respNorm, "")
+                    End If
+
+                    USERdev2output2 = source
+                    USERdev2output = source
+                    txtr2a.Text = source
+
+                    OutputReceiveddev2 = True
+                    Exit Sub
                 End If
-
-                USERdev2output2 = source
-                USERdev2output = source
-                txtr2a.Text = source
-
-                OutputReceiveddev2 = True
-                Exit Sub
+            Else
+                respRaw = q.ResponseAsString
+                respNorm = q.ResponseAsString
             End If
 
             Dim s As String = "async command:'" & q.cmd & "'" & vbCrLf
 
             If q.status = 0 And Dev2TextResponse.Checked = False Then
+
+                'inst_value2F = respNorm
+                'inst_value2F = Val(respNorm)
+                inst_value2F = respNorm
 
                 ' Update CMD line only if it was used
                 If CMDlineOp = True Then
@@ -1876,11 +1897,9 @@ Public Class Formtest
                     End If
 
                     inst_value2_3457A_sum = inst_value2_3457A_1 + inst_value2_3457A_2   ' add them together
-                    'txtr2a.Text = Format(inst_value2_3457A_sum, "#0.0000000")   ' limit to 7 DP's
                     txtr2a.Text = inst_value2_3457A_sum
 
                 End If
-
 
                 ' Remove letters A to Z from return from device, i.e. Racal-Dana 1991 returns +FA00000.0000 i.e. echos last command back ahead of numbers
                 If Dev2removeletters.Checked = True Then
@@ -2010,8 +2029,6 @@ Public Class Formtest
                 DeviceTemperature.Text = LabelTemperature.Text
                 DeviceHumidity.Text = LabelHumidity.Text
 
-                s &= "device response time:" & q.timeend.Subtract(q.timestart).TotalSeconds.ToString() & " s" & vbCrLf
-
                 ' If timer running, i.e. not manual
                 If ButtonDev2Run.Text = "Stop" Or ButtonDev12Run.Text = "Stop" Then
                     Dev2GPIBActivity = True
@@ -2027,18 +2044,19 @@ Public Class Formtest
                 USERdev2output = txtr2a_disp.Text       ' User tab processed/display
 
             Else
-                s &= "error " & q.errcode & vbCrLf
+                's &= "error " & q.errcode & vbCrLf
             End If
 
 
             ' Response expected is text not numerical
             If q.status = 0 And Dev2TextResponse.Checked = True Then
-                txtr2a.Text = respNorm
+                txtr2a.Text = respRaw
+                txtr2a_disp.Text = ""       ' can't show text
             Else
-                s &= "error " & q.errcode & vbCrLf
+                's &= "error " & q.errcode & vbCrLf
             End If
 
-
+            s &= "device response time:" & q.timeend.Subtract(q.timestart).TotalSeconds.ToString() & " s" & vbCrLf
             s &= "thread wait time:" & q.timestart.Subtract(q.timecall).TotalSeconds.ToString() & " s" & vbCrLf
 
             txtr2astat.Text = s

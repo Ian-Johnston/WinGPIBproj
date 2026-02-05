@@ -673,6 +673,7 @@ FanOut:
             Try
                 OutputReceiveddev1 = False
                 txtq1a.Text = cmd
+                respNormRequired = True
                 RunBtnq1aCore()
 
                 Dim sw As Diagnostics.Stopwatch = Diagnostics.Stopwatch.StartNew()
@@ -708,6 +709,7 @@ FanOut:
 
             Finally
                 USERdev2fastquery = False
+                respNormRequired = False
             End Try
 
         End If
@@ -729,9 +731,11 @@ FanOut:
             If deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
                 USERdev1rawoutput = requireRaw
                 USERdev1fastquery = True
+                respNormRequired = True
             ElseIf deviceName.Equals("dev2", StringComparison.OrdinalIgnoreCase) Then
                 USERdev2rawoutput = requireRaw
                 USERdev2fastquery = True
+                respNormRequired = True
             End If
 
             Try
@@ -747,9 +751,11 @@ FanOut:
                 If deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
                     USERdev1rawoutput = False
                     USERdev1fastquery = False
+                    respNormRequired = False
                 ElseIf deviceName.Equals("dev2", StringComparison.OrdinalIgnoreCase) Then
                     USERdev2rawoutput = False
                     USERdev2fastquery = False
+                    respNormRequired = False
                 End If
             End Try
         End If
@@ -762,14 +768,23 @@ FanOut:
         End Select
         If dev Is Nothing Then Return ""
 
+        respNormRequired = True
         Dim q As IODevices.IOQuery = Nothing
         Dim status = dev.QueryBlocking(cmd & TermStr2(), q, False)
         Debug.WriteLine("BLOCKING DetermineQuery: " & cmd)
-        If status = 0 AndAlso q IsNot Nothing Then
-            Return respNorm
-        End If
 
-        Return ""
+        Try
+            If status = 0 AndAlso q IsNot Nothing Then
+                Dim raw As String = If(q.ResponseAsString, "")
+                Dim norm As String = NormalizeNumericResponse(raw)
+                Return norm
+            End If
+
+            Return ""
+        Finally
+            respNormRequired = False
+        End Try
+
     End Function
 
 
