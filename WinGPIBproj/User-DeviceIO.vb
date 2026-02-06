@@ -1,6 +1,8 @@
 ﻿' User customizeable tab - Device IO
 
 
+Imports System.Text.RegularExpressions
+
 Partial Class Formtest
 
     ' Latest DEVICES-tab query outputs for USER tab to read
@@ -720,7 +722,7 @@ FanOut:
     End Function
 
 
-    ' Used by determine=... on RADIOs. Performs a single query and returns the raw response text.
+    ' Used by determine=.... Performs a single query and returns the raw response text.
     ' detFmt:
     '   resptext -> sets USERdevXrawoutput TRUE during query
     '   respnum  -> leaves USERdevXrawoutput FALSE (default)
@@ -728,6 +730,37 @@ FanOut:
 
         Dim requireRaw As Boolean = String.Equals(detFmt, "resptext", StringComparison.OrdinalIgnoreCase)
 
+        ' ---- multi-command determine using § ----
+        ' We CANNOT use ; inside config values because your line parser splits on ';'
+        ' So config uses § and we convert it here.
+        Dim cmds As New List(Of String)
+        For Each part In If(cmd, "").Split("§"c)
+            Dim t As String = part.Trim()
+            If t <> "" Then cmds.Add(t)
+        Next
+        If cmds.Count = 0 Then Return ""
+        ' ----------------------------------------
+
+        ' Detect "delay ..." tokens (if any => force split mode)
+        Dim forceSplit As Boolean = False
+        For Each t In cmds
+            If t.TrimStart().StartsWith("delay", StringComparison.OrdinalIgnoreCase) Then
+                forceSplit = True
+                Exit For
+            End If
+        Next
+
+        ' If NOT split mode: instrument-safe behaviour is to send as ONE combined SCPI command.
+        Dim finalCmd As String = If(cmds.Count = 1, cmds(0), String.Join(";", cmds))
+
+        ' Preselect device object for standalone path
+        Dim dev As IODevices.IODevice = Nothing
+        Select Case deviceName.ToLowerInvariant()
+            Case "dev1" : dev = dev1
+            Case "dev2" : dev = dev2
+        End Select
+
+        ' ---- NATIVE ENGINE PATH ----
         If IsNativeEngine(deviceName) Then
 
             If deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
@@ -741,7 +774,42 @@ FanOut:
             End If
 
             Try
-                NativeQuery(deviceName, cmd, requireRaw)
+                If Not forceSplit Then
+                    ' QUERY whole combined command
+                    NativeQuery(deviceName, finalCmd, requireRaw)
+
+                Else
+                    ' SPLIT MODE: send(s) + delay(s) + final query
+                    Dim queryTok As String = Nothing
+
+                    For Each t In cmds
+
+                        Dim tok As String = t.Trim()
+                        If tok = "" Then Continue For
+
+                        If tok.TrimStart().StartsWith("delay", StringComparison.OrdinalIgnoreCase) Then
+                            ' Parse "delay 1ms" / "delay 10 ms" / "delay 100"
+                            Dim ms As Integer = 0
+                            Dim m = Regex.Match(tok, "(?i)^\s*delay\s+(\d+)\s*(ms)?\s*$")
+                            If m.Success Then
+                                Integer.TryParse(m.Groups(1).Value, ms)
+                            End If
+                            If ms > 0 Then Threading.Thread.Sleep(ms)
+                            Continue For
+                        End If
+
+                        ' Treat any token containing ? as query candidate (use the LAST one seen)
+                        If tok.Contains("?") Then
+                            queryTok = tok
+                        Else
+                            NativeSend(deviceName, tok)
+                        End If
+                    Next
+
+                    If String.IsNullOrWhiteSpace(queryTok) Then Return "" ' nothing to query
+
+                    NativeQuery(deviceName, queryTok, requireRaw)
+                End If
 
                 If deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
                     Return If(USERdev1output2, "").Trim()
@@ -762,32 +830,78 @@ FanOut:
             End Try
         End If
 
-        ' STANDALONE engine path only:
-        Dim dev As IODevices.IODevice = Nothing
-        Select Case deviceName.ToLowerInvariant()
-            Case "dev1" : dev = dev1
-            Case "dev2" : dev = dev2
-        End Select
+        ' ---- STANDALONE engine path only ----
         If dev Is Nothing Then Return ""
 
         respUSERTABonly = True
-        Dim q As IODevices.IOQuery = Nothing
-        Dim status = dev.QueryBlocking(cmd & TermStr2(), q, False)
-        Debug.WriteLine("BLOCKING DetermineQuery: " & cmd)
 
         Try
-            If status = 0 AndAlso q IsNot Nothing Then
-                Dim raw As String = If(q.ResponseAsString, "")
-                Dim norm As String = NormalizeNumericResponse(raw)
-                Return norm
+            If Not forceSplit Then
+                Dim q As IODevices.IOQuery = Nothing
+                Dim status = dev.QueryBlocking(finalCmd & TermStr2(), q, False)
+                Debug.WriteLine("BLOCKING DetermineQuery (combined): " & finalCmd)
+
+                If status = 0 AndAlso q IsNot Nothing Then
+                    Dim raw As String = If(q.ResponseAsString, "")
+                    If requireRaw Then
+                        Return raw.Trim()
+                    Else
+                        Return NormalizeNumericResponse(raw).Trim()
+                    End If
+                End If
+
+                Return ""
+            Else
+                ' SPLIT MODE: send(s) + delay(s) + final query
+                Dim queryTok As String = Nothing
+
+                For Each t In cmds
+
+                    Dim tok As String = t.Trim()
+                    If tok = "" Then Continue For
+
+                    If tok.TrimStart().StartsWith("delay", StringComparison.OrdinalIgnoreCase) Then
+                        Dim ms As Integer = 0
+                        Dim m = Regex.Match(tok, "(?i)^\s*delay\s+(\d+)\s*(ms)?\s*$")
+                        If m.Success Then
+                            Integer.TryParse(m.Groups(1).Value, ms)
+                        End If
+                        If ms > 0 Then Threading.Thread.Sleep(ms)
+                        Continue For
+                    End If
+
+                    If tok.Contains("?") Then
+                        queryTok = tok
+                    Else
+                        dev.SendAsync(tok & TermStr2(), True)
+                    End If
+                Next
+
+                If String.IsNullOrWhiteSpace(queryTok) Then Return ""
+
+                Dim q As IODevices.IOQuery = Nothing
+                Dim status = dev.QueryBlocking(queryTok & TermStr2(), q, False)
+                Debug.WriteLine("BLOCKING DetermineQuery (split): " & queryTok)
+
+                If status = 0 AndAlso q IsNot Nothing Then
+                    Dim raw As String = If(q.ResponseAsString, "")
+                    If requireRaw Then
+                        Return raw.Trim()
+                    Else
+                        Return NormalizeNumericResponse(raw).Trim()
+                    End If
+                End If
+
+                Return ""
             End If
 
-            Return ""
         Finally
             respUSERTABonly = False
         End Try
 
     End Function
+
+
 
 
     ' TXT Format:
