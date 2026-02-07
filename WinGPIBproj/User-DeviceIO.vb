@@ -28,6 +28,9 @@ Partial Class Formtest
     ' Skip the very next User display update after a mode/range change
     Private UserSkipNextUserDisplay As Boolean = False
 
+    Public USERForceBlockingEvenIfNative As Boolean = False
+
+
 
     Private Sub RunQueryToResult(deviceName As String,
                                 commandOrPrefix As String,
@@ -92,7 +95,7 @@ Partial Class Formtest
         If rawOverride IsNot Nothing Then
             raw = rawOverride
         Else
-            If IsNativeEngine(deviceName) Then
+            If IsNativeEngine(deviceName) AndAlso Not USERForceBlockingEvenIfNative Then
 
                 Dim overloadSource As String = "disp"
                 Dim wantRaw As Boolean = False
@@ -182,7 +185,7 @@ Partial Class Formtest
             ' Choose comparison text
             Dim cmpText As String = ""
 
-            If IsNativeEngine(deviceName) Then
+            If IsNativeEngine(deviceName) AndAlso Not USERForceBlockingEvenIfNative Then
                 ' Native: we have BOTH raw and disp available from Formtest.vb capture
                 If overloadSource = "raw" Then
                     cmpText =
@@ -244,7 +247,7 @@ Partial Class Formtest
                     Try
                         Dim rngStr As String = ""
 
-                        If IsNativeEngine(deviceName) Then
+                        If IsNativeEngine(deviceName) AndAlso Not USERForceBlockingEvenIfNative Then
                             If genSnapshot <> Threading.Interlocked.CompareExchange(UserLayoutGen, 0, 0) Then Exit Sub
 
                             ' Range query via native engine path
@@ -761,7 +764,7 @@ FanOut:
         End Select
 
         ' ---- NATIVE ENGINE PATH ----
-        If IsNativeEngine(deviceName) Then
+        If IsNativeEngine(deviceName) AndAlso Not USERForceBlockingEvenIfNative Then
 
             If deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
                 USERdev1rawoutput = requireRaw

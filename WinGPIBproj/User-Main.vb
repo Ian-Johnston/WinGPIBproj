@@ -131,8 +131,6 @@ Partial Class Formtest
     Public UserRunEnabled As Boolean = False
 
 
-
-
     ' CALC support
     Private Class CalcDef
         Public OutResult As String
