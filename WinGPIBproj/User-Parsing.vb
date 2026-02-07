@@ -198,6 +198,26 @@ Partial Class Formtest
                 Continue For
             End If
 
+
+
+            ' --- global IO forcing options (affects ALL USER config commands) ---
+            If line.StartsWith("USERForceBlockingIO", StringComparison.OrdinalIgnoreCase) Then
+                Dim kv() As String = line.Split({"="c}, 2)
+                Dim v As String = If(kv.Length = 2, kv(1), "").Trim().ToLowerInvariant()
+                USERForceBlockingIO = (v = "1" OrElse v = "true" OrElse v = "yes" OrElse v = "on")
+                Continue For
+            End If
+
+            If line.StartsWith("USERForceBlockingEvenIfNative", StringComparison.OrdinalIgnoreCase) Then
+                Dim kv2() As String = line.Split({"="c}, 2)
+                Dim v As String = If(kv2.Length = 2, kv2(1), "").Trim().ToLowerInvariant()
+                USERForceBlockingEvenIfNative = (v = "1" OrElse v = "true" OrElse v = "yes" OrElse v = "on")
+                Continue For
+            End If
+
+
+
+
             ' BOOTCOMMANDS; device=...; commandlist=...
             If line.StartsWith("BOOTCOMMANDS", StringComparison.OrdinalIgnoreCase) Then
                 HandleBootCommandsLine(line)

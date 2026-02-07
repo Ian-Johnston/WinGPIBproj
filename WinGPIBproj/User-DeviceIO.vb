@@ -28,6 +28,7 @@ Partial Class Formtest
     ' Skip the very next User display update after a mode/range change
     Private UserSkipNextUserDisplay As Boolean = False
 
+    Public USERForceBlockingIO As Boolean = False
     Public USERForceBlockingEvenIfNative As Boolean = False
 
 
@@ -669,6 +670,42 @@ FanOut:
     Private Function NativeQuery(deviceName As String, cmd As String, Optional requireRaw As Boolean = False) As String
 
         Const timeoutMs As Integer = 5000
+
+
+        ' ===== USERForceBlockingIO =====
+        ' If enabled, bypass the native async/query-button path and do a direct QueryBlocking
+        If USERForceBlockingIO Then
+
+            Dim dev As IODevices.IODevice = Nothing
+            Select Case deviceName.ToLowerInvariant()
+                Case "dev1" : dev = dev1
+                Case "dev2" : dev = dev2
+            End Select
+            If dev Is Nothing Then Return ""
+
+            respUSERTABonly = True
+
+            Try
+                Dim q As IODevices.IOQuery = Nothing
+                Dim status = dev.QueryBlocking(cmd & TermStr2(), q, False)
+
+                If status = 0 AndAlso q IsNot Nothing Then
+                    Dim raw As String = If(q.ResponseAsString, "")
+                    If requireRaw Then
+                        Return raw.Trim()
+                    Else
+                        Return NormalizeNumericResponse(raw).Trim()
+                    End If
+                End If
+
+                Return ""
+            Finally
+                respUSERTABonly = False
+            End Try
+
+        End If
+        ' ===============================
+
 
         If deviceName.Equals("dev1", StringComparison.OrdinalIgnoreCase) Then
 
