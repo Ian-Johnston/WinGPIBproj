@@ -2728,9 +2728,19 @@ Partial Class Formtest
 
             Dim c As Control = Nothing
             If UiById.TryGetValue(id, c) AndAlso c IsNot Nothing Then
+
                 c.Visible = Not c.Visible
                 If c.Visible Then c.BringToFront()
+
+                ' If this is a CHART that has a caption label, keep the label in sync
+                Dim lbl As Control = Nothing
+                If UiById.TryGetValue("Lbl_" & id, lbl) AndAlso lbl IsNot Nothing Then
+                    lbl.Visible = c.Visible
+                    If lbl.Visible Then lbl.BringToFront()
+                End If
+
             End If
+
         Next
 
         Return True
