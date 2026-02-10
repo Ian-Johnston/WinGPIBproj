@@ -51,7 +51,7 @@ Partial Class Formtest
 
         ' If this is a pushed value (CALC / fan-out) and there is no direct UI control,
         ' that's OK — linked controls (CHART/STATS/HISTORYGRID/BIGTEXT etc.) may still exist.
-        If target Is Nothing AndAlso rawOverride Is Nothing Then
+        If target Is Nothing AndAlso rawOverride Is Nothing AndAlso Not isDataSource Then
             MessageBox.Show("Result control not found: " & resultControlName)
             Exit Sub
         End If
@@ -464,25 +464,31 @@ FanOut:
 
                 End If
 
-                If unitsOff AndAlso numericText <> "" Then
-                    ' BIGTEXT units=off → numeric only (formatted if DP/FMT was applied)
-                    lbl.Text = displayNumeric
+                ' If we have a numeric value and a DP/FMT request, ALWAYS use displayNumeric
+                ' (even if units are blank), otherwise BIGTEXT will keep showing numericWithUnitText
+                If (CurrentUserDp >= 0 OrElse fmt <> "") AndAlso numericText <> "" Then
 
-                ElseIf numericWithUnitText <> "" Then
-                    ' Normal label/BIGTEXT units=on
-                    ' Only rebuild with DP/FMT when we also have a unit; otherwise keep existing text
-                    If (CurrentUserDp >= 0 OrElse fmt <> "") AndAlso
-                       displayNumeric <> "" AndAlso
-                       Not String.IsNullOrEmpty(CurrentUserUnit) Then
-
-                        lbl.Text = displayNumeric & "   " & CurrentUserUnit
+                    If unitsOff Then
+                        lbl.Text = displayNumeric
                     Else
-                        lbl.Text = numericWithUnitText
+                        If Not String.IsNullOrEmpty(CurrentUserUnit) Then
+                            lbl.Text = displayNumeric & "   " & CurrentUserUnit
+                        Else
+                            lbl.Text = displayNumeric
+                        End If
                     End If
 
                 Else
-                    lbl.Text = outText
+                    ' No DP/FMT request (or not numeric) → keep existing behaviour
+                    If unitsOff AndAlso numericText <> "" Then
+                        lbl.Text = displayNumeric
+                    ElseIf numericWithUnitText <> "" Then
+                        lbl.Text = numericWithUnitText
+                    Else
+                        lbl.Text = outText
+                    End If
                 End If
+
 
             ElseIf TypeOf targetCtrl Is Panel Then
                 Dim tagStr = TryCast(targetCtrl.Tag, String)

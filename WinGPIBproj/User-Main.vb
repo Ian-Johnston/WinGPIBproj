@@ -310,10 +310,14 @@ Partial Class Formtest
 
         Try
             ' Run determine logic ONCE when START is pressed (if you have these)
+            ' Run determine logic ONCE when START is pressed
             ApplyDetermineRadios()
             ApplyDetermineDropdowns()
-            ApplyDetermineMultiButtons()
+            ApplyDetermineSliders()
             ApplyDetermineSpinners()
+            ApplyDetermineToggles()
+            ApplyDetermineToggleDuals()
+            ApplyDetermineMultiButtons()
 
             ' Kick any already-checked FUNCAUTO checkboxes (even if they were checked before RUN)
             Dim stack As New Stack(Of Control)()
@@ -754,6 +758,14 @@ Partial Class Formtest
         End If
 
         LastUserConfigPath = path   ' <-- key fix
+
+        ' Reset per-config range/units overrides so BIGTEXT format= works without RADIO's etc
+        ' Works without it....but just incase anything is left over from a previously loaded config
+        CurrentUserScale = 1.0R
+        CurrentUserScaleIsAuto = False
+        CurrentUserUnit = ""
+        CurrentUserDp = -1
+        CurrentUserRangeQuery = ""
 
         Dim text = IO.File.ReadAllText(path)
         BuildCustomGuiFromText(text)
@@ -1659,20 +1671,36 @@ Partial Class Formtest
             parts(3) = "1"
             nud.Tag = String.Join("|", parts)
 
-            ' Set spinner to the configured min (this will re-enter this handler once)
-            nud.Value = minValFromTag
+            ' Detect whether this spinner has DETERMINE configured
+            Dim hasDetermine As Boolean = False
+            For Each p As String In parts
+                If p.StartsWith("DETQ=", StringComparison.OrdinalIgnoreCase) Then
+                    hasDetermine = True
+                    Exit For
+                End If
+            Next
 
-            Dim scaledFirst As Double = CDbl(minValFromTag) * scale
-            Dim firstStr As String = scaledFirst.ToString("G", Globalization.CultureInfo.InvariantCulture)
-            Dim firstCmd As String = commandPrefix.TrimEnd() & " " & firstStr
+            If Not hasDetermine Then
+                ' No DETERMINE: keep old safety behaviour
+                ' Set spinner to configured minimum (re-enters handler once)
+                nud.Value = minValFromTag
 
-            If useNative Then
-                NativeSend(deviceName, firstCmd)   ' <-- IMPORTANT: use the working native path
-            Else
-                dev.SendAsync(firstCmd, True)
+                Dim scaledFirst As Double = CDbl(minValFromTag) * scale
+                Dim firstStr As String = scaledFirst.ToString("G", Globalization.CultureInfo.InvariantCulture)
+                Dim firstCmd As String = commandPrefix.TrimEnd() & " " & firstStr
+
+                If useNative Then
+                    NativeSend(deviceName, firstCmd)
+                Else
+                    dev.SendAsync(firstCmd, True)
+                End If
+
+                Exit Sub
             End If
 
-            Exit Sub
+            ' HAS DETERMINE:
+            ' do NOT force to min — just let normal path run using current nud.Value
+            ' (fall through)
         End If
 
         ' === NORMAL CHANGES AFTER FIRST ===

@@ -3279,11 +3279,17 @@ Partial Class Formtest
                         c.DataPropertyName = colName   ' MUST match HistoryRow property names
                         c.SortMode = DataGridViewColumnSortMode.NotSortable
 
-                        c.Width = 70
-                        If colName.Equals("Value", StringComparison.OrdinalIgnoreCase) Then c.Width = 95
-                        If colName.Equals("Time", StringComparison.OrdinalIgnoreCase) Then c.Width = 120
-                        If colName.Equals("PkPk", StringComparison.OrdinalIgnoreCase) Then c.Width = 90
-                        If colName.Equals("Mean", StringComparison.OrdinalIgnoreCase) Then c.Width = 95
+                        If Mid(fmt, 1, 1) = "F" Then
+                            Dim decimals As Integer = Convert.ToInt16(Mid(fmt, 2, fmt.Length - 1))
+                            c.Width = (5 + decimals) * 6
+                            dgv.Size = New Size(c.Width * colNames.Count, h)
+                        Else
+                            c.Width = 70
+                            If colName.Equals("Value", StringComparison.OrdinalIgnoreCase) Then c.Width = 95
+                            If colName.Equals("Time", StringComparison.OrdinalIgnoreCase) Then c.Width = 120
+                            If colName.Equals("PkPk", StringComparison.OrdinalIgnoreCase) Then c.Width = 90
+                            If colName.Equals("Mean", StringComparison.OrdinalIgnoreCase) Then c.Width = 95
+                        End If
 
                         If colName.Equals("Time", StringComparison.OrdinalIgnoreCase) Then
                             c.DefaultCellStyle.Format = "HH:mm:ss"
@@ -3812,17 +3818,18 @@ Partial Class Formtest
         ' Apply INVISIBILITY defaults after all controls are created/registered.
         ApplyInvisibilityDefaults()
 
+        ' Don't need thses now because we have a RUN button, see StartUserRuntime()
         ' Apply initial instrument state to controls that have determine=...
         ' IMPORTANT: determine=... can perform instrument IO (queries). Only run it when RUN is enabled.
-        If UserRunEnabled AndAlso Not UserInitSuppressSend Then
-            ApplyDetermineRadios()
-            ApplyDetermineDropdowns()
-            ApplyDetermineSliders()
-            ApplyDetermineSpinners()
-            ApplyDetermineToggles()
-            ApplyDetermineToggleDuals()
-            ApplyDetermineMultiButtons()
-        End If
+        'If UserRunEnabled AndAlso Not UserInitSuppressSend Then
+        'ApplyDetermineRadios()
+        'ApplyDetermineDropdowns()
+        'ApplyDetermineSliders()
+        'ApplyDetermineSpinners()
+        'ApplyDetermineToggles()
+        'ApplyDetermineToggleDuals()
+        'ApplyDetermineMultiButtons()
+        'End If
 
     End Sub
 
