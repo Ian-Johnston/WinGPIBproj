@@ -897,8 +897,43 @@ Partial Class Formtest
         If Not String.IsNullOrWhiteSpace(funcName) Then
             If TryRunInvisibilityFunction(funcName) Then Exit Sub
         End If
-        ' ---------------------------------------------------------
 
+        ' ==========================================================
+        ' DEVICE-LESS ACTIONS (must run BEFORE device resolution)
+        ' ==========================================================
+        Dim act As String = If(action, "").Trim().ToUpperInvariant()
+
+        Select Case act
+
+            Case "CLEARLUA"
+                Dim ctrl As Control = GetControlByName("LuaLog")   ' TEXTAREA name=LuaLog
+
+                If ctrl Is Nothing Then
+                    MessageBox.Show("Lua log control not found: LuaLog")
+                    Exit Sub
+                End If
+
+                Dim rtb = TryCast(ctrl, RichTextBox)
+                If rtb IsNot Nothing Then
+                    rtb.Clear()
+                    Exit Sub
+                End If
+
+                Dim tb = TryCast(ctrl, TextBoxBase)
+                If tb IsNot Nothing Then
+                    tb.Clear()
+                    Exit Sub
+                End If
+
+                MessageBox.Show("LuaLog is not a textbox/RTB control (" & ctrl.GetType().Name & ").")
+                Exit Sub
+
+        End Select
+
+
+        ' ==================================================
+        ' DEVICE ACTIONS
+        ' ==================================================
 
         ' Only resolve a GPIB device for actions that actually need one
         Dim dev As IODevices.IODevice = Nothing
@@ -1171,9 +1206,8 @@ Partial Class Formtest
                 RequestLuaStop()
                 Exit Sub
 
-
-
         End Select
+
 
     End Sub
 

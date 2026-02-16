@@ -122,7 +122,8 @@ Public Class FormUserConfigEditor
         "xstep",
         "y",
         "ymax",
-        "ymin"
+        "ymin",
+        "USERForceBlockingIO"
     }
 
 
