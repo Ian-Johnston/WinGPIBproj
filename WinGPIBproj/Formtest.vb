@@ -249,7 +249,7 @@ Public Class Formtest
             'sw.Start()
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.091beta"
+            BannerText1 = "WinGPIB   V4.091"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
             Me.Text = BannerText1 & "                                                        " & BannerText2.ToString()
 
@@ -1581,92 +1581,65 @@ Public Class Formtest
 
         Try
 
-            ' USER tab requires normalizing of q.ResponseAsString, else default q.ResponseAsString
-            If respUSERTABonly = True Then
-                ' Centralize raw + normalized response
-                respRaw = q.ResponseAsString
-                respNorm = NormalizeNumericResponse(respRaw)
+            If q.status = 0 Then
 
-                ' Fast query mode (used by User tab determine etc) - avoid slow processing
-                If USERdev1fastquery Then
-                    Dim source As String
+                ' USER tab requires normalizing of q.ResponseAsString
+                If respUSERTABonly = True Then
 
-                    ' If caller asked for raw text (resptext), give them the untouched instrument string
-                    If USERdev1rawoutput Then
-                        source = If(respRaw, "")
-                    Else
-                        ' Otherwise use the normalized form (locale-safe)
-                        source = If(respNorm, "")
+                    ' Always capture both
+                    respRaw = q.ResponseAsString
+                    respNorm = NormalizeNumericResponse(respRaw)
+
+                    ' Fast query mode (User tab determine / triggers)
+                    If USERdev1fastquery Then
+                        Dim source As String
+
+                        If USERdev1rawoutput Then
+                            source = If(respRaw, "")
+                        Else
+                            source = If(respNorm, "")
+                        End If
+
+                        USERdev1output2 = source
+                        USERdev1output = source
+                        txtr1a.Text = source
+
+                        OutputReceiveddev1 = True
+                        Exit Sub
                     End If
 
-                    USERdev1output2 = source            ' USERdev1output2 = raw/normalized instrument response
-                    USERdev1output = source             ' USERdev1output = what the USER tab will normally "display"
-                    txtr1a.Text = source                ' IMPORTANT: also update the DEVICES tab textbox so you see the value there
-
-                    OutputReceiveddev1 = True
-                    Exit Sub
+                Else
+                    ' Legacy behaviour (non-USER tab)
+                    respRaw = q.ResponseAsString
+                    respNorm = q.ResponseAsString
                 End If
 
-            Else
-                ' Both should be q.ResponseAsString for compatibility outside of USER tab
-                respRaw = q.ResponseAsString
-                respNorm = q.ResponseAsString
-            End If
+                Dim s As String = "async command:'" & q.cmd & "'" & vbCrLf
 
-            Dim s As String = "async command:'" & q.cmd & "'" & vbCrLf
-
-            If q.status = 0 And Dev1TextResponse.Checked = False Then
-
-                'inst_value1F = respNorm   ' for PDVS2mini calibration also
-                'inst_value1F = Val(respNorm)
-                inst_value1F = respNorm
-
-                ' Update CMD line only if it was used
-                If CMDlineOp = True Then
-                    ' load the command line variable with the response
-                    TextBoxDev1CMD.AppendText(Environment.NewLine & ">    " & respNorm & Environment.NewLine)
-                    CMDlineOp = False
-                End If
-
-                If Dev13457Aseven.Checked = False Then
+                ' Set initial working text once
+                If Dev1TextResponse.Checked = True Then
+                    txtr1a.Text = respRaw
+                Else
                     txtr1a.Text = respNorm
                 End If
 
-                ' Enable 7th digit mode for 3457A DMM only. Send extra command after TARM SGL to get the additional data
-                If Dev13457Aseven.Checked = True Then
 
-                    temp3457A_Dev1 = respNorm
+                ' Response cleanup / extraction pipeline:
 
-                    If Dev1_3457A = True Then    ' 7th digit process
-                        inst_value1_3457A_2 = CDbl(Val(temp3457A_Dev1))             ' convert digit 7 to double
-                        Dev1_3457A = False
-                    Else
-                        inst_value1_3457A_1 = CDbl(Val(temp3457A_Dev1))             ' convert digits 1-6 to double
-                        Exit Sub    ' Exit sub since we need digit 7 before can process
-                    End If
-
-                    inst_value1_3457A_sum = inst_value1_3457A_1 + inst_value1_3457A_2   ' add them together
-                    txtr1a.Text = inst_value1_3457A_sum
-
+                ' Remove letters A to Z from return from device, i.e. Racal-Dana 1991 returns +FA00000.0000
+                If Dev1removeletters.Checked = True AndAlso txtr1a.Text.Length >= 2 Then
+                    txtr1a.Text = txtr1a.Text.Remove(0, 2)
                 End If
-
-
-                ' Remove letters A to Z from return from device, i.e. Racal-Dana 1991 returns +FA00000.0000 i.e. echos last command back ahead of numbers
-                If Dev1removeletters.Checked = True Then
-                    txtr1a.Text = txtr1a.Text.Remove(0, 2)  ' remove first 2 characters i.e. FA+00000.0000 (RACAL-DANA 1991 has 2 letters ahead of numerical data)
-                End If
-
 
                 ' Remove unwanted data from Keithley 2001 DMM, i.e.
                 ' 1.2345678E+00NVDC,+47.354841SECS,+01096RDNG#,00EXTCHAN
                 ' +12.34E-03NVAC,+211.709381SECS,+05638RDNG#,00EXTCHAN
                 ' +0.01539E+00NOHM,+269.504250SECS,+06843RDNG#,00EXTCHAN
-                If Dev1K2001isolatedata.Checked = True And Dev1K2001isolatedataCHAR.Text <> "" Then
+                If Dev1K2001isolatedata.Checked = True AndAlso Dev1K2001isolatedataCHAR.Text <> "" Then
                     Dim str As String = txtr1a.Text
-                    Dim leftPart As String = str.Split(Dev1K2001isolatedataCHAR.Text)(0)  ' Isolate at CHAR, then accessing 0 gives you the first part
+                    Dim leftPart As String = str.Split(Dev1K2001isolatedataCHAR.Text)(0)
                     txtr1a.Text = leftPart
                 End If
-
 
                 ' Isolate numerical data even if text appears on left and right of data req'd. DP's are retained.
                 If Dev1Regex.Checked = True Then
@@ -1677,43 +1650,56 @@ Public Class Formtest
                     End If
                 End If
 
+                ' Enable 7th digit mode for 3457A DMM only. Send extra command after TARM SGL to get the additional data
+                If Dev13457Aseven.Checked = True Then
+                    temp3457A_Dev1 = txtr1a.Text
+
+                    If Dev1_3457A = True Then    ' 7th digit process
+                        inst_value1_3457A_2 = CDbl(Val(temp3457A_Dev1))             ' convert digit 7 to double
+                        Dev1_3457A = False
+                    Else
+                        inst_value1_3457A_1 = CDbl(Val(temp3457A_Dev1))             ' convert digits 1-6 to double
+                        Exit Sub    ' Exit sub since we need digit 7 before can process
+                    End If
+
+                    inst_value1_3457A_sum = inst_value1_3457A_1 + inst_value1_3457A_2   ' add them together
+                    txtr1a.Text = inst_value1_3457A_sum.ToString()
+                End If
 
                 ' Divide value by 1000, i.e. when measuring 100K resistors etc
                 If Div1000Dev1.Checked = True Then
-                    txtr1a.Text = Val(txtr1a.Text) / 1000
+                    txtr1a.Text = (Val(txtr1a.Text) / 1000).ToString()
                 End If
-
 
                 ' Multiply value by 1000
                 If Mult1000Dev1.Checked = True Then
-                    txtr1a.Text = Val(txtr1a.Text) * 1000
+                    txtr1a.Text = (Val(txtr1a.Text) * 1000).ToString()
                 End If
 
-
+                ' Arithmetic operation
                 If txtOperationDev1.Text.Trim() <> "" Then
                     Dim input As String = txtOperationDev1.Text.Trim()
 
                     If input.Length < 2 Then
                         MessageBox.Show("Arithmetic: Please enter an operator (*, /, +, -) followed by a number.",
-                        "Arithmetic: Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                "Arithmetic: Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     Else
                         Dim op As Char = input(0)
                         Dim numberPart As String = input.Substring(1).Trim()
 
-                        ' Check if the first character is one of the allowed operators
                         If op <> "*" AndAlso op <> "/" AndAlso op <> "+" AndAlso op <> "-" Then
                             MessageBox.Show("Arithmetic: Invalid operator. Please start with * / + or -.",
-                            "Arithmetic: Invalid Operator", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    "Arithmetic: Invalid Operator", MessageBoxButtons.OK, MessageBoxIcon.Error)
                         Else
                             Dim operand As Double
-                            If Not Double.TryParse(numberPart, operand) Then
+                            If Not Double.TryParse(numberPart, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, operand) Then
                                 MessageBox.Show("Arithmetic: The number entered is not valid.",
-                                "Arithmetic: Invalid Number", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        "Arithmetic: Invalid Number", MessageBoxButtons.OK, MessageBoxIcon.Error)
                             Else
                                 Dim currentValue As Double
-                                If Not Double.TryParse(txtr1a.Text, currentValue) Then
+                                If Not Double.TryParse(txtr1a.Text, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, currentValue) Then
                                     MessageBox.Show("Arithmetic: The current value is not valid.",
-                                    "Arithmetic: Invalid Value", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                            "Arithmetic: Invalid Value", MessageBoxButtons.OK, MessageBoxIcon.Error)
                                 Else
                                     Select Case op
                                         Case "*" ' Multiply
@@ -1721,7 +1707,7 @@ Public Class Formtest
                                         Case "/" ' Divide
                                             If operand = 0 Then
                                                 MessageBox.Show("Arithmetic: Division by zero is not allowed.",
-                                                "Arithmetic: Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                                        "Arithmetic: Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                                             Else
                                                 currentValue /= operand
                                             End If
@@ -1730,101 +1716,102 @@ Public Class Formtest
                                         Case "-" ' Subtract
                                             currentValue -= operand
                                     End Select
-                                    txtr1a.Text = currentValue.ToString()
+                                    txtr1a.Text = currentValue.ToString(Globalization.CultureInfo.InvariantCulture)
                                 End If
                             End If
                         End If
                     End If
                 End If
 
+                ' Determine numeric or not
+                Dim dev1IsNumeric As Boolean
+                Dim dev1NumericValue As Double
+                dev1IsNumeric = Double.TryParse(txtr1a.Text, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, dev1NumericValue)
 
-                ' Convert to decimal for display (data incoming can be a mix of e-notation or decimal)
-                'txtr1a_disp.Text = Format$(Val(txtr1a.Text), "0.0########################")     ' 0 = Digit placeholder. Displays a digit or a zero. # = Digit placeholder. Displays a digit or nothing. So, it's 0,0 bare minimum.
-                Dim decimalPlaces As Integer
-                If Integer.TryParse(Dev1DecimalNumDPs.Text, decimalPlaces) Then
-                    ' Use the user input to format the number
-                    Dim formatString As String = "0." & New String("0"c, decimalPlaces)
-                    txtr1a_disp.Text = Format(Val(txtr1a.Text), formatString)
-                Else
-                    ' Handle invalid input (non-integer)
-                    txtr1a_disp.Text = Format$(Val(txtr1a.Text), "0.0########################")
+                ' Update CMD line only if it was used
+                If CMDlineOp = True Then
+                    TextBoxDev1CMD.AppendText(Environment.NewLine & ">    " & txtr1a.Text & Environment.NewLine)
+                    CMDlineOp = False
                 End If
 
 
-                ' Device Meter
-                Dim Dev1Temp1 As String = Format(Val(txtr1a.Text), "#00.000000000")
-                If Val(txtr1a.Text) >= 1 Then
-                    Dev1Temp1 = Dev1Temp1.TrimStart("0"c)  ' remove leading zeros
-                End If
-                If Val(txtr1a.Text) < 1 Then
-                    Dev1Temp1 = Format(Val(txtr1a.Text), "#0.000000000")    ' If less than "1" the only one leading zero
-                End If
-                Dev1Temp1 = Dev1Temp1.TrimEnd("0"c)  ' remove trailing zeros
-                'Dev1Meter.Text = Dev1Temp1
-                Device1name.Text = txtname1.Text
-                If ButtonDev1Run.Text = "Stop" Or ButtonDev12Run.Text = "Stop" Then
-                    'Dev1Meter.Text = Dev1Temp1
-                    ' Setr number of DP's
+                ' Numerical operations only if final pipeline result is numeric
+                If dev1IsNumeric Then
+
+                    inst_value1F = dev1NumericValue
+
+                    ' Convert to decimal for display (data incoming can be a mix of e-notation or decimal)
+                    Dim decimalPlaces As Integer
                     If Integer.TryParse(Dev1DecimalNumDPs.Text, decimalPlaces) Then
-                        ' Use the user input to format the number
                         Dim formatString As String = "0." & New String("0"c, decimalPlaces)
-                        Dev1Meter.Text = Format(Val(Dev1Temp1), formatString)
+                        txtr1a_disp.Text = dev1NumericValue.ToString(formatString, Globalization.CultureInfo.InvariantCulture)
                     Else
-                        ' Handle invalid input (non-integer)
-                        Dev1Meter.Text = Dev1Temp1
+                        txtr1a_disp.Text = dev1NumericValue.ToString("0.0########################", Globalization.CultureInfo.InvariantCulture)
                     End If
+
+                    ' Device Meter
+                    Dim dev1Temp1 As String = dev1NumericValue.ToString("#00.000000000", Globalization.CultureInfo.InvariantCulture)
+                    If dev1NumericValue >= 1 Then
+                        dev1Temp1 = dev1Temp1.TrimStart("0"c)  ' remove leading zeros
+                    End If
+                    If dev1NumericValue < 1 Then
+                        dev1Temp1 = dev1NumericValue.ToString("#0.000000000", Globalization.CultureInfo.InvariantCulture)    ' If less than "1" the only one leading zero
+                    End If
+                    dev1Temp1 = dev1Temp1.TrimEnd("0"c)  ' remove trailing zeros
+
+                    Device1name.Text = txtname1.Text
+                    If ButtonDev1Run.Text = "Stop" Or ButtonDev12Run.Text = "Stop" Then
+                        If Integer.TryParse(Dev1DecimalNumDPs.Text, decimalPlaces) Then
+                            Dim formatString As String = "0." & New String("0"c, decimalPlaces)
+                            Dev1Meter.Text = dev1NumericValue.ToString(formatString, Globalization.CultureInfo.InvariantCulture)
+                        Else
+                            Dev1Meter.Text = dev1Temp1
+                        End If
+                    Else
+                        Dev1Meter.Text = "---------------"
+                    End If
+
+                    DeviceTemperature.Text = LabelTemperature.Text
+                    DeviceHumidity.Text = LabelHumidity.Text
+
+                    ' If timer running, i.e. not manual
+                    If ButtonDev1Run.Text = "Stop" Or ButtonDev12Run.Text = "Stop" Then
+                        Dev1GPIBActivity = True
+                        Dev1SampleCount += 1
+                        Dev1Samples.Text = Dev1SampleCount
+                        CSVfile()       ' CSV file
+                        LOGdisplay()    ' LOG display
+                        LiveChart()     ' Live chart
+                        Dev1GPIBActivity = False
+                    End If
+
+                    USERdev1output = txtr1a_disp.Text       ' User tab processed/display
+
                 Else
+                    ' Final result is not numeric
+                    txtr1a_disp.Text = txtr1a.Text
                     Dev1Meter.Text = "---------------"
-                End If
-                DeviceTemperature.Text = LabelTemperature.Text
-                DeviceHumidity.Text = LabelHumidity.Text
-
-                ' If timer running, i.e. not manual
-                If ButtonDev1Run.Text = "Stop" Or ButtonDev12Run.Text = "Stop" Then
-                    Dev1GPIBActivity = True
-                    'Dev1SampleCount = Dev1SampleCount + 1
-                    Dev1SampleCount += 1
-                    Dev1Samples.Text = Dev1SampleCount
-                    CSVfile()       ' CSV file
-                    LOGdisplay()    ' LOG display
-                    LiveChart()     ' Live chart
-                    Dev1GPIBActivity = False
+                    Device1name.Text = txtname1.Text
+                    DeviceTemperature.Text = LabelTemperature.Text
+                    DeviceHumidity.Text = LabelHumidity.Text
+                    USERdev1output = txtr1a.Text
                 End If
 
-                USERdev1output = txtr1a_disp.Text       ' User tab processed/display
+                s &= "device response time:" & q.timeend.Subtract(q.timestart).TotalSeconds.ToString() & " s" & vbCrLf
+                s &= "thread wait time:" & q.timestart.Subtract(q.timecall).TotalSeconds.ToString() & " s" & vbCrLf
 
-                's &= "device response time:" & q.timeend.Subtract(q.timestart).TotalSeconds.ToString() & " s" & vbCrLf
+                txtr1astat.Text = s
 
-            Else
-                's &= "error " & q.errcode & vbCrLf
+                OutputReceiveddev1 = True
+
             End If
-
-
-            ' Response expected is text not numerical
-            If q.status = 0 And Dev1TextResponse.Checked = True Then
-                txtr1a.Text = respRaw
-                txtr1a_disp.Text = ""       ' can't show text
-            Else
-                's &= "error " & q.errcode & vbCrLf
-            End If
-
-            s &= "device response time:" & q.timeend.Subtract(q.timestart).TotalSeconds.ToString() & " s" & vbCrLf
-            s &= "thread wait time:" & q.timestart.Subtract(q.timecall).TotalSeconds.ToString() & " s" & vbCrLf
-
-            txtr1astat.Text = s
-
-            'uncomment this to chain on dev2:
-            ' dev2.QueryAsync(txtq2a.Text, AddressOf cbdev2, True)
-
-            OutputReceiveddev1 = True
 
         Catch ex As Exception
-            txtr1astat.Text = q.cmd & " error in callback function:" & vbCrLf
+            txtr1astat.Text = "error in callback function:" & vbCrLf
             txtr1astat.Text &= ex.Message & vbCrLf
             If ex.InnerException IsNot Nothing Then
                 txtr1astat.Text &= ex.InnerException.Message
             End If
-
         End Try
 
     End Sub
@@ -1834,92 +1821,65 @@ Public Class Formtest
 
         Try
 
-            ' USER tab requires normalizing of q.ResponseAsString
-            If respUSERTABonly = True Then
+            If q.status = 0 Then
 
-                ' Always capture both
-                respRaw = q.ResponseAsString
-                respNorm = NormalizeNumericResponse(respRaw)
+                ' USER tab requires normalizing of q.ResponseAsString
+                If respUSERTABonly = True Then
 
-                ' Fast query mode (User tab determine / triggers)
-                If USERdev2fastquery Then
-                    Dim source As String
+                    ' Always capture both
+                    respRaw = q.ResponseAsString
+                    respNorm = NormalizeNumericResponse(respRaw)
 
-                    If USERdev2rawoutput Then
-                        source = If(respRaw, "")
-                    Else
-                        source = If(respNorm, "")
+                    ' Fast query mode (User tab determine / triggers)
+                    If USERdev2fastquery Then
+                        Dim source As String
+
+                        If USERdev2rawoutput Then
+                            source = If(respRaw, "")
+                        Else
+                            source = If(respNorm, "")
+                        End If
+
+                        USERdev2output2 = source
+                        USERdev2output = source
+                        txtr2a.Text = source
+
+                        OutputReceiveddev2 = True
+                        Exit Sub
                     End If
 
-                    USERdev2output2 = source
-                    USERdev2output = source
-                    txtr2a.Text = source
-
-                    OutputReceiveddev2 = True
-                    Exit Sub
+                Else
+                    ' Legacy behaviour (non-USER tab)
+                    respRaw = q.ResponseAsString
+                    respNorm = q.ResponseAsString
                 End If
 
-            Else
-                ' Legacy behaviour (pre-USER tab)
-                respRaw = q.ResponseAsString
-                respNorm = q.ResponseAsString
-            End If
+                Dim s As String = "async command:'" & q.cmd & "'" & vbCrLf
 
-            Dim s As String = "async command:'" & q.cmd & "'" & vbCrLf
-
-            If q.status = 0 And Dev2TextResponse.Checked = False Then
-
-                'inst_value2F = respNorm
-                'inst_value2F = Val(respNorm)
-                inst_value2F = respNorm
-
-                ' Update CMD line only if it was used
-                If CMDlineOp = True Then
-                    ' load the command line variable with the response
-                    TextBoxDev2CMD.AppendText(Environment.NewLine & ">    " & respNorm & Environment.NewLine)
-                    CMDlineOp = False
-                End If
-
-
-                If Dev23457Aseven.Checked = False Then
+                ' Set initial working text once
+                If Dev2TextResponse.Checked = True Then
+                    txtr2a.Text = respRaw
+                Else
                     txtr2a.Text = respNorm
                 End If
 
 
-                ' Enable 7th digit mode for 3457A DMM only. Send extra command after TARM SGL to get the additional data
-                If Dev23457Aseven.Checked = True Then
+                ' Response cleanup / extraction pipeline:
 
-                    temp3457A_Dev2 = respNorm
-
-                    If Dev2_3457A = True Then    ' 7th digit process
-                        inst_value2_3457A_2 = CDbl(Val(temp3457A_Dev2))             ' convert digit 7 to double
-                        Dev2_3457A = False
-                    Else
-                        inst_value2_3457A_1 = CDbl(Val(temp3457A_Dev2))             ' convert digits 1-6 to double
-                        Exit Sub    ' Exit sub since we need digit 7 before can process
-                    End If
-
-                    inst_value2_3457A_sum = inst_value2_3457A_1 + inst_value2_3457A_2   ' add them together
-                    txtr2a.Text = inst_value2_3457A_sum
-
+                ' Remove letters A to Z from return from device, i.e. Racal-Dana 1991 returns +FA00000.0000
+                If Dev2removeletters.Checked = True AndAlso txtr2a.Text.Length >= 2 Then
+                    txtr2a.Text = txtr2a.Text.Remove(0, 2)
                 End If
-
-                ' Remove letters A to Z from return from device, i.e. Racal-Dana 1991 returns +FA00000.0000 i.e. echos last command back ahead of numbers
-                If Dev2removeletters.Checked = True Then
-                    txtr2a.Text = txtr2a.Text.Remove(0, 2)  ' remove first 2 characters i.e. FA+00000.0000 (RACAL-DANA 1991 has 2 letters ahead of numerical data)
-                End If
-
 
                 ' Remove unwanted data from Keithley 2001 DMM, i.e.
                 ' 1.2345678E+00NVDC,+47.354841SECS,+01096RDNG#,00EXTCHAN
                 ' +12.34E-03NVAC,+211.709381SECS,+05638RDNG#,00EXTCHAN
                 ' +0.01539E+00NOHM,+269.504250SECS,+06843RDNG#,00EXTCHAN
-                If Dev2K2001isolatedata.Checked = True And Dev2K2001isolatedataCHAR.Text <> "" Then
+                If Dev2K2001isolatedata.Checked = True AndAlso Dev2K2001isolatedataCHAR.Text <> "" Then
                     Dim str As String = txtr2a.Text
-                    Dim leftPart As String = str.Split(Dev2K2001isolatedataCHAR.Text)(0)  ' Isolate at CHAR, then accessing 0 gives you the first part
+                    Dim leftPart As String = str.Split(Dev2K2001isolatedataCHAR.Text)(0)
                     txtr2a.Text = leftPart
                 End If
-
 
                 ' Isolate numerical data even if text appears on left and right of data req'd. DP's are retained.
                 If Dev2Regex.Checked = True Then
@@ -1930,43 +1890,56 @@ Public Class Formtest
                     End If
                 End If
 
+                ' Enable 7th digit mode for 3457A DMM only. Send extra command after TARM SGL to get the additional data
+                If Dev23457Aseven.Checked = True Then
+                    temp3457A_Dev2 = txtr2a.Text
+
+                    If Dev2_3457A = True Then    ' 7th digit process
+                        inst_value2_3457A_2 = CDbl(Val(temp3457A_Dev2))             ' convert digit 7 to double
+                        Dev2_3457A = False
+                    Else
+                        inst_value2_3457A_1 = CDbl(Val(temp3457A_Dev2))             ' convert digits 1-6 to double
+                        Exit Sub    ' Exit sub since we need digit 7 before can process
+                    End If
+
+                    inst_value2_3457A_sum = inst_value2_3457A_1 + inst_value2_3457A_2   ' add them together
+                    txtr2a.Text = inst_value2_3457A_sum.ToString()
+                End If
 
                 ' Divide value by 1000, i.e. when measuring 100K resistors etc
                 If Div1000Dev2.Checked = True Then
-                    txtr2a.Text = Val(txtr2a.Text) / 1000
+                    txtr2a.Text = (Val(txtr2a.Text) / 1000).ToString()
                 End If
-
 
                 ' Multiply value by 1000
                 If Mult1000Dev2.Checked = True Then
-                    txtr2a.Text = Val(txtr2a.Text) * 1000
+                    txtr2a.Text = (Val(txtr2a.Text) * 1000).ToString()
                 End If
 
-
+                ' Arithmetic operation
                 If txtOperationDev2.Text.Trim() <> "" Then
                     Dim input As String = txtOperationDev2.Text.Trim()
 
                     If input.Length < 2 Then
                         MessageBox.Show("Arithmetic: Please enter an operator (*, /, +, -) followed by a number.",
-                        "Arithmetic: Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    "Arithmetic: Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     Else
                         Dim op As Char = input(0)
                         Dim numberPart As String = input.Substring(1).Trim()
 
-                        ' Check if the first character is one of the allowed operators
                         If op <> "*" AndAlso op <> "/" AndAlso op <> "+" AndAlso op <> "-" Then
                             MessageBox.Show("Arithmetic: Invalid operator. Please start with * / + or -.",
-                            "Arithmetic: Invalid Operator", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        "Arithmetic: Invalid Operator", MessageBoxButtons.OK, MessageBoxIcon.Error)
                         Else
                             Dim operand As Double
-                            If Not Double.TryParse(numberPart, operand) Then
+                            If Not Double.TryParse(numberPart, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, operand) Then
                                 MessageBox.Show("Arithmetic: The number entered is not valid.",
-                                "Arithmetic: Invalid Number", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                            "Arithmetic: Invalid Number", MessageBoxButtons.OK, MessageBoxIcon.Error)
                             Else
                                 Dim currentValue As Double
-                                If Not Double.TryParse(txtr2a.Text, currentValue) Then
+                                If Not Double.TryParse(txtr2a.Text, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, currentValue) Then
                                     MessageBox.Show("Arithmetic: The current value is not valid.",
-                                    "Arithmetic: Invalid Value", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                                "Arithmetic: Invalid Value", MessageBoxButtons.OK, MessageBoxIcon.Error)
                                 Else
                                     Select Case op
                                         Case "*" ' Multiply
@@ -1974,7 +1947,7 @@ Public Class Formtest
                                         Case "/" ' Divide
                                             If operand = 0 Then
                                                 MessageBox.Show("Arithmetic: Division by zero is not allowed.",
-                                                "Arithmetic: Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                                            "Arithmetic: Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                                             Else
                                                 currentValue /= operand
                                             End If
@@ -1983,91 +1956,95 @@ Public Class Formtest
                                         Case "-" ' Subtract
                                             currentValue -= operand
                                     End Select
-                                    txtr2a.Text = currentValue.ToString()
+                                    txtr2a.Text = currentValue.ToString(Globalization.CultureInfo.InvariantCulture)
                                 End If
                             End If
                         End If
                     End If
                 End If
 
+                ' Determine numeric or not
+                Dim dev2IsNumeric As Boolean
+                Dim dev2NumericValue As Double
+                dev2IsNumeric = Double.TryParse(txtr2a.Text, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, dev2NumericValue)
 
-                ' Convert to decimal for display (data incoming can be a mix of e-notation or decimal)
-                'txtr2a_disp.Text = Format$(Val(txtr2a.Text), "0.0########################")
-                Dim decimalPlaces As Integer
-                If Integer.TryParse(Dev2DecimalNumDPs.Text, decimalPlaces) Then
-                    ' Use the user input to format the number
-                    Dim formatString As String = "0." & New String("0"c, decimalPlaces)
-                    txtr2a_disp.Text = Format(Val(txtr2a.Text), formatString)
-                Else
-                    ' Handle invalid input (non-integer)
-                    txtr2a_disp.Text = Format$(Val(txtr2a.Text), "0.0########################")
+                ' Update CMD line only if it was used
+                If CMDlineOp = True Then
+                    TextBoxDev2CMD.AppendText(Environment.NewLine & ">    " & txtr2a.Text & Environment.NewLine)
+                    CMDlineOp = False
                 End If
 
 
-                ' Device Meter
-                Dim Dev2Temp1 As String = Format(Val(txtr2a.Text), "#00.000000000")
-                If Val(txtr2a.Text) >= 1 Then
-                    Dev2Temp1 = Dev2Temp1.TrimStart("0"c)  ' remove leading zeros
-                End If
-                If Val(txtr2a.Text) < 1 Then
-                    Dev2Temp1 = Format(Val(txtr2a.Text), "#0.000000000")    ' If less than "1" the only one leading zero
-                End If
-                Dev2Temp1 = Dev2Temp1.TrimEnd("0"c)  ' remove trailing zeros
-                'Dev2Meter.Text = Dev2Temp1
-                Device2name.Text = txtname2.Text
-                If ButtonDev2Run.Text = "Stop" Or ButtonDev12Run.Text = "Stop" Then
-                    'Dev2Meter.Text = Dev2Temp1
-                    ' Setr number of DP's
+                ' Numerical operations only if final pipeline result is numeric
+                If dev2IsNumeric Then
+
+                    inst_value2F = dev2NumericValue
+
+                    ' Convert to decimal for display (data incoming can be a mix of e-notation or decimal)
+                    Dim decimalPlaces As Integer
                     If Integer.TryParse(Dev2DecimalNumDPs.Text, decimalPlaces) Then
-                        ' Use the user input to format the number
                         Dim formatString As String = "0." & New String("0"c, decimalPlaces)
-                        Dev2Meter.Text = Format(Val(Dev2Temp1), formatString)
+                        txtr2a_disp.Text = dev2NumericValue.ToString(formatString, Globalization.CultureInfo.InvariantCulture)
                     Else
-                        ' Handle invalid input (non-integer)
-                        Dev2Meter.Text = Dev2Temp1
+                        txtr2a_disp.Text = dev2NumericValue.ToString("0.0########################", Globalization.CultureInfo.InvariantCulture)
                     End If
+
+                    ' Device Meter
+                    Dim Dev2Temp1 As String = dev2NumericValue.ToString("#00.000000000", Globalization.CultureInfo.InvariantCulture)
+                    If dev2NumericValue >= 1 Then
+                        Dev2Temp1 = Dev2Temp1.TrimStart("0"c)  ' remove leading zeros
+                    End If
+                    If dev2NumericValue < 1 Then
+                        Dev2Temp1 = dev2NumericValue.ToString("#0.000000000", Globalization.CultureInfo.InvariantCulture)    ' If less than "1" the only one leading zero
+                    End If
+                    Dev2Temp1 = Dev2Temp1.TrimEnd("0"c)  ' remove trailing zeros
+
+                    Device2name.Text = txtname2.Text
+                    If ButtonDev2Run.Text = "Stop" Or ButtonDev12Run.Text = "Stop" Then
+                        If Integer.TryParse(Dev2DecimalNumDPs.Text, decimalPlaces) Then
+                            Dim formatString As String = "0." & New String("0"c, decimalPlaces)
+                            Dev2Meter.Text = dev2NumericValue.ToString(formatString, Globalization.CultureInfo.InvariantCulture)
+                        Else
+                            Dev2Meter.Text = Dev2Temp1
+                        End If
+                    Else
+                        Dev2Meter.Text = "---------------"
+                    End If
+
+                    DeviceTemperature.Text = LabelTemperature.Text
+                    DeviceHumidity.Text = LabelHumidity.Text
+
+                    ' If timer running, i.e. not manual
+                    If ButtonDev2Run.Text = "Stop" Or ButtonDev12Run.Text = "Stop" Then
+                        Dev2GPIBActivity = True
+                        Dev2SampleCount += 1
+                        Dev2Samples.Text = Dev2SampleCount
+                        CSVfile()       ' CSV file
+                        LOGdisplay()    ' LOG display
+                        LiveChart()     ' Live chart
+                        Dev2GPIBActivity = False
+                    End If
+
+                    USERdev2output = txtr2a_disp.Text       ' User tab processed/display
+
                 Else
+                    ' Final result is not numeric
+                    txtr2a_disp.Text = txtr2a.Text
                     Dev2Meter.Text = "---------------"
-                End If
-                DeviceTemperature.Text = LabelTemperature.Text
-                DeviceHumidity.Text = LabelHumidity.Text
-
-                ' If timer running, i.e. not manual
-                If ButtonDev2Run.Text = "Stop" Or ButtonDev12Run.Text = "Stop" Then
-                    Dev2GPIBActivity = True
-                    'Dev2SampleCount = Dev2SampleCount + 1
-                    Dev2SampleCount += 1
-                    Dev2Samples.Text = Dev2SampleCount
-                    CSVfile()       ' CSV file
-                    LOGdisplay()    ' LOG display
-                    LiveChart()     ' Live chart
-                    Dev2GPIBActivity = False
+                    Device2name.Text = txtname2.Text
+                    DeviceTemperature.Text = LabelTemperature.Text
+                    DeviceHumidity.Text = LabelHumidity.Text
+                    USERdev2output = txtr2a.Text
                 End If
 
-                USERdev2output = txtr2a_disp.Text       ' User tab processed/display
+                s &= "device response time:" & q.timeend.Subtract(q.timestart).TotalSeconds.ToString() & " s" & vbCrLf
+                s &= "thread wait time:" & q.timestart.Subtract(q.timecall).TotalSeconds.ToString() & " s" & vbCrLf
 
-            Else
-                's &= "error " & q.errcode & vbCrLf
+                txtr2astat.Text = s
+
+                OutputReceiveddev2 = True
+
             End If
-
-
-            ' Response expected is text not numerical
-            If q.status = 0 And Dev2TextResponse.Checked = True Then
-                txtr2a.Text = respRaw
-                txtr2a_disp.Text = ""       ' can't show text
-            Else
-                's &= "error " & q.errcode & vbCrLf
-            End If
-
-            s &= "device response time:" & q.timeend.Subtract(q.timestart).TotalSeconds.ToString() & " s" & vbCrLf
-            s &= "thread wait time:" & q.timestart.Subtract(q.timecall).TotalSeconds.ToString() & " s" & vbCrLf
-
-            txtr2astat.Text = s
-
-            'uncomment this to chain on dev1:
-            'dev1.QueryAsync(txtq1a.Text, AddressOf cbdev1, True)
-
-            OutputReceiveddev2 = True
 
         Catch ex As Exception
             txtr2astat.Text = "error in callback function:" & vbCrLf
@@ -2076,8 +2053,6 @@ Public Class Formtest
                 txtr2astat.Text &= ex.InnerException.Message
             End If
         End Try
-
-        'Jumpout:
 
     End Sub
 
@@ -2705,7 +2680,6 @@ Public Class Formtest
         ' Set combined tooltips as the tooltip for IODeviceLabel
         ToolTip1.SetToolTip(IODeviceLabel2, String.Join(Environment.NewLine, allTooltips))
     End Sub
-
 
 
 
