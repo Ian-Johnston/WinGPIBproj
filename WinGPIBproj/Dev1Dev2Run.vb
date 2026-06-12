@@ -56,8 +56,8 @@ Partial Class Formtest
             CheckBoxDevice1Hide.Enabled = True
             CheckBoxDevice2Hide.Enabled = True
 
-            CSVfilename.ReadOnly = True
-            CheckboxEnableCSV.Enabled = False
+            'CSVfilename.ReadOnly = True
+            'CheckboxEnableCSV.Enabled = False
             'EnableResetCSV.Enabled = True
             TextFilenameAppend.ReadOnly = True
             'ResetCSV.Enabled = True
@@ -71,8 +71,8 @@ Partial Class Formtest
             CheckBoxDevice2Hide.Checked = False
             CheckBoxDevice2Hide.Enabled = False
 
-            CSVfilename.ReadOnly = False
-            CheckboxEnableCSV.Enabled = True
+            'CSVfilename.ReadOnly = False
+            'CheckboxEnableCSV.Enabled = True
             'EnableResetCSV.Enabled = False
             TextFilenameAppend.ReadOnly = False
             'ResetCSV.Enabled = False
@@ -213,8 +213,8 @@ Partial Class Formtest
             EnableChart1.Enabled = True
             CheckBoxDevice1Hide.Enabled = True
 
-            CSVfilename.ReadOnly = True
-            CheckboxEnableCSV.Enabled = False
+            'CSVfilename.ReadOnly = True
+            'CheckboxEnableCSV.Enabled = False
             'EnableResetCSV.Enabled = True
             TextFilenameAppend.ReadOnly = True
             'ResetCSV.Enabled = True
@@ -224,8 +224,8 @@ Partial Class Formtest
             CheckBoxDevice1Hide.Checked = False
             CheckBoxDevice1Hide.Enabled = False
 
-            CSVfilename.ReadOnly = False
-            CheckboxEnableCSV.Enabled = True
+            'CSVfilename.ReadOnly = False
+            'CheckboxEnableCSV.Enabled = True
             'EnableResetCSV.Enabled = False
             TextFilenameAppend.ReadOnly = False
             'ResetCSV.Enabled = False
@@ -390,8 +390,8 @@ Partial Class Formtest
             EnableChart2.Enabled = True
             CheckBoxDevice2Hide.Enabled = True
 
-            CSVfilename.ReadOnly = True
-            CheckboxEnableCSV.Enabled = False
+            'CSVfilename.ReadOnly = True
+            'CheckboxEnableCSV.Enabled = False
             'EnableResetCSV.Enabled = True
             TextFilenameAppend.ReadOnly = True
             'ResetCSV.Enabled = True
@@ -401,8 +401,8 @@ Partial Class Formtest
             CheckBoxDevice2Hide.Checked = False
             CheckBoxDevice2Hide.Enabled = False
 
-            CSVfilename.ReadOnly = False
-            CheckboxEnableCSV.Enabled = True
+            'CSVfilename.ReadOnly = False
+            'CheckboxEnableCSV.Enabled = True
             'EnableResetCSV.Enabled = False
             TextFilenameAppend.ReadOnly = False
             'ResetCSV.Enabled = False

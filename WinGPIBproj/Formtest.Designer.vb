@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -211,6 +211,7 @@ Partial Class Formtest
         Me.TextBoxMoveCopydev2 = New System.Windows.Forms.TextBox()
         Me.ButtonCOPYdev2 = New System.Windows.Forms.Button()
         Me.ButtonMOVEdev2 = New System.Windows.Forms.Button()
+        Me.StartCSVLog = New System.Windows.Forms.Button()
         Me.ButtonDev1INFO = New System.Windows.Forms.Button()
         Me.ButtonDev2INFO = New System.Windows.Forms.Button()
         Me.CheckBoxPrologixSerialDTR = New System.Windows.Forms.CheckBox()
@@ -488,6 +489,23 @@ Partial Class Formtest
         Me.EnableChart2 = New System.Windows.Forms.CheckBox()
         Me.Chart1 = New System.Windows.Forms.DataVisualization.Charting.Chart()
         Me.TabPage9 = New System.Windows.Forms.TabPage()
+        Me.TabPage16 = New System.Windows.Forms.TabPage()
+        Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.Label378 = New System.Windows.Forms.Label()
+        Me.Label377 = New System.Windows.Forms.Label()
+        Me.Label376 = New System.Windows.Forms.Label()
+        Me.Label375 = New System.Windows.Forms.Label()
+        Me.Label374 = New System.Windows.Forms.Label()
+        Me.Label373 = New System.Windows.Forms.Label()
+        Me.LabelCal72Status = New System.Windows.Forms.Label()
+        Me.TextBoxCal72Notes = New System.Windows.Forms.TextBox()
+        Me.TextBoxCal72Temp = New System.Windows.Forms.TextBox()
+        Me.TextBoxCal72Value = New System.Windows.Forms.TextBox()
+        Me.ButtonCal72Save = New System.Windows.Forms.Button()
+        Me.ButtonCal72Delete = New System.Windows.Forms.Button()
+        Me.ButtonCal72Add = New System.Windows.Forms.Button()
+        Me.ButtonCal72Read = New System.Windows.Forms.Button()
+        Me.DataGridViewCal72 = New System.Windows.Forms.DataGridView()
         Me.TabPage7 = New System.Windows.Forms.TabPage()
         Me.AddressRangeF = New System.Windows.Forms.RadioButton()
         Me.AddressRangeB = New System.Windows.Forms.RadioButton()
@@ -1191,6 +1209,9 @@ Partial Class Formtest
         Me.bgoxdata.SuspendLayout
         Me.TabPage4.SuspendLayout
         CType(Me.Chart1, System.ComponentModel.ISupportInitialize).BeginInit
+        Me.TabPage16.SuspendLayout
+        Me.Panel1.SuspendLayout
+        CType(Me.DataGridViewCal72, System.ComponentModel.ISupportInitialize).BeginInit
         Me.TabPage7.SuspendLayout
         Me.GroupBox6.SuspendLayout
         CType(Me.PictureBox3, System.ComponentModel.ISupportInitialize).BeginInit
@@ -1533,17 +1554,17 @@ Partial Class Formtest
         '
         'ResetCSV
         '
-        Me.ResetCSV.Location = New System.Drawing.Point(493, 378)
+        Me.ResetCSV.Location = New System.Drawing.Point(493, 376)
         Me.ResetCSV.Name = "ResetCSV"
-        Me.ResetCSV.Size = New System.Drawing.Size(126, 21)
+        Me.ResetCSV.Size = New System.Drawing.Size(166, 21)
         Me.ResetCSV.TabIndex = 54
-        Me.ResetCSV.Text = "Clear CSV file contents"
-        Me.ToolTip1.SetToolTip(Me.ResetCSV, "Clear the contents of the " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "current CSV (empty the file)")
+        Me.ResetCSV.Text = "Create/Clear CSV file contents"
+        Me.ToolTip1.SetToolTip(Me.ResetCSV, "Create file / clear the contents of the " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "current CSV (empty the file)")
         Me.ResetCSV.UseVisualStyleBackColor = True
         '
         'ButtonExportCSV
         '
-        Me.ButtonExportCSV.Location = New System.Drawing.Point(472, 462)
+        Me.ButtonExportCSV.Location = New System.Drawing.Point(529, 496)
         Me.ButtonExportCSV.Name = "ButtonExportCSV"
         Me.ButtonExportCSV.Size = New System.Drawing.Size(127, 37)
         Me.ButtonExportCSV.TabIndex = 53
@@ -1871,7 +1892,7 @@ Partial Class Formtest
         Me.TextFilenameAppend.Location = New System.Drawing.Point(472, 517)
         Me.TextFilenameAppend.MaxLength = 35
         Me.TextFilenameAppend.Name = "TextFilenameAppend"
-        Me.TextFilenameAppend.Size = New System.Drawing.Size(196, 20)
+        Me.TextFilenameAppend.Size = New System.Drawing.Size(12, 20)
         Me.TextFilenameAppend.TabIndex = 92
         Me.ToolTip1.SetToolTip(Me.TextFilenameAppend, "Add up to 35 chars to the filename when you Export")
         Me.TextFilenameAppend.Visible = False
@@ -3181,6 +3202,16 @@ Partial Class Formtest
         Me.ToolTip1.SetToolTip(Me.ButtonMOVEdev2, "Move")
         Me.ButtonMOVEdev2.UseVisualStyleBackColor = True
         '
+        'StartCSVLog
+        '
+        Me.StartCSVLog.Location = New System.Drawing.Point(475, 417)
+        Me.StartCSVLog.Name = "StartCSVLog"
+        Me.StartCSVLog.Size = New System.Drawing.Size(198, 33)
+        Me.StartCSVLog.TabIndex = 99
+        Me.StartCSVLog.Text = "Start Log/CSV"
+        Me.ToolTip1.SetToolTip(Me.StartCSVLog, "Start/Stop the Log & CSV")
+        Me.StartCSVLog.UseVisualStyleBackColor = True
+        '
         'ButtonDev1INFO
         '
         Me.ButtonDev1INFO.Location = New System.Drawing.Point(320, 94)
@@ -3284,6 +3315,7 @@ Partial Class Formtest
         Me.TabControl1.Controls.Add(Me.TabPage3)
         Me.TabControl1.Controls.Add(Me.TabPage4)
         Me.TabControl1.Controls.Add(Me.TabPage9)
+        Me.TabControl1.Controls.Add(Me.TabPage16)
         Me.TabControl1.Controls.Add(Me.TabPage7)
         Me.TabControl1.Controls.Add(Me.TabPage11)
         Me.TabControl1.Controls.Add(Me.TabPage12)
@@ -3327,7 +3359,7 @@ Partial Class Formtest
         Me.TabPage1.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage1.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage1.TabIndex = 0
-        Me.TabPage1.Text = "Devices  "
+        Me.TabPage1.Text = "Devices "
         '
         'Label133
         '
@@ -4393,7 +4425,7 @@ Partial Class Formtest
         Me.TabPage10.Name = "TabPage10"
         Me.TabPage10.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage10.TabIndex = 9
-        Me.TabPage10.Text = "Cmd Line  "
+        Me.TabPage10.Text = "Cmd Line "
         '
         'Label227
         '
@@ -4554,7 +4586,7 @@ Partial Class Formtest
         Me.TabPage8.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage8.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage8.TabIndex = 7
-        Me.TabPage8.Text = "Meters  "
+        Me.TabPage8.Text = "Meters "
         '
         'Label169
         '
@@ -4694,7 +4726,7 @@ Partial Class Formtest
         Me.TabPage2.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage2.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage2.TabIndex = 1
-        Me.TabPage2.Text = "Temp/Hum  "
+        Me.TabPage2.Text = "Temp/Hum "
         '
         'gboxtemphum
         '
@@ -5283,7 +5315,7 @@ Partial Class Formtest
         Me.TabPage3.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage3.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage3.TabIndex = 2
-        Me.TabPage3.Text = "Data Log  "
+        Me.TabPage3.Text = "Data Log "
         '
         'Label291
         '
@@ -5327,6 +5359,7 @@ Partial Class Formtest
         '
         'bgoxdata
         '
+        Me.bgoxdata.Controls.Add(Me.StartCSVLog)
         Me.bgoxdata.Controls.Add(Me.CSVsize)
         Me.bgoxdata.Controls.Add(Me.CSVcounts)
         Me.bgoxdata.Controls.Add(Me.CSVwrite)
@@ -5416,12 +5449,13 @@ Partial Class Formtest
         'Label226
         '
         Me.Label226.AutoSize = True
-        Me.Label226.Location = New System.Drawing.Point(472, 405)
+        Me.Label226.Location = New System.Drawing.Point(472, 457)
         Me.Label226.Name = "Label226"
-        Me.Label226.Size = New System.Drawing.Size(183, 52)
+        Me.Label226.Size = New System.Drawing.Size(187, 39)
         Me.Label226.TabIndex = 97
-        Me.Label226.Text = "Note:" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Set File name, Log File Metadata and" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Enable CSV before hitting RUN on" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "De" &
-    "vice Tab."
+        Me.Label226.Text = "Note:" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Set File name, Log File Metadata and" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Enable CSV then hit ""Start Log/CSV""." &
+    ""
+        Me.Label226.Visible = False
         '
         'Label177
         '
@@ -5602,9 +5636,9 @@ Partial Class Formtest
         Me.CheckboxEnableCSV.AutoSize = True
         Me.CheckboxEnableCSV.Location = New System.Drawing.Point(472, 259)
         Me.CheckboxEnableCSV.Name = "CheckboxEnableCSV"
-        Me.CheckboxEnableCSV.Size = New System.Drawing.Size(188, 17)
+        Me.CheckboxEnableCSV.Size = New System.Drawing.Size(83, 17)
         Me.CheckboxEnableCSV.TabIndex = 52
-        Me.CheckboxEnableCSV.Text = "Enable CSV  (Enable before RUN)"
+        Me.CheckboxEnableCSV.Text = "Enable CSV"
         Me.CheckboxEnableCSV.UseVisualStyleBackColor = True
         '
         'TempHumLogs
@@ -5718,7 +5752,7 @@ Partial Class Formtest
         Me.TabPage4.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage4.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage4.TabIndex = 3
-        Me.TabPage4.Text = "Live Chart  "
+        Me.TabPage4.Text = "Live Chart "
         '
         'Label321
         '
@@ -6129,22 +6163,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea2.BackColor = System.Drawing.Color.Black
-        ChartArea2.BorderColor = System.Drawing.Color.White
-        ChartArea2.BorderWidth = 2
-        ChartArea2.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea2)
-        Legend2.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend2)
+        ChartArea1.BackColor = System.Drawing.Color.Black
+        ChartArea1.BorderColor = System.Drawing.Color.White
+        ChartArea1.BorderWidth = 2
+        ChartArea1.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea1)
+        Legend1.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend1)
         Me.Chart1.Location = New System.Drawing.Point(-32, 168)
         Me.Chart1.Name = "Chart1"
-        Series2.ChartArea = "ChartArea1"
-        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series2.Color = System.Drawing.Color.Yellow
-        Series2.Enabled = False
-        Series2.Legend = "Legend1"
-        Series2.Name = "Series1"
-        Me.Chart1.Series.Add(Series2)
+        Series1.ChartArea = "ChartArea1"
+        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series1.Color = System.Drawing.Color.Yellow
+        Series1.Enabled = False
+        Series1.Legend = "Legend1"
+        Series1.Name = "Series1"
+        Me.Chart1.Series.Add(Series1)
         Me.Chart1.Size = New System.Drawing.Size(1120, 434)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -6155,8 +6189,177 @@ Partial Class Formtest
         Me.TabPage9.Name = "TabPage9"
         Me.TabPage9.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage9.TabIndex = 8
-        Me.TabPage9.Text = "Playback Chart  "
+        Me.TabPage9.Text = "Playback Chart "
         Me.TabPage9.UseVisualStyleBackColor = True
+        '
+        'TabPage16
+        '
+        Me.TabPage16.Controls.Add(Me.Panel1)
+        Me.TabPage16.Controls.Add(Me.DataGridViewCal72)
+        Me.TabPage16.Location = New System.Drawing.Point(4, 22)
+        Me.TabPage16.Name = "TabPage16"
+        Me.TabPage16.Size = New System.Drawing.Size(1047, 599)
+        Me.TabPage16.TabIndex = 15
+        Me.TabPage16.Text = "3458A Drift Mon "
+        Me.TabPage16.UseVisualStyleBackColor = True
+        '
+        'Panel1
+        '
+        Me.Panel1.Controls.Add(Me.Label378)
+        Me.Panel1.Controls.Add(Me.Label377)
+        Me.Panel1.Controls.Add(Me.Label376)
+        Me.Panel1.Controls.Add(Me.Label375)
+        Me.Panel1.Controls.Add(Me.Label374)
+        Me.Panel1.Controls.Add(Me.Label373)
+        Me.Panel1.Controls.Add(Me.LabelCal72Status)
+        Me.Panel1.Controls.Add(Me.TextBoxCal72Notes)
+        Me.Panel1.Controls.Add(Me.TextBoxCal72Temp)
+        Me.Panel1.Controls.Add(Me.TextBoxCal72Value)
+        Me.Panel1.Controls.Add(Me.ButtonCal72Save)
+        Me.Panel1.Controls.Add(Me.ButtonCal72Delete)
+        Me.Panel1.Controls.Add(Me.ButtonCal72Add)
+        Me.Panel1.Controls.Add(Me.ButtonCal72Read)
+        Me.Panel1.Dock = System.Windows.Forms.DockStyle.Top
+        Me.Panel1.Location = New System.Drawing.Point(0, 0)
+        Me.Panel1.Name = "Panel1"
+        Me.Panel1.Size = New System.Drawing.Size(1047, 140)
+        Me.Panel1.TabIndex = 1
+        '
+        'Label378
+        '
+        Me.Label378.AutoSize = True
+        Me.Label378.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label378.Location = New System.Drawing.Point(8, 9)
+        Me.Label378.Name = "Label378"
+        Me.Label378.Size = New System.Drawing.Size(169, 15)
+        Me.Label378.TabIndex = 13
+        Me.Label378.Text = "3458A U180 Drift Monitor"
+        '
+        'Label377
+        '
+        Me.Label377.AutoSize = True
+        Me.Label377.Location = New System.Drawing.Point(644, 12)
+        Me.Label377.Name = "Label377"
+        Me.Label377.Size = New System.Drawing.Size(397, 117)
+        Me.Label377.TabIndex = 12
+        Me.Label377.Text = resources.GetString("Label377.Text")
+        '
+        'Label376
+        '
+        Me.Label376.AutoSize = True
+        Me.Label376.Location = New System.Drawing.Point(309, 115)
+        Me.Label376.Name = "Label376"
+        Me.Label376.Size = New System.Drawing.Size(40, 13)
+        Me.Label376.TabIndex = 11
+        Me.Label376.Text = "Status:"
+        '
+        'Label375
+        '
+        Me.Label375.AutoSize = True
+        Me.Label375.Location = New System.Drawing.Point(311, 92)
+        Me.Label375.Name = "Label375"
+        Me.Label375.Size = New System.Drawing.Size(38, 13)
+        Me.Label375.TabIndex = 10
+        Me.Label375.Text = "Notes:"
+        '
+        'Label374
+        '
+        Me.Label374.AutoSize = True
+        Me.Label374.Location = New System.Drawing.Point(307, 66)
+        Me.Label374.Name = "Label374"
+        Me.Label374.Size = New System.Drawing.Size(43, 13)
+        Me.Label374.TabIndex = 9
+        Me.Label374.Text = "Temp?:"
+        '
+        'Label373
+        '
+        Me.Label373.AutoSize = True
+        Me.Label373.Location = New System.Drawing.Point(269, 38)
+        Me.Label373.Name = "Label373"
+        Me.Label373.Size = New System.Drawing.Size(81, 13)
+        Me.Label373.TabIndex = 8
+        Me.Label373.Text = "CAL? 72 Value:"
+        '
+        'LabelCal72Status
+        '
+        Me.LabelCal72Status.AutoSize = True
+        Me.LabelCal72Status.Location = New System.Drawing.Point(355, 116)
+        Me.LabelCal72Status.Name = "LabelCal72Status"
+        Me.LabelCal72Status.Size = New System.Drawing.Size(49, 13)
+        Me.LabelCal72Status.TabIndex = 7
+        Me.LabelCal72Status.Text = "######"
+        '
+        'TextBoxCal72Notes
+        '
+        Me.TextBoxCal72Notes.Location = New System.Drawing.Point(353, 88)
+        Me.TextBoxCal72Notes.Name = "TextBoxCal72Notes"
+        Me.TextBoxCal72Notes.Size = New System.Drawing.Size(250, 20)
+        Me.TextBoxCal72Notes.TabIndex = 6
+        '
+        'TextBoxCal72Temp
+        '
+        Me.TextBoxCal72Temp.Location = New System.Drawing.Point(353, 62)
+        Me.TextBoxCal72Temp.Name = "TextBoxCal72Temp"
+        Me.TextBoxCal72Temp.Size = New System.Drawing.Size(110, 20)
+        Me.TextBoxCal72Temp.TabIndex = 5
+        '
+        'TextBoxCal72Value
+        '
+        Me.TextBoxCal72Value.Location = New System.Drawing.Point(353, 34)
+        Me.TextBoxCal72Value.Name = "TextBoxCal72Value"
+        Me.TextBoxCal72Value.Size = New System.Drawing.Size(110, 20)
+        Me.TextBoxCal72Value.TabIndex = 4
+        '
+        'ButtonCal72Save
+        '
+        Me.ButtonCal72Save.Location = New System.Drawing.Point(489, 9)
+        Me.ButtonCal72Save.Name = "ButtonCal72Save"
+        Me.ButtonCal72Save.Size = New System.Drawing.Size(136, 23)
+        Me.ButtonCal72Save.TabIndex = 3
+        Me.ButtonCal72Save.Text = "SAVE TABLE"
+        Me.ButtonCal72Save.UseVisualStyleBackColor = True
+        Me.ButtonCal72Save.Visible = False
+        '
+        'ButtonCal72Delete
+        '
+        Me.ButtonCal72Delete.Location = New System.Drawing.Point(29, 109)
+        Me.ButtonCal72Delete.Name = "ButtonCal72Delete"
+        Me.ButtonCal72Delete.Size = New System.Drawing.Size(136, 23)
+        Me.ButtonCal72Delete.TabIndex = 2
+        Me.ButtonCal72Delete.Text = "DELETE SELECTED"
+        Me.ButtonCal72Delete.UseVisualStyleBackColor = True
+        '
+        'ButtonCal72Add
+        '
+        Me.ButtonCal72Add.Location = New System.Drawing.Point(29, 61)
+        Me.ButtonCal72Add.Name = "ButtonCal72Add"
+        Me.ButtonCal72Add.Size = New System.Drawing.Size(136, 23)
+        Me.ButtonCal72Add.TabIndex = 1
+        Me.ButtonCal72Add.Text = "ADD TO TABLE"
+        Me.ButtonCal72Add.UseVisualStyleBackColor = True
+        '
+        'ButtonCal72Read
+        '
+        Me.ButtonCal72Read.Location = New System.Drawing.Point(29, 34)
+        Me.ButtonCal72Read.Name = "ButtonCal72Read"
+        Me.ButtonCal72Read.Size = New System.Drawing.Size(177, 23)
+        Me.ButtonCal72Read.TabIndex = 0
+        Me.ButtonCal72Read.Text = "READ CAL? 72 FROM 3458A"
+        Me.ButtonCal72Read.UseVisualStyleBackColor = True
+        '
+        'DataGridViewCal72
+        '
+        Me.DataGridViewCal72.AllowUserToAddRows = False
+        Me.DataGridViewCal72.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.DataGridViewCal72.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.DataGridViewCal72.Location = New System.Drawing.Point(0, 140)
+        Me.DataGridViewCal72.Name = "DataGridViewCal72"
+        Me.DataGridViewCal72.ReadOnly = True
+        Me.DataGridViewCal72.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
+        Me.DataGridViewCal72.Size = New System.Drawing.Size(1047, 450)
+        Me.DataGridViewCal72.TabIndex = 0
         '
         'TabPage7
         '
@@ -6183,7 +6386,7 @@ Partial Class Formtest
         Me.TabPage7.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage7.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage7.TabIndex = 6
-        Me.TabPage7.Text = "345xA Cal  "
+        Me.TabPage7.Text = "345xA Cal "
         '
         'AddressRangeF
         '
@@ -6353,7 +6556,7 @@ Partial Class Formtest
         'Label265
         '
         Me.Label265.AutoSize = True
-        Me.Label265.Location = New System.Drawing.Point(676, 169)
+        Me.Label265.Location = New System.Drawing.Point(676, 144)
         Me.Label265.Name = "Label265"
         Me.Label265.Size = New System.Drawing.Size(221, 26)
         Me.Label265.TabIndex = 707
@@ -6363,7 +6566,7 @@ Partial Class Formtest
         'Label318
         '
         Me.Label318.AutoSize = True
-        Me.Label318.Location = New System.Drawing.Point(676, 108)
+        Me.Label318.Location = New System.Drawing.Point(676, 90)
         Me.Label318.Name = "Label318"
         Me.Label318.Size = New System.Drawing.Size(221, 52)
         Me.Label318.TabIndex = 602
@@ -6383,7 +6586,7 @@ Partial Class Formtest
         '
         Me.LabelCalRamAddressHex.AutoSize = True
         Me.LabelCalRamAddressHex.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelCalRamAddressHex.Location = New System.Drawing.Point(570, 216)
+        Me.LabelCalRamAddressHex.Location = New System.Drawing.Point(514, 218)
         Me.LabelCalRamAddressHex.Name = "LabelCalRamAddressHex"
         Me.LabelCalRamAddressHex.Size = New System.Drawing.Size(13, 13)
         Me.LabelCalRamAddressHex.TabIndex = 598
@@ -6431,7 +6634,7 @@ Partial Class Formtest
         'Label139
         '
         Me.Label139.AutoSize = True
-        Me.Label139.Location = New System.Drawing.Point(676, 74)
+        Me.Label139.Location = New System.Drawing.Point(676, 62)
         Me.Label139.Name = "Label139"
         Me.Label139.Size = New System.Drawing.Size(223, 26)
         Me.Label139.TabIndex = 595
@@ -6440,7 +6643,7 @@ Partial Class Formtest
         'Label138
         '
         Me.Label138.AutoSize = True
-        Me.Label138.Location = New System.Drawing.Point(676, 39)
+        Me.Label138.Location = New System.Drawing.Point(676, 33)
         Me.Label138.Name = "Label138"
         Me.Label138.Size = New System.Drawing.Size(195, 26)
         Me.Label138.TabIndex = 594
@@ -6449,7 +6652,7 @@ Partial Class Formtest
         'Label64
         '
         Me.Label64.AutoSize = True
-        Me.Label64.Location = New System.Drawing.Point(676, 19)
+        Me.Label64.Location = New System.Drawing.Point(676, 17)
         Me.Label64.Name = "Label64"
         Me.Label64.Size = New System.Drawing.Size(85, 13)
         Me.Label64.TabIndex = 590
@@ -6481,7 +6684,7 @@ Partial Class Formtest
         '
         Me.LabelCounter.AutoSize = True
         Me.LabelCounter.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelCounter.Location = New System.Drawing.Point(570, 197)
+        Me.LabelCounter.Location = New System.Drawing.Point(514, 199)
         Me.LabelCounter.Name = "LabelCounter"
         Me.LabelCounter.Size = New System.Drawing.Size(13, 13)
         Me.LabelCounter.TabIndex = 564
@@ -6490,7 +6693,7 @@ Partial Class Formtest
         'PictureBox3
         '
         Me.PictureBox3.Image = CType(resources.GetObject("PictureBox3.Image"), System.Drawing.Image)
-        Me.PictureBox3.Location = New System.Drawing.Point(471, 19)
+        Me.PictureBox3.Location = New System.Drawing.Point(439, 17)
         Me.PictureBox3.Name = "PictureBox3"
         Me.PictureBox3.Size = New System.Drawing.Size(201, 109)
         Me.PictureBox3.TabIndex = 590
@@ -6499,7 +6702,7 @@ Partial Class Formtest
         'Label103
         '
         Me.Label103.AutoSize = True
-        Me.Label103.Location = New System.Drawing.Point(469, 197)
+        Me.Label103.Location = New System.Drawing.Point(437, 199)
         Me.Label103.Name = "Label103"
         Me.Label103.Size = New System.Drawing.Size(71, 13)
         Me.Label103.TabIndex = 563
@@ -6519,7 +6722,7 @@ Partial Class Formtest
         'Label102
         '
         Me.Label102.AutoSize = True
-        Me.Label102.Location = New System.Drawing.Point(469, 216)
+        Me.Label102.Location = New System.Drawing.Point(437, 218)
         Me.Label102.Name = "Label102"
         Me.Label102.Size = New System.Drawing.Size(48, 13)
         Me.Label102.TabIndex = 561
@@ -6528,7 +6731,7 @@ Partial Class Formtest
         'Label61
         '
         Me.Label61.AutoSize = True
-        Me.Label61.Location = New System.Drawing.Point(469, 177)
+        Me.Label61.Location = New System.Drawing.Point(437, 179)
         Me.Label61.Name = "Label61"
         Me.Label61.Size = New System.Drawing.Size(40, 13)
         Me.Label61.TabIndex = 548
@@ -6538,7 +6741,7 @@ Partial Class Formtest
         '
         Me.CalramStatus.AutoSize = True
         Me.CalramStatus.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CalramStatus.Location = New System.Drawing.Point(570, 177)
+        Me.CalramStatus.Location = New System.Drawing.Point(514, 179)
         Me.CalramStatus.Name = "CalramStatus"
         Me.CalramStatus.Size = New System.Drawing.Size(44, 13)
         Me.CalramStatus.TabIndex = 551
@@ -6577,7 +6780,7 @@ Partial Class Formtest
         '
         Me.LabelCalRamAddress3457AHex.AutoSize = True
         Me.LabelCalRamAddress3457AHex.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelCalRamAddress3457AHex.Location = New System.Drawing.Point(544, 178)
+        Me.LabelCalRamAddress3457AHex.Location = New System.Drawing.Point(516, 178)
         Me.LabelCalRamAddress3457AHex.Name = "LabelCalRamAddress3457AHex"
         Me.LabelCalRamAddress3457AHex.Size = New System.Drawing.Size(13, 13)
         Me.LabelCalRamAddress3457AHex.TabIndex = 605
@@ -6631,7 +6834,7 @@ Partial Class Formtest
         'Label143
         '
         Me.Label143.AutoSize = True
-        Me.Label143.Location = New System.Drawing.Point(676, 40)
+        Me.Label143.Location = New System.Drawing.Point(676, 33)
         Me.Label143.Name = "Label143"
         Me.Label143.Size = New System.Drawing.Size(235, 39)
         Me.Label143.TabIndex = 599
@@ -6641,7 +6844,7 @@ Partial Class Formtest
         'PictureBox4
         '
         Me.PictureBox4.Image = CType(resources.GetObject("PictureBox4.Image"), System.Drawing.Image)
-        Me.PictureBox4.Location = New System.Drawing.Point(472, 19)
+        Me.PictureBox4.Location = New System.Drawing.Point(444, 17)
         Me.PictureBox4.Name = "PictureBox4"
         Me.PictureBox4.Size = New System.Drawing.Size(200, 100)
         Me.PictureBox4.TabIndex = 590
@@ -6650,7 +6853,7 @@ Partial Class Formtest
         'Label144
         '
         Me.Label144.AutoSize = True
-        Me.Label144.Location = New System.Drawing.Point(676, 19)
+        Me.Label144.Location = New System.Drawing.Point(676, 17)
         Me.Label144.Name = "Label144"
         Me.Label144.Size = New System.Drawing.Size(85, 13)
         Me.Label144.TabIndex = 598
@@ -6682,7 +6885,7 @@ Partial Class Formtest
         '
         Me.LabelCounter3457A.AutoSize = True
         Me.LabelCounter3457A.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelCounter3457A.Location = New System.Drawing.Point(544, 159)
+        Me.LabelCounter3457A.Location = New System.Drawing.Point(516, 159)
         Me.LabelCounter3457A.Name = "LabelCounter3457A"
         Me.LabelCounter3457A.Size = New System.Drawing.Size(13, 13)
         Me.LabelCounter3457A.TabIndex = 579
@@ -6702,7 +6905,7 @@ Partial Class Formtest
         'Label126
         '
         Me.Label126.AutoSize = True
-        Me.Label126.Location = New System.Drawing.Point(469, 159)
+        Me.Label126.Location = New System.Drawing.Point(441, 159)
         Me.Label126.Name = "Label126"
         Me.Label126.Size = New System.Drawing.Size(71, 13)
         Me.Label126.TabIndex = 578
@@ -6711,7 +6914,7 @@ Partial Class Formtest
         'Label130
         '
         Me.Label130.AutoSize = True
-        Me.Label130.Location = New System.Drawing.Point(469, 198)
+        Me.Label130.Location = New System.Drawing.Point(441, 198)
         Me.Label130.Name = "Label130"
         Me.Label130.Size = New System.Drawing.Size(36, 13)
         Me.Label130.TabIndex = 574
@@ -6721,7 +6924,7 @@ Partial Class Formtest
         '
         Me.LabelCalRamAddress3457A.AutoSize = True
         Me.LabelCalRamAddress3457A.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelCalRamAddress3457A.Location = New System.Drawing.Point(623, 178)
+        Me.LabelCalRamAddress3457A.Location = New System.Drawing.Point(595, 178)
         Me.LabelCalRamAddress3457A.Name = "LabelCalRamAddress3457A"
         Me.LabelCalRamAddress3457A.Size = New System.Drawing.Size(13, 13)
         Me.LabelCalRamAddress3457A.TabIndex = 577
@@ -6731,7 +6934,7 @@ Partial Class Formtest
         'Label132
         '
         Me.Label132.AutoSize = True
-        Me.Label132.Location = New System.Drawing.Point(469, 139)
+        Me.Label132.Location = New System.Drawing.Point(441, 139)
         Me.Label132.Name = "Label132"
         Me.Label132.Size = New System.Drawing.Size(40, 13)
         Me.Label132.TabIndex = 572
@@ -6740,7 +6943,7 @@ Partial Class Formtest
         'Label128
         '
         Me.Label128.AutoSize = True
-        Me.Label128.Location = New System.Drawing.Point(468, 178)
+        Me.Label128.Location = New System.Drawing.Point(440, 178)
         Me.Label128.Name = "Label128"
         Me.Label128.Size = New System.Drawing.Size(48, 13)
         Me.Label128.TabIndex = 576
@@ -6750,7 +6953,7 @@ Partial Class Formtest
         '
         Me.CalramStatus3457A.AutoSize = True
         Me.CalramStatus3457A.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CalramStatus3457A.Location = New System.Drawing.Point(544, 139)
+        Me.CalramStatus3457A.Location = New System.Drawing.Point(516, 139)
         Me.CalramStatus3457A.Name = "CalramStatus3457A"
         Me.CalramStatus3457A.Size = New System.Drawing.Size(44, 13)
         Me.CalramStatus3457A.TabIndex = 573
@@ -6760,7 +6963,7 @@ Partial Class Formtest
         '
         Me.LabelCalRamByte3457A.AutoSize = True
         Me.LabelCalRamByte3457A.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelCalRamByte3457A.Location = New System.Drawing.Point(544, 198)
+        Me.LabelCalRamByte3457A.Location = New System.Drawing.Point(516, 198)
         Me.LabelCalRamByte3457A.Name = "LabelCalRamByte3457A"
         Me.LabelCalRamByte3457A.Size = New System.Drawing.Size(13, 13)
         Me.LabelCalRamByte3457A.TabIndex = 575
@@ -6776,7 +6979,7 @@ Partial Class Formtest
         Me.TabPage11.Name = "TabPage11"
         Me.TabPage11.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage11.TabIndex = 12
-        Me.TabPage11.Text = "R6581(T) Cal  "
+        Me.TabPage11.Text = "R6581 Cal "
         '
         'GroupBox10
         '
@@ -7256,7 +7459,7 @@ Partial Class Formtest
         Me.TabPage12.Name = "TabPage12"
         Me.TabPage12.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage12.TabIndex = 11
-        Me.TabPage12.Text = "3245A Cal/Func  "
+        Me.TabPage12.Text = "3245A Cal "
         '
         'Label259
         '
@@ -7896,7 +8099,7 @@ Partial Class Formtest
         Me.TabPage15.Name = "TabPage15"
         Me.TabPage15.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage15.TabIndex = 14
-        Me.TabPage15.Text = "3478A Cal"
+        Me.TabPage15.Text = "3478A Cal "
         '
         'GroupBoxCaliRange
         '
@@ -10144,7 +10347,7 @@ Partial Class Formtest
         Me.TabPage5.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage5.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage5.TabIndex = 4
-        Me.TabPage5.Text = "PDVS2mini  "
+        Me.TabPage5.Text = "PDVS2mini "
         '
         'Label145
         '
@@ -12985,7 +13188,7 @@ Partial Class Formtest
         Me.TabPage14.Name = "TabPage14"
         Me.TabPage14.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage14.TabIndex = 14
-        Me.TabPage14.Text = "User"
+        Me.TabPage14.Text = "User "
         Me.TabPage14.UseVisualStyleBackColor = True
         '
         'ButtonUserStart
@@ -13069,7 +13272,7 @@ Partial Class Formtest
         Me.TabPage13.Name = "TabPage13"
         Me.TabPage13.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage13.TabIndex = 13
-        Me.TabPage13.Text = "Settings  "
+        Me.TabPage13.Text = "Settings "
         '
         'GroupBox11
         '
@@ -13254,7 +13457,7 @@ Partial Class Formtest
         Me.TabPage6.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage6.Size = New System.Drawing.Size(1047, 599)
         Me.TabPage6.TabIndex = 5
-        Me.TabPage6.Text = "About  "
+        Me.TabPage6.Text = "About "
         '
         'Label308
         '
@@ -13549,6 +13752,10 @@ Partial Class Formtest
         Me.TabPage4.ResumeLayout(False)
         Me.TabPage4.PerformLayout
         CType(Me.Chart1, System.ComponentModel.ISupportInitialize).EndInit
+        Me.TabPage16.ResumeLayout(False)
+        Me.Panel1.ResumeLayout(False)
+        Me.Panel1.PerformLayout
+        CType(Me.DataGridViewCal72, System.ComponentModel.ISupportInitialize).EndInit
         Me.TabPage7.ResumeLayout(False)
         Me.TabPage7.PerformLayout
         Me.GroupBox6.ResumeLayout(False)
@@ -14746,4 +14953,22 @@ Partial Class Formtest
     Friend WithEvents CheckBoxThemeSet As CheckBox
     Friend WithEvents ButtonDev2INFO As Button
     Friend WithEvents ButtonDev1INFO As Button
+    Friend WithEvents StartCSVLog As Button
+    Friend WithEvents TabPage16 As TabPage
+    Friend WithEvents DataGridViewCal72 As DataGridView
+    Friend WithEvents Panel1 As Panel
+    Friend WithEvents ButtonCal72Delete As Button
+    Friend WithEvents ButtonCal72Add As Button
+    Friend WithEvents ButtonCal72Read As Button
+    Friend WithEvents LabelCal72Status As Label
+    Friend WithEvents TextBoxCal72Notes As TextBox
+    Friend WithEvents TextBoxCal72Temp As TextBox
+    Friend WithEvents TextBoxCal72Value As TextBox
+    Friend WithEvents ButtonCal72Save As Button
+    Friend WithEvents Label375 As Label
+    Friend WithEvents Label374 As Label
+    Friend WithEvents Label373 As Label
+    Friend WithEvents Label376 As Label
+    Friend WithEvents Label377 As Label
+    Friend WithEvents Label378 As Label
 End Class

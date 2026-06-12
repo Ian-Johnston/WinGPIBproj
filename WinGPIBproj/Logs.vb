@@ -71,6 +71,8 @@ Partial Class Formtest
     Private sum1 As Double = 0          ' Dev1 running sum
     Private sum2 As Double = 0          ' Dev2 running sum
 
+    Dim StartCSVLogClicked As Boolean = False
+
 
     ' Expect these controls to exist on the form:
     ' CheckBoxAvgEnable  (checkbox to enable averaging)
@@ -387,14 +389,15 @@ Partial Class Formtest
         ' Clear the log data from both display and the logEntries list
         ListBoxData.Items.Clear()
         logEntries.Clear()
-        LogData(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") & " LOG Cleared")
+        'LogData(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") & " LOG Cleared")
+        Log(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") & " LOG Cleared")
     End Sub
 
 
     Private Sub LOGdisplay()
 
         'Dev 1 Log display
-        If ((ButtonDev1Run.Text = "Stop" Or ButtonDev12Run.Text = "Stop") And CheckboxEnableLOG.Checked = True And txtr1a.Text <> "" And Dev1GPIBActivity = True) Then
+        If ((ButtonDev1Run.Text = "Stop" Or ButtonDev12Run.Text = "Stop") And CheckboxEnableLOG.Checked = True And txtr1a.Text <> "" And Dev1GPIBActivity = True) And StartCSVLogClicked = True Then
 
             TestLen = Len(txtr1a.Text)
 
@@ -988,8 +991,8 @@ Partial Class Formtest
 
         If (CheckboxEnableCSV.Checked = True) Then
 
-            CSVfilename.ReadOnly = True
-            CSVfilepath.ReadOnly = True
+            'CSVfilename.ReadOnly = True
+            'CSVfilepath.ReadOnly = True
             ButtonExportCSV.Enabled = False
             CSVdelimiterComma.Enabled = False
             CSVdelimiterSemiColon.Enabled = False
@@ -1031,8 +1034,8 @@ Partial Class Formtest
             CSVsize.Text = CSVlength + 1
 
         Else
-            CSVfilename.ReadOnly = False
-            CSVfilepath.ReadOnly = False
+            'CSVfilename.ReadOnly = False
+            'CSVfilepath.ReadOnly = False
             ButtonExportCSV.Enabled = True
             CSVsize.Text = "##"
             LabelCSVfilesize.Enabled = False
@@ -1044,7 +1047,7 @@ Partial Class Formtest
         file = My.Computer.FileSystem.OpenTextFileWriter(CSVfilepath.Text & "\" & CSVfilename.Text, True)
 
         ' Write metadata if logging has just started and either Dev 1 or Dev2
-        If (AllowMetaDataWrite = True And CSVfilestarting = True And CheckboxEnableCSV.Checked = True) Then
+        If (AllowMetaDataWrite = True And CSVfilestarting = True And CheckboxEnableCSV.Checked = True)  Then
             CSVfilestarting = False     ' set so that this is only done when Enable Start CSV box is first checked
             AllowMetaDataWrite = False  ' set so that for this CSV the metadata should not be written again
 
@@ -1227,7 +1230,7 @@ Partial Class Formtest
         ' If CSV Entries >= (Entry Mins * 60) / Dev1SampleRate Then......
         If ((Val(CSVcounts.Text) >= ((Val(CSVEntryLimitMins.Text) * 60) / Val(Dev1SampleRate.Text))) And CheckboxCSVlimitMins.Checked = True And CheckboxEnableCSV.Checked = True And ButtonDev1Run.Text = "Stop") Then
             CheckboxEnableCSV.Checked = False
-            CSVfilename.ReadOnly = True
+            'CSVfilename.ReadOnly = True
             CSVfilepath.ReadOnly = True
             Log(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") & " Writing to CSV Ended")
         End If
@@ -1236,7 +1239,7 @@ Partial Class Formtest
         ' If CSV Entries >= (Entry Mins * 60) / Dev2SampleRate Then......
         If ((Val(CSVcounts.Text) >= ((Val(CSVEntryLimitMins.Text) * 60) / Val(Dev2SampleRate.Text))) And CheckboxCSVlimitMins.Checked = True And CheckboxEnableCSV.Checked = True And ButtonDev2Run.Text = "Stop") Then
             CheckboxEnableCSV.Checked = False
-            CSVfilename.ReadOnly = True
+            'CSVfilename.ReadOnly = True
             CSVfilepath.ReadOnly = True
             Log(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") & " Writing to CSV Ended")
         End If
@@ -1246,7 +1249,7 @@ Partial Class Formtest
         If ((Val(CSVcounts.Text) >= ((Val(CSVEntryLimitMins.Text) * 60) / Val(Dev12SampleRate.Text))) And CheckboxCSVlimitMins.Checked = True And CheckboxEnableCSV.Checked = True And ButtonDev12Run.Text = "Stop") Then
             CheckboxEnableCSV.Checked = False
             CSVfilename.ReadOnly = True
-            CSVfilepath.ReadOnly = True
+            'CSVfilepath.ReadOnly = True
             Log(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") & " Writing to CSV Ended")
         End If
 
@@ -1278,16 +1281,21 @@ Partial Class Formtest
 
     Private Sub ResetCSV_Click(sender As Object, e As EventArgs) Handles ResetCSV.Click
 
-        If CheckboxEnableCSV.Checked = False Then
-            Dim CSVpath As String = CSVfilepath.Text & "\" & CSVfilename.Text
-            System.IO.File.WriteAllText(CSVpath, "")
-            IndexCount = 1  ' reset index count for CSV file
-            CSVcounts.Text = "0"     ' Update entries in CSV per device
-            CSVsize.Text = "0"
-            AllowMetaDataWrite = True
-            Log(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") & " CSV file contents cleared")
-            CSVwrite.Text = ""
-        End If
+        'If CheckboxEnableCSV.Checked = False Then
+
+        Dim CSVpath As String = CSVfilepath.Text & "\" & CSVfilename.Text
+        System.IO.File.WriteAllText(CSVpath, "")
+        IndexCount = 1  ' reset index count for CSV file
+        CSVcounts.Text = "0"     ' Update entries in CSV per device
+        CSVsize.Text = "0"
+        AllowMetaDataWrite = True
+        Log(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") & " CSV file contents cleared")
+        CSVwrite.Text = ""
+
+        My.Settings.data11 = CSVfilename.Text
+        My.Settings.data12 = CSVfilepath.Text
+
+        'End If
 
     End Sub
 
@@ -1298,20 +1306,20 @@ Partial Class Formtest
             CSVcounts.Text = "0"
             IndexCount = 1
             Log(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") & " Writing to CSV Enabled")
-            CSVfilename.ReadOnly = True
-            CSVfilepath.ReadOnly = True
+            'CSVfilename.ReadOnly = True
+            'CSVfilepath.ReadOnly = True
             CSVfilestarting = True
 
-            ResetCSV.Enabled = False
+            'ResetCSV.Enabled = False
             CSVwrite.Text = ""
         Else
             Log(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") & " Writing to CSV Disabled")
-            CSVfilename.ReadOnly = False
-            CSVfilepath.ReadOnly = False
+            'CSVfilename.ReadOnly = False
+            'CSVfilepath.ReadOnly = False
 
             CSVfilestarting = False
 
-            ResetCSV.Enabled = True
+            'ResetCSV.Enabled = True
         End If
 
     End Sub
@@ -1338,7 +1346,7 @@ Partial Class Formtest
     Private Sub CheckboxEnableLOG_CheckedChanged(sender As Object, e As EventArgs) Handles CheckboxEnableLOG.CheckedChanged
 
         If CheckboxEnableLOG.Checked = True Then
-            Log(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") & " Writing to LOG Started")
+            Log(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") & " Writing to LOG Enabled")
         Else
             Log(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") & " Writing to LOG Stopped")
         End If
@@ -1486,6 +1494,29 @@ Partial Class Formtest
             EnableChart3.BackColor = Color.Red
         Else
             EnableChart3.BackColor = Color.WhiteSmoke
+        End If
+
+    End Sub
+
+
+    Private Sub StartCSVLog_Click(sender As Object, e As EventArgs) Handles StartCSVLog.Click
+
+        'Check that at least one logging option is enabled
+        If CheckboxEnableLOG.Checked = False And CheckboxEnableCSV.Checked = False Then
+            MsgBox("You must check 'Enable DATA LOG' and/or 'Enable CSV'")
+            Exit Sub
+        End If
+
+        StartCSVLogClicked = Not StartCSVLogClicked
+
+        If StartCSVLogClicked = True Then
+            StartCSVLog.Text = "Stop Log/CSV"
+            CSVfilename.ReadOnly = True
+            CSVfilepath.ReadOnly = True
+        Else
+            StartCSVLog.Text = "Start Log/CSV"
+            CSVfilename.ReadOnly = False
+            CSVfilepath.ReadOnly = False
         End If
 
     End Sub

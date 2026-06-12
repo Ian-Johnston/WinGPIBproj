@@ -23,9 +23,9 @@ Partial Class Chart
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
-        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea13 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend13 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series13 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Chart))
         Me.Chart2 = New System.Windows.Forms.DataVisualization.Charting.Chart()
         Me.ButtonScrollLeft = New System.Windows.Forms.Button()
@@ -191,22 +191,22 @@ Partial Class Chart
         'Chart2
         '
         Me.Chart2.BackColor = System.Drawing.SystemColors.Control
-        ChartArea1.BackColor = System.Drawing.Color.Black
-        ChartArea1.BorderColor = System.Drawing.Color.White
-        ChartArea1.BorderWidth = 2
-        ChartArea1.Name = "ChartArea1"
-        Me.Chart2.ChartAreas.Add(ChartArea1)
-        Legend1.Name = "Legend1"
-        Me.Chart2.Legends.Add(Legend1)
+        ChartArea13.BackColor = System.Drawing.Color.Black
+        ChartArea13.BorderColor = System.Drawing.Color.White
+        ChartArea13.BorderWidth = 2
+        ChartArea13.Name = "ChartArea1"
+        Me.Chart2.ChartAreas.Add(ChartArea13)
+        Legend13.Name = "Legend1"
+        Me.Chart2.Legends.Add(Legend13)
         Me.Chart2.Location = New System.Drawing.Point(1, 191)
         Me.Chart2.Name = "Chart2"
-        Series1.ChartArea = "ChartArea1"
-        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series1.Color = System.Drawing.Color.Yellow
-        Series1.Enabled = False
-        Series1.Legend = "Legend1"
-        Series1.Name = "Series1"
-        Me.Chart2.Series.Add(Series1)
+        Series13.ChartArea = "ChartArea1"
+        Series13.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series13.Color = System.Drawing.Color.Yellow
+        Series13.Enabled = False
+        Series13.Legend = "Legend1"
+        Series13.Name = "Series1"
+        Me.Chart2.Series.Add(Series13)
         Me.Chart2.Size = New System.Drawing.Size(1334, 610)
         Me.Chart2.TabIndex = 52
         Me.Chart2.Text = "Chart2"
@@ -251,8 +251,9 @@ Partial Class Chart
         '
         'RangeRequired
         '
-        Me.RangeRequired.Location = New System.Drawing.Point(642, 29)
+        Me.RangeRequired.Location = New System.Drawing.Point(574, 62)
         Me.RangeRequired.Name = "RangeRequired"
+        Me.RangeRequired.ReadOnly = True
         Me.RangeRequired.Size = New System.Drawing.Size(46, 20)
         Me.RangeRequired.TabIndex = 58
         Me.RangeRequired.Text = "50"
@@ -1734,7 +1735,6 @@ Partial Class Chart
         Me.Controls.Add(Me.GroupBoxMiscTempHum)
         Me.Controls.Add(Me.LabelPPMtop)
         Me.Controls.Add(Me.LabelPPMdegctop)
-        Me.Controls.Add(Me.RangeRequired)
         Me.Controls.Add(Me.Label40)
         Me.Controls.Add(Me.ButtonYminInc)
         Me.Controls.Add(Me.ButtonYminDec)
@@ -1748,7 +1748,6 @@ Partial Class Chart
         Me.Controls.Add(Me.YaxisCheck1)
         Me.Controls.Add(Me.Label5)
         Me.Controls.Add(Me.ShowFiles2)
-        Me.Controls.Add(Me.RefreshFile)
         Me.Controls.Add(Me.ButtonScrollRightSMALL)
         Me.Controls.Add(Me.ButtonScrollLeftSMALL)
         Me.Controls.Add(Me.Loading)
@@ -1809,6 +1808,8 @@ Partial Class Chart
         Me.Controls.Add(Me.GroupBox1)
         Me.Controls.Add(Me.YaxisBox1)
         Me.Controls.Add(Me.GroupBox2)
+        Me.Controls.Add(Me.RefreshFile)
+        Me.Controls.Add(Me.RangeRequired)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog
         Me.MaximizeBox = False
         Me.Name = "Chart"

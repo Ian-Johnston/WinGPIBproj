@@ -249,7 +249,7 @@ Public Class Formtest
             'sw.Start()
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.091"
+            BannerText1 = "WinGPIB   V4.094"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
             Me.Text = BannerText1 & "                                                        " & BannerText2.ToString()
 
@@ -677,6 +677,9 @@ Public Class Formtest
             MakeButtonsWin10ish(gbox2)
             MakeButtonsWin10ish(GroupBox9)
             MakeButtonsWin10ish(GroupBox12)
+
+            ' Cal72-3458A initialize
+            InitCal72DriftTab()
 
         Catch ex As Exception
             MessageBox.Show($"Error during load: {ex.Message}")
@@ -1779,13 +1782,17 @@ Public Class Formtest
                         Dev1GPIBActivity = True
                         Dev1SampleCount += 1
                         Dev1Samples.Text = Dev1SampleCount
-                        CSVfile()       ' CSV file
-                        LOGdisplay()    ' LOG display
-                        LiveChart()     ' Live chart
-                        Dev1GPIBActivity = False
-                    End If
 
-                    USERdev1output = txtr1a_disp.Text       ' User tab processed/display
+                        If StartCSVLogClicked = True Then
+                            CSVfile()       ' CSV file
+                            LOGdisplay()    ' LOG display
+                        End If
+
+                        LiveChart()     ' Live chart
+                            Dev1GPIBActivity = False
+                        End If
+
+                        USERdev1output = txtr1a_disp.Text       ' User tab processed/display
 
                 Else
                     ' Final result is not numeric
@@ -2019,8 +2026,12 @@ Public Class Formtest
                         Dev2GPIBActivity = True
                         Dev2SampleCount += 1
                         Dev2Samples.Text = Dev2SampleCount
-                        CSVfile()       ' CSV file
-                        LOGdisplay()    ' LOG display
+
+                        If StartCSVLogClicked = True Then
+                            CSVfile()       ' CSV file
+                            LOGdisplay()    ' LOG display
+                        End If
+
                         LiveChart()     ' Live chart
                         Dev2GPIBActivity = False
                     End If
@@ -3243,6 +3254,7 @@ Public Class Formtest
         End If
 
     End Sub
+
 
 End Class
 
