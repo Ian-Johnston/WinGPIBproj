@@ -30,6 +30,12 @@ Partial Class Formtest
 
         DataGridViewCal72.DataSource = Cal72Table
 
+        ' mod headings
+        DataGridViewCal72.Columns("Temp").HeaderText = "Temp?"
+        DataGridViewCal72.Columns("Drift ppm Day 1").HeaderText = "Drift ppm Ref. Day 1"
+        DataGridViewCal72.Columns("Drift ppm Last").HeaderText = "Drift ppm Ref. Last"
+        DataGridViewCal72.Columns("Avg ppm/day").HeaderText = "Drift Avg ppm/Day"
+
         DataGridViewCal72.RowHeadersVisible = False
         DataGridViewCal72.ColumnHeadersVisible = True
         DataGridViewCal72.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
@@ -47,16 +53,16 @@ Partial Class Formtest
         DataGridViewCal72.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
 
         DataGridViewCal72.Columns("Day").Width = 45
-        DataGridViewCal72.Columns("Date").Width = 85
-        DataGridViewCal72.Columns("Time").Width = 70
-        DataGridViewCal72.Columns("Temp").Width = 60
-        DataGridViewCal72.Columns("CAL? 72").Width = 100
-        DataGridViewCal72.Columns("Days From Day 1").Width = 55
-        DataGridViewCal72.Columns("Days From Last").Width = 55
-        DataGridViewCal72.Columns("Drift ppm Day 1").Width = 95
-        DataGridViewCal72.Columns("Avg ppm/day").Width = 90
-        DataGridViewCal72.Columns("Drift ppm Last").Width = 95
-        DataGridViewCal72.Columns("Notes").Width = 300
+        DataGridViewCal72.Columns("Date").Width = 75
+        DataGridViewCal72.Columns("Time").Width = 60
+        DataGridViewCal72.Columns("Temp").Width = 50
+        DataGridViewCal72.Columns("CAL? 72").Width = 90
+        DataGridViewCal72.Columns("Days From Day 1").Width = 50
+        DataGridViewCal72.Columns("Days From Last").Width = 50
+        DataGridViewCal72.Columns("Drift ppm Day 1").Width = 85
+        DataGridViewCal72.Columns("Avg ppm/day").Width = 80
+        DataGridViewCal72.Columns("Drift ppm Last").Width = 88
+        DataGridViewCal72.Columns("Notes").Width = 354
 
         DataGridViewCal72.ScrollBars = ScrollBars.Vertical
 
