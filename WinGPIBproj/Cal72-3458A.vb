@@ -60,6 +60,9 @@ Partial Class Formtest
         DataGridViewCal72.SelectionMode = DataGridViewSelectionMode.FullRowSelect
         DataGridViewCal72.ReadOnly = False
 
+        DataGridViewCal72.AllowUserToResizeRows = False
+        DataGridViewCal72.AllowUserToResizeColumns = False
+
         DataGridViewCal72.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
 
         DataGridViewCal72.Columns("Day").Width = 35
@@ -80,6 +83,10 @@ Partial Class Formtest
 
         DataGridViewCal72.Columns("Notes").Width = 202
 
+        For Each col As DataGridViewColumn In DataGridViewCal72.Columns
+            col.SortMode = DataGridViewColumnSortMode.NotSortable
+        Next
+
         DataGridViewCal72.ScrollBars = ScrollBars.Vertical
 
         LoadCal72Csv()
@@ -88,9 +95,30 @@ Partial Class Formtest
 
         LabelCal72Status.Text = "READY"
 
+        'BeginInvoke(New MethodInvoker(AddressOf ScrollCal72GridToBottom))
+
         BeginInvoke(New MethodInvoker(AddressOf ScrollCal72GridToBottom))
+        BeginInvoke(New MethodInvoker(AddressOf ClearCal72Selection))
+
+        'DataGridViewCal72.ClearSelection()
 
         Cal72Initialised = True
+
+    End Sub
+
+
+    Private Sub ClearCal72Selection()
+
+        DataGridViewCal72.ClearSelection()
+        DataGridViewCal72.CurrentCell = Nothing
+
+    End Sub
+
+
+    Private Sub DataGridViewCal72_DataBindingComplete(sender As Object, e As DataGridViewBindingCompleteEventArgs) Handles DataGridViewCal72.DataBindingComplete
+
+        DataGridViewCal72.ClearSelection()
+        DataGridViewCal72.CurrentCell = Nothing
 
     End Sub
 
@@ -121,8 +149,9 @@ Handles RadioButton34581.CheckedChanged,
             SetCal72ColumnReadOnly()
             ScrollCal72GridToBottom()
 
-            LabelCal72Status.Text =
-            "LOADED " & IO.Path.GetFileName(Cal72CsvFile)
+            DataGridViewCal72.ClearSelection()
+
+            LabelCal72Status.Text = "LOADED " & IO.Path.GetFileName(Cal72CsvFile)
 
         Catch ex As Exception
 
@@ -172,6 +201,8 @@ Handles RadioButton34581.CheckedChanged,
         DataGridViewCal72.FirstDisplayedScrollingRowIndex = lastRow
         DataGridViewCal72.Rows(lastRow).Selected = True
         DataGridViewCal72.CurrentCell = DataGridViewCal72.Rows(lastRow).Cells("Day")
+
+        DataGridViewCal72.ClearSelection()
 
     End Sub
 
