@@ -10,9 +10,12 @@ Partial Class Formtest
     Private Const Cal72Command As String = "CAL? 72"
     Private Const Cal72TempCommand As String = "TEMP?"
 
+    Private Cal72Initialised As Boolean = False
+
     Private Sub InitCal72DriftTab()
 
-        Cal72CsvFile = strPath & "\" & "3458A_CAL72_Drift.csv"
+        'Cal72CsvFile = strPath & "\" & "3458A_CAL72_Drift.csv"
+        SelectCal72CsvFile()
 
         Cal72Table.Columns.Clear()
 
@@ -54,7 +57,7 @@ Partial Class Formtest
 
         DataGridViewCal72.Columns("Day").Width = 45
         DataGridViewCal72.Columns("Date").Width = 75
-        DataGridViewCal72.Columns("Time").Width = 60
+        DataGridViewCal72.Columns("Time").Width = 50
         DataGridViewCal72.Columns("Temp").Width = 50
         DataGridViewCal72.Columns("CAL? 72").Width = 90
         DataGridViewCal72.Columns("Days From Day 1").Width = 50
@@ -62,7 +65,7 @@ Partial Class Formtest
         DataGridViewCal72.Columns("Drift ppm Day 1").Width = 85
         DataGridViewCal72.Columns("Avg ppm/day").Width = 80
         DataGridViewCal72.Columns("Drift ppm Last").Width = 88
-        DataGridViewCal72.Columns("Notes").Width = 354
+        DataGridViewCal72.Columns("Notes").Width = 364
 
         DataGridViewCal72.ScrollBars = ScrollBars.Vertical
 
@@ -74,6 +77,73 @@ Partial Class Formtest
 
         BeginInvoke(New MethodInvoker(AddressOf ScrollCal72GridToBottom))
 
+        Cal72Initialised = True
+
+    End Sub
+
+
+    Private Sub RadioButton3458_CheckedChanged(sender As Object, e As EventArgs) _
+Handles RadioButton34581.CheckedChanged,
+        RadioButton34582.CheckedChanged,
+        RadioButton34583.CheckedChanged,
+        RadioButton34584.CheckedChanged,
+        RadioButton34585.CheckedChanged
+
+        If Cal72Initialised = False Then Exit Sub
+
+        If CType(sender, RadioButton).Checked = False Then Exit Sub
+
+        Try
+
+            If Cal72CsvFile <> "" Then
+
+                RecalculateCal72Table()
+                SaveCal72Csv()
+
+            End If
+
+            SelectCal72CsvFile()
+            LoadCal72Csv()
+            RecalculateCal72Table()
+            SetCal72ColumnReadOnly()
+            ScrollCal72GridToBottom()
+
+            LabelCal72Status.Text =
+            "LOADED " & IO.Path.GetFileName(Cal72CsvFile)
+
+        Catch ex As Exception
+
+            MessageBox.Show(ex.Message,
+                        "CAL72 File Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error)
+
+        End Try
+
+    End Sub
+
+
+    Private Sub SelectCal72CsvFile()
+
+        If RadioButton34581.Checked = True Then
+            Cal72CsvFile = strPath & "\" & "3458A_CAL72_Drift.csv"
+
+        ElseIf RadioButton34582.Checked = True Then
+            Cal72CsvFile = strPath & "\" & "3458A_CAL72_Drift2.csv"
+
+        ElseIf RadioButton34583.Checked = True Then
+            Cal72CsvFile = strPath & "\" & "3458A_CAL72_Drift3.csv"
+
+        ElseIf RadioButton34584.Checked = True Then
+            Cal72CsvFile = strPath & "\" & "3458A_CAL72_Drift4.csv"
+
+        ElseIf RadioButton34585.Checked = True Then
+            Cal72CsvFile = strPath & "\" & "3458A_CAL72_Drift5.csv"
+
+        Else
+            RadioButton34581.Checked = True
+            Cal72CsvFile = strPath & "\" & "3458A_CAL72_Drift.csv"
+        End If
 
     End Sub
 
@@ -173,7 +243,7 @@ Partial Class Formtest
 
         r("Day") = GetSuggestedNextCal72Day()
         r("Date") = DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
-        r("Time") = DateTime.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture)
+        r("Time") = DateTime.Now.ToString("HH:mm", CultureInfo.InvariantCulture)
         r("Temp") = tempValue
         r("CAL? 72") = cal72Value
         r("Notes") = TextBoxCal72Notes.Text
@@ -302,7 +372,7 @@ Partial Class Formtest
         Dim timeText As String = r("Time").ToString().Trim()
 
         Return DateTime.TryParseExact(dateText & " " & timeText,
-                                      "yyyy-MM-dd HH:mm:ss",
+                                      "yyyy-MM-dd HH:mm",
                                       CultureInfo.InvariantCulture,
                                       DateTimeStyles.None,
                                       dt)
