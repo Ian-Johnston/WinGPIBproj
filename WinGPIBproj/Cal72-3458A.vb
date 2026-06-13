@@ -223,6 +223,8 @@ Handles RadioButton34581.CheckedChanged,
         DataGridViewCal72.Columns("Time").ReadOnly = False
         DataGridViewCal72.Columns("Temp").ReadOnly = False
         DataGridViewCal72.Columns("CAL? 72").ReadOnly = False
+        DataGridViewCal72.Columns("CAL? 1,1 40k").ReadOnly = False
+        DataGridViewCal72.Columns("CAL? 2,1 Vref").ReadOnly = False
         DataGridViewCal72.Columns("Notes").ReadOnly = False
 
         ' Editable column colours
@@ -231,6 +233,8 @@ Handles RadioButton34581.CheckedChanged,
         DataGridViewCal72.Columns("Time").DefaultCellStyle.BackColor = Color.White
         DataGridViewCal72.Columns("Temp").DefaultCellStyle.BackColor = Color.White
         DataGridViewCal72.Columns("CAL? 72").DefaultCellStyle.BackColor = Color.White
+        DataGridViewCal72.Columns("CAL? 1,1 40k").DefaultCellStyle.BackColor = Color.White
+        DataGridViewCal72.Columns("CAL? 2,1 Vref").DefaultCellStyle.BackColor = Color.White
         DataGridViewCal72.Columns("Notes").DefaultCellStyle.BackColor = Color.White
 
     End Sub
