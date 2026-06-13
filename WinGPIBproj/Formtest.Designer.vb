@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -367,8 +367,6 @@ Partial Class Formtest
         Me.Label215 = New System.Windows.Forms.Label()
         Me.Label214 = New System.Windows.Forms.Label()
         Me.Label213 = New System.Windows.Forms.Label()
-        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.Label212 = New System.Windows.Forms.Label()
         Me.Label211 = New System.Windows.Forms.Label()
         Me.Label210 = New System.Windows.Forms.Label()
@@ -493,6 +491,12 @@ Partial Class Formtest
         Me.TabPage9 = New System.Windows.Forms.TabPage()
         Me.TabPage16 = New System.Windows.Forms.TabPage()
         Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.Label379 = New System.Windows.Forms.Label()
+        Me.RadioButton34585 = New System.Windows.Forms.RadioButton()
+        Me.RadioButton34584 = New System.Windows.Forms.RadioButton()
+        Me.RadioButton34583 = New System.Windows.Forms.RadioButton()
+        Me.RadioButton34582 = New System.Windows.Forms.RadioButton()
+        Me.RadioButton34581 = New System.Windows.Forms.RadioButton()
         Me.Label378 = New System.Windows.Forms.Label()
         Me.Label377 = New System.Windows.Forms.Label()
         Me.Label376 = New System.Windows.Forms.Label()
@@ -880,7 +884,6 @@ Partial Class Formtest
         Me.Label3133478A = New System.Windows.Forms.Label()
         Me.ShowFilesCalRam3478A = New System.Windows.Forms.Button()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
-        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.Label145 = New System.Windows.Forms.Label()
         Me.Label79 = New System.Windows.Forms.Label()
         Me.Label81 = New System.Windows.Forms.Label()
@@ -1136,7 +1139,6 @@ Partial Class Formtest
         Me.CalAccuracyFinal = New System.Windows.Forms.TextBox()
         Me.Label117 = New System.Windows.Forms.Label()
         Me.Label121 = New System.Windows.Forms.Label()
-        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage14 = New System.Windows.Forms.TabPage()
         Me.ButtonUserStart = New System.Windows.Forms.Button()
         Me.ButtonUserTabGuide = New System.Windows.Forms.Button()
@@ -1191,12 +1193,17 @@ Partial Class Formtest
         Me.Timer15 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer16 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
-        Me.RadioButton34581 = New System.Windows.Forms.RadioButton()
-        Me.RadioButton34582 = New System.Windows.Forms.RadioButton()
-        Me.RadioButton34583 = New System.Windows.Forms.RadioButton()
-        Me.RadioButton34584 = New System.Windows.Forms.RadioButton()
-        Me.RadioButton34585 = New System.Windows.Forms.RadioButton()
-        Me.Label379 = New System.Windows.Forms.Label()
+        Me.Label380 = New System.Windows.Forms.Label()
+        Me.Label381 = New System.Windows.Forms.Label()
+        Me.TextBoxCal21Vref = New System.Windows.Forms.TextBox()
+        Me.TextBoxCal1140k = New System.Windows.Forms.TextBox()
+        Me.Label382 = New System.Windows.Forms.Label()
+        Me.Label383 = New System.Windows.Forms.Label()
+        Me.Label384 = New System.Windows.Forms.Label()
+        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.GroupBox9.SuspendLayout
@@ -4936,26 +4943,6 @@ Partial Class Formtest
         Me.Label213.TabIndex = 537
         Me.Label213.Text = "Tx"
         '
-        'OnOffLed2
-        '
-        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
-        Me.OnOffLed2.Name = "OnOffLed2"
-        Me.OnOffLed2.OffText = Nothing
-        Me.OnOffLed2.OnText = Nothing
-        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed2.TabIndex = 536
-        '
-        'OnOffLed1
-        '
-        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
-        Me.OnOffLed1.Name = "OnOffLed1"
-        Me.OnOffLed1.OffText = Nothing
-        Me.OnOffLed1.OnText = Nothing
-        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed1.TabIndex = 535
-        '
         'Label212
         '
         Me.Label212.AutoSize = True
@@ -6189,22 +6176,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea2.BackColor = System.Drawing.Color.Black
-        ChartArea2.BorderColor = System.Drawing.Color.White
-        ChartArea2.BorderWidth = 2
-        ChartArea2.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea2)
-        Legend2.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend2)
+        ChartArea1.BackColor = System.Drawing.Color.Black
+        ChartArea1.BorderColor = System.Drawing.Color.White
+        ChartArea1.BorderWidth = 2
+        ChartArea1.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea1)
+        Legend1.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend1)
         Me.Chart1.Location = New System.Drawing.Point(-32, 168)
         Me.Chart1.Name = "Chart1"
-        Series2.ChartArea = "ChartArea1"
-        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series2.Color = System.Drawing.Color.Yellow
-        Series2.Enabled = False
-        Series2.Legend = "Legend1"
-        Series2.Name = "Series1"
-        Me.Chart1.Series.Add(Series2)
+        Series1.ChartArea = "ChartArea1"
+        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series1.Color = System.Drawing.Color.Yellow
+        Series1.Enabled = False
+        Series1.Legend = "Legend1"
+        Series1.Name = "Series1"
+        Me.Chart1.Series.Add(Series1)
         Me.Chart1.Size = New System.Drawing.Size(1120, 434)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -6231,6 +6218,14 @@ Partial Class Formtest
         '
         'Panel1
         '
+        Me.Panel1.Controls.Add(Me.Label384)
+        Me.Panel1.Controls.Add(Me.Label383)
+        Me.Panel1.Controls.Add(Me.Label382)
+        Me.Panel1.Controls.Add(Me.Label380)
+        Me.Panel1.Controls.Add(Me.Label381)
+        Me.Panel1.Controls.Add(Me.TextBoxCal21Vref)
+        Me.Panel1.Controls.Add(Me.TextBoxCal1140k)
+        Me.Panel1.Controls.Add(Me.ButtonCal72Save)
         Me.Panel1.Controls.Add(Me.Label379)
         Me.Panel1.Controls.Add(Me.RadioButton34585)
         Me.Panel1.Controls.Add(Me.RadioButton34584)
@@ -6247,7 +6242,6 @@ Partial Class Formtest
         Me.Panel1.Controls.Add(Me.TextBoxCal72Notes)
         Me.Panel1.Controls.Add(Me.TextBoxCal72Temp)
         Me.Panel1.Controls.Add(Me.TextBoxCal72Value)
-        Me.Panel1.Controls.Add(Me.ButtonCal72Save)
         Me.Panel1.Controls.Add(Me.ButtonCal72Delete)
         Me.Panel1.Controls.Add(Me.ButtonCal72Add)
         Me.Panel1.Controls.Add(Me.ButtonCal72Read)
@@ -6256,6 +6250,71 @@ Partial Class Formtest
         Me.Panel1.Name = "Panel1"
         Me.Panel1.Size = New System.Drawing.Size(1047, 140)
         Me.Panel1.TabIndex = 1
+        '
+        'Label379
+        '
+        Me.Label379.AutoSize = True
+        Me.Label379.Location = New System.Drawing.Point(225, 12)
+        Me.Label379.Name = "Label379"
+        Me.Label379.Size = New System.Drawing.Size(41, 13)
+        Me.Label379.TabIndex = 19
+        Me.Label379.Text = "3458A:"
+        '
+        'RadioButton34585
+        '
+        Me.RadioButton34585.AutoSize = True
+        Me.RadioButton34585.Location = New System.Drawing.Point(417, 10)
+        Me.RadioButton34585.Name = "RadioButton34585"
+        Me.RadioButton34585.Size = New System.Drawing.Size(31, 17)
+        Me.RadioButton34585.TabIndex = 18
+        Me.RadioButton34585.TabStop = True
+        Me.RadioButton34585.Text = "5"
+        Me.RadioButton34585.UseVisualStyleBackColor = True
+        '
+        'RadioButton34584
+        '
+        Me.RadioButton34584.AutoSize = True
+        Me.RadioButton34584.Location = New System.Drawing.Point(380, 10)
+        Me.RadioButton34584.Name = "RadioButton34584"
+        Me.RadioButton34584.Size = New System.Drawing.Size(31, 17)
+        Me.RadioButton34584.TabIndex = 17
+        Me.RadioButton34584.TabStop = True
+        Me.RadioButton34584.Text = "4"
+        Me.RadioButton34584.UseVisualStyleBackColor = True
+        '
+        'RadioButton34583
+        '
+        Me.RadioButton34583.AutoSize = True
+        Me.RadioButton34583.Location = New System.Drawing.Point(343, 10)
+        Me.RadioButton34583.Name = "RadioButton34583"
+        Me.RadioButton34583.Size = New System.Drawing.Size(31, 17)
+        Me.RadioButton34583.TabIndex = 16
+        Me.RadioButton34583.TabStop = True
+        Me.RadioButton34583.Text = "3"
+        Me.RadioButton34583.UseVisualStyleBackColor = True
+        '
+        'RadioButton34582
+        '
+        Me.RadioButton34582.AutoSize = True
+        Me.RadioButton34582.Location = New System.Drawing.Point(306, 10)
+        Me.RadioButton34582.Name = "RadioButton34582"
+        Me.RadioButton34582.Size = New System.Drawing.Size(31, 17)
+        Me.RadioButton34582.TabIndex = 15
+        Me.RadioButton34582.TabStop = True
+        Me.RadioButton34582.Text = "2"
+        Me.RadioButton34582.UseVisualStyleBackColor = True
+        '
+        'RadioButton34581
+        '
+        Me.RadioButton34581.AutoSize = True
+        Me.RadioButton34581.Checked = True
+        Me.RadioButton34581.Location = New System.Drawing.Point(269, 10)
+        Me.RadioButton34581.Name = "RadioButton34581"
+        Me.RadioButton34581.Size = New System.Drawing.Size(31, 17)
+        Me.RadioButton34581.TabIndex = 14
+        Me.RadioButton34581.TabStop = True
+        Me.RadioButton34581.Text = "1"
+        Me.RadioButton34581.UseVisualStyleBackColor = True
         '
         'Label378
         '
@@ -6279,7 +6338,7 @@ Partial Class Formtest
         'Label376
         '
         Me.Label376.AutoSize = True
-        Me.Label376.Location = New System.Drawing.Point(309, 115)
+        Me.Label376.Location = New System.Drawing.Point(225, 115)
         Me.Label376.Name = "Label376"
         Me.Label376.Size = New System.Drawing.Size(40, 13)
         Me.Label376.TabIndex = 11
@@ -6288,7 +6347,7 @@ Partial Class Formtest
         'Label375
         '
         Me.Label375.AutoSize = True
-        Me.Label375.Location = New System.Drawing.Point(311, 92)
+        Me.Label375.Location = New System.Drawing.Point(227, 92)
         Me.Label375.Name = "Label375"
         Me.Label375.Size = New System.Drawing.Size(38, 13)
         Me.Label375.TabIndex = 10
@@ -6297,7 +6356,7 @@ Partial Class Formtest
         'Label374
         '
         Me.Label374.AutoSize = True
-        Me.Label374.Location = New System.Drawing.Point(307, 66)
+        Me.Label374.Location = New System.Drawing.Point(223, 65)
         Me.Label374.Name = "Label374"
         Me.Label374.Size = New System.Drawing.Size(43, 13)
         Me.Label374.TabIndex = 9
@@ -6306,7 +6365,7 @@ Partial Class Formtest
         'Label373
         '
         Me.Label373.AutoSize = True
-        Me.Label373.Location = New System.Drawing.Point(299, 38)
+        Me.Label373.Location = New System.Drawing.Point(215, 38)
         Me.Label373.Name = "Label373"
         Me.Label373.Size = New System.Drawing.Size(51, 13)
         Me.Label373.TabIndex = 8
@@ -6315,7 +6374,7 @@ Partial Class Formtest
         'LabelCal72Status
         '
         Me.LabelCal72Status.AutoSize = True
-        Me.LabelCal72Status.Location = New System.Drawing.Point(355, 116)
+        Me.LabelCal72Status.Location = New System.Drawing.Point(271, 116)
         Me.LabelCal72Status.Name = "LabelCal72Status"
         Me.LabelCal72Status.Size = New System.Drawing.Size(49, 13)
         Me.LabelCal72Status.TabIndex = 7
@@ -6323,30 +6382,30 @@ Partial Class Formtest
         '
         'TextBoxCal72Notes
         '
-        Me.TextBoxCal72Notes.Location = New System.Drawing.Point(353, 88)
+        Me.TextBoxCal72Notes.Location = New System.Drawing.Point(269, 88)
         Me.TextBoxCal72Notes.Name = "TextBoxCal72Notes"
-        Me.TextBoxCal72Notes.Size = New System.Drawing.Size(250, 20)
+        Me.TextBoxCal72Notes.Size = New System.Drawing.Size(322, 20)
         Me.TextBoxCal72Notes.TabIndex = 6
         '
         'TextBoxCal72Temp
         '
-        Me.TextBoxCal72Temp.Location = New System.Drawing.Point(353, 62)
+        Me.TextBoxCal72Temp.Location = New System.Drawing.Point(269, 61)
         Me.TextBoxCal72Temp.Name = "TextBoxCal72Temp"
         Me.TextBoxCal72Temp.Size = New System.Drawing.Size(110, 20)
         Me.TextBoxCal72Temp.TabIndex = 5
         '
         'TextBoxCal72Value
         '
-        Me.TextBoxCal72Value.Location = New System.Drawing.Point(353, 34)
+        Me.TextBoxCal72Value.Location = New System.Drawing.Point(269, 34)
         Me.TextBoxCal72Value.Name = "TextBoxCal72Value"
         Me.TextBoxCal72Value.Size = New System.Drawing.Size(110, 20)
         Me.TextBoxCal72Value.TabIndex = 4
         '
         'ButtonCal72Save
         '
-        Me.ButtonCal72Save.Location = New System.Drawing.Point(487, 56)
+        Me.ButtonCal72Save.Location = New System.Drawing.Point(984, 9)
         Me.ButtonCal72Save.Name = "ButtonCal72Save"
-        Me.ButtonCal72Save.Size = New System.Drawing.Size(136, 23)
+        Me.ButtonCal72Save.Size = New System.Drawing.Size(54, 23)
         Me.ButtonCal72Save.TabIndex = 3
         Me.ButtonCal72Save.Text = "SAVE TABLE"
         Me.ButtonCal72Save.UseVisualStyleBackColor = True
@@ -6376,7 +6435,7 @@ Partial Class Formtest
         Me.ButtonCal72Read.Name = "ButtonCal72Read"
         Me.ButtonCal72Read.Size = New System.Drawing.Size(148, 23)
         Me.ButtonCal72Read.TabIndex = 0
-        Me.ButtonCal72Read.Text = "READ CAL? 72 && TEMP?"
+        Me.ButtonCal72Read.Text = "READ DATA FROM 3458A"
         Me.ButtonCal72Read.UseVisualStyleBackColor = True
         '
         'DataGridViewCal72
@@ -10381,16 +10440,6 @@ Partial Class Formtest
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "PDVS2mini "
         '
-        'OnOffLed4
-        '
-        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
-        Me.OnOffLed4.Name = "OnOffLed4"
-        Me.OnOffLed4.OffText = Nothing
-        Me.OnOffLed4.OnText = Nothing
-        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed4.TabIndex = 797
-        '
         'Label145
         '
         Me.Label145.AutoSize = True
@@ -13216,16 +13265,6 @@ Partial Class Formtest
         Me.Label121.TabIndex = 554
         Me.Label121.Text = "Comms Delay (mS)"
         '
-        'OnOffLed3
-        '
-        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
-        Me.OnOffLed3.Name = "OnOffLed3"
-        Me.OnOffLed3.OffText = Nothing
-        Me.OnOffLed3.OnText = Nothing
-        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed3.TabIndex = 796
-        '
         'TabPage14
         '
         Me.TabPage14.Controls.Add(Me.ButtonUserStart)
@@ -13723,70 +13762,104 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
-        'RadioButton34581
+        'Label380
         '
-        Me.RadioButton34581.AutoSize = True
-        Me.RadioButton34581.Checked = True
-        Me.RadioButton34581.Location = New System.Drawing.Point(353, 10)
-        Me.RadioButton34581.Name = "RadioButton34581"
-        Me.RadioButton34581.Size = New System.Drawing.Size(31, 17)
-        Me.RadioButton34581.TabIndex = 14
-        Me.RadioButton34581.TabStop = True
-        Me.RadioButton34581.Text = "1"
-        Me.RadioButton34581.UseVisualStyleBackColor = True
+        Me.Label380.AutoSize = True
+        Me.Label380.Location = New System.Drawing.Point(427, 65)
+        Me.Label380.Name = "Label380"
+        Me.Label380.Size = New System.Drawing.Size(54, 13)
+        Me.Label380.TabIndex = 23
+        Me.Label380.Text = "CAL? 2,1:"
         '
-        'RadioButton34582
+        'Label381
         '
-        Me.RadioButton34582.AutoSize = True
-        Me.RadioButton34582.Location = New System.Drawing.Point(390, 10)
-        Me.RadioButton34582.Name = "RadioButton34582"
-        Me.RadioButton34582.Size = New System.Drawing.Size(31, 17)
-        Me.RadioButton34582.TabIndex = 15
-        Me.RadioButton34582.TabStop = True
-        Me.RadioButton34582.Text = "2"
-        Me.RadioButton34582.UseVisualStyleBackColor = True
+        Me.Label381.AutoSize = True
+        Me.Label381.Location = New System.Drawing.Point(427, 38)
+        Me.Label381.Name = "Label381"
+        Me.Label381.Size = New System.Drawing.Size(54, 13)
+        Me.Label381.TabIndex = 22
+        Me.Label381.Text = "CAL? 1,1:"
         '
-        'RadioButton34583
+        'TextBoxCal21Vref
         '
-        Me.RadioButton34583.AutoSize = True
-        Me.RadioButton34583.Location = New System.Drawing.Point(427, 10)
-        Me.RadioButton34583.Name = "RadioButton34583"
-        Me.RadioButton34583.Size = New System.Drawing.Size(31, 17)
-        Me.RadioButton34583.TabIndex = 16
-        Me.RadioButton34583.TabStop = True
-        Me.RadioButton34583.Text = "3"
-        Me.RadioButton34583.UseVisualStyleBackColor = True
+        Me.TextBoxCal21Vref.Location = New System.Drawing.Point(481, 61)
+        Me.TextBoxCal21Vref.Name = "TextBoxCal21Vref"
+        Me.TextBoxCal21Vref.Size = New System.Drawing.Size(110, 20)
+        Me.TextBoxCal21Vref.TabIndex = 21
         '
-        'RadioButton34584
+        'TextBoxCal1140k
         '
-        Me.RadioButton34584.AutoSize = True
-        Me.RadioButton34584.Location = New System.Drawing.Point(464, 10)
-        Me.RadioButton34584.Name = "RadioButton34584"
-        Me.RadioButton34584.Size = New System.Drawing.Size(31, 17)
-        Me.RadioButton34584.TabIndex = 17
-        Me.RadioButton34584.TabStop = True
-        Me.RadioButton34584.Text = "4"
-        Me.RadioButton34584.UseVisualStyleBackColor = True
+        Me.TextBoxCal1140k.Location = New System.Drawing.Point(481, 34)
+        Me.TextBoxCal1140k.Name = "TextBoxCal1140k"
+        Me.TextBoxCal1140k.Size = New System.Drawing.Size(110, 20)
+        Me.TextBoxCal1140k.TabIndex = 20
         '
-        'RadioButton34585
+        'Label382
         '
-        Me.RadioButton34585.AutoSize = True
-        Me.RadioButton34585.Location = New System.Drawing.Point(501, 10)
-        Me.RadioButton34585.Name = "RadioButton34585"
-        Me.RadioButton34585.Size = New System.Drawing.Size(31, 17)
-        Me.RadioButton34585.TabIndex = 18
-        Me.RadioButton34585.TabStop = True
-        Me.RadioButton34585.Text = "5"
-        Me.RadioButton34585.UseVisualStyleBackColor = True
+        Me.Label382.AutoSize = True
+        Me.Label382.Location = New System.Drawing.Point(594, 38)
+        Me.Label382.Name = "Label382"
+        Me.Label382.Size = New System.Drawing.Size(25, 13)
+        Me.Label382.TabIndex = 24
+        Me.Label382.Text = "40k"
         '
-        'Label379
+        'Label383
         '
-        Me.Label379.AutoSize = True
-        Me.Label379.Location = New System.Drawing.Point(309, 12)
-        Me.Label379.Name = "Label379"
-        Me.Label379.Size = New System.Drawing.Size(41, 13)
-        Me.Label379.TabIndex = 19
-        Me.Label379.Text = "3458A:"
+        Me.Label383.AutoSize = True
+        Me.Label383.Location = New System.Drawing.Point(594, 65)
+        Me.Label383.Name = "Label383"
+        Me.Label383.Size = New System.Drawing.Size(26, 13)
+        Me.Label383.TabIndex = 25
+        Me.Label383.Text = "Vref"
+        '
+        'Label384
+        '
+        Me.Label384.AutoSize = True
+        Me.Label384.Location = New System.Drawing.Point(382, 65)
+        Me.Label384.Name = "Label384"
+        Me.Label384.Size = New System.Drawing.Size(32, 13)
+        Me.Label384.TabIndex = 26
+        Me.Label384.Text = "degC"
+        '
+        'OnOffLed2
+        '
+        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
+        Me.OnOffLed2.Name = "OnOffLed2"
+        Me.OnOffLed2.OffText = Nothing
+        Me.OnOffLed2.OnText = Nothing
+        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed2.TabIndex = 536
+        '
+        'OnOffLed1
+        '
+        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
+        Me.OnOffLed1.Name = "OnOffLed1"
+        Me.OnOffLed1.OffText = Nothing
+        Me.OnOffLed1.OnText = Nothing
+        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed1.TabIndex = 535
+        '
+        'OnOffLed4
+        '
+        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
+        Me.OnOffLed4.Name = "OnOffLed4"
+        Me.OnOffLed4.OffText = Nothing
+        Me.OnOffLed4.OnText = Nothing
+        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed4.TabIndex = 797
+        '
+        'OnOffLed3
+        '
+        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
+        Me.OnOffLed3.Name = "OnOffLed3"
+        Me.OnOffLed3.OffText = Nothing
+        Me.OnOffLed3.OnText = Nothing
+        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed3.TabIndex = 796
         '
         'Formtest
         '
@@ -15054,4 +15127,11 @@ Partial Class Formtest
     Friend WithEvents RadioButton34583 As RadioButton
     Friend WithEvents RadioButton34582 As RadioButton
     Friend WithEvents RadioButton34581 As RadioButton
+    Friend WithEvents Label382 As Label
+    Friend WithEvents Label380 As Label
+    Friend WithEvents Label381 As Label
+    Friend WithEvents TextBoxCal21Vref As TextBox
+    Friend WithEvents TextBoxCal1140k As TextBox
+    Friend WithEvents Label384 As Label
+    Friend WithEvents Label383 As Label
 End Class

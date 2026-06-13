@@ -12,6 +12,9 @@ Partial Class Formtest
 
     Private Cal72Initialised As Boolean = False
 
+    Private Const Cal72Cal11Command As String = "CAL? 1,1"
+    Private Const Cal72Cal21Command As String = "CAL? 2,1"
+
     Private Sub InitCal72DriftTab()
 
         'Cal72CsvFile = strPath & "\" & "3458A_CAL72_Drift.csv"
@@ -24,6 +27,10 @@ Partial Class Formtest
         Cal72Table.Columns.Add("Time", GetType(String))
         Cal72Table.Columns.Add("Temp", GetType(Double))
         Cal72Table.Columns.Add("CAL? 72", GetType(Double))
+
+        Cal72Table.Columns.Add("CAL? 1,1 40k", GetType(String))
+        Cal72Table.Columns.Add("CAL? 2,1 Vref", GetType(String))
+
         Cal72Table.Columns.Add("Days From Day 1", GetType(Double))
         Cal72Table.Columns.Add("Days From Last", GetType(Double))
         Cal72Table.Columns.Add("Drift ppm Day 1", GetType(Double))
@@ -55,17 +62,23 @@ Partial Class Formtest
 
         DataGridViewCal72.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
 
-        DataGridViewCal72.Columns("Day").Width = 45
+        DataGridViewCal72.Columns("Day").Width = 35
         DataGridViewCal72.Columns("Date").Width = 75
         DataGridViewCal72.Columns("Time").Width = 50
         DataGridViewCal72.Columns("Temp").Width = 50
-        DataGridViewCal72.Columns("CAL? 72").Width = 90
+
+        DataGridViewCal72.Columns("CAL? 72").Width = 80
+        DataGridViewCal72.Columns("CAL? 1,1 40k").Width = 100
+        DataGridViewCal72.Columns("CAL? 2,1 Vref").Width = 100
+
         DataGridViewCal72.Columns("Days From Day 1").Width = 50
         DataGridViewCal72.Columns("Days From Last").Width = 50
+
         DataGridViewCal72.Columns("Drift ppm Day 1").Width = 85
         DataGridViewCal72.Columns("Avg ppm/day").Width = 80
         DataGridViewCal72.Columns("Drift ppm Last").Width = 88
-        DataGridViewCal72.Columns("Notes").Width = 364
+
+        DataGridViewCal72.Columns("Notes").Width = 202
 
         DataGridViewCal72.ScrollBars = ScrollBars.Vertical
 
@@ -194,19 +207,36 @@ Handles RadioButton34581.CheckedChanged,
     Private Sub ButtonCal72Read_Click(sender As Object, e As EventArgs) Handles ButtonCal72Read.Click
 
         If ButtonDev1Run.Enabled = False Then
-            MessageBox.Show("Device 1 is not started", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show("Device 1 is not started",
+                        "Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information)
             Exit Sub
         End If
 
         LabelCal72Status.Text = "READING CAL? 72"
         Me.Refresh()
 
-        TextBoxCal72Value.Text = Query3458AValue(Cal72Command)
+        TextBoxCal72Value.Text =
+        Query3458AValue(Cal72Command)
 
-        LabelCal72Status.Text = "READING TEMP"
+        LabelCal72Status.Text = "READING TEMP?"
         Me.Refresh()
 
-        TextBoxCal72Temp.Text = Query3458AValue(Cal72TempCommand)
+        TextBoxCal72Temp.Text =
+        Query3458AValue(Cal72TempCommand)
+
+        LabelCal72Status.Text = "READING CAL? 1,1"
+        Me.Refresh()
+
+        TextBoxCal1140k.Text =
+        Query3458AValue(Cal72Cal11Command)
+
+        LabelCal72Status.Text = "READING CAL? 2,1"
+        Me.Refresh()
+
+        TextBoxCal21Vref.Text =
+        Query3458AValue(Cal72Cal21Command)
 
         LabelCal72Status.Text = "READ COMPLETE"
 
@@ -224,10 +254,13 @@ Handles RadioButton34581.CheckedChanged,
 
     End Function
 
+
     Private Sub ButtonCal72Add_Click(sender As Object, e As EventArgs) Handles ButtonCal72Add.Click
 
         Dim cal72Value As Double
         Dim tempValue As Double
+        Dim cal11Value As Double = 0
+        Dim cal21Value As Double = 0
 
         If Not Double.TryParse(TextBoxCal72Value.Text, NumberStyles.Float, CultureInfo.InvariantCulture, cal72Value) Then
             MessageBox.Show("Invalid CAL? 72 value.", "CAL? 72", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -239,6 +272,28 @@ Handles RadioButton34581.CheckedChanged,
             Exit Sub
         End If
 
+        ' Optional extra constants.
+        ' These are only read when Device 1 is running.
+        If ButtonDev1Run.Enabled = True Then
+
+            LabelCal72Status.Text = "READING CAL? 1,1"
+            Me.Refresh()
+
+            Double.TryParse(Query3458AValue(Cal72Cal11Command),
+                        NumberStyles.Float,
+                        CultureInfo.InvariantCulture,
+                        cal11Value)
+
+            LabelCal72Status.Text = "READING CAL? 2,1"
+            Me.Refresh()
+
+            Double.TryParse(Query3458AValue(Cal72Cal21Command),
+                        NumberStyles.Float,
+                        CultureInfo.InvariantCulture,
+                        cal21Value)
+
+        End If
+
         Dim r As DataRow = Cal72Table.NewRow()
 
         r("Day") = GetSuggestedNextCal72Day()
@@ -246,6 +301,8 @@ Handles RadioButton34581.CheckedChanged,
         r("Time") = DateTime.Now.ToString("HH:mm", CultureInfo.InvariantCulture)
         r("Temp") = tempValue
         r("CAL? 72") = cal72Value
+        r("CAL? 1,1 40k") = TextBoxCal1140k.Text.Trim()
+        r("CAL? 2,1 Vref") = TextBoxCal21Vref.Text.Trim()
         r("Notes") = TextBoxCal72Notes.Text
 
         Cal72Table.Rows.Add(r)
@@ -258,6 +315,7 @@ Handles RadioButton34581.CheckedChanged,
         LabelCal72Status.Text = "ENTRY ADDED"
 
     End Sub
+
 
     Private Function GetSuggestedNextCal72Day() As Double
 
@@ -282,7 +340,7 @@ Handles RadioButton34581.CheckedChanged,
 
         If DataGridViewCal72.SelectedRows.Count = 0 Then Exit Sub
 
-        If MessageBox.Show("Delete selected CAL72 entry?", "CAL? 72", MessageBoxButtons.YesNo, MessageBoxIcon.Question) <> DialogResult.Yes Then
+        If MessageBox.Show("Delete selected entry?", "CAL? 72", MessageBoxButtons.YesNo, MessageBoxIcon.Question) <> DialogResult.Yes Then
             Exit Sub
         End If
 
@@ -389,7 +447,7 @@ Handles RadioButton34581.CheckedChanged,
 
             IO.File.WriteAllText(Cal72CsvFile, "")
 
-            IO.File.AppendAllText(Cal72CsvFile, "Day,Date,Time,Temp,CAL? 72,Days From Day 1,Days From Last,Drift ppm Day 1,Avg ppm/day,Drift ppm Last,Notes" & Environment.NewLine)
+            IO.File.AppendAllText(Cal72CsvFile, "Day,Date,Time,Temp,CAL? 72,CAL? 1,1 40k,CAL? 2,1 Vref,Days From Day 1,Days From Last,Drift ppm Day 1,Avg ppm/day,Drift ppm Last,Notes" & Environment.NewLine)
 
             For Each r As DataRow In Cal72Table.Rows
 
@@ -399,6 +457,8 @@ Handles RadioButton34581.CheckedChanged,
                     Csv(r("Time").ToString()) & "," &
                     Csv(Convert.ToDouble(r("Temp")).ToString("G17", CultureInfo.InvariantCulture)) & "," &
                     Csv(Convert.ToDouble(r("CAL? 72")).ToString("G17", CultureInfo.InvariantCulture)) & "," &
+                    Csv(r("CAL? 1,1 40k").ToString()) & "," &
+                    Csv(r("CAL? 2,1 Vref").ToString()) & "," &
                     Csv(r("Days From Day 1").ToString()) & "," &
                     Csv(r("Days From Last").ToString()) & "," &
                     Csv(r("Drift ppm Day 1").ToString()) & "," &
@@ -435,28 +495,59 @@ Handles RadioButton34581.CheckedChanged,
 
                 Dim p As List(Of String) = ParseCsvLine(lines(i))
 
-                If p.Count < 11 Then Continue For
-
                 Dim r As DataRow = Cal72Table.NewRow()
 
-                r("Day") = ToDoubleSafe(p(0))
-                r("Date") = p(1)
-                r("Time") = p(2)
-                r("Temp") = ToDoubleSafe(p(3))
-                r("CAL? 72") = ToDoubleSafe(p(4))
-                r("Days From Day 1") = ToDoubleSafe(p(5))
-                r("Days From Last") = ToDoubleSafe(p(6))
-                r("Drift ppm Day 1") = ToDoubleSafe(p(7))
-                r("Avg ppm/day") = ToDoubleSafe(p(8))
-                r("Drift ppm Last") = ToDoubleSafe(p(9))
-                r("Notes") = p(10)
+                If p.Count >= 13 Then
+
+                    ' New CSV format with CAL? 1,1 and CAL? 2,1 columns
+                    r("Day") = ToDoubleSafe(p(0))
+                    r("Date") = p(1)
+                    r("Time") = p(2)
+                    r("Temp") = ToDoubleSafe(p(3))
+                    r("CAL? 72") = ToDoubleSafe(p(4))
+                    r("CAL? 1,1 40k") = p(5)
+                    r("CAL? 2,1 Vref") = p(6)
+                    r("Days From Day 1") = ToDoubleSafe(p(7))
+                    r("Days From Last") = ToDoubleSafe(p(8))
+                    r("Drift ppm Day 1") = ToDoubleSafe(p(9))
+                    r("Avg ppm/day") = ToDoubleSafe(p(10))
+                    r("Drift ppm Last") = ToDoubleSafe(p(11))
+                    r("Notes") = p(12)
+
+                ElseIf p.Count >= 11 Then
+
+                    ' Old CSV format without CAL? 1,1 and CAL? 2,1 columns
+                    r("Day") = ToDoubleSafe(p(0))
+                    r("Date") = p(1)
+                    r("Time") = p(2)
+                    r("Temp") = ToDoubleSafe(p(3))
+                    r("CAL? 72") = ToDoubleSafe(p(4))
+                    r("CAL? 1,1 40k") = ""
+                    r("CAL? 2,1 Vref") = ""
+                    r("Days From Day 1") = ToDoubleSafe(p(5))
+                    r("Days From Last") = ToDoubleSafe(p(6))
+                    r("Drift ppm Day 1") = ToDoubleSafe(p(7))
+                    r("Avg ppm/day") = ToDoubleSafe(p(8))
+                    r("Drift ppm Last") = ToDoubleSafe(p(9))
+                    r("Notes") = p(10)
+
+                Else
+
+                    Continue For
+
+                End If
 
                 Cal72Table.Rows.Add(r)
 
             Next
 
         Catch ex As Exception
-            MessageBox.Show("Unable to load CAL72 file: " & ex.Message, "CAL72 File Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+
+            MessageBox.Show("Unable to load CAL72 file: " & ex.Message,
+                        "CAL72 File Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error)
+
         End Try
 
     End Sub
