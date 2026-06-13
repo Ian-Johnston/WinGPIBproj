@@ -49,7 +49,7 @@ Partial Class Formtest
         DataGridViewCal72.RowHeadersVisible = False
         DataGridViewCal72.ColumnHeadersVisible = True
         DataGridViewCal72.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        DataGridViewCal72.RowTemplate.Height = 20
+        DataGridViewCal72.RowTemplate.Height = 18
 
         DataGridViewCal72.DefaultCellStyle.Font = New Font("Segoe UI", 9)
         DataGridViewCal72.ColumnHeadersDefaultCellStyle.Font = New Font("Segoe UI", 9, FontStyle.Bold)
