@@ -350,7 +350,7 @@ Handles RadioButton34581.CheckedChanged,
 
             Dim driftPpmLast As Double = 0
             If i > 0 AndAlso previousCal72 <> 0 AndAlso daysFromLast <> 0 Then
-                driftPpmLast = ((previousCal72 - thisCal72) * 1000000.0R) / (previousCal72 * daysFromLast)
+                driftPpmLast = ((thisCal72 - previousCal72) * 1000000.0R) / (previousCal72 * daysFromLast)
             End If
 
             r("Days From Day 1") = Math.Round(daysFromDay1, 4)
