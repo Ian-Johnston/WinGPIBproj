@@ -79,8 +79,8 @@ Partial Class Formtest
         DataGridViewCal72.Columns("CAL? 1,1 40k").Width = 100
         DataGridViewCal72.Columns("CAL? 2,1 Vref").Width = 100
 
-        DataGridViewCal72.Columns("Days From Day 1").Width = 70
-        DataGridViewCal72.Columns("Days From Last").Width = 70
+        DataGridViewCal72.Columns("Days From Day 1").Width = 80
+        DataGridViewCal72.Columns("Days From Last").Width = 80
 
         DataGridViewCal72.Columns("Drift ppm Day 1").Width = 85
         DataGridViewCal72.Columns("Avg ppm/day").Width = 80
