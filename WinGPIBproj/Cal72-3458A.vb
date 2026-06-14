@@ -31,6 +31,9 @@ Partial Class Formtest
         Cal72Table.Columns.Add("CAL? 1,1 40k", GetType(String))
         Cal72Table.Columns.Add("CAL? 2,1 Vref", GetType(String))
 
+        Cal72Table.Columns.Add("CAL? 1,1 Dev", GetType(Double))
+        Cal72Table.Columns.Add("CAL? 2,1 Dev", GetType(Double))
+
         Cal72Table.Columns.Add("Days From Day 1", GetType(Double))
         Cal72Table.Columns.Add("Days From Last", GetType(Double))
         Cal72Table.Columns.Add("Drift ppm Day 1", GetType(Double))
@@ -45,6 +48,8 @@ Partial Class Formtest
         DataGridViewCal72.Columns("Drift ppm Day 1").HeaderText = "Drift ppm Ref. Day 1"
         DataGridViewCal72.Columns("Drift ppm Last").HeaderText = "Drift ppm Ref. Last"
         DataGridViewCal72.Columns("Avg ppm/day").HeaderText = "Drift Avg ppm/Day"
+        DataGridViewCal72.Columns("CAL? 1,1 Dev").HeaderText = "CAL? 1,1 Dev. 40k"
+        DataGridViewCal72.Columns("CAL? 2,1 Dev").HeaderText = "CAL? 2,1 Dev. Vref"
 
         DataGridViewCal72.RowHeadersVisible = False
         DataGridViewCal72.ColumnHeadersVisible = True
@@ -65,7 +70,7 @@ Partial Class Formtest
 
         DataGridViewCal72.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
 
-        DataGridViewCal72.Columns("Day").Width = 35
+        DataGridViewCal72.Columns("Day").Width = 50
         DataGridViewCal72.Columns("Date").Width = 75
         DataGridViewCal72.Columns("Time").Width = 50
         DataGridViewCal72.Columns("Temp").Width = 50
@@ -74,20 +79,26 @@ Partial Class Formtest
         DataGridViewCal72.Columns("CAL? 1,1 40k").Width = 100
         DataGridViewCal72.Columns("CAL? 2,1 Vref").Width = 100
 
-        DataGridViewCal72.Columns("Days From Day 1").Width = 50
-        DataGridViewCal72.Columns("Days From Last").Width = 50
+        DataGridViewCal72.Columns("Days From Day 1").Width = 70
+        DataGridViewCal72.Columns("Days From Last").Width = 70
 
         DataGridViewCal72.Columns("Drift ppm Day 1").Width = 85
         DataGridViewCal72.Columns("Avg ppm/day").Width = 80
         DataGridViewCal72.Columns("Drift ppm Last").Width = 88
 
-        DataGridViewCal72.Columns("Notes").Width = 202
+        DataGridViewCal72.Columns("Notes").Width = 600
+
+        DataGridViewCal72.Columns("CAL? 1,1 Dev").Width = 90
+        DataGridViewCal72.Columns("CAL? 2,1 Dev").Width = 90
+
+        DataGridViewCal72.Columns("CAL? 1,1 Dev").DefaultCellStyle.Format = "0.0000000000"
+        DataGridViewCal72.Columns("CAL? 2,1 Dev").DefaultCellStyle.Format = "0.0000000000"
 
         For Each col As DataGridViewColumn In DataGridViewCal72.Columns
             col.SortMode = DataGridViewColumnSortMode.NotSortable
         Next
 
-        DataGridViewCal72.ScrollBars = ScrollBars.Vertical
+        DataGridViewCal72.ScrollBars = ScrollBars.Both
 
         LoadCal72Csv()
         RecalculateCal72Table()
@@ -413,8 +424,21 @@ Handles RadioButton34581.CheckedChanged,
         Dim day1Cal72 As Double
         Dim firstDay As Double
 
+        Dim day1Cal11 As Double
+        Dim day1Cal21 As Double
+
         If Not Double.TryParse(Cal72Table.Rows(0)("CAL? 72").ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, day1Cal72) Then Exit Sub
         If Not Double.TryParse(Cal72Table.Rows(0)("Day").ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, firstDay) Then firstDay = 1
+
+        Double.TryParse(Cal72Table.Rows(0)("CAL? 1,1 40k").ToString(),
+                    NumberStyles.Float,
+                    CultureInfo.InvariantCulture,
+                    day1Cal11)
+
+        Double.TryParse(Cal72Table.Rows(0)("CAL? 2,1 Vref").ToString(),
+                    NumberStyles.Float,
+                    CultureInfo.InvariantCulture,
+                    day1Cal21)
 
         If day1Cal72 = 0 Then Exit Sub
 
@@ -428,8 +452,21 @@ Handles RadioButton34581.CheckedChanged,
             Dim thisDay As Double
             Dim thisCal72 As Double
 
+            Dim thisCal11 As Double
+            Dim thisCal21 As Double
+
             If Not Double.TryParse(r("Day").ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, thisDay) Then Continue For
             If Not Double.TryParse(r("CAL? 72").ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, thisCal72) Then Continue For
+
+            Double.TryParse(r("CAL? 1,1 40k").ToString(),
+                        NumberStyles.Float,
+                        CultureInfo.InvariantCulture,
+                        thisCal11)
+
+            Double.TryParse(r("CAL? 2,1 Vref").ToString(),
+                        NumberStyles.Float,
+                        CultureInfo.InvariantCulture,
+                        thisCal21)
 
             Dim daysFromDay1 As Double = thisDay - firstDay
             Dim daysFromLast As Double = If(i = 0, 0, thisDay - previousDay)
@@ -451,6 +488,36 @@ Handles RadioButton34581.CheckedChanged,
             r("Drift ppm Day 1") = Math.Round(driftPpmDay1, 6)
             r("Avg ppm/day") = Math.Round(avgPpmPerDay, 6)
             r("Drift ppm Last") = Math.Round(driftPpmLast, 6)
+
+            Dim cal11Text As String =
+    r("CAL? 1,1 40k").ToString().Trim()
+
+            Dim cal21Text As String =
+    r("CAL? 2,1 Vref").ToString().Trim()
+
+            If String.IsNullOrWhiteSpace(cal11Text) OrElse
+   String.IsNullOrWhiteSpace(Cal72Table.Rows(0)("CAL? 1,1 40k").ToString()) Then
+
+                r("CAL? 1,1 Dev") = DBNull.Value
+
+            Else
+
+                r("CAL? 1,1 Dev") =
+        Math.Round(thisCal11 - day1Cal11, 10)
+
+            End If
+
+            If String.IsNullOrWhiteSpace(cal21Text) OrElse
+   String.IsNullOrWhiteSpace(Cal72Table.Rows(0)("CAL? 2,1 Vref").ToString()) Then
+
+                r("CAL? 2,1 Dev") = DBNull.Value
+
+            Else
+
+                r("CAL? 2,1 Dev") =
+        Math.Round(thisCal21 - day1Cal21, 10)
+
+            End If
 
             previousDay = thisDay
             previousCal72 = thisCal72
