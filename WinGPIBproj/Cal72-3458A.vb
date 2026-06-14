@@ -549,24 +549,26 @@ Handles RadioButton34581.CheckedChanged,
 
             IO.File.WriteAllText(Cal72CsvFile, "")
 
-            IO.File.AppendAllText(Cal72CsvFile, "Day,Date,Time,Temp,CAL? 72,CAL? 1,1 40k,CAL? 2,1 Vref,Days From Day 1,Days From Last,Drift ppm Day 1,Avg ppm/day,Drift ppm Last,Notes" & Environment.NewLine)
+            IO.File.AppendAllText(Cal72CsvFile, "Day,Date,Time,Temp,CAL? 72,CAL? 1,1 40k,CAL? 2,1 Vref,CAL? 1,1 Dev,CAL? 2,1 Dev,Days From Day 1,Days From Last,Drift ppm Day 1,Avg ppm/day,Drift ppm Last,Notes" & Environment.NewLine)
 
             For Each r As DataRow In Cal72Table.Rows
 
                 Dim lineOut As String =
-                    Csv(r("Day").ToString()) & "," &
-                    Csv(r("Date").ToString()) & "," &
-                    Csv(r("Time").ToString()) & "," &
-                    Csv(Convert.ToDouble(r("Temp")).ToString("G17", CultureInfo.InvariantCulture)) & "," &
-                    Csv(Convert.ToDouble(r("CAL? 72")).ToString("G17", CultureInfo.InvariantCulture)) & "," &
-                    Csv(r("CAL? 1,1 40k").ToString()) & "," &
-                    Csv(r("CAL? 2,1 Vref").ToString()) & "," &
-                    Csv(r("Days From Day 1").ToString()) & "," &
-                    Csv(r("Days From Last").ToString()) & "," &
-                    Csv(r("Drift ppm Day 1").ToString()) & "," &
-                    Csv(r("Avg ppm/day").ToString()) & "," &
-                    Csv(r("Drift ppm Last").ToString()) & "," &
-                    Csv(r("Notes").ToString())
+                Csv(r("Day").ToString()) & "," &
+                Csv(r("Date").ToString()) & "," &
+                Csv(r("Time").ToString()) & "," &
+                Csv(Convert.ToDouble(r("Temp")).ToString("G17", CultureInfo.InvariantCulture)) & "," &
+                Csv(Convert.ToDouble(r("CAL? 72")).ToString("G17", CultureInfo.InvariantCulture)) & "," &
+                Csv(r("CAL? 1,1 40k").ToString()) & "," &
+                Csv(r("CAL? 2,1 Vref").ToString()) & "," &
+                Csv(r("CAL? 1,1 Dev").ToString()) & "," &
+                Csv(r("CAL? 2,1 Dev").ToString()) & "," &
+                Csv(r("Days From Day 1").ToString()) & "," &
+                Csv(r("Days From Last").ToString()) & "," &
+                Csv(r("Drift ppm Day 1").ToString()) & "," &
+                Csv(r("Avg ppm/day").ToString()) & "," &
+                Csv(r("Drift ppm Last").ToString()) & "," &
+                Csv(r("Notes").ToString())
 
                 IO.File.AppendAllText(Cal72CsvFile, lineOut & Environment.NewLine)
 
@@ -599,9 +601,9 @@ Handles RadioButton34581.CheckedChanged,
 
                 Dim r As DataRow = Cal72Table.NewRow()
 
-                If p.Count >= 13 Then
+                If p.Count >= 15 Then
 
-                    ' New CSV format with CAL? 1,1 and CAL? 2,1 columns
+                    ' New CSV format with CAL? 1,1, CAL? 2,1 and deviation columns
                     r("Day") = ToDoubleSafe(p(0))
                     r("Date") = p(1)
                     r("Time") = p(2)
@@ -609,6 +611,27 @@ Handles RadioButton34581.CheckedChanged,
                     r("CAL? 72") = ToDoubleSafe(p(4))
                     r("CAL? 1,1 40k") = p(5)
                     r("CAL? 2,1 Vref") = p(6)
+                    r("CAL? 1,1 Dev") = ToDoubleSafe(p(7))
+                    r("CAL? 2,1 Dev") = ToDoubleSafe(p(8))
+                    r("Days From Day 1") = ToDoubleSafe(p(9))
+                    r("Days From Last") = ToDoubleSafe(p(10))
+                    r("Drift ppm Day 1") = ToDoubleSafe(p(11))
+                    r("Avg ppm/day") = ToDoubleSafe(p(12))
+                    r("Drift ppm Last") = ToDoubleSafe(p(13))
+                    r("Notes") = p(14)
+
+                ElseIf p.Count >= 13 Then
+
+                    ' Previous new format with CAL? 1,1 and CAL? 2,1 but no deviation columns
+                    r("Day") = ToDoubleSafe(p(0))
+                    r("Date") = p(1)
+                    r("Time") = p(2)
+                    r("Temp") = ToDoubleSafe(p(3))
+                    r("CAL? 72") = ToDoubleSafe(p(4))
+                    r("CAL? 1,1 40k") = p(5)
+                    r("CAL? 2,1 Vref") = p(6)
+                    r("CAL? 1,1 Dev") = DBNull.Value
+                    r("CAL? 2,1 Dev") = DBNull.Value
                     r("Days From Day 1") = ToDoubleSafe(p(7))
                     r("Days From Last") = ToDoubleSafe(p(8))
                     r("Drift ppm Day 1") = ToDoubleSafe(p(9))
@@ -626,6 +649,8 @@ Handles RadioButton34581.CheckedChanged,
                     r("CAL? 72") = ToDoubleSafe(p(4))
                     r("CAL? 1,1 40k") = ""
                     r("CAL? 2,1 Vref") = ""
+                    r("CAL? 1,1 Dev") = DBNull.Value
+                    r("CAL? 2,1 Dev") = DBNull.Value
                     r("Days From Day 1") = ToDoubleSafe(p(5))
                     r("Days From Last") = ToDoubleSafe(p(6))
                     r("Drift ppm Day 1") = ToDoubleSafe(p(7))
@@ -646,9 +671,9 @@ Handles RadioButton34581.CheckedChanged,
         Catch ex As Exception
 
             MessageBox.Show("Unable to load CAL72 file: " & ex.Message,
-                        "CAL72 File Error",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error)
+                    "CAL72 File Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error)
 
         End Try
 
