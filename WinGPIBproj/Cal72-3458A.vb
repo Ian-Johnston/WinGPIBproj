@@ -796,6 +796,20 @@ Handles RadioButton34581.CheckedChanged,
 
     Private Sub UpdateCal72SummaryPanel()
 
+        If Cal72Table.Rows.Count = 0 Then
+
+            LabelCal72LatestDay.Text = "-"
+            LabelCal72LatestValue.Text = "-"
+            LabelCal72LatestDrift.Text = "-"
+            LabelCal72LatestAvg.Text = "-"
+            LabelCal72LatestLast.Text = "-"
+            LabelCal72LatestEntries.Text = "0"
+            LabelCal72LatestAge.Text = "-"
+
+            Exit Sub
+
+        End If
+
         If Cal72Table.Rows.Count = 0 Then Exit Sub
 
         Dim r As DataRow =

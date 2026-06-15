@@ -367,6 +367,8 @@ Partial Class Formtest
         Me.Label215 = New System.Windows.Forms.Label()
         Me.Label214 = New System.Windows.Forms.Label()
         Me.Label213 = New System.Windows.Forms.Label()
+        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.Label212 = New System.Windows.Forms.Label()
         Me.Label211 = New System.Windows.Forms.Label()
         Me.Label210 = New System.Windows.Forms.Label()
@@ -491,6 +493,21 @@ Partial Class Formtest
         Me.TabPage9 = New System.Windows.Forms.TabPage()
         Me.TabPage16 = New System.Windows.Forms.TabPage()
         Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.PanelCal72Summary = New System.Windows.Forms.Panel()
+        Me.LabelCal72LatestAge = New System.Windows.Forms.Label()
+        Me.LabelCal72LatestEntries = New System.Windows.Forms.Label()
+        Me.LabelCal72LatestLast = New System.Windows.Forms.Label()
+        Me.LabelCal72LatestAvg = New System.Windows.Forms.Label()
+        Me.LabelCal72LatestDrift = New System.Windows.Forms.Label()
+        Me.LabelCal72LatestValue = New System.Windows.Forms.Label()
+        Me.LabelCal72LatestDay = New System.Windows.Forms.Label()
+        Me.LabelSummary7 = New System.Windows.Forms.Label()
+        Me.LabelSummary6 = New System.Windows.Forms.Label()
+        Me.LabelSummary5 = New System.Windows.Forms.Label()
+        Me.LabelSummary4 = New System.Windows.Forms.Label()
+        Me.LabelSummary3 = New System.Windows.Forms.Label()
+        Me.LabelSummary2 = New System.Windows.Forms.Label()
+        Me.LabelSummary1 = New System.Windows.Forms.Label()
         Me.ButtonCal72Help = New System.Windows.Forms.Button()
         Me.Label384 = New System.Windows.Forms.Label()
         Me.Label383 = New System.Windows.Forms.Label()
@@ -891,6 +908,7 @@ Partial Class Formtest
         Me.Label3133478A = New System.Windows.Forms.Label()
         Me.ShowFilesCalRam3478A = New System.Windows.Forms.Button()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
+        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.Label145 = New System.Windows.Forms.Label()
         Me.Label79 = New System.Windows.Forms.Label()
         Me.Label81 = New System.Windows.Forms.Label()
@@ -1146,6 +1164,7 @@ Partial Class Formtest
         Me.CalAccuracyFinal = New System.Windows.Forms.TextBox()
         Me.Label117 = New System.Windows.Forms.Label()
         Me.Label121 = New System.Windows.Forms.Label()
+        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage14 = New System.Windows.Forms.TabPage()
         Me.ButtonUserStart = New System.Windows.Forms.Button()
         Me.ButtonUserTabGuide = New System.Windows.Forms.Button()
@@ -1200,26 +1219,6 @@ Partial Class Formtest
         Me.Timer15 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer16 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
-        Me.PanelCal72Summary = New System.Windows.Forms.Panel()
-        Me.Label377 = New System.Windows.Forms.Label()
-        Me.LabelSummary1 = New System.Windows.Forms.Label()
-        Me.LabelSummary2 = New System.Windows.Forms.Label()
-        Me.LabelSummary3 = New System.Windows.Forms.Label()
-        Me.LabelSummary4 = New System.Windows.Forms.Label()
-        Me.LabelSummary5 = New System.Windows.Forms.Label()
-        Me.LabelSummary6 = New System.Windows.Forms.Label()
-        Me.LabelSummary7 = New System.Windows.Forms.Label()
-        Me.LabelCal72LatestDay = New System.Windows.Forms.Label()
-        Me.LabelCal72LatestValue = New System.Windows.Forms.Label()
-        Me.LabelCal72LatestDrift = New System.Windows.Forms.Label()
-        Me.LabelCal72LatestAvg = New System.Windows.Forms.Label()
-        Me.LabelCal72LatestLast = New System.Windows.Forms.Label()
-        Me.LabelCal72LatestEntries = New System.Windows.Forms.Label()
-        Me.LabelCal72LatestAge = New System.Windows.Forms.Label()
-        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.GroupBox9.SuspendLayout
@@ -1240,6 +1239,7 @@ Partial Class Formtest
         CType(Me.Chart1, System.ComponentModel.ISupportInitialize).BeginInit
         Me.TabPage16.SuspendLayout
         Me.Panel1.SuspendLayout
+        Me.PanelCal72Summary.SuspendLayout
         CType(Me.DataGridViewCal72, System.ComponentModel.ISupportInitialize).BeginInit
         Me.TabPage7.SuspendLayout
         Me.GroupBox6.SuspendLayout
@@ -1270,7 +1270,6 @@ Partial Class Formtest
         Me.GroupBox11.SuspendLayout
         Me.TabPage6.SuspendLayout
         CType(Me.PictureBox6, System.ComponentModel.ISupportInitialize).BeginInit
-        Me.PanelCal72Summary.SuspendLayout
         Me.SuspendLayout
         '
         'SerialPort
@@ -4960,6 +4959,26 @@ Partial Class Formtest
         Me.Label213.TabIndex = 537
         Me.Label213.Text = "Tx"
         '
+        'OnOffLed2
+        '
+        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
+        Me.OnOffLed2.Name = "OnOffLed2"
+        Me.OnOffLed2.OffText = Nothing
+        Me.OnOffLed2.OnText = Nothing
+        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed2.TabIndex = 536
+        '
+        'OnOffLed1
+        '
+        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
+        Me.OnOffLed1.Name = "OnOffLed1"
+        Me.OnOffLed1.OffText = Nothing
+        Me.OnOffLed1.OnText = Nothing
+        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed1.TabIndex = 535
+        '
         'Label212
         '
         Me.Label212.AutoSize = True
@@ -6235,7 +6254,6 @@ Partial Class Formtest
         '
         'Panel1
         '
-        Me.Panel1.Controls.Add(Me.Label377)
         Me.Panel1.Controls.Add(Me.PanelCal72Summary)
         Me.Panel1.Controls.Add(Me.ButtonCal72Help)
         Me.Panel1.Controls.Add(Me.Label384)
@@ -6269,6 +6287,148 @@ Partial Class Formtest
         Me.Panel1.Name = "Panel1"
         Me.Panel1.Size = New System.Drawing.Size(1047, 140)
         Me.Panel1.TabIndex = 1
+        '
+        'PanelCal72Summary
+        '
+        Me.PanelCal72Summary.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.PanelCal72Summary.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.PanelCal72Summary.Controls.Add(Me.LabelCal72LatestAge)
+        Me.PanelCal72Summary.Controls.Add(Me.LabelCal72LatestEntries)
+        Me.PanelCal72Summary.Controls.Add(Me.LabelCal72LatestLast)
+        Me.PanelCal72Summary.Controls.Add(Me.LabelCal72LatestAvg)
+        Me.PanelCal72Summary.Controls.Add(Me.LabelCal72LatestDrift)
+        Me.PanelCal72Summary.Controls.Add(Me.LabelCal72LatestValue)
+        Me.PanelCal72Summary.Controls.Add(Me.LabelCal72LatestDay)
+        Me.PanelCal72Summary.Controls.Add(Me.LabelSummary7)
+        Me.PanelCal72Summary.Controls.Add(Me.LabelSummary6)
+        Me.PanelCal72Summary.Controls.Add(Me.LabelSummary5)
+        Me.PanelCal72Summary.Controls.Add(Me.LabelSummary4)
+        Me.PanelCal72Summary.Controls.Add(Me.LabelSummary3)
+        Me.PanelCal72Summary.Controls.Add(Me.LabelSummary2)
+        Me.PanelCal72Summary.Controls.Add(Me.LabelSummary1)
+        Me.PanelCal72Summary.Location = New System.Drawing.Point(599, 38)
+        Me.PanelCal72Summary.Name = "PanelCal72Summary"
+        Me.PanelCal72Summary.Size = New System.Drawing.Size(442, 91)
+        Me.PanelCal72Summary.TabIndex = 28
+        '
+        'LabelCal72LatestAge
+        '
+        Me.LabelCal72LatestAge.Location = New System.Drawing.Point(333, 48)
+        Me.LabelCal72LatestAge.Name = "LabelCal72LatestAge"
+        Me.LabelCal72LatestAge.Size = New System.Drawing.Size(100, 13)
+        Me.LabelCal72LatestAge.TabIndex = 22
+        Me.LabelCal72LatestAge.Text = "#####"
+        '
+        'LabelCal72LatestEntries
+        '
+        Me.LabelCal72LatestEntries.Location = New System.Drawing.Point(333, 26)
+        Me.LabelCal72LatestEntries.Name = "LabelCal72LatestEntries"
+        Me.LabelCal72LatestEntries.Size = New System.Drawing.Size(100, 13)
+        Me.LabelCal72LatestEntries.TabIndex = 21
+        Me.LabelCal72LatestEntries.Text = "#####"
+        '
+        'LabelCal72LatestLast
+        '
+        Me.LabelCal72LatestLast.Location = New System.Drawing.Point(333, 5)
+        Me.LabelCal72LatestLast.Name = "LabelCal72LatestLast"
+        Me.LabelCal72LatestLast.Size = New System.Drawing.Size(100, 13)
+        Me.LabelCal72LatestLast.TabIndex = 20
+        Me.LabelCal72LatestLast.Text = "#####"
+        '
+        'LabelCal72LatestAvg
+        '
+        Me.LabelCal72LatestAvg.Location = New System.Drawing.Point(108, 70)
+        Me.LabelCal72LatestAvg.Name = "LabelCal72LatestAvg"
+        Me.LabelCal72LatestAvg.Size = New System.Drawing.Size(100, 13)
+        Me.LabelCal72LatestAvg.TabIndex = 19
+        Me.LabelCal72LatestAvg.Text = "#####"
+        '
+        'LabelCal72LatestDrift
+        '
+        Me.LabelCal72LatestDrift.Location = New System.Drawing.Point(108, 48)
+        Me.LabelCal72LatestDrift.Name = "LabelCal72LatestDrift"
+        Me.LabelCal72LatestDrift.Size = New System.Drawing.Size(100, 13)
+        Me.LabelCal72LatestDrift.TabIndex = 18
+        Me.LabelCal72LatestDrift.Text = "#####"
+        '
+        'LabelCal72LatestValue
+        '
+        Me.LabelCal72LatestValue.Location = New System.Drawing.Point(107, 27)
+        Me.LabelCal72LatestValue.Name = "LabelCal72LatestValue"
+        Me.LabelCal72LatestValue.Size = New System.Drawing.Size(100, 13)
+        Me.LabelCal72LatestValue.TabIndex = 17
+        Me.LabelCal72LatestValue.Text = "#####"
+        '
+        'LabelCal72LatestDay
+        '
+        Me.LabelCal72LatestDay.Location = New System.Drawing.Point(107, 5)
+        Me.LabelCal72LatestDay.Name = "LabelCal72LatestDay"
+        Me.LabelCal72LatestDay.Size = New System.Drawing.Size(100, 13)
+        Me.LabelCal72LatestDay.TabIndex = 16
+        Me.LabelCal72LatestDay.Text = "#####"
+        '
+        'LabelSummary7
+        '
+        Me.LabelSummary7.AutoSize = True
+        Me.LabelSummary7.Location = New System.Drawing.Point(211, 48)
+        Me.LabelSummary7.Name = "LabelSummary7"
+        Me.LabelSummary7.Size = New System.Drawing.Size(114, 13)
+        Me.LabelSummary7.TabIndex = 15
+        Me.LabelSummary7.Text = "Days Since Last Entry:"
+        '
+        'LabelSummary6
+        '
+        Me.LabelSummary6.AutoSize = True
+        Me.LabelSummary6.Location = New System.Drawing.Point(211, 27)
+        Me.LabelSummary6.Name = "LabelSummary6"
+        Me.LabelSummary6.Size = New System.Drawing.Size(69, 13)
+        Me.LabelSummary6.TabIndex = 14
+        Me.LabelSummary6.Text = "Total Entries:"
+        '
+        'LabelSummary5
+        '
+        Me.LabelSummary5.AutoSize = True
+        Me.LabelSummary5.Location = New System.Drawing.Point(211, 5)
+        Me.LabelSummary5.Name = "LabelSummary5"
+        Me.LabelSummary5.Size = New System.Drawing.Size(99, 13)
+        Me.LabelSummary5.TabIndex = 13
+        Me.LabelSummary5.Text = "Drift Ref Last Entry:"
+        '
+        'LabelSummary4
+        '
+        Me.LabelSummary4.AutoSize = True
+        Me.LabelSummary4.Location = New System.Drawing.Point(3, 70)
+        Me.LabelSummary4.Name = "LabelSummary4"
+        Me.LabelSummary4.Size = New System.Drawing.Size(96, 13)
+        Me.LabelSummary4.TabIndex = 12
+        Me.LabelSummary4.Text = "Avg Drift ppm/day:"
+        '
+        'LabelSummary3
+        '
+        Me.LabelSummary3.AutoSize = True
+        Me.LabelSummary3.Location = New System.Drawing.Point(3, 48)
+        Me.LabelSummary3.Name = "LabelSummary3"
+        Me.LabelSummary3.Size = New System.Drawing.Size(104, 13)
+        Me.LabelSummary3.TabIndex = 11
+        Me.LabelSummary3.Text = "Total Drift Ref Day1:"
+        '
+        'LabelSummary2
+        '
+        Me.LabelSummary2.AutoSize = True
+        Me.LabelSummary2.Location = New System.Drawing.Point(3, 27)
+        Me.LabelSummary2.Name = "LabelSummary2"
+        Me.LabelSummary2.Size = New System.Drawing.Size(80, 13)
+        Me.LabelSummary2.TabIndex = 10
+        Me.LabelSummary2.Text = "Latest CAL?72:"
+        '
+        'LabelSummary1
+        '
+        Me.LabelSummary1.AutoSize = True
+        Me.LabelSummary1.Location = New System.Drawing.Point(3, 5)
+        Me.LabelSummary1.Name = "LabelSummary1"
+        Me.LabelSummary1.Size = New System.Drawing.Size(102, 13)
+        Me.LabelSummary1.TabIndex = 9
+        Me.LabelSummary1.Text = "Latest Elapsed Day:"
         '
         'ButtonCal72Help
         '
@@ -10517,6 +10677,16 @@ Partial Class Formtest
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "PDVS2mini "
         '
+        'OnOffLed4
+        '
+        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
+        Me.OnOffLed4.Name = "OnOffLed4"
+        Me.OnOffLed4.OffText = Nothing
+        Me.OnOffLed4.OnText = Nothing
+        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed4.TabIndex = 797
+        '
         'Label145
         '
         Me.Label145.AutoSize = True
@@ -13342,6 +13512,16 @@ Partial Class Formtest
         Me.Label121.TabIndex = 554
         Me.Label121.Text = "Comms Delay (mS)"
         '
+        'OnOffLed3
+        '
+        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
+        Me.OnOffLed3.Name = "OnOffLed3"
+        Me.OnOffLed3.OffText = Nothing
+        Me.OnOffLed3.OnText = Nothing
+        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed3.TabIndex = 796
+        '
         'TabPage14
         '
         Me.TabPage14.Controls.Add(Me.ButtonUserStart)
@@ -13839,197 +14019,6 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
-        'PanelCal72Summary
-        '
-        Me.PanelCal72Summary.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.PanelCal72Summary.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.PanelCal72Summary.Controls.Add(Me.LabelCal72LatestAge)
-        Me.PanelCal72Summary.Controls.Add(Me.LabelCal72LatestEntries)
-        Me.PanelCal72Summary.Controls.Add(Me.LabelCal72LatestLast)
-        Me.PanelCal72Summary.Controls.Add(Me.LabelCal72LatestAvg)
-        Me.PanelCal72Summary.Controls.Add(Me.LabelCal72LatestDrift)
-        Me.PanelCal72Summary.Controls.Add(Me.LabelCal72LatestValue)
-        Me.PanelCal72Summary.Controls.Add(Me.LabelCal72LatestDay)
-        Me.PanelCal72Summary.Controls.Add(Me.LabelSummary7)
-        Me.PanelCal72Summary.Controls.Add(Me.LabelSummary6)
-        Me.PanelCal72Summary.Controls.Add(Me.LabelSummary5)
-        Me.PanelCal72Summary.Controls.Add(Me.LabelSummary4)
-        Me.PanelCal72Summary.Controls.Add(Me.LabelSummary3)
-        Me.PanelCal72Summary.Controls.Add(Me.LabelSummary2)
-        Me.PanelCal72Summary.Controls.Add(Me.LabelSummary1)
-        Me.PanelCal72Summary.Location = New System.Drawing.Point(599, 38)
-        Me.PanelCal72Summary.Name = "PanelCal72Summary"
-        Me.PanelCal72Summary.Size = New System.Drawing.Size(442, 91)
-        Me.PanelCal72Summary.TabIndex = 28
-        '
-        'Label377
-        '
-        Me.Label377.AutoSize = True
-        Me.Label377.Location = New System.Drawing.Point(469, 64)
-        Me.Label377.Name = "Label377"
-        Me.Label377.Size = New System.Drawing.Size(51, 13)
-        Me.Label377.TabIndex = 29
-        Me.Label377.Text = "CAL? 72:"
-        '
-        'LabelSummary1
-        '
-        Me.LabelSummary1.AutoSize = True
-        Me.LabelSummary1.Location = New System.Drawing.Point(3, 5)
-        Me.LabelSummary1.Name = "LabelSummary1"
-        Me.LabelSummary1.Size = New System.Drawing.Size(102, 13)
-        Me.LabelSummary1.TabIndex = 9
-        Me.LabelSummary1.Text = "Latest Elapsed Day:"
-        '
-        'LabelSummary2
-        '
-        Me.LabelSummary2.AutoSize = True
-        Me.LabelSummary2.Location = New System.Drawing.Point(3, 27)
-        Me.LabelSummary2.Name = "LabelSummary2"
-        Me.LabelSummary2.Size = New System.Drawing.Size(80, 13)
-        Me.LabelSummary2.TabIndex = 10
-        Me.LabelSummary2.Text = "Latest CAL?72:"
-        '
-        'LabelSummary3
-        '
-        Me.LabelSummary3.AutoSize = True
-        Me.LabelSummary3.Location = New System.Drawing.Point(3, 48)
-        Me.LabelSummary3.Name = "LabelSummary3"
-        Me.LabelSummary3.Size = New System.Drawing.Size(104, 13)
-        Me.LabelSummary3.TabIndex = 11
-        Me.LabelSummary3.Text = "Total Drift Ref Day1:"
-        '
-        'LabelSummary4
-        '
-        Me.LabelSummary4.AutoSize = True
-        Me.LabelSummary4.Location = New System.Drawing.Point(3, 70)
-        Me.LabelSummary4.Name = "LabelSummary4"
-        Me.LabelSummary4.Size = New System.Drawing.Size(96, 13)
-        Me.LabelSummary4.TabIndex = 12
-        Me.LabelSummary4.Text = "Avg Drift ppm/day:"
-        '
-        'LabelSummary5
-        '
-        Me.LabelSummary5.AutoSize = True
-        Me.LabelSummary5.Location = New System.Drawing.Point(211, 5)
-        Me.LabelSummary5.Name = "LabelSummary5"
-        Me.LabelSummary5.Size = New System.Drawing.Size(99, 13)
-        Me.LabelSummary5.TabIndex = 13
-        Me.LabelSummary5.Text = "Drift Ref Last Entry:"
-        '
-        'LabelSummary6
-        '
-        Me.LabelSummary6.AutoSize = True
-        Me.LabelSummary6.Location = New System.Drawing.Point(211, 27)
-        Me.LabelSummary6.Name = "LabelSummary6"
-        Me.LabelSummary6.Size = New System.Drawing.Size(69, 13)
-        Me.LabelSummary6.TabIndex = 14
-        Me.LabelSummary6.Text = "Total Entries:"
-        '
-        'LabelSummary7
-        '
-        Me.LabelSummary7.AutoSize = True
-        Me.LabelSummary7.Location = New System.Drawing.Point(211, 48)
-        Me.LabelSummary7.Name = "LabelSummary7"
-        Me.LabelSummary7.Size = New System.Drawing.Size(114, 13)
-        Me.LabelSummary7.TabIndex = 15
-        Me.LabelSummary7.Text = "Days Since Last Entry:"
-        '
-        'LabelCal72LatestDay
-        '
-        Me.LabelCal72LatestDay.Location = New System.Drawing.Point(107, 5)
-        Me.LabelCal72LatestDay.Name = "LabelCal72LatestDay"
-        Me.LabelCal72LatestDay.Size = New System.Drawing.Size(100, 13)
-        Me.LabelCal72LatestDay.TabIndex = 16
-        Me.LabelCal72LatestDay.Text = "#####"
-        '
-        'LabelCal72LatestValue
-        '
-        Me.LabelCal72LatestValue.Location = New System.Drawing.Point(107, 27)
-        Me.LabelCal72LatestValue.Name = "LabelCal72LatestValue"
-        Me.LabelCal72LatestValue.Size = New System.Drawing.Size(100, 13)
-        Me.LabelCal72LatestValue.TabIndex = 17
-        Me.LabelCal72LatestValue.Text = "#####"
-        '
-        'LabelCal72LatestDrift
-        '
-        Me.LabelCal72LatestDrift.Location = New System.Drawing.Point(108, 48)
-        Me.LabelCal72LatestDrift.Name = "LabelCal72LatestDrift"
-        Me.LabelCal72LatestDrift.Size = New System.Drawing.Size(100, 13)
-        Me.LabelCal72LatestDrift.TabIndex = 18
-        Me.LabelCal72LatestDrift.Text = "#####"
-        '
-        'LabelCal72LatestAvg
-        '
-        Me.LabelCal72LatestAvg.Location = New System.Drawing.Point(108, 70)
-        Me.LabelCal72LatestAvg.Name = "LabelCal72LatestAvg"
-        Me.LabelCal72LatestAvg.Size = New System.Drawing.Size(100, 13)
-        Me.LabelCal72LatestAvg.TabIndex = 19
-        Me.LabelCal72LatestAvg.Text = "#####"
-        '
-        'LabelCal72LatestLast
-        '
-        Me.LabelCal72LatestLast.Location = New System.Drawing.Point(333, 5)
-        Me.LabelCal72LatestLast.Name = "LabelCal72LatestLast"
-        Me.LabelCal72LatestLast.Size = New System.Drawing.Size(100, 13)
-        Me.LabelCal72LatestLast.TabIndex = 20
-        Me.LabelCal72LatestLast.Text = "#####"
-        '
-        'LabelCal72LatestEntries
-        '
-        Me.LabelCal72LatestEntries.Location = New System.Drawing.Point(333, 26)
-        Me.LabelCal72LatestEntries.Name = "LabelCal72LatestEntries"
-        Me.LabelCal72LatestEntries.Size = New System.Drawing.Size(100, 13)
-        Me.LabelCal72LatestEntries.TabIndex = 21
-        Me.LabelCal72LatestEntries.Text = "#####"
-        '
-        'LabelCal72LatestAge
-        '
-        Me.LabelCal72LatestAge.Location = New System.Drawing.Point(333, 48)
-        Me.LabelCal72LatestAge.Name = "LabelCal72LatestAge"
-        Me.LabelCal72LatestAge.Size = New System.Drawing.Size(100, 13)
-        Me.LabelCal72LatestAge.TabIndex = 22
-        Me.LabelCal72LatestAge.Text = "#####"
-        '
-        'OnOffLed2
-        '
-        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
-        Me.OnOffLed2.Name = "OnOffLed2"
-        Me.OnOffLed2.OffText = Nothing
-        Me.OnOffLed2.OnText = Nothing
-        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed2.TabIndex = 536
-        '
-        'OnOffLed1
-        '
-        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
-        Me.OnOffLed1.Name = "OnOffLed1"
-        Me.OnOffLed1.OffText = Nothing
-        Me.OnOffLed1.OnText = Nothing
-        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed1.TabIndex = 535
-        '
-        'OnOffLed4
-        '
-        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
-        Me.OnOffLed4.Name = "OnOffLed4"
-        Me.OnOffLed4.OffText = Nothing
-        Me.OnOffLed4.OnText = Nothing
-        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed4.TabIndex = 797
-        '
-        'OnOffLed3
-        '
-        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
-        Me.OnOffLed3.Name = "OnOffLed3"
-        Me.OnOffLed3.OffText = Nothing
-        Me.OnOffLed3.OnText = Nothing
-        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed3.TabIndex = 796
-        '
         'Formtest
         '
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None
@@ -14074,6 +14063,8 @@ Partial Class Formtest
         Me.TabPage16.ResumeLayout(False)
         Me.Panel1.ResumeLayout(False)
         Me.Panel1.PerformLayout
+        Me.PanelCal72Summary.ResumeLayout(False)
+        Me.PanelCal72Summary.PerformLayout
         CType(Me.DataGridViewCal72, System.ComponentModel.ISupportInitialize).EndInit
         Me.TabPage7.ResumeLayout(False)
         Me.TabPage7.PerformLayout
@@ -14120,8 +14111,6 @@ Partial Class Formtest
         Me.TabPage6.ResumeLayout(False)
         Me.TabPage6.PerformLayout
         CType(Me.PictureBox6, System.ComponentModel.ISupportInitialize).EndInit
-        Me.PanelCal72Summary.ResumeLayout(False)
-        Me.PanelCal72Summary.PerformLayout
         Me.ResumeLayout(False)
 
     End Sub
@@ -15305,7 +15294,6 @@ Partial Class Formtest
     Friend WithEvents Label384 As Label
     Friend WithEvents Label383 As Label
     Friend WithEvents ButtonCal72Help As Button
-    Friend WithEvents Label377 As Label
     Friend WithEvents PanelCal72Summary As Panel
     Friend WithEvents LabelSummary7 As Label
     Friend WithEvents LabelSummary6 As Label
