@@ -102,6 +102,7 @@ Partial Class Formtest
 
         LoadCal72Csv()
         RecalculateCal72Table()
+        UpdateCal72SummaryPanel()
         SetCal72ColumnReadOnly()
 
         LabelCal72Status.Text = "READY"
@@ -114,6 +115,31 @@ Partial Class Formtest
         'DataGridViewCal72.ClearSelection()
 
         Cal72Initialised = True
+
+    End Sub
+
+
+    Private Sub DataGridViewCal72_CellFormatting(sender As Object, e As DataGridViewCellFormattingEventArgs) Handles DataGridViewCal72.CellFormatting
+
+        If e.RowIndex <> 0 Then Exit Sub
+
+        Dim colName As String =
+        DataGridViewCal72.Columns(e.ColumnIndex).Name
+
+        Select Case colName
+
+            Case "CAL? 1,1 Dev",
+             "CAL? 2,1 Dev",
+             "Days From Day 1",
+             "Days From Last",
+             "Drift ppm Day 1",
+             "Avg ppm/day",
+             "Drift ppm Last"
+
+                e.Value = "-"
+                e.FormattingApplied = True
+
+        End Select
 
     End Sub
 
@@ -150,6 +176,7 @@ Handles RadioButton34581.CheckedChanged,
             If Cal72CsvFile <> "" Then
 
                 RecalculateCal72Table()
+                UpdateCal72SummaryPanel()
                 SaveCal72Csv()
 
             End If
@@ -157,6 +184,7 @@ Handles RadioButton34581.CheckedChanged,
             SelectCal72CsvFile()
             LoadCal72Csv()
             RecalculateCal72Table()
+            UpdateCal72SummaryPanel()
             SetCal72ColumnReadOnly()
             ScrollCal72GridToBottom()
 
@@ -354,6 +382,7 @@ Handles RadioButton34581.CheckedChanged,
         Cal72Table.Rows.Add(r)
 
         RecalculateCal72Table()
+        UpdateCal72SummaryPanel()
         SaveCal72Csv()
 
         ScrollCal72GridToBottom()
@@ -393,6 +422,7 @@ Handles RadioButton34581.CheckedChanged,
         DataGridViewCal72.Rows.Remove(DataGridViewCal72.SelectedRows(0))
 
         RecalculateCal72Table()
+        UpdateCal72SummaryPanel()
         SaveCal72Csv()
 
         LabelCal72Status.Text = "ENTRY DELETED"
@@ -411,6 +441,7 @@ Handles RadioButton34581.CheckedChanged,
     Private Sub DataGridViewCal72_CellEndEdit(sender As Object, e As DataGridViewCellEventArgs) Handles DataGridViewCal72.CellEndEdit
 
         RecalculateCal72Table()
+        UpdateCal72SummaryPanel()
         SaveCal72Csv()
 
         LabelCal72Status.Text = "EDITED AND RECALCULATED"
@@ -742,5 +773,61 @@ Handles RadioButton34581.CheckedChanged,
         Return result
 
     End Function
+
+
+    Private Sub ButtonCal72Help_Click(sender As Object, e As EventArgs) Handles ButtonCal72Help.Click
+
+        MessageBox.Show(
+        "INSTRUCTIONS:" & vbCrLf & vbCrLf &
+        "1. Connect Device 1 to your 3458A and leave in STOP position." & vbCrLf &
+        "2. Allow the 3458A to thermally stabilise before recording data." & vbCrLf &
+        "3. Perform measurements at approximately the same time each day." & vbCrLf &
+        "4. Perform ACAL DCV before reading 3458A where possible." & vbCrLf &
+        "5. The first entry becomes the permanent ppm reference baseline." & vbCrLf &
+        "6. CAL? 72 drift can be temperature related — monitor internal temperature carefully." & vbCrLf &
+        "7. Lower ppm/day values indicate better U180 stability." & vbCrLf &
+        "8. Values can be manually added or read from 3458A via GPIB.",
+        "3458A U180 Drift Monitor Help",
+        MessageBoxButtons.OK,
+        MessageBoxIcon.Information)
+
+    End Sub
+
+
+    Private Sub UpdateCal72SummaryPanel()
+
+        If Cal72Table.Rows.Count = 0 Then Exit Sub
+
+        Dim r As DataRow =
+            Cal72Table.Rows(Cal72Table.Rows.Count - 1)
+
+        LabelCal72LatestDay.Text =
+            r("Day").ToString()
+
+        LabelCal72LatestValue.Text =
+            r("CAL? 72").ToString()
+
+        LabelCal72LatestDrift.Text =
+            r("Drift ppm Day 1").ToString()
+
+        LabelCal72LatestAvg.Text =
+            r("Avg ppm/day").ToString()
+
+        LabelCal72LatestLast.Text =
+            r("Drift ppm Last").ToString()
+
+        LabelCal72LatestEntries.Text =
+            Cal72Table.Rows.Count.ToString()
+
+        Dim daysSinceLast As Double = 0
+        Dim lastDate As DateTime
+        If GetRowDateTime(Cal72Table.Rows(Cal72Table.Rows.Count - 1), lastDate) Then
+            daysSinceLast =
+        Math.Round((DateTime.Now - lastDate).TotalDays, 1)
+        End If
+        LabelCal72LatestAge.Text = Math.Round(daysSinceLast, 0).ToString()
+
+    End Sub
+
 
 End Class

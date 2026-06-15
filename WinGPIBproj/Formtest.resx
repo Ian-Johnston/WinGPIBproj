@@ -252,17 +252,6 @@ Internal cmd's:
 #QA = Set to Query Async mode
 #SA = Set to Send Async mode</value>
   </data>
-  <data name="Label377.Text" xml:space="preserve">
-    <value>INSTRUCTIONS:
-1. Connect Device 1 to your 3458A (leave in STOP position).
-2. Allow the 3458A to thermally stabilise before recording data.
-3. Perform measurements at approximately the same time each day.
-4. Perform ACAL DCV before reading 3458A.
-5. The first entry becomes the permanent ppm reference baseline.
-6. CAL? 72 drift can be temperature related — monitor internal temperature carefully.
-7. Lower ppm/day values indicate better U180 stability.
-8. Values can be manually added or read from 3458A via GPIB.</value>
-  </data>
   <data name="PictureBox3.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         /9j/4AAQSkZJRgABAQEASABIAAD/4QDURXhpZgAATU0AKgAAAAgACAESAAMAAAABAAEAAAEaAAUAAAAB
