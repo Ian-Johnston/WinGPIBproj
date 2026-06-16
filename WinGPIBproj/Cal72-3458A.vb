@@ -580,6 +580,8 @@ Handles RadioButton34581.CheckedChanged,
 
             IO.File.WriteAllText(Cal72CsvFile, "")
 
+            IO.File.AppendAllText(Cal72CsvFile, "SerialNumber," & Csv(TextBoxCal72SerialNumber.Text.Trim()) & Environment.NewLine & Environment.NewLine)
+
             IO.File.AppendAllText(Cal72CsvFile, "Day,Date,Time,Temp,CAL? 72,CAL? 1,1 40k,CAL? 2,1 Vref,CAL? 1,1 Dev,CAL? 2,1 Dev,Days From Day 1,Days From Last,Drift ppm Day 1,Avg ppm/day,Drift ppm Last,Notes" & Environment.NewLine)
 
             For Each r As DataRow In Cal72Table.Rows
@@ -619,14 +621,33 @@ Handles RadioButton34581.CheckedChanged,
 
             If Not IO.File.Exists(Cal72CsvFile) Then
                 IO.File.Create(Cal72CsvFile).Dispose()
+                TextBoxCal72SerialNumber.Text = ""
                 Exit Sub
             End If
 
             Dim lines() As String = IO.File.ReadAllLines(Cal72CsvFile)
 
-            For i As Integer = 1 To lines.Length - 1
+            TextBoxCal72SerialNumber.Text = ""
+
+            Dim startLine As Integer = 1
+
+            If lines.Length > 0 AndAlso lines(0).StartsWith("SerialNumber,", StringComparison.OrdinalIgnoreCase) Then
+
+                Dim snParts As List(Of String) = ParseCsvLine(lines(0))
+
+                If snParts.Count >= 2 Then
+                    TextBoxCal72SerialNumber.Text = snParts(1)
+                End If
+
+                startLine = 3
+
+            End If
+
+            For i As Integer = startLine To lines.Length - 1
 
                 If String.IsNullOrWhiteSpace(lines(i)) Then Continue For
+
+                If lines(i).StartsWith("Day,", StringComparison.OrdinalIgnoreCase) Then Continue For
 
                 Dim p As List(Of String) = ParseCsvLine(lines(i))
 
@@ -702,9 +723,9 @@ Handles RadioButton34581.CheckedChanged,
         Catch ex As Exception
 
             MessageBox.Show("Unable to load CAL72 file: " & ex.Message,
-                    "CAL72 File Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error)
+                "CAL72 File Error",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error)
 
         End Try
 
