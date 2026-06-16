@@ -6389,6 +6389,8 @@ Partial Class Formtest
         Me.TextBoxCal72SerialNumber.Name = "TextBoxCal72SerialNumber"
         Me.TextBoxCal72SerialNumber.Size = New System.Drawing.Size(110, 20)
         Me.TextBoxCal72SerialNumber.TabIndex = 29
+        Me.ToolTip1.SetToolTip(Me.TextBoxCal72SerialNumber, "Enter the 3458A serial number associated" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "with this dataset." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Example: 2823A24074" &
+        "")
         '
         'PanelCal72Summary
         '
@@ -6547,6 +6549,8 @@ Partial Class Formtest
         Me.TextBoxCal21Vref.Name = "TextBoxCal21Vref"
         Me.TextBoxCal21Vref.Size = New System.Drawing.Size(110, 20)
         Me.TextBoxCal21Vref.TabIndex = 21
+        Me.ToolTip1.SetToolTip(Me.TextBoxCal21Vref, "Enter CAL? 2,1 (Vref) value in decimal or E-notation." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Examples: 7.1746472 or 7.1" &
+        "746472E+00")
         '
         'TextBoxCal1140k
         '
@@ -6554,6 +6558,8 @@ Partial Class Formtest
         Me.TextBoxCal1140k.Name = "TextBoxCal1140k"
         Me.TextBoxCal1140k.Size = New System.Drawing.Size(110, 20)
         Me.TextBoxCal1140k.TabIndex = 20
+        Me.ToolTip1.SetToolTip(Me.TextBoxCal1140k, "Enter CAL? 1,1 (40k) value in decimal or E-notation." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Examples: 39999.9987 or 3.9" &
+        "9999987E+04")
         '
         'ButtonCal72Save
         '
@@ -6691,6 +6697,8 @@ Partial Class Formtest
         Me.TextBoxCal72Notes.Name = "TextBoxCal72Notes"
         Me.TextBoxCal72Notes.Size = New System.Drawing.Size(332, 20)
         Me.TextBoxCal72Notes.TabIndex = 6
+        Me.ToolTip1.SetToolTip(Me.TextBoxCal72Notes, "Enter any observations relating to this measurement." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Examples: ACAL performed, p" &
+        "ower outage," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "room temperature change," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "recalibration, warm-up period.")
         '
         'TextBoxCal72Temp
         '
@@ -6698,6 +6706,7 @@ Partial Class Formtest
         Me.TextBoxCal72Temp.Name = "TextBoxCal72Temp"
         Me.TextBoxCal72Temp.Size = New System.Drawing.Size(110, 20)
         Me.TextBoxCal72Temp.TabIndex = 5
+        Me.ToolTip1.SetToolTip(Me.TextBoxCal72Temp, "Enter the 3458A internal temperature" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "reported by TEMP?." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Example: 37.4 °C")
         '
         'TextBoxCal72Value
         '
@@ -6705,6 +6714,8 @@ Partial Class Formtest
         Me.TextBoxCal72Value.Name = "TextBoxCal72Value"
         Me.TextBoxCal72Value.Size = New System.Drawing.Size(110, 20)
         Me.TextBoxCal72Value.TabIndex = 4
+        Me.ToolTip1.SetToolTip(Me.TextBoxCal72Value, "Enter value in decimal or scientific (E) notation." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Examples: 0.984801400 or 9.84" &
+        "801400E-01")
         '
         'ButtonCal72Delete
         '
