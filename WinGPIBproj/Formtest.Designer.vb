@@ -212,6 +212,14 @@ Partial Class Formtest
         Me.ButtonCOPYdev2 = New System.Windows.Forms.Button()
         Me.ButtonMOVEdev2 = New System.Windows.Forms.Button()
         Me.StartCSVLog = New System.Windows.Forms.Button()
+        Me.LabelCal72WorstDrift = New System.Windows.Forms.Label()
+        Me.LabelCal72AnnualDrift = New System.Windows.Forms.Label()
+        Me.LabelCal72LatestEntries = New System.Windows.Forms.Label()
+        Me.LabelCal72LatestLast = New System.Windows.Forms.Label()
+        Me.LabelCal72LatestAvg = New System.Windows.Forms.Label()
+        Me.LabelCal72LatestDrift = New System.Windows.Forms.Label()
+        Me.LabelCal72LatestValue = New System.Windows.Forms.Label()
+        Me.LabelCal72LatestDay = New System.Windows.Forms.Label()
         Me.ButtonDev1INFO = New System.Windows.Forms.Button()
         Me.ButtonDev2INFO = New System.Windows.Forms.Button()
         Me.CheckBoxPrologixSerialDTR = New System.Windows.Forms.CheckBox()
@@ -367,6 +375,8 @@ Partial Class Formtest
         Me.Label215 = New System.Windows.Forms.Label()
         Me.Label214 = New System.Windows.Forms.Label()
         Me.Label213 = New System.Windows.Forms.Label()
+        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.Label212 = New System.Windows.Forms.Label()
         Me.Label211 = New System.Windows.Forms.Label()
         Me.Label210 = New System.Windows.Forms.Label()
@@ -494,15 +504,7 @@ Partial Class Formtest
         Me.Label377 = New System.Windows.Forms.Label()
         Me.TextBoxCal72SerialNumber = New System.Windows.Forms.TextBox()
         Me.PanelCal72Summary = New System.Windows.Forms.Panel()
-        Me.LabelCal72WorstDrift = New System.Windows.Forms.Label()
         Me.Label385 = New System.Windows.Forms.Label()
-        Me.LabelCal72AnnualDrift = New System.Windows.Forms.Label()
-        Me.LabelCal72LatestEntries = New System.Windows.Forms.Label()
-        Me.LabelCal72LatestLast = New System.Windows.Forms.Label()
-        Me.LabelCal72LatestAvg = New System.Windows.Forms.Label()
-        Me.LabelCal72LatestDrift = New System.Windows.Forms.Label()
-        Me.LabelCal72LatestValue = New System.Windows.Forms.Label()
-        Me.LabelCal72LatestDay = New System.Windows.Forms.Label()
         Me.LabelSummary7 = New System.Windows.Forms.Label()
         Me.LabelSummary6 = New System.Windows.Forms.Label()
         Me.LabelSummary5 = New System.Windows.Forms.Label()
@@ -910,6 +912,7 @@ Partial Class Formtest
         Me.Label3133478A = New System.Windows.Forms.Label()
         Me.ShowFilesCalRam3478A = New System.Windows.Forms.Button()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
+        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.Label145 = New System.Windows.Forms.Label()
         Me.Label79 = New System.Windows.Forms.Label()
         Me.Label81 = New System.Windows.Forms.Label()
@@ -1165,6 +1168,7 @@ Partial Class Formtest
         Me.CalAccuracyFinal = New System.Windows.Forms.TextBox()
         Me.Label117 = New System.Windows.Forms.Label()
         Me.Label121 = New System.Windows.Forms.Label()
+        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage14 = New System.Windows.Forms.TabPage()
         Me.ButtonUserStart = New System.Windows.Forms.Button()
         Me.ButtonUserTabGuide = New System.Windows.Forms.Button()
@@ -1219,10 +1223,6 @@ Partial Class Formtest
         Me.Timer15 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer16 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
-        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.GroupBox9.SuspendLayout
@@ -3245,6 +3245,86 @@ Partial Class Formtest
         Me.ToolTip1.SetToolTip(Me.StartCSVLog, "Start/Stop the Log & CSV")
         Me.StartCSVLog.UseVisualStyleBackColor = True
         '
+        'LabelCal72WorstDrift
+        '
+        Me.LabelCal72WorstDrift.Location = New System.Drawing.Point(333, 48)
+        Me.LabelCal72WorstDrift.Name = "LabelCal72WorstDrift"
+        Me.LabelCal72WorstDrift.Size = New System.Drawing.Size(100, 13)
+        Me.LabelCal72WorstDrift.TabIndex = 24
+        Me.LabelCal72WorstDrift.Text = "#####"
+        Me.ToolTip1.SetToolTip(Me.LabelCal72WorstDrift, "Largest absolute drift relative to Day 1 recorded anywhere in this dataset." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Indi" &
+        "cates the greatest deviation observed since monitoring began.")
+        '
+        'LabelCal72AnnualDrift
+        '
+        Me.LabelCal72AnnualDrift.Location = New System.Drawing.Point(333, 70)
+        Me.LabelCal72AnnualDrift.Name = "LabelCal72AnnualDrift"
+        Me.LabelCal72AnnualDrift.Size = New System.Drawing.Size(100, 13)
+        Me.LabelCal72AnnualDrift.TabIndex = 22
+        Me.LabelCal72AnnualDrift.Text = "#####"
+        Me.ToolTip1.SetToolTip(Me.LabelCal72AnnualDrift, "Projected annual drift based on the current average drift rate." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Calculated as Av" &
+        "erage Drift ppm/day multiplied by 365.25.")
+        '
+        'LabelCal72LatestEntries
+        '
+        Me.LabelCal72LatestEntries.Location = New System.Drawing.Point(333, 27)
+        Me.LabelCal72LatestEntries.Name = "LabelCal72LatestEntries"
+        Me.LabelCal72LatestEntries.Size = New System.Drawing.Size(100, 13)
+        Me.LabelCal72LatestEntries.TabIndex = 21
+        Me.LabelCal72LatestEntries.Text = "#####"
+        Me.ToolTip1.SetToolTip(Me.LabelCal72LatestEntries, "Total number of measurements currently stored in the selected" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "drift-monitoring d" &
+        "ataset.")
+        '
+        'LabelCal72LatestLast
+        '
+        Me.LabelCal72LatestLast.Location = New System.Drawing.Point(333, 5)
+        Me.LabelCal72LatestLast.Name = "LabelCal72LatestLast"
+        Me.LabelCal72LatestLast.Size = New System.Drawing.Size(100, 13)
+        Me.LabelCal72LatestLast.TabIndex = 20
+        Me.LabelCal72LatestLast.Text = "#####"
+        Me.ToolTip1.SetToolTip(Me.LabelCal72LatestLast, "Drift rate in ppm/day calculated between the two most recent entries only." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Usefu" &
+        "l for spotting recent changes, instability or temperature effects.")
+        '
+        'LabelCal72LatestAvg
+        '
+        Me.LabelCal72LatestAvg.Location = New System.Drawing.Point(108, 70)
+        Me.LabelCal72LatestAvg.Name = "LabelCal72LatestAvg"
+        Me.LabelCal72LatestAvg.Size = New System.Drawing.Size(100, 13)
+        Me.LabelCal72LatestAvg.TabIndex = 19
+        Me.LabelCal72LatestAvg.Text = "#####"
+        Me.ToolTip1.SetToolTip(Me.LabelCal72LatestAvg, "Average absolute drift rate since Day 1," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "calculated from total drift divided by " &
+        "elapsed days." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Lower values indicate better long-term stability.")
+        '
+        'LabelCal72LatestDrift
+        '
+        Me.LabelCal72LatestDrift.Location = New System.Drawing.Point(108, 48)
+        Me.LabelCal72LatestDrift.Name = "LabelCal72LatestDrift"
+        Me.LabelCal72LatestDrift.Size = New System.Drawing.Size(100, 13)
+        Me.LabelCal72LatestDrift.TabIndex = 18
+        Me.LabelCal72LatestDrift.Text = "#####"
+        Me.ToolTip1.SetToolTip(Me.LabelCal72LatestDrift, "Total accumulated drift in ppm relative to the first recorded CAL? 72 value." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Pos" &
+        "itive values indicate an increase, negative values indicate a decrease.")
+        '
+        'LabelCal72LatestValue
+        '
+        Me.LabelCal72LatestValue.Location = New System.Drawing.Point(107, 27)
+        Me.LabelCal72LatestValue.Name = "LabelCal72LatestValue"
+        Me.LabelCal72LatestValue.Size = New System.Drawing.Size(100, 13)
+        Me.LabelCal72LatestValue.TabIndex = 17
+        Me.LabelCal72LatestValue.Text = "#####"
+        Me.ToolTip1.SetToolTip(Me.LabelCal72LatestValue, "Most recent CAL? 72 value recorded from the 3458A." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "This calibration constant is " &
+        "used to monitor long-term" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "U180 current-steering hybrid stability.")
+        '
+        'LabelCal72LatestDay
+        '
+        Me.LabelCal72LatestDay.Location = New System.Drawing.Point(107, 5)
+        Me.LabelCal72LatestDay.Name = "LabelCal72LatestDay"
+        Me.LabelCal72LatestDay.Size = New System.Drawing.Size(100, 13)
+        Me.LabelCal72LatestDay.TabIndex = 16
+        Me.LabelCal72LatestDay.Text = "#####"
+        Me.ToolTip1.SetToolTip(Me.LabelCal72LatestDay, "No. of elapsed days relative to the first recorded entry." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Day 1 is the permanent" &
+        " reference baseline for all drift" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "calculations.")
+        '
         'ButtonDev1INFO
         '
         Me.ButtonDev1INFO.Location = New System.Drawing.Point(320, 94)
@@ -4963,6 +5043,26 @@ Partial Class Formtest
         Me.Label213.TabIndex = 537
         Me.Label213.Text = "Tx"
         '
+        'OnOffLed2
+        '
+        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
+        Me.OnOffLed2.Name = "OnOffLed2"
+        Me.OnOffLed2.OffText = Nothing
+        Me.OnOffLed2.OnText = Nothing
+        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed2.TabIndex = 536
+        '
+        'OnOffLed1
+        '
+        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
+        Me.OnOffLed1.Name = "OnOffLed1"
+        Me.OnOffLed1.OffText = Nothing
+        Me.OnOffLed1.OnText = Nothing
+        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed1.TabIndex = 535
+        '
         'Label212
         '
         Me.Label212.AutoSize = True
@@ -6315,16 +6415,6 @@ Partial Class Formtest
         Me.PanelCal72Summary.Size = New System.Drawing.Size(442, 91)
         Me.PanelCal72Summary.TabIndex = 28
         '
-        'LabelCal72WorstDrift
-        '
-        Me.LabelCal72WorstDrift.Location = New System.Drawing.Point(333, 48)
-        Me.LabelCal72WorstDrift.Name = "LabelCal72WorstDrift"
-        Me.LabelCal72WorstDrift.Size = New System.Drawing.Size(100, 13)
-        Me.LabelCal72WorstDrift.TabIndex = 24
-        Me.LabelCal72WorstDrift.Text = "#####"
-        Me.ToolTip1.SetToolTip(Me.LabelCal72WorstDrift, "Largest absolute drift relative to Day 1 recorded anywhere in this dataset. Indic" &
-        "ates the greatest deviation observed since monitoring began.")
-        '
         'Label385
         '
         Me.Label385.AutoSize = True
@@ -6333,76 +6423,6 @@ Partial Class Formtest
         Me.Label385.Size = New System.Drawing.Size(108, 13)
         Me.Label385.TabIndex = 23
         Me.Label385.Text = "Worst Drift Ref Day1:"
-        '
-        'LabelCal72AnnualDrift
-        '
-        Me.LabelCal72AnnualDrift.Location = New System.Drawing.Point(333, 70)
-        Me.LabelCal72AnnualDrift.Name = "LabelCal72AnnualDrift"
-        Me.LabelCal72AnnualDrift.Size = New System.Drawing.Size(100, 13)
-        Me.LabelCal72AnnualDrift.TabIndex = 22
-        Me.LabelCal72AnnualDrift.Text = "#####"
-        Me.ToolTip1.SetToolTip(Me.LabelCal72AnnualDrift, "Projected annual drift based on the current average drift rate. Calculated as Ave" &
-        "rage Drift ppm/day multiplied by 365.25.")
-        '
-        'LabelCal72LatestEntries
-        '
-        Me.LabelCal72LatestEntries.Location = New System.Drawing.Point(333, 27)
-        Me.LabelCal72LatestEntries.Name = "LabelCal72LatestEntries"
-        Me.LabelCal72LatestEntries.Size = New System.Drawing.Size(100, 13)
-        Me.LabelCal72LatestEntries.TabIndex = 21
-        Me.LabelCal72LatestEntries.Text = "#####"
-        Me.ToolTip1.SetToolTip(Me.LabelCal72LatestEntries, "Total number of measurements currently stored in the selected drift-monitoring da" &
-        "taset.")
-        '
-        'LabelCal72LatestLast
-        '
-        Me.LabelCal72LatestLast.Location = New System.Drawing.Point(333, 5)
-        Me.LabelCal72LatestLast.Name = "LabelCal72LatestLast"
-        Me.LabelCal72LatestLast.Size = New System.Drawing.Size(100, 13)
-        Me.LabelCal72LatestLast.TabIndex = 20
-        Me.LabelCal72LatestLast.Text = "#####"
-        Me.ToolTip1.SetToolTip(Me.LabelCal72LatestLast, "Drift rate in ppm/day calculated between the two most recent entries only. Useful" &
-        " for spotting recent changes, instability or temperature effects.")
-        '
-        'LabelCal72LatestAvg
-        '
-        Me.LabelCal72LatestAvg.Location = New System.Drawing.Point(108, 70)
-        Me.LabelCal72LatestAvg.Name = "LabelCal72LatestAvg"
-        Me.LabelCal72LatestAvg.Size = New System.Drawing.Size(100, 13)
-        Me.LabelCal72LatestAvg.TabIndex = 19
-        Me.LabelCal72LatestAvg.Text = "#####"
-        Me.ToolTip1.SetToolTip(Me.LabelCal72LatestAvg, "Average absolute drift rate since Day 1, calculated from total drift divided by e" &
-        "lapsed days. Lower values indicate better long-term stability.")
-        '
-        'LabelCal72LatestDrift
-        '
-        Me.LabelCal72LatestDrift.Location = New System.Drawing.Point(108, 48)
-        Me.LabelCal72LatestDrift.Name = "LabelCal72LatestDrift"
-        Me.LabelCal72LatestDrift.Size = New System.Drawing.Size(100, 13)
-        Me.LabelCal72LatestDrift.TabIndex = 18
-        Me.LabelCal72LatestDrift.Text = "#####"
-        Me.ToolTip1.SetToolTip(Me.LabelCal72LatestDrift, "Total accumulated drift in ppm relative to the first recorded CAL? 72 value. Posi" &
-        "tive values indicate an increase, negative values indicate a decrease.")
-        '
-        'LabelCal72LatestValue
-        '
-        Me.LabelCal72LatestValue.Location = New System.Drawing.Point(107, 27)
-        Me.LabelCal72LatestValue.Name = "LabelCal72LatestValue"
-        Me.LabelCal72LatestValue.Size = New System.Drawing.Size(100, 13)
-        Me.LabelCal72LatestValue.TabIndex = 17
-        Me.LabelCal72LatestValue.Text = "#####"
-        Me.ToolTip1.SetToolTip(Me.LabelCal72LatestValue, "Most recent CAL? 72 value recorded from the 3458A. This calibration constant is u" &
-        "sed to monitor long-term U180 current-steering hybrid stability.")
-        '
-        'LabelCal72LatestDay
-        '
-        Me.LabelCal72LatestDay.Location = New System.Drawing.Point(107, 5)
-        Me.LabelCal72LatestDay.Name = "LabelCal72LatestDay"
-        Me.LabelCal72LatestDay.Size = New System.Drawing.Size(100, 13)
-        Me.LabelCal72LatestDay.TabIndex = 16
-        Me.LabelCal72LatestDay.Text = "#####"
-        Me.ToolTip1.SetToolTip(Me.LabelCal72LatestDay, "No. of elapsed days relative to the first recorded entry. Day 1 is the permanent " &
-        "reference baseline for all drift calculations.")
         '
         'LabelSummary7
         '
@@ -10714,6 +10734,16 @@ Partial Class Formtest
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "PDVS2mini "
         '
+        'OnOffLed4
+        '
+        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
+        Me.OnOffLed4.Name = "OnOffLed4"
+        Me.OnOffLed4.OffText = Nothing
+        Me.OnOffLed4.OnText = Nothing
+        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed4.TabIndex = 797
+        '
         'Label145
         '
         Me.Label145.AutoSize = True
@@ -13539,6 +13569,16 @@ Partial Class Formtest
         Me.Label121.TabIndex = 554
         Me.Label121.Text = "Comms Delay (mS)"
         '
+        'OnOffLed3
+        '
+        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
+        Me.OnOffLed3.Name = "OnOffLed3"
+        Me.OnOffLed3.OffText = Nothing
+        Me.OnOffLed3.OnText = Nothing
+        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed3.TabIndex = 796
+        '
         'TabPage14
         '
         Me.TabPage14.Controls.Add(Me.ButtonUserStart)
@@ -14035,46 +14075,6 @@ Partial Class Formtest
         'Timer14
         '
         Me.Timer14.Interval = 50
-        '
-        'OnOffLed2
-        '
-        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
-        Me.OnOffLed2.Name = "OnOffLed2"
-        Me.OnOffLed2.OffText = Nothing
-        Me.OnOffLed2.OnText = Nothing
-        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed2.TabIndex = 536
-        '
-        'OnOffLed1
-        '
-        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
-        Me.OnOffLed1.Name = "OnOffLed1"
-        Me.OnOffLed1.OffText = Nothing
-        Me.OnOffLed1.OnText = Nothing
-        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed1.TabIndex = 535
-        '
-        'OnOffLed4
-        '
-        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
-        Me.OnOffLed4.Name = "OnOffLed4"
-        Me.OnOffLed4.OffText = Nothing
-        Me.OnOffLed4.OnText = Nothing
-        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed4.TabIndex = 797
-        '
-        'OnOffLed3
-        '
-        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
-        Me.OnOffLed3.Name = "OnOffLed3"
-        Me.OnOffLed3.OffText = Nothing
-        Me.OnOffLed3.OnText = Nothing
-        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed3.TabIndex = 796
         '
         'Formtest
         '
