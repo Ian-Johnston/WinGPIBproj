@@ -799,18 +799,23 @@ Handles RadioButton34581.CheckedChanged,
     Private Sub ButtonCal72Help_Click(sender As Object, e As EventArgs) Handles ButtonCal72Help.Click
 
         MessageBox.Show(
-        "INSTRUCTIONS:" & vbCrLf & vbCrLf &
-        "1. Connect Device 1 to your 3458A and leave in STOP position." & vbCrLf &
-        "2. Allow the 3458A to thermally stabilise before recording data." & vbCrLf &
-        "3. Perform measurements at approximately the same time each day." & vbCrLf &
-        "4. Perform ACAL DCV before reading 3458A where possible." & vbCrLf &
-        "5. The first entry becomes the permanent ppm reference baseline." & vbCrLf &
-        "6. CAL? 72 drift can be temperature related — monitor internal temperature carefully." & vbCrLf &
-        "7. Lower ppm/day values indicate better U180 stability." & vbCrLf &
-        "8. Values can be manually added or read from 3458A via GPIB.",
-        "3458A U180 Drift Monitor Help",
-        MessageBoxButtons.OK,
-        MessageBoxIcon.Information)
+"3458A U180 A/D CURRENT STEERING HYBRID IC DRIFT MONITOR" & vbCrLf & vbCrLf &
+"- Connect Device 1 to your 3458A and leave in STOP position" & vbCrLf &
+"- Allow 3458A to thermally stabilise before recording data" & vbCrLf &
+"- Perform ACAL DCV before recording values where possible" & vbCrLf &
+"- First entry becomes the permanent Day 1 reference baseline" & vbCrLf &
+"- CAL? 72 drift can be temp. related - monitor temp. carefully" & vbCrLf &
+"- Lower ppm/day values indicate better U180 stability" & vbCrLf &
+"- Values can be entered manually or read directly via GPIB" & vbCrLf &
+"- CAL? 1,1 and CAL? 2,1 recorded for historical reference" & vbCrLf &
+"- Deviation cols change from Day 1 CAL? 1,1 and CAL? 2,1" & vbCrLf &
+"- Estimated Annual Drift = Average Drift ppm/day × 365.25" & vbCrLf &
+"- Total Drift Ref Day1 shows drift rel. to the 1st recorded entry" & vbCrLf &
+"- Worst Drift Ref Day1 shows the largest drift recorded" & vbCrLf &
+"- Days Since Last Entry shows elapsed time since last",
+"3458A U180 Drift Monitor Help",
+MessageBoxButtons.OK,
+MessageBoxIcon.Information)
 
     End Sub
 
