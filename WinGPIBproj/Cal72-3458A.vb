@@ -805,41 +805,65 @@ Handles RadioButton34581.CheckedChanged,
             LabelCal72LatestLast.Text = "-"
             LabelCal72LatestEntries.Text = "0"
             LabelCal72LatestAge.Text = "-"
+            LabelCal72WorstDrift.Text = "-"
 
             Exit Sub
 
         End If
 
-        If Cal72Table.Rows.Count = 0 Then Exit Sub
-
         Dim r As DataRow =
-            Cal72Table.Rows(Cal72Table.Rows.Count - 1)
+        Cal72Table.Rows(Cal72Table.Rows.Count - 1)
 
         LabelCal72LatestDay.Text =
-            r("Day").ToString()
+        r("Day").ToString()
 
         LabelCal72LatestValue.Text =
-            r("CAL? 72").ToString()
+        r("CAL? 72").ToString()
 
         LabelCal72LatestDrift.Text =
-            r("Drift ppm Day 1").ToString()
+        r("Drift ppm Day 1").ToString()
 
         LabelCal72LatestAvg.Text =
-            r("Avg ppm/day").ToString()
+        r("Avg ppm/day").ToString()
 
         LabelCal72LatestLast.Text =
-            r("Drift ppm Last").ToString()
+        r("Drift ppm Last").ToString()
 
         LabelCal72LatestEntries.Text =
-            Cal72Table.Rows.Count.ToString()
+        Cal72Table.Rows.Count.ToString()
 
         Dim daysSinceLast As Double = 0
         Dim lastDate As DateTime
+
         If GetRowDateTime(Cal72Table.Rows(Cal72Table.Rows.Count - 1), lastDate) Then
             daysSinceLast =
-        Math.Round((DateTime.Now - lastDate).TotalDays, 1)
+            (DateTime.Now - lastDate).TotalDays
         End If
-        LabelCal72LatestAge.Text = Math.Round(daysSinceLast, 0).ToString()
+
+        LabelCal72LatestAge.Text =
+        Math.Round(daysSinceLast, 0).ToString()
+
+        Dim worstDrift As Double = 0
+
+        For Each row As DataRow In Cal72Table.Rows
+
+            Dim drift As Double
+
+            If Double.TryParse(row("Drift ppm Day 1").ToString(),
+                           NumberStyles.Float,
+                           CultureInfo.InvariantCulture,
+                           drift) Then
+
+                If Math.Abs(drift) > Math.Abs(worstDrift) Then
+                    worstDrift = drift
+                End If
+
+            End If
+
+        Next
+
+        LabelCal72WorstDrift.Text =
+        worstDrift.ToString("0.000000")
 
     End Sub
 

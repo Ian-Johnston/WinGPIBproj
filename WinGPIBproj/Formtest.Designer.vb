@@ -1219,6 +1219,8 @@ Partial Class Formtest
         Me.Timer15 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer16 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
+        Me.LabelCal72WorstDrift = New System.Windows.Forms.Label()
+        Me.Label385 = New System.Windows.Forms.Label()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.GroupBox9.SuspendLayout
@@ -6292,6 +6294,8 @@ Partial Class Formtest
         '
         Me.PanelCal72Summary.BackColor = System.Drawing.Color.WhiteSmoke
         Me.PanelCal72Summary.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.PanelCal72Summary.Controls.Add(Me.LabelCal72WorstDrift)
+        Me.PanelCal72Summary.Controls.Add(Me.Label385)
         Me.PanelCal72Summary.Controls.Add(Me.LabelCal72LatestAge)
         Me.PanelCal72Summary.Controls.Add(Me.LabelCal72LatestEntries)
         Me.PanelCal72Summary.Controls.Add(Me.LabelCal72LatestLast)
@@ -6372,9 +6376,9 @@ Partial Class Formtest
         Me.LabelSummary7.AutoSize = True
         Me.LabelSummary7.Location = New System.Drawing.Point(211, 48)
         Me.LabelSummary7.Name = "LabelSummary7"
-        Me.LabelSummary7.Size = New System.Drawing.Size(114, 13)
+        Me.LabelSummary7.Size = New System.Drawing.Size(111, 13)
         Me.LabelSummary7.TabIndex = 15
-        Me.LabelSummary7.Text = "Days Since Last Entry:"
+        Me.LabelSummary7.Text = "Drift Last Two Entries:"
         '
         'LabelSummary6
         '
@@ -14019,6 +14023,23 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
+        'LabelCal72WorstDrift
+        '
+        Me.LabelCal72WorstDrift.Location = New System.Drawing.Point(333, 70)
+        Me.LabelCal72WorstDrift.Name = "LabelCal72WorstDrift"
+        Me.LabelCal72WorstDrift.Size = New System.Drawing.Size(100, 13)
+        Me.LabelCal72WorstDrift.TabIndex = 24
+        Me.LabelCal72WorstDrift.Text = "#####"
+        '
+        'Label385
+        '
+        Me.Label385.AutoSize = True
+        Me.Label385.Location = New System.Drawing.Point(211, 70)
+        Me.Label385.Name = "Label385"
+        Me.Label385.Size = New System.Drawing.Size(108, 13)
+        Me.Label385.TabIndex = 23
+        Me.Label385.Text = "Worst Drift Ref Day1:"
+        '
         'Formtest
         '
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None
@@ -15309,4 +15330,6 @@ Partial Class Formtest
     Friend WithEvents LabelCal72LatestAvg As Label
     Friend WithEvents LabelCal72LatestDrift As Label
     Friend WithEvents LabelCal72LatestValue As Label
+    Friend WithEvents LabelCal72WorstDrift As Label
+    Friend WithEvents Label385 As Label
 End Class
