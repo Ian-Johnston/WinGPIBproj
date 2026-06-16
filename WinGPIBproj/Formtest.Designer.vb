@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -491,8 +491,12 @@ Partial Class Formtest
         Me.TabPage9 = New System.Windows.Forms.TabPage()
         Me.TabPage16 = New System.Windows.Forms.TabPage()
         Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.Label377 = New System.Windows.Forms.Label()
+        Me.TextBoxCal72SerialNumber = New System.Windows.Forms.TextBox()
         Me.PanelCal72Summary = New System.Windows.Forms.Panel()
-        Me.LabelCal72LatestAge = New System.Windows.Forms.Label()
+        Me.LabelCal72WorstDrift = New System.Windows.Forms.Label()
+        Me.Label385 = New System.Windows.Forms.Label()
+        Me.LabelCal72AnnualDrift = New System.Windows.Forms.Label()
         Me.LabelCal72LatestEntries = New System.Windows.Forms.Label()
         Me.LabelCal72LatestLast = New System.Windows.Forms.Label()
         Me.LabelCal72LatestAvg = New System.Windows.Forms.Label()
@@ -1215,10 +1219,6 @@ Partial Class Formtest
         Me.Timer15 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer16 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
-        Me.LabelCal72WorstDrift = New System.Windows.Forms.Label()
-        Me.Label385 = New System.Windows.Forms.Label()
-        Me.Label377 = New System.Windows.Forms.Label()
-        Me.TextBoxCal72SerialNumber = New System.Windows.Forms.TextBox()
         Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
@@ -6196,22 +6196,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea1.BackColor = System.Drawing.Color.Black
-        ChartArea1.BorderColor = System.Drawing.Color.White
-        ChartArea1.BorderWidth = 2
-        ChartArea1.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea1)
-        Legend1.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend1)
+        ChartArea2.BackColor = System.Drawing.Color.Black
+        ChartArea2.BorderColor = System.Drawing.Color.White
+        ChartArea2.BorderWidth = 2
+        ChartArea2.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea2)
+        Legend2.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend2)
         Me.Chart1.Location = New System.Drawing.Point(-32, 168)
         Me.Chart1.Name = "Chart1"
-        Series1.ChartArea = "ChartArea1"
-        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series1.Color = System.Drawing.Color.Yellow
-        Series1.Enabled = False
-        Series1.Legend = "Legend1"
-        Series1.Name = "Series1"
-        Me.Chart1.Series.Add(Series1)
+        Series2.ChartArea = "ChartArea1"
+        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series2.Color = System.Drawing.Color.Yellow
+        Series2.Enabled = False
+        Series2.Legend = "Legend1"
+        Series2.Name = "Series1"
+        Me.Chart1.Series.Add(Series2)
         Me.Chart1.Size = New System.Drawing.Size(1120, 434)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -6274,13 +6274,29 @@ Partial Class Formtest
         Me.Panel1.Size = New System.Drawing.Size(1047, 140)
         Me.Panel1.TabIndex = 1
         '
+        'Label377
+        '
+        Me.Label377.AutoSize = True
+        Me.Label377.Location = New System.Drawing.Point(418, 113)
+        Me.Label377.Name = "Label377"
+        Me.Label377.Size = New System.Drawing.Size(36, 13)
+        Me.Label377.TabIndex = 30
+        Me.Label377.Text = "Serial:"
+        '
+        'TextBoxCal72SerialNumber
+        '
+        Me.TextBoxCal72SerialNumber.Location = New System.Drawing.Point(454, 109)
+        Me.TextBoxCal72SerialNumber.Name = "TextBoxCal72SerialNumber"
+        Me.TextBoxCal72SerialNumber.Size = New System.Drawing.Size(110, 20)
+        Me.TextBoxCal72SerialNumber.TabIndex = 29
+        '
         'PanelCal72Summary
         '
         Me.PanelCal72Summary.BackColor = System.Drawing.Color.WhiteSmoke
         Me.PanelCal72Summary.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.PanelCal72Summary.Controls.Add(Me.LabelCal72WorstDrift)
         Me.PanelCal72Summary.Controls.Add(Me.Label385)
-        Me.PanelCal72Summary.Controls.Add(Me.LabelCal72LatestAge)
+        Me.PanelCal72Summary.Controls.Add(Me.LabelCal72AnnualDrift)
         Me.PanelCal72Summary.Controls.Add(Me.LabelCal72LatestEntries)
         Me.PanelCal72Summary.Controls.Add(Me.LabelCal72LatestLast)
         Me.PanelCal72Summary.Controls.Add(Me.LabelCal72LatestAvg)
@@ -6299,17 +6315,34 @@ Partial Class Formtest
         Me.PanelCal72Summary.Size = New System.Drawing.Size(442, 91)
         Me.PanelCal72Summary.TabIndex = 28
         '
-        'LabelCal72LatestAge
+        'LabelCal72WorstDrift
         '
-        Me.LabelCal72LatestAge.Location = New System.Drawing.Point(333, 48)
-        Me.LabelCal72LatestAge.Name = "LabelCal72LatestAge"
-        Me.LabelCal72LatestAge.Size = New System.Drawing.Size(100, 13)
-        Me.LabelCal72LatestAge.TabIndex = 22
-        Me.LabelCal72LatestAge.Text = "#####"
+        Me.LabelCal72WorstDrift.Location = New System.Drawing.Point(333, 48)
+        Me.LabelCal72WorstDrift.Name = "LabelCal72WorstDrift"
+        Me.LabelCal72WorstDrift.Size = New System.Drawing.Size(100, 13)
+        Me.LabelCal72WorstDrift.TabIndex = 24
+        Me.LabelCal72WorstDrift.Text = "#####"
+        '
+        'Label385
+        '
+        Me.Label385.AutoSize = True
+        Me.Label385.Location = New System.Drawing.Point(211, 48)
+        Me.Label385.Name = "Label385"
+        Me.Label385.Size = New System.Drawing.Size(108, 13)
+        Me.Label385.TabIndex = 23
+        Me.Label385.Text = "Worst Drift Ref Day1:"
+        '
+        'LabelCal72AnnualDrift
+        '
+        Me.LabelCal72AnnualDrift.Location = New System.Drawing.Point(333, 70)
+        Me.LabelCal72AnnualDrift.Name = "LabelCal72AnnualDrift"
+        Me.LabelCal72AnnualDrift.Size = New System.Drawing.Size(100, 13)
+        Me.LabelCal72AnnualDrift.TabIndex = 22
+        Me.LabelCal72AnnualDrift.Text = "#####"
         '
         'LabelCal72LatestEntries
         '
-        Me.LabelCal72LatestEntries.Location = New System.Drawing.Point(333, 26)
+        Me.LabelCal72LatestEntries.Location = New System.Drawing.Point(333, 27)
         Me.LabelCal72LatestEntries.Name = "LabelCal72LatestEntries"
         Me.LabelCal72LatestEntries.Size = New System.Drawing.Size(100, 13)
         Me.LabelCal72LatestEntries.TabIndex = 21
@@ -6358,11 +6391,11 @@ Partial Class Formtest
         'LabelSummary7
         '
         Me.LabelSummary7.AutoSize = True
-        Me.LabelSummary7.Location = New System.Drawing.Point(211, 48)
+        Me.LabelSummary7.Location = New System.Drawing.Point(211, 70)
         Me.LabelSummary7.Name = "LabelSummary7"
-        Me.LabelSummary7.Size = New System.Drawing.Size(111, 13)
+        Me.LabelSummary7.Size = New System.Drawing.Size(114, 13)
         Me.LabelSummary7.TabIndex = 15
-        Me.LabelSummary7.Text = "Drift Last Two Entries:"
+        Me.LabelSummary7.Text = "Estimated Annual Drift:"
         '
         'LabelSummary6
         '
@@ -13987,39 +14020,6 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
-        'LabelCal72WorstDrift
-        '
-        Me.LabelCal72WorstDrift.Location = New System.Drawing.Point(333, 70)
-        Me.LabelCal72WorstDrift.Name = "LabelCal72WorstDrift"
-        Me.LabelCal72WorstDrift.Size = New System.Drawing.Size(100, 13)
-        Me.LabelCal72WorstDrift.TabIndex = 24
-        Me.LabelCal72WorstDrift.Text = "#####"
-        '
-        'Label385
-        '
-        Me.Label385.AutoSize = True
-        Me.Label385.Location = New System.Drawing.Point(211, 70)
-        Me.Label385.Name = "Label385"
-        Me.Label385.Size = New System.Drawing.Size(108, 13)
-        Me.Label385.TabIndex = 23
-        Me.Label385.Text = "Worst Drift Ref Day1:"
-        '
-        'Label377
-        '
-        Me.Label377.AutoSize = True
-        Me.Label377.Location = New System.Drawing.Point(418, 113)
-        Me.Label377.Name = "Label377"
-        Me.Label377.Size = New System.Drawing.Size(36, 13)
-        Me.Label377.TabIndex = 30
-        Me.Label377.Text = "Serial:"
-        '
-        'TextBoxCal72SerialNumber
-        '
-        Me.TextBoxCal72SerialNumber.Location = New System.Drawing.Point(454, 109)
-        Me.TextBoxCal72SerialNumber.Name = "TextBoxCal72SerialNumber"
-        Me.TextBoxCal72SerialNumber.Size = New System.Drawing.Size(110, 20)
-        Me.TextBoxCal72SerialNumber.TabIndex = 29
-        '
         'OnOffLed2
         '
         Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
@@ -15344,7 +15344,7 @@ Partial Class Formtest
     Friend WithEvents LabelSummary2 As Label
     Friend WithEvents LabelSummary1 As Label
     Friend WithEvents LabelCal72LatestDay As Label
-    Friend WithEvents LabelCal72LatestAge As Label
+    Friend WithEvents LabelCal72AnnualDrift As Label
     Friend WithEvents LabelCal72LatestEntries As Label
     Friend WithEvents LabelCal72LatestLast As Label
     Friend WithEvents LabelCal72LatestAvg As Label

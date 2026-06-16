@@ -825,7 +825,7 @@ Handles RadioButton34581.CheckedChanged,
             LabelCal72LatestAvg.Text = "-"
             LabelCal72LatestLast.Text = "-"
             LabelCal72LatestEntries.Text = "0"
-            LabelCal72LatestAge.Text = "-"
+            LabelCal72AnnualDrift.Text = "-"
             LabelCal72WorstDrift.Text = "-"
 
             Exit Sub
@@ -835,34 +835,28 @@ Handles RadioButton34581.CheckedChanged,
         Dim r As DataRow =
         Cal72Table.Rows(Cal72Table.Rows.Count - 1)
 
-        LabelCal72LatestDay.Text =
-        r("Day").ToString()
+        LabelCal72LatestDay.Text = r("Day").ToString()
+        LabelCal72LatestValue.Text = r("CAL? 72").ToString()
+        LabelCal72LatestDrift.Text = r("Drift ppm Day 1").ToString()
+        LabelCal72LatestAvg.Text = r("Avg ppm/day").ToString()
+        LabelCal72LatestLast.Text = r("Drift ppm Last").ToString()
+        LabelCal72LatestEntries.Text = Cal72Table.Rows.Count.ToString()
 
-        LabelCal72LatestValue.Text =
-        r("CAL? 72").ToString()
+        Dim avgPpmPerDay As Double
 
-        LabelCal72LatestDrift.Text =
-        r("Drift ppm Day 1").ToString()
+        If Double.TryParse(r("Avg ppm/day").ToString(),
+                       NumberStyles.Float,
+                       CultureInfo.InvariantCulture,
+                       avgPpmPerDay) Then
 
-        LabelCal72LatestAvg.Text =
-        r("Avg ppm/day").ToString()
+            LabelCal72AnnualDrift.Text =
+            (avgPpmPerDay * 365.25).ToString("0.000")
 
-        LabelCal72LatestLast.Text =
-        r("Drift ppm Last").ToString()
+        Else
 
-        LabelCal72LatestEntries.Text =
-        Cal72Table.Rows.Count.ToString()
+            LabelCal72AnnualDrift.Text = "-"
 
-        Dim daysSinceLast As Double = 0
-        Dim lastDate As DateTime
-
-        If GetRowDateTime(Cal72Table.Rows(Cal72Table.Rows.Count - 1), lastDate) Then
-            daysSinceLast =
-            (DateTime.Now - lastDate).TotalDays
         End If
-
-        LabelCal72LatestAge.Text =
-        Math.Round(daysSinceLast, 0).ToString()
 
         Dim worstDrift As Double = 0
 
