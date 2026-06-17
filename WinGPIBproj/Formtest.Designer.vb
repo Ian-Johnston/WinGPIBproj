@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -220,6 +220,12 @@ Partial Class Formtest
         Me.LabelCal72LatestDrift = New System.Windows.Forms.Label()
         Me.LabelCal72LatestValue = New System.Windows.Forms.Label()
         Me.LabelCal72LatestDay = New System.Windows.Forms.Label()
+        Me.TextBoxCal72SerialNumber = New System.Windows.Forms.TextBox()
+        Me.TextBoxCal21Vref = New System.Windows.Forms.TextBox()
+        Me.TextBoxCal1140k = New System.Windows.Forms.TextBox()
+        Me.TextBoxCal72Notes = New System.Windows.Forms.TextBox()
+        Me.TextBoxCal72Temp = New System.Windows.Forms.TextBox()
+        Me.TextBoxCal72Value = New System.Windows.Forms.TextBox()
         Me.ButtonDev1INFO = New System.Windows.Forms.Button()
         Me.ButtonDev2INFO = New System.Windows.Forms.Button()
         Me.CheckBoxPrologixSerialDTR = New System.Windows.Forms.CheckBox()
@@ -502,7 +508,6 @@ Partial Class Formtest
         Me.TabPage16 = New System.Windows.Forms.TabPage()
         Me.Panel1 = New System.Windows.Forms.Panel()
         Me.Label377 = New System.Windows.Forms.Label()
-        Me.TextBoxCal72SerialNumber = New System.Windows.Forms.TextBox()
         Me.PanelCal72Summary = New System.Windows.Forms.Panel()
         Me.Label385 = New System.Windows.Forms.Label()
         Me.LabelSummary7 = New System.Windows.Forms.Label()
@@ -518,8 +523,6 @@ Partial Class Formtest
         Me.Label382 = New System.Windows.Forms.Label()
         Me.Label380 = New System.Windows.Forms.Label()
         Me.Label381 = New System.Windows.Forms.Label()
-        Me.TextBoxCal21Vref = New System.Windows.Forms.TextBox()
-        Me.TextBoxCal1140k = New System.Windows.Forms.TextBox()
         Me.ButtonCal72Save = New System.Windows.Forms.Button()
         Me.Label379 = New System.Windows.Forms.Label()
         Me.RadioButton34585 = New System.Windows.Forms.RadioButton()
@@ -533,9 +536,6 @@ Partial Class Formtest
         Me.Label374 = New System.Windows.Forms.Label()
         Me.Label373 = New System.Windows.Forms.Label()
         Me.LabelCal72Status = New System.Windows.Forms.Label()
-        Me.TextBoxCal72Notes = New System.Windows.Forms.TextBox()
-        Me.TextBoxCal72Temp = New System.Windows.Forms.TextBox()
-        Me.TextBoxCal72Value = New System.Windows.Forms.TextBox()
         Me.ButtonCal72Delete = New System.Windows.Forms.Button()
         Me.ButtonCal72Add = New System.Windows.Forms.Button()
         Me.ButtonCal72Read = New System.Windows.Forms.Button()
@@ -1223,6 +1223,7 @@ Partial Class Formtest
         Me.Timer15 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer16 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
+        Me.ButtonCal72Backup = New System.Windows.Forms.Button()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.GroupBox9.SuspendLayout
@@ -3324,6 +3325,59 @@ Partial Class Formtest
         Me.LabelCal72LatestDay.Text = "#####"
         Me.ToolTip1.SetToolTip(Me.LabelCal72LatestDay, "No. of elapsed days relative to the first recorded entry." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Day 1 is the permanent" &
         " reference baseline for all drift" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "calculations.")
+        '
+        'TextBoxCal72SerialNumber
+        '
+        Me.TextBoxCal72SerialNumber.Location = New System.Drawing.Point(440, 109)
+        Me.TextBoxCal72SerialNumber.Name = "TextBoxCal72SerialNumber"
+        Me.TextBoxCal72SerialNumber.Size = New System.Drawing.Size(110, 20)
+        Me.TextBoxCal72SerialNumber.TabIndex = 29
+        Me.ToolTip1.SetToolTip(Me.TextBoxCal72SerialNumber, "Enter the 3458A serial number associated" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "with this dataset." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Example: 2823A24074" &
+        "")
+        '
+        'TextBoxCal21Vref
+        '
+        Me.TextBoxCal21Vref.Location = New System.Drawing.Point(440, 59)
+        Me.TextBoxCal21Vref.Name = "TextBoxCal21Vref"
+        Me.TextBoxCal21Vref.Size = New System.Drawing.Size(110, 20)
+        Me.TextBoxCal21Vref.TabIndex = 21
+        Me.ToolTip1.SetToolTip(Me.TextBoxCal21Vref, "Enter CAL? 2,1 (Vref) value in decimal or E-notation." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Examples: 7.1746472 or 7.1" &
+        "746472E+00")
+        '
+        'TextBoxCal1140k
+        '
+        Me.TextBoxCal1140k.Location = New System.Drawing.Point(440, 34)
+        Me.TextBoxCal1140k.Name = "TextBoxCal1140k"
+        Me.TextBoxCal1140k.Size = New System.Drawing.Size(110, 20)
+        Me.TextBoxCal1140k.TabIndex = 20
+        Me.ToolTip1.SetToolTip(Me.TextBoxCal1140k, "Enter CAL? 1,1 (40k) value in decimal or E-notation." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Examples: 39999.9987 or 3.9" &
+        "9999987E+04")
+        '
+        'TextBoxCal72Notes
+        '
+        Me.TextBoxCal72Notes.Location = New System.Drawing.Point(218, 84)
+        Me.TextBoxCal72Notes.Name = "TextBoxCal72Notes"
+        Me.TextBoxCal72Notes.Size = New System.Drawing.Size(332, 20)
+        Me.TextBoxCal72Notes.TabIndex = 6
+        Me.ToolTip1.SetToolTip(Me.TextBoxCal72Notes, "Enter any observations relating to this measurement." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Examples: ACAL performed, p" &
+        "ower outage," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "room temperature change," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "recalibration, warm-up period.")
+        '
+        'TextBoxCal72Temp
+        '
+        Me.TextBoxCal72Temp.Location = New System.Drawing.Point(218, 59)
+        Me.TextBoxCal72Temp.Name = "TextBoxCal72Temp"
+        Me.TextBoxCal72Temp.Size = New System.Drawing.Size(110, 20)
+        Me.TextBoxCal72Temp.TabIndex = 5
+        Me.ToolTip1.SetToolTip(Me.TextBoxCal72Temp, "Enter the 3458A internal temperature" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "reported by TEMP?." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Example: 37.4 °C")
+        '
+        'TextBoxCal72Value
+        '
+        Me.TextBoxCal72Value.Location = New System.Drawing.Point(218, 34)
+        Me.TextBoxCal72Value.Name = "TextBoxCal72Value"
+        Me.TextBoxCal72Value.Size = New System.Drawing.Size(110, 20)
+        Me.TextBoxCal72Value.TabIndex = 4
+        Me.ToolTip1.SetToolTip(Me.TextBoxCal72Value, "Enter value in decimal or scientific (E) notation." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Examples: 0.984801400 or 9.84" &
+        "801400E-01")
         '
         'ButtonDev1INFO
         '
@@ -6296,22 +6350,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea1.BackColor = System.Drawing.Color.Black
-        ChartArea1.BorderColor = System.Drawing.Color.White
-        ChartArea1.BorderWidth = 2
-        ChartArea1.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea1)
-        Legend1.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend1)
+        ChartArea2.BackColor = System.Drawing.Color.Black
+        ChartArea2.BorderColor = System.Drawing.Color.White
+        ChartArea2.BorderWidth = 2
+        ChartArea2.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea2)
+        Legend2.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend2)
         Me.Chart1.Location = New System.Drawing.Point(-32, 168)
         Me.Chart1.Name = "Chart1"
-        Series1.ChartArea = "ChartArea1"
-        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series1.Color = System.Drawing.Color.Yellow
-        Series1.Enabled = False
-        Series1.Legend = "Legend1"
-        Series1.Name = "Series1"
-        Me.Chart1.Series.Add(Series1)
+        Series2.ChartArea = "ChartArea1"
+        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series2.Color = System.Drawing.Color.Yellow
+        Series2.Enabled = False
+        Series2.Legend = "Legend1"
+        Series2.Name = "Series1"
+        Me.Chart1.Series.Add(Series2)
         Me.Chart1.Size = New System.Drawing.Size(1120, 434)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -6338,6 +6392,7 @@ Partial Class Formtest
         '
         'Panel1
         '
+        Me.Panel1.Controls.Add(Me.ButtonCal72Backup)
         Me.Panel1.Controls.Add(Me.Label377)
         Me.Panel1.Controls.Add(Me.TextBoxCal72SerialNumber)
         Me.Panel1.Controls.Add(Me.PanelCal72Summary)
@@ -6377,20 +6432,11 @@ Partial Class Formtest
         'Label377
         '
         Me.Label377.AutoSize = True
-        Me.Label377.Location = New System.Drawing.Point(418, 113)
+        Me.Label377.Location = New System.Drawing.Point(404, 113)
         Me.Label377.Name = "Label377"
         Me.Label377.Size = New System.Drawing.Size(36, 13)
         Me.Label377.TabIndex = 30
         Me.Label377.Text = "Serial:"
-        '
-        'TextBoxCal72SerialNumber
-        '
-        Me.TextBoxCal72SerialNumber.Location = New System.Drawing.Point(454, 109)
-        Me.TextBoxCal72SerialNumber.Name = "TextBoxCal72SerialNumber"
-        Me.TextBoxCal72SerialNumber.Size = New System.Drawing.Size(110, 20)
-        Me.TextBoxCal72SerialNumber.TabIndex = 29
-        Me.ToolTip1.SetToolTip(Me.TextBoxCal72SerialNumber, "Enter the 3458A serial number associated" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "with this dataset." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Example: 2823A24074" &
-        "")
         '
         'PanelCal72Summary
         '
@@ -6491,17 +6537,17 @@ Partial Class Formtest
         '
         'ButtonCal72Help
         '
-        Me.ButtonCal72Help.Location = New System.Drawing.Point(890, 9)
+        Me.ButtonCal72Help.Location = New System.Drawing.Point(936, 9)
         Me.ButtonCal72Help.Name = "ButtonCal72Help"
-        Me.ButtonCal72Help.Size = New System.Drawing.Size(148, 23)
+        Me.ButtonCal72Help.Size = New System.Drawing.Size(102, 23)
         Me.ButtonCal72Help.TabIndex = 27
-        Me.ButtonCal72Help.Text = "HELP / INSTRUCTIONS"
+        Me.ButtonCal72Help.Text = "INSTRUCTIONS"
         Me.ButtonCal72Help.UseVisualStyleBackColor = True
         '
         'Label384
         '
         Me.Label384.AutoSize = True
-        Me.Label384.Location = New System.Drawing.Point(345, 63)
+        Me.Label384.Location = New System.Drawing.Point(331, 63)
         Me.Label384.Name = "Label384"
         Me.Label384.Size = New System.Drawing.Size(32, 13)
         Me.Label384.TabIndex = 26
@@ -6510,7 +6556,7 @@ Partial Class Formtest
         'Label383
         '
         Me.Label383.AutoSize = True
-        Me.Label383.Location = New System.Drawing.Point(567, 63)
+        Me.Label383.Location = New System.Drawing.Point(553, 63)
         Me.Label383.Name = "Label383"
         Me.Label383.Size = New System.Drawing.Size(26, 13)
         Me.Label383.TabIndex = 25
@@ -6519,7 +6565,7 @@ Partial Class Formtest
         'Label382
         '
         Me.Label382.AutoSize = True
-        Me.Label382.Location = New System.Drawing.Point(567, 38)
+        Me.Label382.Location = New System.Drawing.Point(553, 38)
         Me.Label382.Name = "Label382"
         Me.Label382.Size = New System.Drawing.Size(25, 13)
         Me.Label382.TabIndex = 24
@@ -6528,7 +6574,7 @@ Partial Class Formtest
         'Label380
         '
         Me.Label380.AutoSize = True
-        Me.Label380.Location = New System.Drawing.Point(400, 63)
+        Me.Label380.Location = New System.Drawing.Point(386, 63)
         Me.Label380.Name = "Label380"
         Me.Label380.Size = New System.Drawing.Size(54, 13)
         Me.Label380.TabIndex = 23
@@ -6537,29 +6583,11 @@ Partial Class Formtest
         'Label381
         '
         Me.Label381.AutoSize = True
-        Me.Label381.Location = New System.Drawing.Point(400, 38)
+        Me.Label381.Location = New System.Drawing.Point(386, 38)
         Me.Label381.Name = "Label381"
         Me.Label381.Size = New System.Drawing.Size(54, 13)
         Me.Label381.TabIndex = 22
         Me.Label381.Text = "CAL? 1,1:"
-        '
-        'TextBoxCal21Vref
-        '
-        Me.TextBoxCal21Vref.Location = New System.Drawing.Point(454, 59)
-        Me.TextBoxCal21Vref.Name = "TextBoxCal21Vref"
-        Me.TextBoxCal21Vref.Size = New System.Drawing.Size(110, 20)
-        Me.TextBoxCal21Vref.TabIndex = 21
-        Me.ToolTip1.SetToolTip(Me.TextBoxCal21Vref, "Enter CAL? 2,1 (Vref) value in decimal or E-notation." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Examples: 7.1746472 or 7.1" &
-        "746472E+00")
-        '
-        'TextBoxCal1140k
-        '
-        Me.TextBoxCal1140k.Location = New System.Drawing.Point(454, 34)
-        Me.TextBoxCal1140k.Name = "TextBoxCal1140k"
-        Me.TextBoxCal1140k.Size = New System.Drawing.Size(110, 20)
-        Me.TextBoxCal1140k.TabIndex = 20
-        Me.ToolTip1.SetToolTip(Me.TextBoxCal1140k, "Enter CAL? 1,1 (40k) value in decimal or E-notation." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Examples: 39999.9987 or 3.9" &
-        "9999987E+04")
         '
         'ButtonCal72Save
         '
@@ -6574,7 +6602,7 @@ Partial Class Formtest
         'Label379
         '
         Me.Label379.AutoSize = True
-        Me.Label379.Location = New System.Drawing.Point(269, 12)
+        Me.Label379.Location = New System.Drawing.Point(255, 12)
         Me.Label379.Name = "Label379"
         Me.Label379.Size = New System.Drawing.Size(41, 13)
         Me.Label379.TabIndex = 19
@@ -6583,7 +6611,7 @@ Partial Class Formtest
         'RadioButton34585
         '
         Me.RadioButton34585.AutoSize = True
-        Me.RadioButton34585.Location = New System.Drawing.Point(461, 10)
+        Me.RadioButton34585.Location = New System.Drawing.Point(447, 10)
         Me.RadioButton34585.Name = "RadioButton34585"
         Me.RadioButton34585.Size = New System.Drawing.Size(31, 17)
         Me.RadioButton34585.TabIndex = 18
@@ -6594,7 +6622,7 @@ Partial Class Formtest
         'RadioButton34584
         '
         Me.RadioButton34584.AutoSize = True
-        Me.RadioButton34584.Location = New System.Drawing.Point(424, 10)
+        Me.RadioButton34584.Location = New System.Drawing.Point(410, 10)
         Me.RadioButton34584.Name = "RadioButton34584"
         Me.RadioButton34584.Size = New System.Drawing.Size(31, 17)
         Me.RadioButton34584.TabIndex = 17
@@ -6605,7 +6633,7 @@ Partial Class Formtest
         'RadioButton34583
         '
         Me.RadioButton34583.AutoSize = True
-        Me.RadioButton34583.Location = New System.Drawing.Point(387, 10)
+        Me.RadioButton34583.Location = New System.Drawing.Point(373, 10)
         Me.RadioButton34583.Name = "RadioButton34583"
         Me.RadioButton34583.Size = New System.Drawing.Size(31, 17)
         Me.RadioButton34583.TabIndex = 16
@@ -6616,7 +6644,7 @@ Partial Class Formtest
         'RadioButton34582
         '
         Me.RadioButton34582.AutoSize = True
-        Me.RadioButton34582.Location = New System.Drawing.Point(350, 10)
+        Me.RadioButton34582.Location = New System.Drawing.Point(336, 10)
         Me.RadioButton34582.Name = "RadioButton34582"
         Me.RadioButton34582.Size = New System.Drawing.Size(31, 17)
         Me.RadioButton34582.TabIndex = 15
@@ -6628,7 +6656,7 @@ Partial Class Formtest
         '
         Me.RadioButton34581.AutoSize = True
         Me.RadioButton34581.Checked = True
-        Me.RadioButton34581.Location = New System.Drawing.Point(313, 10)
+        Me.RadioButton34581.Location = New System.Drawing.Point(299, 10)
         Me.RadioButton34581.Name = "RadioButton34581"
         Me.RadioButton34581.Size = New System.Drawing.Size(31, 17)
         Me.RadioButton34581.TabIndex = 14
@@ -6649,7 +6677,7 @@ Partial Class Formtest
         'Label376
         '
         Me.Label376.AutoSize = True
-        Me.Label376.Location = New System.Drawing.Point(188, 111)
+        Me.Label376.Location = New System.Drawing.Point(174, 111)
         Me.Label376.Name = "Label376"
         Me.Label376.Size = New System.Drawing.Size(40, 13)
         Me.Label376.TabIndex = 11
@@ -6658,7 +6686,7 @@ Partial Class Formtest
         'Label375
         '
         Me.Label375.AutoSize = True
-        Me.Label375.Location = New System.Drawing.Point(190, 88)
+        Me.Label375.Location = New System.Drawing.Point(176, 88)
         Me.Label375.Name = "Label375"
         Me.Label375.Size = New System.Drawing.Size(38, 13)
         Me.Label375.TabIndex = 10
@@ -6667,7 +6695,7 @@ Partial Class Formtest
         'Label374
         '
         Me.Label374.AutoSize = True
-        Me.Label374.Location = New System.Drawing.Point(186, 63)
+        Me.Label374.Location = New System.Drawing.Point(172, 63)
         Me.Label374.Name = "Label374"
         Me.Label374.Size = New System.Drawing.Size(43, 13)
         Me.Label374.TabIndex = 9
@@ -6676,7 +6704,7 @@ Partial Class Formtest
         'Label373
         '
         Me.Label373.AutoSize = True
-        Me.Label373.Location = New System.Drawing.Point(178, 38)
+        Me.Label373.Location = New System.Drawing.Point(164, 38)
         Me.Label373.Name = "Label373"
         Me.Label373.Size = New System.Drawing.Size(51, 13)
         Me.Label373.TabIndex = 8
@@ -6685,43 +6713,17 @@ Partial Class Formtest
         'LabelCal72Status
         '
         Me.LabelCal72Status.AutoSize = True
-        Me.LabelCal72Status.Location = New System.Drawing.Point(232, 112)
+        Me.LabelCal72Status.Location = New System.Drawing.Point(218, 112)
         Me.LabelCal72Status.Name = "LabelCal72Status"
         Me.LabelCal72Status.Size = New System.Drawing.Size(49, 13)
         Me.LabelCal72Status.TabIndex = 7
         Me.LabelCal72Status.Text = "######"
         '
-        'TextBoxCal72Notes
-        '
-        Me.TextBoxCal72Notes.Location = New System.Drawing.Point(232, 84)
-        Me.TextBoxCal72Notes.Name = "TextBoxCal72Notes"
-        Me.TextBoxCal72Notes.Size = New System.Drawing.Size(332, 20)
-        Me.TextBoxCal72Notes.TabIndex = 6
-        Me.ToolTip1.SetToolTip(Me.TextBoxCal72Notes, "Enter any observations relating to this measurement." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Examples: ACAL performed, p" &
-        "ower outage," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "room temperature change," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "recalibration, warm-up period.")
-        '
-        'TextBoxCal72Temp
-        '
-        Me.TextBoxCal72Temp.Location = New System.Drawing.Point(232, 59)
-        Me.TextBoxCal72Temp.Name = "TextBoxCal72Temp"
-        Me.TextBoxCal72Temp.Size = New System.Drawing.Size(110, 20)
-        Me.TextBoxCal72Temp.TabIndex = 5
-        Me.ToolTip1.SetToolTip(Me.TextBoxCal72Temp, "Enter the 3458A internal temperature" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "reported by TEMP?." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Example: 37.4 °C")
-        '
-        'TextBoxCal72Value
-        '
-        Me.TextBoxCal72Value.Location = New System.Drawing.Point(232, 34)
-        Me.TextBoxCal72Value.Name = "TextBoxCal72Value"
-        Me.TextBoxCal72Value.Size = New System.Drawing.Size(110, 20)
-        Me.TextBoxCal72Value.TabIndex = 4
-        Me.ToolTip1.SetToolTip(Me.TextBoxCal72Value, "Enter value in decimal or scientific (E) notation." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Examples: 0.984801400 or 9.84" &
-        "801400E-01")
-        '
         'ButtonCal72Delete
         '
-        Me.ButtonCal72Delete.Location = New System.Drawing.Point(14, 109)
+        Me.ButtonCal72Delete.Location = New System.Drawing.Point(14, 84)
         Me.ButtonCal72Delete.Name = "ButtonCal72Delete"
-        Me.ButtonCal72Delete.Size = New System.Drawing.Size(148, 23)
+        Me.ButtonCal72Delete.Size = New System.Drawing.Size(125, 23)
         Me.ButtonCal72Delete.TabIndex = 2
         Me.ButtonCal72Delete.Text = "DELETE SELECTED"
         Me.ButtonCal72Delete.UseVisualStyleBackColor = True
@@ -6730,7 +6732,7 @@ Partial Class Formtest
         '
         Me.ButtonCal72Add.Location = New System.Drawing.Point(14, 59)
         Me.ButtonCal72Add.Name = "ButtonCal72Add"
-        Me.ButtonCal72Add.Size = New System.Drawing.Size(148, 23)
+        Me.ButtonCal72Add.Size = New System.Drawing.Size(125, 23)
         Me.ButtonCal72Add.TabIndex = 1
         Me.ButtonCal72Add.Text = "ADD TO TABLE"
         Me.ButtonCal72Add.UseVisualStyleBackColor = True
@@ -6739,9 +6741,9 @@ Partial Class Formtest
         '
         Me.ButtonCal72Read.Location = New System.Drawing.Point(14, 34)
         Me.ButtonCal72Read.Name = "ButtonCal72Read"
-        Me.ButtonCal72Read.Size = New System.Drawing.Size(148, 23)
+        Me.ButtonCal72Read.Size = New System.Drawing.Size(125, 23)
         Me.ButtonCal72Read.TabIndex = 0
-        Me.ButtonCal72Read.Text = "READ DATA FROM 3458A"
+        Me.ButtonCal72Read.Text = "READ FROM 3458A"
         Me.ButtonCal72Read.UseVisualStyleBackColor = True
         '
         'DataGridViewCal72
@@ -14087,6 +14089,15 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
+        'ButtonCal72Backup
+        '
+        Me.ButtonCal72Backup.Location = New System.Drawing.Point(14, 109)
+        Me.ButtonCal72Backup.Name = "ButtonCal72Backup"
+        Me.ButtonCal72Backup.Size = New System.Drawing.Size(125, 23)
+        Me.ButtonCal72Backup.TabIndex = 31
+        Me.ButtonCal72Backup.Text = "BACKUP CSV's"
+        Me.ButtonCal72Backup.UseVisualStyleBackColor = True
+        '
         'Formtest
         '
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None
@@ -15381,4 +15392,5 @@ Partial Class Formtest
     Friend WithEvents Label385 As Label
     Friend WithEvents Label377 As Label
     Friend WithEvents TextBoxCal72SerialNumber As TextBox
+    Friend WithEvents ButtonCal72Backup As Button
 End Class

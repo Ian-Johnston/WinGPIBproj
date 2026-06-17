@@ -415,11 +415,18 @@ Handles RadioButton34581.CheckedChanged,
 
         If DataGridViewCal72.SelectedRows.Count = 0 Then Exit Sub
 
+        Dim deletingFirstRow As Boolean =
+        DataGridViewCal72.SelectedRows(0).Index = 0
+
         If MessageBox.Show("Delete selected entry?", "CAL? 72", MessageBoxButtons.YesNo, MessageBoxIcon.Question) <> DialogResult.Yes Then
             Exit Sub
         End If
 
         DataGridViewCal72.Rows.Remove(DataGridViewCal72.SelectedRows(0))
+
+        If deletingFirstRow Then
+            RenumberCal72DaysFromFirstRow()
+        End If
 
         RecalculateCal72Table()
         UpdateCal72SummaryPanel()
@@ -799,7 +806,7 @@ Handles RadioButton34581.CheckedChanged,
     Private Sub ButtonCal72Help_Click(sender As Object, e As EventArgs) Handles ButtonCal72Help.Click
 
         MessageBox.Show(
-"3458A U180 A/D CURRENT STEERING HYBRID IC DRIFT MONITOR" & vbCrLf & vbCrLf &
+"3458A U180 A/D CURRENT STEERING HYBRID DRIFT MONITOR" & vbCrLf & vbCrLf &
 "- Connect Device 1 to your 3458A and leave in STOP position" & vbCrLf &
 "- Allow 3458A to thermally stabilise before recording data" & vbCrLf &
 "- Perform ACAL DCV before recording values where possible" & vbCrLf &
@@ -812,7 +819,8 @@ Handles RadioButton34581.CheckedChanged,
 "- Estimated Annual Drift = Average Drift ppm/day × 365.25" & vbCrLf &
 "- Total Drift Ref Day1 shows drift rel. to the 1st recorded entry" & vbCrLf &
 "- Worst Drift Ref Day1 shows the largest drift recorded" & vbCrLf &
-"- Days Since Last Entry shows elapsed time since last",
+"- Days Since Last Entry shows elapsed time since last" & vbCrLf &
+"- Deleting Day 1 renumbers and creates a new Day 1 baseline",
 "3458A U180 Drift Monitor Help",
 MessageBoxButtons.OK,
 MessageBoxIcon.Information)
@@ -884,6 +892,84 @@ MessageBoxIcon.Information)
 
         LabelCal72WorstDrift.Text =
         worstDrift.ToString("0.000000")
+
+    End Sub
+
+
+    Private Sub RenumberCal72DaysFromFirstRow()
+
+        If Cal72Table.Rows.Count = 0 Then Exit Sub
+
+        Dim firstDay As Double
+
+        If Not Double.TryParse(Cal72Table.Rows(0)("Day").ToString(),
+                               NumberStyles.Float,
+                               CultureInfo.InvariantCulture,
+                               firstDay) Then
+            Exit Sub
+        End If
+
+        For Each r As DataRow In Cal72Table.Rows
+
+            Dim oldDay As Double
+
+            If Double.TryParse(r("Day").ToString(),
+                               NumberStyles.Float,
+                               CultureInfo.InvariantCulture,
+                               oldDay) Then
+
+                r("Day") = oldDay - firstDay + 1
+
+            End If
+
+        Next
+
+    End Sub
+
+
+    Private Sub ButtonCal72Backup_Click(sender As Object, e As EventArgs) Handles ButtonCal72Backup.Click
+
+        Try
+
+            Dim files() As String = {
+                IO.Path.Combine(strPath, "3458A_CAL72_Drift.csv"),
+                IO.Path.Combine(strPath, "3458A_CAL72_Drift2.csv"),
+                IO.Path.Combine(strPath, "3458A_CAL72_Drift3.csv"),
+                IO.Path.Combine(strPath, "3458A_CAL72_Drift4.csv"),
+                IO.Path.Combine(strPath, "3458A_CAL72_Drift5.csv")
+            }
+
+            Dim backupCount As Integer = 0
+
+            For Each fileName As String In files
+
+                If IO.File.Exists(fileName) Then
+
+                    IO.File.Copy(fileName,
+                                 fileName & ".bak",
+                                 True)
+
+                    backupCount += 1
+
+                End If
+
+            Next
+
+            MessageBox.Show(
+                backupCount.ToString() & " CSV file(s) backed up successfully.",
+                "CAL72 Backup",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information)
+
+        Catch ex As Exception
+
+            MessageBox.Show(
+                "Backup failed: " & ex.Message,
+                "CAL72 Backup",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error)
+
+        End Try
 
     End Sub
 
