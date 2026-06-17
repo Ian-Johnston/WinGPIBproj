@@ -44,12 +44,17 @@ Partial Class Formtest
         DataGridViewCal72.DataSource = Cal72Table
 
         ' mod headings
-        DataGridViewCal72.Columns("Temp").HeaderText = "Temp?"
         DataGridViewCal72.Columns("Drift ppm Day 1").HeaderText = "Drift ppm Ref. Day 1"
         DataGridViewCal72.Columns("Drift ppm Last").HeaderText = "Drift ppm Ref. Last"
         DataGridViewCal72.Columns("Avg ppm/day").HeaderText = "Drift Avg ppm/Day"
-        DataGridViewCal72.Columns("CAL? 1,1 Dev").HeaderText = "CAL? 1,1 Dev. 40k"
-        DataGridViewCal72.Columns("CAL? 2,1 Dev").HeaderText = "CAL? 2,1 Dev. Vref"
+        DataGridViewCal72.Columns("CAL? 1,1 Dev").HeaderText = "CAL? 1,1 40k" & vbCrLf & "Deviation"
+        DataGridViewCal72.Columns("CAL? 2,1 Dev").HeaderText = "CAL? 2,1 Vref" & vbCrLf & "Deviation"
+        DataGridViewCal72.Columns("Days From Day 1").HeaderText = "Days Since Day 1"
+        DataGridViewCal72.Columns("Days From Last").HeaderText = "Days Since Last"
+        DataGridViewCal72.Columns("CAL? 1,1 40k").HeaderText = "CAL? 1,1" & vbCrLf & "40k"
+        DataGridViewCal72.Columns("CAL? 2,1 Vref").HeaderText = "CAL? 2,1" & vbCrLf & "Vref"
+        DataGridViewCal72.Columns("Temp").HeaderText = "3458A" & vbCrLf & "Temp?"
+        DataGridViewCal72.Columns("CAL? 72").HeaderText = "CAL? 72" & vbCrLf & "Value"
 
         DataGridViewCal72.RowHeadersVisible = False
         DataGridViewCal72.ColumnHeadersVisible = True
@@ -73,7 +78,7 @@ Partial Class Formtest
         DataGridViewCal72.Columns("Day").Width = 50
         DataGridViewCal72.Columns("Date").Width = 75
         DataGridViewCal72.Columns("Time").Width = 50
-        DataGridViewCal72.Columns("Temp").Width = 50
+        DataGridViewCal72.Columns("Temp").Width = 55
 
         DataGridViewCal72.Columns("CAL? 72").Width = 80
         DataGridViewCal72.Columns("CAL? 1,1 40k").Width = 100
