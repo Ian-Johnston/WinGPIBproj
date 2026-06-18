@@ -170,7 +170,10 @@ Handles RadioButton34581.CheckedChanged,
         RadioButton34582.CheckedChanged,
         RadioButton34583.CheckedChanged,
         RadioButton34584.CheckedChanged,
-        RadioButton34585.CheckedChanged
+        RadioButton34585.CheckedChanged,
+        RadioButton34586.CheckedChanged,
+        RadioButton34587.CheckedChanged,
+        RadioButton34588.CheckedChanged
 
         If Cal72Initialised = False Then Exit Sub
 
@@ -225,6 +228,15 @@ Handles RadioButton34581.CheckedChanged,
 
         ElseIf RadioButton34585.Checked = True Then
             Cal72CsvFile = strPath & "\" & "3458A_CAL72_Drift5.csv"
+
+        ElseIf RadioButton34586.Checked = True Then
+            Cal72CsvFile = strPath & "\" & "3458A_CAL72_Drift6.csv"
+
+        ElseIf RadioButton34587.Checked = True Then
+            Cal72CsvFile = strPath & "\" & "3458A_CAL72_Drift7.csv"
+
+        ElseIf RadioButton34588.Checked = True Then
+            Cal72CsvFile = strPath & "\" & "3458A_CAL72_Drift8.csv"
 
         Else
             RadioButton34581.Checked = True
@@ -941,7 +953,10 @@ MessageBoxIcon.Information)
                 IO.Path.Combine(strPath, "3458A_CAL72_Drift2.csv"),
                 IO.Path.Combine(strPath, "3458A_CAL72_Drift3.csv"),
                 IO.Path.Combine(strPath, "3458A_CAL72_Drift4.csv"),
-                IO.Path.Combine(strPath, "3458A_CAL72_Drift5.csv")
+                IO.Path.Combine(strPath, "3458A_CAL72_Drift5.csv"),
+                IO.Path.Combine(strPath, "3458A_CAL72_Drift6.csv"),
+                IO.Path.Combine(strPath, "3458A_CAL72_Drift7.csv"),
+                IO.Path.Combine(strPath, "3458A_CAL72_Drift8.csv")
             }
 
             Dim backupCount As Integer = 0
