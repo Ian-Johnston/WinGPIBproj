@@ -226,6 +226,7 @@ Partial Class Formtest
         Me.TextBoxCal72Notes = New System.Windows.Forms.TextBox()
         Me.TextBoxCal72Temp = New System.Windows.Forms.TextBox()
         Me.TextBoxCal72Value = New System.Windows.Forms.TextBox()
+        Me.LabelCal72OneVolt = New System.Windows.Forms.Label()
         Me.ButtonDev1INFO = New System.Windows.Forms.Button()
         Me.ButtonDev2INFO = New System.Windows.Forms.Button()
         Me.CheckBoxPrologixSerialDTR = New System.Windows.Forms.CheckBox()
@@ -511,6 +512,7 @@ Partial Class Formtest
         Me.ButtonCal72Backup = New System.Windows.Forms.Button()
         Me.Label377 = New System.Windows.Forms.Label()
         Me.PanelCal72Summary = New System.Windows.Forms.Panel()
+        Me.Label387 = New System.Windows.Forms.Label()
         Me.Label385 = New System.Windows.Forms.Label()
         Me.LabelSummary7 = New System.Windows.Forms.Label()
         Me.LabelSummary6 = New System.Windows.Forms.Label()
@@ -1223,8 +1225,6 @@ Partial Class Formtest
         Me.Timer15 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer16 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
-        Me.LabelCal72OneVolt = New System.Windows.Forms.Label()
-        Me.Label387 = New System.Windows.Forms.Label()
         Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
@@ -3253,7 +3253,7 @@ Partial Class Formtest
         '
         'LabelCal72WorstDrift
         '
-        Me.LabelCal72WorstDrift.Location = New System.Drawing.Point(333, 38)
+        Me.LabelCal72WorstDrift.Location = New System.Drawing.Point(334, 38)
         Me.LabelCal72WorstDrift.Name = "LabelCal72WorstDrift"
         Me.LabelCal72WorstDrift.Size = New System.Drawing.Size(100, 13)
         Me.LabelCal72WorstDrift.TabIndex = 24
@@ -3263,7 +3263,7 @@ Partial Class Formtest
         '
         'LabelCal72AnnualDrift
         '
-        Me.LabelCal72AnnualDrift.Location = New System.Drawing.Point(333, 56)
+        Me.LabelCal72AnnualDrift.Location = New System.Drawing.Point(334, 56)
         Me.LabelCal72AnnualDrift.Name = "LabelCal72AnnualDrift"
         Me.LabelCal72AnnualDrift.Size = New System.Drawing.Size(100, 13)
         Me.LabelCal72AnnualDrift.TabIndex = 22
@@ -3273,7 +3273,7 @@ Partial Class Formtest
         '
         'LabelCal72LatestEntries
         '
-        Me.LabelCal72LatestEntries.Location = New System.Drawing.Point(333, 21)
+        Me.LabelCal72LatestEntries.Location = New System.Drawing.Point(334, 21)
         Me.LabelCal72LatestEntries.Name = "LabelCal72LatestEntries"
         Me.LabelCal72LatestEntries.Size = New System.Drawing.Size(100, 13)
         Me.LabelCal72LatestEntries.TabIndex = 21
@@ -3283,7 +3283,7 @@ Partial Class Formtest
         '
         'LabelCal72LatestLast
         '
-        Me.LabelCal72LatestLast.Location = New System.Drawing.Point(333, 3)
+        Me.LabelCal72LatestLast.Location = New System.Drawing.Point(334, 3)
         Me.LabelCal72LatestLast.Name = "LabelCal72LatestLast"
         Me.LabelCal72LatestLast.Size = New System.Drawing.Size(100, 13)
         Me.LabelCal72LatestLast.TabIndex = 20
@@ -3293,7 +3293,7 @@ Partial Class Formtest
         '
         'LabelCal72LatestAvg
         '
-        Me.LabelCal72LatestAvg.Location = New System.Drawing.Point(107, 56)
+        Me.LabelCal72LatestAvg.Location = New System.Drawing.Point(108, 56)
         Me.LabelCal72LatestAvg.Name = "LabelCal72LatestAvg"
         Me.LabelCal72LatestAvg.Size = New System.Drawing.Size(100, 13)
         Me.LabelCal72LatestAvg.TabIndex = 19
@@ -3303,7 +3303,7 @@ Partial Class Formtest
         '
         'LabelCal72LatestDrift
         '
-        Me.LabelCal72LatestDrift.Location = New System.Drawing.Point(107, 38)
+        Me.LabelCal72LatestDrift.Location = New System.Drawing.Point(108, 38)
         Me.LabelCal72LatestDrift.Name = "LabelCal72LatestDrift"
         Me.LabelCal72LatestDrift.Size = New System.Drawing.Size(100, 13)
         Me.LabelCal72LatestDrift.TabIndex = 18
@@ -3313,7 +3313,7 @@ Partial Class Formtest
         '
         'LabelCal72LatestValue
         '
-        Me.LabelCal72LatestValue.Location = New System.Drawing.Point(107, 21)
+        Me.LabelCal72LatestValue.Location = New System.Drawing.Point(108, 21)
         Me.LabelCal72LatestValue.Name = "LabelCal72LatestValue"
         Me.LabelCal72LatestValue.Size = New System.Drawing.Size(100, 13)
         Me.LabelCal72LatestValue.TabIndex = 17
@@ -3323,7 +3323,7 @@ Partial Class Formtest
         '
         'LabelCal72LatestDay
         '
-        Me.LabelCal72LatestDay.Location = New System.Drawing.Point(107, 3)
+        Me.LabelCal72LatestDay.Location = New System.Drawing.Point(108, 3)
         Me.LabelCal72LatestDay.Name = "LabelCal72LatestDay"
         Me.LabelCal72LatestDay.Size = New System.Drawing.Size(100, 13)
         Me.LabelCal72LatestDay.TabIndex = 16
@@ -3383,6 +3383,16 @@ Partial Class Formtest
         Me.TextBoxCal72Value.TabIndex = 4
         Me.ToolTip1.SetToolTip(Me.TextBoxCal72Value, "Enter value in decimal or scientific (E) notation." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Examples: 0.984801400 or 9.84" &
         "801400E-01")
+        '
+        'LabelCal72OneVolt
+        '
+        Me.LabelCal72OneVolt.Location = New System.Drawing.Point(334, 74)
+        Me.LabelCal72OneVolt.Name = "LabelCal72OneVolt"
+        Me.LabelCal72OneVolt.Size = New System.Drawing.Size(100, 13)
+        Me.LabelCal72OneVolt.TabIndex = 26
+        Me.LabelCal72OneVolt.Text = "#####"
+        Me.ToolTip1.SetToolTip(Me.LabelCal72OneVolt, "If the meter had read exactly 1.000000000 Vdc on Day 1," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "this is the equivalent r" &
+        "eading today based solely on the" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "measured CAL? 72 drift.")
         '
         'ButtonDev1INFO
         '
@@ -6494,6 +6504,15 @@ Partial Class Formtest
         Me.PanelCal72Summary.Name = "PanelCal72Summary"
         Me.PanelCal72Summary.Size = New System.Drawing.Size(442, 91)
         Me.PanelCal72Summary.TabIndex = 28
+        '
+        'Label387
+        '
+        Me.Label387.AutoSize = True
+        Me.Label387.Location = New System.Drawing.Point(211, 74)
+        Me.Label387.Name = "Label387"
+        Me.Label387.Size = New System.Drawing.Size(127, 13)
+        Me.Label387.TabIndex = 25
+        Me.Label387.Text = "Estimated 1Vdc Reading:"
         '
         'Label385
         '
@@ -14100,25 +14119,6 @@ Partial Class Formtest
         'Timer14
         '
         Me.Timer14.Interval = 50
-        '
-        'LabelCal72OneVolt
-        '
-        Me.LabelCal72OneVolt.Location = New System.Drawing.Point(333, 74)
-        Me.LabelCal72OneVolt.Name = "LabelCal72OneVolt"
-        Me.LabelCal72OneVolt.Size = New System.Drawing.Size(100, 13)
-        Me.LabelCal72OneVolt.TabIndex = 26
-        Me.LabelCal72OneVolt.Text = "#####"
-        Me.ToolTip1.SetToolTip(Me.LabelCal72OneVolt, "If the meter had read exactly 1.000000000 Vdc on Day 1," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "this is the equivalent r" &
-        "eading today based solely on the" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "measured CAL? 72 drift.")
-        '
-        'Label387
-        '
-        Me.Label387.AutoSize = True
-        Me.Label387.Location = New System.Drawing.Point(211, 74)
-        Me.Label387.Name = "Label387"
-        Me.Label387.Size = New System.Drawing.Size(121, 13)
-        Me.Label387.TabIndex = 25
-        Me.Label387.Text = "Example 1Vdc Reading:"
         '
         'OnOffLed2
         '
