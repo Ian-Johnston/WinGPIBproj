@@ -505,6 +505,9 @@ Partial Class Formtest
         Me.TabPage9 = New System.Windows.Forms.TabPage()
         Me.TabPage16 = New System.Windows.Forms.TabPage()
         Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.RadioButton34588 = New System.Windows.Forms.RadioButton()
+        Me.RadioButton34587 = New System.Windows.Forms.RadioButton()
+        Me.RadioButton34586 = New System.Windows.Forms.RadioButton()
         Me.ButtonCal72Backup = New System.Windows.Forms.Button()
         Me.Label377 = New System.Windows.Forms.Label()
         Me.PanelCal72Summary = New System.Windows.Forms.Panel()
@@ -1220,9 +1223,8 @@ Partial Class Formtest
         Me.Timer15 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer16 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
-        Me.RadioButton34586 = New System.Windows.Forms.RadioButton()
-        Me.RadioButton34587 = New System.Windows.Forms.RadioButton()
-        Me.RadioButton34588 = New System.Windows.Forms.RadioButton()
+        Me.LabelCal72OneVolt = New System.Windows.Forms.Label()
+        Me.Label387 = New System.Windows.Forms.Label()
         Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
@@ -3251,7 +3253,7 @@ Partial Class Formtest
         '
         'LabelCal72WorstDrift
         '
-        Me.LabelCal72WorstDrift.Location = New System.Drawing.Point(333, 48)
+        Me.LabelCal72WorstDrift.Location = New System.Drawing.Point(333, 38)
         Me.LabelCal72WorstDrift.Name = "LabelCal72WorstDrift"
         Me.LabelCal72WorstDrift.Size = New System.Drawing.Size(100, 13)
         Me.LabelCal72WorstDrift.TabIndex = 24
@@ -3261,7 +3263,7 @@ Partial Class Formtest
         '
         'LabelCal72AnnualDrift
         '
-        Me.LabelCal72AnnualDrift.Location = New System.Drawing.Point(333, 70)
+        Me.LabelCal72AnnualDrift.Location = New System.Drawing.Point(333, 56)
         Me.LabelCal72AnnualDrift.Name = "LabelCal72AnnualDrift"
         Me.LabelCal72AnnualDrift.Size = New System.Drawing.Size(100, 13)
         Me.LabelCal72AnnualDrift.TabIndex = 22
@@ -3271,7 +3273,7 @@ Partial Class Formtest
         '
         'LabelCal72LatestEntries
         '
-        Me.LabelCal72LatestEntries.Location = New System.Drawing.Point(333, 27)
+        Me.LabelCal72LatestEntries.Location = New System.Drawing.Point(333, 21)
         Me.LabelCal72LatestEntries.Name = "LabelCal72LatestEntries"
         Me.LabelCal72LatestEntries.Size = New System.Drawing.Size(100, 13)
         Me.LabelCal72LatestEntries.TabIndex = 21
@@ -3281,7 +3283,7 @@ Partial Class Formtest
         '
         'LabelCal72LatestLast
         '
-        Me.LabelCal72LatestLast.Location = New System.Drawing.Point(333, 5)
+        Me.LabelCal72LatestLast.Location = New System.Drawing.Point(333, 3)
         Me.LabelCal72LatestLast.Name = "LabelCal72LatestLast"
         Me.LabelCal72LatestLast.Size = New System.Drawing.Size(100, 13)
         Me.LabelCal72LatestLast.TabIndex = 20
@@ -3291,7 +3293,7 @@ Partial Class Formtest
         '
         'LabelCal72LatestAvg
         '
-        Me.LabelCal72LatestAvg.Location = New System.Drawing.Point(107, 70)
+        Me.LabelCal72LatestAvg.Location = New System.Drawing.Point(107, 56)
         Me.LabelCal72LatestAvg.Name = "LabelCal72LatestAvg"
         Me.LabelCal72LatestAvg.Size = New System.Drawing.Size(100, 13)
         Me.LabelCal72LatestAvg.TabIndex = 19
@@ -3301,7 +3303,7 @@ Partial Class Formtest
         '
         'LabelCal72LatestDrift
         '
-        Me.LabelCal72LatestDrift.Location = New System.Drawing.Point(107, 48)
+        Me.LabelCal72LatestDrift.Location = New System.Drawing.Point(107, 38)
         Me.LabelCal72LatestDrift.Name = "LabelCal72LatestDrift"
         Me.LabelCal72LatestDrift.Size = New System.Drawing.Size(100, 13)
         Me.LabelCal72LatestDrift.TabIndex = 18
@@ -3311,7 +3313,7 @@ Partial Class Formtest
         '
         'LabelCal72LatestValue
         '
-        Me.LabelCal72LatestValue.Location = New System.Drawing.Point(107, 27)
+        Me.LabelCal72LatestValue.Location = New System.Drawing.Point(107, 21)
         Me.LabelCal72LatestValue.Name = "LabelCal72LatestValue"
         Me.LabelCal72LatestValue.Size = New System.Drawing.Size(100, 13)
         Me.LabelCal72LatestValue.TabIndex = 17
@@ -3321,7 +3323,7 @@ Partial Class Formtest
         '
         'LabelCal72LatestDay
         '
-        Me.LabelCal72LatestDay.Location = New System.Drawing.Point(107, 5)
+        Me.LabelCal72LatestDay.Location = New System.Drawing.Point(107, 3)
         Me.LabelCal72LatestDay.Name = "LabelCal72LatestDay"
         Me.LabelCal72LatestDay.Size = New System.Drawing.Size(100, 13)
         Me.LabelCal72LatestDay.TabIndex = 16
@@ -6415,6 +6417,39 @@ Partial Class Formtest
         Me.Panel1.Size = New System.Drawing.Size(1047, 140)
         Me.Panel1.TabIndex = 1
         '
+        'RadioButton34588
+        '
+        Me.RadioButton34588.AutoSize = True
+        Me.RadioButton34588.Location = New System.Drawing.Point(506, 16)
+        Me.RadioButton34588.Name = "RadioButton34588"
+        Me.RadioButton34588.Size = New System.Drawing.Size(31, 17)
+        Me.RadioButton34588.TabIndex = 34
+        Me.RadioButton34588.TabStop = True
+        Me.RadioButton34588.Text = "8"
+        Me.RadioButton34588.UseVisualStyleBackColor = True
+        '
+        'RadioButton34587
+        '
+        Me.RadioButton34587.AutoSize = True
+        Me.RadioButton34587.Location = New System.Drawing.Point(467, 16)
+        Me.RadioButton34587.Name = "RadioButton34587"
+        Me.RadioButton34587.Size = New System.Drawing.Size(31, 17)
+        Me.RadioButton34587.TabIndex = 33
+        Me.RadioButton34587.TabStop = True
+        Me.RadioButton34587.Text = "7"
+        Me.RadioButton34587.UseVisualStyleBackColor = True
+        '
+        'RadioButton34586
+        '
+        Me.RadioButton34586.AutoSize = True
+        Me.RadioButton34586.Location = New System.Drawing.Point(428, 16)
+        Me.RadioButton34586.Name = "RadioButton34586"
+        Me.RadioButton34586.Size = New System.Drawing.Size(31, 17)
+        Me.RadioButton34586.TabIndex = 32
+        Me.RadioButton34586.TabStop = True
+        Me.RadioButton34586.Text = "6"
+        Me.RadioButton34586.UseVisualStyleBackColor = True
+        '
         'ButtonCal72Backup
         '
         Me.ButtonCal72Backup.Location = New System.Drawing.Point(24, 109)
@@ -6437,6 +6472,8 @@ Partial Class Formtest
         '
         Me.PanelCal72Summary.BackColor = System.Drawing.Color.WhiteSmoke
         Me.PanelCal72Summary.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.PanelCal72Summary.Controls.Add(Me.LabelCal72OneVolt)
+        Me.PanelCal72Summary.Controls.Add(Me.Label387)
         Me.PanelCal72Summary.Controls.Add(Me.LabelCal72WorstDrift)
         Me.PanelCal72Summary.Controls.Add(Me.Label385)
         Me.PanelCal72Summary.Controls.Add(Me.LabelCal72AnnualDrift)
@@ -6461,7 +6498,7 @@ Partial Class Formtest
         'Label385
         '
         Me.Label385.AutoSize = True
-        Me.Label385.Location = New System.Drawing.Point(211, 48)
+        Me.Label385.Location = New System.Drawing.Point(211, 38)
         Me.Label385.Name = "Label385"
         Me.Label385.Size = New System.Drawing.Size(108, 13)
         Me.Label385.TabIndex = 23
@@ -6470,7 +6507,7 @@ Partial Class Formtest
         'LabelSummary7
         '
         Me.LabelSummary7.AutoSize = True
-        Me.LabelSummary7.Location = New System.Drawing.Point(211, 70)
+        Me.LabelSummary7.Location = New System.Drawing.Point(211, 56)
         Me.LabelSummary7.Name = "LabelSummary7"
         Me.LabelSummary7.Size = New System.Drawing.Size(114, 13)
         Me.LabelSummary7.TabIndex = 15
@@ -6479,7 +6516,7 @@ Partial Class Formtest
         'LabelSummary6
         '
         Me.LabelSummary6.AutoSize = True
-        Me.LabelSummary6.Location = New System.Drawing.Point(211, 27)
+        Me.LabelSummary6.Location = New System.Drawing.Point(211, 21)
         Me.LabelSummary6.Name = "LabelSummary6"
         Me.LabelSummary6.Size = New System.Drawing.Size(69, 13)
         Me.LabelSummary6.TabIndex = 14
@@ -6488,7 +6525,7 @@ Partial Class Formtest
         'LabelSummary5
         '
         Me.LabelSummary5.AutoSize = True
-        Me.LabelSummary5.Location = New System.Drawing.Point(211, 5)
+        Me.LabelSummary5.Location = New System.Drawing.Point(211, 3)
         Me.LabelSummary5.Name = "LabelSummary5"
         Me.LabelSummary5.Size = New System.Drawing.Size(99, 13)
         Me.LabelSummary5.TabIndex = 13
@@ -6497,7 +6534,7 @@ Partial Class Formtest
         'LabelSummary4
         '
         Me.LabelSummary4.AutoSize = True
-        Me.LabelSummary4.Location = New System.Drawing.Point(3, 70)
+        Me.LabelSummary4.Location = New System.Drawing.Point(3, 56)
         Me.LabelSummary4.Name = "LabelSummary4"
         Me.LabelSummary4.Size = New System.Drawing.Size(96, 13)
         Me.LabelSummary4.TabIndex = 12
@@ -6506,7 +6543,7 @@ Partial Class Formtest
         'LabelSummary3
         '
         Me.LabelSummary3.AutoSize = True
-        Me.LabelSummary3.Location = New System.Drawing.Point(3, 48)
+        Me.LabelSummary3.Location = New System.Drawing.Point(3, 38)
         Me.LabelSummary3.Name = "LabelSummary3"
         Me.LabelSummary3.Size = New System.Drawing.Size(104, 13)
         Me.LabelSummary3.TabIndex = 11
@@ -6515,7 +6552,7 @@ Partial Class Formtest
         'LabelSummary2
         '
         Me.LabelSummary2.AutoSize = True
-        Me.LabelSummary2.Location = New System.Drawing.Point(3, 27)
+        Me.LabelSummary2.Location = New System.Drawing.Point(3, 21)
         Me.LabelSummary2.Name = "LabelSummary2"
         Me.LabelSummary2.Size = New System.Drawing.Size(80, 13)
         Me.LabelSummary2.TabIndex = 10
@@ -6524,7 +6561,7 @@ Partial Class Formtest
         'LabelSummary1
         '
         Me.LabelSummary1.AutoSize = True
-        Me.LabelSummary1.Location = New System.Drawing.Point(3, 5)
+        Me.LabelSummary1.Location = New System.Drawing.Point(3, 3)
         Me.LabelSummary1.Name = "LabelSummary1"
         Me.LabelSummary1.Size = New System.Drawing.Size(102, 13)
         Me.LabelSummary1.TabIndex = 9
@@ -14064,38 +14101,24 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
-        'RadioButton34586
+        'LabelCal72OneVolt
         '
-        Me.RadioButton34586.AutoSize = True
-        Me.RadioButton34586.Location = New System.Drawing.Point(428, 16)
-        Me.RadioButton34586.Name = "RadioButton34586"
-        Me.RadioButton34586.Size = New System.Drawing.Size(31, 17)
-        Me.RadioButton34586.TabIndex = 32
-        Me.RadioButton34586.TabStop = True
-        Me.RadioButton34586.Text = "6"
-        Me.RadioButton34586.UseVisualStyleBackColor = True
+        Me.LabelCal72OneVolt.Location = New System.Drawing.Point(333, 74)
+        Me.LabelCal72OneVolt.Name = "LabelCal72OneVolt"
+        Me.LabelCal72OneVolt.Size = New System.Drawing.Size(100, 13)
+        Me.LabelCal72OneVolt.TabIndex = 26
+        Me.LabelCal72OneVolt.Text = "#####"
+        Me.ToolTip1.SetToolTip(Me.LabelCal72OneVolt, "If the meter had read exactly 1.000000000 Vdc on Day 1," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "this is the equivalent r" &
+        "eading today based solely on the" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "measured CAL? 72 drift.")
         '
-        'RadioButton34587
+        'Label387
         '
-        Me.RadioButton34587.AutoSize = True
-        Me.RadioButton34587.Location = New System.Drawing.Point(467, 16)
-        Me.RadioButton34587.Name = "RadioButton34587"
-        Me.RadioButton34587.Size = New System.Drawing.Size(31, 17)
-        Me.RadioButton34587.TabIndex = 33
-        Me.RadioButton34587.TabStop = True
-        Me.RadioButton34587.Text = "7"
-        Me.RadioButton34587.UseVisualStyleBackColor = True
-        '
-        'RadioButton34588
-        '
-        Me.RadioButton34588.AutoSize = True
-        Me.RadioButton34588.Location = New System.Drawing.Point(506, 16)
-        Me.RadioButton34588.Name = "RadioButton34588"
-        Me.RadioButton34588.Size = New System.Drawing.Size(31, 17)
-        Me.RadioButton34588.TabIndex = 34
-        Me.RadioButton34588.TabStop = True
-        Me.RadioButton34588.Text = "8"
-        Me.RadioButton34588.UseVisualStyleBackColor = True
+        Me.Label387.AutoSize = True
+        Me.Label387.Location = New System.Drawing.Point(211, 74)
+        Me.Label387.Name = "Label387"
+        Me.Label387.Size = New System.Drawing.Size(121, 13)
+        Me.Label387.TabIndex = 25
+        Me.Label387.Text = "Example 1Vdc Reading:"
         '
         'OnOffLed2
         '
@@ -15435,4 +15458,6 @@ Partial Class Formtest
     Friend WithEvents RadioButton34588 As RadioButton
     Friend WithEvents RadioButton34587 As RadioButton
     Friend WithEvents RadioButton34586 As RadioButton
+    Friend WithEvents LabelCal72OneVolt As Label
+    Friend WithEvents Label387 As Label
 End Class

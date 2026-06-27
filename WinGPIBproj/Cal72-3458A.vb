@@ -49,7 +49,7 @@ Partial Class Formtest
         DataGridViewCal72.Columns("Avg ppm/day").HeaderText = "Drift Avg ppm/Day"
         DataGridViewCal72.Columns("CAL? 1,1 Dev").HeaderText = "CAL? 1,1 40k" & vbCrLf & "Deviation"
         DataGridViewCal72.Columns("CAL? 2,1 Dev").HeaderText = "CAL? 2,1 Vref" & vbCrLf & "Deviation"
-        DataGridViewCal72.Columns("Days From Day 1").HeaderText = "Days Since Day 1"
+        DataGridViewCal72.Columns("Days From Day 1").HeaderText = "Total Days" & vbCrLf & "Elapsed"
         DataGridViewCal72.Columns("Days From Last").HeaderText = "Days Since Last"
         DataGridViewCal72.Columns("CAL? 1,1 40k").HeaderText = "CAL? 1,1" & vbCrLf & "40k"
         DataGridViewCal72.Columns("CAL? 2,1 Vref").HeaderText = "CAL? 2,1" & vbCrLf & "Vref"
@@ -96,8 +96,12 @@ Partial Class Formtest
         DataGridViewCal72.Columns("CAL? 1,1 Dev").Width = 90
         DataGridViewCal72.Columns("CAL? 2,1 Dev").Width = 90
 
-        DataGridViewCal72.Columns("CAL? 1,1 Dev").DefaultCellStyle.Format = "0.0000000000"
-        DataGridViewCal72.Columns("CAL? 2,1 Dev").DefaultCellStyle.Format = "0.0000000000"
+        'DataGridViewCal72.Columns("CAL? 1,1 Dev").DefaultCellStyle.Format = "0.0000000000"
+        'DataGridViewCal72.Columns("CAL? 2,1 Dev").DefaultCellStyle.Format = "0.0000000000"
+        DataGridViewCal72.Columns("CAL? 1,1 Dev").DefaultCellStyle.Format = "0.0#########"
+        DataGridViewCal72.Columns("CAL? 2,1 Dev").DefaultCellStyle.Format = "0.0#########"
+
+        DataGridViewCal72.Columns("Temp").DefaultCellStyle.Format = "0.0"
 
         For Each col As DataGridViewColumn In DataGridViewCal72.Columns
             col.SortMode = DataGridViewColumnSortMode.NotSortable
@@ -857,6 +861,7 @@ MessageBoxIcon.Information)
             LabelCal72LatestEntries.Text = "0"
             LabelCal72AnnualDrift.Text = "-"
             LabelCal72WorstDrift.Text = "-"
+            LabelCal72OneVolt.Text = "-"
 
             Exit Sub
 
@@ -868,6 +873,22 @@ MessageBoxIcon.Information)
         LabelCal72LatestDay.Text = r("Day").ToString()
         LabelCal72LatestValue.Text = r("CAL? 72").ToString()
         LabelCal72LatestDrift.Text = r("Drift ppm Day 1").ToString()
+
+        Dim driftPpmDay1 As Double
+        If Double.TryParse(r("Drift ppm Day 1").ToString(),
+                   NumberStyles.Float,
+                   CultureInfo.InvariantCulture,
+                   driftPpmDay1) Then
+
+            Dim oneVoltReading As Double =
+        1.0R * (1.0R + driftPpmDay1 / 1000000.0R)
+
+            LabelCal72OneVolt.Text =
+        oneVoltReading.ToString("0.000000000")
+        Else
+            LabelCal72OneVolt.Text = "-"
+        End If
+
         LabelCal72LatestAvg.Text = r("Avg ppm/day").ToString()
         LabelCal72LatestLast.Text = r("Drift ppm Last").ToString()
         LabelCal72LatestEntries.Text = Cal72Table.Rows.Count.ToString()
