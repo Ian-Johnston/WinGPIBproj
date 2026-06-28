@@ -2592,9 +2592,9 @@ Partial Class Formtest
         '
         'btncreate2
         '
-        Me.btncreate2.Location = New System.Drawing.Point(401, 45)
+        Me.btncreate2.Location = New System.Drawing.Point(401, 43)
         Me.btncreate2.Name = "btncreate2"
-        Me.btncreate2.Size = New System.Drawing.Size(60, 70)
+        Me.btncreate2.Size = New System.Drawing.Size(60, 71)
         Me.btncreate2.TabIndex = 500
         Me.btncreate2.Text = "Connect to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "I/O Device 1"
         Me.ToolTip1.SetToolTip(Me.btncreate2, "Connect to Device 1 only")
@@ -2602,9 +2602,9 @@ Partial Class Formtest
         '
         'btncreate3
         '
-        Me.btncreate3.Location = New System.Drawing.Point(401, 45)
+        Me.btncreate3.Location = New System.Drawing.Point(401, 43)
         Me.btncreate3.Name = "btncreate3"
-        Me.btncreate3.Size = New System.Drawing.Size(60, 70)
+        Me.btncreate3.Size = New System.Drawing.Size(60, 71)
         Me.btncreate3.TabIndex = 521
         Me.btncreate3.Text = "Connect to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "I/O Device 2"
         Me.ToolTip1.SetToolTip(Me.btncreate3, "Connect to Device 2 only")
@@ -3188,7 +3188,7 @@ Partial Class Formtest
         '
         'ButtonMOVEdev1
         '
-        Me.ButtonMOVEdev1.Location = New System.Drawing.Point(311, 16)
+        Me.ButtonMOVEdev1.Location = New System.Drawing.Point(311, 15)
         Me.ButtonMOVEdev1.Name = "ButtonMOVEdev1"
         Me.ButtonMOVEdev1.Size = New System.Drawing.Size(20, 22)
         Me.ButtonMOVEdev1.TabIndex = 515
@@ -3198,7 +3198,7 @@ Partial Class Formtest
         '
         'ButtonCOPYdev1
         '
-        Me.ButtonCOPYdev1.Location = New System.Drawing.Point(335, 16)
+        Me.ButtonCOPYdev1.Location = New System.Drawing.Point(335, 15)
         Me.ButtonCOPYdev1.Name = "ButtonCOPYdev1"
         Me.ButtonCOPYdev1.Size = New System.Drawing.Size(20, 22)
         Me.ButtonCOPYdev1.TabIndex = 516
@@ -3208,7 +3208,7 @@ Partial Class Formtest
         '
         'TextBoxMoveCopydev1
         '
-        Me.TextBoxMoveCopydev1.Location = New System.Drawing.Point(360, 17)
+        Me.TextBoxMoveCopydev1.Location = New System.Drawing.Point(360, 16)
         Me.TextBoxMoveCopydev1.Name = "TextBoxMoveCopydev1"
         Me.TextBoxMoveCopydev1.Size = New System.Drawing.Size(26, 20)
         Me.TextBoxMoveCopydev1.TabIndex = 517
@@ -3216,7 +3216,7 @@ Partial Class Formtest
         '
         'TextBoxMoveCopydev2
         '
-        Me.TextBoxMoveCopydev2.Location = New System.Drawing.Point(360, 17)
+        Me.TextBoxMoveCopydev2.Location = New System.Drawing.Point(360, 16)
         Me.TextBoxMoveCopydev2.Name = "TextBoxMoveCopydev2"
         Me.TextBoxMoveCopydev2.Size = New System.Drawing.Size(26, 20)
         Me.TextBoxMoveCopydev2.TabIndex = 520
@@ -3224,7 +3224,7 @@ Partial Class Formtest
         '
         'ButtonCOPYdev2
         '
-        Me.ButtonCOPYdev2.Location = New System.Drawing.Point(335, 16)
+        Me.ButtonCOPYdev2.Location = New System.Drawing.Point(335, 15)
         Me.ButtonCOPYdev2.Name = "ButtonCOPYdev2"
         Me.ButtonCOPYdev2.Size = New System.Drawing.Size(20, 22)
         Me.ButtonCOPYdev2.TabIndex = 519
@@ -3234,7 +3234,7 @@ Partial Class Formtest
         '
         'ButtonMOVEdev2
         '
-        Me.ButtonMOVEdev2.Location = New System.Drawing.Point(311, 16)
+        Me.ButtonMOVEdev2.Location = New System.Drawing.Point(311, 15)
         Me.ButtonMOVEdev2.Name = "ButtonMOVEdev2"
         Me.ButtonMOVEdev2.Size = New System.Drawing.Size(20, 22)
         Me.ButtonMOVEdev2.TabIndex = 518
@@ -3397,7 +3397,7 @@ Partial Class Formtest
         '
         'ButtonDev1INFO
         '
-        Me.ButtonDev1INFO.Location = New System.Drawing.Point(291, 94)
+        Me.ButtonDev1INFO.Location = New System.Drawing.Point(291, 93)
         Me.ButtonDev1INFO.Name = "ButtonDev1INFO"
         Me.ButtonDev1INFO.Size = New System.Drawing.Size(107, 21)
         Me.ButtonDev1INFO.TabIndex = 518
@@ -3406,7 +3406,7 @@ Partial Class Formtest
         '
         'ButtonDev2INFO
         '
-        Me.ButtonDev2INFO.Location = New System.Drawing.Point(291, 94)
+        Me.ButtonDev2INFO.Location = New System.Drawing.Point(291, 93)
         Me.ButtonDev2INFO.Name = "ButtonDev2INFO"
         Me.ButtonDev2INFO.Size = New System.Drawing.Size(107, 21)
         Me.ButtonDev2INFO.TabIndex = 536
@@ -3578,7 +3578,7 @@ Partial Class Formtest
         'cboDev2Device
         '
         Me.cboDev2Device.FormattingEnabled = True
-        Me.cboDev2Device.Location = New System.Drawing.Point(69, 16)
+        Me.cboDev2Device.Location = New System.Drawing.Point(68, 15)
         Me.cboDev2Device.Name = "cboDev2Device"
         Me.cboDev2Device.Size = New System.Drawing.Size(238, 21)
         Me.cboDev2Device.TabIndex = 535
@@ -3595,7 +3595,7 @@ Partial Class Formtest
         'Label18
         '
         Me.Label18.AutoSize = True
-        Me.Label18.Location = New System.Drawing.Point(1, 98)
+        Me.Label18.Location = New System.Drawing.Point(1, 97)
         Me.Label18.Name = "Label18"
         Me.Label18.Size = New System.Drawing.Size(67, 13)
         Me.Label18.TabIndex = 520
@@ -3615,7 +3615,7 @@ Partial Class Formtest
         '
         Me.lstIntf2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.lstIntf2.FormattingEnabled = True
-        Me.lstIntf2.Location = New System.Drawing.Point(68, 94)
+        Me.lstIntf2.Location = New System.Drawing.Point(68, 93)
         Me.lstIntf2.Name = "lstIntf2"
         Me.lstIntf2.Size = New System.Drawing.Size(147, 21)
         Me.lstIntf2.TabIndex = 519
@@ -3623,7 +3623,7 @@ Partial Class Formtest
         'Label4
         '
         Me.Label4.AutoSize = True
-        Me.Label4.Location = New System.Drawing.Point(9, 73)
+        Me.Label4.Location = New System.Drawing.Point(9, 72)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(59, 13)
         Me.Label4.TabIndex = 518
@@ -3631,7 +3631,7 @@ Partial Class Formtest
         '
         'txtname2
         '
-        Me.txtname2.Location = New System.Drawing.Point(68, 45)
+        Me.txtname2.Location = New System.Drawing.Point(68, 43)
         Me.txtname2.Name = "txtname2"
         Me.txtname2.Size = New System.Drawing.Size(330, 20)
         Me.txtname2.TabIndex = 517
@@ -3639,7 +3639,7 @@ Partial Class Formtest
         '
         'txtaddr2
         '
-        Me.txtaddr2.Location = New System.Drawing.Point(68, 69)
+        Me.txtaddr2.Location = New System.Drawing.Point(68, 68)
         Me.txtaddr2.Name = "txtaddr2"
         Me.txtaddr2.Size = New System.Drawing.Size(330, 20)
         Me.txtaddr2.TabIndex = 516
@@ -3650,7 +3650,7 @@ Partial Class Formtest
         '
         Me.Label2.AutoSize = True
         Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.Location = New System.Drawing.Point(12, 49)
+        Me.Label2.Location = New System.Drawing.Point(12, 47)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(55, 13)
         Me.Label2.TabIndex = 515
@@ -3682,7 +3682,7 @@ Partial Class Formtest
         'cboDev1Device
         '
         Me.cboDev1Device.FormattingEnabled = True
-        Me.cboDev1Device.Location = New System.Drawing.Point(69, 16)
+        Me.cboDev1Device.Location = New System.Drawing.Point(68, 15)
         Me.cboDev1Device.Name = "cboDev1Device"
         Me.cboDev1Device.Size = New System.Drawing.Size(238, 21)
         Me.cboDev1Device.TabIndex = 514
@@ -3709,7 +3709,7 @@ Partial Class Formtest
         'Label17
         '
         Me.Label17.AutoSize = True
-        Me.Label17.Location = New System.Drawing.Point(1, 99)
+        Me.Label17.Location = New System.Drawing.Point(1, 98)
         Me.Label17.Name = "Label17"
         Me.Label17.Size = New System.Drawing.Size(67, 13)
         Me.Label17.TabIndex = 498
@@ -3719,7 +3719,7 @@ Partial Class Formtest
         '
         Me.lstIntf1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.lstIntf1.FormattingEnabled = True
-        Me.lstIntf1.Location = New System.Drawing.Point(68, 94)
+        Me.lstIntf1.Location = New System.Drawing.Point(68, 93)
         Me.lstIntf1.Name = "lstIntf1"
         Me.lstIntf1.Size = New System.Drawing.Size(147, 21)
         Me.lstIntf1.TabIndex = 497
@@ -3727,7 +3727,7 @@ Partial Class Formtest
         'Label3
         '
         Me.Label3.AutoSize = True
-        Me.Label3.Location = New System.Drawing.Point(9, 73)
+        Me.Label3.Location = New System.Drawing.Point(9, 72)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(59, 13)
         Me.Label3.TabIndex = 496
@@ -3735,7 +3735,7 @@ Partial Class Formtest
         '
         'txtaddr1
         '
-        Me.txtaddr1.Location = New System.Drawing.Point(68, 69)
+        Me.txtaddr1.Location = New System.Drawing.Point(68, 68)
         Me.txtaddr1.Name = "txtaddr1"
         Me.txtaddr1.Size = New System.Drawing.Size(330, 20)
         Me.txtaddr1.TabIndex = 495
@@ -3744,7 +3744,7 @@ Partial Class Formtest
         '
         'txtname1
         '
-        Me.txtname1.Location = New System.Drawing.Point(68, 45)
+        Me.txtname1.Location = New System.Drawing.Point(68, 43)
         Me.txtname1.Name = "txtname1"
         Me.txtname1.Size = New System.Drawing.Size(330, 20)
         Me.txtname1.TabIndex = 494
@@ -3754,7 +3754,7 @@ Partial Class Formtest
         '
         Me.Label1.AutoSize = True
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.Location = New System.Drawing.Point(13, 49)
+        Me.Label1.Location = New System.Drawing.Point(13, 47)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(55, 13)
         Me.Label1.TabIndex = 493
