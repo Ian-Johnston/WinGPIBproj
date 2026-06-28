@@ -1311,7 +1311,7 @@ Partial Class Formtest
         'btndevlist
         '
         Me.btndevlist.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.btndevlist.Location = New System.Drawing.Point(951, 134)
+        Me.btndevlist.Location = New System.Drawing.Point(951, 169)
         Me.btndevlist.Name = "btndevlist"
         Me.btndevlist.Size = New System.Drawing.Size(90, 40)
         Me.btndevlist.TabIndex = 70
@@ -1322,9 +1322,9 @@ Partial Class Formtest
         'ButtonReset
         '
         Me.ButtonReset.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.ButtonReset.Location = New System.Drawing.Point(951, 55)
+        Me.ButtonReset.Location = New System.Drawing.Point(951, 68)
         Me.ButtonReset.Name = "ButtonReset"
-        Me.ButtonReset.Size = New System.Drawing.Size(90, 40)
+        Me.ButtonReset.Size = New System.Drawing.Size(90, 53)
         Me.ButtonReset.TabIndex = 75
         Me.ButtonReset.Text = "Disconnect I/O" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Devices"
         Me.ToolTip1.SetToolTip(Me.ButtonReset, "Disconnect the currently connected devices")
@@ -1364,7 +1364,7 @@ Partial Class Formtest
         '
         'btnq2b
         '
-        Me.btnq2b.Location = New System.Drawing.Point(262, 109)
+        Me.btnq2b.Location = New System.Drawing.Point(262, 107)
         Me.btnq2b.Name = "btnq2b"
         Me.btnq2b.Size = New System.Drawing.Size(199, 41)
         Me.btnq2b.TabIndex = 17
@@ -1635,7 +1635,7 @@ Partial Class Formtest
         'ButtonSaveSettings
         '
         Me.ButtonSaveSettings.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.ButtonSaveSettings.Location = New System.Drawing.Point(951, 415)
+        Me.ButtonSaveSettings.Location = New System.Drawing.Point(951, 418)
         Me.ButtonSaveSettings.Name = "ButtonSaveSettings"
         Me.ButtonSaveSettings.Size = New System.Drawing.Size(90, 37)
         Me.ButtonSaveSettings.TabIndex = 77
@@ -1646,7 +1646,7 @@ Partial Class Formtest
         'ButtonNotePad2
         '
         Me.ButtonNotePad2.BackColor = System.Drawing.Color.Wheat
-        Me.ButtonNotePad2.Location = New System.Drawing.Point(951, 258)
+        Me.ButtonNotePad2.Location = New System.Drawing.Point(951, 294)
         Me.ButtonNotePad2.Name = "ButtonNotePad2"
         Me.ButtonNotePad2.Size = New System.Drawing.Size(90, 41)
         Me.ButtonNotePad2.TabIndex = 78
@@ -1668,7 +1668,7 @@ Partial Class Formtest
         'ShowFiles2
         '
         Me.ShowFiles2.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.ShowFiles2.Location = New System.Drawing.Point(951, 319)
+        Me.ShowFiles2.Location = New System.Drawing.Point(951, 358)
         Me.ShowFiles2.Name = "ShowFiles2"
         Me.ShowFiles2.Size = New System.Drawing.Size(90, 37)
         Me.ShowFiles2.TabIndex = 557
@@ -1895,7 +1895,7 @@ Partial Class Formtest
         'EditMode
         '
         Me.EditMode.AutoSize = True
-        Me.EditMode.Location = New System.Drawing.Point(966, 191)
+        Me.EditMode.Location = New System.Drawing.Point(967, 225)
         Me.EditMode.Name = "EditMode"
         Me.EditMode.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.EditMode.Size = New System.Drawing.Size(74, 17)
@@ -2592,9 +2592,9 @@ Partial Class Formtest
         '
         'btncreate2
         '
-        Me.btncreate2.Location = New System.Drawing.Point(376, 47)
+        Me.btncreate2.Location = New System.Drawing.Point(401, 45)
         Me.btncreate2.Name = "btncreate2"
-        Me.btncreate2.Size = New System.Drawing.Size(84, 40)
+        Me.btncreate2.Size = New System.Drawing.Size(60, 70)
         Me.btncreate2.TabIndex = 500
         Me.btncreate2.Text = "Connect to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "I/O Device 1"
         Me.ToolTip1.SetToolTip(Me.btncreate2, "Connect to Device 1 only")
@@ -2602,9 +2602,9 @@ Partial Class Formtest
         '
         'btncreate3
         '
-        Me.btncreate3.Location = New System.Drawing.Point(376, 47)
+        Me.btncreate3.Location = New System.Drawing.Point(401, 45)
         Me.btncreate3.Name = "btncreate3"
-        Me.btncreate3.Size = New System.Drawing.Size(84, 40)
+        Me.btncreate3.Size = New System.Drawing.Size(60, 70)
         Me.btncreate3.TabIndex = 521
         Me.btncreate3.Text = "Connect to" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "I/O Device 2"
         Me.ToolTip1.SetToolTip(Me.btncreate3, "Connect to Device 2 only")
@@ -2613,8 +2613,9 @@ Partial Class Formtest
         'noEOI
         '
         Me.noEOI.AutoSize = True
-        Me.noEOI.Location = New System.Drawing.Point(952, 101)
+        Me.noEOI.Location = New System.Drawing.Point(947, 137)
         Me.noEOI.Name = "noEOI"
+        Me.noEOI.RightToLeft = System.Windows.Forms.RightToLeft.Yes
         Me.noEOI.Size = New System.Drawing.Size(94, 17)
         Me.noEOI.TabIndex = 507
         Me.noEOI.Text = "EOI Incapable"
@@ -2653,7 +2654,7 @@ Partial Class Formtest
         'ButtonAvailableComPorts
         '
         Me.ButtonAvailableComPorts.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.ButtonAvailableComPorts.Location = New System.Drawing.Point(951, 221)
+        Me.ButtonAvailableComPorts.Location = New System.Drawing.Point(951, 256)
         Me.ButtonAvailableComPorts.Name = "ButtonAvailableComPorts"
         Me.ButtonAvailableComPorts.Size = New System.Drawing.Size(90, 22)
         Me.ButtonAvailableComPorts.TabIndex = 562
@@ -2833,7 +2834,7 @@ Partial Class Formtest
         '
         Me.txtOperationDev1.Location = New System.Drawing.Point(8, 82)
         Me.txtOperationDev1.Name = "txtOperationDev1"
-        Me.txtOperationDev1.Size = New System.Drawing.Size(44, 20)
+        Me.txtOperationDev1.Size = New System.Drawing.Size(48, 20)
         Me.txtOperationDev1.TabIndex = 121
         Me.txtOperationDev1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         Me.ToolTip1.SetToolTip(Me.txtOperationDev1, "Arithmetic *, /, + or -")
@@ -2841,7 +2842,7 @@ Partial Class Formtest
         'Label140
         '
         Me.Label140.AutoSize = True
-        Me.Label140.Location = New System.Drawing.Point(56, 87)
+        Me.Label140.Location = New System.Drawing.Point(60, 87)
         Me.Label140.Name = "Label140"
         Me.Label140.Size = New System.Drawing.Size(53, 13)
         Me.Label140.TabIndex = 122
@@ -2851,7 +2852,7 @@ Partial Class Formtest
         'Label141
         '
         Me.Label141.AutoSize = True
-        Me.Label141.Location = New System.Drawing.Point(56, 87)
+        Me.Label141.Location = New System.Drawing.Point(60, 87)
         Me.Label141.Name = "Label141"
         Me.Label141.Size = New System.Drawing.Size(53, 13)
         Me.Label141.TabIndex = 126
@@ -2862,7 +2863,7 @@ Partial Class Formtest
         '
         Me.txtOperationDev2.Location = New System.Drawing.Point(8, 82)
         Me.txtOperationDev2.Name = "txtOperationDev2"
-        Me.txtOperationDev2.Size = New System.Drawing.Size(44, 20)
+        Me.txtOperationDev2.Size = New System.Drawing.Size(48, 20)
         Me.txtOperationDev2.TabIndex = 125
         Me.txtOperationDev2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         Me.ToolTip1.SetToolTip(Me.txtOperationDev2, "Arithmetic *, /, + or -")
@@ -2928,9 +2929,9 @@ Partial Class Formtest
         'btncreate
         '
         Me.btncreate.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.btncreate.Location = New System.Drawing.Point(951, 13)
+        Me.btncreate.Location = New System.Drawing.Point(951, 9)
         Me.btncreate.Name = "btncreate"
-        Me.btncreate.Size = New System.Drawing.Size(90, 40)
+        Me.btncreate.Size = New System.Drawing.Size(90, 53)
         Me.btncreate.TabIndex = 506
         Me.btncreate.Text = "Connect to I/O" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Devices 1 && 2"
         Me.ToolTip1.SetToolTip(Me.btncreate, "Connect to Device 1 & Device 2")
@@ -3187,7 +3188,7 @@ Partial Class Formtest
         '
         'ButtonMOVEdev1
         '
-        Me.ButtonMOVEdev1.Location = New System.Drawing.Point(319, 16)
+        Me.ButtonMOVEdev1.Location = New System.Drawing.Point(311, 16)
         Me.ButtonMOVEdev1.Name = "ButtonMOVEdev1"
         Me.ButtonMOVEdev1.Size = New System.Drawing.Size(20, 22)
         Me.ButtonMOVEdev1.TabIndex = 515
@@ -3197,7 +3198,7 @@ Partial Class Formtest
         '
         'ButtonCOPYdev1
         '
-        Me.ButtonCOPYdev1.Location = New System.Drawing.Point(339, 16)
+        Me.ButtonCOPYdev1.Location = New System.Drawing.Point(335, 16)
         Me.ButtonCOPYdev1.Name = "ButtonCOPYdev1"
         Me.ButtonCOPYdev1.Size = New System.Drawing.Size(20, 22)
         Me.ButtonCOPYdev1.TabIndex = 516
@@ -3209,21 +3210,21 @@ Partial Class Formtest
         '
         Me.TextBoxMoveCopydev1.Location = New System.Drawing.Point(360, 17)
         Me.TextBoxMoveCopydev1.Name = "TextBoxMoveCopydev1"
-        Me.TextBoxMoveCopydev1.Size = New System.Drawing.Size(19, 20)
+        Me.TextBoxMoveCopydev1.Size = New System.Drawing.Size(26, 20)
         Me.TextBoxMoveCopydev1.TabIndex = 517
         Me.ToolTip1.SetToolTip(Me.TextBoxMoveCopydev1, "MOVE/COPY Target (Dev1)")
         '
         'TextBoxMoveCopydev2
         '
-        Me.TextBoxMoveCopydev2.Location = New System.Drawing.Point(361, 17)
+        Me.TextBoxMoveCopydev2.Location = New System.Drawing.Point(360, 17)
         Me.TextBoxMoveCopydev2.Name = "TextBoxMoveCopydev2"
-        Me.TextBoxMoveCopydev2.Size = New System.Drawing.Size(19, 20)
+        Me.TextBoxMoveCopydev2.Size = New System.Drawing.Size(26, 20)
         Me.TextBoxMoveCopydev2.TabIndex = 520
         Me.ToolTip1.SetToolTip(Me.TextBoxMoveCopydev2, "MOVE/COPY Target (Dev2)")
         '
         'ButtonCOPYdev2
         '
-        Me.ButtonCOPYdev2.Location = New System.Drawing.Point(340, 16)
+        Me.ButtonCOPYdev2.Location = New System.Drawing.Point(335, 16)
         Me.ButtonCOPYdev2.Name = "ButtonCOPYdev2"
         Me.ButtonCOPYdev2.Size = New System.Drawing.Size(20, 22)
         Me.ButtonCOPYdev2.TabIndex = 519
@@ -3233,7 +3234,7 @@ Partial Class Formtest
         '
         'ButtonMOVEdev2
         '
-        Me.ButtonMOVEdev2.Location = New System.Drawing.Point(320, 16)
+        Me.ButtonMOVEdev2.Location = New System.Drawing.Point(311, 16)
         Me.ButtonMOVEdev2.Name = "ButtonMOVEdev2"
         Me.ButtonMOVEdev2.Size = New System.Drawing.Size(20, 22)
         Me.ButtonMOVEdev2.TabIndex = 518
@@ -3396,20 +3397,20 @@ Partial Class Formtest
         '
         'ButtonDev1INFO
         '
-        Me.ButtonDev1INFO.Location = New System.Drawing.Point(320, 94)
+        Me.ButtonDev1INFO.Location = New System.Drawing.Point(291, 94)
         Me.ButtonDev1INFO.Name = "ButtonDev1INFO"
-        Me.ButtonDev1INFO.Size = New System.Drawing.Size(50, 21)
+        Me.ButtonDev1INFO.Size = New System.Drawing.Size(107, 21)
         Me.ButtonDev1INFO.TabIndex = 518
-        Me.ButtonDev1INFO.Text = "INFO"
+        Me.ButtonDev1INFO.Text = "PROFILE INFO"
         Me.ButtonDev1INFO.UseVisualStyleBackColor = True
         '
         'ButtonDev2INFO
         '
-        Me.ButtonDev2INFO.Location = New System.Drawing.Point(321, 94)
+        Me.ButtonDev2INFO.Location = New System.Drawing.Point(291, 94)
         Me.ButtonDev2INFO.Name = "ButtonDev2INFO"
-        Me.ButtonDev2INFO.Size = New System.Drawing.Size(50, 21)
+        Me.ButtonDev2INFO.Size = New System.Drawing.Size(107, 21)
         Me.ButtonDev2INFO.TabIndex = 536
-        Me.ButtonDev2INFO.Text = "INFO"
+        Me.ButtonDev2INFO.Text = "PROFILE INFO"
         Me.ButtonDev2INFO.UseVisualStyleBackColor = True
         '
         'CheckBoxPrologixSerialDTR
@@ -3546,7 +3547,7 @@ Partial Class Formtest
         'Label133
         '
         Me.Label133.AutoSize = True
-        Me.Label133.Location = New System.Drawing.Point(968, 115)
+        Me.Label133.Location = New System.Drawing.Point(962, 150)
         Me.Label133.Name = "Label133"
         Me.Label133.Size = New System.Drawing.Size(61, 13)
         Me.Label133.TabIndex = 508
@@ -3577,7 +3578,7 @@ Partial Class Formtest
         'cboDev2Device
         '
         Me.cboDev2Device.FormattingEnabled = True
-        Me.cboDev2Device.Location = New System.Drawing.Point(78, 16)
+        Me.cboDev2Device.Location = New System.Drawing.Point(69, 16)
         Me.cboDev2Device.Name = "cboDev2Device"
         Me.cboDev2Device.Size = New System.Drawing.Size(238, 21)
         Me.cboDev2Device.TabIndex = 535
@@ -3585,7 +3586,7 @@ Partial Class Formtest
         'Label15
         '
         Me.Label15.AutoSize = True
-        Me.Label15.Location = New System.Drawing.Point(21, 20)
+        Me.Label15.Location = New System.Drawing.Point(13, 20)
         Me.Label15.Name = "Label15"
         Me.Label15.Size = New System.Drawing.Size(52, 13)
         Me.Label15.TabIndex = 525
@@ -3594,7 +3595,7 @@ Partial Class Formtest
         'Label18
         '
         Me.Label18.AutoSize = True
-        Me.Label18.Location = New System.Drawing.Point(9, 98)
+        Me.Label18.Location = New System.Drawing.Point(1, 98)
         Me.Label18.Name = "Label18"
         Me.Label18.Size = New System.Drawing.Size(67, 13)
         Me.Label18.TabIndex = 520
@@ -3614,7 +3615,7 @@ Partial Class Formtest
         '
         Me.lstIntf2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.lstIntf2.FormattingEnabled = True
-        Me.lstIntf2.Location = New System.Drawing.Point(77, 94)
+        Me.lstIntf2.Location = New System.Drawing.Point(68, 94)
         Me.lstIntf2.Name = "lstIntf2"
         Me.lstIntf2.Size = New System.Drawing.Size(147, 21)
         Me.lstIntf2.TabIndex = 519
@@ -3622,7 +3623,7 @@ Partial Class Formtest
         'Label4
         '
         Me.Label4.AutoSize = True
-        Me.Label4.Location = New System.Drawing.Point(17, 73)
+        Me.Label4.Location = New System.Drawing.Point(9, 73)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(59, 13)
         Me.Label4.TabIndex = 518
@@ -3630,25 +3631,26 @@ Partial Class Formtest
         '
         'txtname2
         '
-        Me.txtname2.Location = New System.Drawing.Point(77, 45)
+        Me.txtname2.Location = New System.Drawing.Point(68, 45)
         Me.txtname2.Name = "txtname2"
-        Me.txtname2.Size = New System.Drawing.Size(294, 20)
+        Me.txtname2.Size = New System.Drawing.Size(330, 20)
         Me.txtname2.TabIndex = 517
         Me.txtname2.Text = "KEITHLEY"
         '
         'txtaddr2
         '
-        Me.txtaddr2.Location = New System.Drawing.Point(77, 69)
+        Me.txtaddr2.Location = New System.Drawing.Point(68, 69)
         Me.txtaddr2.Name = "txtaddr2"
-        Me.txtaddr2.Size = New System.Drawing.Size(294, 20)
+        Me.txtaddr2.Size = New System.Drawing.Size(330, 20)
         Me.txtaddr2.TabIndex = 516
         Me.txtaddr2.Text = "GPIB1::23::INSTR"
+        Me.txtaddr2.WordWrap = False
         '
         'Label2
         '
         Me.Label2.AutoSize = True
         Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.Location = New System.Drawing.Point(20, 49)
+        Me.Label2.Location = New System.Drawing.Point(12, 49)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(55, 13)
         Me.Label2.TabIndex = 515
@@ -3656,6 +3658,7 @@ Partial Class Formtest
         '
         'GroupBox8
         '
+        Me.GroupBox8.BackColor = System.Drawing.Color.WhiteSmoke
         Me.GroupBox8.Controls.Add(Me.ButtonDev1INFO)
         Me.GroupBox8.Controls.Add(Me.TextBoxMoveCopydev1)
         Me.GroupBox8.Controls.Add(Me.ButtonCOPYdev1)
@@ -3679,7 +3682,7 @@ Partial Class Formtest
         'cboDev1Device
         '
         Me.cboDev1Device.FormattingEnabled = True
-        Me.cboDev1Device.Location = New System.Drawing.Point(77, 16)
+        Me.cboDev1Device.Location = New System.Drawing.Point(69, 16)
         Me.cboDev1Device.Name = "cboDev1Device"
         Me.cboDev1Device.Size = New System.Drawing.Size(238, 21)
         Me.cboDev1Device.TabIndex = 514
@@ -3697,7 +3700,7 @@ Partial Class Formtest
         'Label16
         '
         Me.Label16.AutoSize = True
-        Me.Label16.Location = New System.Drawing.Point(20, 20)
+        Me.Label16.Location = New System.Drawing.Point(14, 20)
         Me.Label16.Name = "Label16"
         Me.Label16.Size = New System.Drawing.Size(52, 13)
         Me.Label16.TabIndex = 504
@@ -3706,7 +3709,7 @@ Partial Class Formtest
         'Label17
         '
         Me.Label17.AutoSize = True
-        Me.Label17.Location = New System.Drawing.Point(7, 99)
+        Me.Label17.Location = New System.Drawing.Point(1, 99)
         Me.Label17.Name = "Label17"
         Me.Label17.Size = New System.Drawing.Size(67, 13)
         Me.Label17.TabIndex = 498
@@ -3716,7 +3719,7 @@ Partial Class Formtest
         '
         Me.lstIntf1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.lstIntf1.FormattingEnabled = True
-        Me.lstIntf1.Location = New System.Drawing.Point(76, 94)
+        Me.lstIntf1.Location = New System.Drawing.Point(68, 94)
         Me.lstIntf1.Name = "lstIntf1"
         Me.lstIntf1.Size = New System.Drawing.Size(147, 21)
         Me.lstIntf1.TabIndex = 497
@@ -3724,7 +3727,7 @@ Partial Class Formtest
         'Label3
         '
         Me.Label3.AutoSize = True
-        Me.Label3.Location = New System.Drawing.Point(15, 73)
+        Me.Label3.Location = New System.Drawing.Point(9, 73)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(59, 13)
         Me.Label3.TabIndex = 496
@@ -3732,17 +3735,18 @@ Partial Class Formtest
         '
         'txtaddr1
         '
-        Me.txtaddr1.Location = New System.Drawing.Point(76, 69)
+        Me.txtaddr1.Location = New System.Drawing.Point(68, 69)
         Me.txtaddr1.Name = "txtaddr1"
-        Me.txtaddr1.Size = New System.Drawing.Size(294, 20)
+        Me.txtaddr1.Size = New System.Drawing.Size(330, 20)
         Me.txtaddr1.TabIndex = 495
         Me.txtaddr1.Text = "GPIB1::22::INSTR"
+        Me.txtaddr1.WordWrap = False
         '
         'txtname1
         '
-        Me.txtname1.Location = New System.Drawing.Point(76, 45)
+        Me.txtname1.Location = New System.Drawing.Point(68, 45)
         Me.txtname1.Name = "txtname1"
-        Me.txtname1.Size = New System.Drawing.Size(294, 20)
+        Me.txtname1.Size = New System.Drawing.Size(330, 20)
         Me.txtname1.TabIndex = 494
         Me.txtname1.Text = "HP3458A"
         '
@@ -3750,7 +3754,7 @@ Partial Class Formtest
         '
         Me.Label1.AutoSize = True
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.Location = New System.Drawing.Point(19, 49)
+        Me.Label1.Location = New System.Drawing.Point(13, 49)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(55, 13)
         Me.Label1.TabIndex = 493
