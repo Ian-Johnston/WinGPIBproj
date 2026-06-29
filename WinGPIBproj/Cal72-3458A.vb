@@ -55,6 +55,7 @@ Partial Class Formtest
         DataGridViewCal72.Columns("CAL? 2,1 Vref").HeaderText = "CAL? 2,1" & vbCrLf & "Vref"
         DataGridViewCal72.Columns("Temp").HeaderText = "3458A" & vbCrLf & "Temp?"
         DataGridViewCal72.Columns("CAL? 72").HeaderText = "CAL? 72" & vbCrLf & "Value"
+        DataGridViewCal72.Columns("CAL? 72").DefaultCellStyle.Format = "0.00000000E+00"
 
         DataGridViewCal72.RowHeadersVisible = False
         DataGridViewCal72.ColumnHeadersVisible = True
@@ -75,21 +76,21 @@ Partial Class Formtest
 
         DataGridViewCal72.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
 
-        DataGridViewCal72.Columns("Day").Width = 50
+        DataGridViewCal72.Columns("Day").Width = 35
         DataGridViewCal72.Columns("Date").Width = 75
-        DataGridViewCal72.Columns("Time").Width = 50
-        DataGridViewCal72.Columns("Temp").Width = 55
+        DataGridViewCal72.Columns("Time").Width = 45
+        DataGridViewCal72.Columns("Temp").Width = 50
 
-        DataGridViewCal72.Columns("CAL? 72").Width = 80
+        DataGridViewCal72.Columns("CAL? 72").Width = 100
         DataGridViewCal72.Columns("CAL? 1,1 40k").Width = 100
         DataGridViewCal72.Columns("CAL? 2,1 Vref").Width = 100
 
-        DataGridViewCal72.Columns("Days From Day 1").Width = 80
-        DataGridViewCal72.Columns("Days From Last").Width = 80
+        DataGridViewCal72.Columns("Days From Day 1").Width = 70
+        DataGridViewCal72.Columns("Days From Last").Width = 75
 
-        DataGridViewCal72.Columns("Drift ppm Day 1").Width = 85
-        DataGridViewCal72.Columns("Avg ppm/day").Width = 80
-        DataGridViewCal72.Columns("Drift ppm Last").Width = 88
+        DataGridViewCal72.Columns("Drift ppm Day 1").Width = 75
+        DataGridViewCal72.Columns("Avg ppm/day").Width = 70
+        DataGridViewCal72.Columns("Drift ppm Last").Width = 75
 
         DataGridViewCal72.Columns("Notes").Width = 600
 
