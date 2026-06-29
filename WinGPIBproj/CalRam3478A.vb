@@ -12,16 +12,16 @@ Imports System.Runtime.Serialization
 Imports System.Text
 Imports System.Threading
 Imports IODevices
-Imports Ivi.Visa
-Imports Microsoft.Office.Interop.Word
+'Imports Ivi.Visa                                   ' is this being used?
+'Imports Microsoft.Office.Interop.Word              ' is this being used?
 Imports MigraDoc.DocumentObjectModel.Shapes
 Imports Newtonsoft.Json.Serialization
 
 Partial Class Formtest
     '3478A
     Dim Abort3478A As Boolean = False
-    Dim RAMfilename3478A As String
-    Dim CalramAddress3478A As Integer
+    Dim RAMfilename3478A As String = ""
+    Dim CalramAddress3478A As Integer = 0
     Dim CalramStore3478A(255) As String
     Dim Counter3478A As Integer = 1
     Dim CalramValue3478A As String = ""
@@ -30,18 +30,18 @@ Partial Class Formtest
     Dim OpenFileDialog1 As New OpenFileDialog()
     Dim DataToLoad(255) As Byte
     Dim DataReadFromRam(255) As Byte
-    Dim ReadCommand As String
+    Dim ReadCommand As String = ""
     Dim ReadCommandArray(2) As Byte
-    Dim ReadResult As Byte
-    Dim ReadAddrByte As Byte
+    Dim ReadResult As Byte = 0
+    Dim ReadAddrByte As Byte = 0
     Dim StartAddrInconsistance(1) As Integer
     Dim EndAddrInconsistance(1) As Integer
     Dim q As IOQuery = Nothing
-    Dim Offset As String
-    Dim GainValue As String
-    Dim IterationRawOffset As String
-    Dim IterationRawGain As String
-    Dim IterationChecksum As String
+    Dim Offset As String = ""
+    Dim GainValue As String = ""
+    Dim IterationRawOffset As String = ""
+    Dim IterationRawGain As String = ""
+    Dim IterationChecksum As String = ""
     Dim EditedCalibrationData(18) As String
     Dim NewOffset(18) As String
     Dim NewGain(18) As String
@@ -51,16 +51,17 @@ Partial Class Formtest
     Dim CalibrationOffsetBackup(18) As String
     Dim CalibrationGainBackup(18) As String
     Dim CalibrationValidBackup(18) As String
-    Dim SerialNumberBackup As String
-    Dim DeviceID As String
-    Dim CalibrationSwitchDisabled As Boolean
-    Dim WriteSuccess3478A As Boolean
-    Dim FileContainsSerNr As Boolean
-    Dim Caller3478A As String
-    Dim EditOccurred As Boolean
-    Dim QuickAndDirty As Boolean
-    Dim EditCount As Integer
-    Dim SuppressMsgs As Boolean
+    Dim SerialNumberBackup As String = ""
+    Dim DeviceID As String = ""
+    Dim CalibrationSwitchDisabled As Boolean = False
+    Dim WriteSuccess3478A As Boolean = False
+    Dim FileContainsSerNr As Boolean = False
+    Dim Caller3478A As String = ""
+    Dim EditOccurred As Boolean = False
+    Dim QuickAndDirty As Boolean = False
+    Dim EditCount As Integer = 0
+    Dim SuppressMsgs As Boolean = False
+
     Private Sub CheckBoxSupressMsg_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxSuppressMsg.CheckedChanged
         'Suppress not error related messages at user request
         SuppressMsgs = Not SuppressMsgs
@@ -269,14 +270,14 @@ Partial Class Formtest
     'This subroutine reads calibration data from a binary file and uploads it into the 3478A's calibration RAM
     Private Sub ButtonCalramLoad3478A_Click(sender As Object, e As EventArgs) Handles ButtonCalramLoad3478A.Click
 
-        Dim ReadBackValue As String
-        Dim LoadCommand As String
+        Dim ReadBackValue As String = ""
+        Dim LoadCommand As String = ""
         Dim CalAddrHex As Byte
         Dim LoadData(4) As Byte
         Dim ReadBackData(2) As Byte
         Dim CalAddrByte As Byte
         Dim AsciiValue As Integer
-        Dim SerialNumber As String
+        Dim SerialNumber As String = ""
         Dim SerNrChangeOK As Boolean
 
         'Initialize abort flag
@@ -1011,18 +1012,18 @@ Partial Class Formtest
             Dim Address As Integer
             Dim RamValue As Char
             Dim CheckSum As Byte
-            Dim RawOffset As String
-            Dim RawGain As String
-            Dim ChecksumChar As String
-            Dim ChecksumValid As String
-            Dim GainBuffer As String
-            Dim OffsetBuffer As String
+            Dim RawOffset As String = ""
+            Dim RawGain As String = ""
+            Dim ChecksumChar As String = ""
+            Dim ChecksumValid As String = ""
+            Dim GainBuffer As String = ""
+            Dim OffsetBuffer As String = ""
             Dim Multiplier As Integer
             Dim PosVal As Integer
             Dim OffsetValue As Integer
             Dim gain As Double
             Dim temp As Double
-            Dim Buffer As String
+            Dim Buffer As String = ""
 
             If Abort3478A = True Then
                 Exit Sub
@@ -1410,195 +1411,197 @@ Partial Class Formtest
 
     Private Sub SetCalibrationRangeColor(CalibrationRange As Integer, RangeColor As Color, StartInconsistance As Integer, EndInconsistance As Integer, Mode As Integer)
 
-        Dim Color(2) As Color
-        Dim color2 As Color
+        Dim RangeColors(2) As Color
 
-        Color(0) = RangeColor
-        Color(1) = RangeColor
-        Color(2) = RangeColor
-        color2 = RangeColor
+        RangeColors(0) = RangeColor
+        RangeColors(1) = RangeColor
+        RangeColors(2) = RangeColor
 
         If Mode < 2 Then
 
             'Highlight selected ram addresses that do not match to exactly corresponding calibration ranges
             If StartInconsistance > 0 Then
                 If StartInconsistance > 10 Then
-                    Color(1) = color2.Orange
-                    Color(0) = color2.Black
-                    Color(2) = color2.Black
+                    RangeColors(1) = System.Drawing.Color.Orange
+                    RangeColors(0) = System.Drawing.Color.Black
+                    RangeColors(2) = System.Drawing.Color.Black
                 ElseIf StartInconsistance < 6 Then
-                    Color(0) = color2.Orange
-                    Color(2) = RangeColor
-                    Color(1) = RangeColor
+                    RangeColors(0) = System.Drawing.Color.Orange
+                    RangeColors(2) = RangeColor
+                    RangeColors(1) = RangeColor
                 Else
-                    Color(2) = color2.Orange
-                    Color(0) = color2.Black
-                    Color(1) = RangeColor
+                    RangeColors(2) = System.Drawing.Color.Orange
+                    RangeColors(0) = System.Drawing.Color.Black
+                    RangeColors(1) = RangeColor
                 End If
+
                 If Mode = 0 Then
                     Mode = 1
-                    RangeColor = color2.Black
+                    RangeColor = System.Drawing.Color.Black
                 End If
             End If
+
             If EndInconsistance > 0 Then
                 If EndInconsistance > 10 Then
-                    Color(1) = color2.Orange
-                    Color(0) = RangeColor
-                    Color(2) = RangeColor
+                    RangeColors(1) = System.Drawing.Color.Orange
+                    RangeColors(0) = RangeColor
+                    RangeColors(2) = RangeColor
                 ElseIf EndInconsistance < 7 Then
-                    Color(0) = color2.Orange
-                    Color(2) = color2.Black
-                    Color(1) = color2.Black
+                    RangeColors(0) = System.Drawing.Color.Orange
+                    RangeColors(2) = System.Drawing.Color.Black
+                    RangeColors(1) = System.Drawing.Color.Black
                 Else
-                    Color(2) = color2.Orange
-                    Color(1) = color2.Black
-                    Color(0) = RangeColor
+                    RangeColors(2) = System.Drawing.Color.Orange
+                    RangeColors(1) = System.Drawing.Color.Black
+                    RangeColors(0) = RangeColor
                 End If
+
                 If Mode = 0 Then
                     Mode = 1
-                    RangeColor = color2.Black
+                    RangeColor = System.Drawing.Color.Black
                 End If
             End If
         End If
 
-        'Highlight the selected calibration ram data 
-        If (CalAddrStart3478A <= (1 + CalibrationRange) * 13 And CalAddrEnd3478A >= (1 + CalibrationRange * 13)) Or Mode = 1 Then
+        'Highlight the selected calibration ram data
+        If (CalAddrStart3478A <= (1 + CalibrationRange) * 13 AndAlso CalAddrEnd3478A >= (1 + CalibrationRange * 13)) OrElse Mode = 1 Then
             Select Case CalibrationRange
                 Case 0
-                    Label01RawOffset.ForeColor = Color(0)
-                    Label01RawGain.ForeColor = Color(2)
-                    Label01Checksum.ForeColor = Color(1)
+                    Label01RawOffset.ForeColor = RangeColors(0)
+                    Label01RawGain.ForeColor = RangeColors(2)
+                    Label01Checksum.ForeColor = RangeColors(1)
                     Label01Valid.ForeColor = RangeColor
                     Label01Offset.ForeColor = RangeColor
                     Label01Gain.ForeColor = RangeColor
                 Case 1
-                    Label02RawOffset.ForeColor = Color(0)
-                    Label02RawGain.ForeColor = Color(2)
-                    Label02Checksum.ForeColor = Color(1)
+                    Label02RawOffset.ForeColor = RangeColors(0)
+                    Label02RawGain.ForeColor = RangeColors(2)
+                    Label02Checksum.ForeColor = RangeColors(1)
                     Label02Valid.ForeColor = RangeColor
                     Label02Offset.ForeColor = RangeColor
                     Label02Gain.ForeColor = RangeColor
                 Case 2
-                    Label03RawOffset.ForeColor = Color(0)
-                    Label03RawGain.ForeColor = Color(2)
-                    Label03Checksum.ForeColor = Color(1)
+                    Label03RawOffset.ForeColor = RangeColors(0)
+                    Label03RawGain.ForeColor = RangeColors(2)
+                    Label03Checksum.ForeColor = RangeColors(1)
                     Label03Valid.ForeColor = RangeColor
                     Label03Offset.ForeColor = RangeColor
                     Label03Gain.ForeColor = RangeColor
                 Case 3
-                    Label04RawOffset.ForeColor = Color(0)
-                    Label04RawGain.ForeColor = Color(2)
-                    Label04Checksum.ForeColor = Color(1)
+                    Label04RawOffset.ForeColor = RangeColors(0)
+                    Label04RawGain.ForeColor = RangeColors(2)
+                    Label04Checksum.ForeColor = RangeColors(1)
                     Label04Valid.ForeColor = RangeColor
                     Label04Offset.ForeColor = RangeColor
                     Label04Gain.ForeColor = RangeColor
                 Case 4
-                    Label05RawOffset.ForeColor = Color(0)
-                    Label05RawGain.ForeColor = Color(2)
-                    Label05Checksum.ForeColor = Color(1)
+                    Label05RawOffset.ForeColor = RangeColors(0)
+                    Label05RawGain.ForeColor = RangeColors(2)
+                    Label05Checksum.ForeColor = RangeColors(1)
                     Label05Valid.ForeColor = RangeColor
                     Label05Offset.ForeColor = RangeColor
                     Label05Gain.ForeColor = RangeColor
                 Case 5
-                    Label06RawOffset.ForeColor = Color(0)
-                    Label06RawGain.ForeColor = Color(2)
-                    Label06Checksum.ForeColor = Color(1)
+                    Label06RawOffset.ForeColor = RangeColors(0)
+                    Label06RawGain.ForeColor = RangeColors(2)
+                    Label06Checksum.ForeColor = RangeColors(1)
                     Label06Valid.ForeColor = RangeColor
                     Label06Offset.ForeColor = RangeColor
                     Label06Gain.ForeColor = RangeColor
                 Case 6
-                    Label07RawOffset.ForeColor = Color(0)
-                    Label07RawGain.ForeColor = Color(2)
-                    Label07Checksum.ForeColor = Color(1)
+                    Label07RawOffset.ForeColor = RangeColors(0)
+                    Label07RawGain.ForeColor = RangeColors(2)
+                    Label07Checksum.ForeColor = RangeColors(1)
                     Label07Valid.ForeColor = RangeColor
                     Label07Offset.ForeColor = RangeColor
                     Label07Gain.ForeColor = RangeColor
                 Case 7
-                    Label08RawOffset.ForeColor = Color(0)
-                    Label08RawGain.ForeColor = Color(2)
-                    Label08Checksum.ForeColor = Color(1)
+                    Label08RawOffset.ForeColor = RangeColors(0)
+                    Label08RawGain.ForeColor = RangeColors(2)
+                    Label08Checksum.ForeColor = RangeColors(1)
                     Label08Valid.ForeColor = RangeColor
                     Label08Offset.ForeColor = RangeColor
                     Label08Gain.ForeColor = RangeColor
                 Case 8
-                    Label09RawOffset.ForeColor = Color(0)
-                    Label09RawGain.ForeColor = Color(2)
-                    Label09Checksum.ForeColor = Color(1)
+                    Label09RawOffset.ForeColor = RangeColors(0)
+                    Label09RawGain.ForeColor = RangeColors(2)
+                    Label09Checksum.ForeColor = RangeColors(1)
                     Label09Valid.ForeColor = RangeColor
                     Label09Offset.ForeColor = RangeColor
                     Label09Gain.ForeColor = RangeColor
                 Case 9
-                    Label10RawOffset.ForeColor = Color(0)
-                    Label10RawGain.ForeColor = Color(2)
-                    Label10Checksum.ForeColor = Color(1)
+                    Label10RawOffset.ForeColor = RangeColors(0)
+                    Label10RawGain.ForeColor = RangeColors(2)
+                    Label10Checksum.ForeColor = RangeColors(1)
                     Label10Valid.ForeColor = RangeColor
                     Label10Offset.ForeColor = RangeColor
                     Label10Gain.ForeColor = RangeColor
                 Case 10
-                    Label11RawOffset.ForeColor = Color(0)
-                    Label11RawGain.ForeColor = Color(2)
-                    Label11Checksum.ForeColor = Color(1)
+                    Label11RawOffset.ForeColor = RangeColors(0)
+                    Label11RawGain.ForeColor = RangeColors(2)
+                    Label11Checksum.ForeColor = RangeColors(1)
                     Label11Valid.ForeColor = RangeColor
                     Label11Offset.ForeColor = RangeColor
                     Label11Gain.ForeColor = RangeColor
                 Case 11
-                    Label12RawOffset.ForeColor = Color(0)
-                    Label12RawGain.ForeColor = Color(2)
-                    Label12Checksum.ForeColor = Color(1)
+                    Label12RawOffset.ForeColor = RangeColors(0)
+                    Label12RawGain.ForeColor = RangeColors(2)
+                    Label12Checksum.ForeColor = RangeColors(1)
                     Label12Valid.ForeColor = RangeColor
                     Label12Offset.ForeColor = RangeColor
                     Label12Gain.ForeColor = RangeColor
                 Case 12
-                    Label13RawOffset.ForeColor = Color(0)
-                    Label13RawGain.ForeColor = Color(2)
-                    Label13Checksum.ForeColor = Color(1)
+                    Label13RawOffset.ForeColor = RangeColors(0)
+                    Label13RawGain.ForeColor = RangeColors(2)
+                    Label13Checksum.ForeColor = RangeColors(1)
                     Label13Valid.ForeColor = RangeColor
                     Label13Offset.ForeColor = RangeColor
                     Label13Gain.ForeColor = RangeColor
                 Case 13
-                    Label14RawOffset.ForeColor = Color(0)
-                    Label14RawGain.ForeColor = Color(2)
-                    Label14Checksum.ForeColor = Color(1)
+                    Label14RawOffset.ForeColor = RangeColors(0)
+                    Label14RawGain.ForeColor = RangeColors(2)
+                    Label14Checksum.ForeColor = RangeColors(1)
                     Label14Valid.ForeColor = RangeColor
                     Label14Offset.ForeColor = RangeColor
                     Label14Gain.ForeColor = RangeColor
                 Case 14
-                    Label15RawOffset.ForeColor = Color(0)
-                    Label15RawGain.ForeColor = Color(2)
-                    Label15Checksum.ForeColor = Color(1)
+                    Label15RawOffset.ForeColor = RangeColors(0)
+                    Label15RawGain.ForeColor = RangeColors(2)
+                    Label15Checksum.ForeColor = RangeColors(1)
                     Label15Valid.ForeColor = RangeColor
                     Label15Offset.ForeColor = RangeColor
                     Label15Gain.ForeColor = RangeColor
                 Case 15
-                    Label16RawOffset.ForeColor = Color(0)
-                    Label16RawGain.ForeColor = Color(2)
-                    Label16Checksum.ForeColor = Color(1)
+                    Label16RawOffset.ForeColor = RangeColors(0)
+                    Label16RawGain.ForeColor = RangeColors(2)
+                    Label16Checksum.ForeColor = RangeColors(1)
                     Label16Valid.ForeColor = RangeColor
                     Label16Offset.ForeColor = RangeColor
                     Label16Gain.ForeColor = RangeColor
                 Case 16
-                    Label17RawOffset.ForeColor = Color(0)
-                    Label17RawGain.ForeColor = Color(2)
-                    Label17Checksum.ForeColor = Color(1)
+                    Label17RawOffset.ForeColor = RangeColors(0)
+                    Label17RawGain.ForeColor = RangeColors(2)
+                    Label17Checksum.ForeColor = RangeColors(1)
                     Label17Valid.ForeColor = RangeColor
                     Label17Offset.ForeColor = RangeColor
                     Label17Gain.ForeColor = RangeColor
                 Case 17
-                    Label18RawOffset.ForeColor = Color(0)
-                    Label18RawGain.ForeColor = Color(2)
-                    Label18Checksum.ForeColor = Color(1)
+                    Label18RawOffset.ForeColor = RangeColors(0)
+                    Label18RawGain.ForeColor = RangeColors(2)
+                    Label18Checksum.ForeColor = RangeColors(1)
                     Label18Valid.ForeColor = RangeColor
                     Label18Offset.ForeColor = RangeColor
                     Label18Gain.ForeColor = RangeColor
                 Case 18
-                    Label19RawOffset.ForeColor = Color(0)
-                    Label19RawGain.ForeColor = Color(2)
-                    Label19Checksum.ForeColor = Color(1)
+                    Label19RawOffset.ForeColor = RangeColors(0)
+                    Label19RawGain.ForeColor = RangeColors(2)
+                    Label19Checksum.ForeColor = RangeColors(1)
                     Label19Valid.ForeColor = RangeColor
                     Label19Offset.ForeColor = RangeColor
                     Label19Gain.ForeColor = RangeColor
             End Select
         End If
+
     End Sub
 
     Private Sub ButtonCommitEdit3478A_Click(sender As Object, e As EventArgs) Handles ButtonCommitEdit3478A.Click
@@ -1797,7 +1800,7 @@ Partial Class Formtest
 
     End Sub
     'This subrouting processes the values entered into the calibration range offset and gain fields into binary storage format
-    Private Function EditCalibration3478A(CalibrationRange As Integer, Offset As Integer, Gain As Double, RawOffset As String, RawGain As String, CheckSum As String)
+    Private Sub EditCalibration3478A(CalibrationRange As Integer, Offset As Integer, Gain As Double, RawOffset As String, RawGain As String, CheckSum As String)
         Dim Multiplier As Integer
         Dim PosVal As Integer
         Dim OffsetValue As Integer
@@ -1856,15 +1859,15 @@ Partial Class Formtest
         ButtonDeleteSerNr.Enabled = False
         ButtonDeleteSerNr.Visible = False
 
-    End Function
+    End Sub
     Private Sub TextBoxEditGain_TextChanged(sender As Object, e As EventArgs) Handles TextBoxEditGain.TextChanged
         Dim KFactor As Double
         Dim GainDigit As Integer
         Dim GainDigitValue(6) As Integer
         Dim Carry As Integer
-        Dim ReverseGain As String
-        Dim GainString As String
-        Dim KString As String
+        Dim ReverseGain As String = ""
+        Dim GainString As String = ""
+        Dim KString As String = ""
         Dim KInteger As Integer
         Dim KDouble As Double
 
@@ -2002,13 +2005,13 @@ Partial Class Formtest
 
     End Sub
     Private Sub TextBoxEditOffset_TextChanged(sender As Object, e As EventArgs) Handles TextBoxEditOffset.TextChanged
-        Dim OffsetVal As Integer
-        Dim OffsetRaw As String
-        Dim RamValue As String
-        Dim RamChar As Char
-        Dim CharValue As Integer
-        Dim MinusSign As Boolean
-        Dim BufferText As String
+        Dim OffsetVal As Integer = 0
+        'Dim OffsetRaw As String
+        Dim RamValue As String = ""
+        Dim RamChar As Char = ChrW(0)
+        Dim CharValue As Integer = 0
+        Dim MinusSign As Boolean = False
+        Dim BufferText As String = ""
 
         'Check if a valid offset value has been entered
         If TextBoxEditOffset.Text = Nothing Then
@@ -2143,13 +2146,13 @@ Partial Class Formtest
             Dim Address As Integer
             Dim RamValue As Char
             Dim CheckSum As Byte
-            Dim RawOffset As String
-            Dim RawGain As String
+            Dim RawOffset As String = ""
+            Dim RawGain As String = ""
             Dim ChecksumChar As Char
             Dim checksumchar2 As Char
-            Dim NewChecksum As String
-            Dim checksumstr As String
-            Dim checksumstr2 As String
+            Dim NewChecksum As String = ""
+            Dim checksumstr As String = ""
+            Dim checksumstr2 As String = ""
             Dim checksumint As Integer
             Dim checksumint2 As Integer
             Dim AsciiValue2 As Integer
@@ -2230,12 +2233,13 @@ Partial Class Formtest
             CalibrationGainBackup(Range) = TextBoxEditGain.Text
         End If
 
-
     End Sub
+
+
     Private Sub ComboBoxCalRange3478A_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ComboBoxCalRange3478A.SelectedIndexChanged
-        Dim Offset As String
-        Dim Gain As String
-        Dim OffsetGain As String
+        Dim Offset As String = ""
+        Dim Gain As String = ""
+        Dim OffsetGain As String = ""
 
         'Filter out any invalid entry into the selection box
         If ComboBoxCalRange3478A.SelectedIndex < 0 Or ComboBoxCalRange3478A.SelectedIndex > 18 Then
@@ -2632,7 +2636,7 @@ Partial Class Formtest
 
         'Associate the calibration ram data with the serial number of the HP3478A
         If TextBoxSerialNumber3478A.Text = Nothing And Not EditOccurred Then
-            Dim SerNr As String
+            Dim SerNr As String = ""
 
             'Prepare the command to read serial number from unit's calibration ram data stored in the 19th (otherwise unused) calibration range
             ReadCommandArray(0) = Convert.ToByte(87)                                     'convert ascii "W" into read command byte array

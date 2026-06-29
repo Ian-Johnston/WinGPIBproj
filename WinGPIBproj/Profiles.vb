@@ -4180,7 +4180,7 @@ Partial Class Formtest
         Dim initialText As String = GetInfoText(dev, profile)
 
         Dim f As New Form With {
-        .Text = If(dev = 1, "Device 1 - Profile ", "Device 2 - Profile ") & profile.ToString() & " INFO",
+        .Text = If(dev = 1, "Device 1 - Profile ", "Device 2 - Profile ") & profile.ToString(),
         .StartPosition = FormStartPosition.CenterParent,
         .Width = 700,
         .Height = 500,
