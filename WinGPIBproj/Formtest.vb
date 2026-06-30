@@ -249,7 +249,7 @@ Public Class Formtest
             'sw.Start()
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.106"
+            BannerText1 = "WinGPIB   V4.107"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
             Me.Text = BannerText1 & "                                                        " & BannerText2.ToString()
 
@@ -2622,24 +2622,51 @@ Public Class Formtest
 
 
     Private Sub ShowExtendedSerialPortsInfo()
-        ' String to hold the detailed port list with an extra line after the header
-        Dim portList As String = "Available Serial COM Ports:" & Environment.NewLine & Environment.NewLine
+
+        Dim ports As New List(Of String)
 
         ' Query WMI for COM port descriptions
-        Dim searcher As New ManagementObjectSearcher("SELECT * FROM Win32_PnPEntity WHERE Name LIKE '%(COM%'")
+        Dim searcher As New ManagementObjectSearcher(
+        "SELECT * FROM Win32_PnPEntity WHERE Name LIKE '%(COM%'")
 
-        ' Iterate through each found port and extract information
+        ' Collect the port names
         For Each port As ManagementObject In searcher.Get()
-            Dim name As String = port("Name").ToString() ' Contains description, e.g., "USB Serial Device (COM13)"
-            portList &= $"{name}" & Environment.NewLine
+            ports.Add(port("Name").ToString())
         Next
 
-        ' Show in message box
-        If portList = "Available Serial Ports:" & Environment.NewLine & Environment.NewLine Then
-            MessageBox.Show("No serial ports available.", "Serial COM Ports", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        ' Sort by COM number (COM1, COM2, COM10, etc.)
+        ports.Sort(Function(a, b)
+                       Dim ma = Regex.Match(a, "COM(\d+)")
+                       Dim mb = Regex.Match(b, "COM(\d+)")
+
+                       Dim na As Integer = If(ma.Success, Integer.Parse(ma.Groups(1).Value), Integer.MaxValue)
+                       Dim nb As Integer = If(mb.Success, Integer.Parse(mb.Groups(1).Value), Integer.MaxValue)
+
+                       Return na.CompareTo(nb)
+                   End Function)
+
+        ' Build the output
+        Dim portList As String = "Available Serial COM Ports:" &
+                             Environment.NewLine &
+                             Environment.NewLine
+
+        For Each p As String In ports
+            portList &= p & Environment.NewLine
+        Next
+
+        If ports.Count = 0 Then
+            MessageBox.Show("No serial ports available.",
+                        "Serial COM Ports",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning)
         Else
-            MessageBox.Show(portList & Environment.NewLine & "(From Device Manager)", "Serial COM Ports", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show(portList & Environment.NewLine &
+                        "(From Device Manager)",
+                        "Serial COM Ports",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information)
         End If
+
     End Sub
 
 
