@@ -2625,49 +2625,115 @@ Public Class Formtest
 
         Dim ports As New List(Of String)
 
-        ' Query WMI for COM port descriptions
         Dim searcher As New ManagementObjectSearcher(
         "SELECT * FROM Win32_PnPEntity WHERE Name LIKE '%(COM%'")
 
-        ' Collect the port names
         For Each port As ManagementObject In searcher.Get()
             ports.Add(port("Name").ToString())
         Next
 
-        ' Sort by COM number (COM1, COM2, COM10, etc.)
         ports.Sort(Function(a, b)
-                       Dim ma = Regex.Match(a, "COM(\d+)")
-                       Dim mb = Regex.Match(b, "COM(\d+)")
-
-                       Dim na As Integer = If(ma.Success, Integer.Parse(ma.Groups(1).Value), Integer.MaxValue)
-                       Dim nb As Integer = If(mb.Success, Integer.Parse(mb.Groups(1).Value), Integer.MaxValue)
-
+                       Dim na = GetComNumber(a)
+                       Dim nb = GetComNumber(b)
                        Return na.CompareTo(nb)
                    End Function)
-
-        ' Build the output
-        Dim portList As String = "Available Serial COM Ports:" &
-                             Environment.NewLine &
-                             Environment.NewLine
-
-        For Each p As String In ports
-            portList &= p & Environment.NewLine
-        Next
 
         If ports.Count = 0 Then
             MessageBox.Show("No serial ports available.",
                         "Serial COM Ports",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning)
-        Else
-            MessageBox.Show(portList & Environment.NewLine &
-                        "(From Device Manager)",
-                        "Serial COM Ports",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information)
+            Exit Sub
         End If
 
+        Dim maxLen As Integer = ports.Max(Function(x) x.Length)
+
+        Dim portList As String = "Available Serial COM Ports:" &
+                             Environment.NewLine &
+                             Environment.NewLine
+
+        For Each p As String In ports
+
+            Dim comName As String = GetComName(p)
+            Dim status As String
+
+            If comName <> "" AndAlso IsComPortAvailable(comName) Then
+                status = "AVAILABLE"
+            Else
+                status = "IN USE"
+            End If
+
+            portList &= p.PadRight(maxLen + 4) &
+                    "[" & status & "]" &
+                    Environment.NewLine
+        Next
+
+        portList &= Environment.NewLine & "(From Device Manager)"
+
+        Using frm As New Form()
+
+            frm.Text = "Serial COM Ports"
+            frm.Size = New Size(350, 340)
+            frm.StartPosition = FormStartPosition.CenterParent
+            frm.FormBorderStyle = FormBorderStyle.FixedDialog
+            frm.MaximizeBox = False
+            frm.MinimizeBox = False
+
+            Dim txt As New TextBox()
+            txt.Multiline = True
+            txt.ReadOnly = True
+            txt.ScrollBars = ScrollBars.Vertical
+            txt.Dock = DockStyle.Fill
+            txt.Font = New Font("Consolas", 9.0F)
+            txt.Text = portList
+            txt.SelectionStart = 0
+            txt.SelectionLength = 0
+            txt.HideSelection = True
+
+            frm.Controls.Add(txt)
+
+            AddHandler frm.Shown,
+            Sub()
+                frm.ActiveControl = Nothing
+            End Sub
+
+            frm.ShowDialog()
+
+        End Using
+
     End Sub
+
+    Private Function GetComName(text As String) As String
+        Dim m = Regex.Match(text, "COM\d+")
+        If m.Success Then Return m.Value
+        Return ""
+    End Function
+
+    Private Function GetComNumber(text As String) As Integer
+        Dim m = Regex.Match(text, "COM(\d+)")
+        If m.Success Then Return Integer.Parse(m.Groups(1).Value)
+        Return Integer.MaxValue
+    End Function
+
+    Private Function IsComPortAvailable(portName As String) As Boolean
+        Try
+            Using sp As New SerialPort(portName)
+                sp.Open()
+                sp.Close()
+            End Using
+
+            Return True
+
+        Catch ex As UnauthorizedAccessException
+            Return False
+
+        Catch ex As IOException
+            Return False
+
+        Catch ex As Exception
+            Return False
+        End Try
+    End Function
 
 
     Private Sub ButtonAvailableComPorts_Click(sender As Object, e As EventArgs) Handles ButtonAvailableComPorts.Click
