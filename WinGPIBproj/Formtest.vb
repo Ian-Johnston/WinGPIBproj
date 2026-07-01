@@ -249,7 +249,7 @@ Public Class Formtest
             'sw.Start()
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.107"
+            BannerText1 = "WinGPIB   V4.108"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
             Me.Text = BannerText1 & "                                                        " & BannerText2.ToString()
 
@@ -1034,7 +1034,7 @@ Public Class Formtest
 
             btnBackup.Enabled = False
             btnRestore.Enabled = False
-            ButtonAvailableComPorts.Enabled = False
+            'ButtonAvailableComPorts.Enabled = False
             txtaddr1.Enabled = False
             lstIntf1.Enabled = False
             cboDev1Device.Enabled = False
@@ -1107,7 +1107,7 @@ Public Class Formtest
 
             btnBackup.Enabled = False
             btnRestore.Enabled = False
-            ButtonAvailableComPorts.Enabled = False
+            'ButtonAvailableComPorts.Enabled = False
             txtaddr2.Enabled = False
             lstIntf2.Enabled = False
             cboDev2Device.Enabled = False
@@ -1213,7 +1213,7 @@ Public Class Formtest
 
             btnBackup.Enabled = False
             btnRestore.Enabled = False
-            ButtonAvailableComPorts.Enabled = False
+            'ButtonAvailableComPorts.Enabled = False
             txtaddr1.Enabled = False
             lstIntf1.Enabled = False
             txtaddr2.Enabled = False
@@ -1789,10 +1789,10 @@ Public Class Formtest
                         End If
 
                         LiveChart()     ' Live chart
-                            Dev1GPIBActivity = False
-                        End If
+                        Dev1GPIBActivity = False
+                    End If
 
-                        USERdev1output = txtr1a_disp.Text       ' User tab processed/display
+                    USERdev1output = txtr1a_disp.Text       ' User tab processed/display
 
                 Else
                     ' Final result is not numeric
