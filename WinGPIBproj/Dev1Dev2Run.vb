@@ -695,6 +695,8 @@ Partial Class Formtest
 
         If Dev1SendQuery.Checked = False Then
 
+            'ToolTip1.SetToolTip(txtq1d, "Query Async command only selected")
+
             ' Send Async
             If Not String.IsNullOrEmpty(txtq1d.Text) Then
                 dev1.SendAsync(txtq1d.Text, True)
@@ -703,6 +705,8 @@ Partial Class Formtest
             End If
 
         Else
+
+            'ToolTip1.SetToolTip(txtq1d, "Send Async command only selected")
 
             ' Query Async
             If Not String.IsNullOrEmpty(txtq1d.Text) Then
@@ -892,6 +896,8 @@ Partial Class Formtest
 
         If Dev2SendQuery.Checked = False Then
 
+            'ToolTip1.SetToolTip(txtq1d, "Query Async command only selected")
+
             ' Send Async
             If Not String.IsNullOrEmpty(txtq2d.Text) Then
                 dev2.SendAsync(txtq2d.Text, True)
@@ -900,6 +906,8 @@ Partial Class Formtest
             End If
 
         Else
+
+            'ToolTip1.SetToolTip(txtq1d, "Send Async command only selected")
 
             ' Query Async
             If Not String.IsNullOrEmpty(txtq2d.Text) Then
@@ -990,10 +998,12 @@ Partial Class Formtest
             Dev1pauseDurationInSeconds.Enabled = False
             Label294.Enabled = False
             Label296.Enabled = False
+            ToolTip1.SetToolTip(txtq1d, "Query Async command only type selected")
         Else
             Dev1pauseDurationInSeconds.Enabled = True
             Label294.Enabled = True
             Label296.Enabled = True
+            ToolTip1.SetToolTip(txtq1d, "Send Async command only type selected")
         End If
 
     End Sub
@@ -1023,10 +1033,12 @@ Partial Class Formtest
             Dev2pauseDurationInSeconds.Enabled = False
             Label293.Enabled = False
             Label299.Enabled = False
+            ToolTip1.SetToolTip(txtq2d, "Query Async command only type selected")
         Else
             Dev2pauseDurationInSeconds.Enabled = True
             Label293.Enabled = True
             Label299.Enabled = True
+            ToolTip1.SetToolTip(txtq2d, "Send Async command only type selected")
         End If
 
     End Sub

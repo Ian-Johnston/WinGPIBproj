@@ -1225,6 +1225,8 @@ Partial Class Formtest
         Me.Timer15 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer16 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
+        Me.URL4 = New System.Windows.Forms.Label()
+        Me.Label388 = New System.Windows.Forms.Label()
         Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
@@ -2473,7 +2475,7 @@ Partial Class Formtest
         Me.txtq2d.Name = "txtq2d"
         Me.txtq2d.Size = New System.Drawing.Size(108, 20)
         Me.txtq2d.TabIndex = 111
-        Me.ToolTip1.SetToolTip(Me.txtq2d, "Send Async commands only")
+        Me.ToolTip1.SetToolTip(Me.txtq2d, "Send Async command only type selected")
         '
         'txtq1d
         '
@@ -2481,7 +2483,7 @@ Partial Class Formtest
         Me.txtq1d.Name = "txtq1d"
         Me.txtq1d.Size = New System.Drawing.Size(104, 20)
         Me.txtq1d.TabIndex = 104
-        Me.ToolTip1.SetToolTip(Me.txtq1d, "Send Async commands only")
+        Me.ToolTip1.SetToolTip(Me.txtq1d, "Send Async command only type selected")
         '
         'Dev1SendQuery
         '
@@ -2491,7 +2493,7 @@ Partial Class Formtest
         Me.Dev1SendQuery.Size = New System.Drawing.Size(86, 17)
         Me.Dev1SendQuery.TabIndex = 120
         Me.Dev1SendQuery.Text = "Query Async"
-        Me.ToolTip1.SetToolTip(Me.Dev1SendQuery, "Interrupt Send or Query Async")
+        Me.ToolTip1.SetToolTip(Me.Dev1SendQuery, "Interrupt Send or Query Async type command")
         Me.Dev1SendQuery.UseVisualStyleBackColor = True
         '
         'Dev2SendQuery
@@ -2502,7 +2504,7 @@ Partial Class Formtest
         Me.Dev2SendQuery.Size = New System.Drawing.Size(86, 17)
         Me.Dev2SendQuery.TabIndex = 124
         Me.Dev2SendQuery.Text = "Query Async"
-        Me.ToolTip1.SetToolTip(Me.Dev2SendQuery, "Interrupt Send or Query Async")
+        Me.ToolTip1.SetToolTip(Me.Dev2SendQuery, "Interrupt Send or Query Async type command")
         Me.Dev2SendQuery.UseVisualStyleBackColor = True
         '
         'ClearEventLOG
@@ -13885,6 +13887,8 @@ Partial Class Formtest
         'TabPage6
         '
         Me.TabPage6.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.TabPage6.Controls.Add(Me.Label388)
+        Me.TabPage6.Controls.Add(Me.URL4)
         Me.TabPage6.Controls.Add(Me.Label308)
         Me.TabPage6.Controls.Add(Me.ButtonLUA)
         Me.TabPage6.Controls.Add(Me.Label316)
@@ -14123,6 +14127,27 @@ Partial Class Formtest
         'Timer14
         '
         Me.Timer14.Interval = 50
+        '
+        'URL4
+        '
+        Me.URL4.AutoSize = True
+        Me.URL4.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, CType((System.Drawing.FontStyle.Italic Or System.Drawing.FontStyle.Underline), System.Drawing.FontStyle), System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.URL4.ForeColor = System.Drawing.Color.Blue
+        Me.URL4.Location = New System.Drawing.Point(610, 74)
+        Me.URL4.Name = "URL4"
+        Me.URL4.Size = New System.Drawing.Size(394, 16)
+        Me.URL4.TabIndex = 575
+        Me.URL4.Text = "www.ianjohnston.com/index.php/projects/project-025-gpib-project"
+        '
+        'Label388
+        '
+        Me.Label388.AutoSize = True
+        Me.Label388.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label388.Location = New System.Drawing.Point(610, 55)
+        Me.Label388.Name = "Label388"
+        Me.Label388.Size = New System.Drawing.Size(124, 16)
+        Me.Label388.TabIndex = 576
+        Me.Label388.Text = "WinGPIB webpage:"
         '
         'OnOffLed2
         '
@@ -15464,4 +15489,6 @@ Partial Class Formtest
     Friend WithEvents RadioButton34586 As RadioButton
     Friend WithEvents LabelCal72OneVolt As Label
     Friend WithEvents Label387 As Label
+    Friend WithEvents Label388 As Label
+    Friend WithEvents URL4 As Label
 End Class

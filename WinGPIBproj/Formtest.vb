@@ -249,7 +249,7 @@ Public Class Formtest
             'sw.Start()
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.108"
+            BannerText1 = "WinGPIB   V4.109"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
             Me.Text = BannerText1 & "                                                        " & BannerText2.ToString()
 
@@ -2415,6 +2415,10 @@ Public Class Formtest
 
     Private Sub URL3_Click(sender As Object, e As EventArgs) Handles URL3.Click
         System.Diagnostics.Process.Start("https://twitter.com/IanSJohnston")
+    End Sub
+
+    Private Sub URL4_Click(sender As Object, e As EventArgs) Handles URL4.Click
+        System.Diagnostics.Process.Start("https://www.ianjohnston.com/index.php/projects/project-025-gpib-project")
     End Sub
 
     Private Sub TabControl1_Selected(sender As Object, e As System.Windows.Forms.TabControlEventArgs) Handles TabControl1.Selected
