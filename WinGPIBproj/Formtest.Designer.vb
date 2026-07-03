@@ -3403,7 +3403,7 @@ Partial Class Formtest
         Me.ButtonDev1INFO.Name = "ButtonDev1INFO"
         Me.ButtonDev1INFO.Size = New System.Drawing.Size(107, 21)
         Me.ButtonDev1INFO.TabIndex = 518
-        Me.ButtonDev1INFO.Text = "PROFILE NOTES"
+        Me.ButtonDev1INFO.Text = "Profile Notes"
         Me.ButtonDev1INFO.UseVisualStyleBackColor = True
         '
         'ButtonDev2INFO
@@ -3412,7 +3412,7 @@ Partial Class Formtest
         Me.ButtonDev2INFO.Name = "ButtonDev2INFO"
         Me.ButtonDev2INFO.Size = New System.Drawing.Size(107, 21)
         Me.ButtonDev2INFO.TabIndex = 536
-        Me.ButtonDev2INFO.Text = "PROFILE NOTES"
+        Me.ButtonDev2INFO.Text = "Profile Notes"
         Me.ButtonDev2INFO.UseVisualStyleBackColor = True
         '
         'CheckBoxPrologixSerialDTR
