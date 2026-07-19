@@ -171,6 +171,9 @@ Public Class Formtest
 
     Public Cal3245AinProgress As Boolean = False
 
+    Private NormalFormWidth As Integer
+    Private NormalFormHeight As Integer
+
 
     'Private _loading As Boolean = False
 
@@ -249,7 +252,7 @@ Public Class Formtest
             'sw.Start()
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.109"
+            BannerText1 = "WinGPIB   V4.110"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
             Me.Text = BannerText1 & "                                                        " & BannerText2.ToString()
 
@@ -678,8 +681,20 @@ Public Class Formtest
             MakeButtonsWin10ish(GroupBox9)
             MakeButtonsWin10ish(GroupBox12)
 
+            ' 3458A Drift Mon tab only
             ' Cal72-3458A initialize
             InitCal72DriftTab()
+            NormalFormWidth = Me.Width
+            NormalFormHeight = Me.Height
+            NormalFormWidth = Me.Width
+            NormalFormHeight = Me.Height
+            TabControl1.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
+            DataGridViewCal72.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
+            DataGridViewCal72.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
+            '    DataGridViewCal72.Columns("Notes").AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            DataGridViewCal72.EnableHeadersVisualStyles = False
+            DataGridViewCal72.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single
+            DataGridViewCal72.CellBorderStyle = DataGridViewCellBorderStyle.Single
 
         Catch ex As Exception
             MessageBox.Show($"Error during load: {ex.Message}")
@@ -2423,21 +2438,46 @@ Public Class Formtest
 
     Private Sub TabControl1_Selected(sender As Object, e As System.Windows.Forms.TabControlEventArgs) Handles TabControl1.Selected
 
+        ' Allow horizontal resizing only on TabPage16
+        If TabControl1.SelectedTab Is TabPage16 Then
+
+            Me.FormBorderStyle = FormBorderStyle.Sizable
+
+            Me.MinimumSize = New Size(NormalFormWidth, NormalFormHeight)
+            Me.MaximumSize = New Size(1694, NormalFormHeight)
+
+        Else
+
+            Me.FormBorderStyle = FormBorderStyle.FixedSingle
+
+            Me.MinimumSize = New Size(NormalFormWidth, NormalFormHeight)
+            Me.MaximumSize = New Size(NormalFormWidth, NormalFormHeight)
+            Me.Size = New Size(NormalFormWidth, NormalFormHeight)
+            ButtonMaximize.Text = "Maximize Width"
+
+        End If
+
+
         ' Record previous tab selected. Stored in integer var
         If TabControl1.SelectedTab Is TabPage1 Then
             TabUsed = 1
         End If
+
         If TabControl1.SelectedTab Is TabPage2 Then
             TabUsed = 2
         End If
+
         If TabControl1.SelectedTab Is TabPage3 Then
             TabUsed = 3
         End If
+
         If TabControl1.SelectedTab Is TabPage4 Then
             TabUsed = 4
         End If
+
         If TabControl1.SelectedTab Is TabPage5 Then
             TabUsed = 5
+
             Label163.Text = TextBoxTempUnits.Text       ' PDVS2mini tab
             Label97.Text = TextBoxTempUnits.Text        ' PDVS2mini tab
 
@@ -2447,70 +2487,86 @@ Public Class Formtest
             Else
                 DisableAllButtonsInGroupBox2ExceptPDVS2miniSave()
             End If
-
         End If
+
         If TabControl1.SelectedTab Is TabPage6 Then
             TabUsed = 6
         End If
+
         If TabControl1.SelectedTab Is TabPage7 Then
             TabUsed = 7
         End If
+
         If TabControl1.SelectedTab Is TabPage8 Then
             TabUsed = 8
+
             Label171.Text = "TEMP. " & TextBoxTempUnits.Text
             Label173.Text = "HUMIDITY. " & TextBoxHumUnits.Text
         End If
-        'If TabControl1.SelectedTab Is TabPage9 Then
-        'TabUsed = 9
-        'End If
 
-        ' When user selectes the PlayBack Chart tab then it automatically open the playback screen and then re-directs the tab selected back to the previously used tab. The PlayBack chart is given focus
+        If TabControl1.SelectedTab Is TabPage16 Then
+            TabUsed = 16
+        End If
+
+
+        ' When user selects the PlayBack Chart tab, automatically open
+        ' the playback screen and redirect back to the previously used tab.
         If TabControl1.SelectedTab Is TabPage9 Then
 
-            ' Save off Device 1 name to a file for later use with Chart.vb
-            Dim filePath As String = Path.Combine(CSVfilepath.Text, "Device1Name.txt")
+            ' Save Device 1 name to a file for later use with Chart.vb
+            Dim filePath As String =
+            Path.Combine(CSVfilepath.Text, "Device1Name.txt")
+
             Using file As New StreamWriter(filePath, False)
                 file.WriteLine(txtname1.Text)
-                file.Close()
             End Using
 
-            'Dim CSVpath As String = CSVfilepath.Text & "\" & CSVfilename.Text
-            'System.IO.File.WriteAllText(CSVpath, "")
-
-            Dim externalchart = New Chart()
-
-            'TabControl1.SelectedTab = TabPage1      ' set focus back to Device 1/2 tab
+            Dim externalchart As New Chart()
 
             If TabUsed = 1 Then
-                TabControl1.SelectedTab = TabPage1      ' set focus back to previous used tab
+                TabControl1.SelectedTab = TabPage1
             End If
+
             If TabUsed = 2 Then
-                TabControl1.SelectedTab = TabPage2      ' set focus back to previous used tab
-            End If
-            If TabUsed = 3 Then
-                TabControl1.SelectedTab = TabPage3      ' set focus back to previous used tab
-            End If
-            If TabUsed = 4 Then
-                TabControl1.SelectedTab = TabPage4      ' set focus back to previous used tab
-            End If
-            If TabUsed = 5 Then
-                TabControl1.SelectedTab = TabPage5      ' set focus back to previous used tab
-            End If
-            If TabUsed = 6 Then
-                TabControl1.SelectedTab = TabPage6      ' set focus back to previous used tab
-            End If
-            If TabUsed = 7 Then
-                TabControl1.SelectedTab = TabPage7      ' set focus back to previous used tab
-            End If
-            If TabUsed = 8 Then
-                TabControl1.SelectedTab = TabPage8      ' set focus back to previous used tab
-            End If
-            If TabUsed = 1 Then
-                TabControl1.SelectedTab = TabPage11     ' set focus back to previous used tab
+                TabControl1.SelectedTab = TabPage2
             End If
 
-            externalchart.Show()    ' show the PlayBack chart
+            If TabUsed = 3 Then
+                TabControl1.SelectedTab = TabPage3
+            End If
+
+            If TabUsed = 4 Then
+                TabControl1.SelectedTab = TabPage4
+            End If
+
+            If TabUsed = 5 Then
+                TabControl1.SelectedTab = TabPage5
+            End If
+
+            If TabUsed = 6 Then
+                TabControl1.SelectedTab = TabPage6
+            End If
+
+            If TabUsed = 7 Then
+                TabControl1.SelectedTab = TabPage7
+            End If
+
+            If TabUsed = 8 Then
+                TabControl1.SelectedTab = TabPage8
+            End If
+
+            If TabUsed = 11 Then
+                TabControl1.SelectedTab = TabPage11
+            End If
+
+            If TabUsed = 16 Then
+                TabControl1.SelectedTab = TabPage16
+            End If
+
+            externalchart.Show()    ' Show the PlayBack chart
+
         End If
+
     End Sub
 
     Private Sub Dev2TerminatorEnable_CheckedChanged(sender As Object, e As EventArgs) Handles Dev2TerminatorEnable.CheckedChanged

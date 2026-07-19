@@ -1016,4 +1016,21 @@ MessageBoxIcon.Information)
     End Sub
 
 
+    Private Sub ButtonMaximize_Click(sender As Object, e As EventArgs) Handles ButtonMaximize.Click
+
+        If Me.Width < Me.MaximumSize.Width Then
+
+            Me.Width = Me.MaximumSize.Width
+            ButtonMaximize.Text = "Normal Width"
+
+        Else
+
+            Me.Width = NormalFormWidth
+            ButtonMaximize.Text = "Maximize Width"
+
+        End If
+
+    End Sub
+
+
 End Class

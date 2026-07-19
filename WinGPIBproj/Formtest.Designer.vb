@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea4 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend4 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series4 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -508,6 +508,7 @@ Partial Class Formtest
         Me.TabPage9 = New System.Windows.Forms.TabPage()
         Me.TabPage16 = New System.Windows.Forms.TabPage()
         Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.ButtonMaximize = New System.Windows.Forms.Button()
         Me.RadioButton34588 = New System.Windows.Forms.RadioButton()
         Me.RadioButton34587 = New System.Windows.Forms.RadioButton()
         Me.RadioButton34586 = New System.Windows.Forms.RadioButton()
@@ -6371,22 +6372,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea1.BackColor = System.Drawing.Color.Black
-        ChartArea1.BorderColor = System.Drawing.Color.White
-        ChartArea1.BorderWidth = 2
-        ChartArea1.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea1)
-        Legend1.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend1)
+        ChartArea4.BackColor = System.Drawing.Color.Black
+        ChartArea4.BorderColor = System.Drawing.Color.White
+        ChartArea4.BorderWidth = 2
+        ChartArea4.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea4)
+        Legend4.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend4)
         Me.Chart1.Location = New System.Drawing.Point(-32, 168)
         Me.Chart1.Name = "Chart1"
-        Series1.ChartArea = "ChartArea1"
-        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series1.Color = System.Drawing.Color.Yellow
-        Series1.Enabled = False
-        Series1.Legend = "Legend1"
-        Series1.Name = "Series1"
-        Me.Chart1.Series.Add(Series1)
+        Series4.ChartArea = "ChartArea1"
+        Series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series4.Color = System.Drawing.Color.Yellow
+        Series4.Enabled = False
+        Series4.Legend = "Legend1"
+        Series4.Name = "Series1"
+        Me.Chart1.Series.Add(Series4)
         Me.Chart1.Size = New System.Drawing.Size(1120, 434)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -6413,6 +6414,7 @@ Partial Class Formtest
         '
         'Panel1
         '
+        Me.Panel1.Controls.Add(Me.ButtonMaximize)
         Me.Panel1.Controls.Add(Me.RadioButton34588)
         Me.Panel1.Controls.Add(Me.RadioButton34587)
         Me.Panel1.Controls.Add(Me.RadioButton34586)
@@ -6453,6 +6455,15 @@ Partial Class Formtest
         Me.Panel1.Size = New System.Drawing.Size(1047, 140)
         Me.Panel1.TabIndex = 1
         '
+        'ButtonMaximize
+        '
+        Me.ButtonMaximize.Location = New System.Drawing.Point(849, 13)
+        Me.ButtonMaximize.Name = "ButtonMaximize"
+        Me.ButtonMaximize.Size = New System.Drawing.Size(94, 23)
+        Me.ButtonMaximize.TabIndex = 35
+        Me.ButtonMaximize.Text = "Maximize Width"
+        Me.ButtonMaximize.UseVisualStyleBackColor = True
+        '
         'RadioButton34588
         '
         Me.RadioButton34588.AutoSize = True
@@ -6492,7 +6503,7 @@ Partial Class Formtest
         Me.ButtonCal72Backup.Name = "ButtonCal72Backup"
         Me.ButtonCal72Backup.Size = New System.Drawing.Size(125, 23)
         Me.ButtonCal72Backup.TabIndex = 31
-        Me.ButtonCal72Backup.Text = "BACKUP CSV's"
+        Me.ButtonCal72Backup.Text = "Backup CSV's"
         Me.ButtonCal72Backup.UseVisualStyleBackColor = True
         '
         'Label377
@@ -6599,9 +6610,9 @@ Partial Class Formtest
         Me.LabelSummary2.AutoSize = True
         Me.LabelSummary2.Location = New System.Drawing.Point(3, 21)
         Me.LabelSummary2.Name = "LabelSummary2"
-        Me.LabelSummary2.Size = New System.Drawing.Size(80, 13)
+        Me.LabelSummary2.Size = New System.Drawing.Size(83, 13)
         Me.LabelSummary2.TabIndex = 10
-        Me.LabelSummary2.Text = "Latest CAL?72:"
+        Me.LabelSummary2.Text = "Latest CAL? 72:"
         '
         'LabelSummary1
         '
@@ -6614,11 +6625,11 @@ Partial Class Formtest
         '
         'ButtonCal72Help
         '
-        Me.ButtonCal72Help.Location = New System.Drawing.Point(939, 13)
+        Me.ButtonCal72Help.Location = New System.Drawing.Point(959, 13)
         Me.ButtonCal72Help.Name = "ButtonCal72Help"
-        Me.ButtonCal72Help.Size = New System.Drawing.Size(102, 23)
+        Me.ButtonCal72Help.Size = New System.Drawing.Size(82, 23)
         Me.ButtonCal72Help.TabIndex = 27
-        Me.ButtonCal72Help.Text = "INSTRUCTIONS"
+        Me.ButtonCal72Help.Text = "Instructions"
         Me.ButtonCal72Help.UseVisualStyleBackColor = True
         '
         'Label384
@@ -6668,7 +6679,7 @@ Partial Class Formtest
         '
         'ButtonCal72Save
         '
-        Me.ButtonCal72Save.Location = New System.Drawing.Point(830, 9)
+        Me.ButtonCal72Save.Location = New System.Drawing.Point(653, 6)
         Me.ButtonCal72Save.Name = "ButtonCal72Save"
         Me.ButtonCal72Save.Size = New System.Drawing.Size(54, 23)
         Me.ButtonCal72Save.TabIndex = 3
@@ -6802,7 +6813,7 @@ Partial Class Formtest
         Me.ButtonCal72Delete.Name = "ButtonCal72Delete"
         Me.ButtonCal72Delete.Size = New System.Drawing.Size(125, 23)
         Me.ButtonCal72Delete.TabIndex = 2
-        Me.ButtonCal72Delete.Text = "DELETE SELECTED"
+        Me.ButtonCal72Delete.Text = "Delete Selected"
         Me.ButtonCal72Delete.UseVisualStyleBackColor = True
         '
         'ButtonCal72Add
@@ -6811,7 +6822,7 @@ Partial Class Formtest
         Me.ButtonCal72Add.Name = "ButtonCal72Add"
         Me.ButtonCal72Add.Size = New System.Drawing.Size(146, 23)
         Me.ButtonCal72Add.TabIndex = 1
-        Me.ButtonCal72Add.Text = "ADD TO TABLE"
+        Me.ButtonCal72Add.Text = "Add To Table"
         Me.ButtonCal72Add.UseVisualStyleBackColor = True
         '
         'ButtonCal72Read
@@ -6820,7 +6831,7 @@ Partial Class Formtest
         Me.ButtonCal72Read.Name = "ButtonCal72Read"
         Me.ButtonCal72Read.Size = New System.Drawing.Size(146, 23)
         Me.ButtonCal72Read.TabIndex = 0
-        Me.ButtonCal72Read.Text = "READ FROM 3458A"
+        Me.ButtonCal72Read.Text = "Read From 3458A"
         Me.ButtonCal72Read.UseVisualStyleBackColor = True
         '
         'DataGridViewCal72
@@ -15491,4 +15502,5 @@ Partial Class Formtest
     Friend WithEvents Label387 As Label
     Friend WithEvents Label388 As Label
     Friend WithEvents URL4 As Label
+    Friend WithEvents ButtonMaximize As Button
 End Class
