@@ -1,6 +1,7 @@
 ﻿Imports IODevices
 Imports System.Globalization
 Imports System.Text
+Imports System.Windows.Forms.DataVisualization.Charting
 
 Partial Class Formtest
 
@@ -204,6 +205,8 @@ Handles RadioButton34581.CheckedChanged,
             DataGridViewCal72.ClearSelection()
 
             LabelCal72Status.Text = "LOADED " & IO.Path.GetFileName(Cal72CsvFile)
+
+            UpdateCal72Chart()
 
         Catch ex As Exception
 
@@ -1020,15 +1023,305 @@ MessageBoxIcon.Information)
 
         If Me.Width < Me.MaximumSize.Width Then
 
+            ' Expand form
             Me.Width = Me.MaximumSize.Width
             ButtonMaximize.Text = "Normal Width"
 
+            PositionCal72Chart()
+
+            ' Show and update chart
+            ChartCal72.Visible = True
+            UpdateCal72Chart()
+
         Else
 
+            ' Hide chart before shrinking
+            ChartCal72.Visible = False
+
+            ' Return to normal width
             Me.Width = NormalFormWidth
             ButtonMaximize.Text = "Maximize Width"
 
         End If
+
+    End Sub
+
+
+    Private Sub SetupCal72Chart()
+
+        ChartCal72.Series.Clear()
+        ChartCal72.ChartAreas.Clear()
+        ChartCal72.Legends.Clear()
+        ChartCal72.Titles.Clear()
+
+        ' Chart background
+        ChartCal72.BackColor = Color.FromArgb(20, 20, 20)
+
+        Dim chartArea As New ChartArea("Cal72Area")
+
+        chartArea.BackColor = Color.Black
+
+        ' Fix the position and size of the chart/grid area
+        chartArea.Position.Auto = False
+        chartArea.Position = New ElementPosition(1, 17, 98, 78)
+
+        chartArea.InnerPlotPosition.Auto = False
+        chartArea.InnerPlotPosition = New ElementPosition(0, 0, 100, 100)
+
+        ' No axis titles
+        chartArea.AxisX.Title = ""
+        chartArea.AxisY.Title = ""
+
+        ' Display grid
+        chartArea.AxisX.MajorGrid.Enabled = True
+        chartArea.AxisY.MajorGrid.Enabled = True
+
+        ' Lighter grid
+        chartArea.AxisX.MajorGrid.LineColor = Color.FromArgb(80, 80, 80)
+        chartArea.AxisY.MajorGrid.LineColor = Color.FromArgb(80, 80, 80)
+
+        chartArea.AxisX.MajorGrid.LineDashStyle = ChartDashStyle.Solid
+        chartArea.AxisY.MajorGrid.LineDashStyle = ChartDashStyle.Solid
+
+        ' Keep the grid division count reasonably consistent
+        ' regardless of the number of data points
+        chartArea.AxisX.IntervalAutoMode = IntervalAutoMode.FixedCount
+        chartArea.AxisY.IntervalAutoMode = IntervalAutoMode.FixedCount
+
+        chartArea.AxisX.Interval = 0
+        chartArea.AxisY.Interval = 0
+
+        ' Hide axis scales and labels
+        chartArea.AxisX.LabelStyle.Enabled = False
+        chartArea.AxisY.LabelStyle.Enabled = False
+
+        chartArea.AxisX.MajorTickMark.Enabled = False
+        chartArea.AxisY.MajorTickMark.Enabled = False
+
+        chartArea.AxisX.MinorTickMark.Enabled = False
+        chartArea.AxisY.MinorTickMark.Enabled = False
+
+        ' Hide axis lines
+        chartArea.AxisX.LineWidth = 0
+        chartArea.AxisY.LineWidth = 0
+
+        ' Border around plot area
+        chartArea.BorderColor = Color.DimGray
+        chartArea.BorderWidth = 1
+
+        ' Automatically scale both axes
+        chartArea.AxisX.Minimum = Double.NaN
+        chartArea.AxisX.Maximum = Double.NaN
+        chartArea.AxisY.Minimum = Double.NaN
+        chartArea.AxisY.Maximum = Double.NaN
+
+        chartArea.AxisX.IsMarginVisible = False
+        chartArea.AxisY.IsStartedFromZero = False
+
+        ChartCal72.ChartAreas.Add(chartArea)
+
+        Dim driftSeries As New Series("Drift ppm Day 1")
+
+        driftSeries.ChartType = SeriesChartType.Line
+        driftSeries.Color = Color.Yellow
+        driftSeries.BorderWidth = 1
+        'driftSeries.MarkerStyle = MarkerStyle.None
+        driftSeries.MarkerStyle = MarkerStyle.Circle
+        driftSeries.MarkerSize = 2
+        driftSeries.MarkerColor = Color.Yellow
+        driftSeries.MarkerBorderColor = Color.Yellow
+
+
+
+        driftSeries.ShadowOffset = 0
+
+        driftSeries.XValueType = ChartValueType.Double
+        driftSeries.YValueType = ChartValueType.Double
+        driftSeries.ChartArea = "Cal72Area"
+
+        ChartCal72.Series.Add(driftSeries)
+
+        ' Chart title
+        ChartCal72.Titles.Add("CAL? 72 Drift Referenced From Day 1")
+
+        With ChartCal72.Titles(0)
+            .ForeColor = Color.White
+            .BackColor = Color.Transparent
+            .Font = New Font("Segoe UI", 8, FontStyle.Bold)
+            .Docking = Docking.Top
+            .Alignment = ContentAlignment.MiddleCenter
+        End With
+
+    End Sub
+
+
+    Private Sub PositionCal72Chart()
+
+        ChartCal72.Left = 1060
+        ChartCal72.Top = 12
+
+        ChartCal72.Width = 600
+        ChartCal72.Height = 120
+
+    End Sub
+
+
+    Private Sub UpdateCal72Chart()
+
+        If ChartCal72.Series.Count = 0 OrElse
+       ChartCal72.ChartAreas.Count = 0 Then
+
+            SetupCal72Chart()
+
+        End If
+
+        Dim driftSeries As Series = ChartCal72.Series("Drift ppm Day 1")
+        driftSeries.Points.Clear()
+
+        Dim daysColumnIndex As Integer = -1
+        Dim driftColumnIndex As Integer = -1
+
+        ' Find the required columns using their displayed headings
+        For Each column As DataGridViewColumn In DataGridViewCal72.Columns
+
+            ' Remove line breaks because the headings are displayed
+            ' on two or more lines
+            Dim heading As String =
+            column.HeaderText.Replace(vbCr, " ").
+                              Replace(vbLf, " ").
+                              Trim()
+
+            While heading.Contains("  ")
+                heading = heading.Replace("  ", " ")
+            End While
+
+            If heading.IndexOf(
+            "Total Days Elapsed",
+            StringComparison.OrdinalIgnoreCase) >= 0 Then
+
+                daysColumnIndex = column.Index
+
+            End If
+
+            If heading.IndexOf(
+            "Drift ppm",
+            StringComparison.OrdinalIgnoreCase) >= 0 AndAlso
+           heading.IndexOf(
+            "Day 1",
+            StringComparison.OrdinalIgnoreCase) >= 0 AndAlso
+           heading.IndexOf(
+            "Last",
+            StringComparison.OrdinalIgnoreCase) = -1 Then
+
+                driftColumnIndex = column.Index
+
+            End If
+
+        Next
+
+        ' Stop if the required columns could not be found
+        If daysColumnIndex = -1 OrElse driftColumnIndex = -1 Then
+
+            ChartCal72.Titles.Clear()
+
+            Dim errorTitle As New Title("CAL72 chart columns not found")
+
+            With errorTitle
+                .ForeColor = Color.White
+                .BackColor = Color.Transparent
+                .Font = New Font("Segoe UI", 8, FontStyle.Bold)
+                .Docking = Docking.Top
+                .Alignment = ContentAlignment.MiddleCenter
+            End With
+
+            ChartCal72.Titles.Add(errorTitle)
+            Return
+
+        End If
+
+        ' Add valid points from the grid
+        For Each row As DataGridViewRow In DataGridViewCal72.Rows
+
+            If row.IsNewRow Then Continue For
+
+            Dim daysText As String =
+            Convert.ToString(row.Cells(daysColumnIndex).Value).Trim()
+
+            Dim driftText As String =
+            Convert.ToString(row.Cells(driftColumnIndex).Value).Trim()
+
+            Dim days As Double
+            Dim driftPpm As Double
+
+            If Double.TryParse(daysText, days) AndAlso
+           Double.TryParse(driftText, driftPpm) Then
+
+                driftSeries.Points.AddXY(days, driftPpm)
+
+            End If
+
+        Next
+
+        Dim area As ChartArea = ChartCal72.ChartAreas("Cal72Area")
+
+        ' Keep the X-axis automatic
+        area.AxisX.Minimum = Double.NaN
+        area.AxisX.Maximum = Double.NaN
+
+        ' Scale the Y-axis closely around the actual data
+        If driftSeries.Points.Count > 0 Then
+
+            Dim minimumY As Double =
+            driftSeries.Points.Min(Function(point) point.YValues(0))
+
+            Dim maximumY As Double =
+            driftSeries.Points.Max(Function(point) point.YValues(0))
+
+            Dim yRange As Double = maximumY - minimumY
+
+            ' Prevent a zero-height range if all readings are identical
+            If yRange = 0 Then
+                yRange = Math.Max(Math.Abs(maximumY) * 0.1, 0.1)
+            End If
+
+            ' Small margin above and below the trace
+            Dim yPadding As Double = yRange * 0.05
+
+            area.AxisY.Minimum = minimumY - yPadding
+            area.AxisY.Maximum = maximumY + yPadding
+
+            ' Four horizontal grid divisions
+            area.AxisY.Interval =
+            (area.AxisY.Maximum - area.AxisY.Minimum) / 4.0
+
+        Else
+
+            area.AxisY.Minimum = Double.NaN
+            area.AxisY.Maximum = Double.NaN
+            area.AxisY.Interval = 0
+
+        End If
+
+        area.AxisY.IsStartedFromZero = False
+
+        ' Restore chart title
+        ChartCal72.Titles.Clear()
+
+        Dim chartTitle As New Title(
+        "CAL? 72 Drift Referenced From Day 1")
+
+        With chartTitle
+            .ForeColor = Color.White
+            .BackColor = Color.Transparent
+            .Font = New Font("Segoe UI", 8, FontStyle.Bold)
+            .Docking = Docking.Top
+            .Alignment = ContentAlignment.MiddleCenter
+        End With
+
+        ChartCal72.Titles.Add(chartTitle)
+
+        area.RecalculateAxesScale()
+        ChartCal72.Invalidate()
 
     End Sub
 
