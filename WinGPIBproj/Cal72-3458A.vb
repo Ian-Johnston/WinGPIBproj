@@ -402,13 +402,17 @@ Handles RadioButton34581.CheckedChanged,
         r("CAL? 72") = cal72Value
         r("CAL? 1,1 40k") = TextBoxCal1140k.Text.Trim()
         r("CAL? 2,1 Vref") = TextBoxCal21Vref.Text.Trim()
-        r("Notes") = TextBoxCal72Notes.Text
+        r("Notes") = TextBoxCal72Notes.Text.Trim()
 
         Cal72Table.Rows.Add(r)
 
         RecalculateCal72Table()
         UpdateCal72SummaryPanel()
         SaveCal72Csv()
+
+        If ChartCal72.Visible Then
+            UpdateCal72Chart()
+        End If
 
         ScrollCal72GridToBottom()
 
@@ -459,6 +463,10 @@ Handles RadioButton34581.CheckedChanged,
 
         LabelCal72Status.Text = "ENTRY DELETED"
 
+        If ChartCal72.Visible Then
+            UpdateCal72Chart()
+        End If
+
     End Sub
 
     Private Sub ButtonCal72Save_Click(sender As Object, e As EventArgs) Handles ButtonCal72Save.Click
@@ -477,6 +485,10 @@ Handles RadioButton34581.CheckedChanged,
         SaveCal72Csv()
 
         LabelCal72Status.Text = "EDITED AND RECALCULATED"
+
+        If ChartCal72.Visible Then
+            UpdateCal72Chart()
+        End If
 
     End Sub
 
@@ -1262,6 +1274,55 @@ MessageBoxIcon.Information)
         Next
 
         Dim area As ChartArea = ChartCal72.ChartAreas("Cal72Area")
+
+        ' Remove any existing recalibration markers
+        area.AxisX.StripLines.Clear()
+
+        Dim notesColumnIndex As Integer =
+    DataGridViewCal72.Columns("Notes").Index
+
+        For Each row As DataGridViewRow In DataGridViewCal72.Rows
+
+            If row.IsNewRow Then Continue For
+
+            Dim notesText As String =
+        Convert.ToString(row.Cells(notesColumnIndex).Value).Trim()
+
+            If notesText.IndexOf("[RECAL]",
+                         StringComparison.OrdinalIgnoreCase) >= 0 Then
+
+                Dim daysText As String =
+            Convert.ToString(row.Cells(daysColumnIndex).Value).Trim()
+
+                Dim recalDay As Double
+
+                If Double.TryParse(daysText,
+                           NumberStyles.Float,
+                           CultureInfo.InvariantCulture,
+                           recalDay) Then
+
+                    Dim recalMarker As New StripLine()
+
+                    recalMarker.Interval = 0
+                    recalMarker.IntervalOffset = recalDay
+                    recalMarker.StripWidth = 0
+
+                    recalMarker.BorderColor = Color.Red
+                    recalMarker.BorderWidth = 2
+                    recalMarker.BorderDashStyle = ChartDashStyle.Dash
+
+                    recalMarker.Text = "RECAL"
+                    recalMarker.ForeColor = Color.Red
+                    recalMarker.Font =
+                New Font("Segoe UI", 7, FontStyle.Bold)
+
+                    area.AxisX.StripLines.Add(recalMarker)
+
+                End If
+
+            End If
+
+        Next
 
         ' Keep the X-axis automatic
         area.AxisX.Minimum = Double.NaN
