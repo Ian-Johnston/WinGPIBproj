@@ -1125,13 +1125,12 @@ MessageBoxIcon.Information)
         driftSeries.ChartType = SeriesChartType.Line
         driftSeries.Color = Color.Yellow
         driftSeries.BorderWidth = 1
+
         'driftSeries.MarkerStyle = MarkerStyle.None
         driftSeries.MarkerStyle = MarkerStyle.Circle
         driftSeries.MarkerSize = 2
         driftSeries.MarkerColor = Color.Yellow
         driftSeries.MarkerBorderColor = Color.Yellow
-
-
 
         driftSeries.ShadowOffset = 0
 
@@ -1142,7 +1141,7 @@ MessageBoxIcon.Information)
         ChartCal72.Series.Add(driftSeries)
 
         ' Chart title
-        ChartCal72.Titles.Add("CAL? 72 Drift Referenced From Day 1")
+        ChartCal72.Titles.Add("CAL? 72 Drift Relative To Day 1")
 
         With ChartCal72.Titles(0)
             .ForeColor = Color.White
@@ -1307,8 +1306,7 @@ MessageBoxIcon.Information)
         ' Restore chart title
         ChartCal72.Titles.Clear()
 
-        Dim chartTitle As New Title(
-        "CAL? 72 Drift Referenced From Day 1")
+        Dim chartTitle As New Title("CAL? 72 Drift Relative To Day 1")
 
         With chartTitle
             .ForeColor = Color.White
