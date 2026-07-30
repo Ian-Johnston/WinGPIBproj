@@ -252,7 +252,7 @@ Public Class Formtest
             'sw.Start()
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.112"
+            BannerText1 = "WinGPIB   V4.113"
             BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
             Me.Text = BannerText1 & "                                                        " & BannerText2.ToString()
 
@@ -287,7 +287,7 @@ Public Class Formtest
 
             ' Initially enable all controls on Calram groupboxes
             GroupBox6.Enabled = True
-            GroupBox7.Enabled = True
+            GroupBox16.Enabled = True
             GroupBox10.Enabled = True
             GroupBox15.Enabled = True
 
@@ -462,6 +462,8 @@ Public Class Formtest
             ' CalRam button 3458A & 3457A
             ButtonCalramDump3457A.Enabled = False
             ButtonCalramDump3458A.Enabled = False
+            Button3458ACalRamTestWrite.Enabled = False
+            Initialise3458ACalRamControls()     ' initialize the 3458A calram buttons
 
             ' Live Chart
             ' label style
@@ -1008,6 +1010,7 @@ Public Class Formtest
 
         ButtonCalramDump3457A.Enabled = True
         ButtonCalramDump3458A.Enabled = True
+        'Button3458ACalRamTestWrite.Enabled = True
 
         'to simulate slow response from device 2 we can set:
         'dev2.delayread = 2000;
@@ -2294,7 +2297,8 @@ Public Class Formtest
         ButtonCal3245A.Enabled = False      ' disable 3245A Cal button
 
         ButtonCalramDump3457A.Enabled = False      ' disable 3257A Cal dump button
-        ButtonCalramDump3458A.Enabled = False      ' disable 3258A Cal dumpbutton
+        ButtonCalramDump3458A.Enabled = False      ' disable 3458A Cal dumpbutton
+        Button3458ACalRamTestWrite.Enabled = False  ' disable 3458A Test Write button
 
         EnableChart1.Checked = False
         EnableChart2.Checked = False

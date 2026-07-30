@@ -252,6 +252,11 @@ Internal cmd's:
 #QA = Set to Query Async mode
 #SA = Set to Send Async mode</value>
   </data>
+  <data name="Label391.Text" xml:space="preserve">
+    <value>This utility writes a complete 2048-byte CalRAM file to the HP 3458A, then reads it back and verifies every byte.
+The file is checked for .bin image validity. Do not switch off the instrument or interrupt the GPIB connection during the write.
+'Test Write' checks the CalRAM write mechanism is working correctly before any data is written.</value>
+  </data>
   <data name="PictureBox3.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         /9j/4AAQSkZJRgABAQEASABIAAD/4QDURXhpZgAATU0AKgAAAAgACAESAAMAAAABAAEAAAEaAAUAAAAB
