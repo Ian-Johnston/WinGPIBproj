@@ -907,7 +907,15 @@ Partial Class Formtest
 
     End Sub
 
-    ''''''''''''''''''''' Upload to 3458A ''''''''''''''''''''''
+
+
+
+
+    ' CalRAM upload to 3458A
+    ' 30/07/26
+    ' Idea taken from kvez's Python code (with permission) here:
+    ' https://github.com/kvez/HP-3458A-NVRAM-tool
+
 
     Private Const CalRam3458ABase As Integer = &H60000
     Private Const CalRam3458ACodeBase As Integer = &H12A000
