@@ -1226,6 +1226,7 @@ Partial Class Formtest
         Me.TextBoxTextEditor = New System.Windows.Forms.TextBox()
         Me.Label6 = New System.Windows.Forms.Label()
         Me.TabPage6 = New System.Windows.Forms.TabPage()
+        Me.Label398 = New System.Windows.Forms.Label()
         Me.Label388 = New System.Windows.Forms.Label()
         Me.URL4 = New System.Windows.Forms.Label()
         Me.Label308 = New System.Windows.Forms.Label()
@@ -1261,7 +1262,6 @@ Partial Class Formtest
         Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
-        Me.Label398 = New System.Windows.Forms.Label()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.GroupBox9.SuspendLayout
@@ -7002,7 +7002,7 @@ Partial Class Formtest
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(100, 24)
         Me.Button1.TabIndex = 730
-        Me.Button1.Text = "Help"
+        Me.Button1.Text = "Help / Info"
         Me.Button1.UseVisualStyleBackColor = True
         '
         'Label389
@@ -14250,6 +14250,16 @@ Partial Class Formtest
         Me.TabPage6.TabIndex = 5
         Me.TabPage6.Text = "About "
         '
+        'Label398
+        '
+        Me.Label398.AutoSize = True
+        Me.Label398.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label398.Location = New System.Drawing.Point(36, 151)
+        Me.Label398.Name = "Label398"
+        Me.Label398.Size = New System.Drawing.Size(301, 16)
+        Me.Label398.TabIndex = 577
+        Me.Label398.Text = "HP3458A CalRam Write coding idea (.py) by kvez"
+        '
         'Label388
         '
         Me.Label388.AutoSize = True
@@ -14522,16 +14532,6 @@ Partial Class Formtest
         Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
         Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
         Me.OnOffLed3.TabIndex = 796
-        '
-        'Label398
-        '
-        Me.Label398.AutoSize = True
-        Me.Label398.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label398.Location = New System.Drawing.Point(36, 151)
-        Me.Label398.Name = "Label398"
-        Me.Label398.Size = New System.Drawing.Size(272, 16)
-        Me.Label398.TabIndex = 577
-        Me.Label398.Text = "HP3458A CalRam Write coding idea by kvez"
         '
         'Formtest
         '
