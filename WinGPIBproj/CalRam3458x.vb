@@ -922,17 +922,20 @@ Partial Class Formtest
     Private Const CalRam3458ACallbackBase As Integer = &H12A100
     Private Const CalRam3458ANmiTriggerPort As Integer = &HC0001
 
+
     Private Class CalRam3458AFirmwareConfig
 
         Public CallbackPointerAddress As Integer
         Public MagicDeafAddress As Integer
         Public MagicBad1Address As Integer
 
+
         Public ReadOnly Property SuccessFlagAddress As Integer
             Get
                 Return CallbackPointerAddress + 4
             End Get
         End Property
+
 
         Public ReadOnly Property WeCloseValueAddress As Integer
             Get
@@ -941,6 +944,7 @@ Partial Class Formtest
         End Property
 
     End Class
+
 
     Private CalRam3458AFirmwareMajor As Integer = 0
     Private CalRam3458AFirmwareResponse As String = ""
@@ -954,6 +958,7 @@ Partial Class Formtest
     Private Abort3458ACalRamWrite As Boolean = False
 
     Private CalRam3458AVerifyInProgress As Boolean = False
+
 
     Private Sub Button3458ACalRamBrowse_Click(sender As Object, e As EventArgs) Handles Button3458ACalRamBrowse.Click
 
@@ -1137,6 +1142,7 @@ Partial Class Formtest
 
     End Sub
 
+
     Private Function Query3458ACalRam(command As String) As String
 
         txtr1a.Text = ""
@@ -1150,6 +1156,7 @@ Partial Class Formtest
         Return txtr1a.Text.Trim()
 
     End Function
+
 
     Private Function Get3458AFirmwareMajor(firmwareReply As String, ByRef firmwareMajor As Integer) As Boolean
 
@@ -1192,6 +1199,7 @@ Partial Class Formtest
         End Try
 
     End Function
+
 
     Private Sub Button3458ACalRamTestWrite_Click(sender As Object, e As EventArgs) Handles Button3458ACalRamTestWrite.Click
 
@@ -1389,6 +1397,7 @@ Partial Class Formtest
 
     End Sub
 
+
     Private Sub Initialise3458ACalRamControls()
 
         TextBox3458ACalRamWriteFile.Text = ""
@@ -1417,6 +1426,7 @@ Partial Class Formtest
         TextBox3458ACalRamConfirm.AllowDrop = False
 
     End Sub
+
 
     Private Sub Button3458ACalRamAbort_Click(sender As Object, e As EventArgs) Handles Button3458ACalRamAbort.Click
 
@@ -1452,6 +1462,7 @@ Partial Class Formtest
 
     End Sub
 
+
     Private Sub CheckBox3458ACalRamWriteConfirm_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox3458ACalRamWriteConfirm.CheckedChanged
 
         Button3458ACalRamWrite.Enabled = Label3458ACalRamStatus.Text = "TEST WRITE PASSED" AndAlso CheckBox3458ACalRamWriteConfirm.Checked AndAlso TextBox3458ACalRamConfirm.Text.
@@ -1460,6 +1471,7 @@ Partial Class Formtest
 
     End Sub
 
+
     Private Sub TextBox3458ACalRamConfirm_TextChanged(sender As Object, e As EventArgs) Handles TextBox3458ACalRamConfirm.TextChanged
 
         Button3458ACalRamWrite.Enabled = Label3458ACalRamStatus.Text = "TEST WRITE PASSED" AndAlso CheckBox3458ACalRamWriteConfirm.Checked AndAlso TextBox3458ACalRamConfirm.Text.
@@ -1467,6 +1479,7 @@ Partial Class Formtest
             ToUpperInvariant() = CalRamConfirmText
 
     End Sub
+
 
     Private Sub TextBox3458ACalRamConfirm_KeyDown(sender As Object, e As KeyEventArgs) Handles TextBox3458ACalRamConfirm.KeyDown
 
@@ -1478,6 +1491,7 @@ Partial Class Formtest
         End If
 
     End Sub
+
 
     Private Function Get3458ACalRamFirmwareConfig(firmwareMajor As Integer) As CalRam3458AFirmwareConfig
 
@@ -1519,12 +1533,14 @@ Partial Class Formtest
 
     End Function
 
+
     Private Sub Send3458ACalRamCommand(command As String)
 
         dev1.SendAsync(command, False)
         System.Threading.Thread.Sleep(50)
 
     End Sub
+
 
     Private Function MRead3458AWord(address As Integer) As Integer
 
@@ -1548,11 +1564,13 @@ Partial Class Formtest
 
     End Function
 
+
     Private Function MRead3458AHighByte(address As Integer) As Integer
 
         Return (MRead3458AWord(address) >> 8) And &HFF
 
     End Function
+
 
     Private Sub MWrite3458AWord(address As Integer, value As Integer)
 
@@ -1569,6 +1587,7 @@ Partial Class Formtest
 
     End Sub
 
+
     Private Sub MWrite3458AWords(startAddress As Integer, words As IEnumerable(Of Integer))
 
         Dim address As Integer = startAddress
@@ -1581,6 +1600,7 @@ Partial Class Formtest
         Next
 
     End Sub
+
 
     Private Function Flush3458AErrors() As String
 
@@ -1604,6 +1624,7 @@ Partial Class Formtest
 
     End Function
 
+
     Private Function Run3458AJSR(address As Integer, waitMilliseconds As Integer) As String
 
         Send3458ACalRamCommand("JSR " & address.ToString(CultureInfo.InvariantCulture))
@@ -1614,6 +1635,7 @@ Partial Class Formtest
 
     End Function
 
+
     Private Sub Set3458ANmiMagicWords(config As CalRam3458AFirmwareConfig)
 
         MWrite3458AWord(config.MagicDeafAddress, &HDEAF)
@@ -1623,6 +1645,7 @@ Partial Class Formtest
         MWrite3458AWord(config.MagicBad1Address + 2, &HBEAD)
 
     End Sub
+
 
     Private Sub Write3458ASingleWordCallback()
 
@@ -1637,6 +1660,7 @@ Partial Class Formtest
         MWrite3458AWords(CalRam3458ACallbackBase, callbackWords)
 
     End Sub
+
 
     Private Function Build3458ACallbackSetupWords(config As CalRam3458AFirmwareConfig) As List(Of Integer)
 
@@ -1661,6 +1685,7 @@ Partial Class Formtest
         Return words
 
     End Function
+
 
     Private Function Build3458ANmiTriggerWords(config As CalRam3458AFirmwareConfig) As List(Of Integer)
 
@@ -1691,6 +1716,7 @@ Partial Class Formtest
         Return words
 
     End Function
+
 
     Private Function Write3458ACalRamWord(physicalAddress As Integer, wordValue As Integer) As Boolean
 
@@ -1729,6 +1755,7 @@ Partial Class Formtest
         Return errorResponse.IndexOf("NO ERROR", StringComparison.OrdinalIgnoreCase) >= 0
 
     End Function
+
 
     Private Function Write3458ACalRamBlock(config As CalRam3458AFirmwareConfig, startWord As Integer, wordCount As Integer) As Boolean
 
@@ -1808,6 +1835,7 @@ Partial Class Formtest
 
     End Function
 
+
     Private Sub Set3458ACalRamWriteProgress(value As Integer, statusText As String)
 
         ProgressBar3458ACalRam.Value = Math.Max(ProgressBar3458ACalRam.Minimum, Math.Min(ProgressBar3458ACalRam.Maximum, value))
@@ -1818,6 +1846,7 @@ Partial Class Formtest
         Application.DoEvents()
 
     End Sub
+
 
     Private Sub Button3458ACalRamWrite_Click(sender As Object, e As EventArgs) Handles Button3458ACalRamWrite.Click
 
@@ -2132,6 +2161,7 @@ Partial Class Formtest
 
     End Sub
 
+
     Private Sub Button3458ACalRamVerify_Click(sender As Object, e As EventArgs) Handles Button3458ACalRamVerify.Click
 
         If CalRam3458AVerifyInProgress Then Exit Sub
@@ -2262,8 +2292,7 @@ Partial Class Formtest
                 Button3458ACalRamWrite.Enabled = False
                 Button3458ACalRamTestWrite.Enabled = False
 
-                MessageBox.Show("CALRAM VERIFY PASSED" & vbCrLf & vbCrLf & "All 2048 bytes in the HP 3458A match the selected file.", "HP 3458A CalRAM", MessageBoxButtons.OK,
-    MessageBoxIcon.Information)
+                MessageBox.Show("CALRAM VERIFY PASSED" & vbCrLf & vbCrLf & "All 2048 bytes in the HP 3458A match the selected file.", "HP 3458A CalRAM", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
                 Initialise3458ACalRamControls()
 
@@ -2359,6 +2388,7 @@ Partial Class Formtest
         End Try
 
     End Sub
+
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
 
