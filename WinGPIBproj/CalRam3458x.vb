@@ -2357,7 +2357,7 @@ Partial Class Formtest
         MessageBox.Show(
     "HP 3458A CALRAM WRITE PROCEDURE" &
     vbCrLf & vbCrLf &
-    "1. Browse and select a valid 2048-byte HP 3458A CalRAM (.bin) file." &
+    "1. Browse and select a 2048-byte HP 3458A CalRAM (.bin) file. WinGPIB verifies the file size and performs basic checks on the calibration data to help detect an invalid or corrupted file before writing." &
     vbCrLf & vbCrLf &
     "2. Press TEST WRITE. This safely verifies the CalRAM write mechanism by reading the first calibration word, writing the identical value back using the Level-7 NMI routine, and confirming that it was written correctly. No calibration data is changed during this test." &
     vbCrLf & vbCrLf &
