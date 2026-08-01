@@ -2314,6 +2314,12 @@ Public Class Formtest
 
         ButtonCal72AcalDcv.Enabled = False  ' 3458A drift tab ACAL DCV
 
+        ' AUTO timer in 3458A drift sub
+        CheckBoxCal72Auto.Checked = False
+        Timer18.Stop()
+        ButtonCal72AcalDcv.Enabled = False
+        ButtonCal72Read.Enabled = False
+
     End Sub
 
     Private Sub ShowFiles_Click(sender As Object, e As EventArgs) Handles ShowFiles.Click

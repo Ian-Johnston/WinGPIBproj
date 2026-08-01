@@ -18,6 +18,9 @@ Partial Class Formtest
 
     Private Const Cal72AcalDcvCommand As String = "ACAL DCV"
 
+    Private Cal72AutoNextRun As DateTime
+    Private Cal72AutoBusy As Boolean = False
+
     Private Sub InitCal72DriftTab()
 
         'Cal72CsvFile = strPath & "\" & "3458A_CAL72_Drift.csv"
@@ -107,6 +110,9 @@ Partial Class Formtest
 
         DataGridViewCal72.Columns("Temp").DefaultCellStyle.Format = "0.0"
 
+        DataGridViewCal72.Columns("Days From Day 1").DefaultCellStyle.Format = "0.0"
+        DataGridViewCal72.Columns("Days From Last").DefaultCellStyle.Format = "0.0"
+
         For Each col As DataGridViewColumn In DataGridViewCal72.Columns
             col.SortMode = DataGridViewColumnSortMode.NotSortable
         Next
@@ -130,6 +136,11 @@ Partial Class Formtest
         Cal72Initialised = True
 
         ButtonCal72AcalDcv.Enabled = False ' for ACAL DCV button
+
+        ' AUTO timer
+        Timer18.Interval = 1000
+        Timer18.Stop()
+        CheckBoxCal72Auto.Checked = False
 
     End Sub
 
@@ -429,20 +440,19 @@ Handles RadioButton34581.CheckedChanged,
 
         If Cal72Table.Rows.Count = 0 Then Return 1
 
-        Dim firstDate As DateTime
-        Dim firstDay As Double
+        Dim firstDateTime As DateTime
 
-        If Not GetRowDateTime(Cal72Table.Rows(0), firstDate) Then Return Cal72Table.Rows.Count + 1
-
-        If Not Double.TryParse(Cal72Table.Rows(0)("Day").ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, firstDay) Then
-            firstDay = 1
+        If Not GetRowDateTime(Cal72Table.Rows(0), firstDateTime) Then
+            Return Cal72Table.Rows.Count + 1
         End If
 
-        Dim elapsedDays As Double = (DateTime.Now - firstDate).TotalDays
+        Dim elapsedCalendarDays As Integer =
+        CInt((DateTime.Now.Date - firstDateTime.Date).TotalDays)
 
-        Return Math.Round(firstDay + elapsedDays, 0)
+        Return elapsedCalendarDays + 1
 
     End Function
+
 
     Private Sub ButtonCal72Delete_Click(sender As Object, e As EventArgs) Handles ButtonCal72Delete.Click
 
@@ -502,12 +512,22 @@ Handles RadioButton34581.CheckedChanged,
 
         Dim day1Cal72 As Double
         Dim firstDay As Double
-
         Dim day1Cal11 As Double
         Dim day1Cal21 As Double
 
-        If Not Double.TryParse(Cal72Table.Rows(0)("CAL? 72").ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, day1Cal72) Then Exit Sub
-        If Not Double.TryParse(Cal72Table.Rows(0)("Day").ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, firstDay) Then firstDay = 1
+        If Not Double.TryParse(Cal72Table.Rows(0)("CAL? 72").ToString(),
+                           NumberStyles.Float,
+                           CultureInfo.InvariantCulture,
+                           day1Cal72) Then
+            Exit Sub
+        End If
+
+        If Not Double.TryParse(Cal72Table.Rows(0)("Day").ToString(),
+                           NumberStyles.Float,
+                           CultureInfo.InvariantCulture,
+                           firstDay) Then
+            firstDay = 1
+        End If
 
         Double.TryParse(Cal72Table.Rows(0)("CAL? 1,1 40k").ToString(),
                     NumberStyles.Float,
@@ -521,8 +541,15 @@ Handles RadioButton34581.CheckedChanged,
 
         If day1Cal72 = 0 Then Exit Sub
 
+        Dim firstDateTime As DateTime
+        Dim firstDateTimeValid As Boolean =
+        GetRowDateTime(Cal72Table.Rows(0), firstDateTime)
+
         Dim previousDay As Double = firstDay
         Dim previousCal72 As Double = day1Cal72
+
+        Dim previousDateTime As DateTime = firstDateTime
+        Dim previousDateTimeValid As Boolean = firstDateTimeValid
 
         For i As Integer = 0 To Cal72Table.Rows.Count - 1
 
@@ -530,12 +557,22 @@ Handles RadioButton34581.CheckedChanged,
 
             Dim thisDay As Double
             Dim thisCal72 As Double
-
             Dim thisCal11 As Double
             Dim thisCal21 As Double
 
-            If Not Double.TryParse(r("Day").ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, thisDay) Then Continue For
-            If Not Double.TryParse(r("CAL? 72").ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, thisCal72) Then Continue For
+            If Not Double.TryParse(r("Day").ToString(),
+                               NumberStyles.Float,
+                               CultureInfo.InvariantCulture,
+                               thisDay) Then
+                Continue For
+            End If
+
+            If Not Double.TryParse(r("CAL? 72").ToString(),
+                               NumberStyles.Float,
+                               CultureInfo.InvariantCulture,
+                               thisCal72) Then
+                Continue For
+            End If
 
             Double.TryParse(r("CAL? 1,1 40k").ToString(),
                         NumberStyles.Float,
@@ -547,63 +584,109 @@ Handles RadioButton34581.CheckedChanged,
                         CultureInfo.InvariantCulture,
                         thisCal21)
 
-            Dim daysFromDay1 As Double = thisDay - firstDay
-            Dim daysFromLast As Double = If(i = 0, 0, thisDay - previousDay)
+            Dim thisDateTime As DateTime
+            Dim thisDateTimeValid As Boolean =
+            GetRowDateTime(r, thisDateTime)
 
-            Dim driftPpmDay1 As Double = -(((day1Cal72 - thisCal72) * 1000000.0R) / day1Cal72)
+            Dim daysFromDay1 As Double
+            Dim daysFromLast As Double
+
+            If firstDateTimeValid AndAlso thisDateTimeValid Then
+                daysFromDay1 = (thisDateTime - firstDateTime).TotalDays
+            Else
+                daysFromDay1 = thisDay - firstDay
+            End If
+
+            If i = 0 Then
+
+                daysFromLast = 0
+
+            ElseIf previousDateTimeValid AndAlso thisDateTimeValid Then
+
+                daysFromLast =
+                (thisDateTime - previousDateTime).TotalDays
+
+            Else
+
+                daysFromLast =
+                thisDay - previousDay
+
+            End If
+
+            Dim driftPpmDay1 As Double =
+            ((thisCal72 - day1Cal72) * 1000000.0R) / day1Cal72
 
             Dim avgPpmPerDay As Double = 0
-            If thisDay <> 0 Then
-                avgPpmPerDay = Math.Abs(driftPpmDay1 / thisDay)
+
+            If daysFromDay1 > 0 Then
+                avgPpmPerDay =
+                Math.Abs(driftPpmDay1 / daysFromDay1)
             End If
 
             Dim driftPpmLast As Double = 0
-            If i > 0 AndAlso previousCal72 <> 0 AndAlso daysFromLast <> 0 Then
-                driftPpmLast = ((thisCal72 - previousCal72) * 1000000.0R) / (previousCal72 * daysFromLast)
+
+            If i > 0 AndAlso
+           previousCal72 <> 0 AndAlso
+           daysFromLast > 0 Then
+
+                driftPpmLast =
+                ((thisCal72 - previousCal72) * 1000000.0R) /
+                (previousCal72 * daysFromLast)
+
             End If
 
-            r("Days From Day 1") = Math.Round(daysFromDay1, 4)
-            r("Days From Last") = Math.Round(daysFromLast, 4)
+            r("Days From Day 1") = daysFromDay1
+            r("Days From Last") = daysFromLast
             r("Drift ppm Day 1") = Math.Round(driftPpmDay1, 6)
             r("Avg ppm/day") = Math.Round(avgPpmPerDay, 6)
             r("Drift ppm Last") = Math.Round(driftPpmLast, 6)
 
             Dim cal11Text As String =
-    r("CAL? 1,1 40k").ToString().Trim()
+            r("CAL? 1,1 40k").ToString().Trim()
 
             Dim cal21Text As String =
-    r("CAL? 2,1 Vref").ToString().Trim()
+            r("CAL? 2,1 Vref").ToString().Trim()
 
             If String.IsNullOrWhiteSpace(cal11Text) OrElse
-   String.IsNullOrWhiteSpace(Cal72Table.Rows(0)("CAL? 1,1 40k").ToString()) Then
+           String.IsNullOrWhiteSpace(
+               Cal72Table.Rows(0)("CAL? 1,1 40k").ToString()) Then
 
                 r("CAL? 1,1 Dev") = DBNull.Value
 
             Else
 
                 r("CAL? 1,1 Dev") =
-        Math.Round(thisCal11 - day1Cal11, 10)
+                Math.Round(thisCal11 - day1Cal11, 10)
 
             End If
 
             If String.IsNullOrWhiteSpace(cal21Text) OrElse
-   String.IsNullOrWhiteSpace(Cal72Table.Rows(0)("CAL? 2,1 Vref").ToString()) Then
+           String.IsNullOrWhiteSpace(
+               Cal72Table.Rows(0)("CAL? 2,1 Vref").ToString()) Then
 
                 r("CAL? 2,1 Dev") = DBNull.Value
 
             Else
 
                 r("CAL? 2,1 Dev") =
-        Math.Round(thisCal21 - day1Cal21, 10)
+                Math.Round(thisCal21 - day1Cal21, 10)
 
             End If
 
             previousDay = thisDay
             previousCal72 = thisCal72
 
+            If thisDateTimeValid Then
+                previousDateTime = thisDateTime
+                previousDateTimeValid = True
+            Else
+                previousDateTimeValid = False
+            End If
+
         Next
 
     End Sub
+
 
     Private Function GetRowDateTime(r As DataRow, ByRef dt As DateTime) As Boolean
 
@@ -846,25 +929,80 @@ Handles RadioButton34581.CheckedChanged,
 
     Private Sub ButtonCal72Help_Click(sender As Object, e As EventArgs) Handles ButtonCal72Help.Click
 
-        MessageBox.Show(
+        Dim frm As New Form With {
+        .Text = "3458A U180 Drift Monitor Instructions",
+        .StartPosition = FormStartPosition.CenterParent,
+        .FormBorderStyle = FormBorderStyle.Sizable,
+        .ShowIcon = False,
+        .ShowInTaskbar = False,
+        .Width = 700,
+        .Height = 450,
+        .MinimizeBox = False,
+        .MaximizeBox = False
+    }
+
+        Dim txt As New TextBox With {
+        .Multiline = True,
+        .ReadOnly = True,
+        .WordWrap = True,
+        .Dock = DockStyle.Fill,
+        .Font = New Font("Segoe UI", 9),
+        .BackColor = Color.White,
+        .Text =
 "3458A U180 A/D CURRENT STEERING HYBRID DRIFT MONITOR" & vbCrLf & vbCrLf &
 "- Connect Device 1 to your 3458A and leave in STOP position" & vbCrLf &
-"- Allow 3458A to thermally stabilise before recording data" & vbCrLf &
+"- Allow the 3458A to thermally stabilise before recording data" & vbCrLf &
 "- Perform ACAL DCV before recording values where possible" & vbCrLf &
+"- Auto Log performs ACAL DCV, waits for completion, then logs a new entry" & vbCrLf &
 "- First entry becomes the permanent Day 1 reference baseline" & vbCrLf &
-"- CAL? 72 drift can be temp. related - monitor temp. carefully" & vbCrLf &
-"- Lower ppm/day values indicate better U180 stability" & vbCrLf &
+"- CAL? 72 drift can be temperature related - monitor temperature carefully" & vbCrLf &
+"- Lower average ppm/day values indicate better long-term U180 stability" & vbCrLf &
+"- CAL? 72 accepts decimal or E-notation values for manual entry" & vbCrLf &
 "- Values can be entered manually or read directly via GPIB" & vbCrLf &
-"- CAL? 1,1 and CAL? 2,1 recorded for historical reference" & vbCrLf &
-"- Deviation cols change from Day 1 CAL? 1,1 and CAL? 2,1" & vbCrLf &
+"- CAL? 1,1 and CAL? 2,1 are recorded for historical reference" & vbCrLf &
+"- Deviation columns show the change from the Day 1 CAL? 1,1 and CAL? 2,1 values" & vbCrLf &
 "- Estimated Annual Drift = Average Drift ppm/day × 365.25" & vbCrLf &
-"- Total Drift Ref Day1 shows drift rel. to the 1st recorded entry" & vbCrLf &
-"- Worst Drift Ref Day1 shows the largest drift recorded" & vbCrLf &
-"- Days Since Last Entry shows elapsed time since last" & vbCrLf &
-"- Deleting Day 1 renumbers and creates a new Day 1 baseline",
-"3458A U180 Drift Monitor Help",
-MessageBoxButtons.OK,
-MessageBoxIcon.Information)
+"- Example 1Vdc Reading shows the expected reading today if exactly 1.000000000 Vdc was applied on Day 1" & vbCrLf &
+"- Total Drift Ref Day1 shows the overall drift relative to the first recorded entry" & vbCrLf &
+"- Drift Ref Last Entry shows the drift rate relative to the previous reading" & vbCrLf &
+"- Worst Drift Ref Day1 shows the largest overall drift recorded" & vbCrLf &
+"- Days Since Last Entry shows the elapsed time between the last two readings" & vbCrLf &
+"- Add [RECAL] anywhere in the Notes field to mark recalibration events on the chart" & vbCrLf &
+"- Auto Log automatically performs ACAL DCV then reads and records a new entry at the selected hourly interval" & vbCrLf &
+"- Auto logging stops if disabled or if Device 1 is disconnected" & vbCrLf &
+"- Deleting Day 1 renumbers all remaining entries and creates a new Day 1 baseline"
+    }
+
+        Dim btn As New Button With {
+        .Text = "OK",
+        .DialogResult = DialogResult.OK,
+        .Width = 100,
+        .Height = 30,
+        .Anchor = AnchorStyles.Bottom
+    }
+
+        Dim panel As New Panel With {
+        .Dock = DockStyle.Bottom,
+        .Height = 45
+    }
+
+        panel.Controls.Add(btn)
+
+        AddHandler panel.Resize,
+        Sub()
+            btn.Left = (panel.ClientSize.Width - btn.Width) \ 2
+            btn.Top = 7
+        End Sub
+
+        frm.Controls.Add(txt)
+        frm.Controls.Add(panel)
+
+        frm.AcceptButton = btn
+
+        txt.SelectionStart = 0
+        txt.SelectionLength = 0
+
+        frm.ShowDialog(Me)
 
     End Sub
 
@@ -1056,7 +1194,7 @@ MessageBoxIcon.Information)
 
             ' Return to normal width
             Me.Width = NormalFormWidth
-            ButtonMaximize.Text = "Maximize Width"
+            ButtonMaximize.Text = "Max. Width"
 
         End If
 
@@ -1399,7 +1537,7 @@ MessageBoxIcon.Information)
         If MessageBox.Show(
     "Send ACAL DCV to the connected 3458A?" & vbCrLf & vbCrLf &
     "Wait until the 3458A has completed before proceeding." & vbCrLf &
-    "(~145 secs).",
+    "(~150 secs).",
                 "Confirm ACAL DCV",
              MessageBoxButtons.YesNo,
             MessageBoxIcon.Question) <> DialogResult.Yes Then
@@ -1444,6 +1582,333 @@ MessageBoxIcon.Information)
 
         ButtonCal72Read.Enabled = device1Connected
         ButtonCal72AcalDcv.Enabled = device1Connected
+
+    End Sub
+
+
+    ' AUTO timer
+    Private Sub CheckBoxCal72Auto_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxCal72Auto.CheckedChanged
+
+        If CheckBoxCal72Auto.Checked = False Then
+
+            Timer18.Stop()
+
+            ButtonCal72AcalDcv.Enabled = (dev1 IsNot Nothing)
+
+            LabelCal72Status.Text = "AUTOMATION STOPPED"
+            Exit Sub
+
+        End If
+
+        ButtonCal72AcalDcv.Enabled = False
+
+        If dev1 Is Nothing Then
+
+            MessageBox.Show(
+            "Device 1 must be connected before automation can be started.",
+            "CAL72 Automation",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information)
+
+            CheckBoxCal72Auto.Checked = False
+            Exit Sub
+
+        End If
+
+        Dim intervalHours As Double
+
+        If Not Double.TryParse(TextBoxCal72AutoHours.Text,
+                           NumberStyles.Float,
+                           CultureInfo.InvariantCulture,
+                           intervalHours) OrElse intervalHours <= 0 Then
+
+            MessageBox.Show(
+            "Enter a valid automation interval greater than zero.",
+            "CAL72 Automation",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Warning)
+
+            CheckBoxCal72Auto.Checked = False
+            Exit Sub
+
+        End If
+
+        ' 0.1hrs minimum allowed
+        If intervalHours < 0.1 Then
+
+            MessageBox.Show(
+        "The minimum Auto Log interval is 0.1 hours (6 minutes).",
+        "CAL72 Automation",
+        MessageBoxButtons.OK,
+        MessageBoxIcon.Warning)
+
+            CheckBoxCal72Auto.Checked = False
+            Exit Sub
+
+        End If
+
+        'Cal72AutoNextRun = DateTime.Now.AddHours(intervalHours)
+
+        'Timer18.Start()
+
+        'LabelCal72Status.Text = "AUTO NEXT RUN " & Cal72AutoNextRun.ToString("yyyy-MM-dd HH:mm")
+
+        Timer18.Start()
+
+        Cal72AutoNextRun = DateTime.Now
+
+        LabelCal72Status.Text = "AUTO STARTING..."
+
+    End Sub
+
+
+    Private Async Sub Timer18_Tick(sender As Object, e As EventArgs) Handles Timer18.Tick
+
+        If CheckBoxCal72Auto.Checked = False Then
+
+            Timer18.Stop()
+            Exit Sub
+
+        End If
+
+        If Cal72AutoBusy Then Exit Sub
+        If DateTime.Now < Cal72AutoNextRun Then Exit Sub
+
+        Await RunCal72AutomaticCycleAsync()
+
+    End Sub
+
+
+    Private Async Function RunCal72AutomaticCycleAsync() As System.Threading.Tasks.Task
+
+        If Cal72AutoBusy Then Exit Function
+
+        If dev1 Is Nothing Then
+
+            CheckBoxCal72Auto.Checked = False
+
+            LabelCal72Status.Text = "AUTO STOPPED - DEVICE 1 DISCONNECTED"
+
+            Exit Function
+
+        End If
+
+        Dim intervalHours As Double
+
+        If Not Double.TryParse(
+            TextBoxCal72AutoHours.Text,
+            NumberStyles.Float,
+            CultureInfo.InvariantCulture,
+            intervalHours) OrElse intervalHours <= 0 Then
+
+            CheckBoxCal72Auto.Checked = False
+
+            LabelCal72Status.Text = "AUTO STOPPED - INVALID INTERVAL"
+
+            Exit Function
+
+        End If
+
+        Cal72AutoBusy = True
+
+        Try
+
+            ButtonCal72AcalDcv.Enabled = False
+            ButtonCal72Read.Enabled = False
+            ButtonCal72Add.Enabled = False
+
+            LabelCal72Status.Text = "AUTO - STARTING ACAL DCV"
+
+            Me.Refresh()
+
+            dev1.SendAsync(Cal72AcalDcvCommand, True)
+
+            LabelCal72Status.Text = "AUTO - ACAL DCV RUNNING"
+
+            ' Allow approximately 170 seconds for ACAL DCV,
+            ' plus a small safety margin.
+            Await System.Threading.Tasks.Task.Delay(
+                TimeSpan.FromSeconds(170))
+
+            If CheckBoxCal72Auto.Checked = False Then
+                LabelCal72Status.Text = "AUTOMATION STOPPED"
+                Exit Function
+            End If
+
+            If dev1 Is Nothing Then
+
+                CheckBoxCal72Auto.Checked = False
+
+                LabelCal72Status.Text = "AUTO STOPPED - DEVICE 1 DISCONNECTED"
+
+                Exit Function
+
+            End If
+
+            LabelCal72Status.Text = "AUTO - READING CAL? 72"
+
+            Me.Refresh()
+
+            Dim cal72Text As String = Query3458AValue(Cal72Command)
+
+            LabelCal72Status.Text = "AUTO - READING TEMP?"
+
+            Me.Refresh()
+
+            Dim tempText As String = Query3458AValue(Cal72TempCommand)
+
+            LabelCal72Status.Text = "AUTO - READING CAL? 1,1"
+
+            Me.Refresh()
+
+            Dim cal11Text As String = Query3458AValue(Cal72Cal11Command)
+
+            LabelCal72Status.Text = "AUTO - READING CAL? 2,1"
+
+            Me.Refresh()
+
+            Dim cal21Text As String = Query3458AValue(Cal72Cal21Command)
+
+            Dim cal72Value As Double
+            Dim tempValue As Double
+            Dim cal11Value As Double
+            Dim cal21Value As Double
+
+            If Not Double.TryParse(
+                cal72Text,
+                NumberStyles.Float,
+                CultureInfo.InvariantCulture,
+                cal72Value) Then
+
+                Throw New InvalidOperationException("Invalid CAL? 72 response: " & cal72Text)
+
+            End If
+
+            If Not Double.TryParse(
+                tempText,
+                NumberStyles.Float,
+                CultureInfo.InvariantCulture,
+                tempValue) Then
+
+                Throw New InvalidOperationException(
+                    "Invalid TEMP? response: " & tempText)
+
+            End If
+
+            If Not Double.TryParse(
+                cal11Text,
+                NumberStyles.Float,
+                CultureInfo.InvariantCulture,
+                cal11Value) Then
+
+                Throw New InvalidOperationException(
+                    "Invalid CAL? 1,1 response: " & cal11Text)
+
+            End If
+
+            If Not Double.TryParse(
+                cal21Text,
+                NumberStyles.Float,
+                CultureInfo.InvariantCulture,
+                cal21Value) Then
+
+                Throw New InvalidOperationException(
+                    "Invalid CAL? 2,1 response: " & cal21Text)
+
+            End If
+
+            TextBoxCal72Value.Text = cal72Text
+            TextBoxCal72Temp.Text = tempText
+            TextBoxCal1140k.Text = cal11Text
+            TextBoxCal21Vref.Text = cal21Text
+
+            Dim r As DataRow = Cal72Table.NewRow()
+
+            r("Day") = GetSuggestedNextCal72Day()
+
+            r("Date") =
+                DateTime.Now.ToString(
+                    "yyyy-MM-dd",
+                    CultureInfo.InvariantCulture)
+
+            r("Time") =
+                DateTime.Now.ToString(
+                    "HH:mm",
+                    CultureInfo.InvariantCulture)
+
+            r("Temp") = tempValue
+            r("CAL? 72") = cal72Value
+            r("CAL? 1,1 40k") = cal11Text
+            r("CAL? 2,1 Vref") = cal21Text
+            r("Notes") = "[AUTO] ACAL DCV"
+
+            Cal72Table.Rows.Add(r)
+
+            RecalculateCal72Table()
+            UpdateCal72SummaryPanel()
+            SaveCal72Csv()
+
+            If ChartCal72.Visible Then
+                UpdateCal72Chart()
+            End If
+
+            ScrollCal72GridToBottom()
+
+            Cal72AutoNextRun = DateTime.Now.AddHours(intervalHours)
+
+            LabelCal72Status.Text = "AUTO ADDED - NEXT " & Cal72AutoNextRun.ToString("yyyy-MM-dd HH:mm")
+
+        Catch ex As Exception
+
+            LabelCal72Status.Text = "AUTOMATION FAILED"
+
+            CheckBoxCal72Auto.Checked = False
+
+            MessageBox.Show(
+                "The automatic CAL72 cycle failed:" &
+                vbCrLf & vbCrLf &
+                ex.Message,
+                "CAL72 Automation",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error)
+
+        Finally
+
+            Cal72AutoBusy = False
+
+            ButtonCal72Add.Enabled = True
+
+            If dev1 IsNot Nothing Then
+                ButtonCal72Read.Enabled = True
+                ButtonCal72AcalDcv.Enabled = True
+            Else
+                ButtonCal72Read.Enabled = False
+                ButtonCal72AcalDcv.Enabled = False
+            End If
+
+        End Try
+
+    End Function
+
+
+    Private Sub TextBoxCal72AutoHours_TextChanged(sender As Object, e As EventArgs) Handles TextBoxCal72AutoHours.TextChanged
+
+        If CheckBoxCal72Auto.Checked = False Then Exit Sub
+
+        Dim intervalHours As Double
+
+        If Double.TryParse(
+            TextBoxCal72AutoHours.Text,
+            NumberStyles.Float,
+            CultureInfo.InvariantCulture,
+            intervalHours) AndAlso intervalHours > 0 Then
+
+            Cal72AutoNextRun =
+                DateTime.Now.AddHours(intervalHours)
+
+            LabelCal72Status.Text = "AUTO NEXT RUN " & Cal72AutoNextRun.ToString("yyyy-MM-dd HH:mm")
+
+        End If
 
     End Sub
 
