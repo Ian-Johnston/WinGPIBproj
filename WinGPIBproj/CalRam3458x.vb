@@ -2392,37 +2392,72 @@ Partial Class Formtest
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
 
-        MessageBox.Show(
-    "HP 3458A CALRAM WRITE PROCEDURE" &
-    vbCrLf & vbCrLf &
-    "1. Browse and select a 2048-byte HP 3458A CalRAM (.bin) file. WinGPIB verifies the file size and performs basic checks on the calibration data to help detect an invalid or corrupted file before writing." &
-    vbCrLf & vbCrLf &
-    "2. Press TEST WRITE. This safely verifies the CalRAM write mechanism by reading the first calibration word, writing the identical value back using the Level-7 NMI routine, and confirming that it was written correctly. No calibration data is changed during this test." &
-    vbCrLf & vbCrLf &
-    "3. Tick the confirmation box and type the confirmation phrase exactly as shown to enable WRITE CALRAM." &
-    vbCrLf & vbCrLf &
-    "4. Press WRITE CALRAM. The selected CalRAM image is first loaded into temporary Settings RAM inside the meter, then copied into the protected CalRAM. The four checksum words are written last." &
-    vbCrLf & vbCrLf &
-    "5. Press VERIFY. WinGPIB reads back all 2048 bytes from the HP 3458A and compares them with the selected file to confirm that every byte was written correctly." &
-    vbCrLf & vbCrLf &
-    "HOW IT WORKS:" &
-    vbCrLf &
-    "The HP 3458A CalRAM cannot be written directly using the normal MWRITE command. WinGPIB therefore uploads a small Motorola 68000 machine-code routine into the meter and uses the processor's Level-7 Non-Maskable Interrupt mechanism to open the protected CalRAM write window." &
-    vbCrLf & vbCrLf &
-    "The complete CalRAM file is staged in unused Settings RAM before being transferred into CalRAM in blocks. Firmware-specific memory addresses are selected automatically after WinGPIB reads the instrument revision using REV?." &
-    vbCrLf & vbCrLf &
-    "The checksum words are deliberately written last so that a partially completed transfer does not leave the CalRAM appearing valid. VERIFY is read-only and does not alter any calibration data." &
-    vbCrLf & vbCrLf &
-    "IMPORTANT" &
-    vbCrLf &
-    "• Only use a known-good CalRAM backup for the correct instrument." &
-    vbCrLf &
-    "• Do not switch off the HP 3458A or disconnect the GPIB cable during WRITE or VERIFY." &
-    vbCrLf &
-    "• The complete WRITE and VERIFY procedure typically takes several minutes.",
-    "HP 3458A CalRAM Write Help",
-    MessageBoxButtons.OK,
-    MessageBoxIcon.Information)
+        Dim frm As New Form With {
+        .Text = "HP 3458A CalRAM Write Help",
+        .StartPosition = FormStartPosition.CenterParent,
+        .FormBorderStyle = FormBorderStyle.FixedDialog,
+        .ShowIcon = False,
+        .ShowInTaskbar = False,
+        .Width = 700,
+        .Height = 600,
+        .MinimizeBox = False,
+        .MaximizeBox = False
+    }
+
+        Dim txt As New TextBox With {
+        .Multiline = True,
+        .ReadOnly = True,
+        .WordWrap = True,
+        .Dock = DockStyle.Fill,
+        .Font = New Font("Segoe UI", 9),
+        .BackColor = Color.White,
+        .Text =
+"HP 3458A CALRAM WRITE PROCEDURE" & vbCrLf & vbCrLf &
+"1. Browse and select a 2048-byte HP 3458A CalRAM (.bin) file. WinGPIB verifies the file size and performs basic checks on the calibration data to help detect an invalid or corrupted file before writing." & vbCrLf & vbCrLf &
+"2. Press TEST WRITE. This safely verifies the CalRAM write mechanism by reading the first calibration word, writing the identical value back using the Level-7 NMI routine, and confirming that it was written correctly. No calibration data is changed during this test." & vbCrLf & vbCrLf &
+"3. Tick the confirmation box and type the confirmation phrase exactly as shown to enable WRITE CALRAM." & vbCrLf & vbCrLf &
+"4. Press WRITE CALRAM. The selected CalRAM image is first loaded into temporary Settings RAM inside the meter, then copied into the protected CalRAM. The four checksum words are written last." & vbCrLf & vbCrLf &
+"5. Press VERIFY. WinGPIB reads back all 2048 bytes from the HP 3458A and compares them with the selected file to confirm that every byte was written correctly." & vbCrLf & vbCrLf &
+"HOW IT WORKS:" & vbCrLf &
+"The HP 3458A CalRAM cannot be written directly using the normal MWRITE command. WinGPIB therefore uploads a small Motorola 68000 machine-code routine into the meter and uses the processor's Level-7 Non-Maskable Interrupt mechanism to open the protected CalRAM write window." & vbCrLf & vbCrLf &
+"The complete CalRAM file is staged in unused Settings RAM before being transferred into CalRAM in blocks. Firmware-specific memory addresses are selected automatically after WinGPIB reads the instrument revision using REV?." & vbCrLf & vbCrLf &
+"The checksum words are deliberately written last so that a partially completed transfer does not leave the CalRAM appearing valid. VERIFY is read-only and does not alter any calibration data." & vbCrLf & vbCrLf &
+"IMPORTANT" & vbCrLf &
+"• Only use a known-good CalRAM backup for the correct instrument." & vbCrLf &
+"• Do not switch off the HP 3458A or disconnect the GPIB cable during WRITE or VERIFY." & vbCrLf &
+"• The complete WRITE and VERIFY procedure typically takes several minutes."
+    }
+
+        Dim btn As New Button With {
+        .Text = "OK",
+        .DialogResult = DialogResult.OK,
+        .Width = 100,
+        .Height = 30,
+        .Anchor = AnchorStyles.Bottom
+    }
+
+        Dim panel As New Panel With {
+        .Dock = DockStyle.Bottom,
+        .Height = 45
+    }
+
+        panel.Controls.Add(btn)
+
+        AddHandler panel.Resize,
+        Sub()
+            btn.Left = (panel.ClientSize.Width - btn.Width) \ 2
+            btn.Top = 7
+        End Sub
+
+        frm.Controls.Add(txt)
+        frm.Controls.Add(panel)
+
+        frm.AcceptButton = btn
+
+        txt.SelectionStart = 0
+        txt.SelectionLength = 0
+
+        frm.ShowDialog(Me)
 
     End Sub
 

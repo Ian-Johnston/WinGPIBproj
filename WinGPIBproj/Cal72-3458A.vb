@@ -932,7 +932,7 @@ Handles RadioButton34581.CheckedChanged,
         Dim frm As New Form With {
         .Text = "3458A U180 Drift Monitor Instructions",
         .StartPosition = FormStartPosition.CenterParent,
-        .FormBorderStyle = FormBorderStyle.Sizable,
+        .FormBorderStyle = FormBorderStyle.FixedDialog,
         .ShowIcon = False,
         .ShowInTaskbar = False,
         .Width = 700,
