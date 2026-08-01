@@ -930,7 +930,7 @@ Handles RadioButton34581.CheckedChanged,
     Private Sub ButtonCal72Help_Click(sender As Object, e As EventArgs) Handles ButtonCal72Help.Click
 
         Dim frm As New Form With {
-        .Text = "3458A U180 Drift Monitor Instructions",
+        .Text = "3458A U180 Drift Monitor Help / Info",
         .StartPosition = FormStartPosition.CenterParent,
         .FormBorderStyle = FormBorderStyle.FixedDialog,
         .ShowIcon = False,

@@ -2393,7 +2393,7 @@ Partial Class Formtest
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
 
         Dim frm As New Form With {
-        .Text = "HP 3458A CalRAM Write Help",
+        .Text = "HP 3458A CalRAM Write Help / Info",
         .StartPosition = FormStartPosition.CenterParent,
         .FormBorderStyle = FormBorderStyle.FixedDialog,
         .ShowIcon = False,
