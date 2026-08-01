@@ -1008,6 +1008,8 @@ Public Class Formtest
 
         ButtonDev1Run.Enabled = True
 
+        ButtonCal72AcalDcv.Enabled = True  ' for drift tab ACAL DCV button
+
         ButtonCalramDump3457A.Enabled = True
         ButtonCalramDump3458A.Enabled = True
         'Button3458ACalRamTestWrite.Enabled = True
@@ -2309,6 +2311,8 @@ Public Class Formtest
 
         ' 3245A Dev2
         Disable3245AControls()
+
+        ButtonCal72AcalDcv.Enabled = False  ' 3458A drift tab ACAL DCV
 
     End Sub
 

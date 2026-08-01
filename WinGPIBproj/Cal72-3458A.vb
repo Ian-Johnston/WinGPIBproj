@@ -16,6 +16,8 @@ Partial Class Formtest
     Private Const Cal72Cal11Command As String = "CAL? 1,1"
     Private Const Cal72Cal21Command As String = "CAL? 2,1"
 
+    Private Const Cal72AcalDcvCommand As String = "ACAL DCV"
+
     Private Sub InitCal72DriftTab()
 
         'Cal72CsvFile = strPath & "\" & "3458A_CAL72_Drift.csv"
@@ -126,6 +128,8 @@ Partial Class Formtest
         'DataGridViewCal72.ClearSelection()
 
         Cal72Initialised = True
+
+        ButtonCal72AcalDcv.Enabled = False ' for ACAL DCV button
 
     End Sub
 
@@ -1381,6 +1385,65 @@ MessageBoxIcon.Information)
 
         area.RecalculateAxesScale()
         ChartCal72.Invalidate()
+
+    End Sub
+
+
+    Private Sub ButtonCal72AcalDcv_Click(sender As Object, e As EventArgs) Handles ButtonCal72AcalDcv.Click
+
+        If dev1 Is Nothing Then
+            MessageBox.Show("Device 1 is not started.", "ACAL DCV", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Exit Sub
+        End If
+
+        If MessageBox.Show(
+    "Send ACAL DCV to the connected 3458A?" & vbCrLf & vbCrLf &
+    "Wait until the 3458A has completed before proceeding." & vbCrLf &
+    "(~145 secs).",
+                "Confirm ACAL DCV",
+             MessageBoxButtons.YesNo,
+            MessageBoxIcon.Question) <> DialogResult.Yes Then
+
+            Exit Sub
+        End If
+
+        Try
+
+            ButtonCal72AcalDcv.Enabled = False
+
+            LabelCal72Status.Text = "STARTING ACAL DCV"
+            Me.Refresh()
+
+            dev1.SendAsync(Cal72AcalDcvCommand, True)
+
+            LabelCal72Status.Text = "ACAL DCV COMMAND SENT"
+
+        Catch ex As Exception
+
+            LabelCal72Status.Text = "ACAL DCV FAILED"
+
+            MessageBox.Show(
+                "Unable to send ACAL DCV: " & ex.Message,
+                "ACAL DCV Error",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error)
+
+        Finally
+
+            UpdateCal72ControlStates()
+
+        End Try
+
+    End Sub
+
+
+    Private Sub UpdateCal72ControlStates()
+
+        Dim device1Connected As Boolean =
+        ButtonDev1Run.Enabled = False
+
+        ButtonCal72Read.Enabled = device1Connected
+        ButtonCal72AcalDcv.Enabled = device1Connected
 
     End Sub
 

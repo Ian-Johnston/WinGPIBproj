@@ -385,6 +385,8 @@ Partial Class Formtest
         Me.Label215 = New System.Windows.Forms.Label()
         Me.Label214 = New System.Windows.Forms.Label()
         Me.Label213 = New System.Windows.Forms.Label()
+        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.Label212 = New System.Windows.Forms.Label()
         Me.Label211 = New System.Windows.Forms.Label()
         Me.Label210 = New System.Windows.Forms.Label()
@@ -555,6 +557,7 @@ Partial Class Formtest
         Me.Label60 = New System.Windows.Forms.Label()
         Me.Label38 = New System.Windows.Forms.Label()
         Me.GroupBox6 = New System.Windows.Forms.GroupBox()
+        Me.TextBoxCalRamFile = New System.Windows.Forms.TextBox()
         Me.Button1 = New System.Windows.Forms.Button()
         Me.Label389 = New System.Windows.Forms.Label()
         Me.Label397 = New System.Windows.Forms.Label()
@@ -576,6 +579,7 @@ Partial Class Formtest
         Me.Button3458ACalRamBrowse = New System.Windows.Forms.Button()
         Me.TextBox3458ACalRamWriteFile = New System.Windows.Forms.TextBox()
         Me.Label391 = New System.Windows.Forms.Label()
+        Me.Label390 = New System.Windows.Forms.Label()
         Me.Label386 = New System.Windows.Forms.Label()
         Me.Label265 = New System.Windows.Forms.Label()
         Me.Label318 = New System.Windows.Forms.Label()
@@ -944,6 +948,7 @@ Partial Class Formtest
         Me.Label3133478A = New System.Windows.Forms.Label()
         Me.ShowFilesCalRam3478A = New System.Windows.Forms.Button()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
+        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.Label145 = New System.Windows.Forms.Label()
         Me.Label79 = New System.Windows.Forms.Label()
         Me.Label81 = New System.Windows.Forms.Label()
@@ -1199,6 +1204,7 @@ Partial Class Formtest
         Me.CalAccuracyFinal = New System.Windows.Forms.TextBox()
         Me.Label117 = New System.Windows.Forms.Label()
         Me.Label121 = New System.Windows.Forms.Label()
+        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage14 = New System.Windows.Forms.TabPage()
         Me.ButtonUserStart = New System.Windows.Forms.Button()
         Me.ButtonUserTabGuide = New System.Windows.Forms.Button()
@@ -1256,12 +1262,7 @@ Partial Class Formtest
         Me.Timer15 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer16 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
-        Me.Label390 = New System.Windows.Forms.Label()
-        Me.TextBoxCalRamFile = New System.Windows.Forms.TextBox()
-        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
+        Me.ButtonCal72AcalDcv = New System.Windows.Forms.Button()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.GroupBox9.SuspendLayout
@@ -5152,6 +5153,26 @@ Partial Class Formtest
         Me.Label213.TabIndex = 537
         Me.Label213.Text = "Tx"
         '
+        'OnOffLed2
+        '
+        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
+        Me.OnOffLed2.Name = "OnOffLed2"
+        Me.OnOffLed2.OffText = Nothing
+        Me.OnOffLed2.OnText = Nothing
+        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed2.TabIndex = 536
+        '
+        'OnOffLed1
+        '
+        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
+        Me.OnOffLed1.Name = "OnOffLed1"
+        Me.OnOffLed1.OffText = Nothing
+        Me.OnOffLed1.OnText = Nothing
+        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed1.TabIndex = 535
+        '
         'Label212
         '
         Me.Label212.AutoSize = True
@@ -6444,6 +6465,7 @@ Partial Class Formtest
         '
         'Panel1
         '
+        Me.Panel1.Controls.Add(Me.ButtonCal72AcalDcv)
         Me.Panel1.Controls.Add(Me.ButtonMaximize)
         Me.Panel1.Controls.Add(Me.RadioButton34588)
         Me.Panel1.Controls.Add(Me.RadioButton34587)
@@ -6709,7 +6731,7 @@ Partial Class Formtest
         '
         'ButtonCal72Save
         '
-        Me.ButtonCal72Save.Location = New System.Drawing.Point(779, 11)
+        Me.ButtonCal72Save.Location = New System.Drawing.Point(754, 8)
         Me.ButtonCal72Save.Name = "ButtonCal72Save"
         Me.ButtonCal72Save.Size = New System.Drawing.Size(54, 23)
         Me.ButtonCal72Save.TabIndex = 3
@@ -6986,6 +7008,14 @@ Partial Class Formtest
         Me.GroupBox6.TabIndex = 588
         Me.GroupBox6.TabStop = False
         '
+        'TextBoxCalRamFile
+        '
+        Me.TextBoxCalRamFile.Location = New System.Drawing.Point(12, 238)
+        Me.TextBoxCalRamFile.Name = "TextBoxCalRamFile"
+        Me.TextBoxCalRamFile.ReadOnly = True
+        Me.TextBoxCalRamFile.Size = New System.Drawing.Size(601, 20)
+        Me.TextBoxCalRamFile.TabIndex = 589
+        '
         'Button1
         '
         Me.Button1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -7187,6 +7217,15 @@ Partial Class Formtest
         Me.Label391.Size = New System.Drawing.Size(531, 52)
         Me.Label391.TabIndex = 708
         Me.Label391.Text = resources.GetString("Label391.Text")
+        '
+        'Label390
+        '
+        Me.Label390.AutoSize = True
+        Me.Label390.Location = New System.Drawing.Point(11, 381)
+        Me.Label390.Name = "Label390"
+        Me.Label390.Size = New System.Drawing.Size(282, 13)
+        Me.Label390.TabIndex = 589
+        Me.Label390.Text = "Connect Device 1 to your 3458A (leave in STOP position)."
         '
         'Label386
         '
@@ -11120,6 +11159,16 @@ Partial Class Formtest
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "PDVS2mini "
         '
+        'OnOffLed4
+        '
+        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
+        Me.OnOffLed4.Name = "OnOffLed4"
+        Me.OnOffLed4.OffText = Nothing
+        Me.OnOffLed4.OnText = Nothing
+        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed4.TabIndex = 797
+        '
         'Label145
         '
         Me.Label145.AutoSize = True
@@ -13945,6 +13994,16 @@ Partial Class Formtest
         Me.Label121.TabIndex = 554
         Me.Label121.Text = "Comms Delay (mS)"
         '
+        'OnOffLed3
+        '
+        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
+        Me.OnOffLed3.Name = "OnOffLed3"
+        Me.OnOffLed3.OffText = Nothing
+        Me.OnOffLed3.OnText = Nothing
+        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed3.TabIndex = 796
+        '
         'TabPage14
         '
         Me.TabPage14.Controls.Add(Me.ButtonUserStart)
@@ -14476,62 +14535,14 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
-        'Label390
+        'ButtonCal72AcalDcv
         '
-        Me.Label390.AutoSize = True
-        Me.Label390.Location = New System.Drawing.Point(11, 381)
-        Me.Label390.Name = "Label390"
-        Me.Label390.Size = New System.Drawing.Size(282, 13)
-        Me.Label390.TabIndex = 589
-        Me.Label390.Text = "Connect Device 1 to your 3458A (leave in STOP position)."
-        '
-        'TextBoxCalRamFile
-        '
-        Me.TextBoxCalRamFile.Location = New System.Drawing.Point(12, 238)
-        Me.TextBoxCalRamFile.Name = "TextBoxCalRamFile"
-        Me.TextBoxCalRamFile.ReadOnly = True
-        Me.TextBoxCalRamFile.Size = New System.Drawing.Size(601, 20)
-        Me.TextBoxCalRamFile.TabIndex = 589
-        '
-        'OnOffLed2
-        '
-        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
-        Me.OnOffLed2.Name = "OnOffLed2"
-        Me.OnOffLed2.OffText = Nothing
-        Me.OnOffLed2.OnText = Nothing
-        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed2.TabIndex = 536
-        '
-        'OnOffLed1
-        '
-        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
-        Me.OnOffLed1.Name = "OnOffLed1"
-        Me.OnOffLed1.OffText = Nothing
-        Me.OnOffLed1.OnText = Nothing
-        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed1.TabIndex = 535
-        '
-        'OnOffLed4
-        '
-        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
-        Me.OnOffLed4.Name = "OnOffLed4"
-        Me.OnOffLed4.OffText = Nothing
-        Me.OnOffLed4.OnText = Nothing
-        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed4.TabIndex = 797
-        '
-        'OnOffLed3
-        '
-        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
-        Me.OnOffLed3.Name = "OnOffLed3"
-        Me.OnOffLed3.OffText = Nothing
-        Me.OnOffLed3.OnText = Nothing
-        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed3.TabIndex = 796
+        Me.ButtonCal72AcalDcv.Location = New System.Drawing.Point(599, 13)
+        Me.ButtonCal72AcalDcv.Name = "ButtonCal72AcalDcv"
+        Me.ButtonCal72AcalDcv.Size = New System.Drawing.Size(108, 23)
+        Me.ButtonCal72AcalDcv.TabIndex = 36
+        Me.ButtonCal72AcalDcv.Text = "Send ACAL DCV"
+        Me.ButtonCal72AcalDcv.UseVisualStyleBackColor = True
         '
         'Formtest
         '
@@ -15865,4 +15876,5 @@ Partial Class Formtest
     Friend WithEvents Label398 As Label
     Friend WithEvents Label390 As Label
     Friend WithEvents TextBoxCalRamFile As TextBox
+    Friend WithEvents ButtonCal72AcalDcv As Button
 End Class
