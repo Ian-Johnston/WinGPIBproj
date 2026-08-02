@@ -1177,6 +1177,9 @@ Handles RadioButton34581.CheckedChanged,
 
         If Me.Width < Me.MaximumSize.Width Then
 
+            BannerText2 = "                                                                                                                                          "
+            Me.Text = BannerText1 & BannerText2 & BannerText3.ToString()
+
             ' Expand form
             Me.Width = Me.MaximumSize.Width
             ButtonMaximize.Text = "Normal Width"
@@ -1188,6 +1191,9 @@ Handles RadioButton34581.CheckedChanged,
             UpdateCal72Chart()
 
         Else
+
+            BannerText2 = "                                                        "
+            Me.Text = BannerText1 & BannerText2 & BannerText3.ToString()
 
             ' Hide chart before shrinking
             ChartCal72.Visible = False

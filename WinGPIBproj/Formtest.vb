@@ -158,6 +158,7 @@ Public Class Formtest
 
     Dim BannerText1 As String
     Dim BannerText2 As String
+    Dim BannerText3 As String
 
     Dim PDVS2miniCalAvailable As Boolean = 0
 
@@ -253,8 +254,9 @@ Public Class Formtest
 
             ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
             BannerText1 = "WinGPIB   V4.117"
-            BannerText2 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
-            Me.Text = BannerText1 & "                                                        " & BannerText2.ToString()
+            BannerText2 = "                                                        "
+            BannerText3 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
+            Me.Text = BannerText1 & BannerText2 & BannerText3.ToString()
 
 
             ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
