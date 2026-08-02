@@ -386,8 +386,6 @@ Partial Class Formtest
         Me.Label215 = New System.Windows.Forms.Label()
         Me.Label214 = New System.Windows.Forms.Label()
         Me.Label213 = New System.Windows.Forms.Label()
-        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.Label212 = New System.Windows.Forms.Label()
         Me.Label211 = New System.Windows.Forms.Label()
         Me.Label210 = New System.Windows.Forms.Label()
@@ -953,7 +951,6 @@ Partial Class Formtest
         Me.Label3133478A = New System.Windows.Forms.Label()
         Me.ShowFilesCalRam3478A = New System.Windows.Forms.Button()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
-        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.Label145 = New System.Windows.Forms.Label()
         Me.Label79 = New System.Windows.Forms.Label()
         Me.Label81 = New System.Windows.Forms.Label()
@@ -1209,7 +1206,6 @@ Partial Class Formtest
         Me.CalAccuracyFinal = New System.Windows.Forms.TextBox()
         Me.Label117 = New System.Windows.Forms.Label()
         Me.Label121 = New System.Windows.Forms.Label()
-        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage14 = New System.Windows.Forms.TabPage()
         Me.ButtonUserStart = New System.Windows.Forms.Button()
         Me.ButtonUserTabGuide = New System.Windows.Forms.Button()
@@ -1268,6 +1264,10 @@ Partial Class Formtest
         Me.Timer16 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer18 = New System.Windows.Forms.Timer(Me.components)
+        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.GroupBox9.SuspendLayout
@@ -1691,7 +1691,7 @@ Partial Class Formtest
         Me.ButtonNotePad2.Name = "ButtonNotePad2"
         Me.ButtonNotePad2.Size = New System.Drawing.Size(90, 41)
         Me.ButtonNotePad2.TabIndex = 78
-        Me.ButtonNotePad2.Text = "Edit .txt" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "GPIBchannels"
+        Me.ButtonNotePad2.Text = "Open User Reference File"
         Me.ToolTip1.SetToolTip(Me.ButtonNotePad2, "Open: GPIBchannels.txt text file")
         Me.ButtonNotePad2.UseVisualStyleBackColor = True
         '
@@ -5168,26 +5168,6 @@ Partial Class Formtest
         Me.Label213.TabIndex = 537
         Me.Label213.Text = "Tx"
         '
-        'OnOffLed2
-        '
-        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
-        Me.OnOffLed2.Name = "OnOffLed2"
-        Me.OnOffLed2.OffText = Nothing
-        Me.OnOffLed2.OnText = Nothing
-        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed2.TabIndex = 536
-        '
-        'OnOffLed1
-        '
-        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
-        Me.OnOffLed1.Name = "OnOffLed1"
-        Me.OnOffLed1.OffText = Nothing
-        Me.OnOffLed1.OnText = Nothing
-        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed1.TabIndex = 535
-        '
         'Label212
         '
         Me.Label212.AutoSize = True
@@ -6561,6 +6541,7 @@ Partial Class Formtest
         Me.ButtonCal72AcalDcv.Size = New System.Drawing.Size(75, 23)
         Me.ButtonCal72AcalDcv.TabIndex = 36
         Me.ButtonCal72AcalDcv.Text = "ACAL DCV"
+        Me.ToolTip1.SetToolTip(Me.ButtonCal72AcalDcv, "Run ACAL DCV on 3458A")
         Me.ButtonCal72AcalDcv.UseVisualStyleBackColor = True
         '
         'ButtonMaximize
@@ -6570,6 +6551,7 @@ Partial Class Formtest
         Me.ButtonMaximize.Size = New System.Drawing.Size(79, 23)
         Me.ButtonMaximize.TabIndex = 35
         Me.ButtonMaximize.Text = "Max. Width"
+        Me.ToolTip1.SetToolTip(Me.ButtonMaximize, "Open GUI to full width")
         Me.ButtonMaximize.UseVisualStyleBackColor = True
         '
         'RadioButton34588
@@ -6612,6 +6594,7 @@ Partial Class Formtest
         Me.ButtonCal72Backup.Size = New System.Drawing.Size(109, 23)
         Me.ButtonCal72Backup.TabIndex = 31
         Me.ButtonCal72Backup.Text = "Backup CSV's"
+        Me.ToolTip1.SetToolTip(Me.ButtonCal72Backup, "Backup all 8 table CSV files")
         Me.ButtonCal72Backup.UseVisualStyleBackColor = True
         '
         'Label377
@@ -6738,6 +6721,7 @@ Partial Class Formtest
         Me.ButtonCal72Help.Size = New System.Drawing.Size(72, 23)
         Me.ButtonCal72Help.TabIndex = 27
         Me.ButtonCal72Help.Text = "Help / Info"
+        Me.ToolTip1.SetToolTip(Me.ButtonCal72Help, "Open Help / Info")
         Me.ButtonCal72Help.UseVisualStyleBackColor = True
         '
         'Label384
@@ -6922,6 +6906,7 @@ Partial Class Formtest
         Me.ButtonCal72Delete.Size = New System.Drawing.Size(109, 23)
         Me.ButtonCal72Delete.TabIndex = 2
         Me.ButtonCal72Delete.Text = "Delete Selected"
+        Me.ToolTip1.SetToolTip(Me.ButtonCal72Delete, "Delete the current selected line from the table")
         Me.ButtonCal72Delete.UseVisualStyleBackColor = True
         '
         'ButtonCal72Add
@@ -6931,6 +6916,7 @@ Partial Class Formtest
         Me.ButtonCal72Add.Size = New System.Drawing.Size(109, 23)
         Me.ButtonCal72Add.TabIndex = 1
         Me.ButtonCal72Add.Text = "Add To Table"
+        Me.ToolTip1.SetToolTip(Me.ButtonCal72Add, "Add received data to the table below")
         Me.ButtonCal72Add.UseVisualStyleBackColor = True
         '
         'ButtonCal72Read
@@ -6940,6 +6926,7 @@ Partial Class Formtest
         Me.ButtonCal72Read.Size = New System.Drawing.Size(109, 23)
         Me.ButtonCal72Read.TabIndex = 0
         Me.ButtonCal72Read.Text = "Read From 3458A"
+        Me.ToolTip1.SetToolTip(Me.ButtonCal72Read, "Read CAL? 72, CAL? 1,1, CAL? 2,1 & TEMP? data from your 3458A")
         Me.ButtonCal72Read.UseVisualStyleBackColor = True
         '
         'DataGridViewCal72
@@ -7081,6 +7068,7 @@ Partial Class Formtest
         Me.Button1.Size = New System.Drawing.Size(100, 24)
         Me.Button1.TabIndex = 730
         Me.Button1.Text = "Help / Info"
+        Me.ToolTip1.SetToolTip(Me.Button1, "Open Help / Info")
         Me.Button1.UseVisualStyleBackColor = True
         '
         'Label389
@@ -7210,6 +7198,7 @@ Partial Class Formtest
         Me.Button3458ACalRamAbort.Size = New System.Drawing.Size(48, 35)
         Me.Button3458ACalRamAbort.TabIndex = 715
         Me.Button3458ACalRamAbort.Text = "Abort"
+        Me.ToolTip1.SetToolTip(Me.Button3458ACalRamAbort, "Abort all operations")
         Me.Button3458ACalRamAbort.UseVisualStyleBackColor = True
         '
         'Button3458ACalRamVerify
@@ -7221,6 +7210,7 @@ Partial Class Formtest
         Me.Button3458ACalRamVerify.Size = New System.Drawing.Size(100, 35)
         Me.Button3458ACalRamVerify.TabIndex = 714
         Me.Button3458ACalRamVerify.Text = "Verify"
+        Me.ToolTip1.SetToolTip(Me.Button3458ACalRamVerify, "Read back the CalRam contents and check it is as written")
         Me.Button3458ACalRamVerify.UseVisualStyleBackColor = True
         '
         'Button3458ACalRamWrite
@@ -7232,6 +7222,7 @@ Partial Class Formtest
         Me.Button3458ACalRamWrite.Size = New System.Drawing.Size(100, 35)
         Me.Button3458ACalRamWrite.TabIndex = 713
         Me.Button3458ACalRamWrite.Text = "Write CalRAM"
+        Me.ToolTip1.SetToolTip(Me.Button3458ACalRamWrite, "Write CalRAM .bin file to 3458A")
         Me.Button3458ACalRamWrite.UseVisualStyleBackColor = True
         '
         'Button3458ACalRamTestWrite
@@ -7243,6 +7234,7 @@ Partial Class Formtest
         Me.Button3458ACalRamTestWrite.Size = New System.Drawing.Size(100, 35)
         Me.Button3458ACalRamTestWrite.TabIndex = 712
         Me.Button3458ACalRamTestWrite.Text = "Test Write"
+        Me.ToolTip1.SetToolTip(Me.Button3458ACalRamTestWrite, "Safely test CalRAM write mechanism")
         Me.Button3458ACalRamTestWrite.UseVisualStyleBackColor = True
         '
         'Button3458ACalRamBrowse
@@ -7254,6 +7246,7 @@ Partial Class Formtest
         Me.Button3458ACalRamBrowse.Size = New System.Drawing.Size(100, 35)
         Me.Button3458ACalRamBrowse.TabIndex = 710
         Me.Button3458ACalRamBrowse.Text = "Browse"
+        Me.ToolTip1.SetToolTip(Me.Button3458ACalRamBrowse, "Browse to your .bin file and check contents")
         Me.Button3458ACalRamBrowse.UseVisualStyleBackColor = True
         '
         'TextBox3458ACalRamWriteFile
@@ -7349,6 +7342,7 @@ Partial Class Formtest
         Me.ButtonCalramDump3458A.Size = New System.Drawing.Size(100, 35)
         Me.ButtonCalramDump3458A.TabIndex = 591
         Me.ButtonCalramDump3458A.Text = "3458A Read"
+        Me.ToolTip1.SetToolTip(Me.ButtonCalramDump3458A, "Read CalRAM contents from 3458A to your PC")
         Me.ButtonCalramDump3458A.UseVisualStyleBackColor = True
         '
         'Label249
@@ -7369,6 +7363,7 @@ Partial Class Formtest
         Me.Button3458Aabort.Size = New System.Drawing.Size(48, 35)
         Me.Button3458Aabort.TabIndex = 590
         Me.Button3458Aabort.Text = "Abort"
+        Me.ToolTip1.SetToolTip(Me.Button3458Aabort, "Abort all operations")
         Me.Button3458Aabort.UseVisualStyleBackColor = True
         '
         'Label139
@@ -7557,6 +7552,7 @@ Partial Class Formtest
         Me.Button3457Aabort.Size = New System.Drawing.Size(48, 35)
         Me.Button3457Aabort.TabIndex = 628
         Me.Button3457Aabort.Text = "Abort"
+        Me.ToolTip1.SetToolTip(Me.Button3457Aabort, "Abort all operations")
         Me.Button3457Aabort.UseVisualStyleBackColor = True
         '
         'LabelCounter3457A
@@ -7726,6 +7722,7 @@ Partial Class Formtest
         Me.ButtonCalramDump3457A.Size = New System.Drawing.Size(100, 35)
         Me.ButtonCalramDump3457A.TabIndex = 609
         Me.ButtonCalramDump3457A.Text = "3457A Read"
+        Me.ToolTip1.SetToolTip(Me.ButtonCalramDump3457A, "Read CalRAM contents from 3457A to your PC")
         Me.ButtonCalramDump3457A.UseVisualStyleBackColor = True
         '
         'TextBox3457ATo
@@ -11215,16 +11212,6 @@ Partial Class Formtest
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "PDVS2mini "
         '
-        'OnOffLed4
-        '
-        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
-        Me.OnOffLed4.Name = "OnOffLed4"
-        Me.OnOffLed4.OffText = Nothing
-        Me.OnOffLed4.OnText = Nothing
-        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed4.TabIndex = 797
-        '
         'Label145
         '
         Me.Label145.AutoSize = True
@@ -14050,16 +14037,6 @@ Partial Class Formtest
         Me.Label121.TabIndex = 554
         Me.Label121.Text = "Comms Delay (mS)"
         '
-        'OnOffLed3
-        '
-        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
-        Me.OnOffLed3.Name = "OnOffLed3"
-        Me.OnOffLed3.OffText = Nothing
-        Me.OnOffLed3.OnText = Nothing
-        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed3.TabIndex = 796
-        '
         'TabPage14
         '
         Me.TabPage14.Controls.Add(Me.ButtonUserStart)
@@ -14590,6 +14567,46 @@ Partial Class Formtest
         'Timer14
         '
         Me.Timer14.Interval = 50
+        '
+        'OnOffLed2
+        '
+        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
+        Me.OnOffLed2.Name = "OnOffLed2"
+        Me.OnOffLed2.OffText = Nothing
+        Me.OnOffLed2.OnText = Nothing
+        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed2.TabIndex = 536
+        '
+        'OnOffLed1
+        '
+        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
+        Me.OnOffLed1.Name = "OnOffLed1"
+        Me.OnOffLed1.OffText = Nothing
+        Me.OnOffLed1.OnText = Nothing
+        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed1.TabIndex = 535
+        '
+        'OnOffLed4
+        '
+        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
+        Me.OnOffLed4.Name = "OnOffLed4"
+        Me.OnOffLed4.OffText = Nothing
+        Me.OnOffLed4.OnText = Nothing
+        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed4.TabIndex = 797
+        '
+        'OnOffLed3
+        '
+        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
+        Me.OnOffLed3.Name = "OnOffLed3"
+        Me.OnOffLed3.OffText = Nothing
+        Me.OnOffLed3.OnText = Nothing
+        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed3.TabIndex = 796
         '
         'Formtest
         '
