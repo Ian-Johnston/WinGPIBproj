@@ -1112,6 +1112,22 @@ Partial Class Formtest
             Label3458AFirmware.Text = "NOT DETECTED"
             Label3458ACalRamStatus.Text = "READY FOR TEST WRITE"
 
+            MessageBox.Show(
+    "CALRAM FILE CHECK PASSED" &
+    vbCrLf & vbCrLf &
+    "File size: 2048 bytes" &
+    vbCrLf &
+    "40K reference: " &
+    reference40K.ToString("0.000000", CultureInfo.InvariantCulture) &
+    vbCrLf &
+    "7V reference: " &
+    reference7V.ToString("0.000000000", CultureInfo.InvariantCulture) &
+    vbCrLf & vbCrLf &
+    "The file appears to be a valid HP 3458A CalRAM image and is ready for TEST WRITE.",
+    "HP 3458A CalRAM File Check",
+    MessageBoxButtons.OK,
+    MessageBoxIcon.Information)
+
             ProgressBar3458ACalRam.Value = 0
 
             ' Check Dev 1 is active before allowing Test Write button
