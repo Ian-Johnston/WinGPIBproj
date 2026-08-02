@@ -2471,7 +2471,7 @@ Public Class Formtest
             Me.MinimumSize = New Size(NormalFormWidth, NormalFormHeight)
             Me.MaximumSize = New Size(NormalFormWidth, NormalFormHeight)
             Me.Size = New Size(NormalFormWidth, NormalFormHeight)
-            ButtonMaximize.Text = "Maximize Width"
+            ButtonMaximize.Text = "Expand View"
 
         End If
 

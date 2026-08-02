@@ -1182,7 +1182,7 @@ Handles RadioButton34581.CheckedChanged,
 
             ' Expand form
             Me.Width = Me.MaximumSize.Width
-            ButtonMaximize.Text = "Normal Width"
+            ButtonMaximize.Text = "Normal View"
 
             PositionCal72Chart()
 
@@ -1200,7 +1200,7 @@ Handles RadioButton34581.CheckedChanged,
 
             ' Return to normal width
             Me.Width = NormalFormWidth
-            ButtonMaximize.Text = "Max. Width"
+            ButtonMaximize.Text = "Expand View"
 
         End If
 
