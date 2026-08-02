@@ -990,8 +990,21 @@ Partial Class Formtest
             If fi.Length <> 2048 Then
 
                 Label3458ACalRamFileInfo.Text = "INVALID FILE SIZE (" & fi.Length.ToString(CultureInfo.InvariantCulture) & " BYTES)"
-
                 Label3458ACalRamStatus.Text = "INVALID FILE"
+
+                MessageBox.Show(
+                "CALRAM FILE CHECK FAILED" &
+                vbCrLf & vbCrLf &
+                "File: " & Path.GetFileName(ofd.FileName) &
+                vbCrLf &
+                "File size: " & fi.Length.ToString(CultureInfo.InvariantCulture) & " bytes" &
+                vbCrLf &
+                "Required size: 2048 bytes" &
+                vbCrLf & vbCrLf &
+                "The selected file is not a valid 2048-byte HP 3458A CalRAM image.",
+                "HP 3458A CalRAM File Check",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning)
 
                 Exit Sub
 
@@ -1004,8 +1017,21 @@ Partial Class Formtest
             If bytes.Length <> 2048 Then
 
                 Label3458ACalRamFileInfo.Text = "INVALID FILE SIZE (" & bytes.Length.ToString(CultureInfo.InvariantCulture) & " BYTES)"
-
                 Label3458ACalRamStatus.Text = "INVALID FILE"
+
+                MessageBox.Show(
+                "CALRAM FILE CHECK FAILED" &
+                vbCrLf & vbCrLf &
+                "File: " & Path.GetFileName(ofd.FileName) &
+                vbCrLf &
+                "File size changed while the file was being read." &
+                vbCrLf &
+                "Current size: " & bytes.Length.ToString(CultureInfo.InvariantCulture) & " bytes" &
+                vbCrLf &
+                "Required size: 2048 bytes",
+                "HP 3458A CalRAM File Check",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning)
 
                 Exit Sub
 
@@ -1017,25 +1043,31 @@ Partial Class Formtest
 
             For Each value As Byte In bytes
 
-                If value <> &H0 Then
-                    allZero = False
-                End If
+                If value <> &H0 Then allZero = False
+                If value <> &HFF Then allFF = False
 
-                If value <> &HFF Then
-                    allFF = False
-                End If
-
-                If Not allZero AndAlso Not allFF Then
-                    Exit For
-                End If
+                If Not allZero AndAlso Not allFF Then Exit For
 
             Next
 
             If allZero Then
 
                 Label3458ACalRamFileInfo.Text = "INVALID CALRAM FILE - ALL BYTES ARE 00"
-
                 Label3458ACalRamStatus.Text = "INVALID FILE"
+
+                MessageBox.Show(
+                "CALRAM FILE CHECK FAILED" &
+                vbCrLf & vbCrLf &
+                "File: " & Path.GetFileName(ofd.FileName) &
+                vbCrLf &
+                "File size: 2048 bytes" &
+                vbCrLf &
+                "Data check: All bytes are 00" &
+                vbCrLf & vbCrLf &
+                "The selected file contains no valid calibration data.",
+                "HP 3458A CalRAM File Check",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning)
 
                 Exit Sub
 
@@ -1044,8 +1076,21 @@ Partial Class Formtest
             If allFF Then
 
                 Label3458ACalRamFileInfo.Text = "INVALID CALRAM FILE - ALL BYTES ARE FF"
-
                 Label3458ACalRamStatus.Text = "INVALID FILE"
+
+                MessageBox.Show(
+                "CALRAM FILE CHECK FAILED" &
+                vbCrLf & vbCrLf &
+                "File: " & Path.GetFileName(ofd.FileName) &
+                vbCrLf &
+                "File size: 2048 bytes" &
+                vbCrLf &
+                "Data check: All bytes are FF" &
+                vbCrLf & vbCrLf &
+                "The selected file appears to be blank or erased.",
+                "HP 3458A CalRAM File Check",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning)
 
                 Exit Sub
 
@@ -1055,15 +1100,27 @@ Partial Class Formtest
             ' 0x000 to 0x007 = 40K reference
             ' 0x008 to 0x00F = 7V reference
             Dim reference40K As Double = ReadFloat64BE(bytes, &H60000)
-
             Dim reference7V As Double = ReadFloat64BE(bytes, &H60008)
 
             ' Reject invalid IEEE-754 values.
             If Double.IsNaN(reference40K) OrElse Double.IsInfinity(reference40K) Then
 
                 Label3458ACalRamFileInfo.Text = "INVALID CALRAM FILE - INVALID 40K REFERENCE"
-
                 Label3458ACalRamStatus.Text = "INVALID FILE"
+
+                MessageBox.Show(
+                "CALRAM FILE CHECK FAILED" &
+                vbCrLf & vbCrLf &
+                "File: " & Path.GetFileName(ofd.FileName) &
+                vbCrLf &
+                "File size: 2048 bytes" &
+                vbCrLf &
+                "40K reference: Invalid floating-point value" &
+                vbCrLf & vbCrLf &
+                "The selected file does not appear to contain valid HP 3458A calibration data.",
+                "HP 3458A CalRAM File Check",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning)
 
                 Exit Sub
 
@@ -1072,8 +1129,23 @@ Partial Class Formtest
             If Double.IsNaN(reference7V) OrElse Double.IsInfinity(reference7V) Then
 
                 Label3458ACalRamFileInfo.Text = "INVALID CALRAM FILE - INVALID 7V REFERENCE"
-
                 Label3458ACalRamStatus.Text = "INVALID FILE"
+
+                MessageBox.Show(
+                "CALRAM FILE CHECK FAILED" &
+                vbCrLf & vbCrLf &
+                "File: " & Path.GetFileName(ofd.FileName) &
+                vbCrLf &
+                "File size: 2048 bytes" &
+                vbCrLf &
+                "40K reference: " & reference40K.ToString("0.000000", CultureInfo.InvariantCulture) &
+                vbCrLf &
+                "7V reference: Invalid floating-point value" &
+                vbCrLf & vbCrLf &
+                "The selected file does not appear to contain valid HP 3458A calibration data.",
+                "HP 3458A CalRAM File Check",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning)
 
                 Exit Sub
 
@@ -1083,11 +1155,25 @@ Partial Class Formtest
             If reference40K < 39921.5 OrElse reference40K > 40079.2 Then
 
                 Label3458ACalRamFileInfo.Text = "INVALID CALRAM FILE - 40K REFERENCE OUT OF RANGE"
-
                 Label3458ACalRamStatus.Text = "INVALID FILE"
 
-                MessageBox.Show("The 40K reference value is outside the expected range." & vbCrLf & vbCrLf & "Value: " & reference40K.ToString("0.000000",
-                    CultureInfo.InvariantCulture) & vbCrLf & "Expected: 39921.5 TO 40079.2", "HP 3458A CalRAM", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                MessageBox.Show(
+                "CALRAM FILE CHECK FAILED" &
+                vbCrLf & vbCrLf &
+                "File: " & Path.GetFileName(ofd.FileName) &
+                vbCrLf &
+                "File size: 2048 bytes" &
+                vbCrLf &
+                "40K reference: " & reference40K.ToString("0.000000", CultureInfo.InvariantCulture) &
+                vbCrLf &
+                "Expected range: 39921.5 to 40079.2" &
+                vbCrLf &
+                "7V reference: " & reference7V.ToString("0.000000000", CultureInfo.InvariantCulture) &
+                vbCrLf & vbCrLf &
+                "The 40K reference value is outside the expected range.",
+                "HP 3458A CalRAM File Check",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning)
 
                 Exit Sub
 
@@ -1096,10 +1182,24 @@ Partial Class Formtest
             If reference7V < 6.5 OrElse reference7V > 7.5 Then
 
                 Label3458ACalRamFileInfo.Text = "INVALID CALRAM FILE - 7V REFERENCE OUT OF RANGE"
-
                 Label3458ACalRamStatus.Text = "INVALID FILE"
 
-                MessageBox.Show("The 7V reference value is outside the expected range." & vbCrLf & vbCrLf & "Value: " & reference7V.ToString("0.000000000", CultureInfo.InvariantCulture) & vbCrLf & "Expected: 6.5 TO 7.5", "HP 3458A CalRAM", MessageBoxButtons.OK,
+                MessageBox.Show(
+                "CALRAM FILE CHECK FAILED" &
+                vbCrLf & vbCrLf &
+                "File: " & Path.GetFileName(ofd.FileName) &
+                vbCrLf &
+                "File size: 2048 bytes" &
+                vbCrLf &
+                "40K reference: " & reference40K.ToString("0.000000", CultureInfo.InvariantCulture) &
+                vbCrLf &
+                "7V reference: " & reference7V.ToString("0.000000000", CultureInfo.InvariantCulture) &
+                vbCrLf &
+                "Expected range: 6.5 to 7.5" &
+                vbCrLf & vbCrLf &
+                "The 7V reference value is outside the expected range.",
+                "HP 3458A CalRAM File Check",
+                MessageBoxButtons.OK,
                 MessageBoxIcon.Warning)
 
                 Exit Sub
@@ -1108,29 +1208,12 @@ Partial Class Formtest
 
             ' All file checks passed.
             Label3458ACalRamFileInfo.Text = "VALID 2048 BYTE CALRAM FILE"
-
             Label3458AFirmware.Text = "NOT DETECTED"
             Label3458ACalRamStatus.Text = "READY FOR TEST WRITE"
 
-            MessageBox.Show(
-    "CALRAM FILE CHECK PASSED" &
-    vbCrLf & vbCrLf &
-    "File size: 2048 bytes" &
-    vbCrLf &
-    "40K reference: " &
-    reference40K.ToString("0.000000", CultureInfo.InvariantCulture) &
-    vbCrLf &
-    "7V reference: " &
-    reference7V.ToString("0.000000000", CultureInfo.InvariantCulture) &
-    vbCrLf & vbCrLf &
-    "The file appears to be a valid HP 3458A CalRAM image and is ready for TEST WRITE.",
-    "HP 3458A CalRAM File Check",
-    MessageBoxButtons.OK,
-    MessageBoxIcon.Information)
-
             ProgressBar3458ACalRam.Value = 0
 
-            ' Check Dev 1 is active before allowing Test Write button
+            ' Check Device 1 is active before allowing TEST WRITE.
             If ButtonDev1Run.Enabled = False Then
                 Button3458ACalRamTestWrite.Enabled = False
             Else
@@ -1139,6 +1222,24 @@ Partial Class Formtest
 
             Button3458ACalRamWrite.Enabled = False
             Button3458ACalRamVerify.Enabled = False
+
+            MessageBox.Show(
+            "CALRAM FILE CHECK PASSED" &
+            vbCrLf & vbCrLf &
+            "File: " & Path.GetFileName(ofd.FileName) &
+            vbCrLf &
+            "File size: 2048 bytes" &
+            vbCrLf &
+            "Blank data check: Passed" &
+            vbCrLf &
+            "40K reference: " & reference40K.ToString("0.000000", CultureInfo.InvariantCulture) &
+            vbCrLf &
+            "7V reference: " & reference7V.ToString("0.000000000", CultureInfo.InvariantCulture) &
+            vbCrLf & vbCrLf &
+            "The file appears to be a valid HP 3458A CalRAM image and is ready for TEST WRITE.",
+            "HP 3458A CalRAM File Check",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information)
 
         Catch ex As Exception
 
@@ -1152,7 +1253,17 @@ Partial Class Formtest
             Button3458ACalRamWrite.Enabled = False
             Button3458ACalRamVerify.Enabled = False
 
-            MessageBox.Show("The CalRAM file could not be checked." & vbCrLf & vbCrLf & ex.Message, "HP 3458A CalRAM", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show(
+            "CALRAM FILE CHECK FAILED" &
+            vbCrLf & vbCrLf &
+            "File: " & Path.GetFileName(ofd.FileName) &
+            vbCrLf &
+            "The selected file could not be read or checked." &
+            vbCrLf & vbCrLf &
+            ex.Message,
+            "HP 3458A CalRAM File Check",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Error)
 
         End Try
 
