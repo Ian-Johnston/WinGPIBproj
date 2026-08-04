@@ -1,6 +1,11 @@
 ﻿
 ' CalRam HP 3458A
 
+' NOTE:
+' CalRAM upload code idea taken from kvez's Python code (with permission) here:
+' https://github.com/kvez/HP-3458A-NVRAM-tool
+
+
 'Imports System.Threading
 'Imports System.Runtime.InteropServices
 Imports System.Collections.Generic
