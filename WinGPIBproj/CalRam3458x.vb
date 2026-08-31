@@ -653,6 +653,9 @@ Partial Class Formtest
 
             System.Threading.Thread.Sleep(250)     ' 250mS delay
 
+            ' total step count for percentage calculation
+            Dim calRamTotalSteps As Integer = ((CalAddrEnd - CalAddrStart) \ Stepsize) + 1
+
             ' Retrieve the data
             For CalAddr As Integer = CalAddrStart To CalAddrEnd Step Stepsize
 
@@ -695,6 +698,16 @@ Partial Class Formtest
                 ' Increment counters
                 Counter += 1
                 Counter2 += 2
+
+                ' throttled progress bar update (every 8 addresses, matching the
+                ' throttling style used for the routine install/verify loops)
+                If Counter Mod 8 = 0 Then
+
+                    Dim calRamPercent As Integer = CInt((Counter / CDbl(calRamTotalSteps)) * 100.0)
+
+                    Application.DoEvents()
+
+                End If
 
             Next
 
@@ -898,10 +911,12 @@ Partial Class Formtest
 
     End Sub
 
+
     Private Sub ShowFilesCalRam_Click(sender As Object, e As EventArgs) Handles ShowFilesCalRam.Click
         'Process.Start("explorer.exe", String.Format("/n, /e, {0}", CSVfilepath.Text))
         Process.Start("explorer.exe", String.Format("/n, /e, {0}", strPath))
     End Sub
+
 
     Private Sub Button3458Aabort_Click(sender As Object, e As EventArgs) Handles Button3458Aabort.Click
 
@@ -1552,7 +1567,7 @@ Partial Class Formtest
         CalRam3458AFirmwareResponse = ""
         CalRam3458AInstrumentID = ""
 
-        TextBox3458ACalRamConfirm.Text = ""
+        TextBox3458ACalRamConfirm.Text = "I WISH TO OVERWRITE MY CALRAM"
 
         TextBox3458ACalRamConfirm.ContextMenuStrip = New ContextMenuStrip()
         TextBox3458ACalRamConfirm.AllowDrop = False
@@ -1666,14 +1681,6 @@ Partial Class Formtest
     End Function
 
 
-    Private Sub Send3458ACalRamCommand(command As String)
-
-        dev1.SendAsync(command, False)
-        System.Threading.Thread.Sleep(50)
-
-    End Sub
-
-
     Private Function MRead3458AWord(address As Integer) As Integer
 
         Dim response As String = Query3458ACalRam("MREAD " & address.ToString(CultureInfo.InvariantCulture))
@@ -1715,7 +1722,9 @@ Partial Class Formtest
             signedValue = unsignedValue - 65536
         End If
 
-        Send3458ACalRamCommand("MWRITE " & address.ToString(CultureInfo.InvariantCulture) & "," & signedValue.ToString(CultureInfo.InvariantCulture))
+        dev1.SendAsync("MWRITE " & address.ToString(CultureInfo.InvariantCulture) & "," & signedValue.ToString(CultureInfo.InvariantCulture), False)
+
+        System.Threading.Thread.Sleep(10)       ' just to help
 
     End Sub
 
@@ -1759,7 +1768,7 @@ Partial Class Formtest
 
     Private Function Run3458AJSR(address As Integer, waitMilliseconds As Integer) As String
 
-        Send3458ACalRamCommand("JSR " & address.ToString(CultureInfo.InvariantCulture))
+        dev1.SendAsync("JSR " & address.ToString(CultureInfo.InvariantCulture), False)
 
         System.Threading.Thread.Sleep(waitMilliseconds)
 
@@ -2522,7 +2531,7 @@ Partial Class Formtest
     End Sub
 
 
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button3458ACalRamhelp.Click
 
         Dim frm As New Form With {
         .Text = "HP 3458A CalRAM Write Help / Info",

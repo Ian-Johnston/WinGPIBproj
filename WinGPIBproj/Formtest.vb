@@ -42,6 +42,17 @@ Imports MoonSharp.Interpreter
 
 Public Class Formtest
 
+    ' Use Win10-style square window corners on Windows 11
+    <DllImport("dwmapi.dll")>
+    Private Shared Function DwmSetWindowAttribute(
+    hwnd As IntPtr,
+    dwAttribute As Integer,
+    ByRef pvAttribute As Integer,
+    cbAttribute As Integer) As Integer
+    End Function
+    Private Const DWMWA_WINDOW_CORNER_PREFERENCE As Integer = 33
+    Private Const DWMWCP_DONOTROUND As Integer = 1
+
     ' IODevices form tracker
     Private ioDevicesOffsetInitialized As Boolean = False
     Private ioDevicesOffsetX As Integer
@@ -175,6 +186,8 @@ Public Class Formtest
     Private NormalFormWidth As Integer
     Private NormalFormHeight As Integer
 
+    Dim Inhibitpopup As Boolean = 0
+
 
     'Private _loading As Boolean = False
 
@@ -236,9 +249,37 @@ Public Class Formtest
     ' Additional logic
     'End Sub
 
+    ' DataGridView.DoubleBuffered is Protected, not exposed
+    ' publicly, so it has to be set via reflection. Without this,
+    ' the grid visibly flickers every time LogData() adds/removes
+    ' rows on a new sample.
+    Private Sub EnableDoubleBuffering(dgv As DataGridView)
+
+        Dim pi As Reflection.PropertyInfo =
+        GetType(DataGridView).GetProperty("DoubleBuffered",
+            Reflection.BindingFlags.Instance Or Reflection.BindingFlags.NonPublic)
+
+        pi.SetValue(dgv, True, Nothing)
+
+    End Sub
+
+
     Private Sub Formtest_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
 
         Try
+
+            ' Prevent visible flicker when rows are added/removed
+            ' on every new sample.
+            EnableDoubleBuffering(DataGridViewLogData)
+
+            ' Change standard tabs to button style
+            TabControl1.Multiline = True
+            TabControl1.Appearance = TabAppearance.FlatButtons
+            'TabControl1.Appearance = TabAppearance.Buttons
+
+            ' Use Win10-style square window corners on Windows 11
+            Dim cornerPreference As Integer = DWMWCP_DONOTROUND
+            DwmSetWindowAttribute(Me.Handle, DWMWA_WINDOW_CORNER_PREFERENCE, cornerPreference, Marshal.SizeOf(cornerPreference))
 
             ' Theme adjustment for Win11, otherwise disabled controls are hardly visible!
             If My.Settings.ThemeSet = True Then
@@ -247,15 +288,9 @@ Public Class Formtest
             End If
             CheckBoxThemeSet.Checked = My.Settings.ThemeSet
 
-            '_loading = True
-
-            'Dim sw As New Stopwatch()
-            'sw.Start()
-
-            ' Banner Text animation - See Timer8                                                                                                       Please DONATE if you find this app useful. See the ABOUT tab"
-            BannerText1 = "WinGPIB   V4.117"
-            BannerText2 = "                                                        "
-            BannerText3 = "Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab"
+            BannerText1 = "WinGPIB   V5.000"
+            BannerText2 = "                                                                            "
+            BannerText3 = "Free for Non-Commercial Use • Support WinGPIB — see About"
             Me.Text = BannerText1 & BannerText2 & BannerText3.ToString()
 
 
@@ -471,7 +506,8 @@ Public Class Formtest
             ' label style
             Chart1.ChartAreas(0).AxisY.LabelStyle.Font = New Font("Microsoft Sans Serif", 9)
             Chart1.ChartAreas(0).AxisY2.LabelStyle.Font = New Font("Microsoft Sans Serif", 9)
-            Chart1.ChartAreas(0).AxisX.LabelStyle.Enabled = False
+            Chart1.ChartAreas(0).AxisX.LabelStyle.Font = New Font("Microsoft Sans Serif", 9)
+            Chart1.ChartAreas(0).AxisX.LabelStyle.Enabled = True
             Chart1.ChartAreas(0).AxisY.LabelStyle.Enabled = True
             ' tick marks
             Chart1.ChartAreas(0).AxisX.MajorTickMark.Enabled = True
@@ -528,8 +564,6 @@ Public Class Formtest
             Chart1.Series(0).YValueMembers = inst_value1FChart
             Chart1.Series(1).YValueMembers = inst_value2FChart
             Chart1.Series(2).YValueMembers = inst_value3FChart
-
-            Chart1.ChartAreas(0).AxisX.LabelStyle.Enabled = False   'disable X-axis scale
 
             Chart1.Visible = False              ' hide chart on boot
             StartChartMessage.Visible = True
@@ -701,6 +735,12 @@ Public Class Formtest
             DataGridViewCal72.CellBorderStyle = DataGridViewCellBorderStyle.Single
             SetupCal72Chart()
             PositionCal72Chart()
+
+            TabControl1.DrawMode = TabDrawMode.OwnerDrawFixed
+
+            ' DATA tab
+            'UpdateProjectedTimeLabel()
+
 
         Catch ex As Exception
             MessageBox.Show($"Error during load: {ex.Message}")
@@ -1791,6 +1831,8 @@ Public Class Formtest
                         If Integer.TryParse(Dev1DecimalNumDPs.Text, decimalPlaces) Then
                             Dim formatString As String = "0." & New String("0"c, decimalPlaces)
                             Dev1Meter.Text = dev1NumericValue.ToString(formatString, Globalization.CultureInfo.InvariantCulture)
+                            ProcessLiveStatistics(1, dev1NumericValue)      ' Process statistics for this Device 1 reading
+                            UpdateLiveAnalysisChart()
                         Else
                             Dev1Meter.Text = dev1Temp1
                         End If
@@ -2035,6 +2077,8 @@ Public Class Formtest
                         If Integer.TryParse(Dev2DecimalNumDPs.Text, decimalPlaces) Then
                             Dim formatString As String = "0." & New String("0"c, decimalPlaces)
                             Dev2Meter.Text = dev2NumericValue.ToString(formatString, Globalization.CultureInfo.InvariantCulture)
+                            ProcessLiveStatistics(2, dev2NumericValue)      ' Process statistics for this Device 2 reading
+                            UpdateLiveAnalysisChart()
                         Else
                             Dev2Meter.Text = Dev2Temp1
                         End If
@@ -2088,6 +2132,18 @@ Public Class Formtest
                 txtr2astat.Text &= ex.InnerException.Message
             End If
         End Try
+
+    End Sub
+
+
+    ' Disable reset button when logging
+    Private Sub ButtonRunState_TextChanged_UpdateReset(sender As Object, e As EventArgs) Handles ButtonDev1Run.TextChanged, ButtonDev2Run.TextChanged, ButtonDev12Run.TextChanged
+
+        If ButtonDev1Run.Text = "Stop" OrElse ButtonDev2Run.Text = "Stop" OrElse ButtonDev12Run.Text = "Stop" Then
+            ButtonReset.Enabled = False
+        Else
+            ButtonReset.Enabled = True
+        End If
 
     End Sub
 
@@ -2206,26 +2262,15 @@ Public Class Formtest
 
     End Sub
 
+
     Private Sub Timer4_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Timer4.Tick
 
         ' This timer on all the time and set to 100mS, used for general stuff
 
         ' Chart control
-
         If RunChart = True Then     ' live Chart is running/paused?
             ChartControl()
         End If
-
-        If (ButtonDev1Run.Text = "Stop" Or ButtonDev2Run.Text = "Stop") Then
-            ButtonReset.Enabled = False
-        Else
-            ButtonReset.Enabled = True
-        End If
-
-        ' CSV file
-        'CSVfile()
-
-        'Donate2.Visible = Not Donate2.Visible
 
     End Sub
 
@@ -2319,8 +2364,8 @@ Public Class Formtest
         ' AUTO timer in 3458A drift sub
         CheckBoxCal72Auto.Checked = False
         Timer18.Stop()
-        ButtonCal72AcalDcv.Enabled = False
-        ButtonCal72Read.Enabled = False
+        'ButtonCal72AcalDcv.Enabled = False
+        'ButtonCal72Read.Enabled = False
 
     End Sub
 
@@ -2408,9 +2453,10 @@ Public Class Formtest
     End Sub
 
 
-    Private Sub ButtonIanWebsite_Click_1(sender As Object, e As EventArgs) Handles ButtonIanWebsite.Click
+    Private Sub ButtonIanWebsite_Click(sender As Object, e As EventArgs) Handles ButtonIanWebsite.Click
         Process.Start("www.paypal.me/IanSJohnston")
     End Sub
+
 
     Private Sub MainActivity_FormClosing(sender As Object, e As System.Windows.Forms.FormClosingEventArgs) Handles Me.FormClosing
 
@@ -2438,21 +2484,26 @@ Public Class Formtest
 
     End Sub
 
+
     Private Sub URL1_Click(sender As Object, e As EventArgs) Handles URL1.Click
         System.Diagnostics.Process.Start("https://www.ianjohnston.com/")
     End Sub
+
 
     Private Sub URL2_Click(sender As Object, e As EventArgs) Handles URL2.Click
         System.Diagnostics.Process.Start("https://www.youtube.com/user/IanScottJohnston")
     End Sub
 
+
     Private Sub URL3_Click(sender As Object, e As EventArgs) Handles URL3.Click
         System.Diagnostics.Process.Start("https://twitter.com/IanSJohnston")
     End Sub
 
+
     Private Sub URL4_Click(sender As Object, e As EventArgs) Handles URL4.Click
         System.Diagnostics.Process.Start("https://www.ianjohnston.com/index.php/projects/project-025-gpib-project")
     End Sub
+
 
     Private Sub TabControl1_Selected(sender As Object, e As System.Windows.Forms.TabControlEventArgs) Handles TabControl1.Selected
 
@@ -2471,14 +2522,26 @@ Public Class Formtest
             Me.MinimumSize = New Size(NormalFormWidth, NormalFormHeight)
             Me.MaximumSize = New Size(NormalFormWidth, NormalFormHeight)
             Me.Size = New Size(NormalFormWidth, NormalFormHeight)
+
+            ' Restore normal-width title spacing
+            BannerText2 = "                                                                            "
+            Me.Text = BannerText1 & BannerText2 & BannerText3
+
             ButtonMaximize.Text = "Expand View"
 
         End If
 
 
-        ' Record previous tab selected. Stored in integer var
+        ' ----------------------------------------------------------
+        ' Record previous tab selected
+        ' Do NOT record TabPage9 because it is the Playback launcher
+        ' ----------------------------------------------------------
         If TabControl1.SelectedTab Is TabPage1 Then
             TabUsed = 1
+        End If
+
+        If TabControl1.SelectedTab Is TabPage10 Then
+            TabUsed = 10
         End If
 
         If TabControl1.SelectedTab Is TabPage2 Then
@@ -2494,17 +2557,20 @@ Public Class Formtest
         End If
 
         If TabControl1.SelectedTab Is TabPage5 Then
+
             TabUsed = 5
 
-            Label163.Text = TextBoxTempUnits.Text       ' PDVS2mini tab
-            Label97.Text = TextBoxTempUnits.Text        ' PDVS2mini tab
+            Label163.Text = TextBoxTempUnits.Text
+            Label97.Text = TextBoxTempUnits.Text
 
-            ' Disable controls on PDVS2mini tab depending if Device 1 is enabled or not
+            ' Disable controls on PDVS2mini tab depending
+            ' if Device 1 is enabled or not
             If btncreate2.Enabled = False Then
                 EnableAllButtonsInGroupBox2()
             Else
                 DisableAllButtonsInGroupBox2ExceptPDVS2miniSave()
             End If
+
         End If
 
         If TabControl1.SelectedTab Is TabPage6 Then
@@ -2516,20 +2582,58 @@ Public Class Formtest
         End If
 
         If TabControl1.SelectedTab Is TabPage8 Then
+
             TabUsed = 8
 
             Label171.Text = "TEMP. " & TextBoxTempUnits.Text
             Label173.Text = "HUMIDITY. " & TextBoxHumUnits.Text
+
+        End If
+
+        If TabControl1.SelectedTab Is TabPage11 Then
+            TabUsed = 11
         End If
 
         If TabControl1.SelectedTab Is TabPage16 Then
             TabUsed = 16
         End If
 
+        If TabControl1.SelectedTab Is TabPage17 Then
+            TabUsed = 17
+        End If
 
-        ' When user selects the PlayBack Chart tab, automatically open
-        ' the playback screen and redirect back to the previously used tab.
-        If TabControl1.SelectedTab Is TabPage9 Then
+
+        ' ----------------------------------------------------------
+        ' Show warning AFTER TabPage7 is displayed
+        ' ----------------------------------------------------------
+        If TabControl1.SelectedTab Is TabPage7 Then
+
+            Me.BeginInvoke(
+            Sub()
+
+                ShowCenteredWarning(
+                    "The RAM WRITE utility will overwrite the 3458A calibration data (CalRAM)." &
+                    vbCrLf & vbCrLf &
+                    "Make sure you have a valid CalRAM backup before using.",
+                    "WinGPIB WARNING")
+
+            End Sub)
+
+        End If
+
+    End Sub
+
+
+    Private Sub TabControl1_Selecting(sender As Object, e As TabControlCancelEventArgs) Handles TabControl1.Selecting
+
+        ' ----------------------------------------------------------
+        ' PLAYBACK tab acts as a launcher only.
+        ' Do not actually change to TabPage9.
+        ' ----------------------------------------------------------
+        If e.TabPage Is TabPage9 Then
+
+            ' Cancel selection so current tab remains selected
+            e.Cancel = True
 
             ' Save Device 1 name to a file for later use with Chart.vb
             Dim filePath As String =
@@ -2539,53 +2643,80 @@ Public Class Formtest
                 file.WriteLine(txtname1.Text)
             End Using
 
-            Dim externalchart As New Chart()
+            ' Open Playback chart after the TabControl has finished
+            ' processing the cancelled tab selection.
+            Me.BeginInvoke(
+            Sub()
 
-            If TabUsed = 1 Then
-                TabControl1.SelectedTab = TabPage1
-            End If
+                Dim externalchart As New Chart()
 
-            If TabUsed = 2 Then
-                TabControl1.SelectedTab = TabPage2
-            End If
+                ' Make WinGPIB the owner so the Playback form
+                ' remains in front of the main application.
+                externalchart.Show()
 
-            If TabUsed = 3 Then
-                TabControl1.SelectedTab = TabPage3
-            End If
+                externalchart.BringToFront()
+                externalchart.Activate()
 
-            If TabUsed = 4 Then
-                TabControl1.SelectedTab = TabPage4
-            End If
+            End Sub)
 
-            If TabUsed = 5 Then
-                TabControl1.SelectedTab = TabPage5
-            End If
-
-            If TabUsed = 6 Then
-                TabControl1.SelectedTab = TabPage6
-            End If
-
-            If TabUsed = 7 Then
-                TabControl1.SelectedTab = TabPage7
-            End If
-
-            If TabUsed = 8 Then
-                TabControl1.SelectedTab = TabPage8
-            End If
-
-            If TabUsed = 11 Then
-                TabControl1.SelectedTab = TabPage11
-            End If
-
-            If TabUsed = 16 Then
-                TabControl1.SelectedTab = TabPage16
-            End If
-
-            externalchart.Show()    ' Show the PlayBack chart
+            Exit Sub
 
         End If
 
     End Sub
+
+
+    Private Sub ShowCenteredWarning(message As String, title As String)
+
+        Using dlg As New Form()
+
+            dlg.Text = title
+            dlg.FormBorderStyle = FormBorderStyle.FixedDialog
+            dlg.StartPosition = FormStartPosition.CenterParent
+            dlg.MinimizeBox = False
+            dlg.MaximizeBox = False
+            dlg.ShowInTaskbar = False
+            dlg.ClientSize = New Size(500, 145)
+            dlg.BackColor = SystemColors.Control
+
+            ' Warning icon
+            Dim iconBox As New PictureBox With {
+            .Image = SystemIcons.Warning.ToBitmap(),
+            .SizeMode = PictureBoxSizeMode.AutoSize,
+            .Location = New Point(25, 28)
+        }
+
+            ' Warning text
+            Dim messageLabel As New Label With {
+            .Text = message,
+            .AutoSize = False,
+            .Location = New Point(80, 25),
+            .Size = New Size(395, 65),
+            .Font = New Font(Me.Font.FontFamily, Me.Font.Size + 1.0F, FontStyle.Regular),
+            .TextAlign = ContentAlignment.TopLeft
+        }
+
+            ' OK button
+            Dim okButton As New Button With {
+            .Text = "OK",
+            .Size = New Size(80, 27),
+            .Location = New Point(395, 103),
+            .DialogResult = DialogResult.OK
+        }
+
+            dlg.Controls.Add(iconBox)
+            dlg.Controls.Add(messageLabel)
+            dlg.Controls.Add(okButton)
+
+            dlg.AcceptButton = okButton
+            dlg.CancelButton = okButton
+
+            dlg.ShowDialog(Me)
+
+        End Using
+
+    End Sub
+
 
     Private Sub Dev2TerminatorEnable_CheckedChanged(sender As Object, e As EventArgs) Handles Dev2TerminatorEnable.CheckedChanged
 
@@ -2596,6 +2727,7 @@ Public Class Formtest
 
     End Sub
 
+
     Private Sub Dev2TerminatorEnable2_CheckedChanged(sender As Object, e As EventArgs) Handles Dev2TerminatorEnable2.CheckedChanged
 
         ' Only LF or CRLF allowed at any one time, not both
@@ -2604,6 +2736,7 @@ Public Class Formtest
         End If
 
     End Sub
+
 
     Private Sub Dev1TerminatorEnable_CheckedChanged(sender As Object, e As EventArgs) Handles Dev1TerminatorEnable.CheckedChanged
 
@@ -2614,6 +2747,7 @@ Public Class Formtest
 
     End Sub
 
+
     Private Sub Dev1TerminatorEnable2_CheckedChanged(sender As Object, e As EventArgs) Handles Dev1TerminatorEnable2.CheckedChanged
 
         ' Only LF or CRLF allowed at any one time, not both
@@ -2622,6 +2756,7 @@ Public Class Formtest
         End If
 
     End Sub
+
 
     Private Sub EditMode_CheckedChanged(sender As Object, e As EventArgs) Handles EditMode.CheckedChanged
 
@@ -2977,7 +3112,7 @@ Public Class Formtest
 
 
     ' LUA copyright notice
-    Private Sub ButtonLUA_Click(sender As Object, e As EventArgs) Handles ButtonLUA.Click
+    Private Sub ButtonLUAack_Click(sender As Object, e As EventArgs) Handles ButtonLUAack.Click
 
         Using noticeForm As New Form()
             noticeForm.Text = "Third-Party License - MoonSharp"
@@ -3325,49 +3460,143 @@ Public Class Formtest
 
     Private Sub EnhanceTextBoxBorders(root As Control)
 
-        If My.Settings.ThemeSet = True Then
-            For Each c As Control In AllControls(root)
+        If My.Settings.ThemeSet = False Then Exit Sub
 
-                If TypeOf c Is TextBox Then
-                    Dim tb = DirectCast(c, TextBox)
+        For Each c As Control In AllControls(root)
 
-                    ' Skip if already wrapped (border panel)
-                    If TypeOf tb.Parent Is Panel Then Continue For
+            If TypeOf c Is TextBox Then
 
-                    Dim parent = tb.Parent
+                Dim tb As TextBox = DirectCast(c, TextBox)
 
-                    ' Outer border panel (grey)
-                    Dim border As New Panel With {
-                    .BackColor = Color.FromArgb(160, 160, 160),
-                    .Location = tb.Location,
-                    .Size = tb.Size,
-                    .Anchor = tb.Anchor,
-                    .Margin = tb.Margin,
-                    .Padding = New Padding(1)
-                }
+                ' ----------------------------------------------------------
+                ' Find the TabPage this TextBox belongs to, if any
+                ' ----------------------------------------------------------
+                Dim parentTabPage As TabPage = Nothing
+                Dim p As Control = tb.Parent
 
-                    ' Inner panel (white) provides the padding/vertical offset
-                    Dim inner As New Panel With {
-                    .BackColor = Color.White,
-                    .Dock = DockStyle.Fill,
-                    .Padding = New Padding(0, 2, 0, 0) ' tweak 1..3 if needed
-                }
+                While p IsNot Nothing
 
-                    ' TextBox inside
-                    tb.BorderStyle = BorderStyle.None
-                    tb.Multiline = True
-                    tb.Dock = DockStyle.Fill
-                    tb.Margin = New Padding(0)
+                    If TypeOf p Is TabPage Then
+                        parentTabPage = DirectCast(p, TabPage)
+                        Exit While
+                    End If
 
-                    ' Re-parent
-                    parent.Controls.Add(border)
-                    border.BringToFront()
-                    border.Controls.Add(inner)
-                    inner.Controls.Add(tb)
+                    p = p.Parent
+
+                End While
+
+                ' ----------------------------------------------------------
+                ' If the TextBox is on an inactive TabPage, skip it for now.
+                ' It will be themed when that tab is selected.
+                ' ----------------------------------------------------------
+                If parentTabPage IsNot Nothing Then
+
+                    If parentTabPage.Parent Is TabControl1 AndAlso
+                   TabControl1.SelectedTab IsNot parentTabPage Then
+
+                        Continue For
+
+                    End If
+
                 End If
 
-            Next
-        End If
+                ' ----------------------------------------------------------
+                ' Skip if already wrapped by this theme routine
+                ' ----------------------------------------------------------
+                If TypeOf tb.Parent Is Panel Then
+
+                    Dim innerPanel As Panel = DirectCast(tb.Parent, Panel)
+
+                    If TypeOf innerPanel.Parent Is Panel Then
+
+                        Dim outerPanel As Panel =
+                        DirectCast(innerPanel.Parent, Panel)
+
+                        If outerPanel.Name.StartsWith("ThemeBorder_") Then
+                            Continue For
+                        End If
+
+                    End If
+
+                End If
+
+                Dim originalParent As Control = tb.Parent
+                Dim originalVisible As Boolean = tb.Visible
+
+                ' ----------------------------------------------------------
+                ' Outer border panel
+                ' ----------------------------------------------------------
+                Dim border As New Panel With {
+                .Name = "ThemeBorder_" & tb.Name,
+                .BackColor = Color.FromArgb(160, 160, 160),
+                .Location = tb.Location,
+                .Size = tb.Size,
+                .Anchor = tb.Anchor,
+                .Margin = tb.Margin,
+                .Padding = New Padding(1),
+                .Visible = originalVisible
+            }
+
+                ' ----------------------------------------------------------
+                ' Inner white panel
+                ' ----------------------------------------------------------
+                Dim inner As New Panel With {
+                .BackColor = Color.White,
+                .Dock = DockStyle.Fill,
+                .Padding = New Padding(0, 2, 0, 0)
+            }
+
+                ' ----------------------------------------------------------
+                ' TextBox
+                ' ----------------------------------------------------------
+                tb.BorderStyle = BorderStyle.None
+                tb.Multiline = True
+                tb.Dock = DockStyle.Fill
+                tb.Margin = New Padding(0)
+
+                ' ----------------------------------------------------------
+                ' Re-parent
+                ' ----------------------------------------------------------
+                originalParent.Controls.Add(border)
+                border.BringToFront()
+
+                border.Controls.Add(inner)
+                inner.Controls.Add(tb)
+
+                ' ----------------------------------------------------------
+                ' Keep wrapper visibility matched to TextBox
+                ' but only when its TabPage is actually active
+                ' ----------------------------------------------------------
+                AddHandler tb.VisibleChanged,
+                Sub()
+
+                    Dim currentTabPage As TabPage = Nothing
+                    Dim currentParent As Control = tb.Parent
+
+                    While currentParent IsNot Nothing
+
+                        If TypeOf currentParent Is TabPage Then
+                            currentTabPage =
+                                DirectCast(currentParent, TabPage)
+                            Exit While
+                        End If
+
+                        currentParent = currentParent.Parent
+
+                    End While
+
+                    If currentTabPage Is Nothing OrElse
+                       TabControl1.SelectedTab Is currentTabPage Then
+
+                        border.Visible = tb.Visible
+
+                    End If
+
+                End Sub
+
+            End If
+
+        Next
 
     End Sub
 
@@ -3377,19 +3606,25 @@ Public Class Formtest
         If My.Settings.ThemeSet = True Then
 
             For Each c As Control In AllControls(root)
+
                 If TypeOf c Is Button Then
+
                     Dim b = DirectCast(c, Button)
 
                     b.FlatStyle = FlatStyle.Flat
                     b.UseVisualStyleBackColor = False
 
+                    ' Helps preserve multi-line button text
+                    b.UseCompatibleTextRendering = True
+
                     b.FlatAppearance.BorderSize = 1
                     b.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200)
 
-                    ' NEW: hover / pressed colours (Win10/11 style)
+                    ' Hover / pressed colours
                     b.FlatAppearance.MouseOverBackColor = Color.FromArgb(229, 241, 251)
                     b.FlatAppearance.MouseDownBackColor = Color.FromArgb(204, 228, 247)
 
+                    ' Apply current enabled/disabled appearance
                     If b.Enabled Then
                         b.BackColor = Color.White
                         b.ForeColor = Color.Black
@@ -3397,9 +3632,30 @@ Public Class Formtest
                         b.BackColor = Color.FromArgb(245, 245, 245)
                         b.ForeColor = Color.FromArgb(80, 80, 80)
                     End If
+
+                    ' Keep appearance updated whenever Enabled changes
+                    RemoveHandler b.EnabledChanged, AddressOf ThemedButton_EnabledChanged
+                    AddHandler b.EnabledChanged, AddressOf ThemedButton_EnabledChanged
+
                 End If
+
             Next
 
+        End If
+
+    End Sub
+
+
+    Private Sub ThemedButton_EnabledChanged(sender As Object, e As EventArgs)
+
+        Dim b As Button = DirectCast(sender, Button)
+
+        If b.Enabled Then
+            b.BackColor = Color.White
+            b.ForeColor = Color.Black
+        Else
+            b.BackColor = Color.FromArgb(245, 245, 245)
+            b.ForeColor = Color.FromArgb(80, 80, 80)
         End If
 
     End Sub
@@ -3423,6 +3679,45 @@ Public Class Formtest
         If My.Settings.ThemeSet Then
             MakeButtonsWin10ish(TabControl1.SelectedTab)
         End If
+
+    End Sub
+
+    Private Sub TabControl1_DrawItem(sender As Object, e As DrawItemEventArgs) Handles TabControl1.DrawItem
+
+        Dim tab As TabControl = DirectCast(sender, TabControl)
+        Dim page As TabPage = tab.TabPages(e.Index)
+        Dim rect As Rectangle = tab.GetTabRect(e.Index)
+
+        ' Default tab background
+        Dim backColor As Color = SystemColors.Control
+
+        ' Subtle tint for selected WinGPIB tabs
+        If page Is TabPage7 OrElse
+       page Is TabPage16 Then
+
+            backColor = Color.FromArgb(255, 250, 220)
+
+            ' Very mild green tint
+        ElseIf page Is TabPage1 Then
+
+            backColor = Color.FromArgb(210, 240, 210)
+
+        End If
+
+        ' Draw tab background
+        Using brush As New SolidBrush(backColor)
+            e.Graphics.FillRectangle(brush, rect)
+        End Using
+
+        ' Draw tab text
+        TextRenderer.DrawText(
+        e.Graphics,
+        page.Text,
+        tab.Font,
+        rect,
+        SystemColors.ControlText,
+        TextFormatFlags.HorizontalCenter Or
+        TextFormatFlags.VerticalCenter)
 
     End Sub
 

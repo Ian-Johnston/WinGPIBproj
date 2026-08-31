@@ -21,6 +21,7 @@ Partial Class Formtest
     Private Cal72AutoNextRun As DateTime
     Private Cal72AutoBusy As Boolean = False
 
+
     Private Sub InitCal72DriftTab()
 
         'Cal72CsvFile = strPath & "\" & "3458A_CAL72_Drift.csv"
@@ -135,7 +136,7 @@ Partial Class Formtest
 
         Cal72Initialised = True
 
-        ButtonCal72AcalDcv.Enabled = False ' for ACAL DCV button
+        'ButtonCal72AcalDcv.Enabled = False ' for ACAL DCV button
 
         ' AUTO timer
         Timer18.Interval = 1000
@@ -1003,6 +1004,7 @@ Handles RadioButton34581.CheckedChanged,
         txt.SelectionLength = 0
 
         frm.ShowDialog(Me)
+        'frm.Show(Me)
 
     End Sub
 
@@ -1177,7 +1179,7 @@ Handles RadioButton34581.CheckedChanged,
 
         If Me.Width < Me.MaximumSize.Width Then
 
-            BannerText2 = "                                                                                                                                          "
+            BannerText2 = "                                                                                                                                                       "
             Me.Text = BannerText1 & BannerText2 & BannerText3.ToString()
 
             ' Expand form
@@ -1317,10 +1319,10 @@ Handles RadioButton34581.CheckedChanged,
     Private Sub PositionCal72Chart()
 
         ChartCal72.Left = 1060
-        ChartCal72.Top = 12
+        ChartCal72.Top = 14
 
         ChartCal72.Width = 600
-        ChartCal72.Height = 120
+        ChartCal72.Height = 121
 
     End Sub
 
@@ -1540,11 +1542,7 @@ Handles RadioButton34581.CheckedChanged,
             Exit Sub
         End If
 
-        If MessageBox.Show(
-    "Send ACAL DCV to the connected 3458A?" & vbCrLf & vbCrLf &
-    "Wait until the 3458A has completed before proceeding." & vbCrLf &
-    "(~150 secs).",
-                "Confirm ACAL DCV",
+        If MessageBox.Show("Send ACAL DCV to the connected 3458A?" & vbCrLf & vbCrLf & "Wait until the 3458A has completed before proceeding." & vbCrLf & "(~150 secs).", "Confirm ACAL DCV",
              MessageBoxButtons.YesNo,
             MessageBoxIcon.Question) <> DialogResult.Yes Then
 
@@ -1553,7 +1551,7 @@ Handles RadioButton34581.CheckedChanged,
 
         Try
 
-            ButtonCal72AcalDcv.Enabled = False
+            'ButtonCal72AcalDcv.Enabled = False         ' issue leaving ACAL DCV & READ FROM 3458A buttons disabled
 
             LabelCal72Status.Text = "STARTING ACAL DCV"
             Me.Refresh()
@@ -1574,22 +1572,21 @@ Handles RadioButton34581.CheckedChanged,
 
         Finally
 
-            UpdateCal72ControlStates()
+            'UpdateCal72ControlStates()     ' issue leaving ACAL DCV & READ FROM 3458A buttons disabled
 
         End Try
 
     End Sub
 
 
-    Private Sub UpdateCal72ControlStates()
+    'Private Sub UpdateCal72ControlStates()     ' issue leaving ACAL DCV & READ FROM 3458A buttons disabled
 
-        Dim device1Connected As Boolean =
-        ButtonDev1Run.Enabled = False
+    'Dim device1Connected As Boolean = ButtonDev1Run.Enabled = False
 
-        ButtonCal72Read.Enabled = device1Connected
-        ButtonCal72AcalDcv.Enabled = device1Connected
+    'ButtonCal72Read.Enabled = device1Connected
+    'ButtonCal72AcalDcv.Enabled = device1Connected
 
-    End Sub
+    'End Sub
 
 
     ' AUTO timer
@@ -1917,6 +1914,9 @@ Handles RadioButton34581.CheckedChanged,
         End If
 
     End Sub
+
+
+
 
 
 End Class

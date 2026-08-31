@@ -89,14 +89,34 @@ Public Class Chart
         Me.Timer1.Interval = 5000  ' 5secs
         Me.Timer1.Stop()
 
-        DeviceName1.BackColor = Color.GreenYellow
-        DeviceName2.BackColor = Color.Violet
-        RadioButtonDev1.BackColor = Color.GreenYellow
-        RadioButtonDev2.BackColor = Color.Violet
+        DeviceName1.BackColor = Color.Yellow
+        DeviceName2.BackColor = Color.Aqua
+
+        RadioButtonDev1.BackColor = Color.Yellow
+        RadioButtonDev2.BackColor = Color.Aqua
+
         RadioButtonPPMDev.BackColor = Color.White
         RadioButtonPPMTempo.BackColor = Color.White
+
         PlaybackTemp.BackColor = Color.Red
         PlaybackHum.BackColor = Color.DodgerBlue
+
+        ' Playback trace checkboxes - match chart trace colours
+        CheckPlaybackDev1Data.BackColor = Color.Yellow
+        CheckPlaybackDev1Mean.BackColor = Color.Orange
+        CheckPlaybackDev1Stdev.BackColor = Color.LightGray
+        CheckPlaybackDev1SEM.BackColor = Color.DeepSkyBlue
+
+        CheckPlaybackDev2Data.BackColor = Color.Aqua
+        CheckPlaybackDev2Mean.BackColor = Color.Lime
+        CheckPlaybackDev2Stdev.BackColor = Color.Magenta
+        CheckPlaybackDev2SEM.BackColor = Color.LimeGreen
+
+        CheckPlaybackDev1MaxDiff.BackColor = Color.Gold
+        CheckPlaybackDev1Deviation.BackColor = Color.White
+
+        CheckPlaybackDev2MaxDiff.BackColor = Color.HotPink
+        CheckPlaybackDev2Deviation.BackColor = Color.LightGray
 
         GroupBoxMisc.Enabled = True
         GroupBoxMiscTempHum.Enabled = True
@@ -111,11 +131,12 @@ Public Class Chart
         MedianValue.Text = My.Settings.data26
         MedianTemp.Text = My.Settings.data27
         PPMscalerangeentry.Text = My.Settings.data28
-        CSVdelimit = My.Settings.data29                 ' comma or semi-colon
+        CSVdelimit = My.Settings.data29
 
         YaxisMaximum.ReadOnly = True
         YaxisMinimum.ReadOnly = True
         RangeRequired.ReadOnly = True
+
         ButtonScrollLeft.Enabled = False
         ButtonScrollRight.Enabled = False
         ButtonScrollLeftSMALL.Enabled = False
@@ -129,14 +150,15 @@ Public Class Chart
         ButtonDisplayAll.Enabled = False
         ButtonShiftUp.Enabled = False
         ButtonShiftDn.Enabled = False
+
         CSVfilenamePlayback.ReadOnly = True
 
-        CheckBoxMedianV.Enabled = False
+        CheckBoxMedianV.Enabled = True
         CheckBoxMedianT.Enabled = False
 
-        RadioButtonPPMDev.Checked = True
-        RadioButtonPPMDev.Enabled = False
-        RadioButtonPPMTempo.Enabled = False
+        RadioButtonPPMDev.Checked = False
+        RadioButtonPPMDev.Enabled = True
+        RadioButtonPPMTempo.Enabled = True
         PPMBox1.Enabled = True
         RadioButtonDev1.Checked = True
         MedianValue.Enabled = False
@@ -155,105 +177,296 @@ Public Class Chart
 
         Loading.Visible = False
 
-        ' Os Version
-        'PlaybackstrPath = String.Format("{0}", Environment.CurrentDirectory)    ' folder where app is running
-        PlaybackstrPath = "C:\Users\" & String.Format("{0}", Environment.UserName) & "\Documents\WinGPIBdata"    ' users data folder
-
-        ' Check Os and set data folder path accordingly (change the same in Formtest.vb)
-        ' https://docs.microsoft.com/en-us/windows/win32/sysinfo/operating-system-version
-        'Dim osVer As Version = Environment.OSVersion.Version    ' Operating system
-        'If osVer.Major = 6 And osVer.Minor = 1 Then     ' 6.1 = Win7
-        'PlaybackstrPath = "C:\Users\" & String.Format("{0}", Environment.UserName) & "\Documents\WinGPIBdata"
-        'End If
-        'If osVer.Major = 6 And osVer.Minor = 2 Then     ' 6.3 = Win8
-        'PlaybackstrPath = "C:\Users\" & String.Format("{0}", Environment.UserName) & "\Documents\WinGPIBdata"
-        'End If
-        'If osVer.Major = 6 And osVer.Minor = 3 Then     ' 6.3 = Win8.1
-        'PlaybackstrPath = "C:\Users\" & String.Format("{0}", Environment.UserName) & "\Documents\WinGPIBdata"
-        'End If
-        'If osVer.Major = 10 And osVer.Minor = 0 Then     ' 10.0 = Win10/11
-        'PlaybackstrPath = "C:\Users\" & String.Format("{0}", Environment.UserName) & "\Documents\WinGPIBdata"
-        'End If
+        PlaybackstrPath = "C:\Users\" & Environment.UserName & "\Documents\WinGPIBdata"
 
         CSVfileok = False
 
         ' Clear the screen and set the load CSV message
         ChartOffReadyForCSV()
 
-        ' Chart2 initialize
+
+        ' ==========================================================
+        ' Chart2 initialise
+        ' ==========================================================
+
+        Chart2.Location = New Point(1, 202)
+        Chart2.Size = New Size(1334, 610)
+
         Chart2.ChartAreas(0).AxisY.LabelStyle.Enabled = True
         Chart2.ChartAreas(0).AxisX.MajorTickMark.Enabled = True
         Chart2.ChartAreas(0).AxisX.Interval = 95
-        Chart2.ChartAreas(0).AxisY.LabelStyle.Font = New Font("Verdana", 8)  ' change x-axis label font style
-        Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{000.0000000}"
+
+        Chart2.ChartAreas(0).AxisY.LabelStyle.Font =
+        New Font("Verdana", 8)
+
+        Chart2.ChartAreas(0).AxisY.LabelStyle.Format =
+        "{000.0000000}"
+
         Chart2.ChartAreas(0).AxisY.MajorTickMark.Enabled = True
         Chart2.ChartAreas(0).AxisX.MinorTickMark.Enabled = False
         Chart2.ChartAreas(0).AxisY.MinorTickMark.Enabled = False
+
         Chart2.ChartAreas(0).AxisX.MajorGrid.Enabled = True
         Chart2.ChartAreas(0).AxisY.MajorGrid.Enabled = True
         Chart2.ChartAreas(0).AxisX.MinorGrid.Enabled = True
         Chart2.ChartAreas(0).AxisY.MinorGrid.Enabled = True
-        Chart2.ChartAreas(0).AxisX.MajorGrid.LineColor = Color.FromArgb(255, 85, 85, 85)
-        Chart2.ChartAreas(0).AxisY.MajorGrid.LineColor = Color.FromArgb(255, 85, 85, 85)
-        Chart2.ChartAreas(0).AxisX.MinorGrid.LineColor = Color.FromArgb(150, 85, 85, 85)
-        Chart2.ChartAreas(0).AxisY.MinorGrid.LineColor = Color.FromArgb(150, 85, 85, 85)
+
+        Chart2.ChartAreas(0).AxisX.MajorGrid.LineColor =
+        Color.FromArgb(255, 85, 85, 85)
+
+        Chart2.ChartAreas(0).AxisY.MajorGrid.LineColor =
+        Color.FromArgb(255, 85, 85, 85)
+
+        Chart2.ChartAreas(0).AxisX.MinorGrid.LineColor =
+        Color.FromArgb(150, 85, 85, 85)
+
+        Chart2.ChartAreas(0).AxisY.MinorGrid.LineColor =
+        Color.FromArgb(150, 85, 85, 85)
+
         Chart2.DataBindTable(gChartPlayback)
+
         Chart2.Series(0).ChartType = 2
         Chart2.Series.Clear()
+
         Chart2.ChartAreas(0).BorderWidth = 1
+
+
+        ' ==========================================================
+        ' Add Statistics ChartArea BEFORE assigning series to it
+        ' ==========================================================
+
+        Dim statsArea As New DataVisualization.Charting.ChartArea("Statistics")
+
+        statsArea.BackColor = Color.Black
+        statsArea.BorderWidth = 1
+
+        statsArea.AxisX.LabelStyle.Enabled = False
+        statsArea.AxisX.MajorTickMark.Enabled = False
+        statsArea.AxisX.MinorTickMark.Enabled = False
+
+        statsArea.AxisX.MajorGrid.Enabled = True
+        statsArea.AxisX.MinorGrid.Enabled = False
+
+        statsArea.AxisY.MajorGrid.Enabled = True
+        statsArea.AxisY.MinorGrid.Enabled = False
+
+        statsArea.AxisX.MajorGrid.LineDashStyle = DataVisualization.Charting.ChartDashStyle.Dot
+
+        statsArea.AxisY.MajorGrid.LineDashStyle = DataVisualization.Charting.ChartDashStyle.Dot
+
+        statsArea.AxisX.MajorGrid.LineColor = Color.FromArgb(255, 85, 85, 85)
+
+        statsArea.AxisY.MajorGrid.LineColor = Color.FromArgb(255, 85, 85, 85)
+
+        ' Match Y-axis scale appearance to main chart
+        statsArea.AxisY.LabelStyle.ForeColor = Color.Black
+        statsArea.AxisY.LabelStyle.Font = New Font("Verdana", 8)
+
+        statsArea.AxisY.IsLabelAutoFit = True
+        statsArea.AxisY.LabelAutoFitStyle = DataVisualization.Charting.LabelAutoFitStyles.DecreaseFont
+
+        'statsArea.AxisY.LabelStyle.Format = "0.0E+00"
+        statsArea.AxisY.LabelStyle.Format = "0.0000000"
+
+        statsArea.AxisX.LabelStyle.ForeColor = Color.Black
+
+        statsArea.Position.Auto = False
+        statsArea.Position = New DataVisualization.Charting.ElementPosition(7.0F, 77.0F, 91.0F, 20.0F)
+
+        statsArea.InnerPlotPosition.Auto = False
+        statsArea.InnerPlotPosition = New DataVisualization.Charting.ElementPosition(8.0F, 5.0F, 88.0F, 88.0F)
+
+        Chart2.ChartAreas.Add(statsArea)
+
+
+        ' ==========================================================
+        ' Main chart area
+        ' ==========================================================
+
+        Chart2.ChartAreas(0).Position.Auto = False
+
+        Chart2.ChartAreas(0).Position = New DataVisualization.Charting.ElementPosition(7.0F, 4.0F, 91.0F, 70.0F)
+
+        Chart2.ChartAreas(0).InnerPlotPosition.Auto = False
+
+        Chart2.ChartAreas(0).InnerPlotPosition = New DataVisualization.Charting.ElementPosition(8.0F, 5.0F, 88.0F, 90.0F)
+
+
+        ' ==========================================================
+        ' Add chart series
+        ' ==========================================================
+
         Chart2.Series.Add("Device 1")
         Chart2.Series.Add("Device 2")
         Chart2.Series.Add("Temperature")
         Chart2.Series.Add("Humidity")
         Chart2.Series.Add("PPM Dev 1")
 
+        Chart2.Series.Add("Dev 1 Mean")
+        Chart2.Series.Add("Dev 1 STDEV")
+        Chart2.Series.Add("Dev 1 SEM")
+
+        Chart2.Series.Add("Dev 2 Mean")
+        Chart2.Series.Add("Dev 2 STDEV")
+        Chart2.Series.Add("Dev 2 SEM")
+
+        Chart2.Series.Add("Dev 1 Max Diff")
+        Chart2.Series.Add("Dev 1 Deviation")
+
+        Chart2.Series.Add("Dev 2 Max Diff")
+        Chart2.Series.Add("Dev 2 Deviation")
+
+
+        ' ==========================================================
+        ' Assign statistics series to correct ChartAreas
+        ' ==========================================================
+
+        Chart2.Series(5).ChartArea =
+        Chart2.ChartAreas(0).Name
+
+        Chart2.Series(8).ChartArea =
+        Chart2.ChartAreas(0).Name
+
+        Chart2.Series(6).ChartArea = "Statistics"
+        Chart2.Series(7).ChartArea = "Statistics"
+        Chart2.Series(9).ChartArea = "Statistics"
+        Chart2.Series(10).ChartArea = "Statistics"
+
+        Chart2.Series(11).ChartArea = "Statistics"
+        Chart2.Series(12).ChartArea = "Statistics"
+        Chart2.Series(13).ChartArea = "Statistics"
+        Chart2.Series(14).ChartArea = "Statistics"
+
+
+        ' ==========================================================
+        ' Chart types
+        ' ==========================================================
+
         CheckDev1Line.Checked = True
         CheckDev1Point.Checked = False
         CheckDev2Line.Checked = True
         CheckDev2Point.Checked = False
 
-        Chart2.Series(0).ChartType = DataVisualization.Charting.SeriesChartType.Line
-        Chart2.Series(1).ChartType = DataVisualization.Charting.SeriesChartType.Line
-        Chart2.Series(2).ChartType = DataVisualization.Charting.SeriesChartType.Line
-        Chart2.Series(3).ChartType = DataVisualization.Charting.SeriesChartType.Line
-        Chart2.Series(4).ChartType = DataVisualization.Charting.SeriesChartType.Line
-        Chart2.Series(0).YValueType = DataVisualization.Charting.ChartValueType.Single
-        Chart2.Legends(0).Enabled = False
-        Chart2.ChartAreas(0).AxisX.IntervalAutoMode = DataVisualization.Charting.IntervalAutoMode.VariableCount
-        'Chart2.ChartAreas(0).AxisY.IntervalAutoMode = DataVisualization.Charting.IntervalAutoMode.VariableCount    ' this is set dynamically
-        Chart2.ChartAreas(0).AxisY.LabelAutoFitStyle = DataVisualization.Charting.LabelAutoFitStyles.DecreaseFont 'default is staggered
-        Chart2.ChartAreas(0).AxisX.IntervalOffset = 0
+        For i As Integer = 0 To 14
 
-        ' Straight colours
-        Chart2.Series(0).Color = Color.GreenYellow
-        Chart2.Series(1).Color = Color.Violet
+            Chart2.Series(i).ChartType =
+            DataVisualization.Charting.SeriesChartType.Line
+
+        Next
+
+        Chart2.Series(0).YValueType =
+        DataVisualization.Charting.ChartValueType.Single
+
+
+        ' ==========================================================
+        ' Colours
+        ' ==========================================================
+
+        Chart2.Series(0).Color = Color.Yellow
+        Chart2.Series(1).Color = Color.Aqua
         Chart2.Series(2).Color = Color.Red
         Chart2.Series(3).Color = Color.DodgerBlue
         Chart2.Series(4).Color = Color.White
 
-        Chart2.ChartAreas(0).AxisX.MajorGrid.LineDashStyle = DataVisualization.Charting.ChartDashStyle.Dot
-        Chart2.ChartAreas(0).AxisY.MajorGrid.LineDashStyle = DataVisualization.Charting.ChartDashStyle.Dot
-        Chart2.ChartAreas(0).AxisX.LabelStyle.Enabled = False   'disable X-axis scale
+        ' Device 1
+        Chart2.Series(5).Color = Color.Orange          ' Dev 1 Mean
+        Chart2.Series(6).Color = Color.LightGray       ' Dev 1 STDEV
+        Chart2.Series(7).Color = Color.DeepSkyBlue     ' Dev 1 SEM
+        Chart2.Series(11).Color = Color.Gold           ' Dev 1 Max Diff
+        Chart2.Series(12).Color = Color.White          ' Dev 1 PPM Deviation
+
+        ' Device 2
+        Chart2.Series(8).Color = Color.Lime            ' Dev 2 Mean
+        Chart2.Series(9).Color = Color.Magenta         ' Dev 2 STDEV
+        Chart2.Series(10).Color = Color.LimeGreen      ' Dev 2 SEM
+        Chart2.Series(13).Color = Color.HotPink        ' Dev 2 Max Diff
+        Chart2.Series(14).Color = Color.LightGray      ' Dev 2 PPM Deviation
+
+
+        ' ==========================================================
+        ' Start statistics series hidden
+        ' ==========================================================
+
+        Chart2.Series(5).Enabled = False
+        Chart2.Series(6).Enabled = False
+        Chart2.Series(7).Enabled = False
+
+        Chart2.Series(8).Enabled = False
+        Chart2.Series(9).Enabled = False
+        Chart2.Series(10).Enabled = False
+
+        Chart2.Series(11).Enabled = False
+        Chart2.Series(12).Enabled = False
+        Chart2.Series(13).Enabled = False
+        Chart2.Series(14).Enabled = False
+
+
+        ' ==========================================================
+        ' Existing chart settings
+        ' ==========================================================
+
+        Chart2.Legends(0).Enabled = False
+
+        Chart2.ChartAreas(0).AxisX.IntervalAutoMode =
+        DataVisualization.Charting.IntervalAutoMode.VariableCount
+
+        Chart2.ChartAreas(0).AxisY.LabelAutoFitStyle =
+        DataVisualization.Charting.LabelAutoFitStyles.DecreaseFont
+
+        Chart2.ChartAreas(0).AxisX.IntervalOffset = 0
+
+        Chart2.ChartAreas(0).AxisX.MajorGrid.LineDashStyle =
+        DataVisualization.Charting.ChartDashStyle.Dot
+
+        Chart2.ChartAreas(0).AxisY.MajorGrid.LineDashStyle =
+        DataVisualization.Charting.ChartDashStyle.Dot
+
+        Chart2.ChartAreas(0).AxisX.LabelStyle.Enabled = False
+
         Chart2.ChartAreas(0).AxisY2.MajorTickMark.Enabled = True
         Chart2.ChartAreas(0).AxisY2.MinorTickMark.Enabled = False
-        Chart2.ChartAreas(0).AxisY2.LabelAutoFitStyle = DataVisualization.Charting.LabelAutoFitStyles.DecreaseFont 'default is staggered
+
+        Chart2.ChartAreas(0).AxisY2.LabelAutoFitStyle =
+        DataVisualization.Charting.LabelAutoFitStyles.DecreaseFont
+
         Chart2.ChartAreas(0).AxisY2.Interval = 1
 
-        Chart2.ChartAreas(0).AxisY2.MajorGrid.LineColor = Color.FromArgb(100, 85, 85, 85)
-        Chart2.ChartAreas(0).AxisY2.MinorGrid.LineColor = Color.FromArgb(100, 85, 85, 85)
+        Chart2.ChartAreas(0).AxisY2.MajorGrid.LineColor =
+        Color.FromArgb(100, 85, 85, 85)
 
+        Chart2.ChartAreas(0).AxisY2.MinorGrid.LineColor =
+        Color.FromArgb(100, 85, 85, 85)
+
+
+        ' ==========================================================
         ' Temperature
-        Chart2.Series(2).YAxisType = DataVisualization.Charting.AxisType.Secondary
+        ' ==========================================================
+
+        Chart2.Series(2).YAxisType =
+        DataVisualization.Charting.AxisType.Secondary
+
         Chart2.ChartAreas(0).AxisY2.Enabled = True
         Chart2.ChartAreas(0).AxisY2.Minimum = 15
         Chart2.ChartAreas(0).AxisY2.Maximum = 50
-        Chart2.ChartAreas(0).AxisY2.Enabled = DataVisualization.Charting.AxisEnabled.True
+
+        Chart2.ChartAreas(0).AxisY2.Enabled =
+        DataVisualization.Charting.AxisEnabled.True
+
         Chart2.ChartAreas(0).AxisY2.LabelStyle.Enabled = True
 
-        ' Humidity
-        Chart2.Series(3).YAxisType = DataVisualization.Charting.AxisType.Secondary
 
+        ' ==========================================================
+        ' Humidity
+        ' ==========================================================
+
+        Chart2.Series(3).YAxisType =
+        DataVisualization.Charting.AxisType.Secondary
+
+
+        ' ==========================================================
         ' CSV file format
+        ' ==========================================================
+
         dataTable1.Columns.Add("INDEX", GetType(Integer))
         dataTable1.Columns.Add("DEVICE", GetType(String))
         dataTable1.Columns.Add("DATETIME", GetType(String))
@@ -261,20 +474,73 @@ Public Class Chart
         dataTable1.Columns.Add("TEMP", GetType(Double))
         dataTable1.Columns.Add("HUM", GetType(Double))
 
-        ' Additional columns add to datatable
+        ' New V5 statistics columns
+        dataTable1.Columns.Add("DEV1_SAMPLES", GetType(String))
+        dataTable1.Columns.Add("DEV1_MEAN", GetType(String))
+        dataTable1.Columns.Add("DEV1_STDEV", GetType(String))
+        dataTable1.Columns.Add("DEV1_SEM", GetType(String))
+        dataTable1.Columns.Add("DEV1_GAIN", GetType(String))
+
+        dataTable1.Columns.Add("DEV2_SAMPLES", GetType(String))
+        dataTable1.Columns.Add("DEV2_MEAN", GetType(String))
+        dataTable1.Columns.Add("DEV2_STDEV", GetType(String))
+        dataTable1.Columns.Add("DEV2_SEM", GetType(String))
+        dataTable1.Columns.Add("DEV2_GAIN", GetType(String))
+
+        ' New V6 statistics columns
+        dataTable1.Columns.Add("DEV1_MAXDIFF", GetType(String))
+        dataTable1.Columns.Add("DEV1_DEVIATION", GetType(String))
+        dataTable1.Columns.Add("DEV2_MAXDIFF", GetType(String))
+        dataTable1.Columns.Add("DEV2_DEVIATION", GetType(String))
+
+        ' Generated during Playback
         dataTable1.Columns.Add("PPM", GetType(Double))
 
-        'Dim windowSize As Integer = 100
+
+        ' ==========================================================
+        ' Misc
+        ' ==========================================================
+
         RMSwindow.Text = "100"
 
         LabelTempC.Text = My.Settings.data324
         LabelHum.Text = My.Settings.data325
-        RadioButtonPPMTempo.Text = "PPM/" & My.Settings.data324
+        RadioButtonPPMTempo.Text =
+        "PPM/" & My.Settings.data324
+
+
+        ' ==========================================================
+        ' Playback trace checkboxes
+        ' ==========================================================
+
+        CheckPlaybackDev1Data.Checked = True
+        CheckPlaybackDev2Data.Checked = True
+
+        CheckPlaybackDev1Mean.Checked = False
+        CheckPlaybackDev1Stdev.Checked = False
+        CheckPlaybackDev1SEM.Checked = False
+        CheckPlaybackDev1MaxDiff.Checked = False
+        CheckPlaybackDev1Deviation.Checked = False
+
+        CheckPlaybackDev2Mean.Checked = False
+        CheckPlaybackDev2Stdev.Checked = False
+        CheckPlaybackDev2SEM.Checked = False
+        CheckPlaybackDev2MaxDiff.Checked = False
+        CheckPlaybackDev2Deviation.Checked = False
+
+        CheckPlaybackDev1Mean.Enabled = False
+        CheckPlaybackDev1Stdev.Enabled = False
+        CheckPlaybackDev1SEM.Enabled = False
+        CheckPlaybackDev1MaxDiff.Enabled = False
+        CheckPlaybackDev1Deviation.Enabled = False
+
+        CheckPlaybackDev2Mean.Enabled = False
+        CheckPlaybackDev2Stdev.Enabled = False
+        CheckPlaybackDev2SEM.Enabled = False
+        CheckPlaybackDev2MaxDiff.Enabled = False
+        CheckPlaybackDev2Deviation.Enabled = False
 
     End Sub
-
-
-
 
 
     Private Sub BrowseToFile_Click(sender As Object, e As EventArgs) Handles BrowseToFile.Click
@@ -293,6 +559,7 @@ Public Class Chart
         fd.RestoreDirectory = True
 
         If fd.ShowDialog() = DialogResult.OK Then
+
             PleaseLoadCSV.Visible = False
             filePlayback = fd.FileName
             CSVfilenamePlayback.Text = filePlayback
@@ -300,161 +567,564 @@ Public Class Chart
 
             Loading.Visible = True
             Refresh()
+
         Else
+
             PleaseLoadCSV.Visible = True
             Return
+
         End If
 
+
+        ' ==========================================================
+        ' Reset table / chart
+        ' ==========================================================
+
         dataTable1.Clear()
+
         For i As Integer = 0 To 4
             Chart2.Series(i).Points.Clear()
         Next
 
-        ' Read CSV file and process in one pass
-        Dim lines As List(Of String) = IO.File.ReadAllLines(filePlayback).ToList()
 
-        ' Initialize variables
+        ' Reset statistics controls until file format is known.
+        CheckPlaybackDev1Mean.Checked = False
+        CheckPlaybackDev1Stdev.Checked = False
+        CheckPlaybackDev1SEM.Checked = False
+        CheckPlaybackDev1MaxDiff.Checked = False
+        CheckPlaybackDev1Deviation.Checked = False
+
+        CheckPlaybackDev2Mean.Checked = False
+        CheckPlaybackDev2Stdev.Checked = False
+        CheckPlaybackDev2SEM.Checked = False
+        CheckPlaybackDev2MaxDiff.Checked = False
+        CheckPlaybackDev2Deviation.Checked = False
+
+        CheckPlaybackDev1Mean.Enabled = False
+        CheckPlaybackDev1Stdev.Enabled = False
+        CheckPlaybackDev1SEM.Enabled = False
+        CheckPlaybackDev1MaxDiff.Enabled = False
+        CheckPlaybackDev1Deviation.Enabled = False
+
+        CheckPlaybackDev2Mean.Enabled = False
+        CheckPlaybackDev2Stdev.Enabled = False
+        CheckPlaybackDev2SEM.Enabled = False
+        CheckPlaybackDev2MaxDiff.Enabled = False
+        CheckPlaybackDev2Deviation.Enabled = False
+
+
+        ' ==========================================================
+        ' Read CSV file
+        ' ==========================================================
+
+        Dim lines As List(Of String) =
+        IO.File.ReadAllLines(filePlayback).ToList()
+
+
+        ' Initialize variables.
         CSVdelimit = ""
         MetadataChart.Text = ""
+
         Dim separator As String = "------------------------------"
         Dim isFirstGroup As Boolean = True
         Dim previousLineIsMetadata As Boolean = False
+
         numberlinesCSV = 0
 
         Dim metadataBuilder As New System.Text.StringBuilder()
         Dim rowsToAdd As New List(Of DataRow)()
 
-        ' Single pass to analyze, load data, and collect metadata
+        Dim statsColumnsDetected As Boolean = False
+        Dim v6ColumnsDetected As Boolean = False
+
+
+        ' ==========================================================
+        ' Single pass to analyze, load data and collect metadata
+        ' ==========================================================
+
         For Each line As String In lines
+
             If line.TrimStart().StartsWith("//") Then
-                ' Process metadata
-                If Not previousLineIsMetadata AndAlso Not isFirstGroup Then
+
+                ' Process metadata.
+                If Not previousLineIsMetadata AndAlso
+               Not isFirstGroup Then
+
                     metadataBuilder.AppendLine(separator)
+
                 End If
+
                 metadataBuilder.AppendLine(line.Substring(2))
+
                 previousLineIsMetadata = True
+
             Else
+
                 previousLineIsMetadata = False
                 isFirstGroup = False
 
-                ' Determine delimiter (comma or semicolon) if not already set
-                If CSVdelimit = "" Then
-                    Dim commaCount As Integer = line.Split(","c).Length - 1
-                    Dim semicolonCount As Integer = line.Split(";"c).Length - 1
-                    If commaCount >= 5 Then
-                        CSVdelimit = ","
-                    ElseIf semicolonCount >= 5 Then
-                        CSVdelimit = ";"
-                    End If
+
+                ' Skip blank lines.
+                If String.IsNullOrWhiteSpace(line) Then
+                    Continue For
                 End If
 
-                ' Skip blank lines
-                If String.IsNullOrWhiteSpace(line) Then Continue For
 
-                ' Process the data line
-                Dim values As String() = line.Split(CSVdelimit)
-                If Not IsNumeric(values(0)) Then
-                    Dialog2.Warning1 = "Inconsistent CSV - Invalid data format detected"
-                    Dialog2.Warning2 = "Each data line in the CSV should start with a number"
-                    Dialog2.Warning3 = "Please fix and try again."
+                ' ----------------------------------------------------------
+                ' Determine delimiter
+                ' ----------------------------------------------------------
+
+                If CSVdelimit = "" Then
+
+                    Dim commaCount As Integer =
+                    line.Split(","c).Length - 1
+
+                    Dim semicolonCount As Integer =
+                    line.Split(";"c).Length - 1
+
+                    If commaCount >= 5 Then
+
+                        CSVdelimit = ","
+
+                    ElseIf semicolonCount >= 5 Then
+
+                        CSVdelimit = ";"
+
+                    End If
+
+                End If
+
+
+                If String.IsNullOrEmpty(CSVdelimit) Then
+                    Continue For
+                End If
+
+
+                ' ----------------------------------------------------------
+                ' Split data line
+                ' ----------------------------------------------------------
+
+                Dim values As String() =
+                line.Split(New String() {CSVdelimit},
+                           StringSplitOptions.None)
+
+
+                ' Minimum valid old WinGPIB CSV = 6 fields.
+                If values.Length < 6 Then
+
+                    Dialog2.Warning1 =
+                    "Inconsistent CSV - Invalid data format detected"
+
+                    Dialog2.Warning2 =
+                    "Each data line must contain at least 6 fields"
+
+                    Dialog2.Warning3 =
+                    "Please fix and try again."
+
                     Dialog2.ShowDialog(Me)
+
                     ChartOffReadyForCSV()
                     Return
+
                 End If
 
-                ' Add data to dataTable1
+
+                ' First field must be numeric INDEX.
+                If Not IsNumeric(values(0)) Then
+
+                    Dialog2.Warning1 =
+                    "Inconsistent CSV - Invalid data format detected"
+
+                    Dialog2.Warning2 =
+                    "Each data line in the CSV should start with a number"
+
+                    Dialog2.Warning3 =
+                    "Please fix and try again."
+
+                    Dialog2.ShowDialog(Me)
+
+                    ChartOffReadyForCSV()
+                    Return
+
+                End If
+
+
+                ' ==========================================================
+                ' Detect CSV format
+                '
+                ' Old CSV:
+                '   0 INDEX
+                '   1 DEVICE
+                '   2 DATETIME
+                '   3 VALUE
+                '   4 TEMP
+                '   5 HUM
+                '
+                ' New V5 CSV:
+                '   + DEV1 Samples
+                '   + DEV1 Mean
+                '   + DEV1 STDEV
+                '   + DEV1 SEM
+                '   + DEV1 Gain
+                '   + DEV2 Samples
+                '   + DEV2 Mean
+                '   + DEV2 STDEV
+                '   + DEV2 SEM
+                '   + DEV2 Gain
+                ' ==========================================================
+
+                If values.Length >= 16 Then
+                    statsColumnsDetected = True
+                End If
+
+                If values.Length >= 20 Then
+                    v6ColumnsDetected = True
+                End If
+
+
+                ' ==========================================================
+                ' Add data to DataTable
+                ' ==========================================================
+
                 Dim row As DataRow = dataTable1.NewRow()
-                row.ItemArray = values
+
+
+                ' Standard fields - present in old and new CSV.
+                row("INDEX") = CInt(Val(values(0)))
+                row("DEVICE") = values(1)
+                row("DATETIME") = values(2)
+
+                row("VALUE") =
+                CDbl(Val(values(3)))
+
+                row("TEMP") =
+                CDbl(Val(values(4)))
+
+                row("HUM") =
+                CDbl(Val(values(5)))
+
+
+                ' ----------------------------------------------------------
+                ' V5 statistics fields
+                ' ----------------------------------------------------------
+
+                If values.Length >= 16 Then
+
+                    row("DEV1_SAMPLES") = values(6)
+                    row("DEV1_MEAN") = values(7)
+                    row("DEV1_STDEV") = values(8)
+                    row("DEV1_SEM") = values(9)
+                    row("DEV1_GAIN") = values(10)
+
+                    row("DEV2_SAMPLES") = values(11)
+                    row("DEV2_MEAN") = values(12)
+                    row("DEV2_STDEV") = values(13)
+                    row("DEV2_SEM") = values(14)
+                    row("DEV2_GAIN") = values(15)
+
+                Else
+
+                    ' Old CSV - statistics do not exist.
+                    row("DEV1_SAMPLES") = ""
+                    row("DEV1_MEAN") = ""
+                    row("DEV1_STDEV") = ""
+                    row("DEV1_SEM") = ""
+                    row("DEV1_GAIN") = ""
+
+                    row("DEV2_SAMPLES") = ""
+                    row("DEV2_MEAN") = ""
+                    row("DEV2_STDEV") = ""
+                    row("DEV2_SEM") = ""
+                    row("DEV2_GAIN") = ""
+
+                End If
+
+
+                ' ----------------------------------------------------------
+                ' V6 statistics fields (Max Diff / Deviation) - appended
+                ' after the original V5 block, so V5 CSVs (exactly 16
+                ' fields) still load correctly with these left blank.
+                ' ----------------------------------------------------------
+
+                If values.Length >= 20 Then
+
+                    row("DEV1_MAXDIFF") = values(16)
+                    row("DEV1_DEVIATION") = values(17)
+                    row("DEV2_MAXDIFF") = values(18)
+                    row("DEV2_DEVIATION") = values(19)
+
+                Else
+
+                    row("DEV1_MAXDIFF") = ""
+                    row("DEV1_DEVIATION") = ""
+                    row("DEV2_MAXDIFF") = ""
+                    row("DEV2_DEVIATION") = ""
+
+                End If
+
+
+                ' PPM is generated later by Playback.
+                row("PPM") = 0.0
+
+
                 rowsToAdd.Add(row)
 
-                ' Count valid data lines
+                ' Count valid data lines.
                 numberlinesCSV += 1
+
             End If
+
         Next
 
-        ' Update MetadataChart once
-        MetadataChart.Text = metadataBuilder.ToString()
 
-        numberofmetadatalines = lines.Count - numberlinesCSV
-        numberlinesCSV = lines.Count
+        ' ==========================================================
+        ' Update metadata
+        ' ==========================================================
 
+        MetadataChart.Text =
+        metadataBuilder.ToString()
+
+
+        numberofmetadatalines =
+        lines.Count - numberlinesCSV
+
+        numberlinesCSV =
+        lines.Count
+
+
+        ' ==========================================================
         ' Check if CSV has enough lines
+        ' ==========================================================
+
         If numberlinesCSV < 40 Then
+
             Loading.Visible = False
             Chart2.Visible = False
+
             Dialog2.Warning1 = "CSV file empty or too small!"
+
             Dialog2.Warning2 = "40 lines minimum, your CSV has " & numberlinesCSV & " lines"
+
             Dialog2.Warning3 = "( X-Axis labels may not display properly below 100 lines )"
+
             Dialog2.ShowDialog(Me)
+
             ChartOffReadyForCSV()
             PleaseLoadCSV.Visible = True
+
             Return
+
         End If
 
+
+        ' ==========================================================
         ' Check for missing delimiters
+        ' ==========================================================
+
         If String.IsNullOrEmpty(CSVdelimit) Then
+
             Loading.Visible = False
             Chart2.Visible = False
+
             Dialog2.Warning1 = "Inconsistent CSV - Delimiters missing"
+
             Dialog2.Warning2 = "Each line contains multiple data separated by , or ;"
+
             Dialog2.Warning3 = "Please fix and try again."
+
             Dialog2.ShowDialog(Me)
+
             ChartOffReadyForCSV()
             PleaseLoadCSV.Visible = True
+
             Return
+
         End If
 
+
+        ' ==========================================================
         ' Add rows to dataTable1 in bulk
+        ' ==========================================================
+
         dataTable1.BeginLoadData()
+
         For Each row As DataRow In rowsToAdd
             dataTable1.Rows.Add(row)
         Next
+
         dataTable1.EndLoadData()
 
+
+        ' ==========================================================
+        ' Enable statistics controls for V5 CSV
+        ' ==========================================================
+
+        If statsColumnsDetected = True Then
+
+            CheckPlaybackDev1Mean.Enabled = True
+            CheckPlaybackDev1Stdev.Enabled = True
+            CheckPlaybackDev1SEM.Enabled = True
+
+            CheckPlaybackDev2Mean.Enabled = True
+            CheckPlaybackDev2Stdev.Enabled = True
+            CheckPlaybackDev2SEM.Enabled = True
+
+        Else
+
+            CheckPlaybackDev1Mean.Enabled = False
+            CheckPlaybackDev1Stdev.Enabled = False
+            CheckPlaybackDev1SEM.Enabled = False
+
+            CheckPlaybackDev2Mean.Enabled = False
+            CheckPlaybackDev2Stdev.Enabled = False
+            CheckPlaybackDev2SEM.Enabled = False
+
+        End If
+
+
+        ' ==========================================================
+        ' Enable Max Diff / Deviation controls for V6 CSV only
+        ' ==========================================================
+
+        If v6ColumnsDetected = True Then
+
+            CheckPlaybackDev1MaxDiff.Enabled = True
+            CheckPlaybackDev1Deviation.Enabled = True
+
+            CheckPlaybackDev2MaxDiff.Enabled = True
+            CheckPlaybackDev2Deviation.Enabled = True
+
+        Else
+
+            CheckPlaybackDev1MaxDiff.Enabled = False
+            CheckPlaybackDev1Deviation.Enabled = False
+
+            CheckPlaybackDev2MaxDiff.Enabled = False
+            CheckPlaybackDev2Deviation.Enabled = False
+
+        End If
+
+
+        ' ==========================================================
         ' Check if dual devices exist and update UI
-        Devname1 = dataTable1.Rows(0).ItemArray(1).ToString()
-        Devname2 = dataTable1.Rows(1).ItemArray(1).ToString()
+        ' ==========================================================
+
+        Devname1 =
+        dataTable1.Rows(0).ItemArray(1).ToString()
+
+        Devname2 =
+        dataTable1.Rows(1).ItemArray(1).ToString()
+
 
         If Devname1 = Devname2 Then
+
             DualDev = False
+
             DeviceName1.Text = Devname1
             DeviceName2.Text = ""
+
             DisableDualDeviceControls()
+
         Else
+
             DualDev = True
+
             DeviceName1.Text = Devname1
             DeviceName2.Text = Devname2
+
             EnableDualDeviceControls()
+
         End If
+
+
+        ' ==========================================================
+        ' Median starting values
+        ' ==========================================================
 
         If Not DualDev Then
-            MedianValueCSV = dataTable1.Rows(0).ItemArray(3).ToString()
-            MedianTempCSV = dataTable1.Rows(0).ItemArray(4).ToString()
+
+            MedianValueCSV =
+            dataTable1.Rows(0).ItemArray(3).ToString()
+
+            MedianTempCSV =
+            dataTable1.Rows(0).ItemArray(4).ToString()
+
         ElseIf RadioButtonDev1.Checked Then
-            MedianValueCSV = dataTable1.Rows(0).ItemArray(3).ToString()
-            MedianTempCSV = dataTable1.Rows(0).ItemArray(4).ToString()
+
+            MedianValueCSV =
+            dataTable1.Rows(0).ItemArray(3).ToString()
+
+            MedianTempCSV =
+            dataTable1.Rows(0).ItemArray(4).ToString()
+
         ElseIf RadioButtonDev2.Checked Then
-            MedianValueCSV = dataTable1.Rows(1).ItemArray(3).ToString()
-            MedianTempCSV = dataTable1.Rows(1).ItemArray(4).ToString()
+
+            MedianValueCSV =
+            dataTable1.Rows(1).ItemArray(3).ToString()
+
+            MedianTempCSV =
+            dataTable1.Rows(1).ItemArray(4).ToString()
+
         End If
+
+
+        ' ==========================================================
+        ' Sample rate
+        ' ==========================================================
 
         If DualDev = False Then
-            Dim formatdata As String = "yyyy-MM-dd_HH:mm:ss"
-            ' Convert the first and third DATETIME entries to DateTime objects using the custom format
-            Dim DateTime8th As DateTime = DateTime.ParseExact(dataTable1.Rows(8)("DATETIME").ToString(), formatdata, System.Globalization.CultureInfo.InvariantCulture)
-            Dim DateTime9th As DateTime = DateTime.ParseExact(dataTable1.Rows(9)("DATETIME").ToString(), formatdata, System.Globalization.CultureInfo.InvariantCulture)
-            Dim timeDifference As TimeSpan = DateTime9th.Subtract(DateTime8th)            ' Calculate the difference as a TimeSpan
-            SampleRateSecs.Text = timeDifference.TotalSeconds            ' Get the difference in seconds
+
+            Dim formatdata As String =
+            "yyyy-MM-dd_HH:mm:ss"
+
+            Dim DateTime8th As DateTime =
+            DateTime.ParseExact(
+                dataTable1.Rows(8)("DATETIME").ToString(),
+                formatdata,
+                System.Globalization.CultureInfo.InvariantCulture)
+
+            Dim DateTime9th As DateTime =
+            DateTime.ParseExact(
+                dataTable1.Rows(9)("DATETIME").ToString(),
+                formatdata,
+                System.Globalization.CultureInfo.InvariantCulture)
+
+            Dim timeDifference As TimeSpan =
+            DateTime9th.Subtract(DateTime8th)
+
+            SampleRateSecs.Text =
+            timeDifference.TotalSeconds
+
         Else
-            Dim formatdata As String = "yyyy-MM-dd_HH:mm:ss"
-            ' Convert the first and third DATETIME entries to DateTime objects using the custom format
-            Dim DateTime8th As DateTime = DateTime.ParseExact(dataTable1.Rows(8)("DATETIME").ToString(), formatdata, System.Globalization.CultureInfo.InvariantCulture)
-            Dim DateTime10th As DateTime = DateTime.ParseExact(dataTable1.Rows(10)("DATETIME").ToString(), formatdata, System.Globalization.CultureInfo.InvariantCulture)
-            Dim timeDifference As TimeSpan = DateTime10th.Subtract(DateTime8th)            ' Calculate the difference as a TimeSpan
-            SampleRateSecs.Text = timeDifference.TotalSeconds            ' Get the difference in seconds
+
+            Dim formatdata As String =
+            "yyyy-MM-dd_HH:mm:ss"
+
+            Dim DateTime8th As DateTime =
+            DateTime.ParseExact(
+                dataTable1.Rows(8)("DATETIME").ToString(),
+                formatdata,
+                System.Globalization.CultureInfo.InvariantCulture)
+
+            Dim DateTime10th As DateTime =
+            DateTime.ParseExact(
+                dataTable1.Rows(10)("DATETIME").ToString(),
+                formatdata,
+                System.Globalization.CultureInfo.InvariantCulture)
+
+            Dim timeDifference As TimeSpan =
+            DateTime10th.Subtract(DateTime8th)
+
+            SampleRateSecs.Text =
+            timeDifference.TotalSeconds
+
         End If
 
-        ' Call methods to finalize the chart
+
+        ' ==========================================================
+        ' Finalize chart
+        ' ==========================================================
+
         CheckPathCSVfile()
         PrintXscale()
         GetMinMaxScales()
@@ -465,6 +1135,7 @@ Public Class Chart
 
         Loading.Visible = False
         PleaseLoadCSV.Visible = False
+
     End Sub
 
     Private Sub DisableDualDeviceControls()
@@ -476,6 +1147,24 @@ Public Class Chart
         Label22.Enabled = False
         Label17.Enabled = False
         Label9.Enabled = False
+
+        ' No Device 2 data at all in a single-device CSV, so force
+        ' every Dev.2 Playback checkbox off regardless of what the
+        ' V5/V6 column-detection block above set them to.
+        CheckPlaybackDev2Data.Checked = False
+        CheckPlaybackDev2Data.Enabled = False
+
+        CheckPlaybackDev2Mean.Checked = False
+        CheckPlaybackDev2Mean.Enabled = False
+        CheckPlaybackDev2Stdev.Checked = False
+        CheckPlaybackDev2Stdev.Enabled = False
+        CheckPlaybackDev2SEM.Checked = False
+        CheckPlaybackDev2SEM.Enabled = False
+
+        CheckPlaybackDev2MaxDiff.Checked = False
+        CheckPlaybackDev2MaxDiff.Enabled = False
+        CheckPlaybackDev2Deviation.Checked = False
+        CheckPlaybackDev2Deviation.Enabled = False
     End Sub
 
     Private Sub EnableDualDeviceControls()
@@ -496,10 +1185,17 @@ Public Class Chart
         Label22.Enabled = True
         Label17.Enabled = True
         Label9.Enabled = True
+
+        ' Dev.2 stats checkboxes (Mean/Stdev/SEM/MaxDiff/Deviation)
+        ' are left alone here - their Enabled state is already set
+        ' correctly by the V5/V6 column-detection block based on
+        ' what's actually in the CSV. Only the raw Dev.2 data
+        ' checkbox isn't covered by that block, so re-enable it here.
+        CheckPlaybackDev2Data.Enabled = True
     End Sub
 
 
-    Private Sub RefreshFile_Click(sender As Object, e As EventArgs) Handles RefreshFile.Click
+    Private Sub RefreshFile_Click(sender As Object, e As EventArgs)
 
         RefreshPlaybackCSVFile()
         'ShowAll()
@@ -521,7 +1217,7 @@ Public Class Chart
             EndRange = 500
             CentreRange = 0
 
-            Loading.Visible = True
+            'Loading.Visible = True
             Me.Refresh()
 
             BrowseFile = True
@@ -611,15 +1307,17 @@ Public Class Chart
                     ' Skip lines containing "//"
                     Continue For
                 End If
-                dataTable1.Rows.Add(line.Split(CSVdelimit))
+                AddPlaybackCSVRow(line)
             Next
 
             FilterDeviceName1()
             FilterDeviceName2()
             FilterTempDevice1()
             FilterHumDevice1()
+            GeneratePPMColumn()
             FilterGenPPMDevice1()
             FilterGenPPMDevice2()
+            UpdatePlaybackStatsSeries()
 
             'Get max and min values of Dev1 & Dev2, keep whichever is max/min value and use for setting scale
             GetMinMaxScales()
@@ -1039,9 +1737,9 @@ Public Class Chart
 
             If CheckBoxMaxMin.Checked Then
 
-                ' Initialize min and max values
-                'Dim maxValue As Double = Double.MinValue
-                'Dim minValue As Double = Double.MaxValue
+                ' Reset min and max before scanning the current data
+                maxValue = Double.MinValue
+                minValue = Double.MaxValue
 
                 ' Single loop to compute min and max values
                 For Each row As DataRow In dataTable1.Rows
@@ -1060,25 +1758,17 @@ Public Class Chart
                     YminFromDT -= YmaxFromDT / 1000
                 End If
 
-                ' Configure Y-axis based on LogYaxis checkbox
-                If LogYaxis.Checked Then
-                    Chart2.ChartAreas(0).AxisY.IsLogarithmic = True
-                    ButtonShiftUp.Enabled = False
-                    ButtonShiftDn.Enabled = False
-                    Chart2.ChartAreas(0).AxisY.Minimum = Math.Round(YminFromDT, 7)
-                    YaxisMinimum.Text = YminFromDT.ToString()
-                Else
-                    Chart2.ChartAreas(0).AxisY.IsLogarithmic = False
-                    ButtonShiftUp.Enabled = True
-                    ButtonShiftDn.Enabled = True
-                    Chart2.ChartAreas(0).AxisY.Maximum = Math.Round(YmaxFromDT, 7)
-                    Chart2.ChartAreas(0).AxisY.Minimum = Math.Round(YminFromDT, 7)
-                    YaxisMaximum.Text = YmaxFromDT.ToString()
-                    YaxisMinimum.Text = YminFromDT.ToString()
 
-                    Dim result As Double = (YmaxFromDT - YminFromDT) / 32
-                    YaxisPerDiv.Text = result.ToString("#0.000000000")
-                End If
+                Chart2.ChartAreas(0).AxisY.IsLogarithmic = False
+                ButtonShiftUp.Enabled = True
+                ButtonShiftDn.Enabled = True
+                Chart2.ChartAreas(0).AxisY.Maximum = Math.Round(YmaxFromDT, 7)
+                Chart2.ChartAreas(0).AxisY.Minimum = Math.Round(YminFromDT, 7)
+                YaxisMaximum.Text = YmaxFromDT.ToString()
+                YaxisMinimum.Text = YminFromDT.ToString()
+
+                Dim result As Double = (YmaxFromDT - YminFromDT) / 32
+                YaxisPerDiv.Text = result.ToString("#0.000000000")
 
                 ' Set axis interval
                 Chart2.ChartAreas(0).AxisY.Interval = (YmaxFromDT - YminFromDT) / 32
@@ -1100,350 +1790,20 @@ Public Class Chart
 
 
 
-            ' Generate PPM column in table from data
+            ' Generate PPM column in table from data, then plot it.
+            ' Extracted into GeneratePPMColumn() so zoom/scroll/shift
+            ' can also regenerate PPM values for whatever subset of
+            ' rows they just reloaded, instead of only ever running
+            ' once against the initial full load.
             If (CheckBoxPPMenable.Checked = True) Then
 
-                ' Set PPM scale vars for calc
-                Dim ppmscalerange As Double = PPMscalerangeentry.Text
+                GeneratePPMColumn()
 
-                If ppmscalerange > 198 Then
-                    ppmscalerange = 198
-                    PPMscalerangeentry.Text = "198"
-                End If
-                If ppmscalerange < 0.2 Then
-                    ppmscalerange = 0.2
-                    PPMscalerangeentry.Text = "0.2"
-                End If
-
-                ppmscalerangebit = (ppmscalerange / 2) / 12
-
-
-                ' Calculate PPM for given row
-                ' Get initial value/Temp from CSV if selected
-                If (CheckBoxMedianV.Checked = False) Then
-                    medianvalued = CDbl(Val(MedianValue.Text))
-                Else
-                    medianvalued = MedianValueCSV
-                    MedianValue.Text = MedianValueCSV
-                End If
-
-                If (CheckBoxMedianT.Checked = False) Then
-                    mediantempd = CDbl(Val(MedianTemp.Text))
-                Else
-                    mediantempd = MedianTempCSV
-                    MedianTemp.Text = MedianTempCSV
-                End If
-
-                Dim PPMdevice As String = ""
-                Dim YaxisMaximumVal As Double = Math.Round((CDbl(Val(YaxisMaximum.Text))), 7)
-                Dim YaxisMinimumVal As Double = Math.Round((CDbl(Val(YaxisMinimum.Text))), 7)
-                'Dim PPMscale As Double = ppmscalerange
-
-
-                ' Get device from radio buttons
-                If (RadioButtonDev1.Checked = True) Then
-                    PPMdevice = DeviceName1.Text
-                End If
-                If (RadioButtonDev2.Checked = True) Then
-                    PPMdevice = DeviceName2.Text
-                End If
-
-
-
-
-                ' Add PPM data to datatable - PPM Tempco calculation
-                ' See https://www.allaboutcircuits.com/technical-articles/understanding-the-temperature-coefficient-of-a-voltage-reference/
-                If (RadioButtonPPMTempo.Checked = True) Then
-
-
-                    If PPMdevice = DeviceName1.Text Then
-                        tempcounter = 0
-                        tempTEMPcounter = 0
-                    End If
-
-                    If PPMdevice = DeviceName2.Text Then
-                        tempcounter = 1
-                        tempTEMPcounter = 1
-                    End If
-
-
-                    ' loop
-                    For i = 0 To dataTable1.Rows.Count - 1
-                        If (dataTable1.Rows(i)("DEVICE")) = PPMdevice Then
-
-                            Dim PPMdegCrollingAverageValue As Double
-                            Dim TEMProllingAverageValue As Double
-
-                            If PPMdevice = DeviceName1.Text Then
-                                If DEV1avg.Text = "0" Then
-                                    ' Vars from CSV
-                                    variancevalue = Val((dataTable1.Rows(i)("VALUE")))
-
-                                    ' Use the corresponding rolling average value from the rollingAverageValues list
-                                    'variancevalue = DEV1rollingAverageValues(i)
-                                Else
-                                    ' Use the rolling average value from the Dev1rollingAverageValue list
-                                    PPMdegCrollingAverageValue = DEV1rollingAverageValues(tempcounter)
-                                    'tempcounter = tempcounter + 1
-                                    tempcounter += 1
-                                    If tempcounter = DEV1rollingAverageValues.Count Then         ' protect counter overruning past last entry
-                                        'tempcounter = tempcounter - 1
-                                        tempcounter -= 1
-                                    End If
-                                End If
-                            End If
-
-
-                            If PPMdevice = DeviceName2.Text Then
-                                If DEV2avg.Text = "0" Then
-                                    ' Vars from CSV
-                                    variancevalue = Val((dataTable1.Rows(i)("VALUE")))
-
-                                    ' Use the corresponding rolling average value from the rollingAverageValues list
-                                    'variancevalue = DEV1rollingAverageValues(i)
-                                Else
-                                    ' Use the rolling average value from the Dev1rollingAverageValue list
-                                    PPMdegCrollingAverageValue = DEV2rollingAverageValues(tempcounter)
-                                    'tempcounter = tempcounter + 1
-                                    tempcounter += 1
-                                    If tempcounter = DEV2rollingAverageValues.Count Then         ' protect counter overruning past last entry
-                                        'tempcounter = tempcounter - 1
-                                        tempcounter -= 1
-                                    End If
-                                End If
-                            End If
-
-
-                            If PlaybackTemp.Checked = True Then
-
-                                ' get Temp value either from csv data or from AVG list
-                                If TEMPavg.Text = "0" Then
-                                    variancetemp = Val((dataTable1.Rows(i)("TEMP")))
-                                    TEMProllingAverageValue = variancetemp      ' this is the value that is used later
-                                Else
-                                    ' Use the rolling average value from the TemprollingAverageValue list
-                                    TEMProllingAverageValue = TEMProllingAverageValues(tempTEMPcounter)
-                                    'variancetemp = TEMProllingAverageValues(tempTEMPcounter)
-                                    'tempTEMPcounter = tempTEMPcounter + 1
-                                    tempTEMPcounter += 1
-                                    If tempTEMPcounter = TEMProllingAverageValues.Count Then         ' protect counter overruning past last entry
-                                        'tempTEMPcounter = tempTEMPcounter - 1
-                                        tempTEMPcounter -= 1
-                                    End If
-                                End If
-
-                            End If
-
-
-                            ' hack to compensate for DIV/0 problem. Slightly adjust the temperature!
-                            If TEMProllingAverageValue = mediantempd Then       ' avoid DIV/0
-                                'TEMProllingAverageValue = TEMProllingAverageValue + 0.0000001
-                                TEMProllingAverageValue += 0.0000001
-                            End If
-
-
-                            If (TEMProllingAverageValue - mediantempd) <> 0 Then       ' avoid DIV/0
-
-                                ' Tempco calc
-
-                                If PPMdevice = DeviceName1.Text Then
-                                    If DEV1avg.Text = "0" Then
-                                        Vdiff = (variancevalue - medianvalued)
-                                    Else
-                                        Vdiff = (PPMdegCrollingAverageValue - medianvalued)
-                                    End If
-                                End If
-
-                                If PPMdevice = DeviceName2.Text Then
-                                    If DEV2avg.Text = "0" Then
-                                        Vdiff = (variancevalue - medianvalued)
-                                    Else
-                                        Vdiff = (PPMdegCrollingAverageValue - medianvalued)
-                                    End If
-                                End If
-
-                                ' so either Vdiff = (variancevalue - medianvalued)
-                                ' or it's   Vdiff = (PPMdegCrollingAverageValue - medianvalued)
-                                VnomTdiff = medianvalued * (TEMProllingAverageValue - mediantempd)
-                                calcppmvalue = (Vdiff / VnomTdiff) * 1000000
-
-
-                                ' limits of PPM scale - entered value = 40
-                                If calcppmvalue > 99 Then
-                                    calcppmvalue = 99
-                                End If
-                                If calcppmvalue < -99 Then
-                                    calcppmvalue = -99
-                                End If
-
-                                ' Adjust position of PPM graph on chart to suit right hand PPM scale - a hack!
-                                Dim offsetfactor As Double = ((YaxisMaximumVal - YaxisMinimumVal) / 2) + YaxisMinimumVal
-                                Dim scalefactor As Double = ((YaxisMaximumVal - YaxisMinimumVal) / ppmscalerange)
-                                'calcppmvalue = calcppmvalue * scalefactor
-                                calcppmvalue *= scalefactor
-                                'calcppmvalue = calcppmvalue + offsetfactor
-                                calcppmvalue += offsetfactor
-
-                                dataTable1.Rows(i)("PPM") = calcppmvalue
-
-                            Else        ' force PPM/DegC to 0.0 if variance and median values are exactly the same
-
-                                calcppmvalue = 0.00000001     ' protecting against DIV/0
-
-                                ' Adjust position of PPM graph on chart to suit right hand PPM scale - a hack!
-                                Dim offsetfactor As Double = ((YaxisMaximumVal - YaxisMinimumVal) / 2) + YaxisMinimumVal
-                                Dim scalefactor As Double = ((YaxisMaximumVal - YaxisMinimumVal) / ppmscalerange)
-                                'calcppmvalue = calcppmvalue * scalefactor
-                                calcppmvalue *= scalefactor
-                                'calcppmvalue = calcppmvalue + offsetfactor
-                                calcppmvalue += offsetfactor
-
-                                dataTable1.Rows(i)("PPM") = calcppmvalue
-
-                            End If
-                        End If
-                    Next
-                End If
-
-
-
-
-
-
-
-                ' Add PPM data to datatable - PPM Deviation
-                If (RadioButtonPPMDev.Checked = True) Then
-
-                    If PPMdevice = DeviceName1.Text Then
-                        tempcounter = 0
-                    End If
-
-                    If PPMdevice = DeviceName2.Text Then
-                        tempcounter = 1
-                    End If
-
-
-                    For i = 0 To dataTable1.Rows.Count - 1
-                        If (dataTable1.Rows(i)("DEVICE")) = PPMdevice Then
-
-                            Dim DeviationrollingAverageValue As Double
-
-
-                            If PPMdevice = DeviceName1.Text Then
-
-                                If DEV1avg.Text = "0" Then
-                                    ' Vars from CSV
-                                    variancevalue = Val((dataTable1.Rows(i)("VALUE")))
-
-                                    ' PPM Deviation calc
-                                    Vchange = (variancevalue - medianvalued)
-                                    'calcppmvalue = Vchange * 1000000
-                                Else
-                                    ' Use the rolling average value from the Dev1rollingAverageValue list
-                                    DeviationrollingAverageValue = DEV1rollingAverageValues(tempcounter)
-                                    'tempcounter = tempcounter + 1
-                                    tempcounter += 1
-                                    If tempcounter = DEV1rollingAverageValues.Count Then         ' protect counter overruning past last entry
-                                        'tempcounter = tempcounter - 1
-                                        tempcounter -= 1
-                                    End If
-
-                                End If
-
-                            End If
-
-
-                            If PPMdevice = DeviceName2.Text Then
-
-                                If DEV2avg.Text = "0" Then
-                                    ' Vars from CSV
-                                    variancevalue = Val((dataTable1.Rows(i)("VALUE")))
-
-                                Else
-                                    ' Use the rolling average value from the Dev1rollingAverageValue list
-                                    DeviationrollingAverageValue = DEV2rollingAverageValues(tempcounter)
-                                    'tempcounter = tempcounter + 1
-                                    tempcounter += 1
-                                    If tempcounter = DEV2rollingAverageValues.Count Then         ' protect counter overruning past last entry
-                                        'tempcounter = tempcounter - 1
-                                        tempcounter -= 1
-                                    End If
-
-                                End If
-
-                            End If
-
-
-                            If PPMdevice = DeviceName1.Text Then
-                                If DEV1avg.Text = "0" Then
-                                    Vchange = (variancevalue - medianvalued)
-                                Else
-                                    Vchange = (DeviationrollingAverageValue - medianvalued)
-                                End If
-                            End If
-
-
-                            If PPMdevice = DeviceName2.Text Then
-                                If DEV2avg.Text = "0" Then
-                                    Vchange = (variancevalue - medianvalued)
-                                Else
-                                    Vchange = (DeviationrollingAverageValue - medianvalued)
-                                End If
-                            End If
-
-
-                            ' PPM Deviation calc - Finish
-                            'Vchange = (variancevalue - medianvalued)
-                            calcppmvalue = Vchange * 1000000
-
-
-                            ' limits of PPM scale - entered value = 40
-                            If calcppmvalue > 99 Then
-                                calcppmvalue = 99
-                            End If
-                            If calcppmvalue < -99 Then
-                                calcppmvalue = -99
-                            End If
-
-                            ' Adjust position of PPM graph on chart to suit right hand PPM scale - a hack!
-                            Dim offsetfactor As Double = ((YaxisMaximumVal - YaxisMinimumVal) / 2) + YaxisMinimumVal
-                            Dim scalefactor As Double = ((YaxisMaximumVal - YaxisMinimumVal) / ppmscalerange)
-                            'calcppmvalue = calcppmvalue * scalefactor
-                            calcppmvalue *= scalefactor
-                            'calcppmvalue = calcppmvalue + offsetfactor
-                            calcppmvalue += offsetfactor
-
-
-                            dataTable1.Rows(i)("PPM") = calcppmvalue
-
-                        End If
-                    Next
-                End If
-
-
-                ' Add PPM to chart for device specified only
-                Dim selectedRows5() As DataRow = dataTable1.Select("DEVICE ='" & PPMdevice & "'")
-                'Add filtered data to series
-                For Each dr As DataRow In selectedRows5
-                    Chart2.Series(4).Points.AddXY(dr("DEVICE"), dr("PPM"))
-                Next
+                FilterGenPPMDevice1()
+                FilterGenPPMDevice2()
 
                 PrintYscale()
                 Yscaletidy()      ' Tidy up X-scale annotations on graph in order to keep length same irrespective of numerical data and No. DP's
-
-                ButtonScrollLeft.Enabled = False
-                ButtonScrollRight.Enabled = False
-                ButtonScrollLeftSMALL.Enabled = False
-                ButtonScrollRightSMALL.Enabled = False
-                ButtonZoomIn.Enabled = False
-                ButtonZoomOut.Enabled = False
-                ButtonYminInc.Enabled = False
-                ButtonYminDec.Enabled = False
-                ButtonYmaxInc.Enabled = False
-                ButtonYmaxDec.Enabled = False
-                ButtonDisplayAll.Enabled = False
-                ButtonShiftUp.Enabled = False
-                ButtonShiftDn.Enabled = False
 
                 LabelPPMtop.Visible = True
 
@@ -1570,6 +1930,19 @@ Public Class Chart
                 RangeReqd /= 2
                 RangeRequired.Text = RangeReqd / 2
 
+                ' For dual-device CSVs, each sample is TWO consecutive
+                ' lines (Dev1 then Dev2). Keep the window aligned to
+                ' whole pairs so zooming never splits a pair - otherwise
+                ' the two devices end up with mismatched sample counts
+                ' and drift out of alignment with each other.
+                If DualDev = True Then
+                    If CurrentPos Mod 2 <> 0 Then CurrentPos -= 1
+                    Dim windowLen As Integer = TargetPos - CurrentPos
+                    If windowLen Mod 2 <> 0 Then windowLen += 1
+                    TargetPos = CurrentPos + windowLen
+                    RangeReqd = windowLen
+                End If
+
                 ' check new settings and if any out of range then put them back
                 If (CurrentPos < 1 Or TargetPos > EndRange Or RangeReqd < 50) Then
                     CurrentPos = CurrentPosSave
@@ -1598,15 +1971,17 @@ Public Class Chart
                         ' Skip lines containing "//"
                         Continue For
                     End If
-                    dataTable1.Rows.Add(line.Split(CSVdelimit))
+                    AddPlaybackCSVRow(line)
                 Next
 
                 FilterDeviceName1()
                 FilterDeviceName2()
                 FilterTempDevice1()
                 FilterHumDevice1()
+                GeneratePPMColumn()
                 FilterGenPPMDevice1()
                 FilterGenPPMDevice2()
+                UpdatePlaybackStatsSeries()
 
                 'Get max and min values of Dev1 & Dev2, keep whichever is max/min value and use for setting scale
                 GetMinMaxScales()
@@ -1641,6 +2016,19 @@ Public Class Chart
                 'RangeReqd = RangeReqd * 2
                 RangeReqd *= 2
                 RangeRequired.Text = RangeReqd * 2
+
+                ' For dual-device CSVs, each sample is TWO consecutive
+                ' lines (Dev1 then Dev2). Keep the window aligned to
+                ' whole pairs so zooming never splits a pair - otherwise
+                ' the two devices end up with mismatched sample counts
+                ' and drift out of alignment with each other.
+                If DualDev = True Then
+                    If CurrentPos Mod 2 <> 0 Then CurrentPos -= 1
+                    Dim windowLen As Integer = TargetPos - CurrentPos
+                    If windowLen Mod 2 <> 0 Then windowLen += 1
+                    TargetPos = CurrentPos + windowLen
+                    RangeReqd = windowLen
+                End If
 
                 ' check new settings and if any out of range then put them back
                 'If (CurrentPos < 1 Or TargetPos > EndRange Or RangeReqd > EndRange) Then
@@ -1690,15 +2078,17 @@ Public Class Chart
                         ' Skip lines containing "//"
                         Continue For
                     End If
-                    dataTable1.Rows.Add(line.Split(CSVdelimit))
+                    AddPlaybackCSVRow(line)
                 Next
 
                 FilterDeviceName1()
                 FilterDeviceName2()
                 FilterTempDevice1()
                 FilterHumDevice1()
+                GeneratePPMColumn()
                 FilterGenPPMDevice1()
                 FilterGenPPMDevice2()
+                UpdatePlaybackStatsSeries()
 
                 PrintXscale()
                 GetMinMaxScales()                  'Get max and min values of Dev1 & Dev2, keep whichever is max/min value and use for setting scale
@@ -1779,15 +2169,17 @@ Public Class Chart
                         ' Skip lines containing "//"
                         Continue For
                     End If
-                    dataTable1.Rows.Add(line.Split(CSVdelimit))
+                    AddPlaybackCSVRow(line)
                 Next
 
                 FilterDeviceName1()
                 FilterDeviceName2()
                 FilterTempDevice1()
                 FilterHumDevice1()
+                GeneratePPMColumn()
                 FilterGenPPMDevice1()
                 FilterGenPPMDevice2()
+                UpdatePlaybackStatsSeries()
 
                 'Get max and min values of Dev1 & Dev2, keep whichever is max/min value and use for setting scale
                 GetMinMaxScales()
@@ -1864,15 +2256,17 @@ Public Class Chart
                         ' Skip lines containing "//"
                         Continue For
                     End If
-                    dataTable1.Rows.Add(line.Split(CSVdelimit))
+                    AddPlaybackCSVRow(line)
                 Next
 
                 FilterDeviceName1()
                 FilterDeviceName2()
                 FilterTempDevice1()
                 FilterHumDevice1()
+                GeneratePPMColumn()
                 FilterGenPPMDevice1()
                 FilterGenPPMDevice2()
+                UpdatePlaybackStatsSeries()
 
                 'Get max and min values of Dev1 & Dev2, keep whichever is max/min value and use for setting scale
                 GetMinMaxScales()
@@ -1939,15 +2333,17 @@ Public Class Chart
                         ' Skip lines containing "//"
                         Continue For
                     End If
-                    dataTable1.Rows.Add(line.Split(CSVdelimit))
+                    AddPlaybackCSVRow(line)
                 Next
 
                 FilterDeviceName1()
                 FilterDeviceName2()
                 FilterTempDevice1()
                 FilterHumDevice1()
+                GeneratePPMColumn()
                 FilterGenPPMDevice1()
                 FilterGenPPMDevice2()
+                UpdatePlaybackStatsSeries()
 
                 'Get max and min values of Dev1 & Dev2, keep whichever is max/min value and use for setting scale
                 GetMinMaxScales()
@@ -2020,15 +2416,17 @@ Public Class Chart
                         ' Skip lines containing "//"
                         Continue For
                     End If
-                    dataTable1.Rows.Add(line.Split(CSVdelimit))
+                    AddPlaybackCSVRow(line)
                 Next
 
                 FilterDeviceName1()
                 FilterDeviceName2()
                 FilterTempDevice1()
                 FilterHumDevice1()
+                GeneratePPMColumn()
                 FilterGenPPMDevice1()
                 FilterGenPPMDevice2()
+                UpdatePlaybackStatsSeries()
 
                 'Get max and min values of Dev1 & Dev2, keep whichever is max/min value and use for setting scale
                 GetMinMaxScales()
@@ -2081,15 +2479,17 @@ Public Class Chart
                         ' Skip lines containing "//"
                         Continue For
                     End If
-                    dataTable1.Rows.Add(line.Split(CSVdelimit))
+                    AddPlaybackCSVRow(line)
                 Next
 
                 FilterDeviceName1()
                 FilterDeviceName2()
                 FilterTempDevice1()
                 FilterHumDevice1()
+                GeneratePPMColumn()
                 FilterGenPPMDevice1()
                 FilterGenPPMDevice2()
+                UpdatePlaybackStatsSeries()
 
                 'Manual device scale setting
                 Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((CDbl(Val(YaxisMinimum.Text))), 7)
@@ -2145,15 +2545,17 @@ Public Class Chart
                         ' Skip lines containing "//"
                         Continue For
                     End If
-                    dataTable1.Rows.Add(line.Split(CSVdelimit))
+                    AddPlaybackCSVRow(line)
                 Next
 
                 FilterDeviceName1()
                 FilterDeviceName2()
                 FilterTempDevice1()
                 FilterHumDevice1()
+                GeneratePPMColumn()
                 FilterGenPPMDevice1()
                 FilterGenPPMDevice2()
+                UpdatePlaybackStatsSeries()
 
                 'Manual device scale setting
                 Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((CDbl(Val(YaxisMinimum.Text))), 7)
@@ -2176,7 +2578,7 @@ Public Class Chart
         ' Tidy up Y-scale annotations on graph in order to keep length same irrespective of numerical data and No. DP's
         If CheckBoxYscaletidy.Checked = True Then
             Dim x1 As String = CStr(YaxisMaximum.Text)   ' 0.9999995 or 999.0000000 etc
-            Dim x2 As String = CStr(YaxisMaximum.Text)   ' 0.9999995 or 999.0000000 etc
+            Dim x2 As String = CStr(YaxisMinimum.Text)   ' 0.9999995 or 999.0000000 etc
 
             Dim CountMaxAfter = x1.Length - InStr(x1, ".")    ' after DP     5.0000165 would give 7, 999.95606 would give 5
             Dim CountMinAfter = x2.Length - InStr(x2, ".")    ' after DP
@@ -2436,19 +2838,11 @@ Public Class Chart
             PPMscalerangeentry.Enabled = True
             PPMscaleText.Enabled = True
             CheckBoxMedianV.Enabled = True
-            ButtonScrollLeft.Enabled = False
-            ButtonScrollRight.Enabled = False
-            ButtonScrollLeftSMALL.Enabled = False
-            ButtonScrollRightSMALL.Enabled = False
-            ButtonZoomIn.Enabled = False
-            ButtonZoomOut.Enabled = False
-            ButtonYminInc.Enabled = False
-            ButtonYminDec.Enabled = False
-            ButtonYmaxInc.Enabled = False
-            ButtonYmaxDec.Enabled = False
-            ButtonDisplayAll.Enabled = False
-            ButtonShiftUp.Enabled = False
-            ButtonShiftDn.Enabled = False
+            ' Scroll/Zoom/Y-adjust/Shift used to be disabled here
+            ' because enabling PPM mode never regenerated PPM values
+            ' for a reloaded subset (see GeneratePPMColumn()) - now
+            ' that every reload regenerates PPM correctly, these stay
+            ' enabled while PPM is on.
         Else
             CheckBoxMedianT.Enabled = False
             MedianTempText.Enabled = False
@@ -2697,6 +3091,346 @@ Public Class Chart
     End Sub
 
 
+    Private Sub GeneratePPMColumn()
+
+        ' Computes the PPM column for whatever rows currently sit in
+        ' dataTable1 - the initial full load, or a zoomed/scrolled/
+        ' shifted subset. Callers are responsible for having already
+        ' reloaded dataTable1 (and rebuilt the rolling-average lists
+        ' via FilterDeviceName1/2 and FilterTempDevice1, which happens
+        ' automatically since those always run before this is called)
+        ' for whatever range is currently in view.
+
+        If (CheckBoxPPMenable.Checked = False) Then Exit Sub
+
+        ' Set PPM scale vars for calc
+        Dim ppmscalerange As Double
+
+        Dim ppmText As String =
+PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
+
+        If Not Double.TryParse(ppmText, ppmscalerange) Then
+
+            ppmscalerange = 40
+            PPMscalerangeentry.Text = "40"
+
+        End If
+
+        If ppmscalerange > 198 Then
+
+            ppmscalerange = 198
+            PPMscalerangeentry.Text = "198"
+
+        ElseIf ppmscalerange < 0.2 Then
+
+            ppmscalerange = 0.2
+            PPMscalerangeentry.Text = "0.2"
+
+        End If
+
+        ppmscalerangebit = (ppmscalerange / 2) / 12
+
+
+        ' Calculate PPM for given row
+        ' Get initial value/Temp from CSV if selected
+        If (CheckBoxMedianV.Checked = False) Then
+            medianvalued = CDbl(Val(MedianValue.Text))
+        Else
+            medianvalued = MedianValueCSV
+            MedianValue.Text = MedianValueCSV
+        End If
+
+        If (CheckBoxMedianT.Checked = False) Then
+            mediantempd = CDbl(Val(MedianTemp.Text))
+        Else
+            mediantempd = MedianTempCSV
+            MedianTemp.Text = MedianTempCSV
+        End If
+
+        Dim PPMdevice As String = ""
+        Dim YaxisMaximumVal As Double = Math.Round((CDbl(Val(YaxisMaximum.Text))), 7)
+        Dim YaxisMinimumVal As Double = Math.Round((CDbl(Val(YaxisMinimum.Text))), 7)
+        'Dim PPMscale As Double = ppmscalerange
+
+
+        ' Get device from radio buttons
+        If (RadioButtonDev1.Checked = True) Then
+            PPMdevice = DeviceName1.Text
+        End If
+        If (RadioButtonDev2.Checked = True) Then
+            PPMdevice = DeviceName2.Text
+        End If
+
+
+
+
+        ' Add PPM data to datatable - PPM Tempco calculation
+        ' See https://www.allaboutcircuits.com/technical-articles/understanding-the-temperature-coefficient-of-a-voltage-reference/
+        If (RadioButtonPPMTempo.Checked = True) Then
+
+
+            If PPMdevice = DeviceName1.Text Then
+                tempcounter = 0
+                tempTEMPcounter = 0
+            End If
+
+            If PPMdevice = DeviceName2.Text Then
+                tempcounter = 1
+                tempTEMPcounter = 1
+            End If
+
+
+            ' loop
+            For i = 0 To dataTable1.Rows.Count - 1
+                If (dataTable1.Rows(i)("DEVICE")) = PPMdevice Then
+
+                    Dim PPMdegCrollingAverageValue As Double
+                    Dim TEMProllingAverageValue As Double
+
+                    If PPMdevice = DeviceName1.Text Then
+                        If DEV1avg.Text = "0" Then
+                            ' Vars from CSV
+                            variancevalue = Val((dataTable1.Rows(i)("VALUE")))
+
+                            ' Use the corresponding rolling average value from the rollingAverageValues list
+                            'variancevalue = DEV1rollingAverageValues(i)
+                        Else
+                            ' Use the rolling average value from the Dev1rollingAverageValue list
+                            PPMdegCrollingAverageValue = DEV1rollingAverageValues(tempcounter)
+                            'tempcounter = tempcounter + 1
+                            tempcounter += 1
+                            If tempcounter = DEV1rollingAverageValues.Count Then         ' protect counter overruning past last entry
+                                'tempcounter = tempcounter - 1
+                                tempcounter -= 1
+                            End If
+                        End If
+                    End If
+
+
+                    If PPMdevice = DeviceName2.Text Then
+                        If DEV2avg.Text = "0" Then
+                            ' Vars from CSV
+                            variancevalue = Val((dataTable1.Rows(i)("VALUE")))
+
+                            ' Use the corresponding rolling average value from the rollingAverageValues list
+                            'variancevalue = DEV1rollingAverageValues(i)
+                        Else
+                            ' Use the rolling average value from the Dev1rollingAverageValue list
+                            PPMdegCrollingAverageValue = DEV2rollingAverageValues(tempcounter)
+                            'tempcounter = tempcounter + 1
+                            tempcounter += 1
+                            If tempcounter = DEV2rollingAverageValues.Count Then         ' protect counter overruning past last entry
+                                'tempcounter = tempcounter - 1
+                                tempcounter -= 1
+                            End If
+                        End If
+                    End If
+
+
+                    If PlaybackTemp.Checked = True Then
+
+                        ' get Temp value either from csv data or from AVG list
+                        If TEMPavg.Text = "0" Then
+                            variancetemp = Val((dataTable1.Rows(i)("TEMP")))
+                            TEMProllingAverageValue = variancetemp      ' this is the value that is used later
+                        Else
+                            ' Use the rolling average value from the TemprollingAverageValue list
+                            TEMProllingAverageValue = TEMProllingAverageValues(tempTEMPcounter)
+                            'variancetemp = TEMProllingAverageValues(tempTEMPcounter)
+                            'tempTEMPcounter = tempTEMPcounter + 1
+                            tempTEMPcounter += 1
+                            If tempTEMPcounter = TEMProllingAverageValues.Count Then         ' protect counter overruning past last entry
+                                'tempTEMPcounter = tempTEMPcounter - 1
+                                tempTEMPcounter -= 1
+                            End If
+                        End If
+
+                    End If
+
+
+                    ' hack to compensate for DIV/0 problem. Slightly adjust the temperature!
+                    If TEMProllingAverageValue = mediantempd Then       ' avoid DIV/0
+                        'TEMProllingAverageValue = TEMProllingAverageValue + 0.0000001
+                        TEMProllingAverageValue += 0.0000001
+                    End If
+
+
+                    If (TEMProllingAverageValue - mediantempd) <> 0 Then       ' avoid DIV/0
+
+                        ' Tempco calc
+
+                        If PPMdevice = DeviceName1.Text Then
+                            If DEV1avg.Text = "0" Then
+                                Vdiff = (variancevalue - medianvalued)
+                            Else
+                                Vdiff = (PPMdegCrollingAverageValue - medianvalued)
+                            End If
+                        End If
+
+                        If PPMdevice = DeviceName2.Text Then
+                            If DEV2avg.Text = "0" Then
+                                Vdiff = (variancevalue - medianvalued)
+                            Else
+                                Vdiff = (PPMdegCrollingAverageValue - medianvalued)
+                            End If
+                        End If
+
+                        ' so either Vdiff = (variancevalue - medianvalued)
+                        ' or it's   Vdiff = (PPMdegCrollingAverageValue - medianvalued)
+                        VnomTdiff = medianvalued * (TEMProllingAverageValue - mediantempd)
+                        calcppmvalue = (Vdiff / VnomTdiff) * 1000000
+
+
+                        ' limits of PPM scale - entered value = 40
+                        If calcppmvalue > 99 Then
+                            calcppmvalue = 99
+                        End If
+                        If calcppmvalue < -99 Then
+                            calcppmvalue = -99
+                        End If
+
+                        ' Adjust position of PPM graph on chart to suit right hand PPM scale - a hack!
+                        Dim offsetfactor As Double = ((YaxisMaximumVal - YaxisMinimumVal) / 2) + YaxisMinimumVal
+                        Dim scalefactor As Double = ((YaxisMaximumVal - YaxisMinimumVal) / ppmscalerange)
+                        'calcppmvalue = calcppmvalue * scalefactor
+                        calcppmvalue *= scalefactor
+                        'calcppmvalue = calcppmvalue + offsetfactor
+                        calcppmvalue += offsetfactor
+
+                        dataTable1.Rows(i)("PPM") = calcppmvalue
+
+                    Else        ' force PPM/DegC to 0.0 if variance and median values are exactly the same
+
+                        calcppmvalue = 0.00000001     ' protecting against DIV/0
+
+                        ' Adjust position of PPM graph on chart to suit right hand PPM scale - a hack!
+                        Dim offsetfactor As Double = ((YaxisMaximumVal - YaxisMinimumVal) / 2) + YaxisMinimumVal
+                        Dim scalefactor As Double = ((YaxisMaximumVal - YaxisMinimumVal) / ppmscalerange)
+                        'calcppmvalue = calcppmvalue * scalefactor
+                        calcppmvalue *= scalefactor
+                        'calcppmvalue = calcppmvalue + offsetfactor
+                        calcppmvalue += offsetfactor
+
+                        dataTable1.Rows(i)("PPM") = calcppmvalue
+
+                    End If
+                End If
+            Next
+        End If
+
+
+        ' Add PPM data to datatable - PPM Deviation
+        If (RadioButtonPPMDev.Checked = True) Then
+
+            If PPMdevice = DeviceName1.Text Then
+                tempcounter = 0
+            End If
+
+            If PPMdevice = DeviceName2.Text Then
+                tempcounter = 1
+            End If
+
+
+            For i = 0 To dataTable1.Rows.Count - 1
+                If (dataTable1.Rows(i)("DEVICE")) = PPMdevice Then
+
+                    Dim DeviationrollingAverageValue As Double
+
+
+                    If PPMdevice = DeviceName1.Text Then
+
+                        If DEV1avg.Text = "0" Then
+                            ' Vars from CSV
+                            variancevalue = Val((dataTable1.Rows(i)("VALUE")))
+
+                            ' PPM Deviation calc
+                            Vchange = (variancevalue - medianvalued)
+                            'calcppmvalue = Vchange * 1000000
+                        Else
+                            ' Use the rolling average value from the Dev1rollingAverageValue list
+                            DeviationrollingAverageValue = DEV1rollingAverageValues(tempcounter)
+                            'tempcounter = tempcounter + 1
+                            tempcounter += 1
+                            If tempcounter = DEV1rollingAverageValues.Count Then         ' protect counter overruning past last entry
+                                'tempcounter = tempcounter - 1
+                                tempcounter -= 1
+                            End If
+
+                        End If
+
+                    End If
+
+
+                    If PPMdevice = DeviceName2.Text Then
+
+                        If DEV2avg.Text = "0" Then
+                            ' Vars from CSV
+                            variancevalue = Val((dataTable1.Rows(i)("VALUE")))
+
+                        Else
+                            ' Use the rolling average value from the Dev1rollingAverageValue list
+                            DeviationrollingAverageValue = DEV2rollingAverageValues(tempcounter)
+                            'tempcounter = tempcounter + 1
+                            tempcounter += 1
+                            If tempcounter = DEV2rollingAverageValues.Count Then         ' protect counter overruning past last entry
+                                'tempcounter = tempcounter - 1
+                                tempcounter -= 1
+                            End If
+
+                        End If
+
+                    End If
+
+
+                    If PPMdevice = DeviceName1.Text Then
+                        If DEV1avg.Text = "0" Then
+                            Vchange = (variancevalue - medianvalued)
+                        Else
+                            Vchange = (DeviationrollingAverageValue - medianvalued)
+                        End If
+                    End If
+
+
+                    If PPMdevice = DeviceName2.Text Then
+                        If DEV2avg.Text = "0" Then
+                            Vchange = (variancevalue - medianvalued)
+                        Else
+                            Vchange = (DeviationrollingAverageValue - medianvalued)
+                        End If
+                    End If
+
+
+                    ' PPM Deviation calc - Finish
+                    'Vchange = (variancevalue - medianvalued)
+                    calcppmvalue = Vchange * 1000000
+
+
+                    ' limits of PPM scale - entered value = 40
+                    If calcppmvalue > 99 Then
+                        calcppmvalue = 99
+                    End If
+                    If calcppmvalue < -99 Then
+                        calcppmvalue = -99
+                    End If
+
+                    ' Adjust position of PPM graph on chart to suit right hand PPM scale - a hack!
+                    Dim offsetfactor As Double = ((YaxisMaximumVal - YaxisMinimumVal) / 2) + YaxisMinimumVal
+                    Dim scalefactor As Double = ((YaxisMaximumVal - YaxisMinimumVal) / ppmscalerange)
+                    'calcppmvalue = calcppmvalue * scalefactor
+                    calcppmvalue *= scalefactor
+                    'calcppmvalue = calcppmvalue + offsetfactor
+                    calcppmvalue += offsetfactor
+
+
+                    dataTable1.Rows(i)("PPM") = calcppmvalue
+
+                End If
+            Next
+        End If
+
+    End Sub
+
+
     Private Sub FilterGenPPMDevice1()
 
         ' Filter Dev 1 generated PPM 
@@ -2754,13 +3488,13 @@ Public Class Chart
             If (CheckX1000000.Checked = True Or CheckX1000.Checked = True) Then
 
                 If (CheckX1000000.Checked = True) Then
-                    Dev1MaxMin.Text = (Dev1MaxD - Dev1MinD) * 1000000
+                    Dev1MaxMin.Text = ((Dev1MaxD - Dev1MinD) * 1000000).ToString("0.#########")
                 End If
                 If (CheckX1000.Checked = True) Then
-                    Dev1MaxMin.Text = (Dev1MaxD - Dev1MinD) * 1000
+                    Dev1MaxMin.Text = ((Dev1MaxD - Dev1MinD) * 1000).ToString("0.#########")
                 End If
             Else
-                Dev1MaxMin.Text = CDec(Dev1MaxD - Dev1MinD)     ' e-notation to decimal
+                Dev1MaxMin.Text = CDec(Dev1MaxD - Dev1MinD).ToString("0.#########")     ' e-notation to decimal, max 9 DP
             End If
         End If
 
@@ -2786,13 +3520,17 @@ Public Class Chart
             If (CheckX1000000.Checked = True Or CheckX1000.Checked = True) Then
 
                 If (CheckX1000000.Checked = True) Then
-                    Dev2MaxMin.Text = (Dev2MaxD - Dev2MinD) * 1000000
+                    Dev2MaxMin.Text = ((Dev2MaxD - Dev2MinD) * 1000000).ToString("0.#########")
                 End If
+
                 If (CheckX1000.Checked = True) Then
-                    Dev2MaxMin.Text = (Dev2MaxD - Dev2MinD) * 1000
+                    Dev2MaxMin.Text = ((Dev2MaxD - Dev2MinD) * 1000).ToString("0.#########")
                 End If
+
             Else
-                Dev2MaxMin.Text = CDec(Dev2MaxD - Dev2MinD)     ' e-notation to decimal
+
+                Dev2MaxMin.Text = CDec(Dev2MaxD - Dev2MinD).ToString("0.#########")     ' e-notation to decimal, max 9 DP
+
             End If
 
         End If
@@ -2802,53 +3540,7 @@ Public Class Chart
 
 
 
-    Private Sub Screenshot_Click(sender As Object, e As EventArgs) Handles Screenshot.Click
 
-        FormBorderStyle = BorderStyle.None ' Set control's border style none
-
-        ' Force the form to repaint before taking the screenshot
-        Update()
-
-        ' Capture entire form or graph only
-        If CheckBoxGraphOnly.Checked = True Then
-
-            ' Define the rectangle representing the region to capture
-            Dim captureRect As New Rectangle(60, 190, 1350, 695) ' Adjust these values as needed
-
-            ' Create a bitmap to store the screenshot
-            Using bmp As New Bitmap(captureRect.Width, captureRect.Height)
-                Using g As Graphics = Graphics.FromImage(bmp)
-                    ' Capture the specified region of the form
-                    g.CopyFromScreen(Me.PointToScreen(captureRect.Location), Point.Empty, captureRect.Size)
-                End Using
-
-                ' Save the screenshot
-                bmp.Save(PlaybackstrPath & "\" & DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") & "_Log.png", Drawing.Imaging.ImageFormat.Png)
-            End Using
-
-        Else
-
-            ' Capture the entire form as an image
-            Dim bmp As New Bitmap(Me.Width, Me.Height)
-            Using g As Graphics = Graphics.FromImage(bmp)
-                g.CopyFromScreen(Me.PointToScreen(New Point(0, 0)), New Point(0, 0), Me.Size)
-            End Using
-
-            ' Save the screenshot
-            bmp.Save(PlaybackstrPath & "\" & DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") & "_Log.png", Drawing.Imaging.ImageFormat.Png)
-        End If
-
-
-
-        FormBorderStyle = BorderStyle.FixedSingle ' Set control's border style none
-
-        Dialog2.Warning1 = "Screenshot saved as:"
-        Dialog2.Warning2 = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") & "_Log.png"
-        Dialog2.Warning3 = ""
-        'Dialog2.Show() ' this method positions anywhere!
-        Dialog2.ShowDialog(Me)  ' this method positions center of the parent form and requires hitting OK to return back to the parent
-
-    End Sub
 
 
 
@@ -2865,10 +3557,6 @@ Public Class Chart
         If CheckBoxMaxMin.Checked Then
             axisYMax = Math.Round(CDbl(YmaxFromDT), 7)
             axisYMin = Math.Round(CDbl(YminFromDT), 7)
-
-            If LogYaxis.Checked AndAlso (axisYMin - ((YmaxFromDT - YminFromDT) / 10) < 0) Then
-                axisYMin = Math.Round(YminFromDT, 7)
-            End If
 
             Chart2.ChartAreas(0).AxisY.Maximum = axisYMax
             Chart2.ChartAreas(0).AxisY.Minimum = axisYMin
@@ -2938,7 +3626,7 @@ Public Class Chart
 
     End Sub
 
-    Private Sub LogYaxis_CheckedChanged(sender As Object, e As EventArgs) Handles LogYaxis.CheckedChanged
+    Private Sub LogYaxis_CheckedChanged(sender As Object, e As EventArgs)
 
         RefreshPlaybackCSVFile()
 
@@ -3273,17 +3961,30 @@ Public Class Chart
 
     Private Sub PPMscalerangeentry_TextChanged(sender As Object, e As EventArgs) Handles PPMscalerangeentry.TextChanged
 
-        'If Not String.IsNullOrEmpty(PPMscalerangeentry.Text) Then
-        'RefreshPlaybackCSVFile()
-        'End If
+        Dim userInput As String =
+        PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
 
-        ' checks for numbers and that it's not empty before applying
+        Dim value As Double
 
-        Dim userInput As String = PPMscalerangeentry.Text.Trim()
-        Dim isNumeric As Boolean = Integer.TryParse(userInput, Nothing)
+        If Double.TryParse(userInput, value) Then
 
-        If Not String.IsNullOrEmpty(userInput) AndAlso isNumeric Then
+            If value > 198 Then value = 198
+            If value < 0.2 Then value = 0.2
+
+            Dim correctedText As String = value.ToString("0.###")
+
+            If PPMscalerangeentry.Text <> correctedText Then
+
+                PPMscalerangeentry.Text = correctedText
+                PPMscalerangeentry.SelectionStart =
+                PPMscalerangeentry.Text.Length
+
+                Exit Sub
+
+            End If
+
             RefreshPlaybackCSVFile()
+
         End If
 
     End Sub
@@ -3501,13 +4202,13 @@ Public Class Chart
 
             If (CheckX1000000.Checked = True Or CheckX1000.Checked = True) Then
                 If (CheckX1000000.Checked = True) Then
-                    RMSaverageDev1.Text = $"{rmsNoise:F10}" * 1000000
+                    RMSaverageDev1.Text = (rmsNoise * 1000000).ToString("0.#########")
                 End If
                 If (CheckX1000.Checked = True) Then
-                    RMSaverageDev1.Text = $"{rmsNoise:F10}" * 1000
+                    RMSaverageDev1.Text = (rmsNoise * 1000).ToString("0.#########")
                 End If
             Else
-                RMSaverageDev1.Text = $"{rmsNoise:F10}"
+                RMSaverageDev1.Text = rmsNoise.ToString("0.#########")
             End If
 
         End If
@@ -3561,14 +4262,19 @@ Public Class Chart
             'Console.WriteLine($"RMS Noise: {rmsNoise:F10}")
 
             If (CheckX1000000.Checked = True Or CheckX1000.Checked = True) Then
+
                 If (CheckX1000000.Checked = True) Then
-                    RMSaverageDev2.Text = $"{rmsNoise:F10}" * 1000000
+                    RMSaverageDev2.Text = (rmsNoise * 1000000).ToString("0.#########")
                 End If
+
                 If (CheckX1000.Checked = True) Then
-                    RMSaverageDev2.Text = $"{rmsNoise:F10}" * 1000
+                    RMSaverageDev2.Text = (rmsNoise * 1000).ToString("0.#########")
                 End If
+
             Else
-                RMSaverageDev2.Text = $"{rmsNoise:F10}"
+
+                RMSaverageDev2.Text = rmsNoise.ToString("0.#########")
+
             End If
 
         End If
@@ -3620,7 +4326,7 @@ Public Class Chart
 
                 ' TextBox inside
                 tb.BorderStyle = BorderStyle.None
-                tb.Multiline = True
+                'tb.Multiline = True
                 tb.Dock = DockStyle.Fill
                 tb.Margin = New Padding(0)
 
@@ -3672,6 +4378,425 @@ Public Class Chart
         End While
     End Function
 
+
+    Private Sub AddPlaybackCSVRow(line As String)
+
+        If String.IsNullOrWhiteSpace(line) Then Exit Sub
+        If line.TrimStart().StartsWith("//") Then Exit Sub
+        If String.IsNullOrEmpty(CSVdelimit) Then Exit Sub
+
+        Dim values As String() =
+            line.Split(New String() {CSVdelimit},
+                       StringSplitOptions.None)
+
+        ' Old WinGPIB CSV requires at least the original 6 fields.
+        If values.Length < 6 Then Exit Sub
+
+        If Not IsNumeric(values(0)) Then Exit Sub
+
+        Dim row As DataRow = dataTable1.NewRow()
+
+        ' ==========================================================
+        ' Standard fields - old and new CSV
+        ' ==========================================================
+
+        row("INDEX") = CInt(Val(values(0)))
+        row("DEVICE") = values(1)
+        row("DATETIME") = values(2)
+
+        row("VALUE") = CDbl(Val(values(3)))
+        row("TEMP") = CDbl(Val(values(4)))
+        row("HUM") = CDbl(Val(values(5)))
+
+
+        ' ==========================================================
+        ' V5 statistics fields
+        ' ==========================================================
+
+        If values.Length >= 16 Then
+
+            row("DEV1_SAMPLES") = values(6)
+            row("DEV1_MEAN") = values(7)
+            row("DEV1_STDEV") = values(8)
+            row("DEV1_SEM") = values(9)
+            row("DEV1_GAIN") = values(10)
+
+            row("DEV2_SAMPLES") = values(11)
+            row("DEV2_MEAN") = values(12)
+            row("DEV2_STDEV") = values(13)
+            row("DEV2_SEM") = values(14)
+            row("DEV2_GAIN") = values(15)
+
+        Else
+
+            ' Old CSV - statistics do not exist.
+            row("DEV1_SAMPLES") = ""
+            row("DEV1_MEAN") = ""
+            row("DEV1_STDEV") = ""
+            row("DEV1_SEM") = ""
+            row("DEV1_GAIN") = ""
+
+            row("DEV2_SAMPLES") = ""
+            row("DEV2_MEAN") = ""
+            row("DEV2_STDEV") = ""
+            row("DEV2_SEM") = ""
+            row("DEV2_GAIN") = ""
+
+        End If
+
+
+        ' ==========================================================
+        ' V6 statistics fields (Max Diff / Deviation) - appended
+        ' after the original V5 block, so V5 CSVs (exactly 16
+        ' fields) still load correctly with these left blank.
+        ' ==========================================================
+
+        If values.Length >= 20 Then
+
+            row("DEV1_MAXDIFF") = values(16)
+            row("DEV1_DEVIATION") = values(17)
+            row("DEV2_MAXDIFF") = values(18)
+            row("DEV2_DEVIATION") = values(19)
+
+        Else
+
+            row("DEV1_MAXDIFF") = ""
+            row("DEV1_DEVIATION") = ""
+            row("DEV2_MAXDIFF") = ""
+            row("DEV2_DEVIATION") = ""
+
+        End If
+
+
+        ' PPM is calculated by Playback.
+        row("PPM") = 0.0
+
+        dataTable1.Rows.Add(row)
+
+    End Sub
+
+
+    Private Sub FilterDev1Mean()
+
+        Chart2.Series(5).Points.Clear()
+
+        If CheckPlaybackDev1Mean.Checked = False Then Exit Sub
+        If DeviceName1.Text = "" Then Exit Sub
+
+        Dim selectedRows() As DataRow =
+        dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
+
+        For Each dr As DataRow In selectedRows
+
+            Dim s As String = dr("DEV1_MEAN").ToString().Trim()
+
+            If s <> "" AndAlso s.ToLower() <> "nil" Then
+                Chart2.Series(5).Points.AddXY(
+                dr("DEVICE"),
+                CDbl(Val(s)))
+            End If
+
+        Next
+
+    End Sub
+
+
+    Private Sub FilterDev1Stdev()
+
+        Chart2.Series(6).Points.Clear()
+
+        If CheckPlaybackDev1Stdev.Checked = False Then Exit Sub
+        If DeviceName1.Text = "" Then Exit Sub
+
+        Dim selectedRows() As DataRow =
+        dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
+
+        For Each dr As DataRow In selectedRows
+
+            Dim s As String = dr("DEV1_STDEV").ToString().Trim()
+
+            If s <> "" AndAlso s.ToLower() <> "nil" Then
+                Chart2.Series(6).Points.AddXY(
+                dr("DEVICE"),
+                CDbl(Val(s)))
+            End If
+
+        Next
+
+    End Sub
+
+
+    Private Sub FilterDev1SEM()
+
+        Chart2.Series(7).Points.Clear()
+
+        If CheckPlaybackDev1SEM.Checked = False Then Exit Sub
+        If DeviceName1.Text = "" Then Exit Sub
+
+        Dim selectedRows() As DataRow =
+        dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
+
+        For Each dr As DataRow In selectedRows
+
+            Dim s As String = dr("DEV1_SEM").ToString().Trim()
+
+            If s <> "" AndAlso s.ToLower() <> "nil" Then
+                Chart2.Series(7).Points.AddXY(
+                dr("DEVICE"),
+                CDbl(Val(s)))
+            End If
+
+        Next
+
+    End Sub
+
+
+    Private Sub FilterDev2Mean()
+
+        Chart2.Series(8).Points.Clear()
+
+        If CheckPlaybackDev2Mean.Checked = False Then Exit Sub
+        If DeviceName2.Text = "" Then Exit Sub
+
+        Dim selectedRows() As DataRow =
+        dataTable1.Select("DEVICE ='" & DeviceName2.Text & "'")
+
+        For Each dr As DataRow In selectedRows
+
+            Dim s As String = dr("DEV2_MEAN").ToString().Trim()
+
+            If s <> "" AndAlso s.ToLower() <> "nil" Then
+                Chart2.Series(8).Points.AddXY(
+                dr("DEVICE"),
+                CDbl(Val(s)))
+            End If
+
+        Next
+
+    End Sub
+
+
+    Private Sub FilterDev2Stdev()
+
+        Chart2.Series(9).Points.Clear()
+
+        If CheckPlaybackDev2Stdev.Checked = False Then Exit Sub
+        If DeviceName2.Text = "" Then Exit Sub
+
+        Dim selectedRows() As DataRow =
+        dataTable1.Select("DEVICE ='" & DeviceName2.Text & "'")
+
+        For Each dr As DataRow In selectedRows
+
+            Dim s As String = dr("DEV2_STDEV").ToString().Trim()
+
+            If s <> "" AndAlso s.ToLower() <> "nil" Then
+                Chart2.Series(9).Points.AddXY(
+                dr("DEVICE"),
+                CDbl(Val(s)))
+            End If
+
+        Next
+
+    End Sub
+
+
+    Private Sub FilterDev2SEM()
+
+        Chart2.Series(10).Points.Clear()
+
+        If CheckPlaybackDev2SEM.Checked = False Then Exit Sub
+        If DeviceName2.Text = "" Then Exit Sub
+
+        Dim selectedRows() As DataRow =
+        dataTable1.Select("DEVICE ='" & DeviceName2.Text & "'")
+
+        For Each dr As DataRow In selectedRows
+
+            Dim s As String = dr("DEV2_SEM").ToString().Trim()
+
+            If s <> "" AndAlso s.ToLower() <> "nil" Then
+                Chart2.Series(10).Points.AddXY(
+                dr("DEVICE"),
+                CDbl(Val(s)))
+            End If
+
+        Next
+
+    End Sub
+
+
+    Private Sub FilterDev1MaxDiff()
+
+        Chart2.Series(11).Points.Clear()
+
+        If CheckPlaybackDev1MaxDiff.Checked = False Then Exit Sub
+        If DeviceName1.Text = "" Then Exit Sub
+
+        Dim selectedRows() As DataRow =
+        dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
+
+        For Each dr As DataRow In selectedRows
+
+            Dim s As String = dr("DEV1_MAXDIFF").ToString().Trim()
+
+            If s <> "" AndAlso s.ToLower() <> "nil" Then
+                Chart2.Series(11).Points.AddXY(
+                dr("DEVICE"),
+                CDbl(Val(s)))
+            End If
+
+        Next
+
+    End Sub
+
+
+    Private Sub FilterDev1Deviation()
+
+        Chart2.Series(12).Points.Clear()
+
+        If CheckPlaybackDev1Deviation.Checked = False Then Exit Sub
+        If DeviceName1.Text = "" Then Exit Sub
+
+        Dim selectedRows() As DataRow =
+        dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
+
+        For Each dr As DataRow In selectedRows
+
+            Dim s As String = dr("DEV1_DEVIATION").ToString().Trim()
+
+            If s <> "" AndAlso s.ToLower() <> "nil" Then
+                Chart2.Series(12).Points.AddXY(
+                dr("DEVICE"),
+                CDbl(Val(s)))
+            End If
+
+        Next
+
+    End Sub
+
+
+    Private Sub FilterDev2MaxDiff()
+
+        Chart2.Series(13).Points.Clear()
+
+        If CheckPlaybackDev2MaxDiff.Checked = False Then Exit Sub
+        If DeviceName2.Text = "" Then Exit Sub
+
+        Dim selectedRows() As DataRow =
+        dataTable1.Select("DEVICE ='" & DeviceName2.Text & "'")
+
+        For Each dr As DataRow In selectedRows
+
+            Dim s As String = dr("DEV2_MAXDIFF").ToString().Trim()
+
+            If s <> "" AndAlso s.ToLower() <> "nil" Then
+                Chart2.Series(13).Points.AddXY(
+                dr("DEVICE"),
+                CDbl(Val(s)))
+            End If
+
+        Next
+
+    End Sub
+
+
+    Private Sub FilterDev2Deviation()
+
+        Chart2.Series(14).Points.Clear()
+
+        If CheckPlaybackDev2Deviation.Checked = False Then Exit Sub
+        If DeviceName2.Text = "" Then Exit Sub
+
+        Dim selectedRows() As DataRow =
+        dataTable1.Select("DEVICE ='" & DeviceName2.Text & "'")
+
+        For Each dr As DataRow In selectedRows
+
+            Dim s As String = dr("DEV2_DEVIATION").ToString().Trim()
+
+            If s <> "" AndAlso s.ToLower() <> "nil" Then
+                Chart2.Series(14).Points.AddXY(
+                dr("DEVICE"),
+                CDbl(Val(s)))
+            End If
+
+        Next
+
+    End Sub
+
+
+    Private Sub UpdatePlaybackStatsSeries()
+
+        FilterDev1Mean()
+        FilterDev1Stdev()
+        FilterDev1SEM()
+        FilterDev1MaxDiff()
+        FilterDev1Deviation()
+
+        FilterDev2Mean()
+        FilterDev2Stdev()
+        FilterDev2SEM()
+        FilterDev2MaxDiff()
+        FilterDev2Deviation()
+
+        If Chart2.ChartAreas.IndexOf("Statistics") >= 0 Then
+
+            ' Reset to auto (NaN) before recalculating - once
+            ' RecalculateAxesScale() runs, it assigns concrete
+            ' numbers to Minimum/Maximum rather than leaving the
+            ' axis in auto mode, so without this reset every call
+            ' after the first just reuses the original range instead
+            ' of rescaling to the newly zoomed/scrolled data.
+            With Chart2.ChartAreas("Statistics").AxisY
+                .Minimum = Double.NaN
+                .Maximum = Double.NaN
+                .Interval = Double.NaN
+            End With
+
+            Chart2.ChartAreas("Statistics").RecalculateAxesScale()
+
+        End If
+
+    End Sub
+
+
+    Private Sub PlaybackTrace_CheckedChanged(sender As Object, e As EventArgs) _
+    Handles CheckPlaybackDev1Data.CheckedChanged,
+            CheckPlaybackDev1Mean.CheckedChanged,
+            CheckPlaybackDev1Stdev.CheckedChanged,
+            CheckPlaybackDev1SEM.CheckedChanged,
+            CheckPlaybackDev1MaxDiff.CheckedChanged,
+            CheckPlaybackDev1Deviation.CheckedChanged,
+            CheckPlaybackDev2Data.CheckedChanged,
+            CheckPlaybackDev2Mean.CheckedChanged,
+            CheckPlaybackDev2Stdev.CheckedChanged,
+            CheckPlaybackDev2SEM.CheckedChanged,
+            CheckPlaybackDev2MaxDiff.CheckedChanged,
+            CheckPlaybackDev2Deviation.CheckedChanged
+
+        If Chart2.Series.Count < 15 Then Exit Sub
+
+        Chart2.Series(0).Enabled = CheckPlaybackDev1Data.Checked
+        Chart2.Series(1).Enabled = CheckPlaybackDev2Data.Checked
+
+        Chart2.Series(5).Enabled = CheckPlaybackDev1Mean.Checked
+        Chart2.Series(6).Enabled = CheckPlaybackDev1Stdev.Checked
+        Chart2.Series(7).Enabled = CheckPlaybackDev1SEM.Checked
+        Chart2.Series(11).Enabled = CheckPlaybackDev1MaxDiff.Checked
+        Chart2.Series(12).Enabled = CheckPlaybackDev1Deviation.Checked
+
+        Chart2.Series(8).Enabled = CheckPlaybackDev2Mean.Checked
+        Chart2.Series(9).Enabled = CheckPlaybackDev2Stdev.Checked
+        Chart2.Series(10).Enabled = CheckPlaybackDev2SEM.Checked
+        Chart2.Series(13).Enabled = CheckPlaybackDev2MaxDiff.Checked
+        Chart2.Series(14).Enabled = CheckPlaybackDev2Deviation.Checked
+
+        If ChartLoaded = True AndAlso CSVfileok = True Then
+            UpdatePlaybackStatsSeries()
+        End If
+
+    End Sub
 
 End Class
 

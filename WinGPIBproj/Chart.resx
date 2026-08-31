@@ -146,7 +146,4 @@ Range: 10 to Points (Dev)</value>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>53</value>
   </metadata>
-  <data name="$this.Text" xml:space="preserve">
-    <value>WinGPIB    Playback Chart                                                                                 Non-Commercial Use Only  -  Please DONATE if you find this app useful, see the ABOUT tab  -  Non-Commercial Use Only</value>
-  </data>
 </root>

@@ -153,7 +153,7 @@ In short:
 The User tab lets you turn WinGPIB into a custom instrument front panel and automation system, tailored exactly to your setup.
 
 Note:
-User area size = 1030 × 547
+User area size = 1030 × 550 (approx)
 Coordinate origin (0,0) is at the top-left corner</value>
   </data>
   <metadata name="SerialPort1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
@@ -252,6 +252,66 @@ Internal cmd's:
 #QA = Set to Query Async mode
 #SA = Set to Send Async mode</value>
   </data>
+  <metadata name="ColumnLogDevice.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="ColumnLogDate.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="ColumnLogTime.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="ColumnLogValue.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="ColumnLogTemp.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="ColumnLogHum.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="ColumnLogDev1N.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="ColumnLogDev1Mean.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="ColumnLogDev1Stdev.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="ColumnLogDev1SEM.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="ColumnLogDev1Gain.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="ColumnLogDev1MaxDiff.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="ColumnLogDev1Deviation.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="ColumnLogDev2N.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="ColumnLogDev2Mean.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="ColumnLogDev2Stdev.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="ColumnLogDev2SEM.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="ColumnLogDev2Gain.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="ColumnLogDev2MaxDiff.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="ColumnLogDev2Deviation.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
   <data name="Label391.Text" xml:space="preserve">
     <value>This utility writes a complete 2048-byte CalRAM file to the HP 3458A, then reads it back and verifies every byte.
 The file is checked for .bin image validity.
@@ -412,6 +472,14 @@ Do not switch off the instrument or interrupt the GPIB connection during the wri
         wPAQAwB0EMDygCmB5Qwn72AK4HTEUwPKAGB5Qwn72AGB5QwPKABSk+EU7Mffq+mAHZ/7R+mKhKR4QBXb
         yhACEAIQAhACEAIQAhACEAIQAhACEAIQAhACEAIQAhACEAIQAhACEAIQAhACEAIQAhACEAIQAhACEAIQ
         AhACEAIQAhACEAIQAhACEAIQAhAH/9k=
+</value>
+  </data>
+  <data name="Label68.Text" xml:space="preserve">
+    <value>WARNING:
+This is an experimental third-party utility that reads from
+and writes to the 3458A's internal memory. It is not an
+HP/Agilent/Keysight-approved procedure.
+Use entirely at your own risk.
 </value>
   </data>
   <data name="PictureBox4.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
@@ -582,17 +650,6 @@ Do not switch off the instrument or interrupt the GPIB connection during the wri
         QB8YUUpQlWnbeDLKJdp1Z1p5JBgvY5b+yEag/9k=
 </value>
   </data>
-  <data name="Label243.Text" xml:space="preserve">
-    <value>1. Select 'Send.....' radio button.
-2. Select the sections you wish to upload.
-3. Select the JSON file with the data you want to upload.
-4. Hit the 'Upload to Ram' button to upload the data to your R6581(T).
-5. Test your R6581(T) and if all is good then hit the 'Commit Ram to EEprom'
-     button to transfer the contents permanently to EEprom.
-
-If your test does not work out for you then reset your R6581(T), the
-ram upload will be abandoned and the EEprom data will remain unchanged.</value>
-  </data>
   <data name="Label245.Text" xml:space="preserve">
     <value>Regular calibration data management:
 Read/write cal constants from/to Ram.
@@ -606,7 +663,18 @@ eliminate small errors/artifacts. Split into DCV &amp;&amp; AC.
 Retrieve 7.2Vdc &amp;&amp; 10kohm reference value drift
 history.
 
-Previous (old) calibration constants are not extracted.</value>
+Previous calibration constants are not extracted.</value>
+  </data>
+  <data name="Label243.Text" xml:space="preserve">
+    <value>1. Select 'Send.....' radio button.
+2. Select the sections you wish to upload.
+3. Select the JSON file with the data you want to upload.
+4. Hit the 'Upload to Ram' button to upload the data to your R6581(T).
+5. Test your R6581(T) and if all is good then hit the 'Commit Ram to EEprom'
+     button to transfer the contents permanently to EEprom.
+
+If your test does not work out for you then reset your R6581(T), the
+ram upload will be abandoned and the EEprom data will remain unchanged.</value>
   </data>
   <data name="PictureBox1.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -2638,18 +2706,14 @@ memory.
 If LOAD not used PDVS2mini
 values are used.</value>
   </data>
-  <data name="Label240.Text" xml:space="preserve">
-    <value>Disclaimer:
-This software is provided 'as-is' without any warranties or guarantees. Use it at your own risk.
-The developer is not responsible for any damage or data loss caused by the installation or use of this software.</value>
+  <data name="Label388.Text" xml:space="preserve">
+    <value>WinGPIB is provided free of charge for personal, non-commercial use only.
+The WinGPIB source code is made publicly available and may be used, modified and redistributed for non-commercial purposes only.
+Neither WinGPIB nor its source code, in whole or in part, may be used for commercial purposes without a separate commercial licence from the author.
+This includes use within businesses and organisations.
+Please contact the author (www.ianjohnston.com) to discuss commercial licensing arrangements.</value>
   </data>
-  <data name="Label239.Text" xml:space="preserve">
-    <value>Donating:
-Hundreds if not thousands of hours have gone into making WinGPIB what it is today.
-Please consider donating by hitting the button below if you find this app useful, it really helps me put more time
-into the app and extending it's capabilities. and also to purchase faulty test gear to repair on my YouTube Channel.</value>
-  </data>
-  <data name="PictureBox6.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="PictureBox11.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAIwAAACrCAYAAAC0aXSwAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAe
         vAAAHrwB7kRN9wAAAAd0SU1FB+UBBxMuM4BdRIsAAChASURBVHhe7Z17rGVVfcevaUyatJoaabUMQy2l
@@ -2827,6 +2891,25 @@ into the app and extending it's capabilities. and also to purchase faulty test g
         WEUVEsMqVlGFxLCKVVTg/wGQcFY1XZ79IgAAAABJRU5ErkJggg==
 </value>
   </data>
+  <data name="Label418.Text" xml:space="preserve">
+    <value>Hundreds, if not thousands of hours have gone into making WinGPIB what it is today.
+If you find the program useful, please consider donating using the button provided.
+Your support helps me spend more time developing and extending WinGPIB, and also helps fund the purchase of faulty test equipment
+for repair on my YouTube channel.</value>
+  </data>
+  <data name="Label427.Text" xml:space="preserve">
+    <value>Original GPIB device library (.DLL) code by Pawel Wzietek.
+Main WinGPIB app by Ian Johnston.
+Prologix Serial device library mods by tppc.
+NI-GPIB-232CT-A Serial device library mods by Florian Diederichsen.
+HP3478A CalRam Backup / Restore by  Donnie Agema.
+HP3458A CalRam Write coding idea (.py) by kvez</value>
+  </data>
+  <data name="Label426.Text" xml:space="preserve">
+    <value>WinGPIB and its source code are provided "as is", without warranty of any kind, express or implied. Use of this software and source code is entirely at the user's own risk.
+To the fullest extent permitted by law, the author shall not be liable for any loss, damage, damage to connected equipment, data loss, loss of use, loss of profits,
+or other direct, indirect, incidental or consequential loss arising from the installation, modification or use of, or inability to use, this software or source code.</value>
+  </data>
   <metadata name="Timer8.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>726, 25</value>
   </metadata>
@@ -2862,5 +2945,8 @@ into the app and extending it's capabilities. and also to purchase faulty test g
   </metadata>
   <metadata name="Timer18.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>114, 64</value>
+  </metadata>
+  <metadata name="Timer19.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>211, 64</value>
   </metadata>
 </root>

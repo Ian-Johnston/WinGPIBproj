@@ -136,6 +136,9 @@ Partial Class Formtest
             Me.Timer3.Start()
             Log(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ") & "Dev.1 & 2 Running")
 
+            ' DATA tab
+            UpdateProjectedTimeLabel()
+
 
             ' Stop
         ElseIf (ButtonDev12Run.Text = "Stop" And Timer2.Enabled And Timer3.Enabled) Then
@@ -198,6 +201,10 @@ Partial Class Formtest
             ' full dispose
             gbox2.Enabled = True   'enable sending new commands
             'dev2.Dispose()
+
+            UpdateProjectedTimeLabel()
+            'LabelXaxisProjectedTime.Text = "Not running"
+
         End If
 
     End Sub
@@ -296,6 +303,9 @@ Partial Class Formtest
             Me.Timer2.Start()
             Log(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ") & "Dev.1 Running")
 
+            ' DATA tab
+            UpdateProjectedTimeLabel()
+
 
             ' Stop
         ElseIf (ButtonDev1Run.Text = "Stop" And Timer2.Enabled) Then
@@ -330,6 +340,10 @@ Partial Class Formtest
             ' full dispose
             gbox1.Enabled = True   'enable sending new commands
             'dev1.Dispose()
+
+            UpdateProjectedTimeLabel()
+            'LabelXaxisProjectedTime.Text = "Not running"
+
         End If
 
 
@@ -471,6 +485,9 @@ Partial Class Formtest
             'Log(DateTime.Now & " Device 2 Running.......")
             Log(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ") & "Dev.2 Running")
 
+            ' DATA tab
+            UpdateProjectedTimeLabel()
+
 
             ' Stop
         ElseIf (ButtonDev2Run.Text = "Stop" And Timer3.Enabled) Then
@@ -505,6 +522,9 @@ Partial Class Formtest
             ' full dispose
             gbox2.Enabled = True   'enable sending new commands
             'dev2.Dispose()
+
+            UpdateProjectedTimeLabel()
+            'LabelXaxisProjectedTime.Text = "Not running"
 
         End If
 
