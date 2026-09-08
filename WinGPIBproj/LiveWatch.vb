@@ -661,7 +661,8 @@ Partial Class Formtest
         If value < Stats1Min Then Stats1Min = value
 
         ' PPM Deviation from first sample since last reset
-        Stats1DeviationCurrent = (value - Stats1FirstValue) * 1000000
+        'Stats1DeviationCurrent = (value - Stats1FirstValue) * 1000000
+        Stats1DeviationCurrent = If(Stats1FirstValue <> 0, (value - Stats1FirstValue) / Stats1FirstValue * 1000000, 0)
 
         ' Number of samples
         LabelStats1Samples.Text = Stats1Count.ToString()
@@ -732,7 +733,8 @@ Partial Class Formtest
         If value < Stats2Min Then Stats2Min = value
 
         ' PPM Deviation from first sample since last reset
-        Stats2DeviationCurrent = (value - Stats2FirstValue) * 1000000
+        'Stats2DeviationCurrent = (value - Stats2FirstValue) * 1000000
+        Stats2DeviationCurrent = If(Stats2FirstValue <> 0, (value - Stats2FirstValue) / Stats2FirstValue * 1000000, 0)
 
         ' Number of samples
         LabelStats2Samples.Text = Stats2Count.ToString()

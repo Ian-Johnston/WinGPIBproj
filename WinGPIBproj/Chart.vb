@@ -3402,7 +3402,8 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
 
                     ' PPM Deviation calc - Finish
                     'Vchange = (variancevalue - medianvalued)
-                    calcppmvalue = Vchange * 1000000
+                    'calcppmvalue = Vchange * 1000000
+                    calcppmvalue = If(medianvalued <> 0, (Vchange / medianvalued) * 1000000, 0)
 
 
                     ' limits of PPM scale - entered value = 40
