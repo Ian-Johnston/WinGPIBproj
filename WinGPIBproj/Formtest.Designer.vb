@@ -375,6 +375,9 @@ Partial Class Formtest
         Me.Label171 = New System.Windows.Forms.Label()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.GroupBox3 = New System.Windows.Forms.GroupBox()
+        Me.Label70 = New System.Windows.Forms.Label()
+        Me.LabelStats1Value = New System.Windows.Forms.Label()
+        Me.ButtonStats1PauseDisplay = New System.Windows.Forms.Button()
         Me.Label69 = New System.Windows.Forms.Label()
         Me.LabelStats1FirstValue = New System.Windows.Forms.Label()
         Me.Label71 = New System.Windows.Forms.Label()
@@ -402,10 +405,11 @@ Partial Class Formtest
         Me.Label170 = New System.Windows.Forms.Label()
         Me.Dev2Meter = New System.Windows.Forms.Label()
         Me.GroupBox4 = New System.Windows.Forms.GroupBox()
+        Me.Label135 = New System.Windows.Forms.Label()
+        Me.LabelStats2Value = New System.Windows.Forms.Label()
+        Me.ButtonStats2PauseDisplay = New System.Windows.Forms.Button()
         Me.Label105 = New System.Windows.Forms.Label()
         Me.LabelStats2FirstValue = New System.Windows.Forms.Label()
-        Me.Label22 = New System.Windows.Forms.Label()
-        Me.Label65 = New System.Windows.Forms.Label()
         Me.Label440 = New System.Windows.Forms.Label()
         Me.LabelStats2Deviation = New System.Windows.Forms.Label()
         Me.Label438 = New System.Windows.Forms.Label()
@@ -455,6 +459,8 @@ Partial Class Formtest
         Me.Label215 = New System.Windows.Forms.Label()
         Me.Label214 = New System.Windows.Forms.Label()
         Me.Label213 = New System.Windows.Forms.Label()
+        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.Label212 = New System.Windows.Forms.Label()
         Me.Label211 = New System.Windows.Forms.Label()
         Me.Label210 = New System.Windows.Forms.Label()
@@ -1020,6 +1026,7 @@ Partial Class Formtest
         Me.Label3133478A = New System.Windows.Forms.Label()
         Me.ShowFilesCalRam3478A = New System.Windows.Forms.Button()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
+        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.Label145 = New System.Windows.Forms.Label()
         Me.Label79 = New System.Windows.Forms.Label()
         Me.Label81 = New System.Windows.Forms.Label()
@@ -1275,6 +1282,7 @@ Partial Class Formtest
         Me.CalAccuracyFinal = New System.Windows.Forms.TextBox()
         Me.Label117 = New System.Windows.Forms.Label()
         Me.Label121 = New System.Windows.Forms.Label()
+        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage14 = New System.Windows.Forms.TabPage()
         Me.ButtonUserStart = New System.Windows.Forms.Button()
         Me.ButtonUserTabGuide = New System.Windows.Forms.Button()
@@ -1335,16 +1343,6 @@ Partial Class Formtest
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer18 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer19 = New System.Windows.Forms.Timer(Me.components)
-        Me.ButtonStats1PauseDisplay = New System.Windows.Forms.Button()
-        Me.ButtonStats2PauseDisplay = New System.Windows.Forms.Button()
-        Me.Label70 = New System.Windows.Forms.Label()
-        Me.LabelStats1Value = New System.Windows.Forms.Label()
-        Me.Label135 = New System.Windows.Forms.Label()
-        Me.LabelStats2Value = New System.Windows.Forms.Label()
-        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.GroupBox9.SuspendLayout
@@ -5002,7 +5000,6 @@ Partial Class Formtest
         Me.TabPage8.Controls.Add(Me.GroupBox1)
         Me.TabPage8.Controls.Add(Me.GroupBox3)
         Me.TabPage8.Controls.Add(Me.GroupBox19)
-        Me.TabPage8.Controls.Add(Me.Dev2Meter)
         Me.TabPage8.Controls.Add(Me.GroupBox4)
         Me.TabPage8.Location = New System.Drawing.Point(4, 22)
         Me.TabPage8.Name = "TabPage8"
@@ -5127,6 +5124,36 @@ Partial Class Formtest
         Me.GroupBox3.TabIndex = 79
         Me.GroupBox3.TabStop = False
         Me.GroupBox3.Text = "DEVICE 1 DATA"
+        '
+        'Label70
+        '
+        Me.Label70.AutoSize = True
+        Me.Label70.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label70.Location = New System.Drawing.Point(870, 32)
+        Me.Label70.Name = "Label70"
+        Me.Label70.Size = New System.Drawing.Size(46, 16)
+        Me.Label70.TabIndex = 765
+        Me.Label70.Text = "Data ="
+        '
+        'LabelStats1Value
+        '
+        Me.LabelStats1Value.AutoSize = True
+        Me.LabelStats1Value.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelStats1Value.Location = New System.Drawing.Point(916, 33)
+        Me.LabelStats1Value.Name = "LabelStats1Value"
+        Me.LabelStats1Value.Size = New System.Drawing.Size(11, 16)
+        Me.LabelStats1Value.TabIndex = 764
+        Me.LabelStats1Value.Text = "-"
+        '
+        'ButtonStats1PauseDisplay
+        '
+        Me.ButtonStats1PauseDisplay.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonStats1PauseDisplay.Location = New System.Drawing.Point(789, 202)
+        Me.ButtonStats1PauseDisplay.Name = "ButtonStats1PauseDisplay"
+        Me.ButtonStats1PauseDisplay.Size = New System.Drawing.Size(120, 25)
+        Me.ButtonStats1PauseDisplay.TabIndex = 763
+        Me.ButtonStats1PauseDisplay.Text = "Pause Display"
+        Me.ButtonStats1PauseDisplay.UseVisualStyleBackColor = True
         '
         'Label69
         '
@@ -5385,7 +5412,7 @@ Partial Class Formtest
         '
         Me.Dev2Meter.AutoSize = True
         Me.Dev2Meter.Font = New System.Drawing.Font("Microsoft Sans Serif", 80.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Dev2Meter.Location = New System.Drawing.Point(14, 407)
+        Me.Dev2Meter.Location = New System.Drawing.Point(14, 47)
         Me.Dev2Meter.Name = "Dev2Meter"
         Me.Dev2Meter.Size = New System.Drawing.Size(590, 120)
         Me.Dev2Meter.TabIndex = 70
@@ -5398,13 +5425,12 @@ Partial Class Formtest
         Me.GroupBox4.Controls.Add(Me.ButtonStats2PauseDisplay)
         Me.GroupBox4.Controls.Add(Me.Label105)
         Me.GroupBox4.Controls.Add(Me.LabelStats2FirstValue)
-        Me.GroupBox4.Controls.Add(Me.Label22)
-        Me.GroupBox4.Controls.Add(Me.Label65)
         Me.GroupBox4.Controls.Add(Me.Label440)
         Me.GroupBox4.Controls.Add(Me.LabelStats2Deviation)
         Me.GroupBox4.Controls.Add(Me.Label438)
         Me.GroupBox4.Controls.Add(Me.Label444)
         Me.GroupBox4.Controls.Add(Me.LabelStats2Max)
+        Me.GroupBox4.Controls.Add(Me.Dev2Meter)
         Me.GroupBox4.Controls.Add(Me.LabelStats2MaxDiff)
         Me.GroupBox4.Controls.Add(Me.Label169)
         Me.GroupBox4.Controls.Add(Me.LabelStats2Min)
@@ -5428,6 +5454,36 @@ Partial Class Formtest
         Me.GroupBox4.TabStop = False
         Me.GroupBox4.Text = "DEVICE 2 DATA"
         '
+        'Label135
+        '
+        Me.Label135.AutoSize = True
+        Me.Label135.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label135.Location = New System.Drawing.Point(871, 32)
+        Me.Label135.Name = "Label135"
+        Me.Label135.Size = New System.Drawing.Size(46, 16)
+        Me.Label135.TabIndex = 768
+        Me.Label135.Text = "Data ="
+        '
+        'LabelStats2Value
+        '
+        Me.LabelStats2Value.AutoSize = True
+        Me.LabelStats2Value.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelStats2Value.Location = New System.Drawing.Point(917, 32)
+        Me.LabelStats2Value.Name = "LabelStats2Value"
+        Me.LabelStats2Value.Size = New System.Drawing.Size(11, 16)
+        Me.LabelStats2Value.TabIndex = 767
+        Me.LabelStats2Value.Text = "-"
+        '
+        'ButtonStats2PauseDisplay
+        '
+        Me.ButtonStats2PauseDisplay.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonStats2PauseDisplay.Location = New System.Drawing.Point(789, 201)
+        Me.ButtonStats2PauseDisplay.Name = "ButtonStats2PauseDisplay"
+        Me.ButtonStats2PauseDisplay.Size = New System.Drawing.Size(120, 25)
+        Me.ButtonStats2PauseDisplay.TabIndex = 766
+        Me.ButtonStats2PauseDisplay.Text = "Pause Display"
+        Me.ButtonStats2PauseDisplay.UseVisualStyleBackColor = True
+        '
         'Label105
         '
         Me.Label105.AutoSize = True
@@ -5447,26 +5503,6 @@ Partial Class Formtest
         Me.LabelStats2FirstValue.Size = New System.Drawing.Size(11, 16)
         Me.LabelStats2FirstValue.TabIndex = 763
         Me.LabelStats2FirstValue.Text = "-"
-        '
-        'Label22
-        '
-        Me.Label22.AutoSize = True
-        Me.Label22.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label22.Location = New System.Drawing.Point(459, 100)
-        Me.Label22.Name = "Label22"
-        Me.Label22.Size = New System.Drawing.Size(106, 16)
-        Me.Label22.TabIndex = 765
-        Me.Label22.Text = "PPM Deviation ="
-        '
-        'Label65
-        '
-        Me.Label65.AutoSize = True
-        Me.Label65.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label65.Location = New System.Drawing.Point(565, 100)
-        Me.Label65.Name = "Label65"
-        Me.Label65.Size = New System.Drawing.Size(11, 16)
-        Me.Label65.TabIndex = 764
-        Me.Label65.Text = "-"
         '
         'Label440
         '
@@ -6033,6 +6069,26 @@ Partial Class Formtest
         Me.Label213.Size = New System.Drawing.Size(19, 13)
         Me.Label213.TabIndex = 537
         Me.Label213.Text = "Tx"
+        '
+        'OnOffLed2
+        '
+        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
+        Me.OnOffLed2.Name = "OnOffLed2"
+        Me.OnOffLed2.OffText = Nothing
+        Me.OnOffLed2.OnText = Nothing
+        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed2.TabIndex = 536
+        '
+        'OnOffLed1
+        '
+        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
+        Me.OnOffLed1.Name = "OnOffLed1"
+        Me.OnOffLed1.OffText = Nothing
+        Me.OnOffLed1.OnText = Nothing
+        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed1.TabIndex = 535
         '
         'Label212
         '
@@ -12018,6 +12074,16 @@ Partial Class Formtest
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = " PDVS2mini"
         '
+        'OnOffLed4
+        '
+        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
+        Me.OnOffLed4.Name = "OnOffLed4"
+        Me.OnOffLed4.OffText = Nothing
+        Me.OnOffLed4.OnText = Nothing
+        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed4.TabIndex = 797
+        '
         'Label145
         '
         Me.Label145.AutoSize = True
@@ -14843,6 +14909,16 @@ Partial Class Formtest
         Me.Label121.TabIndex = 554
         Me.Label121.Text = "Comms Delay (mS)"
         '
+        'OnOffLed3
+        '
+        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
+        Me.OnOffLed3.Name = "OnOffLed3"
+        Me.OnOffLed3.OffText = Nothing
+        Me.OnOffLed3.OnText = Nothing
+        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed3.TabIndex = 796
+        '
         'TabPage14
         '
         Me.TabPage14.Controls.Add(Me.ButtonUserStart)
@@ -15379,106 +15455,6 @@ Partial Class Formtest
         'Timer14
         '
         Me.Timer14.Interval = 50
-        '
-        'ButtonStats1PauseDisplay
-        '
-        Me.ButtonStats1PauseDisplay.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonStats1PauseDisplay.Location = New System.Drawing.Point(789, 202)
-        Me.ButtonStats1PauseDisplay.Name = "ButtonStats1PauseDisplay"
-        Me.ButtonStats1PauseDisplay.Size = New System.Drawing.Size(120, 25)
-        Me.ButtonStats1PauseDisplay.TabIndex = 763
-        Me.ButtonStats1PauseDisplay.Text = "Pause Display"
-        Me.ButtonStats1PauseDisplay.UseVisualStyleBackColor = True
-        '
-        'ButtonStats2PauseDisplay
-        '
-        Me.ButtonStats2PauseDisplay.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonStats2PauseDisplay.Location = New System.Drawing.Point(789, 201)
-        Me.ButtonStats2PauseDisplay.Name = "ButtonStats2PauseDisplay"
-        Me.ButtonStats2PauseDisplay.Size = New System.Drawing.Size(120, 25)
-        Me.ButtonStats2PauseDisplay.TabIndex = 766
-        Me.ButtonStats2PauseDisplay.Text = "Pause Display"
-        Me.ButtonStats2PauseDisplay.UseVisualStyleBackColor = True
-        '
-        'Label70
-        '
-        Me.Label70.AutoSize = True
-        Me.Label70.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label70.Location = New System.Drawing.Point(870, 32)
-        Me.Label70.Name = "Label70"
-        Me.Label70.Size = New System.Drawing.Size(46, 16)
-        Me.Label70.TabIndex = 765
-        Me.Label70.Text = "Data ="
-        '
-        'LabelStats1Value
-        '
-        Me.LabelStats1Value.AutoSize = True
-        Me.LabelStats1Value.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelStats1Value.Location = New System.Drawing.Point(916, 33)
-        Me.LabelStats1Value.Name = "LabelStats1Value"
-        Me.LabelStats1Value.Size = New System.Drawing.Size(11, 16)
-        Me.LabelStats1Value.TabIndex = 764
-        Me.LabelStats1Value.Text = "-"
-        '
-        'Label135
-        '
-        Me.Label135.AutoSize = True
-        Me.Label135.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label135.Location = New System.Drawing.Point(871, 32)
-        Me.Label135.Name = "Label135"
-        Me.Label135.Size = New System.Drawing.Size(46, 16)
-        Me.Label135.TabIndex = 768
-        Me.Label135.Text = "Data ="
-        '
-        'LabelStats2Value
-        '
-        Me.LabelStats2Value.AutoSize = True
-        Me.LabelStats2Value.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelStats2Value.Location = New System.Drawing.Point(917, 32)
-        Me.LabelStats2Value.Name = "LabelStats2Value"
-        Me.LabelStats2Value.Size = New System.Drawing.Size(11, 16)
-        Me.LabelStats2Value.TabIndex = 767
-        Me.LabelStats2Value.Text = "-"
-        '
-        'OnOffLed2
-        '
-        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
-        Me.OnOffLed2.Name = "OnOffLed2"
-        Me.OnOffLed2.OffText = Nothing
-        Me.OnOffLed2.OnText = Nothing
-        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed2.TabIndex = 536
-        '
-        'OnOffLed1
-        '
-        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
-        Me.OnOffLed1.Name = "OnOffLed1"
-        Me.OnOffLed1.OffText = Nothing
-        Me.OnOffLed1.OnText = Nothing
-        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed1.TabIndex = 535
-        '
-        'OnOffLed4
-        '
-        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
-        Me.OnOffLed4.Name = "OnOffLed4"
-        Me.OnOffLed4.OffText = Nothing
-        Me.OnOffLed4.OnText = Nothing
-        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed4.TabIndex = 797
-        '
-        'OnOffLed3
-        '
-        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
-        Me.OnOffLed3.Name = "OnOffLed3"
-        Me.OnOffLed3.OffText = Nothing
-        Me.OnOffLed3.OnText = Nothing
-        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed3.TabIndex = 796
         '
         'Formtest
         '
@@ -16888,8 +16864,6 @@ Partial Class Formtest
     Friend WithEvents LabelStats1FirstValue As Label
     Friend WithEvents Label105 As Label
     Friend WithEvents LabelStats2FirstValue As Label
-    Friend WithEvents Label22 As Label
-    Friend WithEvents Label65 As Label
     Friend WithEvents ButtonStats1PauseDisplay As Button
     Friend WithEvents ButtonStats2PauseDisplay As Button
     Friend WithEvents Label70 As Label
