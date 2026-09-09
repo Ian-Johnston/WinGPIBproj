@@ -2468,12 +2468,12 @@ Public Class Chart
                 'Playbacknewmax = Playbacknewmax + ((Playbacknewmax - Playbacknewmin) / 20)
                 Playbacknewmax += (Playbacknewmax - Playbacknewmin) / 20
                 YaxisMaximum.Text = Playbacknewmax.ToString(Globalization.CultureInfo.InvariantCulture)
-                YaxisMaximum.Text = Math.Round((ParseYaxisValue(YaxisMaximum.Text)), 7)
+                YaxisMaximum.Text = Math.Round((ParseYaxisValue(YaxisMaximum.Text)), 7).ToString(Globalization.CultureInfo.InvariantCulture)
 
                 'Playbacknewmin = Playbacknewmin + ((Playbacknewmax - Playbacknewmin) / 20)
                 Playbacknewmin += (Playbacknewmax - Playbacknewmin) / 20
                 YaxisMinimum.Text = Playbacknewmin.ToString(Globalization.CultureInfo.InvariantCulture)
-                YaxisMinimum.Text = Math.Round((ParseYaxisValue(YaxisMinimum.Text)), 7)
+                YaxisMinimum.Text = Math.Round((ParseYaxisValue(YaxisMinimum.Text)), 7).ToString(Globalization.CultureInfo.InvariantCulture)
 
                 Dim result As Double = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 32
                 YaxisPerDiv.Text = result.ToString("#0.000000000")
@@ -2533,7 +2533,7 @@ Public Class Chart
                 'Playbacknewmax = Playbacknewmax - ((Playbacknewmax - Playbacknewmin) / 20)
                 Playbacknewmax -= (Playbacknewmax - Playbacknewmin) / 20
                 YaxisMaximum.Text = Playbacknewmax.ToString(Globalization.CultureInfo.InvariantCulture)
-                YaxisMaximum.Text = Math.Round((ParseYaxisValue(YaxisMaximum.Text)), 7)
+                YaxisMaximum.Text = Math.Round((ParseYaxisValue(YaxisMaximum.Text)), 7).ToString(Globalization.CultureInfo.InvariantCulture)
 
                 'Playbacknewmin = Playbacknewmin - ((Playbacknewmax - Playbacknewmin) / 20)
                 Playbacknewmin -= (Playbacknewmax - Playbacknewmin) / 20
@@ -2541,7 +2541,7 @@ Public Class Chart
                 'Playbacknewmin = 0
                 'End If
                 YaxisMinimum.Text = Playbacknewmin.ToString(Globalization.CultureInfo.InvariantCulture)
-                YaxisMinimum.Text = Math.Round((ParseYaxisValue(YaxisMinimum.Text)), 7)
+                YaxisMinimum.Text = Math.Round((ParseYaxisValue(YaxisMinimum.Text)), 7).ToString(Globalization.CultureInfo.InvariantCulture)
 
                 Dim result As Double = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 32
                 YaxisPerDiv.Text = result.ToString("#0.000000000")
