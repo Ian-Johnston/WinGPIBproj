@@ -24,12 +24,12 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea3 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend3 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series3 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
-        Dim ChartArea4 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend4 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series4 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -375,7 +375,8 @@ Partial Class Formtest
         Me.Label171 = New System.Windows.Forms.Label()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.GroupBox3 = New System.Windows.Forms.GroupBox()
-        Me.CheckBox1 = New System.Windows.Forms.CheckBox()
+        Me.Label69 = New System.Windows.Forms.Label()
+        Me.LabelStats1FirstValue = New System.Windows.Forms.Label()
         Me.Label71 = New System.Windows.Forms.Label()
         Me.LabelStats1Deviation = New System.Windows.Forms.Label()
         Me.Label51 = New System.Windows.Forms.Label()
@@ -401,6 +402,10 @@ Partial Class Formtest
         Me.Label170 = New System.Windows.Forms.Label()
         Me.Dev2Meter = New System.Windows.Forms.Label()
         Me.GroupBox4 = New System.Windows.Forms.GroupBox()
+        Me.Label105 = New System.Windows.Forms.Label()
+        Me.LabelStats2FirstValue = New System.Windows.Forms.Label()
+        Me.Label22 = New System.Windows.Forms.Label()
+        Me.Label65 = New System.Windows.Forms.Label()
         Me.Label440 = New System.Windows.Forms.Label()
         Me.LabelStats2Deviation = New System.Windows.Forms.Label()
         Me.Label438 = New System.Windows.Forms.Label()
@@ -1330,12 +1335,12 @@ Partial Class Formtest
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer18 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer19 = New System.Windows.Forms.Timer(Me.components)
-        Me.Label22 = New System.Windows.Forms.Label()
-        Me.Label65 = New System.Windows.Forms.Label()
-        Me.Label69 = New System.Windows.Forms.Label()
-        Me.LabelStats1FirstValue = New System.Windows.Forms.Label()
-        Me.Label105 = New System.Windows.Forms.Label()
-        Me.LabelStats2FirstValue = New System.Windows.Forms.Label()
+        Me.ButtonStats1PauseDisplay = New System.Windows.Forms.Button()
+        Me.ButtonStats2PauseDisplay = New System.Windows.Forms.Button()
+        Me.Label70 = New System.Windows.Forms.Label()
+        Me.LabelStats1Value = New System.Windows.Forms.Label()
+        Me.Label135 = New System.Windows.Forms.Label()
+        Me.LabelStats2Value = New System.Windows.Forms.Label()
         Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
@@ -2482,7 +2487,7 @@ Partial Class Formtest
         Me.Dev1Units.BackColor = System.Drawing.SystemColors.ButtonHighlight
         Me.Dev1Units.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.Dev1Units.Font = New System.Drawing.Font("Microsoft Sans Serif", 20.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Dev1Units.Location = New System.Drawing.Point(6, 180)
+        Me.Dev1Units.Location = New System.Drawing.Point(6, 196)
         Me.Dev1Units.Name = "Dev1Units"
         Me.Dev1Units.Size = New System.Drawing.Size(142, 31)
         Me.Dev1Units.TabIndex = 73
@@ -2494,7 +2499,7 @@ Partial Class Formtest
         Me.Dev2Units.BackColor = System.Drawing.SystemColors.ButtonHighlight
         Me.Dev2Units.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.Dev2Units.Font = New System.Drawing.Font("Microsoft Sans Serif", 20.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Dev2Units.Location = New System.Drawing.Point(6, 180)
+        Me.Dev2Units.Location = New System.Drawing.Point(6, 195)
         Me.Dev2Units.Name = "Dev2Units"
         Me.Dev2Units.Size = New System.Drawing.Size(142, 31)
         Me.Dev2Units.TabIndex = 74
@@ -5029,7 +5034,7 @@ Partial Class Formtest
         '
         Me.Device2name.AutoSize = True
         Me.Device2name.Font = New System.Drawing.Font("Microsoft Sans Serif", 15.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Device2name.Location = New System.Drawing.Point(25, 394)
+        Me.Device2name.Location = New System.Drawing.Point(25, 378)
         Me.Device2name.Name = "Device2name"
         Me.Device2name.Size = New System.Drawing.Size(92, 25)
         Me.Device2name.TabIndex = 73
@@ -5088,9 +5093,11 @@ Partial Class Formtest
         '
         'GroupBox3
         '
+        Me.GroupBox3.Controls.Add(Me.Label70)
+        Me.GroupBox3.Controls.Add(Me.LabelStats1Value)
+        Me.GroupBox3.Controls.Add(Me.ButtonStats1PauseDisplay)
         Me.GroupBox3.Controls.Add(Me.Label69)
         Me.GroupBox3.Controls.Add(Me.LabelStats1FirstValue)
-        Me.GroupBox3.Controls.Add(Me.CheckBox1)
         Me.GroupBox3.Controls.Add(Me.Label71)
         Me.GroupBox3.Controls.Add(Me.LabelStats1Deviation)
         Me.GroupBox3.Controls.Add(Me.Label51)
@@ -5114,28 +5121,38 @@ Partial Class Formtest
         Me.GroupBox3.Controls.Add(Me.Device1name)
         Me.GroupBox3.Controls.Add(Me.Dev1Meter)
         Me.GroupBox3.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.GroupBox3.Location = New System.Drawing.Point(8, 139)
+        Me.GroupBox3.Location = New System.Drawing.Point(8, 125)
         Me.GroupBox3.Name = "GroupBox3"
-        Me.GroupBox3.Size = New System.Drawing.Size(1034, 217)
+        Me.GroupBox3.Size = New System.Drawing.Size(1034, 234)
         Me.GroupBox3.TabIndex = 79
         Me.GroupBox3.TabStop = False
         Me.GroupBox3.Text = "DEVICE 1 DATA"
         '
-        'CheckBox1
+        'Label69
         '
-        Me.CheckBox1.AutoSize = True
-        Me.CheckBox1.Location = New System.Drawing.Point(1013, 33)
-        Me.CheckBox1.Name = "CheckBox1"
-        Me.CheckBox1.Size = New System.Drawing.Size(15, 14)
-        Me.CheckBox1.TabIndex = 760
-        Me.CheckBox1.UseVisualStyleBackColor = True
-        Me.CheckBox1.Visible = False
+        Me.Label69.AutoSize = True
+        Me.Label69.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label69.Location = New System.Drawing.Point(826, 177)
+        Me.Label69.Name = "Label69"
+        Me.Label69.Size = New System.Drawing.Size(90, 16)
+        Me.Label69.TabIndex = 762
+        Me.Label69.Text = "Baseline 1st ="
+        '
+        'LabelStats1FirstValue
+        '
+        Me.LabelStats1FirstValue.AutoSize = True
+        Me.LabelStats1FirstValue.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelStats1FirstValue.Location = New System.Drawing.Point(916, 177)
+        Me.LabelStats1FirstValue.Name = "LabelStats1FirstValue"
+        Me.LabelStats1FirstValue.Size = New System.Drawing.Size(11, 16)
+        Me.LabelStats1FirstValue.TabIndex = 761
+        Me.LabelStats1FirstValue.Text = "-"
         '
         'Label71
         '
         Me.Label71.AutoSize = True
         Me.Label71.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label71.Location = New System.Drawing.Point(810, 139)
+        Me.Label71.Location = New System.Drawing.Point(810, 160)
         Me.Label71.Name = "Label71"
         Me.Label71.Size = New System.Drawing.Size(106, 16)
         Me.Label71.TabIndex = 759
@@ -5145,7 +5162,7 @@ Partial Class Formtest
         '
         Me.LabelStats1Deviation.AutoSize = True
         Me.LabelStats1Deviation.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelStats1Deviation.Location = New System.Drawing.Point(916, 139)
+        Me.LabelStats1Deviation.Location = New System.Drawing.Point(916, 160)
         Me.LabelStats1Deviation.Name = "LabelStats1Deviation"
         Me.LabelStats1Deviation.Size = New System.Drawing.Size(11, 16)
         Me.LabelStats1Deviation.TabIndex = 758
@@ -5155,7 +5172,7 @@ Partial Class Formtest
         '
         Me.Label51.AutoSize = True
         Me.Label51.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label51.Location = New System.Drawing.Point(846, 123)
+        Me.Label51.Location = New System.Drawing.Point(846, 144)
         Me.Label51.Name = "Label51"
         Me.Label51.Size = New System.Drawing.Size(70, 16)
         Me.Label51.TabIndex = 757
@@ -5165,7 +5182,7 @@ Partial Class Formtest
         '
         Me.LabelStats1MaxDiff.AutoSize = True
         Me.LabelStats1MaxDiff.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelStats1MaxDiff.Location = New System.Drawing.Point(916, 123)
+        Me.LabelStats1MaxDiff.Location = New System.Drawing.Point(916, 144)
         Me.LabelStats1MaxDiff.Name = "LabelStats1MaxDiff"
         Me.LabelStats1MaxDiff.Size = New System.Drawing.Size(11, 16)
         Me.LabelStats1MaxDiff.TabIndex = 756
@@ -5175,7 +5192,7 @@ Partial Class Formtest
         '
         Me.Label52.AutoSize = True
         Me.Label52.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label52.Location = New System.Drawing.Point(878, 107)
+        Me.Label52.Location = New System.Drawing.Point(878, 128)
         Me.Label52.Name = "Label52"
         Me.Label52.Size = New System.Drawing.Size(38, 16)
         Me.Label52.TabIndex = 755
@@ -5185,7 +5202,7 @@ Partial Class Formtest
         '
         Me.LabelStats1Min.AutoSize = True
         Me.LabelStats1Min.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelStats1Min.Location = New System.Drawing.Point(916, 107)
+        Me.LabelStats1Min.Location = New System.Drawing.Point(916, 128)
         Me.LabelStats1Min.Name = "LabelStats1Min"
         Me.LabelStats1Min.Size = New System.Drawing.Size(11, 16)
         Me.LabelStats1Min.TabIndex = 754
@@ -5195,7 +5212,7 @@ Partial Class Formtest
         '
         Me.Label50.AutoSize = True
         Me.Label50.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label50.Location = New System.Drawing.Point(874, 91)
+        Me.Label50.Location = New System.Drawing.Point(874, 112)
         Me.Label50.Name = "Label50"
         Me.Label50.Size = New System.Drawing.Size(42, 16)
         Me.Label50.TabIndex = 753
@@ -5205,7 +5222,7 @@ Partial Class Formtest
         '
         Me.LabelStats1Max.AutoSize = True
         Me.LabelStats1Max.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelStats1Max.Location = New System.Drawing.Point(916, 91)
+        Me.LabelStats1Max.Location = New System.Drawing.Point(916, 112)
         Me.LabelStats1Max.Name = "LabelStats1Max"
         Me.LabelStats1Max.Size = New System.Drawing.Size(11, 16)
         Me.LabelStats1Max.TabIndex = 752
@@ -5215,7 +5232,7 @@ Partial Class Formtest
         '
         Me.Label436.AutoSize = True
         Me.Label436.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label436.Location = New System.Drawing.Point(806, 75)
+        Me.Label436.Location = New System.Drawing.Point(806, 96)
         Me.Label436.Name = "Label436"
         Me.Label436.Size = New System.Drawing.Size(110, 16)
         Me.Label436.TabIndex = 743
@@ -5225,7 +5242,7 @@ Partial Class Formtest
         '
         Me.LabelStats1Digits.AutoSize = True
         Me.LabelStats1Digits.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelStats1Digits.Location = New System.Drawing.Point(916, 75)
+        Me.LabelStats1Digits.Location = New System.Drawing.Point(916, 96)
         Me.LabelStats1Digits.Name = "LabelStats1Digits"
         Me.LabelStats1Digits.Size = New System.Drawing.Size(11, 16)
         Me.LabelStats1Digits.TabIndex = 742
@@ -5234,9 +5251,9 @@ Partial Class Formtest
         'ButtonStats1Reset
         '
         Me.ButtonStats1Reset.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonStats1Reset.Location = New System.Drawing.Point(929, 180)
+        Me.ButtonStats1Reset.Location = New System.Drawing.Point(924, 202)
         Me.ButtonStats1Reset.Name = "ButtonStats1Reset"
-        Me.ButtonStats1Reset.Size = New System.Drawing.Size(100, 30)
+        Me.ButtonStats1Reset.Size = New System.Drawing.Size(100, 25)
         Me.ButtonStats1Reset.TabIndex = 751
         Me.ButtonStats1Reset.Text = "Reset Stats"
         Me.ButtonStats1Reset.UseVisualStyleBackColor = True
@@ -5245,7 +5262,7 @@ Partial Class Formtest
         '
         Me.Label435.AutoSize = True
         Me.Label435.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label435.Location = New System.Drawing.Point(870, 59)
+        Me.Label435.Location = New System.Drawing.Point(870, 80)
         Me.Label435.Name = "Label435"
         Me.Label435.Size = New System.Drawing.Size(46, 16)
         Me.Label435.TabIndex = 741
@@ -5255,7 +5272,7 @@ Partial Class Formtest
         '
         Me.LabelStats1SEM.AutoSize = True
         Me.LabelStats1SEM.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelStats1SEM.Location = New System.Drawing.Point(916, 59)
+        Me.LabelStats1SEM.Location = New System.Drawing.Point(916, 80)
         Me.LabelStats1SEM.Name = "LabelStats1SEM"
         Me.LabelStats1SEM.Size = New System.Drawing.Size(11, 16)
         Me.LabelStats1SEM.TabIndex = 740
@@ -5265,7 +5282,7 @@ Partial Class Formtest
         '
         Me.Label434.AutoSize = True
         Me.Label434.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label434.Location = New System.Drawing.Point(864, 43)
+        Me.Label434.Location = New System.Drawing.Point(864, 64)
         Me.Label434.Name = "Label434"
         Me.Label434.Size = New System.Drawing.Size(52, 16)
         Me.Label434.TabIndex = 739
@@ -5275,7 +5292,7 @@ Partial Class Formtest
         '
         Me.LabelStats1Stdev.AutoSize = True
         Me.LabelStats1Stdev.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelStats1Stdev.Location = New System.Drawing.Point(916, 43)
+        Me.LabelStats1Stdev.Location = New System.Drawing.Point(916, 64)
         Me.LabelStats1Stdev.Name = "LabelStats1Stdev"
         Me.LabelStats1Stdev.Size = New System.Drawing.Size(11, 16)
         Me.LabelStats1Stdev.TabIndex = 738
@@ -5285,7 +5302,7 @@ Partial Class Formtest
         '
         Me.Label432.AutoSize = True
         Me.Label432.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label432.Location = New System.Drawing.Point(865, 27)
+        Me.Label432.Location = New System.Drawing.Point(865, 48)
         Me.Label432.Name = "Label432"
         Me.Label432.Size = New System.Drawing.Size(51, 16)
         Me.Label432.TabIndex = 737
@@ -5295,7 +5312,7 @@ Partial Class Formtest
         '
         Me.LabelStats1Mean.AutoSize = True
         Me.LabelStats1Mean.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelStats1Mean.Location = New System.Drawing.Point(916, 27)
+        Me.LabelStats1Mean.Location = New System.Drawing.Point(916, 48)
         Me.LabelStats1Mean.Name = "LabelStats1Mean"
         Me.LabelStats1Mean.Size = New System.Drawing.Size(11, 16)
         Me.LabelStats1Mean.TabIndex = 736
@@ -5305,7 +5322,7 @@ Partial Class Formtest
         '
         Me.Label433.AutoSize = True
         Me.Label433.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label433.Location = New System.Drawing.Point(845, 11)
+        Me.Label433.Location = New System.Drawing.Point(845, 16)
         Me.Label433.Name = "Label433"
         Me.Label433.Size = New System.Drawing.Size(71, 16)
         Me.Label433.TabIndex = 735
@@ -5315,7 +5332,7 @@ Partial Class Formtest
         '
         Me.LabelStats1Samples.AutoSize = True
         Me.LabelStats1Samples.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelStats1Samples.Location = New System.Drawing.Point(916, 12)
+        Me.LabelStats1Samples.Location = New System.Drawing.Point(916, 17)
         Me.LabelStats1Samples.Name = "LabelStats1Samples"
         Me.LabelStats1Samples.Size = New System.Drawing.Size(11, 16)
         Me.LabelStats1Samples.TabIndex = 734
@@ -5335,7 +5352,7 @@ Partial Class Formtest
         '
         Me.Dev1Meter.AutoSize = True
         Me.Dev1Meter.Font = New System.Drawing.Font("Microsoft Sans Serif", 80.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Dev1Meter.Location = New System.Drawing.Point(6, 45)
+        Me.Dev1Meter.Location = New System.Drawing.Point(6, 46)
         Me.Dev1Meter.Name = "Dev1Meter"
         Me.Dev1Meter.Size = New System.Drawing.Size(590, 120)
         Me.Dev1Meter.TabIndex = 48
@@ -5368,7 +5385,7 @@ Partial Class Formtest
         '
         Me.Dev2Meter.AutoSize = True
         Me.Dev2Meter.Font = New System.Drawing.Font("Microsoft Sans Serif", 80.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Dev2Meter.Location = New System.Drawing.Point(14, 423)
+        Me.Dev2Meter.Location = New System.Drawing.Point(14, 407)
         Me.Dev2Meter.Name = "Dev2Meter"
         Me.Dev2Meter.Size = New System.Drawing.Size(590, 120)
         Me.Dev2Meter.TabIndex = 70
@@ -5376,6 +5393,9 @@ Partial Class Formtest
         '
         'GroupBox4
         '
+        Me.GroupBox4.Controls.Add(Me.Label135)
+        Me.GroupBox4.Controls.Add(Me.LabelStats2Value)
+        Me.GroupBox4.Controls.Add(Me.ButtonStats2PauseDisplay)
         Me.GroupBox4.Controls.Add(Me.Label105)
         Me.GroupBox4.Controls.Add(Me.LabelStats2FirstValue)
         Me.GroupBox4.Controls.Add(Me.Label22)
@@ -5401,18 +5421,58 @@ Partial Class Formtest
         Me.GroupBox4.Controls.Add(Me.LabelStats2Samples)
         Me.GroupBox4.Controls.Add(Me.Dev2Units)
         Me.GroupBox4.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.GroupBox4.Location = New System.Drawing.Point(8, 378)
+        Me.GroupBox4.Location = New System.Drawing.Point(8, 362)
         Me.GroupBox4.Name = "GroupBox4"
-        Me.GroupBox4.Size = New System.Drawing.Size(1034, 217)
+        Me.GroupBox4.Size = New System.Drawing.Size(1034, 233)
         Me.GroupBox4.TabIndex = 80
         Me.GroupBox4.TabStop = False
         Me.GroupBox4.Text = "DEVICE 2 DATA"
+        '
+        'Label105
+        '
+        Me.Label105.AutoSize = True
+        Me.Label105.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label105.Location = New System.Drawing.Point(826, 177)
+        Me.Label105.Name = "Label105"
+        Me.Label105.Size = New System.Drawing.Size(90, 16)
+        Me.Label105.TabIndex = 764
+        Me.Label105.Text = "Baseline 1st ="
+        '
+        'LabelStats2FirstValue
+        '
+        Me.LabelStats2FirstValue.AutoSize = True
+        Me.LabelStats2FirstValue.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelStats2FirstValue.Location = New System.Drawing.Point(916, 177)
+        Me.LabelStats2FirstValue.Name = "LabelStats2FirstValue"
+        Me.LabelStats2FirstValue.Size = New System.Drawing.Size(11, 16)
+        Me.LabelStats2FirstValue.TabIndex = 763
+        Me.LabelStats2FirstValue.Text = "-"
+        '
+        'Label22
+        '
+        Me.Label22.AutoSize = True
+        Me.Label22.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label22.Location = New System.Drawing.Point(459, 100)
+        Me.Label22.Name = "Label22"
+        Me.Label22.Size = New System.Drawing.Size(106, 16)
+        Me.Label22.TabIndex = 765
+        Me.Label22.Text = "PPM Deviation ="
+        '
+        'Label65
+        '
+        Me.Label65.AutoSize = True
+        Me.Label65.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label65.Location = New System.Drawing.Point(565, 100)
+        Me.Label65.Name = "Label65"
+        Me.Label65.Size = New System.Drawing.Size(11, 16)
+        Me.Label65.TabIndex = 764
+        Me.Label65.Text = "-"
         '
         'Label440
         '
         Me.Label440.AutoSize = True
         Me.Label440.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label440.Location = New System.Drawing.Point(810, 139)
+        Me.Label440.Location = New System.Drawing.Point(810, 160)
         Me.Label440.Name = "Label440"
         Me.Label440.Size = New System.Drawing.Size(106, 16)
         Me.Label440.TabIndex = 763
@@ -5422,7 +5482,7 @@ Partial Class Formtest
         '
         Me.LabelStats2Deviation.AutoSize = True
         Me.LabelStats2Deviation.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelStats2Deviation.Location = New System.Drawing.Point(916, 139)
+        Me.LabelStats2Deviation.Location = New System.Drawing.Point(916, 160)
         Me.LabelStats2Deviation.Name = "LabelStats2Deviation"
         Me.LabelStats2Deviation.Size = New System.Drawing.Size(11, 16)
         Me.LabelStats2Deviation.TabIndex = 762
@@ -5432,7 +5492,7 @@ Partial Class Formtest
         '
         Me.Label438.AutoSize = True
         Me.Label438.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label438.Location = New System.Drawing.Point(874, 91)
+        Me.Label438.Location = New System.Drawing.Point(874, 112)
         Me.Label438.Name = "Label438"
         Me.Label438.Size = New System.Drawing.Size(42, 16)
         Me.Label438.TabIndex = 759
@@ -5442,7 +5502,7 @@ Partial Class Formtest
         '
         Me.Label444.AutoSize = True
         Me.Label444.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label444.Location = New System.Drawing.Point(846, 123)
+        Me.Label444.Location = New System.Drawing.Point(846, 144)
         Me.Label444.Name = "Label444"
         Me.Label444.Size = New System.Drawing.Size(70, 16)
         Me.Label444.TabIndex = 761
@@ -5452,7 +5512,7 @@ Partial Class Formtest
         '
         Me.LabelStats2Max.AutoSize = True
         Me.LabelStats2Max.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelStats2Max.Location = New System.Drawing.Point(916, 91)
+        Me.LabelStats2Max.Location = New System.Drawing.Point(916, 112)
         Me.LabelStats2Max.Name = "LabelStats2Max"
         Me.LabelStats2Max.Size = New System.Drawing.Size(11, 16)
         Me.LabelStats2Max.TabIndex = 758
@@ -5462,7 +5522,7 @@ Partial Class Formtest
         '
         Me.LabelStats2MaxDiff.AutoSize = True
         Me.LabelStats2MaxDiff.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelStats2MaxDiff.Location = New System.Drawing.Point(916, 123)
+        Me.LabelStats2MaxDiff.Location = New System.Drawing.Point(916, 144)
         Me.LabelStats2MaxDiff.Name = "LabelStats2MaxDiff"
         Me.LabelStats2MaxDiff.Size = New System.Drawing.Size(11, 16)
         Me.LabelStats2MaxDiff.TabIndex = 760
@@ -5472,7 +5532,7 @@ Partial Class Formtest
         '
         Me.Label169.AutoSize = True
         Me.Label169.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label169.Location = New System.Drawing.Point(878, 107)
+        Me.Label169.Location = New System.Drawing.Point(878, 128)
         Me.Label169.Name = "Label169"
         Me.Label169.Size = New System.Drawing.Size(38, 16)
         Me.Label169.TabIndex = 757
@@ -5482,7 +5542,7 @@ Partial Class Formtest
         '
         Me.LabelStats2Min.AutoSize = True
         Me.LabelStats2Min.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelStats2Min.Location = New System.Drawing.Point(916, 107)
+        Me.LabelStats2Min.Location = New System.Drawing.Point(916, 128)
         Me.LabelStats2Min.Name = "LabelStats2Min"
         Me.LabelStats2Min.Size = New System.Drawing.Size(11, 16)
         Me.LabelStats2Min.TabIndex = 756
@@ -5491,9 +5551,9 @@ Partial Class Formtest
         'ButtonStats2Reset
         '
         Me.ButtonStats2Reset.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonStats2Reset.Location = New System.Drawing.Point(929, 180)
+        Me.ButtonStats2Reset.Location = New System.Drawing.Point(924, 201)
         Me.ButtonStats2Reset.Name = "ButtonStats2Reset"
-        Me.ButtonStats2Reset.Size = New System.Drawing.Size(100, 30)
+        Me.ButtonStats2Reset.Size = New System.Drawing.Size(100, 25)
         Me.ButtonStats2Reset.TabIndex = 752
         Me.ButtonStats2Reset.Text = "Reset Stats"
         Me.ButtonStats2Reset.UseVisualStyleBackColor = True
@@ -5502,7 +5562,7 @@ Partial Class Formtest
         '
         Me.Label437.AutoSize = True
         Me.Label437.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label437.Location = New System.Drawing.Point(806, 75)
+        Me.Label437.Location = New System.Drawing.Point(806, 96)
         Me.Label437.Name = "Label437"
         Me.Label437.Size = New System.Drawing.Size(110, 16)
         Me.Label437.TabIndex = 755
@@ -5512,7 +5572,7 @@ Partial Class Formtest
         '
         Me.LabelStats2Digits.AutoSize = True
         Me.LabelStats2Digits.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelStats2Digits.Location = New System.Drawing.Point(916, 75)
+        Me.LabelStats2Digits.Location = New System.Drawing.Point(916, 96)
         Me.LabelStats2Digits.Name = "LabelStats2Digits"
         Me.LabelStats2Digits.Size = New System.Drawing.Size(11, 16)
         Me.LabelStats2Digits.TabIndex = 754
@@ -5522,7 +5582,7 @@ Partial Class Formtest
         '
         Me.Label439.AutoSize = True
         Me.Label439.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label439.Location = New System.Drawing.Point(870, 59)
+        Me.Label439.Location = New System.Drawing.Point(870, 80)
         Me.Label439.Name = "Label439"
         Me.Label439.Size = New System.Drawing.Size(46, 16)
         Me.Label439.TabIndex = 753
@@ -5532,7 +5592,7 @@ Partial Class Formtest
         '
         Me.LabelStats2SEM.AutoSize = True
         Me.LabelStats2SEM.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelStats2SEM.Location = New System.Drawing.Point(916, 59)
+        Me.LabelStats2SEM.Location = New System.Drawing.Point(916, 80)
         Me.LabelStats2SEM.Name = "LabelStats2SEM"
         Me.LabelStats2SEM.Size = New System.Drawing.Size(11, 16)
         Me.LabelStats2SEM.TabIndex = 752
@@ -5542,7 +5602,7 @@ Partial Class Formtest
         '
         Me.Label441.AutoSize = True
         Me.Label441.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label441.Location = New System.Drawing.Point(865, 43)
+        Me.Label441.Location = New System.Drawing.Point(865, 64)
         Me.Label441.Name = "Label441"
         Me.Label441.Size = New System.Drawing.Size(52, 16)
         Me.Label441.TabIndex = 751
@@ -5552,7 +5612,7 @@ Partial Class Formtest
         '
         Me.LabelStats2Stdev.AutoSize = True
         Me.LabelStats2Stdev.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelStats2Stdev.Location = New System.Drawing.Point(917, 43)
+        Me.LabelStats2Stdev.Location = New System.Drawing.Point(917, 64)
         Me.LabelStats2Stdev.Name = "LabelStats2Stdev"
         Me.LabelStats2Stdev.Size = New System.Drawing.Size(11, 16)
         Me.LabelStats2Stdev.TabIndex = 750
@@ -5562,7 +5622,7 @@ Partial Class Formtest
         '
         Me.Label443.AutoSize = True
         Me.Label443.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label443.Location = New System.Drawing.Point(866, 27)
+        Me.Label443.Location = New System.Drawing.Point(866, 48)
         Me.Label443.Name = "Label443"
         Me.Label443.Size = New System.Drawing.Size(51, 16)
         Me.Label443.TabIndex = 749
@@ -5572,7 +5632,7 @@ Partial Class Formtest
         '
         Me.LabelStats2Mean.AutoSize = True
         Me.LabelStats2Mean.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelStats2Mean.Location = New System.Drawing.Point(917, 27)
+        Me.LabelStats2Mean.Location = New System.Drawing.Point(917, 48)
         Me.LabelStats2Mean.Name = "LabelStats2Mean"
         Me.LabelStats2Mean.Size = New System.Drawing.Size(11, 16)
         Me.LabelStats2Mean.TabIndex = 748
@@ -5582,7 +5642,7 @@ Partial Class Formtest
         '
         Me.Label445.AutoSize = True
         Me.Label445.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label445.Location = New System.Drawing.Point(846, 11)
+        Me.Label445.Location = New System.Drawing.Point(846, 16)
         Me.Label445.Name = "Label445"
         Me.Label445.Size = New System.Drawing.Size(71, 16)
         Me.Label445.TabIndex = 747
@@ -5592,7 +5652,7 @@ Partial Class Formtest
         '
         Me.LabelStats2Samples.AutoSize = True
         Me.LabelStats2Samples.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelStats2Samples.Location = New System.Drawing.Point(917, 11)
+        Me.LabelStats2Samples.Location = New System.Drawing.Point(917, 16)
         Me.LabelStats2Samples.Name = "LabelStats2Samples"
         Me.LabelStats2Samples.Size = New System.Drawing.Size(11, 16)
         Me.LabelStats2Samples.TabIndex = 746
@@ -7296,22 +7356,22 @@ Partial Class Formtest
         'Chart1
         '
         Me.Chart1.BackColor = System.Drawing.SystemColors.Control
-        ChartArea3.BackColor = System.Drawing.Color.Black
-        ChartArea3.BorderColor = System.Drawing.Color.White
-        ChartArea3.BorderWidth = 2
-        ChartArea3.Name = "ChartArea1"
-        Me.Chart1.ChartAreas.Add(ChartArea3)
-        Legend3.Name = "Legend1"
-        Me.Chart1.Legends.Add(Legend3)
+        ChartArea1.BackColor = System.Drawing.Color.Black
+        ChartArea1.BorderColor = System.Drawing.Color.White
+        ChartArea1.BorderWidth = 2
+        ChartArea1.Name = "ChartArea1"
+        Me.Chart1.ChartAreas.Add(ChartArea1)
+        Legend1.Name = "Legend1"
+        Me.Chart1.Legends.Add(Legend1)
         Me.Chart1.Location = New System.Drawing.Point(-25, 197)
         Me.Chart1.Name = "Chart1"
-        Series3.ChartArea = "ChartArea1"
-        Series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series3.Color = System.Drawing.Color.Yellow
-        Series3.Enabled = False
-        Series3.Legend = "Legend1"
-        Series3.Name = "Series1"
-        Me.Chart1.Series.Add(Series3)
+        Series1.ChartArea = "ChartArea1"
+        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series1.Color = System.Drawing.Color.Yellow
+        Series1.Enabled = False
+        Series1.Legend = "Legend1"
+        Series1.Name = "Series1"
+        Me.Chart1.Series.Add(Series1)
         Me.Chart1.Size = New System.Drawing.Size(1120, 415)
         Me.Chart1.TabIndex = 87
         Me.Chart1.Text = "Chart1"
@@ -7339,16 +7399,16 @@ Partial Class Formtest
         '
         'ChartCal72
         '
-        ChartArea4.Name = "ChartArea1"
-        Me.ChartCal72.ChartAreas.Add(ChartArea4)
-        Legend4.Name = "Legend1"
-        Me.ChartCal72.Legends.Add(Legend4)
+        ChartArea2.Name = "ChartArea1"
+        Me.ChartCal72.ChartAreas.Add(ChartArea2)
+        Legend2.Name = "Legend1"
+        Me.ChartCal72.Legends.Add(Legend2)
         Me.ChartCal72.Location = New System.Drawing.Point(625, 165)
         Me.ChartCal72.Name = "ChartCal72"
-        Series4.ChartArea = "ChartArea1"
-        Series4.Legend = "Legend1"
-        Series4.Name = "Series1"
-        Me.ChartCal72.Series.Add(Series4)
+        Series2.ChartArea = "ChartArea1"
+        Series2.Legend = "Legend1"
+        Series2.Name = "Series1"
+        Me.ChartCal72.Series.Add(Series2)
         Me.ChartCal72.Size = New System.Drawing.Size(300, 300)
         Me.ChartCal72.TabIndex = 2
         Me.ChartCal72.Text = "Chart2"
@@ -15320,65 +15380,65 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
-        'Label22
+        'ButtonStats1PauseDisplay
         '
-        Me.Label22.AutoSize = True
-        Me.Label22.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label22.Location = New System.Drawing.Point(459, 100)
-        Me.Label22.Name = "Label22"
-        Me.Label22.Size = New System.Drawing.Size(106, 16)
-        Me.Label22.TabIndex = 765
-        Me.Label22.Text = "PPM Deviation ="
+        Me.ButtonStats1PauseDisplay.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonStats1PauseDisplay.Location = New System.Drawing.Point(789, 202)
+        Me.ButtonStats1PauseDisplay.Name = "ButtonStats1PauseDisplay"
+        Me.ButtonStats1PauseDisplay.Size = New System.Drawing.Size(120, 25)
+        Me.ButtonStats1PauseDisplay.TabIndex = 763
+        Me.ButtonStats1PauseDisplay.Text = "Pause Display"
+        Me.ButtonStats1PauseDisplay.UseVisualStyleBackColor = True
         '
-        'Label65
+        'ButtonStats2PauseDisplay
         '
-        Me.Label65.AutoSize = True
-        Me.Label65.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label65.Location = New System.Drawing.Point(565, 100)
-        Me.Label65.Name = "Label65"
-        Me.Label65.Size = New System.Drawing.Size(11, 16)
-        Me.Label65.TabIndex = 764
-        Me.Label65.Text = "-"
+        Me.ButtonStats2PauseDisplay.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonStats2PauseDisplay.Location = New System.Drawing.Point(789, 201)
+        Me.ButtonStats2PauseDisplay.Name = "ButtonStats2PauseDisplay"
+        Me.ButtonStats2PauseDisplay.Size = New System.Drawing.Size(120, 25)
+        Me.ButtonStats2PauseDisplay.TabIndex = 766
+        Me.ButtonStats2PauseDisplay.Text = "Pause Display"
+        Me.ButtonStats2PauseDisplay.UseVisualStyleBackColor = True
         '
-        'Label69
+        'Label70
         '
-        Me.Label69.AutoSize = True
-        Me.Label69.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label69.Location = New System.Drawing.Point(826, 156)
-        Me.Label69.Name = "Label69"
-        Me.Label69.Size = New System.Drawing.Size(90, 16)
-        Me.Label69.TabIndex = 762
-        Me.Label69.Text = "Baseline 1st ="
+        Me.Label70.AutoSize = True
+        Me.Label70.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label70.Location = New System.Drawing.Point(870, 32)
+        Me.Label70.Name = "Label70"
+        Me.Label70.Size = New System.Drawing.Size(46, 16)
+        Me.Label70.TabIndex = 765
+        Me.Label70.Text = "Data ="
         '
-        'LabelStats1FirstValue
+        'LabelStats1Value
         '
-        Me.LabelStats1FirstValue.AutoSize = True
-        Me.LabelStats1FirstValue.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelStats1FirstValue.Location = New System.Drawing.Point(916, 156)
-        Me.LabelStats1FirstValue.Name = "LabelStats1FirstValue"
-        Me.LabelStats1FirstValue.Size = New System.Drawing.Size(11, 16)
-        Me.LabelStats1FirstValue.TabIndex = 761
-        Me.LabelStats1FirstValue.Text = "-"
+        Me.LabelStats1Value.AutoSize = True
+        Me.LabelStats1Value.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelStats1Value.Location = New System.Drawing.Point(916, 33)
+        Me.LabelStats1Value.Name = "LabelStats1Value"
+        Me.LabelStats1Value.Size = New System.Drawing.Size(11, 16)
+        Me.LabelStats1Value.TabIndex = 764
+        Me.LabelStats1Value.Text = "-"
         '
-        'Label105
+        'Label135
         '
-        Me.Label105.AutoSize = True
-        Me.Label105.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label105.Location = New System.Drawing.Point(826, 156)
-        Me.Label105.Name = "Label105"
-        Me.Label105.Size = New System.Drawing.Size(90, 16)
-        Me.Label105.TabIndex = 764
-        Me.Label105.Text = "Baseline 1st ="
+        Me.Label135.AutoSize = True
+        Me.Label135.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label135.Location = New System.Drawing.Point(871, 32)
+        Me.Label135.Name = "Label135"
+        Me.Label135.Size = New System.Drawing.Size(46, 16)
+        Me.Label135.TabIndex = 768
+        Me.Label135.Text = "Data ="
         '
-        'LabelStats2FirstValue
+        'LabelStats2Value
         '
-        Me.LabelStats2FirstValue.AutoSize = True
-        Me.LabelStats2FirstValue.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelStats2FirstValue.Location = New System.Drawing.Point(916, 156)
-        Me.LabelStats2FirstValue.Name = "LabelStats2FirstValue"
-        Me.LabelStats2FirstValue.Size = New System.Drawing.Size(11, 16)
-        Me.LabelStats2FirstValue.TabIndex = 763
-        Me.LabelStats2FirstValue.Text = "-"
+        Me.LabelStats2Value.AutoSize = True
+        Me.LabelStats2Value.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelStats2Value.Location = New System.Drawing.Point(917, 32)
+        Me.LabelStats2Value.Name = "LabelStats2Value"
+        Me.LabelStats2Value.Size = New System.Drawing.Size(11, 16)
+        Me.LabelStats2Value.TabIndex = 767
+        Me.LabelStats2Value.Text = "-"
         '
         'OnOffLed2
         '
@@ -16821,7 +16881,6 @@ Partial Class Formtest
     Friend WithEvents ColumnLogDev2Gain As DataGridViewTextBoxColumn
     Friend WithEvents ColumnLogDev2MaxDiff As DataGridViewTextBoxColumn
     Friend WithEvents ColumnLogDev2Deviation As DataGridViewTextBoxColumn
-    Friend WithEvents CheckBox1 As CheckBox
     Friend WithEvents LabelXaxisProjectedTime As Label
     Friend WithEvents Label170 As Label
     Friend WithEvents Timer19 As Timer
@@ -16831,4 +16890,10 @@ Partial Class Formtest
     Friend WithEvents LabelStats2FirstValue As Label
     Friend WithEvents Label22 As Label
     Friend WithEvents Label65 As Label
+    Friend WithEvents ButtonStats1PauseDisplay As Button
+    Friend WithEvents ButtonStats2PauseDisplay As Button
+    Friend WithEvents Label70 As Label
+    Friend WithEvents LabelStats1Value As Label
+    Friend WithEvents Label135 As Label
+    Friend WithEvents LabelStats2Value As Label
 End Class

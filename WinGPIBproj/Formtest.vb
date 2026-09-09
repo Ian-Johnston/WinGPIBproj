@@ -288,7 +288,7 @@ Public Class Formtest
             End If
             CheckBoxThemeSet.Checked = My.Settings.ThemeSet
 
-            BannerText1 = "WinGPIB   V5.005"
+            BannerText1 = "WinGPIB   V5.006"
             BannerText2 = "                                                                            "
             BannerText3 = "Free for Non-Commercial Use • Support WinGPIB — see About"
             Me.Text = BannerText1 & BannerText2 & BannerText3.ToString()
@@ -1817,19 +1817,18 @@ Public Class Formtest
                     End If
 
                     ' Device Meter
-                    Dim dev1Temp1 As String = dev1NumericValue.ToString("#00.000000000", Globalization.CultureInfo.InvariantCulture)
+                    Dim dev1Temp1 As String = dev1NumericValue.ToString("#00.000#######", Globalization.CultureInfo.InvariantCulture)
                     If dev1NumericValue >= 1 Then
                         dev1Temp1 = dev1Temp1.TrimStart("0"c)  ' remove leading zeros
                     End If
                     If dev1NumericValue < 1 Then
-                        dev1Temp1 = dev1NumericValue.ToString("#0.000000000", Globalization.CultureInfo.InvariantCulture)    ' If less than "1" the only one leading zero
+                        dev1Temp1 = dev1NumericValue.ToString("#0.000#######", Globalization.CultureInfo.InvariantCulture)    ' If less than "1" the only one leading zero
                     End If
-                    dev1Temp1 = dev1Temp1.TrimEnd("0"c)  ' remove trailing zeros
 
                     Device1name.Text = txtname1.Text
                     If ButtonDev1Run.Text = "Stop" Or ButtonDev12Run.Text = "Stop" Then
                         If Integer.TryParse(Dev1DecimalNumDPs.Text, decimalPlaces) Then
-                            Dim formatString As String = "0." & New String("0"c, decimalPlaces)
+                            Dim formatString As String = BuildMinDpFormat(decimalPlaces)
                             Dev1Meter.Text = dev1NumericValue.ToString(formatString, Globalization.CultureInfo.InvariantCulture)
                             ProcessLiveStatistics(1, dev1NumericValue)      ' Process statistics for this Device 1 reading
                             UpdateLiveAnalysisChart()
@@ -2063,19 +2062,18 @@ Public Class Formtest
                     End If
 
                     ' Device Meter
-                    Dim Dev2Temp1 As String = dev2NumericValue.ToString("#00.000000000", Globalization.CultureInfo.InvariantCulture)
+                    Dim Dev2Temp1 As String = dev2NumericValue.ToString("#00.000#######", Globalization.CultureInfo.InvariantCulture)
                     If dev2NumericValue >= 1 Then
                         Dev2Temp1 = Dev2Temp1.TrimStart("0"c)  ' remove leading zeros
                     End If
                     If dev2NumericValue < 1 Then
-                        Dev2Temp1 = dev2NumericValue.ToString("#0.000000000", Globalization.CultureInfo.InvariantCulture)    ' If less than "1" the only one leading zero
+                        Dev2Temp1 = dev2NumericValue.ToString("#0.000#######", Globalization.CultureInfo.InvariantCulture)    ' If less than "1" the only one leading zero
                     End If
-                    Dev2Temp1 = Dev2Temp1.TrimEnd("0"c)  ' remove trailing zeros
 
                     Device2name.Text = txtname2.Text
                     If ButtonDev2Run.Text = "Stop" Or ButtonDev12Run.Text = "Stop" Then
                         If Integer.TryParse(Dev2DecimalNumDPs.Text, decimalPlaces) Then
-                            Dim formatString As String = "0." & New String("0"c, decimalPlaces)
+                            Dim formatString As String = BuildMinDpFormat(decimalPlaces)
                             Dev2Meter.Text = dev2NumericValue.ToString(formatString, Globalization.CultureInfo.InvariantCulture)
                             ProcessLiveStatistics(2, dev2NumericValue)      ' Process statistics for this Device 2 reading
                             UpdateLiveAnalysisChart()

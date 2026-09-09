@@ -15,6 +15,15 @@ Partial Class Formtest
     Private Shared Function SendMessage(hWnd As IntPtr, msg As Integer, wParam As Integer, lParam As Integer) As Integer
     End Function
 
+    ' Builds a "minimum 3 decimals, trim trailing zeros beyond that" format
+    ' string for the given number of decimal places - shared so the stats
+    ' panel's value readouts always show exactly what the big meter shows,
+    ' not just something with the same number of decimals available.
+    Private Function BuildMinDpFormat(decimalPlaces As Integer) As String
+        Dim minDp As Integer = Math.Min(3, decimalPlaces)
+        Return "0." & New String("0"c, minDp) & New String("#"c, decimalPlaces - minDp)
+    End Function
+
 
 
     Dim inst_value1FChart As Double = Double.NaN
@@ -67,11 +76,21 @@ Partial Class Formtest
     Private Stats1Count As Long = 0
     Private Stats1Mean As Double = 0.0
     Private Stats1M2 As Double = 0.0
+    Private PauseLiveDisplay1 As Boolean = False
+    Private LabelStats1SamplesNormalColor As Color = Color.Empty
 
     ' Live Statistics - Device 2
     Private Stats2Count As Long = 0
     Private Stats2Mean As Double = 0.0
     Private Stats2M2 As Double = 0.0
+    Private PauseLiveDisplay2 As Boolean = False
+    Private LabelStats2SamplesNormalColor As Color = Color.Empty
+
+    ' Flashes the Samples label on whichever device(s) are display-paused,
+    ' as a visual reminder that what's on screen is frozen (the underlying
+    ' running stats keep updating regardless).
+    Private WithEvents PauseFlashTimer As New Timer With {.Interval = 500}
+    Private PauseFlashOn As Boolean = False
 
     ' Live Analysis Pop-out Chart
     Private LiveAnalysisForm As Form = Nothing
@@ -662,7 +681,6 @@ Partial Class Formtest
 
         If Stats1Count = 1 Then
             Stats1FirstValue = value
-            LabelStats1FirstValue.Text = Stats1FirstValue.ToString("0.0000000000")
         End If
 
         Dim delta As Double = value - Stats1Mean
@@ -679,42 +697,47 @@ Partial Class Formtest
         'Stats1DeviationCurrent = (value - Stats1FirstValue) * 1000000
         Stats1DeviationCurrent = If(Stats1FirstValue <> 0, (value - Stats1FirstValue) / Stats1FirstValue * 1000000, 0)
 
+        ' Need at least 2 readings for STDEV
+        If Stats1Count >= 2 Then
+            Dim variance As Double = Stats1M2 / (Stats1Count - 1)
+            Stats1StdevCurrent = Math.Sqrt(variance)
+            Stats1SEMCurrent = Stats1StdevCurrent / Math.Sqrt(Stats1Count)
+        Else
+            Stats1StdevCurrent = 0.0
+            Stats1SEMCurrent = 0.0
+        End If
+
+        ' Everything below is display only - the running stats above keep
+        ' updating regardless, so "Pause Display" never affects the
+        ' underlying data, only what's shown on screen.
+        If PauseLiveDisplay1 Then Exit Sub
+
+        ' Match Dev1Meter's own decimal-places setting, so this "repeat of
+        ' the large digits" always shows exactly what the meter shows.
+        Dim dev1ValueDp As Integer
+        Dim dev1ValueFormat As String = If(Integer.TryParse(Dev1DecimalNumDPs.Text, dev1ValueDp), BuildMinDpFormat(dev1ValueDp), "0.000#######")
+        LabelStats1Value.Text = value.ToString(dev1ValueFormat, Globalization.CultureInfo.InvariantCulture)
+
+        If Stats1Count = 1 Then
+            LabelStats1FirstValue.Text = Stats1FirstValue.ToString("0.000#######")
+        End If
+
         ' Number of samples
         LabelStats1Samples.Text = Stats1Count.ToString()
 
         ' Mean
-        LabelStats1Mean.Text = Stats1Mean.ToString("0.0000000000")
+        LabelStats1Mean.Text = Stats1Mean.ToString("0.000#######")
 
         ' Max / Min recorded
-        LabelStats1Max.Text = Stats1Max.ToString("0.0000000000")
-        LabelStats1Min.Text = Stats1Min.ToString("0.0000000000")
+        LabelStats1Max.Text = Stats1Max.ToString("0.000#######")
+        LabelStats1Min.Text = Stats1Min.ToString("0.000#######")
 
         ' Max Diff and PPM Deviation from first sample
-        LabelStats1MaxDiff.Text = (Stats1Max - Stats1Min).ToString("0.0000000000")
-        LabelStats1Deviation.Text = Stats1DeviationCurrent.ToString("0.0000")
+        LabelStats1MaxDiff.Text = (Stats1Max - Stats1Min).ToString("0.000#######")
+        LabelStats1Deviation.Text = Stats1DeviationCurrent.ToString("0.000#")
 
-        ' Need at least 2 readings for STDEV
-        If Stats1Count >= 2 Then
-
-            Dim variance As Double = Stats1M2 / (Stats1Count - 1)
-            Dim stdev As Double = Math.Sqrt(variance)
-            Dim sem As Double = stdev / Math.Sqrt(Stats1Count)
-
-            Stats1StdevCurrent = stdev
-            Stats1SEMCurrent = sem
-
-            LabelStats1Stdev.Text = stdev.ToString("0.0000000000")
-            LabelStats1SEM.Text = sem.ToString("0.0000000000")
-
-        Else
-
-            Stats1StdevCurrent = 0.0
-            Stats1SEMCurrent = 0.0
-
-            LabelStats1Stdev.Text = "0.0000000000"
-            LabelStats1SEM.Text = "0.0000000000"
-
-        End If
+        LabelStats1Stdev.Text = Stats1StdevCurrent.ToString("0.000#######")
+        LabelStats1SEM.Text = Stats1SEMCurrent.ToString("0.000#######")
 
         ' Theoretical averaging gain in digits
         If Stats1Count > 0 Then
@@ -735,7 +758,6 @@ Partial Class Formtest
 
         If Stats2Count = 1 Then
             Stats2FirstValue = value
-            LabelStats2FirstValue.Text = Stats2FirstValue.ToString("0.0000000000")
         End If
 
         Dim delta As Double = value - Stats2Mean
@@ -752,42 +774,47 @@ Partial Class Formtest
         'Stats2DeviationCurrent = (value - Stats2FirstValue) * 1000000
         Stats2DeviationCurrent = If(Stats2FirstValue <> 0, (value - Stats2FirstValue) / Stats2FirstValue * 1000000, 0)
 
+        ' Need at least 2 readings for STDEV
+        If Stats2Count >= 2 Then
+            Dim variance As Double = Stats2M2 / (Stats2Count - 1)
+            Stats2StdevCurrent = Math.Sqrt(variance)
+            Stats2SEMCurrent = Stats2StdevCurrent / Math.Sqrt(Stats2Count)
+        Else
+            Stats2StdevCurrent = 0.0
+            Stats2SEMCurrent = 0.0
+        End If
+
+        ' Everything below is display only - the running stats above keep
+        ' updating regardless, so "Pause Display" never affects the
+        ' underlying data, only what's shown on screen.
+        If PauseLiveDisplay2 Then Exit Sub
+
+        ' Match Dev2Meter's own decimal-places setting, so this "repeat of
+        ' the large digits" always shows exactly what the meter shows.
+        Dim dev2ValueDp As Integer
+        Dim dev2ValueFormat As String = If(Integer.TryParse(Dev2DecimalNumDPs.Text, dev2ValueDp), BuildMinDpFormat(dev2ValueDp), "0.000#######")
+        LabelStats2Value.Text = value.ToString(dev2ValueFormat, Globalization.CultureInfo.InvariantCulture)
+
+        If Stats2Count = 1 Then
+            LabelStats2FirstValue.Text = Stats2FirstValue.ToString("0.000#######")
+        End If
+
         ' Number of samples
         LabelStats2Samples.Text = Stats2Count.ToString()
 
         ' Mean
-        LabelStats2Mean.Text = Stats2Mean.ToString("0.0000000000")
+        LabelStats2Mean.Text = Stats2Mean.ToString("0.000#######")
 
         ' Max / Min recorded
-        LabelStats2Max.Text = Stats2Max.ToString("0.0000000000")
-        LabelStats2Min.Text = Stats2Min.ToString("0.0000000000")
+        LabelStats2Max.Text = Stats2Max.ToString("0.000#######")
+        LabelStats2Min.Text = Stats2Min.ToString("0.000#######")
 
         ' Max Diff and PPM Deviation from first sample
-        LabelStats2MaxDiff.Text = (Stats2Max - Stats2Min).ToString("0.0000000000")
-        LabelStats2Deviation.Text = Stats2DeviationCurrent.ToString("0.0000")
+        LabelStats2MaxDiff.Text = (Stats2Max - Stats2Min).ToString("0.000#######")
+        LabelStats2Deviation.Text = Stats2DeviationCurrent.ToString("0.000#")
 
-        ' Need at least 2 readings for STDEV
-        If Stats2Count >= 2 Then
-
-            Dim variance As Double = Stats2M2 / (Stats2Count - 1)
-            Dim stdev As Double = Math.Sqrt(variance)
-            Dim sem As Double = stdev / Math.Sqrt(Stats2Count)
-
-            Stats2StdevCurrent = stdev
-            Stats2SEMCurrent = sem
-
-            LabelStats2Stdev.Text = stdev.ToString("0.0000000000")
-            LabelStats2SEM.Text = sem.ToString("0.0000000000")
-
-        Else
-
-            Stats2StdevCurrent = 0.0
-            Stats2SEMCurrent = 0.0
-
-            LabelStats2Stdev.Text = "0.0000000000"
-            LabelStats2SEM.Text = "0.0000000000"
-
-        End If
+        LabelStats2Stdev.Text = Stats2StdevCurrent.ToString("0.000#######")
+        LabelStats2SEM.Text = Stats2SEMCurrent.ToString("0.000#######")
 
         ' Theoretical averaging gain in digits
         If Stats2Count > 0 Then
@@ -850,6 +877,15 @@ Partial Class Formtest
         LabelStats1Deviation.Text = "-"
         LabelStats1FirstValue.Text = "-"
 
+        ' Resetting stats also un-pauses the display, so the reset is
+        ' actually visible rather than sitting frozen behind a paused view.
+        If PauseLiveDisplay1 Then
+            PauseLiveDisplay1 = False
+            ButtonStats1PauseDisplay.Text = "Pause Display"
+            LabelStats1Samples.ForeColor = LabelStats1SamplesNormalColor
+            If Not PauseLiveDisplay2 Then PauseFlashTimer.Stop()
+        End If
+
     End Sub
 
 
@@ -874,6 +910,65 @@ Partial Class Formtest
         LabelStats2MaxDiff.Text = "-"
         LabelStats2Deviation.Text = "-"
         LabelStats2FirstValue.Text = "-"
+
+        ' Resetting stats also un-pauses the display, so the reset is
+        ' actually visible rather than sitting frozen behind a paused view.
+        If PauseLiveDisplay2 Then
+            PauseLiveDisplay2 = False
+            ButtonStats2PauseDisplay.Text = "Pause Display"
+            LabelStats2Samples.ForeColor = LabelStats2SamplesNormalColor
+            If Not PauseLiveDisplay1 Then PauseFlashTimer.Stop()
+        End If
+
+    End Sub
+
+
+    Private Sub ButtonStats1PauseDisplay_Click(sender As Object, e As EventArgs) Handles ButtonStats1PauseDisplay.Click
+
+        PauseLiveDisplay1 = Not PauseLiveDisplay1
+        ButtonStats1PauseDisplay.Text = If(PauseLiveDisplay1, "Resume Display", "Pause Display")
+
+        If PauseLiveDisplay1 Then
+            LabelStats1SamplesNormalColor = LabelStats1Samples.ForeColor
+            PauseFlashTimer.Start()
+        Else
+            LabelStats1Samples.ForeColor = LabelStats1SamplesNormalColor
+        End If
+
+    End Sub
+
+
+    Private Sub ButtonStats2PauseDisplay_Click(sender As Object, e As EventArgs) Handles ButtonStats2PauseDisplay.Click
+
+        PauseLiveDisplay2 = Not PauseLiveDisplay2
+        ButtonStats2PauseDisplay.Text = If(PauseLiveDisplay2, "Resume Display", "Pause Display")
+
+        If PauseLiveDisplay2 Then
+            LabelStats2SamplesNormalColor = LabelStats2Samples.ForeColor
+            PauseFlashTimer.Start()
+        Else
+            LabelStats2Samples.ForeColor = LabelStats2SamplesNormalColor
+        End If
+
+    End Sub
+
+
+    Private Sub PauseFlashTimer_Tick(sender As Object, e As EventArgs) Handles PauseFlashTimer.Tick
+
+        PauseFlashOn = Not PauseFlashOn
+
+        If PauseLiveDisplay1 Then
+            LabelStats1Samples.ForeColor = If(PauseFlashOn, Color.Red, LabelStats1SamplesNormalColor)
+        End If
+
+        If PauseLiveDisplay2 Then
+            LabelStats2Samples.ForeColor = If(PauseFlashOn, Color.Red, LabelStats2SamplesNormalColor)
+        End If
+
+        ' Nothing left to flash - stop running rather than tick forever in the background.
+        If Not PauseLiveDisplay1 AndAlso Not PauseLiveDisplay2 Then
+            PauseFlashTimer.Stop()
+        End If
 
     End Sub
 
