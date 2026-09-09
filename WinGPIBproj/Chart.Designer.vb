@@ -23,9 +23,9 @@ Partial Class Chart
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
-        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea3 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend3 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series3 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Chart))
         Me.Chart2 = New System.Windows.Forms.DataVisualization.Charting.Chart()
         Me.ButtonScrollLeft = New System.Windows.Forms.Button()
@@ -193,22 +193,22 @@ Partial Class Chart
         'Chart2
         '
         Me.Chart2.BackColor = System.Drawing.SystemColors.Control
-        ChartArea2.BackColor = System.Drawing.Color.Black
-        ChartArea2.BorderColor = System.Drawing.Color.White
-        ChartArea2.BorderWidth = 2
-        ChartArea2.Name = "ChartArea1"
-        Me.Chart2.ChartAreas.Add(ChartArea2)
-        Legend2.Name = "Legend1"
-        Me.Chart2.Legends.Add(Legend2)
+        ChartArea3.BackColor = System.Drawing.Color.Black
+        ChartArea3.BorderColor = System.Drawing.Color.White
+        ChartArea3.BorderWidth = 2
+        ChartArea3.Name = "ChartArea1"
+        Me.Chart2.ChartAreas.Add(ChartArea3)
+        Legend3.Name = "Legend1"
+        Me.Chart2.Legends.Add(Legend3)
         Me.Chart2.Location = New System.Drawing.Point(211, 287)
         Me.Chart2.Name = "Chart2"
-        Series2.ChartArea = "ChartArea1"
-        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series2.Color = System.Drawing.Color.Yellow
-        Series2.Enabled = False
-        Series2.Legend = "Legend1"
-        Series2.Name = "Series1"
-        Me.Chart2.Series.Add(Series2)
+        Series3.ChartArea = "ChartArea1"
+        Series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series3.Color = System.Drawing.Color.Yellow
+        Series3.Enabled = False
+        Series3.Legend = "Legend1"
+        Series3.Name = "Series1"
+        Me.Chart2.Series.Add(Series3)
         Me.Chart2.Size = New System.Drawing.Size(938, 412)
         Me.Chart2.TabIndex = 52
         Me.Chart2.Text = "Chart2"
@@ -533,7 +533,9 @@ Partial Class Chart
         Me.ButtonSaveSettings.Size = New System.Drawing.Size(104, 22)
         Me.ButtonSaveSettings.TabIndex = 98
         Me.ButtonSaveSettings.Text = "Save Settings"
-        Me.ToolTip1.SetToolTip(Me.ButtonSaveSettings, "Save settings for most of the user data on this form")
+        Me.ToolTip1.SetToolTip(Me.ButtonSaveSettings, "Save settings for:" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "TEMP/HUM Max." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "TEMP/HIM Min." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Y-AXIS SCALE Max." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Y-AXIS SCA" &
+        "LE Min." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "PPM DEVIATION Initial Value" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "PPM DEVIATION Initial Temp" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "PPM DEVIATION " &
+        "PPM Scale")
         Me.ButtonSaveSettings.UseVisualStyleBackColor = True
         '
         'LabelHum

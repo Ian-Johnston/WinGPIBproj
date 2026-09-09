@@ -1,6 +1,20 @@
 ﻿' Live Watch
 
+Imports System.Runtime.InteropServices
+
 Partial Class Formtest
+
+    ' Used to hand off the Live Analysis chart's resize-grip drag to Windows'
+    ' own native bottom-right resize handling, so we don't have to hand-roll
+    ' mouse-move resize math ourselves.
+    <DllImport("user32.dll")>
+    Private Shared Function ReleaseCapture() As Boolean
+    End Function
+
+    <DllImport("user32.dll", CharSet:=CharSet.Auto)>
+    Private Shared Function SendMessage(hWnd As IntPtr, msg As Integer, wParam As Integer, lParam As Integer) As Integer
+    End Function
+
 
 
     Dim inst_value1FChart As Double = Double.NaN
@@ -1527,9 +1541,9 @@ Partial Class Formtest
         LiveAnalysisForm = New Form With {
         .Text = "WinGPIB Live Analysis Chart",
         .StartPosition = FormStartPosition.CenterParent,
-        .Width = 1100,
-        .Height = 840,
-        .MinimumSize = New Size(1100, 840),
+        .Width = 1000,
+        .Height = 800,
+        .MinimumSize = New Size(1000, 800),
         .ShowIcon = False,
         .ShowInTaskbar = True,
         .BackColor = Color.WhiteSmoke
@@ -1996,6 +2010,32 @@ Partial Class Formtest
 
         LiveAnalysisForm.Controls.Add(LiveAnalysisTimeLabel)
         LiveAnalysisTimeLabel.BringToFront()
+
+        ' Bottom-right resize grip - purely a visual cue that the window can
+        ' be resized. Dragging it hands off to Windows' own native resize
+        ' (WM_NCLBUTTONDOWN / HTBOTTOMRIGHT) rather than us tracking the drag.
+        Dim liveAnalysisGrip As New PictureBox With {
+            .Image = My.Resources.grip,
+            .SizeMode = PictureBoxSizeMode.StretchImage,
+            .Size = New Size(36, 36),
+            .BackColor = Color.Transparent,
+            .Cursor = Cursors.SizeNWSE,
+            .Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
+        }
+        liveAnalysisGrip.Location = New Point(
+            LiveAnalysisForm.ClientSize.Width - liveAnalysisGrip.Width,
+            LiveAnalysisForm.ClientSize.Height - liveAnalysisGrip.Height)
+
+        AddHandler liveAnalysisGrip.MouseDown,
+        Sub(gripSender As Object, gripArgs As MouseEventArgs)
+            If gripArgs.Button = MouseButtons.Left Then
+                ReleaseCapture()
+                SendMessage(LiveAnalysisForm.Handle, &HA1, 17, 0)   ' WM_NCLBUTTONDOWN, HTBOTTOMRIGHT
+            End If
+        End Sub
+
+        LiveAnalysisForm.Controls.Add(liveAnalysisGrip)
+        liveAnalysisGrip.BringToFront()
 
         AddHandler LiveAnalysisForm.FormClosed,
         Sub()
