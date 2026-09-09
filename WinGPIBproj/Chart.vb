@@ -77,6 +77,19 @@ Public Class Chart
     Dim numberofmetadatalines As Integer = 0
 
 
+    ' Val() only recognizes "." as a decimal separator, but Format()/.ToString()
+    ' write YaxisMaximum.Text/YaxisMinimum.Text using the CURRENT CULTURE (e.g.
+    ' "," on German Windows). That mismatch let Y-max and Y-min collapse to the
+    ' same truncated integer on non-US locales - use this everywhere those two
+    ' textboxes are parsed back to a Double, paired with .ToString(..., CultureInfo.InvariantCulture)
+    ' on the write side, so both sides agree on "." regardless of OS locale.
+    Private Function ParseYaxisValue(text As String) As Double
+        Dim result As Double
+        Double.TryParse(text, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, result)
+        Return result
+    End Function
+
+
     Private Sub Formtest_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
 
         ' Theme adjustment for Win11, otherwise disabled controls are hardly visible!
@@ -1540,8 +1553,8 @@ Public Class Chart
         Chart2.ChartAreas(0).AxisX.MajorGrid.Interval = Xscaletotal.Text * 1.024 * 10
         Chart2.ChartAreas(0).AxisX.MinorGrid.Interval = Xscaletotal.Text * 0.513 * 10
         ' Y-Axis
-        Chart2.ChartAreas(0).AxisY.MajorGrid.Interval = (YaxisMaximum.Text - YaxisMinimum.Text) / 8
-        Chart2.ChartAreas(0).AxisY.MinorGrid.Interval = (YaxisMaximum.Text - YaxisMinimum.Text) / 32
+        Chart2.ChartAreas(0).AxisY.MajorGrid.Interval = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 8
+        Chart2.ChartAreas(0).AxisY.MinorGrid.Interval = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 32
         'Chart2.Refresh()   ' This glitches the chart :-(
 
 
@@ -1764,8 +1777,8 @@ Public Class Chart
                 ButtonShiftDn.Enabled = True
                 Chart2.ChartAreas(0).AxisY.Maximum = Math.Round(YmaxFromDT, 7)
                 Chart2.ChartAreas(0).AxisY.Minimum = Math.Round(YminFromDT, 7)
-                YaxisMaximum.Text = YmaxFromDT.ToString()
-                YaxisMinimum.Text = YminFromDT.ToString()
+                YaxisMaximum.Text = YmaxFromDT.ToString(Globalization.CultureInfo.InvariantCulture)
+                YaxisMinimum.Text = YminFromDT.ToString(Globalization.CultureInfo.InvariantCulture)
 
                 Dim result As Double = (YmaxFromDT - YminFromDT) / 32
                 YaxisPerDiv.Text = result.ToString("#0.000000000")
@@ -2449,20 +2462,20 @@ Public Class Chart
 
             If (CSVfileok = True) Then
 
-                Dim Playbacknewmax As Double = CDbl(Val(YaxisMaximum.Text))
-                Dim Playbacknewmin As Double = CDbl(Val(YaxisMinimum.Text))
+                Dim Playbacknewmax As Double = ParseYaxisValue(YaxisMaximum.Text)
+                Dim Playbacknewmin As Double = ParseYaxisValue(YaxisMinimum.Text)
 
                 'Playbacknewmax = Playbacknewmax + ((Playbacknewmax - Playbacknewmin) / 20)
                 Playbacknewmax += (Playbacknewmax - Playbacknewmin) / 20
-                YaxisMaximum.Text = Playbacknewmax
-                YaxisMaximum.Text = Math.Round((CDbl(Val(YaxisMaximum.Text))), 7)
+                YaxisMaximum.Text = Playbacknewmax.ToString(Globalization.CultureInfo.InvariantCulture)
+                YaxisMaximum.Text = Math.Round((ParseYaxisValue(YaxisMaximum.Text)), 7)
 
                 'Playbacknewmin = Playbacknewmin + ((Playbacknewmax - Playbacknewmin) / 20)
                 Playbacknewmin += (Playbacknewmax - Playbacknewmin) / 20
-                YaxisMinimum.Text = Playbacknewmin
-                YaxisMinimum.Text = Math.Round((CDbl(Val(YaxisMinimum.Text))), 7)
+                YaxisMinimum.Text = Playbacknewmin.ToString(Globalization.CultureInfo.InvariantCulture)
+                YaxisMinimum.Text = Math.Round((ParseYaxisValue(YaxisMinimum.Text)), 7)
 
-                Dim result As Double = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 32
+                Dim result As Double = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 32
                 YaxisPerDiv.Text = result.ToString("#0.000000000")
 
 
@@ -2492,9 +2505,11 @@ Public Class Chart
                 UpdatePlaybackStatsSeries()
 
                 'Manual device scale setting
-                Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((CDbl(Val(YaxisMinimum.Text))), 7)
-                Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((CDbl(Val(YaxisMaximum.Text))), 7)  ' was 7
-                Chart2.ChartAreas(0).AxisY.Interval = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 20
+                Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((ParseYaxisValue(YaxisMinimum.Text)), 7)
+                Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((ParseYaxisValue(YaxisMaximum.Text)), 7)  ' was 7
+                Dim intervalY As Double = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 20
+                If intervalY <= 0 Then intervalY = 0.0000001   ' avoid MSChart crash when Y-max = Y-min (flat/no-variance data)
+                Chart2.ChartAreas(0).AxisY.Interval = intervalY
 
                 YaxisCheck1.Checked = False
                 YaxisCheck2.Checked = False
@@ -2512,23 +2527,23 @@ Public Class Chart
 
             If (CSVfileok = True) Then
 
-                Dim Playbacknewmax As Double = CDbl(Val(YaxisMaximum.Text))
-                Dim Playbacknewmin As Double = CDbl(Val(YaxisMinimum.Text))
+                Dim Playbacknewmax As Double = ParseYaxisValue(YaxisMaximum.Text)
+                Dim Playbacknewmin As Double = ParseYaxisValue(YaxisMinimum.Text)
 
                 'Playbacknewmax = Playbacknewmax - ((Playbacknewmax - Playbacknewmin) / 20)
                 Playbacknewmax -= (Playbacknewmax - Playbacknewmin) / 20
-                YaxisMaximum.Text = Playbacknewmax
-                YaxisMaximum.Text = Math.Round((CDbl(Val(YaxisMaximum.Text))), 7)
+                YaxisMaximum.Text = Playbacknewmax.ToString(Globalization.CultureInfo.InvariantCulture)
+                YaxisMaximum.Text = Math.Round((ParseYaxisValue(YaxisMaximum.Text)), 7)
 
                 'Playbacknewmin = Playbacknewmin - ((Playbacknewmax - Playbacknewmin) / 20)
                 Playbacknewmin -= (Playbacknewmax - Playbacknewmin) / 20
                 'If (Playbacknewmin < 0) Then
                 'Playbacknewmin = 0
                 'End If
-                YaxisMinimum.Text = Playbacknewmin
-                YaxisMinimum.Text = Math.Round((CDbl(Val(YaxisMinimum.Text))), 7)
+                YaxisMinimum.Text = Playbacknewmin.ToString(Globalization.CultureInfo.InvariantCulture)
+                YaxisMinimum.Text = Math.Round((ParseYaxisValue(YaxisMinimum.Text)), 7)
 
-                Dim result As Double = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 32
+                Dim result As Double = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 32
                 YaxisPerDiv.Text = result.ToString("#0.000000000")
 
 
@@ -2558,9 +2573,11 @@ Public Class Chart
                 UpdatePlaybackStatsSeries()
 
                 'Manual device scale setting
-                Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((CDbl(Val(YaxisMinimum.Text))), 7)
-                Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((CDbl(Val(YaxisMaximum.Text))), 7)   ' was 7
-                Chart2.ChartAreas(0).AxisY.Interval = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 20
+                Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((ParseYaxisValue(YaxisMinimum.Text)), 7)
+                Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((ParseYaxisValue(YaxisMaximum.Text)), 7)   ' was 7
+                Dim intervalY As Double = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 20
+                If intervalY <= 0 Then intervalY = 0.0000001   ' avoid MSChart crash when Y-max = Y-min (flat/no-variance data)
+                Chart2.ChartAreas(0).AxisY.Interval = intervalY
 
                 YaxisCheck1.Checked = False
                 YaxisCheck2.Checked = False
@@ -2668,24 +2685,26 @@ Public Class Chart
 
     ' Manually adjust Y value - max down
     Private Sub ButtonYmaxDec_Click(sender As Object, e As EventArgs) Handles ButtonYmaxDec.Click
-        Ymin = YaxisMinimum.Text
+        Ymin = ParseYaxisValue(YaxisMinimum.Text)
         Ymin += 0.00000000001
-        Ymax = YaxisMaximum.Text
+        Ymax = ParseYaxisValue(YaxisMaximum.Text)
         Ymax -= (Ymax - Ymin) / 10  ' shift by a tenth
         'If (Ymin < 0) Then
         'Ymin = 0.0000001
         'End If
         'If (Ymin < Ymax And Ymin >= 0) Then
         If (Ymin < Ymax) Then
-            YaxisMinimum.Text = Format(Ymin, "#0.00000000")
-            YaxisMaximum.Text = Format(Ymax, "#0.00000000")
+            YaxisMinimum.Text = Ymin.ToString("#0.00000000", Globalization.CultureInfo.InvariantCulture)
+            YaxisMaximum.Text = Ymax.ToString("#0.00000000", Globalization.CultureInfo.InvariantCulture)
 
-            Dim result As Double = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 32
+            Dim result As Double = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 32
             YaxisPerDiv.Text = result.ToString("#0.000000000")
 
-            Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((CDbl(Val(YaxisMinimum.Text))), 7)
-            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((CDbl(Val(YaxisMaximum.Text))), 7)   ' was 7
-            Chart2.ChartAreas(0).AxisY.Interval = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 20
+            Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((ParseYaxisValue(YaxisMinimum.Text)), 7)
+            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((ParseYaxisValue(YaxisMaximum.Text)), 7)   ' was 7
+            Dim intervalY As Double = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 20
+            If intervalY <= 0 Then intervalY = 0.0000001   ' avoid MSChart crash when Y-max = Y-min (flat/no-variance data)
+            Chart2.ChartAreas(0).AxisY.Interval = intervalY
         End If
 
         YaxisCheck1.Checked = False
@@ -2697,9 +2716,9 @@ Public Class Chart
 
     ' Manually adjust Y value - max up
     Private Sub ButtonYmaxInc_Click(sender As Object, e As EventArgs) Handles ButtonYmaxInc.Click
-        Ymin = YaxisMinimum.Text
+        Ymin = ParseYaxisValue(YaxisMinimum.Text)
         Ymin += 0.00000000001
-        Ymax = YaxisMaximum.Text
+        Ymax = ParseYaxisValue(YaxisMaximum.Text)
         Ymax += (Ymax - Ymin) / 10  ' shift by a tenth
 
         '        If (Ymin < 0) Then
@@ -2707,15 +2726,17 @@ Public Class Chart
         '        End If
         'If (Ymin < Ymax And Ymin >= 0) Then
         If (Ymin < Ymax) Then
-            YaxisMinimum.Text = Format(Ymin, "#0.00000000")
-            YaxisMaximum.Text = Format(Ymax, "#0.00000000")
+            YaxisMinimum.Text = Ymin.ToString("#0.00000000", Globalization.CultureInfo.InvariantCulture)
+            YaxisMaximum.Text = Ymax.ToString("#0.00000000", Globalization.CultureInfo.InvariantCulture)
 
-            Dim result As Double = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 32
+            Dim result As Double = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 32
             YaxisPerDiv.Text = result.ToString("#0.000000000")
 
-            Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((CDbl(Val(YaxisMinimum.Text))), 7)
-            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((CDbl(Val(YaxisMaximum.Text))), 7)   ' was 7
-            Chart2.ChartAreas(0).AxisY.Interval = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 20
+            Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((ParseYaxisValue(YaxisMinimum.Text)), 7)
+            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((ParseYaxisValue(YaxisMaximum.Text)), 7)   ' was 7
+            Dim intervalY As Double = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 20
+            If intervalY <= 0 Then intervalY = 0.0000001   ' avoid MSChart crash when Y-max = Y-min (flat/no-variance data)
+            Chart2.ChartAreas(0).AxisY.Interval = intervalY
         End If
 
         YaxisCheck1.Checked = False
@@ -2727,8 +2748,8 @@ Public Class Chart
 
     ' Manually adjust Y value - min down
     Private Sub ButtonYminDec_Click(sender As Object, e As EventArgs) Handles ButtonYminDec.Click
-        Ymin = YaxisMinimum.Text
-        Ymax = YaxisMaximum.Text
+        Ymin = ParseYaxisValue(YaxisMinimum.Text)
+        Ymax = ParseYaxisValue(YaxisMaximum.Text)
         Ymin -= (Ymax - Ymin) / 10  ' shift by a tenth
 
         '       If (Ymin < 0) Then
@@ -2736,15 +2757,17 @@ Public Class Chart
         '       End If
         'If (Ymin < Ymax And Ymin >= 0) Then
         If (Ymin < Ymax) Then
-            YaxisMinimum.Text = Format(Ymin, "#0.00000000")
-            YaxisMaximum.Text = Format(Ymax, "#0.00000000")
+            YaxisMinimum.Text = Ymin.ToString("#0.00000000", Globalization.CultureInfo.InvariantCulture)
+            YaxisMaximum.Text = Ymax.ToString("#0.00000000", Globalization.CultureInfo.InvariantCulture)
 
-            Dim result As Double = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 32
+            Dim result As Double = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 32
             YaxisPerDiv.Text = result.ToString("#0.000000000") '
 
-            Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((CDbl(Val(YaxisMinimum.Text))), 7)
-            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((CDbl(Val(YaxisMaximum.Text))), 7)   ' was 7
-            Chart2.ChartAreas(0).AxisY.Interval = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 20
+            Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((ParseYaxisValue(YaxisMinimum.Text)), 7)
+            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((ParseYaxisValue(YaxisMaximum.Text)), 7)   ' was 7
+            Dim intervalY As Double = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 20
+            If intervalY <= 0 Then intervalY = 0.0000001   ' avoid MSChart crash when Y-max = Y-min (flat/no-variance data)
+            Chart2.ChartAreas(0).AxisY.Interval = intervalY
         End If
 
         YaxisCheck1.Checked = False
@@ -2756,23 +2779,25 @@ Public Class Chart
 
     ' Manually adjust Y value - max up
     Private Sub ButtonYminInc_Click(sender As Object, e As EventArgs) Handles ButtonYminInc.Click
-        Ymin = YaxisMinimum.Text
-        Ymax = YaxisMaximum.Text
+        Ymin = ParseYaxisValue(YaxisMinimum.Text)
+        Ymax = ParseYaxisValue(YaxisMaximum.Text)
         Ymin += (Ymax - Ymin) / 10  ' shift by a tenth
         '        If (Ymin < 0) Then
         '        Ymin = 0.0000001
         '        End If
         'If (Ymin < Ymax And Ymin >= 0) Then
         If (Ymin < Ymax) Then
-            YaxisMinimum.Text = Format(Ymin, "#0.0000000000")
-            YaxisMaximum.Text = Format(Ymax, "#0.0000000000")
+            YaxisMinimum.Text = Ymin.ToString("#0.0000000000", Globalization.CultureInfo.InvariantCulture)
+            YaxisMaximum.Text = Ymax.ToString("#0.0000000000", Globalization.CultureInfo.InvariantCulture)
 
-            Dim result As Double = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 32
+            Dim result As Double = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 32
             YaxisPerDiv.Text = result.ToString("#0.000000000")
 
-            Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((CDbl(Val(YaxisMinimum.Text))), 7)
-            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((CDbl(Val(YaxisMaximum.Text))), 7)   ' was 7
-            Chart2.ChartAreas(0).AxisY.Interval = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 20
+            Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((ParseYaxisValue(YaxisMinimum.Text)), 7)
+            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((ParseYaxisValue(YaxisMaximum.Text)), 7)   ' was 7
+            Dim intervalY As Double = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 20
+            If intervalY <= 0 Then intervalY = 0.0000001   ' avoid MSChart crash when Y-max = Y-min (flat/no-variance data)
+            Chart2.ChartAreas(0).AxisY.Interval = intervalY
         End If
 
         YaxisCheck1.Checked = False
@@ -3148,8 +3173,8 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         End If
 
         Dim PPMdevice As String = ""
-        Dim YaxisMaximumVal As Double = Math.Round((CDbl(Val(YaxisMaximum.Text))), 7)
-        Dim YaxisMinimumVal As Double = Math.Round((CDbl(Val(YaxisMinimum.Text))), 7)
+        Dim YaxisMaximumVal As Double = Math.Round((ParseYaxisValue(YaxisMaximum.Text)), 7)
+        Dim YaxisMinimumVal As Double = Math.Round((ParseYaxisValue(YaxisMinimum.Text)), 7)
         'Dim PPMscale As Double = ppmscalerange
 
 
@@ -3561,20 +3586,20 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
 
             Chart2.ChartAreas(0).AxisY.Maximum = axisYMax
             Chart2.ChartAreas(0).AxisY.Minimum = axisYMin
-            YaxisMaximum.Text = axisYMax.ToString()
-            YaxisMinimum.Text = axisYMin.ToString()
+            YaxisMaximum.Text = axisYMax.ToString(Globalization.CultureInfo.InvariantCulture)
+            YaxisMinimum.Text = axisYMin.ToString(Globalization.CultureInfo.InvariantCulture)
 
         Else
-            axisYMax = Math.Round(CDbl(YaxisMaximum.Text), 7)
-            axisYMin = Math.Round(CDbl(YaxisMinimum.Text), 7)
+            axisYMax = Math.Round(ParseYaxisValue(YaxisMaximum.Text), 7)
+            axisYMin = Math.Round(ParseYaxisValue(YaxisMinimum.Text), 7)
             range = axisYMax - axisYMin
             interval = range / 20
 
             Chart2.ChartAreas(0).AxisY.Maximum = axisYMax
             Chart2.ChartAreas(0).AxisY.Minimum = axisYMin
             Chart2.ChartAreas(0).AxisY.Interval = interval
-            YaxisMaximum.Text = axisYMax.ToString()
-            YaxisMinimum.Text = axisYMin.ToString()
+            YaxisMaximum.Text = axisYMax.ToString(Globalization.CultureInfo.InvariantCulture)
+            YaxisMinimum.Text = axisYMin.ToString(Globalization.CultureInfo.InvariantCulture)
         End If
 
         ' Update Y axis per division
@@ -3746,60 +3771,68 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
             YaxisMaximum.Text = My.Settings.data187
             YaxisMinimum.Text = My.Settings.data188
 
-            Dim result As Double = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 32
+            Dim result As Double = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 32
             YaxisPerDiv.Text = result.ToString("#0.000000000")
 
 
             RefreshPlaybackCSVFile()
-            Chart2.ChartAreas(0).AxisY.Interval = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 20
-            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((CDbl(Val(YaxisMaximum.Text))), 7)
+            Dim intervalY As Double = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 20
+            If intervalY <= 0 Then intervalY = 0.0000001   ' avoid MSChart crash when Y-max = Y-min (flat/no-variance data)
+            Chart2.ChartAreas(0).AxisY.Interval = intervalY
+            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((ParseYaxisValue(YaxisMaximum.Text)), 7)
         End If
 
         If (YaxisCheck2.Checked = True) Then
             YaxisMaximum.Text = My.Settings.data189
             YaxisMinimum.Text = My.Settings.data190
 
-            Dim result As Double = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 32
+            Dim result As Double = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 32
             YaxisPerDiv.Text = result.ToString("#0.000000000")
 
 
             RefreshPlaybackCSVFile()
-            Chart2.ChartAreas(0).AxisY.Interval = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 20
-            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((CDbl(Val(YaxisMaximum.Text))), 7)
+            Dim intervalY As Double = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 20
+            If intervalY <= 0 Then intervalY = 0.0000001   ' avoid MSChart crash when Y-max = Y-min (flat/no-variance data)
+            Chart2.ChartAreas(0).AxisY.Interval = intervalY
+            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((ParseYaxisValue(YaxisMaximum.Text)), 7)
         End If
 
         If (YaxisCheck3.Checked = True) Then
             YaxisMaximum.Text = My.Settings.data191
             YaxisMinimum.Text = My.Settings.data192
 
-            Dim result As Double = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 32
+            Dim result As Double = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 32
             YaxisPerDiv.Text = result.ToString("#0.000000000")
 
 
             RefreshPlaybackCSVFile()
-            Chart2.ChartAreas(0).AxisY.Interval = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 20
-            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((CDbl(Val(YaxisMaximum.Text))), 7)
+            Dim intervalY As Double = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 20
+            If intervalY <= 0 Then intervalY = 0.0000001   ' avoid MSChart crash when Y-max = Y-min (flat/no-variance data)
+            Chart2.ChartAreas(0).AxisY.Interval = intervalY
+            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((ParseYaxisValue(YaxisMaximum.Text)), 7)
         End If
 
         If (YaxisCheck4.Checked = True) Then
             YaxisMaximum.Text = My.Settings.data193
             YaxisMinimum.Text = My.Settings.data194
 
-            Dim result As Double = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 32
+            Dim result As Double = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 32
             YaxisPerDiv.Text = result.ToString("#0.000000000")
 
 
             RefreshPlaybackCSVFile()
-            Chart2.ChartAreas(0).AxisY.Interval = (Val(YaxisMaximum.Text) - Val(YaxisMinimum.Text)) / 20
-            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((CDbl(Val(YaxisMaximum.Text))), 7)
+            Dim intervalY As Double = (ParseYaxisValue(YaxisMaximum.Text) - ParseYaxisValue(YaxisMinimum.Text)) / 20
+            If intervalY <= 0 Then intervalY = 0.0000001   ' avoid MSChart crash when Y-max = Y-min (flat/no-variance data)
+            Chart2.ChartAreas(0).AxisY.Interval = intervalY
+            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((ParseYaxisValue(YaxisMaximum.Text)), 7)
         End If
 
 
 
 
 
-        'Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((CDbl(Val(YaxisMinimum.Text))), 7)
-        'Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((CDbl(Val(YaxisMaximum.Text))), 1)
+        'Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((ParseYaxisValue(YaxisMinimum.Text)), 7)
+        'Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((ParseYaxisValue(YaxisMaximum.Text)), 1)
         'Chart2.ChartAreas(0).AxisY.Minimum = YaxisMinimum.Text
         'Chart2.ChartAreas(0).AxisY.Maximum = YaxisMaximum.Text
 

@@ -648,6 +648,7 @@ Partial Class Formtest
 
         If Stats1Count = 1 Then
             Stats1FirstValue = value
+            LabelStats1FirstValue.Text = Stats1FirstValue.ToString("0.0000000000")
         End If
 
         Dim delta As Double = value - Stats1Mean
@@ -720,6 +721,7 @@ Partial Class Formtest
 
         If Stats2Count = 1 Then
             Stats2FirstValue = value
+            LabelStats2FirstValue.Text = Stats2FirstValue.ToString("0.0000000000")
         End If
 
         Dim delta As Double = value - Stats2Mean
@@ -821,6 +823,7 @@ Partial Class Formtest
         Stats1Min = Double.MaxValue
         Stats1FirstValue = Double.NaN
         Stats1DeviationCurrent = 0.0
+        LiveAnalysisLastStats1Count = Stats1Count   ' keep chart's "last plotted" in sync with the reset
 
         LabelStats1Samples.Text = "-"
         LabelStats1Mean.Text = "-"
@@ -831,6 +834,7 @@ Partial Class Formtest
         LabelStats1Min.Text = "-"
         LabelStats1MaxDiff.Text = "-"
         LabelStats1Deviation.Text = "-"
+        LabelStats1FirstValue.Text = "-"
 
     End Sub
 
@@ -844,6 +848,7 @@ Partial Class Formtest
         Stats2Min = Double.MaxValue
         Stats2FirstValue = Double.NaN
         Stats2DeviationCurrent = 0.0
+        LiveAnalysisLastStats2Count = Stats2Count   ' keep chart's "last plotted" in sync with the reset
 
         LabelStats2Samples.Text = "-"
         LabelStats2Mean.Text = "-"
@@ -854,6 +859,7 @@ Partial Class Formtest
         LabelStats2Min.Text = "-"
         LabelStats2MaxDiff.Text = "-"
         LabelStats2Deviation.Text = "-"
+        LabelStats2FirstValue.Text = "-"
 
     End Sub
 

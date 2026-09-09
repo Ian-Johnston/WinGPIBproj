@@ -98,6 +98,7 @@ Partial Class Chart
         Me.RadioButtonDev1 = New System.Windows.Forms.RadioButton()
         Me.RadioButtonDev2 = New System.Windows.Forms.RadioButton()
         Me.PPMBox1 = New System.Windows.Forms.GroupBox()
+        Me.Label5 = New System.Windows.Forms.Label()
         Me.CheckBoxMedianT = New System.Windows.Forms.CheckBox()
         Me.CheckBoxMedianV = New System.Windows.Forms.CheckBox()
         Me.Panel1 = New System.Windows.Forms.Panel()
@@ -177,7 +178,6 @@ Partial Class Chart
         Me.CheckPlaybackDev2MaxDiff = New System.Windows.Forms.CheckBox()
         Me.CheckPlaybackDev1Deviation = New System.Windows.Forms.CheckBox()
         Me.CheckPlaybackDev1MaxDiff = New System.Windows.Forms.CheckBox()
-        Me.Label5 = New System.Windows.Forms.Label()
         CType(Me.Chart2, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.PPMBox1.SuspendLayout()
         Me.Panel1.SuspendLayout()
@@ -583,11 +583,12 @@ Partial Class Chart
         'Label14
         '
         Me.Label14.AutoSize = True
-        Me.Label14.Location = New System.Drawing.Point(527, 785)
+        Me.Label14.Location = New System.Drawing.Point(485, 785)
         Me.Label14.Name = "Label14"
-        Me.Label14.Size = New System.Drawing.Size(331, 13)
+        Me.Label14.Size = New System.Drawing.Size(413, 13)
         Me.Label14.TabIndex = 113
-        Me.Label14.Text = "Hover mouse of data points on chart to see value (ToolTips enabled)"
+        Me.Label14.Text = "Hover mouse over Dev1 && Dev 2 data points on chart to see value (ToolTips enable" &
+    "d)"
         '
         'CheckBoxToolTips
         '
@@ -937,6 +938,16 @@ Partial Class Chart
         Me.PPMBox1.TabIndex = 149
         Me.PPMBox1.TabStop = False
         Me.PPMBox1.Text = "PPM. DEVIATION / TEMPCO"
+        '
+        'Label5
+        '
+        Me.Label5.AutoSize = True
+        Me.Label5.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label5.Location = New System.Drawing.Point(178, 0)
+        Me.Label5.Name = "Label5"
+        Me.Label5.Size = New System.Drawing.Size(62, 13)
+        Me.Label5.TabIndex = 579
+        Me.Label5.Text = "(main chart)"
         '
         'CheckBoxMedianT
         '
@@ -1829,16 +1840,6 @@ Partial Class Chart
         Me.CheckPlaybackDev1MaxDiff.TabIndex = 594
         Me.CheckPlaybackDev1MaxDiff.Text = "Dev.1 Max Diff."
         Me.CheckPlaybackDev1MaxDiff.UseVisualStyleBackColor = True
-        '
-        'Label5
-        '
-        Me.Label5.AutoSize = True
-        Me.Label5.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label5.Location = New System.Drawing.Point(178, 0)
-        Me.Label5.Name = "Label5"
-        Me.Label5.Size = New System.Drawing.Size(62, 13)
-        Me.Label5.TabIndex = 579
-        Me.Label5.Text = "(main chart)"
         '
         'Chart
         '
