@@ -1228,13 +1228,13 @@ Partial Class Formtest
                     YaxisDiff.Text = Format(range, "#0.00000000")
                 Else
                     UpdateChartYAxisMinMaxInterval()
-                    YaxisDiff.Text = Format(Val(Dev1Max.Text) - Val(Dev1Min.Text), "#0.00000000")
+                    YaxisDiff.Text = Format(CDbl(Dev1Max.Text) - CDbl(Dev1Min.Text), "#0.00000000")
                 End If
             End If
 
             If (EnableAutoYChart1.Checked = False And EnableChart1.Checked = True And EnableChart2.Checked = False) Then
                 UpdateChartYAxisMinMaxInterval()
-                YaxisDiff.Text = Format(Val(Dev1Max.Text) - Val(Dev1Min.Text), "#0.00000000")
+                YaxisDiff.Text = Format(CDbl(Dev1Max.Text) - CDbl(Dev1Min.Text), "#0.00000000")
             End If
 
 
@@ -1271,13 +1271,13 @@ Partial Class Formtest
                     YaxisDiff.Text = Format(range, "#0.00000000")
                 Else
                     UpdateChartYAxisMinMaxInterval()
-                    YaxisDiff.Text = Format(Val(Dev1Max.Text) - Val(Dev1Min.Text), "#0.00000000")
+                    YaxisDiff.Text = Format(CDbl(Dev1Max.Text) - CDbl(Dev1Min.Text), "#0.00000000")
                 End If
             End If
 
             If (EnableAutoYChart1.Checked = False And EnableChart1.Checked = False And EnableChart2.Checked = True) Then
                 UpdateChartYAxisMinMaxInterval()
-                YaxisDiff.Text = Format(Val(Dev1Max.Text) - Val(Dev1Min.Text), "#0.00000000")
+                YaxisDiff.Text = Format(CDbl(Dev1Max.Text) - CDbl(Dev1Min.Text), "#0.00000000")
             End If
 
 
@@ -1326,13 +1326,13 @@ Partial Class Formtest
                     YaxisDiff.Text = Format(range, "#0.00000000")
                 Else
                     UpdateChartYAxisMinMaxInterval()
-                    YaxisDiff.Text = Format(Val(Dev1Max.Text) - Val(Dev1Min.Text), "#0.00000000")
+                    YaxisDiff.Text = Format(CDbl(Dev1Max.Text) - CDbl(Dev1Min.Text), "#0.00000000")
                 End If
             End If
 
             If (EnableAutoYChart1.Checked = False And EnableChart1.Checked = True And EnableChart2.Checked = True) Then
                 UpdateChartYAxisMinMaxInterval()
-                YaxisDiff.Text = Format(Val(Dev1Max.Text) - Val(Dev1Min.Text), "#0.00000000")
+                YaxisDiff.Text = Format(CDbl(Dev1Max.Text) - CDbl(Dev1Min.Text), "#0.00000000")
             End If
 
 
@@ -1402,8 +1402,8 @@ Partial Class Formtest
 
     Private Sub Dev1Max_Leave(sender As Object, e As EventArgs) Handles Dev1Max.Leave
 
-        If Val(Dev1Max.Text) <= Val(Dev1Min.Text) Then
-            Dev1Max.Text = Val(Dev1Min.Text) + 1
+        If CDbl(Dev1Max.Text) <= CDbl(Dev1Min.Text) Then
+            Dev1Max.Text = CDbl(Dev1Min.Text) + 1
         End If
 
     End Sub
@@ -1411,8 +1411,8 @@ Partial Class Formtest
 
     Private Sub Dev1Min_Leave(sender As Object, e As EventArgs) Handles Dev1Min.Leave
 
-        If Val(Dev1Min.Text) >= Val(Dev1Max.Text) Then
-            Dev1Min.Text = Val(Dev1Max.Text) - 1
+        If CDbl(Dev1Min.Text) >= CDbl(Dev1Max.Text) Then
+            Dev1Min.Text = CDbl(Dev1Max.Text) - 1
         End If
 
     End Sub
@@ -1421,8 +1421,8 @@ Partial Class Formtest
     Private Sub UpdateChartYAxisMinMaxInterval()
 
         ' Parse the minimum and maximum values from the text inputs
-        Dim minVal As Double = Val(Dev1Min.Text)
-        Dim maxVal As Double = Val(Dev1Max.Text)
+        Dim minVal As Double = CDbl(Dev1Min.Text)
+        Dim maxVal As Double = CDbl(Dev1Max.Text)
 
         ' Set the minimum and maximum values for the Y-axis
         Chart1.ChartAreas(0).AxisY.Minimum = minVal
