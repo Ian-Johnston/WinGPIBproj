@@ -403,7 +403,6 @@ Partial Class Formtest
         Me.Dev1Meter = New System.Windows.Forms.Label()
         Me.GroupBox19 = New System.Windows.Forms.GroupBox()
         Me.Label170 = New System.Windows.Forms.Label()
-        Me.Dev2Meter = New System.Windows.Forms.Label()
         Me.GroupBox4 = New System.Windows.Forms.GroupBox()
         Me.Label135 = New System.Windows.Forms.Label()
         Me.LabelStats2Value = New System.Windows.Forms.Label()
@@ -415,6 +414,7 @@ Partial Class Formtest
         Me.Label438 = New System.Windows.Forms.Label()
         Me.Label444 = New System.Windows.Forms.Label()
         Me.LabelStats2Max = New System.Windows.Forms.Label()
+        Me.Dev2Meter = New System.Windows.Forms.Label()
         Me.LabelStats2MaxDiff = New System.Windows.Forms.Label()
         Me.Label169 = New System.Windows.Forms.Label()
         Me.LabelStats2Min = New System.Windows.Forms.Label()
@@ -3748,7 +3748,7 @@ Partial Class Formtest
         '
         Me.DisableRollingChartLiveA.AutoSize = True
         Me.DisableRollingChartLiveA.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.DisableRollingChartLiveA.Location = New System.Drawing.Point(250, 87)
+        Me.DisableRollingChartLiveA.Location = New System.Drawing.Point(256, 87)
         Me.DisableRollingChartLiveA.Name = "DisableRollingChartLiveA"
         Me.DisableRollingChartLiveA.Size = New System.Drawing.Size(155, 17)
         Me.DisableRollingChartLiveA.TabIndex = 753
@@ -3758,7 +3758,7 @@ Partial Class Formtest
         '
         'XaxisPointsLiveA
         '
-        Me.XaxisPointsLiveA.Location = New System.Drawing.Point(660, 70)
+        Me.XaxisPointsLiveA.Location = New System.Drawing.Point(652, 70)
         Me.XaxisPointsLiveA.Name = "XaxisPointsLiveA"
         Me.XaxisPointsLiveA.Size = New System.Drawing.Size(71, 20)
         Me.XaxisPointsLiveA.TabIndex = 750
@@ -3768,7 +3768,7 @@ Partial Class Formtest
         'Label48
         '
         Me.Label48.AutoSize = True
-        Me.Label48.Location = New System.Drawing.Point(736, 74)
+        Me.Label48.Location = New System.Drawing.Point(728, 74)
         Me.Label48.Name = "Label48"
         Me.Label48.Size = New System.Drawing.Size(97, 13)
         Me.Label48.TabIndex = 751
@@ -3780,7 +3780,7 @@ Partial Class Formtest
         '
         Me.LabelXaxisProjectedTime.AutoSize = True
         Me.LabelXaxisProjectedTime.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LabelXaxisProjectedTime.Location = New System.Drawing.Point(145, 88)
+        Me.LabelXaxisProjectedTime.Location = New System.Drawing.Point(137, 88)
         Me.LabelXaxisProjectedTime.Name = "LabelXaxisProjectedTime"
         Me.LabelXaxisProjectedTime.Size = New System.Drawing.Size(59, 13)
         Me.LabelXaxisProjectedTime.TabIndex = 755
@@ -5011,7 +5011,7 @@ Partial Class Formtest
         'ButtonLiveChartPopout
         '
         Me.ButtonLiveChartPopout.Enabled = False
-        Me.ButtonLiveChartPopout.Location = New System.Drawing.Point(656, 26)
+        Me.ButtonLiveChartPopout.Location = New System.Drawing.Point(648, 26)
         Me.ButtonLiveChartPopout.Name = "ButtonLiveChartPopout"
         Me.ButtonLiveChartPopout.Size = New System.Drawing.Size(115, 37)
         Me.ButtonLiveChartPopout.TabIndex = 749
@@ -5020,7 +5020,7 @@ Partial Class Formtest
         '
         'ButtonStatsInfo
         '
-        Me.ButtonStatsInfo.Location = New System.Drawing.Point(896, 26)
+        Me.ButtonStatsInfo.Location = New System.Drawing.Point(902, 26)
         Me.ButtonStatsInfo.Name = "ButtonStatsInfo"
         Me.ButtonStatsInfo.Size = New System.Drawing.Size(115, 37)
         Me.ButtonStatsInfo.TabIndex = 748
@@ -5402,21 +5402,11 @@ Partial Class Formtest
         '
         Me.Label170.AutoSize = True
         Me.Label170.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label170.Location = New System.Drawing.Point(32, 88)
+        Me.Label170.Location = New System.Drawing.Point(24, 88)
         Me.Label170.Name = "Label170"
         Me.Label170.Size = New System.Drawing.Size(114, 13)
         Me.Label170.TabIndex = 755
         Me.Label170.Text = "Projected chart length:"
-        '
-        'Dev2Meter
-        '
-        Me.Dev2Meter.AutoSize = True
-        Me.Dev2Meter.Font = New System.Drawing.Font("Microsoft Sans Serif", 80.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Dev2Meter.Location = New System.Drawing.Point(14, 47)
-        Me.Dev2Meter.Name = "Dev2Meter"
-        Me.Dev2Meter.Size = New System.Drawing.Size(590, 120)
-        Me.Dev2Meter.TabIndex = 70
-        Me.Dev2Meter.Text = "---------------"
         '
         'GroupBox4
         '
@@ -5553,6 +5543,16 @@ Partial Class Formtest
         Me.LabelStats2Max.Size = New System.Drawing.Size(11, 16)
         Me.LabelStats2Max.TabIndex = 758
         Me.LabelStats2Max.Text = "-"
+        '
+        'Dev2Meter
+        '
+        Me.Dev2Meter.AutoSize = True
+        Me.Dev2Meter.Font = New System.Drawing.Font("Microsoft Sans Serif", 80.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Dev2Meter.Location = New System.Drawing.Point(14, 47)
+        Me.Dev2Meter.Name = "Dev2Meter"
+        Me.Dev2Meter.Size = New System.Drawing.Size(590, 120)
+        Me.Dev2Meter.TabIndex = 70
+        Me.Dev2Meter.Text = "---------------"
         '
         'LabelStats2MaxDiff
         '
