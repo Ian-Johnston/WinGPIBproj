@@ -859,6 +859,16 @@ Partial Class Formtest
 
     Private Sub ButtonStats1Reset_Click(sender As Object, e As EventArgs) Handles ButtonStats1Reset.Click
 
+        Dim confirmResult As DialogResult = MessageBox.Show(
+            "Resetting stats starts a new baseline value for PPM Deviation." & Environment.NewLine &
+            "This affects PPM Deviation from this point on, including the DEV1_DEVIATION value written to the CSV log." & Environment.NewLine & Environment.NewLine &
+            "Continue with the reset?",
+            "Reset Device 1 Stats",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Warning)
+
+        If confirmResult = DialogResult.No Then Exit Sub
+
         Stats1Count = 0
         Stats1Mean = 0.0
         Stats1M2 = 0.0
@@ -893,6 +903,16 @@ Partial Class Formtest
 
 
     Private Sub ButtonStats2Reset_Click(sender As Object, e As EventArgs) Handles ButtonStats2Reset.Click
+
+        Dim confirmResult As DialogResult = MessageBox.Show(
+            "Resetting stats starts a new baseline value for PPM Deviation." & Environment.NewLine &
+            "This affects PPM Deviation from this point on, including the DEV2_DEVIATION value written to the CSV log." & Environment.NewLine & Environment.NewLine &
+            "Continue with the reset?",
+            "Reset Device 2 Stats",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Warning)
+
+        If confirmResult = DialogResult.No Then Exit Sub
 
         Stats2Count = 0
         Stats2Mean = 0.0
