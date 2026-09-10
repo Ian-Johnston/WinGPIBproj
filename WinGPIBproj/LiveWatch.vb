@@ -78,6 +78,7 @@ Partial Class Formtest
     Private Stats1M2 As Double = 0.0
     Private PauseLiveDisplay1 As Boolean = False
     Private LabelStats1SamplesNormalColor As Color = Color.Empty
+    Private LabelStats1SamplesNormalBackColor As Color = Color.Empty
 
     ' Live Statistics - Device 2
     Private Stats2Count As Long = 0
@@ -85,6 +86,7 @@ Partial Class Formtest
     Private Stats2M2 As Double = 0.0
     Private PauseLiveDisplay2 As Boolean = False
     Private LabelStats2SamplesNormalColor As Color = Color.Empty
+    Private LabelStats2SamplesNormalBackColor As Color = Color.Empty
 
     ' Flashes the Samples label on whichever device(s) are display-paused,
     ' as a visual reminder that what's on screen is frozen (the underlying
@@ -883,6 +885,7 @@ Partial Class Formtest
             PauseLiveDisplay1 = False
             ButtonStats1PauseDisplay.Text = "Pause Display"
             LabelStats1Samples.ForeColor = LabelStats1SamplesNormalColor
+            LabelStats1Samples.BackColor = LabelStats1SamplesNormalBackColor
             If Not PauseLiveDisplay2 Then PauseFlashTimer.Stop()
         End If
 
@@ -917,6 +920,7 @@ Partial Class Formtest
             PauseLiveDisplay2 = False
             ButtonStats2PauseDisplay.Text = "Pause Display"
             LabelStats2Samples.ForeColor = LabelStats2SamplesNormalColor
+            LabelStats2Samples.BackColor = LabelStats2SamplesNormalBackColor
             If Not PauseLiveDisplay1 Then PauseFlashTimer.Stop()
         End If
 
@@ -930,9 +934,11 @@ Partial Class Formtest
 
         If PauseLiveDisplay1 Then
             LabelStats1SamplesNormalColor = LabelStats1Samples.ForeColor
+            LabelStats1SamplesNormalBackColor = LabelStats1Samples.BackColor
             PauseFlashTimer.Start()
         Else
             LabelStats1Samples.ForeColor = LabelStats1SamplesNormalColor
+            LabelStats1Samples.BackColor = LabelStats1SamplesNormalBackColor
         End If
 
     End Sub
@@ -945,9 +951,11 @@ Partial Class Formtest
 
         If PauseLiveDisplay2 Then
             LabelStats2SamplesNormalColor = LabelStats2Samples.ForeColor
+            LabelStats2SamplesNormalBackColor = LabelStats2Samples.BackColor
             PauseFlashTimer.Start()
         Else
             LabelStats2Samples.ForeColor = LabelStats2SamplesNormalColor
+            LabelStats2Samples.BackColor = LabelStats2SamplesNormalBackColor
         End If
 
     End Sub
@@ -958,11 +966,23 @@ Partial Class Formtest
         PauseFlashOn = Not PauseFlashOn
 
         If PauseLiveDisplay1 Then
-            LabelStats1Samples.ForeColor = If(PauseFlashOn, Color.Red, LabelStats1SamplesNormalColor)
+            If PauseFlashOn Then
+                LabelStats1Samples.ForeColor = LabelStats1SamplesNormalBackColor
+                LabelStats1Samples.BackColor = LabelStats1SamplesNormalColor
+            Else
+                LabelStats1Samples.ForeColor = LabelStats1SamplesNormalColor
+                LabelStats1Samples.BackColor = LabelStats1SamplesNormalBackColor
+            End If
         End If
 
         If PauseLiveDisplay2 Then
-            LabelStats2Samples.ForeColor = If(PauseFlashOn, Color.Red, LabelStats2SamplesNormalColor)
+            If PauseFlashOn Then
+                LabelStats2Samples.ForeColor = LabelStats2SamplesNormalBackColor
+                LabelStats2Samples.BackColor = LabelStats2SamplesNormalColor
+            Else
+                LabelStats2Samples.ForeColor = LabelStats2SamplesNormalColor
+                LabelStats2Samples.BackColor = LabelStats2SamplesNormalBackColor
+            End If
         End If
 
         ' Nothing left to flash - stop running rather than tick forever in the background.
