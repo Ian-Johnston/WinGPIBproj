@@ -2039,13 +2039,13 @@ Partial Class Formtest
         Dim tglDev1Mean = AddTraceToggle(gbDev1, "Dev 1 Mean", "Mean", Color.Orange)
         Dim tglDev1Stdev = AddTraceToggle(gbDev1, "Dev 1 STDEV", "STDEV", Color.LightGray)
         Dim tglDev1SEM = AddTraceToggle(gbDev1, "Dev 1 SEM", "SEM", Color.DeepSkyBlue)
-        Dim tglDev1PPM = AddTraceToggle(gbDev1, "Dev 1 PPM Deviation", "PPM Dev.", Color.White)
+        Dim tglDev1PPM = AddTraceToggle(gbDev1, "Dev 1 PPM Deviation", "PPM DEV", Color.White)
 
         Dim tglDevice2 = AddTraceToggle(gbDev2, "Device 2", "Data", Color.Aqua)
         Dim tglDev2Mean = AddTraceToggle(gbDev2, "Dev 2 Mean", "Mean", Color.Lime)
         Dim tglDev2Stdev = AddTraceToggle(gbDev2, "Dev 2 STDEV", "STDEV", Color.Magenta)
         Dim tglDev2SEM = AddTraceToggle(gbDev2, "Dev 2 SEM", "SEM", Color.LimeGreen)
-        Dim tglDev2PPM = AddTraceToggle(gbDev2, "Dev 2 PPM Deviation", "PPM Dev.", Color.LightGray)
+        Dim tglDev2PPM = AddTraceToggle(gbDev2, "Dev 2 PPM Deviation", "PPM DEV", Color.LightGray)
 
         Dim tglTemp = AddTraceToggle(gbTemp, "Temperature", "Temp.", Color.Red)
 
@@ -2184,7 +2184,7 @@ Partial Class Formtest
                                         Dim ch As Double = LiveAnalysisChart.ClientSize.Height
 
                                         Dim rowHeightPx As Integer = 22
-                                        Dim colWidthPx As Integer = 66   ' 40% narrower than the original 110
+                                        Dim colWidthPx As Integer = 80   ' narrower than the original 110, but wide enough for "PPM DEV" to not clip
                                         Dim miscColWidthPx As Integer = 130  ' Misc. labels ("Fast Rendering" etc.) are longer than trace names
                                         Dim pad As Integer = 5         ' margin around the checkboxes
                                         Dim gap As Integer = 20        ' space between the group boxes
@@ -2202,8 +2202,8 @@ Partial Class Formtest
                                                              Return CInt(Math.Max(columnWidth, titleWidth) * widthMultiplier)
                                                          End Function
 
-                                        Dim widthDev1 As Integer = GroupWidth(gbDev1, dev1Boxes, colWidthPx, 1.1)
-                                        Dim widthDev2 As Integer = GroupWidth(gbDev2, dev2Boxes, colWidthPx, 1.1)
+                                        Dim widthDev1 As Integer = GroupWidth(gbDev1, dev1Boxes, colWidthPx, 1.0)
+                                        Dim widthDev2 As Integer = GroupWidth(gbDev2, dev2Boxes, colWidthPx, 1.0)
                                         Dim widthTemp As Integer = GroupWidth(gbTemp, tempBoxes, colWidthPx, 1.0)
                                         Dim widthMisc As Integer = GroupWidth(gbMisc, miscBoxes, miscColWidthPx, 1.0)
 
@@ -2238,8 +2238,8 @@ Partial Class Formtest
                                                                 Next
                                                             End Sub
 
-                                        PlaceGroupBox(gbDev1, dev1Boxes, leftDev1, colWidthPx, 1.1)
-                                        PlaceGroupBox(gbDev2, dev2Boxes, leftDev2, colWidthPx, 1.1)
+                                        PlaceGroupBox(gbDev1, dev1Boxes, leftDev1, colWidthPx, 1.0)
+                                        PlaceGroupBox(gbDev2, dev2Boxes, leftDev2, colWidthPx, 1.0)
                                         PlaceGroupBox(gbTemp, tempBoxes, leftTemp, colWidthPx, 1.0)
                                         PlaceGroupBox(gbMisc, miscBoxes, leftMisc, miscColWidthPx, 1.0)
                                     End Sub
