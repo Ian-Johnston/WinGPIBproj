@@ -2375,6 +2375,15 @@ Partial Class Formtest
 
         If readyToAdvance = False Then Exit Sub
 
+        ' Everything below adds points to several series and rescales axes
+        ' in several separate steps - suspend repaint for the duration so
+        ' the chart never gets asked to paint a frame midway through this
+        ' update (which could otherwise show a briefly inconsistent mix of
+        ' old/new points and axis ranges).
+        LiveAnalysisChart.SuspendLayout()
+
+        Try
+
         ' Advance ONE X-axis sample
         LiveAnalysisSample += 1
 
@@ -2678,6 +2687,10 @@ Partial Class Formtest
 
         LiveAnalysisChart.ChartAreas("Temperature").RecalculateAxesScale()
         EnsureValidAxisScale(LiveAnalysisChart.ChartAreas("Temperature").AxisY)
+
+        Finally
+            LiveAnalysisChart.ResumeLayout()
+        End Try
 
     End Sub
 
