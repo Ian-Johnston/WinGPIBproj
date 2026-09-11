@@ -104,6 +104,18 @@ Partial Class Formtest
     Private Stats2StdevCurrent As Double = 0.0
     Private Stats2SEMCurrent As Double = 0.0
 
+    ' "Short-Term Mean" - an alternate view for the Mean TRACE only (pop-out
+    ' chart display), a rolling average over the last few readings rather
+    ' than the full cumulative Mean since Reset Stats. Does not touch
+    ' Stats1Mean/Stats2Mean, so the Mean shown elsewhere, STDEV/SEM/PPM
+    ' Deviation, and the CSV log are all completely unaffected.
+    Private chkShortTermMean As CheckBox = Nothing
+    Private Const ShortTermMeanWindow As Integer = 30
+    Private q1ShortTermMean As New Queue(Of Double)
+    Private sum1ShortTermMean As Double = 0.0
+    Private q2ShortTermMean As New Queue(Of Double)
+    Private sum2ShortTermMean As Double = 0.0
+
     Dim inst_value1FChartRaw As Double
     Dim inst_value2FChartRaw As Double
 
@@ -597,6 +609,11 @@ Partial Class Formtest
     "The Live Analysis chart does not require the Live Chart to be started - it runs from the same live statistics as soon as a device is running with Enable Statistics checked." & vbCrLf &
     "When both Device 1 and Device 2 are running together, the chart advances once per matched pair of readings rather than once per device, so the two devices share a common position on the chart instead of doubling the update rate." & vbCrLf &
     "The X-axis shows elapsed time (HH:mm:ss), calculated from the sample rate of whichever device(s) are running." & vbCrLf & vbCrLf &
+    "LIVE ANALYSIS CHART - MISC. OPTIONS" & vbCrLf &
+    "ANTI-ALIASING - Smooths lines and text on this chart and the main Live Chart. Keep this on to avoid a jagged/moire look on traces with many closely-packed points; only turn it off to compare against unsmoothed rendering." & vbCrLf &
+    "FAST RENDERING - Switches every trace on this chart to FastLine, a stripped-down renderer built for very large point counts that skips anti-aliasing entirely regardless of the Anti-Aliasing setting above. Only useful if the chart becomes slow with a very large or unbounded rolling window. Overrides Smooth Lines while checked." & vbCrLf &
+    "SMOOTH LINES - Draws each trace as a curved spline between points instead of straight segments. Purely cosmetic - a curve can visually suggest values in between samples that were never actually measured, so treat it as a display preference, not a data change." & vbCrLf &
+    $"SHORT-TERM MEAN - Plots the Mean trace as a rolling average of only the last {ShortTermMeanWindow} readings instead of the full cumulative Mean since Reset Stats. Responds faster to recent changes but is noisier. This affects the Mean TRACE on this chart only - it does not change the Mean shown in the DEVICE DATA panel, STDEV/SEM/PPM Deviation, or what is written to the CSV log. Checking or unchecking it only affects the trace from that moment onwards - points already plotted are not redrawn, so you will see a kink in the trace at the point you toggled it." & vbCrLf & vbCrLf &
     "DATA LOG / CSV" & vbCrLf &
     "When statistics are enabled, the current Samples, Mean, STDEV, SEM and Averaging Gain values are also available in the Data Log and CSV output." & vbCrLf &
     "Statistics fields remain in fixed positions for Device 1 and Device 2. When statistics are disabled for a device, those fields are left blank." & vbCrLf & vbCrLf &
@@ -622,6 +639,7 @@ Partial Class Formtest
     "SEM - STANDARD ERROR OF THE MEAN",
     "AVERAGING GAIN (DIGITS)",
     "LIVE ANALYSIS CHART",
+    "LIVE ANALYSIS CHART - MISC. OPTIONS",
     "DATA LOG / CSV",
     "IMPORTANT"
 }
@@ -1687,7 +1705,8 @@ Partial Class Formtest
 
         LiveAnalysisChart = New DataVisualization.Charting.Chart With {
         .Dock = DockStyle.Fill,
-        .BackColor = Color.WhiteSmoke
+        .BackColor = Color.WhiteSmoke,
+        .AntiAliasing = DataVisualization.Charting.AntiAliasingStyles.All
     }
 
         ' ==========================================================
@@ -1990,10 +2009,12 @@ Partial Class Formtest
         Dim gbDev1 As New GroupBox With {.Text = "Device 1 - " & txtname1.Text, .BackColor = Color.WhiteSmoke, .Font = New Font("Segoe UI", 9, FontStyle.Bold)}
         Dim gbDev2 As New GroupBox With {.Text = "Device 2 - " & txtname2.Text, .BackColor = Color.WhiteSmoke, .Font = New Font("Segoe UI", 9, FontStyle.Bold)}
         Dim gbTemp As New GroupBox With {.Text = "Temperature", .BackColor = Color.WhiteSmoke, .Font = New Font("Segoe UI", 9, FontStyle.Bold)}
+        Dim gbMisc As New GroupBox With {.Text = "Misc.", .BackColor = Color.WhiteSmoke, .Font = New Font("Segoe UI", 9, FontStyle.Bold)}
 
         LiveAnalysisChart.Controls.Add(gbDev1)
         LiveAnalysisChart.Controls.Add(gbDev2)
         LiveAnalysisChart.Controls.Add(gbTemp)
+        LiveAnalysisChart.Controls.Add(gbMisc)
 
         Dim AddTraceToggle = Function(parent As GroupBox, seriesName As String, displayText As String, color As Color) As CheckBox
                                  Dim cb As New CheckBox With {
@@ -2032,6 +2053,100 @@ Partial Class Formtest
         Dim dev2Boxes = {tglDevice2, tglDev2Mean, tglDev2Stdev, tglDev2SEM, tglDev2PPM}
         Dim tempBoxes = {tglTemp}
 
+        ' ToolTip1 belongs to Formtest and reliably tracks hover only for
+        ' Formtest's own controls - LiveAnalysisForm is a separate top-level
+        ' Form, so its controls need their own ToolTip to actually show.
+        Dim liveAnalysisToolTip As New ToolTip()
+
+        ' Global rendering toggle - applies to every LiveWatch chart (this
+        ' pop-out AND the embedded Live Chart on the Devices tab), not just
+        ' one series, so it isn't wired up via AddTraceToggle like the others.
+        Dim chkAntiAliasing As New CheckBox With {
+            .Text = "Anti-Aliasing",
+            .ForeColor = Color.Black,
+            .AutoSize = False,
+            .Checked = True,
+            .Height = 18,
+            .Font = New Font("Segoe UI", 8, FontStyle.Regular)
+        }
+        gbMisc.Controls.Add(chkAntiAliasing)
+        liveAnalysisToolTip.SetToolTip(chkAntiAliasing, "Smooths lines and text on this chart and the main Live Chart." & vbCrLf & "Keep this ON to avoid a jagged/moire look on busy traces.")
+
+        AddHandler chkAntiAliasing.CheckedChanged, Sub(s, ev)
+            Dim style = If(chkAntiAliasing.Checked,
+                DataVisualization.Charting.AntiAliasingStyles.All,
+                DataVisualization.Charting.AntiAliasingStyles.None)
+            LiveAnalysisChart.AntiAliasing = style
+            Chart1.AntiAliasing = style
+        End Sub
+
+        ' Fast Rendering and Smooth Lines only affect this pop-out's own
+        ' series (not Chart1) - they change ChartType rather than a chart-wide
+        ' rendering flag, and Chart1 may have its own reasons for whatever
+        ' chart type it already uses.
+        Dim chkFastRendering As New CheckBox With {
+            .Text = "Fast Rendering",
+            .ForeColor = Color.Black,
+            .AutoSize = False,
+            .Checked = False,
+            .Height = 18,
+            .Font = New Font("Segoe UI", 8, FontStyle.Regular)
+        }
+        gbMisc.Controls.Add(chkFastRendering)
+        liveAnalysisToolTip.SetToolTip(chkFastRendering, "Switches to a faster, lower-quality line renderer (FastLine) that" & vbCrLf & "skips anti-aliasing. Only worth using if the chart becomes slow" & vbCrLf & "with very large point counts. Overrides Smooth Lines while checked.")
+
+        Dim chkSmoothLines As New CheckBox With {
+            .Text = "Smooth Lines",
+            .ForeColor = Color.Black,
+            .AutoSize = False,
+            .Checked = False,
+            .Height = 18,
+            .Font = New Font("Segoe UI", 8, FontStyle.Regular)
+        }
+        gbMisc.Controls.Add(chkSmoothLines)
+        liveAnalysisToolTip.SetToolTip(chkSmoothLines, "Curves the trace between points (spline) instead of straight" & vbCrLf & "segments. Cosmetic only - can visually suggest values that were" & vbCrLf & "never actually measured between samples.")
+
+        ' Display only - plots a rolling average of the last ShortTermMeanWindow
+        ' readings on the Mean trace instead of the full cumulative Mean.
+        ' Does not touch Stats1Mean/Stats2Mean, so the Mean shown elsewhere,
+        ' STDEV/SEM/PPM Deviation, and the CSV log are all unaffected.
+        chkShortTermMean = New CheckBox With {
+            .Text = "Short-Term Mean",
+            .ForeColor = Color.Black,
+            .AutoSize = False,
+            .Checked = False,
+            .Height = 18,
+            .Font = New Font("Segoe UI", 8, FontStyle.Regular)
+        }
+        gbMisc.Controls.Add(chkShortTermMean)
+        liveAnalysisToolTip.SetToolTip(chkShortTermMean, $"Shows the Mean TRACE as a rolling average of the last {ShortTermMeanWindow} readings" & vbCrLf & "instead of the full cumulative average since Reset Stats - more responsive" & vbCrLf & "to recent changes, but noisier. Display only: does not affect the Mean" & vbCrLf & "shown elsewhere, STDEV/SEM/PPM Deviation, or the CSV log." & vbCrLf & "Only affects the trace from the moment you check/uncheck it onwards -" & vbCrLf & "points already plotted are not redrawn.")
+
+        Dim miscBoxes = {chkAntiAliasing, chkFastRendering, chkSmoothLines, chkShortTermMean}
+
+        ' Fast Rendering (FastLine) wins over Smooth Lines (Spline) since a
+        ' series can't be both at once - Smooth Lines is disabled while Fast
+        ' Rendering is checked so it's clear which one is actually in effect.
+        Dim ApplyLiveAnalysisChartType = Sub()
+            Dim chartType As DataVisualization.Charting.SeriesChartType
+
+            If chkFastRendering.Checked Then
+                chartType = DataVisualization.Charting.SeriesChartType.FastLine
+            ElseIf chkSmoothLines.Checked Then
+                chartType = DataVisualization.Charting.SeriesChartType.Spline
+            Else
+                chartType = DataVisualization.Charting.SeriesChartType.Line
+            End If
+
+            For Each s As DataVisualization.Charting.Series In LiveAnalysisChart.Series
+                s.ChartType = chartType
+            Next
+
+            chkSmoothLines.Enabled = Not chkFastRendering.Checked
+        End Sub
+
+        AddHandler chkFastRendering.CheckedChanged, Sub(s, ev) ApplyLiveAnalysisChartType()
+        AddHandler chkSmoothLines.CheckedChanged, Sub(s, ev) ApplyLiveAnalysisChartType()
+
         Dim RefreshDeviceAvailability = Sub()
                                             Dim dev1Active As Boolean = (ButtonDev1Run.Text = "Stop") OrElse (ButtonDev12Run.Text = "Stop")
                                             Dim dev2Active As Boolean = (ButtonDev2Run.Text = "Stop") OrElse (ButtonDev12Run.Text = "Stop")
@@ -2069,38 +2184,47 @@ Partial Class Formtest
                                         Dim ch As Double = LiveAnalysisChart.ClientSize.Height
 
                                         Dim rowHeightPx As Integer = 22
-                                        Dim colWidthPx As Integer = 110
+                                        Dim colWidthPx As Integer = 66   ' 40% narrower than the original 110
+                                        Dim miscColWidthPx As Integer = 130  ' Misc. labels ("Fast Rendering" etc.) are longer than trace names
                                         Dim pad As Integer = 5         ' margin around the checkboxes
-                                        Dim gap As Integer = 20        ' space between the three group boxes
+                                        Dim gap As Integer = 20        ' space between the group boxes
                                         Dim topPct As Double = 0       ' % from top of form
 
-                                        Dim GroupWidth = Function(boxes As CheckBox()) As Integer
+                                        ' Wide enough for its checkbox columns, or its own title text,
+                                        ' whichever needs more room - a group with few checkboxes (like
+                                        ' Temperature) would otherwise wrap its own title. widthMultiplier
+                                        ' adds extra headroom on top of that for titles that can grow at
+                                        ' runtime (Dev 1/Dev 2 include the user-editable device name).
+                                        Dim GroupWidth = Function(gb As GroupBox, boxes As CheckBox(), colWidth As Integer, widthMultiplier As Double) As Integer
                                                              Dim numCols As Integer = CInt(Math.Ceiling(boxes.Length / 2.0))
-                                                             Return (colWidthPx * numCols) + (pad * 2)
+                                                             Dim columnWidth As Integer = (colWidth * numCols) + (pad * 2)
+                                                             Dim titleWidth As Integer = TextRenderer.MeasureText(gb.Text, gb.Font).Width + (pad * 2) + 20
+                                                             Return CInt(Math.Max(columnWidth, titleWidth) * widthMultiplier)
                                                          End Function
 
-                                        Dim widthDev1 As Integer = GroupWidth(dev1Boxes)
-                                        Dim widthDev2 As Integer = GroupWidth(dev2Boxes)
-                                        Dim widthTemp As Integer = GroupWidth(tempBoxes)
+                                        Dim widthDev1 As Integer = GroupWidth(gbDev1, dev1Boxes, colWidthPx, 1.1)
+                                        Dim widthDev2 As Integer = GroupWidth(gbDev2, dev2Boxes, colWidthPx, 1.1)
+                                        Dim widthTemp As Integer = GroupWidth(gbTemp, tempBoxes, colWidthPx, 1.0)
+                                        Dim widthMisc As Integer = GroupWidth(gbMisc, miscBoxes, miscColWidthPx, 1.0)
 
-                                        Dim totalWidth As Integer = widthDev1 + widthDev2 + widthTemp + (gap * 2)
+                                        Dim totalWidth As Integer = widthDev1 + widthDev2 + widthTemp + widthMisc + (gap * 3)
                                         Dim startX As Integer = CInt((cw - totalWidth) / 2.0)
 
                                         Dim leftDev1 As Integer = startX
                                         Dim leftDev2 As Integer = leftDev1 + widthDev1 + gap
                                         Dim leftTemp As Integer = leftDev2 + widthDev2 + gap
+                                        Dim leftMisc As Integer = leftTemp + widthTemp + gap
 
                                         Dim topPx As Integer = CInt(topPct / 100.0 * ch)
 
-                                        Dim PlaceGroupBox = Sub(gb As GroupBox, boxes As CheckBox(), leftPx As Integer)
-                                                                Dim numCols As Integer = CInt(Math.Ceiling(boxes.Length / 2.0))
+                                        Dim PlaceGroupBox = Sub(gb As GroupBox, boxes As CheckBox(), leftPx As Integer, colWidth As Integer, widthMultiplier As Double)
                                                                 Dim numRows As Integer = Math.Min(2, boxes.Length)
                                                                 Dim titleAllowance As Integer = TextRenderer.MeasureText(gb.Text, gb.Font).Height + 2
 
                                                                 Dim contentHeight As Integer = rowHeightPx * numRows
 
                                                                 gb.Location = New Point(leftPx, topPx)
-                                                                gb.Size = New Size((colWidthPx * numCols) + (pad * 2), contentHeight + (pad * 2) + titleAllowance)
+                                                                gb.Size = New Size(GroupWidth(gb, boxes, colWidth, widthMultiplier), contentHeight + (pad * 2) + titleAllowance)
 
                                                                 Dim dr As Rectangle = gb.DisplayRectangle
                                                                 Dim hOffset As Integer = dr.Left + pad
@@ -2109,14 +2233,15 @@ Partial Class Formtest
                                                                 For i As Integer = 0 To boxes.Length - 1
                                                                     Dim col As Integer = i \ 2
                                                                     Dim row As Integer = i Mod 2
-                                                                    boxes(i).Location = New Point(hOffset + (col * colWidthPx), vOffset + (row * rowHeightPx))
-                                                                    boxes(i).Width = colWidthPx - 2
+                                                                    boxes(i).Location = New Point(hOffset + (col * colWidth), vOffset + (row * rowHeightPx))
+                                                                    boxes(i).Width = colWidth - 2
                                                                 Next
                                                             End Sub
 
-                                        PlaceGroupBox(gbDev1, dev1Boxes, leftDev1)
-                                        PlaceGroupBox(gbDev2, dev2Boxes, leftDev2)
-                                        PlaceGroupBox(gbTemp, tempBoxes, leftTemp)
+                                        PlaceGroupBox(gbDev1, dev1Boxes, leftDev1, colWidthPx, 1.1)
+                                        PlaceGroupBox(gbDev2, dev2Boxes, leftDev2, colWidthPx, 1.1)
+                                        PlaceGroupBox(gbTemp, tempBoxes, leftTemp, colWidthPx, 1.0)
+                                        PlaceGroupBox(gbMisc, miscBoxes, leftMisc, miscColWidthPx, 1.0)
                                     End Sub
 
         RepositionLiveToggles()
@@ -2186,6 +2311,10 @@ Partial Class Formtest
         ' Start chart at sample zero whenever opened.
         LiveAnalysisSample = 0
 
+        ' Fresh Short-Term Mean window each time the pop-out is (re)opened.
+        q1ShortTermMean.Clear() : sum1ShortTermMean = 0.0
+        q2ShortTermMean.Clear() : sum2ShortTermMean = 0.0
+
         ' Remember current statistics counts so that only NEW
         ' readings received after opening the chart are plotted.
         LiveAnalysisLastStats1Count = Stats1Count
@@ -2202,8 +2331,10 @@ Partial Class Formtest
 
         Dim s As New DataVisualization.Charting.Series(seriesName)
 
-        ' Match existing Live Watch chart trace style.
-        s.ChartType = DataVisualization.Charting.SeriesChartType.FastLine
+        ' FastLine skips anti-aliasing regardless of chart-level settings, which is
+        ' what caused the moire/banding look when many points land close together in
+        ' a rolling window - Line respects anti-aliasing and renders cleanly instead.
+        s.ChartType = DataVisualization.Charting.SeriesChartType.Line
 
         s.ChartArea = chartAreaName
 
@@ -2254,8 +2385,15 @@ Partial Class Formtest
 
             Dim dev1Raw As Double = CDbl(Val(NormalizeNumericResponse(txtr1a.Text)))
 
+            Dim dev1MeanToPlot As Double = Stats1Mean
+            If chkShortTermMean IsNot Nothing AndAlso chkShortTermMean.Checked Then
+                q1ShortTermMean.Enqueue(dev1Raw) : sum1ShortTermMean += dev1Raw
+                If q1ShortTermMean.Count > ShortTermMeanWindow Then sum1ShortTermMean -= q1ShortTermMean.Dequeue()
+                dev1MeanToPlot = sum1ShortTermMean / q1ShortTermMean.Count
+            End If
+
             LiveAnalysisChart.Series("Device 1").Points.AddXY(x, dev1Raw)
-            LiveAnalysisChart.Series("Dev 1 Mean").Points.AddXY(x, Stats1Mean)
+            LiveAnalysisChart.Series("Dev 1 Mean").Points.AddXY(x, dev1MeanToPlot)
             LiveAnalysisChart.Series("Dev 1 STDEV").Points.AddXY(x, Stats1StdevCurrent)
             LiveAnalysisChart.Series("Dev 1 SEM").Points.AddXY(x, Stats1SEMCurrent)
             LiveAnalysisChart.Series("Dev 1 PPM Deviation").Points.AddXY(x, Stats1DeviationCurrent)
@@ -2269,8 +2407,15 @@ Partial Class Formtest
 
             Dim dev2Raw As Double = CDbl(Val(NormalizeNumericResponse(txtr2a.Text)))
 
+            Dim dev2MeanToPlot As Double = Stats2Mean
+            If chkShortTermMean IsNot Nothing AndAlso chkShortTermMean.Checked Then
+                q2ShortTermMean.Enqueue(dev2Raw) : sum2ShortTermMean += dev2Raw
+                If q2ShortTermMean.Count > ShortTermMeanWindow Then sum2ShortTermMean -= q2ShortTermMean.Dequeue()
+                dev2MeanToPlot = sum2ShortTermMean / q2ShortTermMean.Count
+            End If
+
             LiveAnalysisChart.Series("Device 2").Points.AddXY(x, dev2Raw)
-            LiveAnalysisChart.Series("Dev 2 Mean").Points.AddXY(x, Stats2Mean)
+            LiveAnalysisChart.Series("Dev 2 Mean").Points.AddXY(x, dev2MeanToPlot)
             LiveAnalysisChart.Series("Dev 2 STDEV").Points.AddXY(x, Stats2StdevCurrent)
             LiveAnalysisChart.Series("Dev 2 SEM").Points.AddXY(x, Stats2SEMCurrent)
             LiveAnalysisChart.Series("Dev 2 PPM Deviation").Points.AddXY(x, Stats2DeviationCurrent)
