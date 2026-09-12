@@ -288,7 +288,7 @@ Public Class Formtest
             End If
             CheckBoxThemeSet.Checked = My.Settings.ThemeSet
 
-            BannerText1 = "WinGPIB   V5.012"
+            BannerText1 = "WinGPIB   V5.013"
             BannerText2 = "                                                                            "
             BannerText3 = "Free for Non-Commercial Use • Support WinGPIB — see About"
             Me.Text = BannerText1 & BannerText2 & BannerText3.ToString()
@@ -638,8 +638,8 @@ Public Class Formtest
             PDVS2delay.Text = My.Settings.data483
             TextBoxSer.Text = ""
             TextBoxdegC.Text = ""
-            Dev1Units.Text = My.Settings.data500
-            Dev2Units.Text = My.Settings.data501
+            Dev1Units.SelectedItem = My.Settings.data500
+            Dev2Units.SelectedItem = My.Settings.data501
             WryTech.Checked = My.Settings.data503
             comPort_ComboBox.SelectedItem = My.Settings.data333
 
@@ -894,6 +894,28 @@ Public Class Formtest
         TextRenderer.DrawText(e.Graphics, namePart, cb.Font, rName, fore, TextFormatFlags.Left Or TextFormatFlags.VerticalCenter Or TextFormatFlags.NoPrefix)
 
         e.DrawFocusRectangle()
+    End Sub
+
+    ' Dev1Units/Dev2Units: force normal (non-highlighted) rendering for the closed
+    ' combo box, whether or not it has focus, so selecting a unit doesn't leave the
+    ' box shaded blue until some other control is used. The drop-down list itself
+    ' still highlights the hovered/selected row as normal.
+    Private Sub UnitsCombo_DrawItem(sender As Object, e As DrawItemEventArgs) Handles Dev1Units.DrawItem, Dev2Units.DrawItem
+        Dim cb = DirectCast(sender, ComboBox)
+        Dim isEditPortion As Boolean = (e.State And DrawItemState.ComboBoxEdit) = DrawItemState.ComboBoxEdit
+        Dim highlighted As Boolean = (Not isEditPortion) AndAlso (e.State And DrawItemState.Selected) = DrawItemState.Selected
+
+        Dim backColor As Color = If(highlighted, SystemColors.Highlight, cb.BackColor)
+        Dim foreColor As Color = If(highlighted, SystemColors.HighlightText, cb.ForeColor)
+
+        Using brush As New SolidBrush(backColor)
+            e.Graphics.FillRectangle(brush, e.Bounds)
+        End Using
+
+        If e.Index >= 0 Then
+            TextRenderer.DrawText(e.Graphics, cb.Items(e.Index).ToString(), cb.Font, e.Bounds, foreColor,
+                TextFormatFlags.Left Or TextFormatFlags.VerticalCenter Or TextFormatFlags.NoPrefix)
+        End If
     End Sub
 
 
