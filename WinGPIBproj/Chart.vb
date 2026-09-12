@@ -74,6 +74,13 @@ Public Class Chart
     Dim tempcounter As Integer = 0
     Dim tempTEMPcounter As Integer = 0
 
+    ' Retrospective Short-Term Mean traces (Playback top chart) - a rolling
+    ' average over the last few raw VALUE readings, recomputed fresh each
+    ' time the chart is (re)plotted, independent of the existing DEV1avg/
+    ' DEV2avg rolling-average feature and its shared inputvalueMeasurements
+    ' state. Same idea as LiveWatch.vb's Short-Term Mean checkbox.
+    Private Const ShortTermMeanWindow As Integer = 30
+
     Dim numberofmetadatalines As Integer = 0
 
 
@@ -101,6 +108,12 @@ Public Class Chart
         ' Set Timer1 duration - Used for refresh of auto-Playback chart, i.e. auto reload of CSV
         Me.Timer1.Interval = 5000  ' 5secs
         Me.Timer1.Stop()
+
+        ' Large tooltips - same look and feel as the main form (Formtest.vb)
+        ToolTip1.OwnerDraw = True
+        ToolTip1.InitialDelay = 500   ' ms before first show (default is 1000)
+        ToolTip1.ReshowDelay = 5      ' delay when moving between controls
+        ToolTip1.AutoPopDelay = 15000 ' how long it stays visible
 
         DeviceName1.BackColor = Color.Yellow
         DeviceName2.BackColor = Color.Aqua
@@ -130,6 +143,10 @@ Public Class Chart
 
         CheckPlaybackDev2MaxDiff.BackColor = Color.HotPink
         CheckPlaybackDev2Deviation.BackColor = Color.LightGray
+
+        CheckPlaybackDev1ShortTermMean.BackColor = Color.OrangeRed
+        CheckPlaybackDev2ShortTermMean.BackColor = Color.Khaki
+        CheckPlaybackDev2ShortTermMean.ForeColor = Color.Black
 
         GroupBoxMisc.Enabled = True
         GroupBoxMiscTempHum.Enabled = True
@@ -329,6 +346,9 @@ Public Class Chart
         Chart2.Series.Add("Dev 2 Max Diff")
         Chart2.Series.Add("Dev 2 Deviation")
 
+        Chart2.Series.Add("Dev 1 Short-Term Mean")
+        Chart2.Series.Add("Dev 2 Short-Term Mean")
+
 
         ' ==========================================================
         ' Assign statistics series to correct ChartAreas
@@ -338,6 +358,12 @@ Public Class Chart
         Chart2.ChartAreas(0).Name
 
         Chart2.Series(8).ChartArea =
+        Chart2.ChartAreas(0).Name
+
+        Chart2.Series(15).ChartArea =
+        Chart2.ChartAreas(0).Name
+
+        Chart2.Series(16).ChartArea =
         Chart2.ChartAreas(0).Name
 
         Chart2.Series(6).ChartArea = "Statistics"
@@ -360,7 +386,7 @@ Public Class Chart
         CheckDev2Line.Checked = True
         CheckDev2Point.Checked = False
 
-        For i As Integer = 0 To 14
+        For i As Integer = 0 To 16
 
             Chart2.Series(i).ChartType =
             DataVisualization.Charting.SeriesChartType.Line
@@ -387,6 +413,7 @@ Public Class Chart
         Chart2.Series(7).Color = Color.DeepSkyBlue     ' Dev 1 SEM
         Chart2.Series(11).Color = Color.Gold           ' Dev 1 Max Diff
         Chart2.Series(12).Color = Color.White          ' Dev 1 PPM Deviation
+        Chart2.Series(15).Color = Color.OrangeRed      ' Dev 1 Short-Term Mean
 
         ' Device 2
         Chart2.Series(8).Color = Color.Lime            ' Dev 2 Mean
@@ -394,6 +421,7 @@ Public Class Chart
         Chart2.Series(10).Color = Color.LimeGreen      ' Dev 2 SEM
         Chart2.Series(13).Color = Color.HotPink        ' Dev 2 Max Diff
         Chart2.Series(14).Color = Color.LightGray      ' Dev 2 PPM Deviation
+        Chart2.Series(16).Color = Color.Khaki   ' Dev 2 Short-Term Mean
 
 
         ' ==========================================================
@@ -552,7 +580,54 @@ Public Class Chart
         CheckPlaybackDev2SEM.Enabled = False
         CheckPlaybackDev2MaxDiff.Enabled = False
         CheckPlaybackDev2Deviation.Enabled = False
+        CheckPlaybackDev2ShortTermMean.Enabled = False
 
+    End Sub
+
+
+    ' Large tooltips - same look and feel as the main form (Formtest.vb)
+    Private Sub ToolTip1_Draw(sender As Object, e As DrawToolTipEventArgs) _
+    Handles ToolTip1.Draw
+
+        Using f As New Font("Segoe UI", 12.0F)
+            e.Graphics.FillRectangle(SystemBrushes.Info, e.Bounds)
+
+            Dim rc As Rectangle = New Rectangle(
+            e.Bounds.X + 6,
+            e.Bounds.Y + 4,
+            e.Bounds.Width - 12,
+            e.Bounds.Height - 8
+        )
+
+            TextRenderer.DrawText(
+            e.Graphics,
+            e.ToolTipText,
+            f,
+            rc,
+            Color.Black,
+            TextFormatFlags.Left Or TextFormatFlags.VerticalCenter Or TextFormatFlags.NoPrefix Or TextFormatFlags.NoClipping
+        )
+        End Using
+    End Sub
+
+
+    ' Large tooltips - same look and feel as the main form (Formtest.vb)
+    Private Sub ToolTip1_Popup(sender As Object, e As PopupEventArgs) _
+    Handles ToolTip1.Popup
+
+        Dim tt As ToolTip = CType(sender, ToolTip)
+        Dim text As String = tt.GetToolTip(e.AssociatedControl)
+
+        Using f As New Font("Segoe UI", 12.0F)
+            Dim sz = TextRenderer.MeasureText(
+            text,
+            f,
+            New Size(1200, Integer.MaxValue),
+            TextFormatFlags.WordBreak
+        )
+
+            e.ToolTipSize = New Size(sz.Width + 14, sz.Height + 8)
+        End Using
     End Sub
 
 
@@ -624,6 +699,7 @@ Public Class Chart
         CheckPlaybackDev2SEM.Enabled = False
         CheckPlaybackDev2MaxDiff.Enabled = False
         CheckPlaybackDev2Deviation.Enabled = False
+        CheckPlaybackDev2ShortTermMean.Enabled = False
 
 
         ' ==========================================================
@@ -1178,6 +1254,9 @@ Public Class Chart
         CheckPlaybackDev2MaxDiff.Enabled = False
         CheckPlaybackDev2Deviation.Checked = False
         CheckPlaybackDev2Deviation.Enabled = False
+
+        CheckPlaybackDev2ShortTermMean.Checked = False
+        CheckPlaybackDev2ShortTermMean.Enabled = False
     End Sub
 
     Private Sub EnableDualDeviceControls()
@@ -1205,6 +1284,11 @@ Public Class Chart
         ' what's actually in the CSV. Only the raw Dev.2 data
         ' checkbox isn't covered by that block, so re-enable it here.
         CheckPlaybackDev2Data.Enabled = True
+
+        ' Short-Term Mean isn't a recorded CSV column either (it's
+        ' recomputed from raw VALUE), so it isn't covered by the V5/V6
+        ' block - re-enable it here for the same reason as Dev.2 Data.
+        CheckPlaybackDev2ShortTermMean.Enabled = True
     End Sub
 
 
@@ -1325,6 +1409,8 @@ Public Class Chart
 
             FilterDeviceName1()
             FilterDeviceName2()
+            FilterShortTermMeanDevice1()
+            FilterShortTermMeanDevice2()
             FilterTempDevice1()
             FilterHumDevice1()
             GeneratePPMColumn()
@@ -1741,6 +1827,8 @@ Public Class Chart
 
             FilterDeviceName1()
             FilterDeviceName2()
+            FilterShortTermMeanDevice1()
+            FilterShortTermMeanDevice2()
             FilterTempDevice1()
             FilterHumDevice1()
 
@@ -1989,6 +2077,8 @@ Public Class Chart
 
                 FilterDeviceName1()
                 FilterDeviceName2()
+                FilterShortTermMeanDevice1()
+                FilterShortTermMeanDevice2()
                 FilterTempDevice1()
                 FilterHumDevice1()
                 GeneratePPMColumn()
@@ -2096,6 +2186,8 @@ Public Class Chart
 
                 FilterDeviceName1()
                 FilterDeviceName2()
+                FilterShortTermMeanDevice1()
+                FilterShortTermMeanDevice2()
                 FilterTempDevice1()
                 FilterHumDevice1()
                 GeneratePPMColumn()
@@ -2187,6 +2279,8 @@ Public Class Chart
 
                 FilterDeviceName1()
                 FilterDeviceName2()
+                FilterShortTermMeanDevice1()
+                FilterShortTermMeanDevice2()
                 FilterTempDevice1()
                 FilterHumDevice1()
                 GeneratePPMColumn()
@@ -2274,6 +2368,8 @@ Public Class Chart
 
                 FilterDeviceName1()
                 FilterDeviceName2()
+                FilterShortTermMeanDevice1()
+                FilterShortTermMeanDevice2()
                 FilterTempDevice1()
                 FilterHumDevice1()
                 GeneratePPMColumn()
@@ -2351,6 +2447,8 @@ Public Class Chart
 
                 FilterDeviceName1()
                 FilterDeviceName2()
+                FilterShortTermMeanDevice1()
+                FilterShortTermMeanDevice2()
                 FilterTempDevice1()
                 FilterHumDevice1()
                 GeneratePPMColumn()
@@ -2434,6 +2532,8 @@ Public Class Chart
 
                 FilterDeviceName1()
                 FilterDeviceName2()
+                FilterShortTermMeanDevice1()
+                FilterShortTermMeanDevice2()
                 FilterTempDevice1()
                 FilterHumDevice1()
                 GeneratePPMColumn()
@@ -2497,6 +2597,8 @@ Public Class Chart
 
                 FilterDeviceName1()
                 FilterDeviceName2()
+                FilterShortTermMeanDevice1()
+                FilterShortTermMeanDevice2()
                 FilterTempDevice1()
                 FilterHumDevice1()
                 GeneratePPMColumn()
@@ -2565,6 +2667,8 @@ Public Class Chart
 
                 FilterDeviceName1()
                 FilterDeviceName2()
+                FilterShortTermMeanDevice1()
+                FilterShortTermMeanDevice2()
                 FilterTempDevice1()
                 FilterHumDevice1()
                 GeneratePPMColumn()
@@ -3050,6 +3154,56 @@ Public Class Chart
 
         End If
 
+
+    End Sub
+
+
+    Private Sub FilterShortTermMeanDevice1()
+
+        Chart2.Series("Dev 1 Short-Term Mean").Points.Clear()
+
+        If Not CheckPlaybackDev1ShortTermMean.Checked Then Exit Sub
+        If (DeviceName1.Text = "") Then Exit Sub
+
+        Dim selectedRows() As DataRow = dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
+
+        Dim window As New Queue(Of Double)
+        Dim windowSum As Double = 0.0
+
+        For Each dr As DataRow In selectedRows
+
+            Dim v As Double = Convert.ToDouble(dr("VALUE"))
+            window.Enqueue(v) : windowSum += v
+            If window.Count > ShortTermMeanWindow Then windowSum -= window.Dequeue()
+
+            Chart2.Series("Dev 1 Short-Term Mean").Points.AddXY(dr("DEVICE"), windowSum / window.Count)
+
+        Next
+
+    End Sub
+
+
+    Private Sub FilterShortTermMeanDevice2()
+
+        Chart2.Series("Dev 2 Short-Term Mean").Points.Clear()
+
+        If Not CheckPlaybackDev2ShortTermMean.Checked Then Exit Sub
+        If (DeviceName2.Text = "") Then Exit Sub
+
+        Dim selectedRows2() As DataRow = dataTable1.Select("DEVICE ='" & DeviceName2.Text & "'")
+
+        Dim window As New Queue(Of Double)
+        Dim windowSum As Double = 0.0
+
+        For Each dr As DataRow In selectedRows2
+
+            Dim v As Double = Convert.ToDouble(dr("VALUE"))
+            window.Enqueue(v) : windowSum += v
+            If window.Count > ShortTermMeanWindow Then windowSum -= window.Dequeue()
+
+            Chart2.Series("Dev 2 Short-Term Mean").Points.AddXY(dr("DEVICE"), windowSum / window.Count)
+
+        Next
 
     End Sub
 
@@ -4802,14 +4956,16 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
             CheckPlaybackDev1SEM.CheckedChanged,
             CheckPlaybackDev1MaxDiff.CheckedChanged,
             CheckPlaybackDev1Deviation.CheckedChanged,
+            CheckPlaybackDev1ShortTermMean.CheckedChanged,
             CheckPlaybackDev2Data.CheckedChanged,
             CheckPlaybackDev2Mean.CheckedChanged,
             CheckPlaybackDev2Stdev.CheckedChanged,
             CheckPlaybackDev2SEM.CheckedChanged,
             CheckPlaybackDev2MaxDiff.CheckedChanged,
-            CheckPlaybackDev2Deviation.CheckedChanged
+            CheckPlaybackDev2Deviation.CheckedChanged,
+            CheckPlaybackDev2ShortTermMean.CheckedChanged
 
-        If Chart2.Series.Count < 15 Then Exit Sub
+        If Chart2.Series.Count < 17 Then Exit Sub
 
         Chart2.Series(0).Enabled = CheckPlaybackDev1Data.Checked
         Chart2.Series(1).Enabled = CheckPlaybackDev2Data.Checked
@@ -4819,12 +4975,20 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         Chart2.Series(7).Enabled = CheckPlaybackDev1SEM.Checked
         Chart2.Series(11).Enabled = CheckPlaybackDev1MaxDiff.Checked
         Chart2.Series(12).Enabled = CheckPlaybackDev1Deviation.Checked
+        Chart2.Series(15).Enabled = CheckPlaybackDev1ShortTermMean.Checked
 
         Chart2.Series(8).Enabled = CheckPlaybackDev2Mean.Checked
         Chart2.Series(9).Enabled = CheckPlaybackDev2Stdev.Checked
         Chart2.Series(10).Enabled = CheckPlaybackDev2SEM.Checked
         Chart2.Series(13).Enabled = CheckPlaybackDev2MaxDiff.Checked
         Chart2.Series(14).Enabled = CheckPlaybackDev2Deviation.Checked
+        Chart2.Series(16).Enabled = CheckPlaybackDev2ShortTermMean.Checked
+
+        ' Short-Term Mean isn't populated by UpdatePlaybackStatsSeries() (it's
+        ' not a recorded CSV column, it's recomputed from raw VALUE) - refresh
+        ' it directly so toggling the checkbox actually shows/hides real points.
+        FilterShortTermMeanDevice1()
+        FilterShortTermMeanDevice2()
 
         If ChartLoaded = True AndAlso CSVfileok = True Then
             UpdatePlaybackStatsSeries()
