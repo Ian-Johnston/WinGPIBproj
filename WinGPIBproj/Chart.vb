@@ -148,6 +148,14 @@ Public Class Chart
         CheckPlaybackDev2ShortTermMean.BackColor = Color.Khaki
         CheckPlaybackDev2ShortTermMean.ForeColor = Color.Black
 
+        ' Allan Deviation pop-up chart checkboxes - light tint of each
+        ' device's usual colour (Dev1=Yellow, Dev2=Aqua) so they read as
+        ' related but distinct from the Data checkboxes above.
+        CheckPlaybackDev1Allan.BackColor = Color.LightYellow
+        CheckPlaybackDev1Allan.ForeColor = Color.Black
+        CheckPlaybackDev2Allan.BackColor = Color.LightCyan
+        CheckPlaybackDev2Allan.ForeColor = Color.Black
+
         GroupBoxMisc.Enabled = True
         GroupBoxMiscTempHum.Enabled = True
         YaxisBox1.Enabled = True
@@ -581,6 +589,7 @@ Public Class Chart
         CheckPlaybackDev2MaxDiff.Enabled = False
         CheckPlaybackDev2Deviation.Enabled = False
         CheckPlaybackDev2ShortTermMean.Enabled = False
+        CheckPlaybackDev2Allan.Enabled = False
 
     End Sub
 
@@ -700,6 +709,7 @@ Public Class Chart
         CheckPlaybackDev2MaxDiff.Enabled = False
         CheckPlaybackDev2Deviation.Enabled = False
         CheckPlaybackDev2ShortTermMean.Enabled = False
+        CheckPlaybackDev2Allan.Enabled = False
 
 
         ' ==========================================================
@@ -1257,6 +1267,9 @@ Public Class Chart
 
         CheckPlaybackDev2ShortTermMean.Checked = False
         CheckPlaybackDev2ShortTermMean.Enabled = False
+
+        CheckPlaybackDev2Allan.Checked = False
+        CheckPlaybackDev2Allan.Enabled = False
     End Sub
 
     Private Sub EnableDualDeviceControls()
@@ -1289,6 +1302,9 @@ Public Class Chart
         ' recomputed from raw VALUE), so it isn't covered by the V5/V6
         ' block - re-enable it here for the same reason as Dev.2 Data.
         CheckPlaybackDev2ShortTermMean.Enabled = True
+
+        ' Allan Deviation checkbox is likewise not a recorded CSV column.
+        CheckPlaybackDev2Allan.Enabled = True
     End Sub
 
 
@@ -4993,6 +5009,402 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         If ChartLoaded = True AndAlso CSVfileok = True Then
             UpdatePlaybackStatsSeries()
         End If
+
+    End Sub
+
+
+    ' ==============================================================
+    ' Allan Deviation pop-up chart (Dev 1 / Dev 2)
+    '
+    ' A retrospective stability plot computed from the raw VALUE
+    ' column for whichever device(s) are checked - independent of
+    ' Chart2 and everything else on the Playback chart. Log-log axes:
+    ' averaging time (tau, in samples) on X, Allan deviation (ppm of
+    ' the device's overall mean) on Y. Opens on first checkbox tick,
+    ' closes when both are unchecked or the user closes it directly.
+    ' ==============================================================
+
+    Private AllanPopupForm As Form = Nothing
+    Private AllanPopupChart As DataVisualization.Charting.Chart = Nothing
+
+    Private Sub AllanCheckbox_CheckedChanged(sender As Object, e As EventArgs) _
+    Handles CheckPlaybackDev1Allan.CheckedChanged, CheckPlaybackDev2Allan.CheckedChanged
+
+        RefreshAllanChart()
+
+    End Sub
+
+    Private Sub RefreshAllanChart()
+
+        Dim showDev1 As Boolean = CheckPlaybackDev1Allan.Checked
+        Dim showDev2 As Boolean = CheckPlaybackDev2Allan.Checked
+
+        If Not showDev1 AndAlso Not showDev2 Then
+            If AllanPopupForm IsNot Nothing Then AllanPopupForm.Close()
+            Exit Sub
+        End If
+
+        EnsureAllanPopupOpen()
+
+        UpdateAllanSeries("Dev 1 Allan Deviation", DeviceName1.Text, showDev1, Color.Yellow)
+        UpdateAllanSeries("Dev 2 Allan Deviation", DeviceName2.Text, showDev2, Color.Aqua)
+
+        RescaleAllanAxes()
+
+    End Sub
+
+    ' MSChart's logarithmic axis only labels whole decades (1, 10, 100, ...),
+    ' which can leave very few gridlines when the data spans less than a
+    ' couple of decades - exactly the "not many points" look. Pin the axis
+    ' range to whole decades from the actual data, then add unlabeled minor
+    ' gridlines at 2x-9x within each decade (the standard look for a log-log
+    ' plot) so there's always a useful density of reference lines.
+    Private Sub RescaleAllanAxes()
+
+        If AllanPopupChart Is Nothing Then Exit Sub
+        If AllanPopupChart.Series.Count = 0 Then Exit Sub
+
+        Dim xMin As Double = Double.MaxValue, xMax As Double = Double.MinValue
+        Dim yMin As Double = Double.MaxValue, yMax As Double = Double.MinValue
+
+        For Each s As Series In AllanPopupChart.Series
+            For Each pt As DataPoint In s.Points
+                xMin = Math.Min(xMin, pt.XValue)
+                xMax = Math.Max(xMax, pt.XValue)
+                yMin = Math.Min(yMin, pt.YValues(0))
+                yMax = Math.Max(yMax, pt.YValues(0))
+            Next
+        Next
+
+        If xMin = Double.MaxValue Then Exit Sub   ' no points plotted yet
+
+        Dim axisXMin As Double = Math.Pow(10.0, Math.Floor(Math.Log10(xMin)))
+        Dim axisXMax As Double = Math.Pow(10.0, Math.Ceiling(Math.Log10(xMax)))
+        Dim axisYMin As Double = Math.Pow(10.0, Math.Floor(Math.Log10(yMin)))
+        Dim axisYMax As Double = Math.Pow(10.0, Math.Ceiling(Math.Log10(yMax)))
+
+        Dim ca As ChartArea = AllanPopupChart.ChartAreas("Main")
+        ca.AxisX.Minimum = axisXMin
+        ca.AxisX.Maximum = axisXMax
+        ca.AxisY.Minimum = axisYMin
+        ca.AxisY.Maximum = axisYMax
+
+        ' For a logarithmic axis, Interval is a power-of-ten step rather than
+        ' a data value - 1 (the default) only ticks whole decades. 0.5 adds a
+        ' gridline/label at the half-decade point too (e.g. 0.01, 0.0316, 0.1,
+        ' 0.316, 1 instead of just 0.01, 0.1, 1), which is the same mechanism
+        ' already drawing the decade lines, just ticking twice as often.
+        ca.AxisX.Interval = 0.5
+        ca.AxisY.Interval = 0.25
+        ' Fixed-point (never scientific notation), trimmed to 3 decimals.
+        ca.AxisX.LabelStyle.Format = "0.###"
+        ca.AxisY.LabelStyle.Format = "0.###"
+
+    End Sub
+
+    Private Sub EnsureAllanPopupOpen()
+
+        If AllanPopupForm IsNot Nothing AndAlso Not AllanPopupForm.IsDisposed Then
+            AllanPopupForm.BringToFront()
+            Exit Sub
+        End If
+
+        AllanPopupForm = New Form With {
+            .Text = "Allan Deviation",
+            .Width = 780,
+            .Height = 540,
+            .StartPosition = FormStartPosition.CenterParent,
+            .ShowIcon = False
+        }
+
+        AllanPopupChart = New DataVisualization.Charting.Chart With {
+            .Dock = DockStyle.Fill,
+            .BackColor = Color.Black
+        }
+
+        Dim ca As New ChartArea("Main")
+        ca.BackColor = Color.Black
+
+        ca.AxisX.IsLogarithmic = True
+        ca.AxisX.Title = "Averaging Time - tau (samples)"
+        ca.AxisX.TitleForeColor = Color.White
+        ca.AxisX.LabelStyle.ForeColor = Color.White
+        ca.AxisX.LineColor = Color.Gray
+        ca.AxisX.MajorGrid.LineColor = Color.FromArgb(45, 45, 45)
+
+        ca.AxisY.IsLogarithmic = True
+        ca.AxisY.Title = "Allan Deviation (ppm)"
+        ca.AxisY.TitleForeColor = Color.White
+        ca.AxisY.LabelStyle.ForeColor = Color.White
+        ca.AxisY.LineColor = Color.Gray
+        ca.AxisY.MajorGrid.LineColor = Color.FromArgb(45, 45, 45)
+
+        AllanPopupChart.ChartAreas.Add(ca)
+
+        Dim lg As New Legend("Main")
+        lg.ForeColor = Color.White
+        lg.BackColor = Color.Black
+        AllanPopupChart.Legends.Add(lg)
+
+        AllanPopupForm.Controls.Add(AllanPopupChart)
+
+        AddHandler AllanPopupForm.FormClosed, AddressOf AllanPopupForm_FormClosed
+
+        AllanPopupForm.Show()
+
+    End Sub
+
+    Private Sub AllanPopupForm_FormClosed(sender As Object, e As FormClosedEventArgs)
+
+        ' Keep the checkboxes in sync if the user closes the pop-up directly
+        ' (via its own close button) instead of unchecking both boxes first.
+        CheckPlaybackDev1Allan.Checked = False
+        CheckPlaybackDev2Allan.Checked = False
+
+        AllanPopupForm = Nothing
+        AllanPopupChart = Nothing
+
+    End Sub
+
+    Private Sub UpdateAllanSeries(seriesName As String, deviceName As String, show As Boolean, seriesColor As Color)
+
+        If AllanPopupChart Is Nothing Then Exit Sub
+
+        If AllanPopupChart.Series.IndexOf(seriesName) >= 0 Then
+            AllanPopupChart.Series.Remove(AllanPopupChart.Series(seriesName))
+        End If
+
+        If Not show Then Exit Sub
+        If deviceName = "" Then Exit Sub
+
+        Dim selectedRows() As DataRow = dataTable1.Select("DEVICE ='" & deviceName & "'")
+        If selectedRows.Length < 4 Then Exit Sub    ' not enough samples for any tau
+
+        Dim rawValues As New List(Of Double)
+        For Each dr As DataRow In selectedRows
+            rawValues.Add(Convert.ToDouble(dr("VALUE")))
+        Next
+
+        Dim overallMean As Double = rawValues.Average()
+        If overallMean = 0.0 Then Exit Sub   ' avoid a divide-by-zero in the ppm conversion
+
+        Dim newSeries As New Series(seriesName) With {
+            .ChartType = SeriesChartType.Line,
+            .ChartArea = "Main",
+            .Legend = "Main",
+            .Color = seriesColor,
+            .BorderWidth = 2,
+            .MarkerStyle = MarkerStyle.Circle,
+            .MarkerSize = 6,
+            .MarkerColor = seriesColor
+        }
+
+        For Each point As KeyValuePair(Of Integer, Double) In ComputeAllanDeviation(rawValues)
+            Dim sigmaPpm As Double = (point.Value / overallMean) * 1000000.0
+            If sigmaPpm > 0.0 Then newSeries.Points.AddXY(point.Key, sigmaPpm)
+        Next
+
+        AllanPopupChart.Series.Add(newSeries)
+
+    End Sub
+
+    ' Classic overlapping-free ("non-overlapping") Allan deviation:
+    ' bin the raw samples into consecutive windows of length tau,
+    ' average each bin, then take the RMS of the differences between
+    ' consecutive bin averages. Repeated for a log-spaced set of tau
+    ' values from 1 sample up to half the total sample count (need at
+    ' least 2 bins to form one difference).
+    Private Function ComputeAllanDeviation(rawValues As List(Of Double)) As List(Of KeyValuePair(Of Integer, Double))
+
+        Dim results As New List(Of KeyValuePair(Of Integer, Double))
+
+        Dim n As Integer = rawValues.Count
+        Dim maxTau As Integer = n \ 2
+        If maxTau < 1 Then Return results
+
+        Const stepsPerDecade As Integer = 8
+        Dim taus As New SortedSet(Of Integer)
+        Dim i As Integer = 0
+        Do
+            Dim tau As Integer = CInt(Math.Round(Math.Pow(10.0, i / stepsPerDecade)))
+            If tau >= 1 AndAlso tau <= maxTau Then taus.Add(tau)
+            i += 1
+        Loop While Math.Pow(10.0, i / stepsPerDecade) <= maxTau
+
+        For Each tau As Integer In taus
+
+            Dim binCount As Integer = n \ tau
+            If binCount < 2 Then Continue For
+
+            Dim binMeans As New List(Of Double)
+            For b As Integer = 0 To binCount - 1
+                Dim sum As Double = 0.0
+                For k As Integer = 0 To tau - 1
+                    sum += rawValues(b * tau + k)
+                Next
+                binMeans.Add(sum / tau)
+            Next
+
+            Dim sumSqDiff As Double = 0.0
+            For b As Integer = 0 To binMeans.Count - 2
+                Dim diff As Double = binMeans(b + 1) - binMeans(b)
+                sumSqDiff += diff * diff
+            Next
+
+            Dim sigma As Double = Math.Sqrt(0.5 * sumSqDiff / (binMeans.Count - 1))
+            results.Add(New KeyValuePair(Of Integer, Double)(tau, sigma))
+
+        Next
+
+        Return results
+
+    End Function
+
+
+    ' ==============================================================
+    ' Playback Chart help
+    ' ==============================================================
+
+    Private Sub ButtonPlaybackHelp_Click(sender As Object, e As EventArgs) Handles ButtonPlaybackHelp.Click
+
+        Dim frm As New Form With {
+            .Text = "Playback Chart Help / Info",
+            .StartPosition = FormStartPosition.CenterParent,
+            .FormBorderStyle = FormBorderStyle.FixedDialog,
+            .ShowIcon = False,
+            .ShowInTaskbar = False,
+            .Width = 760,
+            .Height = 680,
+            .MinimizeBox = False,
+            .MaximizeBox = False
+        }
+
+        Dim txt As New RichTextBox With {
+            .ReadOnly = True,
+            .WordWrap = True,
+            .Dock = DockStyle.Fill,
+            .Font = New Font("Segoe UI", 9),
+            .BackColor = Color.White,
+            .ScrollBars = RichTextBoxScrollBars.Vertical,
+            .BorderStyle = BorderStyle.Fixed3D,
+            .Text =
+    "PLAYBACK CHART" & vbCrLf & vbCrLf &
+    "The Playback Chart loads a previously saved CSV log file and lets you review, zoom and analyse it after the fact - independent of the Live Chart, which only shows data while a device is actively running." & vbCrLf & vbCrLf &
+    "LOADING A CSV" & vbCrLf &
+    "LOAD .CSV FILE opens a saved log file from disk. If the CSV only contains data for one device, every Dev.2 checkbox and control is automatically greyed out and unchecked - there is nothing to plot for a device that isn't in the file." & vbCrLf &
+    "Save Settings stores the current chart control settings (scale, checkboxes, etc.) so they're restored next time." & vbCrLf & vbCrLf &
+    "DEVICES" & vbCrLf &
+    "The Dev 1 / Dev 2 radio buttons choose which device's readings feed the PPM Deviation/Tempco calculation and the Y-axis Min/Max reference - they don't hide or show any traces themselves." & vbCrLf & vbCrLf &
+    "X-AXIS SCALE" & vbCrLf &
+    "Sets the chart's time axis in minutes and controls how much of the log is visible at once." & vbCrLf & vbCrLf &
+    "Y-AXIS SCALE" & vbCrLf &
+    "ZOOM IN / ZOOM OUT - zoom the Y-axis in or out around the centre line." & vbCrLf &
+    "SHIFT UP / SHIFT DOWN - move the current Y-axis max/min window up or down by 20%, for panning through a large range without changing the zoom level." & vbCrLf &
+    "ZOOM ALL - resets the Y-axis to show the entire chart." & vbCrLf &
+    "Auto Min/Max - automatically sets the Y-axis range from the data instead of a fixed range." & vbCrLf &
+    "Tidy Scale - rounds the Y-axis labels to tidier numbers instead of raw calculated values." & vbCrLf &
+    "SAVE / LOAD - stores or recalls the current Y-axis Min/Max into one of four saved slots, for quickly switching between preferred view ranges." & vbCrLf &
+    "x1k / x1000k - rescales the displayed values by 1,000 or 1,000,000 (e.g. VDC to mVDC or " & Global.Microsoft.VisualBasic.ChrW(181) & "VDC) without altering the underlying data." & vbCrLf & vbCrLf &
+    "NAVIGATION" & vbCrLf &
+    "RIGHT >> scrolls the visible window rightward through the chart." & vbCrLf & vbCrLf &
+    "DEV 1 TRACES / DEV 2 TRACES" & vbCrLf &
+    "Each checkbox shows or hides one trace on the top chart, all calculated from the loaded CSV:" & vbCrLf &
+    "  Data - the raw VALUE reading logged for every sample." & vbCrLf &
+    "  Mean - the cumulative Mean recorded in the CSV statistics for that device, running from whenever stats were last reset during acquisition." & vbCrLf &
+    "  STDEV - the recorded Standard Deviation for that device." & vbCrLf &
+    "  SEM - the recorded Standard Error of the Mean for that device." & vbCrLf &
+    "  Max Diff. - the recorded Maximum-Minimum spread for that device." & vbCrLf &
+    "  PPM Deviation - the recorded PPM deviation statistic for that device (this is the value saved to the CSV during acquisition - see the PPM Deviation / Tempco section below for the separate, recalculated-on-the-fly PPM trace)." & vbCrLf &
+    "  Short Term Mean - see below." & vbCrLf &
+    "  Allan Deviation - see below." & vbCrLf & vbCrLf &
+    $"SHORT TERM MEAN" & vbCrLf &
+    $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, recomputed directly from the CSV's VALUE column - the same concept as the Short-Term Mean on the Live Analysis chart, but calculated retrospectively from the file rather than live. It responds faster to recent changes than the recorded Mean trace, at the cost of being noisier, and is purely a display trace - it doesn't affect the recorded Mean/STDEV/SEM or anything written back to the CSV." & vbCrLf & vbCrLf &
+    "ALLAN DEVIATION" & vbCrLf &
+    "Checking Dev 1 or Dev 2 Allan Deviation opens a separate pop-up chart plotting that device's Allan deviation - a stability metric showing how much the average reading wanders as you change the averaging time, rather than a single STDEV number for the whole file." & vbCrLf &
+    "The pop-up's X-axis is averaging time (tau, in samples) and the Y-axis is the resulting deviation in ppm of that device's overall mean, both on log-log scales. The characteristic shape is diagnostic: falling on the left means short-term noise averages out as tau grows; a flat middle is a flicker-noise floor that more averaging can't beat; rising on the right means long-term drift, where averaging longer actually makes it worse." & vbCrLf &
+    "Both devices can be shown on the same pop-up at once. Unchecking both boxes, or closing the pop-up window directly, closes it and syncs the checkboxes back to unchecked. If you load a different CSV while the pop-up is open, toggle a checkbox off and back on to recalculate it from the new file." & vbCrLf & vbCrLf &
+    "AVERAGING / NOISE / RANGE (per device)" & vbCrLf &
+    "The numeric box next to '- Avg.' sets how many points the raw Data trace itself is rolling-averaged over before being plotted (0 disables it, range 0-100). This smooths the Data trace directly, unlike Short Term Mean, which is a separate overlay trace and never alters Data itself." & vbCrLf &
+    "'- RMS Noise' and '- Max-Min' are read-only figures calculated for whatever portion of the chart is currently visible/zoomed: RMS Noise is a noise calculation that accounts for drift over time, and Max-Min is the peak-to-peak spread of the visible data." & vbCrLf &
+    "Line / Point switch that device's Data trace between a connected line and individual points." & vbCrLf & vbCrLf &
+    "PPM DEVIATION / TEMPCO" & vbCrLf &
+    "Enable PPM turns on a separate, live-recalculated PPM trace (distinct from the recorded 'PPM Deviation' checkbox trace above) for whichever device is selected by the Dev 1/Dev 2 radio buttons in the DEVICES panel." & vbCrLf &
+    "PPM Deviation calculates deviation from the median/baseline value in parts-per-million; PPM/DegC calculates a temperature coefficient (PPM per degree C) instead." & vbCrLf & vbCrLf &
+    "TEMP/HUM" & vbCrLf &
+    "Temp and Hum. show or hide the logged temperature and humidity traces. Temp/Hum Max. and Min. and Temp Avg. summarise the recorded values." & vbCrLf & vbCrLf &
+    "MISC." & vbCrLf &
+    "ToolTip Values - shows a tooltip with the exact value when hovering over a point on the chart." & vbCrLf &
+    "Light Mode - switches the chart to a white background, better suited to printing than the default dark theme." & vbCrLf & vbCrLf &
+    "IMPORTANT" & vbCrLf &
+    "- All Dev.2 controls are automatically disabled for a single-device CSV - there's no need to manually hide them." & vbCrLf &
+    "- Short Term Mean and Allan Deviation are both computed fresh from the raw VALUE column every time - they are not values that were written to the CSV during acquisition, and toggling them never changes the underlying log file." & vbCrLf &
+    "- The recorded Mean/STDEV/SEM/Max Diff./PPM Deviation traces reflect whatever statistics were being calculated live at acquisition time, and depend on when Reset Stats was last pressed during logging."
+        }
+
+        ' Make headings bold.
+        Dim headings() As String = {
+            "PLAYBACK CHART",
+            "LOADING A CSV",
+            "DEVICES",
+            "X-AXIS SCALE",
+            "Y-AXIS SCALE",
+            "NAVIGATION",
+            "DEV 1 TRACES / DEV 2 TRACES",
+            "SHORT TERM MEAN",
+            "ALLAN DEVIATION",
+            "AVERAGING / NOISE / RANGE (per device)",
+            "PPM DEVIATION / TEMPCO",
+            "TEMP/HUM",
+            "MISC.",
+            "IMPORTANT"
+        }
+
+        For Each heading As String In headings
+
+            Dim start As Integer =
+            txt.Text.IndexOf(heading, StringComparison.Ordinal)
+
+            If start >= 0 Then
+                txt.Select(start, heading.Length)
+                txt.SelectionFont = New Font(txt.Font, FontStyle.Bold)
+            End If
+
+        Next
+
+        ' Return cursor to beginning and remove selection.
+        txt.Select(0, 0)
+
+        Dim btn As New Button With {
+            .Text = "OK",
+            .Width = 100,
+            .Height = 30,
+            .Anchor = AnchorStyles.Bottom
+        }
+
+        AddHandler btn.Click,
+            Sub()
+                frm.Close()
+            End Sub
+
+        Dim panel As New Panel With {
+            .Dock = DockStyle.Bottom,
+            .Height = 45
+        }
+
+        panel.Controls.Add(btn)
+
+        AddHandler panel.Resize,
+            Sub()
+                btn.Left = (panel.ClientSize.Width - btn.Width) \ 2
+                btn.Top = 7
+            End Sub
+
+        frm.Controls.Add(txt)
+        frm.Controls.Add(panel)
+
+        frm.AcceptButton = btn
+
+        frm.Show()
 
     End Sub
 

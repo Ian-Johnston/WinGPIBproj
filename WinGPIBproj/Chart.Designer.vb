@@ -23,9 +23,9 @@ Partial Class Chart
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
-        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Chart))
         Me.Chart2 = New System.Windows.Forms.DataVisualization.Charting.Chart()
         Me.ButtonScrollLeft = New System.Windows.Forms.Button()
@@ -145,6 +145,9 @@ Partial Class Chart
         Me.CheckPlaybackDev2Deviation = New System.Windows.Forms.CheckBox()
         Me.CheckPlaybackDev2MaxDiff = New System.Windows.Forms.CheckBox()
         Me.CheckPlaybackDev2ShortTermMean = New System.Windows.Forms.CheckBox()
+        Me.CheckPlaybackDev1Allan = New System.Windows.Forms.CheckBox()
+        Me.CheckPlaybackDev2Allan = New System.Windows.Forms.CheckBox()
+        Me.ButtonPlaybackHelp = New System.Windows.Forms.Button()
         Me.Xscaletotal = New System.Windows.Forms.Label()
         Me.Loading = New System.Windows.Forms.Label()
         Me.CheckDev1Point = New System.Windows.Forms.CheckBox()
@@ -198,22 +201,22 @@ Partial Class Chart
         'Chart2
         '
         Me.Chart2.BackColor = System.Drawing.SystemColors.Control
-        ChartArea1.BackColor = System.Drawing.Color.Black
-        ChartArea1.BorderColor = System.Drawing.Color.White
-        ChartArea1.BorderWidth = 2
-        ChartArea1.Name = "ChartArea1"
-        Me.Chart2.ChartAreas.Add(ChartArea1)
-        Legend1.Name = "Legend1"
-        Me.Chart2.Legends.Add(Legend1)
+        ChartArea2.BackColor = System.Drawing.Color.Black
+        ChartArea2.BorderColor = System.Drawing.Color.White
+        ChartArea2.BorderWidth = 2
+        ChartArea2.Name = "ChartArea1"
+        Me.Chart2.ChartAreas.Add(ChartArea2)
+        Legend2.Name = "Legend1"
+        Me.Chart2.Legends.Add(Legend2)
         Me.Chart2.Location = New System.Drawing.Point(211, 287)
         Me.Chart2.Name = "Chart2"
-        Series1.ChartArea = "ChartArea1"
-        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series1.Color = System.Drawing.Color.Yellow
-        Series1.Enabled = False
-        Series1.Legend = "Legend1"
-        Series1.Name = "Series1"
-        Me.Chart2.Series.Add(Series1)
+        Series2.ChartArea = "ChartArea1"
+        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series2.Color = System.Drawing.Color.Yellow
+        Series2.Enabled = False
+        Series2.Legend = "Legend1"
+        Series2.Name = "Series1"
+        Me.Chart2.Series.Add(Series2)
         Me.Chart2.Size = New System.Drawing.Size(938, 412)
         Me.Chart2.TabIndex = 52
         Me.Chart2.Text = "Chart2"
@@ -535,9 +538,9 @@ Partial Class Chart
         Me.ButtonSaveSettings.BackColor = System.Drawing.Color.WhiteSmoke
         Me.ButtonSaveSettings.Location = New System.Drawing.Point(391, 35)
         Me.ButtonSaveSettings.Name = "ButtonSaveSettings"
-        Me.ButtonSaveSettings.Size = New System.Drawing.Size(104, 22)
+        Me.ButtonSaveSettings.Size = New System.Drawing.Size(50, 22)
         Me.ButtonSaveSettings.TabIndex = 98
-        Me.ButtonSaveSettings.Text = "Save Settings"
+        Me.ButtonSaveSettings.Text = "Save"
         Me.ToolTip1.SetToolTip(Me.ButtonSaveSettings, "Save settings for:" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "TEMP/HUM Max." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "TEMP/HIM Min." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Y-AXIS SCALE Max." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Y-AXIS SCA" &
         "LE Min." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "PPM DEVIATION Initial Value" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "PPM DEVIATION Initial Temp" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "PPM DEVIATION " &
         "PPM Scale")
@@ -878,7 +881,7 @@ Partial Class Chart
         Me.MedianValue.Name = "MedianValue"
         Me.MedianValue.Size = New System.Drawing.Size(75, 20)
         Me.MedianValue.TabIndex = 144
-        Me.MedianValue.Text = "10.0000000"
+        Me.MedianValue.Text = "10.00000"
         Me.MedianValue.WordWrap = False
         '
         'MedianValueText
@@ -1473,6 +1476,42 @@ Partial Class Chart
         Me.ToolTip1.SetToolTip(Me.CheckPlaybackDev2ShortTermMean, "Calculated in Playback Chart")
         Me.CheckPlaybackDev2ShortTermMean.UseVisualStyleBackColor = True
         '
+        'CheckPlaybackDev1Allan
+        '
+        Me.CheckPlaybackDev1Allan.AutoSize = True
+        Me.CheckPlaybackDev1Allan.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.CheckPlaybackDev1Allan.ForeColor = System.Drawing.SystemColors.ControlText
+        Me.CheckPlaybackDev1Allan.Location = New System.Drawing.Point(69, 66)
+        Me.CheckPlaybackDev1Allan.Name = "CheckPlaybackDev1Allan"
+        Me.CheckPlaybackDev1Allan.Size = New System.Drawing.Size(97, 17)
+        Me.CheckPlaybackDev1Allan.TabIndex = 597
+        Me.CheckPlaybackDev1Allan.Text = "Allan Deviation"
+        Me.ToolTip1.SetToolTip(Me.CheckPlaybackDev1Allan, "Calculated in Playback Chart")
+        Me.CheckPlaybackDev1Allan.UseVisualStyleBackColor = True
+        '
+        'CheckPlaybackDev2Allan
+        '
+        Me.CheckPlaybackDev2Allan.AutoSize = True
+        Me.CheckPlaybackDev2Allan.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.CheckPlaybackDev2Allan.ForeColor = System.Drawing.SystemColors.ControlText
+        Me.CheckPlaybackDev2Allan.Location = New System.Drawing.Point(68, 66)
+        Me.CheckPlaybackDev2Allan.Name = "CheckPlaybackDev2Allan"
+        Me.CheckPlaybackDev2Allan.Size = New System.Drawing.Size(97, 17)
+        Me.CheckPlaybackDev2Allan.TabIndex = 598
+        Me.CheckPlaybackDev2Allan.Text = "Allan Deviation"
+        Me.ToolTip1.SetToolTip(Me.CheckPlaybackDev2Allan, "Calculated in Playback Chart")
+        Me.CheckPlaybackDev2Allan.UseVisualStyleBackColor = True
+        '
+        'ButtonPlaybackHelp
+        '
+        Me.ButtonPlaybackHelp.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.ButtonPlaybackHelp.Location = New System.Drawing.Point(445, 35)
+        Me.ButtonPlaybackHelp.Name = "ButtonPlaybackHelp"
+        Me.ButtonPlaybackHelp.Size = New System.Drawing.Size(50, 22)
+        Me.ButtonPlaybackHelp.TabIndex = 581
+        Me.ButtonPlaybackHelp.Text = "Help"
+        Me.ButtonPlaybackHelp.UseVisualStyleBackColor = True
+        '
         'Xscaletotal
         '
         Me.Xscaletotal.AutoSize = True
@@ -1871,6 +1910,7 @@ Partial Class Chart
         '
         'GroupBox4
         '
+        Me.GroupBox4.Controls.Add(Me.CheckPlaybackDev1Allan)
         Me.GroupBox4.Controls.Add(Me.CheckPlaybackDev1ShortTermMean)
         Me.GroupBox4.Controls.Add(Me.CheckPlaybackDev1Deviation)
         Me.GroupBox4.Controls.Add(Me.CheckPlaybackDev1MaxDiff)
@@ -1897,6 +1937,7 @@ Partial Class Chart
         '
         'GroupBox5
         '
+        Me.GroupBox5.Controls.Add(Me.CheckPlaybackDev2Allan)
         Me.GroupBox5.Controls.Add(Me.CheckPlaybackDev2ShortTermMean)
         Me.GroupBox5.Controls.Add(Me.CheckPlaybackDev2Deviation)
         Me.GroupBox5.Controls.Add(Me.CheckPlaybackDev2Mean)
@@ -1917,6 +1958,7 @@ Partial Class Chart
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1359, 801)
+        Me.Controls.Add(Me.ButtonPlaybackHelp)
         Me.Controls.Add(Me.GroupBox5)
         Me.Controls.Add(Me.Label13)
         Me.Controls.Add(Me.GroupBox4)
@@ -2186,4 +2228,7 @@ Partial Class Chart
     Friend WithEvents GroupBox5 As GroupBox
     Friend WithEvents CheckPlaybackDev1ShortTermMean As CheckBox
     Friend WithEvents CheckPlaybackDev2ShortTermMean As CheckBox
+    Friend WithEvents CheckPlaybackDev1Allan As CheckBox
+    Friend WithEvents CheckPlaybackDev2Allan As CheckBox
+    Friend WithEvents ButtonPlaybackHelp As Button
 End Class
