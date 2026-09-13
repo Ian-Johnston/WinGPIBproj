@@ -5136,6 +5136,11 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
     Private AllanPopupForm As Form = Nothing
     Private AllanPopupChart As DataVisualization.Charting.Chart = Nothing
 
+    ' False = non-overlapping (disjoint tau-length blocks, fewer pairs at
+    ' large tau, noisier tail). True = overlapping (sliding window, reuses
+    ' every sample many times over, much smoother tail from the same data).
+    Private AllanUseOverlapping As Boolean = False
+
     Private Sub AllanCheckbox_CheckedChanged(sender As Object, e As EventArgs) _
     Handles CheckPlaybackDev1Allan.CheckedChanged, CheckPlaybackDev2Allan.CheckedChanged
 
@@ -5222,6 +5227,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
             .Text = "Allan Deviation",
             .Width = 780,
             .Height = 540,
+            .MinimumSize = New Size(780, 540),
             .StartPosition = FormStartPosition.CenterParent,
             .ShowIcon = False
         }
@@ -5260,39 +5266,50 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         ' so the chart keeps its full original size and the legend renders
         ' exactly as before instead of being squeezed out.
         Dim infoText As New RichTextBox With {
-            .Location = New Point(540, 120),
-            .Size = New Size(220, 390),
+            .Location = New Point(540, 115),
+            .Size = New Size(220, 395),
             .Anchor = AnchorStyles.Top Or AnchorStyles.Right,
             .ReadOnly = True,
             .WordWrap = True,
+            .ScrollBars = RichTextBoxScrollBars.None,
             .BorderStyle = BorderStyle.None,
             .BackColor = Color.Black,
             .ForeColor = Color.Gainsboro,
             .Font = New Font("Segoe UI", 9),
             .Text =
-    "WHAT IS THIS?" & vbCrLf &
-    "Allan Deviation shows how a device's average reading settles down as you average over longer spans (tau), instead of a single noise number for the whole file." & vbCrLf & vbCrLf &
-    "READING THE SHAPE" & vbCrLf &
-    "Falling (left): short-term noise is averaging out - longer averaging is helping." & vbCrLf &
-    "Flat: a noise floor - more averaging buys nothing here." & vbCrLf &
-    "Rising (right): long-term drift - averaging longer is making it worse." & vbCrLf & vbCrLf &
-    "THE DASHED LINE" & vbCrLf &
-    "Each device's grey dashed 'Ideal' line shows pure white-noise behaviour, anchored to that device's own first point. Wherever your curve pulls above its dashed line, something other than random noise (a floor, or drift) has taken over."
+    "Allan Deviation shows how a device's average reading settles down as you average over longer spans (tau), instead of a single noise number for the whole file." & vbLf & vbLf &
+    "Starting at the top-left (tau=1), the closer it hugs its 'Ideal' line, the more that stretch is behaving like pure random noise - each step right is genuinely buying more stability." & vbLf &
+    "Where the trace pulls away and rises above the dashed line, averaging longer has stopped helping - a noise floor (flat) or drift (rising) has taken over." & vbLf &
+    "It can dip below the dashed line - that's just statistical scatter in the estimate itself, especially on the right where only a few independent samples remain to compare." & vbLf & vbLf &
+    "Each device's grey dashed 'Ideal' line shows pure white-noise behaviour, anchored to that device's own first point - it's a reference, not a hard boundary."
         }
 
-        Dim headings() As String = {"WHAT IS THIS?", "READING THE SHAPE", "THE DASHED LINE"}
-        For Each heading As String In headings
-            Dim start As Integer = infoText.Text.IndexOf(heading, StringComparison.Ordinal)
-            If start >= 0 Then
-                infoText.Select(start, heading.Length)
-                infoText.SelectionFont = New Font(infoText.Font, FontStyle.Bold)
-                infoText.SelectionColor = Color.White
-            End If
-        Next
         infoText.Select(0, 0)
 
+        ' Overlapping vs non-overlapping Allan deviation. Overlapping
+        ' reuses every sample in many sliding windows instead of chopping
+        ' the data into disjoint blocks, giving a much smoother curve at
+        ' large tau from the same file - at the cost of the points no
+        ' longer being statistically independent of each other.
+        Dim overlapCheck As New CheckBox With {
+            .Location = New Point(540, 83),
+            .Size = New Size(230, 24),
+            .Text = "Overlapping (smoother tail)",
+            .ForeColor = Color.White,
+            .BackColor = Color.Black,
+            .Anchor = AnchorStyles.Top Or AnchorStyles.Right,
+            .Checked = AllanUseOverlapping
+        }
+        AddHandler overlapCheck.CheckedChanged,
+            Sub()
+                AllanUseOverlapping = overlapCheck.Checked
+                RefreshAllanChart()
+            End Sub
+
         AllanPopupForm.Controls.Add(AllanPopupChart)
+        AllanPopupForm.Controls.Add(overlapCheck)
         AllanPopupForm.Controls.Add(infoText)
+        overlapCheck.BringToFront()
         infoText.BringToFront()
 
         AddHandler AllanPopupForm.FormClosed, AddressOf AllanPopupForm_FormClosed
@@ -5355,7 +5372,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         Dim firstSigmaPpm As Double = 0.0
         Dim haveFirst As Boolean = False
 
-        For Each point As KeyValuePair(Of Integer, Double) In ComputeAllanDeviation(rawValues)
+        For Each point As KeyValuePair(Of Integer, Double) In ComputeAllanDeviation(rawValues, AllanUseOverlapping)
             Dim sigmaPpm As Double = (point.Value / overallMean) * 1000000.0
             If sigmaPpm > 0.0 Then
                 newSeries.Points.AddXY(point.Key, sigmaPpm)
@@ -5401,19 +5418,36 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
 
     End Sub
 
-    ' Classic overlapping-free ("non-overlapping") Allan deviation:
-    ' bin the raw samples into consecutive windows of length tau,
-    ' average each bin, then take the RMS of the differences between
-    ' consecutive bin averages. Repeated for a log-spaced set of tau
-    ' values from 1 sample up to half the total sample count (need at
-    ' least 2 bins to form one difference).
-    Private Function ComputeAllanDeviation(rawValues As List(Of Double)) As List(Of KeyValuePair(Of Integer, Double))
+    ' Non-overlapping Allan deviation: bin the raw samples into
+    ' consecutive, disjoint windows of length tau, average each bin, then
+    ' take the RMS of the differences between consecutive bin averages.
+    ' Overlapping Allan deviation: slide a length-tau window forward one
+    ' sample at a time instead of jumping by tau, reusing every sample in
+    ' many windows, then RMS the differences between window averages that
+    ' are tau apart. Same underlying shape either way, but overlapping
+    ' gives far more pairs to average at large tau (where non-overlapping
+    ' only has a couple of disjoint blocks left), so the tail comes out
+    ' much smoother - at the cost of those pairs no longer being fully
+    ' statistically independent of each other.
+    ' Both use a log-spaced set of tau values from 1 sample up to half the
+    ' total sample count (the minimum needed to form one difference).
+    Private Function ComputeAllanDeviation(rawValues As List(Of Double), overlapping As Boolean) As List(Of KeyValuePair(Of Integer, Double))
 
         Dim results As New List(Of KeyValuePair(Of Integer, Double))
 
         Dim n As Integer = rawValues.Count
         Dim maxTau As Integer = n \ 2
         If maxTau < 1 Then Return results
+
+        ' Running sum so any window's average is an O(1) lookup, however
+        ' many overlapping windows a given tau ends up needing.
+        Dim prefixSum(n) As Double
+        For k As Integer = 0 To n - 1
+            prefixSum(k + 1) = prefixSum(k) + rawValues(k)
+        Next
+        Dim windowMean = Function(startIndex As Integer, tau As Integer) As Double
+                             Return (prefixSum(startIndex + tau) - prefixSum(startIndex)) / tau
+                         End Function
 
         Const stepsPerDecade As Integer = 8
         Dim taus As New SortedSet(Of Integer)
@@ -5426,25 +5460,40 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
 
         For Each tau As Integer In taus
 
-            Dim binCount As Integer = n \ tau
-            If binCount < 2 Then Continue For
-
-            Dim binMeans As New List(Of Double)
-            For b As Integer = 0 To binCount - 1
-                Dim sum As Double = 0.0
-                For k As Integer = 0 To tau - 1
-                    sum += rawValues(b * tau + k)
-                Next
-                binMeans.Add(sum / tau)
-            Next
-
             Dim sumSqDiff As Double = 0.0
-            For b As Integer = 0 To binMeans.Count - 2
-                Dim diff As Double = binMeans(b + 1) - binMeans(b)
-                sumSqDiff += diff * diff
-            Next
+            Dim pairCount As Integer = 0
 
-            Dim sigma As Double = Math.Sqrt(0.5 * sumSqDiff / (binMeans.Count - 1))
+            If overlapping Then
+
+                ' Windows starting at every sample position, compared to
+                ' the window starting tau samples later.
+                pairCount = n - 2 * tau + 1
+                If pairCount < 1 Then Continue For
+
+                For startIndex As Integer = 0 To pairCount - 1
+                    Dim diff As Double = windowMean(startIndex + tau, tau) - windowMean(startIndex, tau)
+                    sumSqDiff += diff * diff
+                Next
+
+            Else
+
+                Dim binCount As Integer = n \ tau
+                If binCount < 2 Then Continue For
+                pairCount = binCount - 1
+
+                Dim binMeans As New List(Of Double)
+                For b As Integer = 0 To binCount - 1
+                    binMeans.Add(windowMean(b * tau, tau))
+                Next
+
+                For b As Integer = 0 To binMeans.Count - 2
+                    Dim diff As Double = binMeans(b + 1) - binMeans(b)
+                    sumSqDiff += diff * diff
+                Next
+
+            End If
+
+            Dim sigma As Double = Math.Sqrt(0.5 * sumSqDiff / pairCount)
             results.Add(New KeyValuePair(Of Integer, Double)(tau, sigma))
 
         Next
@@ -5481,57 +5530,59 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
             .ScrollBars = RichTextBoxScrollBars.Vertical,
             .BorderStyle = BorderStyle.Fixed3D,
             .Text =
-    "PLAYBACK CHART" & vbCrLf & vbCrLf &
-    "The Playback Chart loads a previously saved CSV log file and lets you review, zoom and analyse it after the fact - independent of the Live Chart, which only shows data while a device is actively running." & vbCrLf & vbCrLf &
-    "LOADING A CSV" & vbCrLf &
-    "LOAD .CSV FILE opens a saved log file from disk. If the CSV only contains data for one device, every Dev.2 checkbox and control is automatically greyed out and unchecked - there is nothing to plot for a device that isn't in the file." & vbCrLf &
-    "Save Settings stores the current chart control settings (scale, checkboxes, etc.) so they're restored next time." & vbCrLf & vbCrLf &
-    "DEVICES" & vbCrLf &
-    "The Dev 1 / Dev 2 radio buttons choose which device's readings feed the PPM Deviation/Tempco calculation and the Y-axis Min/Max reference - they don't hide or show any traces themselves." & vbCrLf & vbCrLf &
-    "X-AXIS SCALE" & vbCrLf &
-    "Sets the chart's time axis in minutes and controls how much of the log is visible at once." & vbCrLf & vbCrLf &
-    "Y-AXIS SCALE" & vbCrLf &
-    "ZOOM IN / ZOOM OUT - zoom the Y-axis in or out around the centre line." & vbCrLf &
-    "SHIFT UP / SHIFT DOWN - move the current Y-axis max/min window up or down by 20%, for panning through a large range without changing the zoom level." & vbCrLf &
-    "ZOOM ALL - resets the Y-axis to show the entire chart." & vbCrLf &
-    "Auto Min/Max - automatically sets the Y-axis range from the data instead of a fixed range." & vbCrLf &
-    "Tidy Scale - rounds the Y-axis labels to tidier numbers instead of raw calculated values." & vbCrLf &
-    "SAVE / LOAD - stores or recalls the current Y-axis Min/Max into one of four saved slots, for quickly switching between preferred view ranges." & vbCrLf &
-    "x1k / x1000k - rescales the displayed values by 1,000 or 1,000,000 (e.g. VDC to mVDC or " & Global.Microsoft.VisualBasic.ChrW(181) & "VDC) without altering the underlying data." & vbCrLf & vbCrLf &
-    "NAVIGATION" & vbCrLf &
-    "RIGHT >> scrolls the visible window rightward through the chart." & vbCrLf & vbCrLf &
-    "DEV 1 TRACES / DEV 2 TRACES" & vbCrLf &
-    "Each checkbox shows or hides one trace on the top chart, all calculated from the loaded CSV:" & vbCrLf &
-    "  Data - the raw VALUE reading logged for every sample." & vbCrLf &
-    "  Mean - the cumulative Mean recorded in the CSV statistics for that device, running from whenever stats were last reset during acquisition." & vbCrLf &
-    "  STDEV - the recorded Standard Deviation for that device." & vbCrLf &
-    "  SEM - the recorded Standard Error of the Mean for that device." & vbCrLf &
-    "  Max Diff. - the recorded Maximum-Minimum spread for that device." & vbCrLf &
-    "  PPM Deviation - the recorded PPM deviation statistic for that device (this is the value saved to the CSV during acquisition - see the PPM Deviation / Tempco section below for the separate, recalculated-on-the-fly PPM trace)." & vbCrLf &
-    "  Short Term Mean - see below." & vbCrLf &
-    "  Allan Deviation - see below." & vbCrLf & vbCrLf &
-    $"SHORT TERM MEAN" & vbCrLf &
-    $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, recomputed directly from the CSV's VALUE column - the same concept as the Short-Term Mean on the Live Analysis chart, but calculated retrospectively from the file rather than live. It responds faster to recent changes than the recorded Mean trace, at the cost of being noisier, and is purely a display trace - it doesn't affect the recorded Mean/STDEV/SEM or anything written back to the CSV." & vbCrLf & vbCrLf &
-    "ALLAN DEVIATION" & vbCrLf &
-    "Checking Dev 1 or Dev 2 Allan Deviation opens a separate pop-up chart plotting that device's Allan deviation - a stability metric showing how much the average reading wanders as you change the averaging time, rather than a single STDEV number for the whole file." & vbCrLf &
-    "The pop-up's X-axis is averaging time (tau, in samples) and the Y-axis is the resulting deviation in ppm of that device's overall mean, both on log-log scales. The characteristic shape is diagnostic: falling on the left means short-term noise averages out as tau grows; a flat middle is a flicker-noise floor that more averaging can't beat; rising on the right means long-term drift, where averaging longer actually makes it worse." & vbCrLf &
-    "Each device also gets a grey dashed 'Ideal' reference line, anchored to that device's own first plotted point with a slope showing what pure random (white) noise would look like if averaging longer kept reducing it forever. Wherever your actual curve departs upward from its dashed line - flattening out or turning up - averaging longer has stopped helping." & vbCrLf &
-    "Both devices can be shown on the same pop-up at once. Unchecking both boxes, or closing the pop-up window directly, closes it and syncs the checkboxes back to unchecked. If you load a different CSV while the pop-up is open, toggle a checkbox off and back on to recalculate it from the new file." & vbCrLf & vbCrLf &
-    "AVERAGING / NOISE / RANGE (per device)" & vbCrLf &
-    "The numeric box next to '- Avg.' sets how many points the raw Data trace itself is rolling-averaged over before being plotted (0 disables it, range 0-100). This smooths the Data trace directly, unlike Short Term Mean, which is a separate overlay trace and never alters Data itself." & vbCrLf &
-    "'- RMS Noise' and '- Max-Min' are read-only figures calculated for whatever portion of the chart is currently visible/zoomed: RMS Noise is a noise calculation that accounts for drift over time, and Max-Min is the peak-to-peak spread of the visible data." & vbCrLf &
-    "Line / Point switch that device's Data trace between a connected line and individual points." & vbCrLf & vbCrLf &
-    "PPM DEVIATION / TEMPCO" & vbCrLf &
-    "Enable PPM turns on a separate, live-recalculated PPM trace (distinct from the recorded 'PPM Deviation' checkbox trace above) for whichever device is selected by the Dev 1/Dev 2 radio buttons in the DEVICES panel." & vbCrLf &
-    "PPM Deviation calculates deviation from the median/baseline value in parts-per-million; PPM/DegC calculates a temperature coefficient (PPM per degree C) instead." & vbCrLf & vbCrLf &
-    "TEMP/HUM" & vbCrLf &
-    "Temp and Hum. show or hide the logged temperature and humidity traces. Temp/Hum Max. and Min. and Temp Avg. summarise the recorded values." & vbCrLf & vbCrLf &
-    "MISC." & vbCrLf &
-    "ToolTip Values - shows a tooltip with the exact value when hovering over a point on the chart." & vbCrLf &
-    "Light Mode - switches the chart to a white background, better suited to printing than the default dark theme." & vbCrLf & vbCrLf &
-    "IMPORTANT" & vbCrLf &
-    "- All Dev.2 controls are automatically disabled for a single-device CSV - there's no need to manually hide them." & vbCrLf &
-    "- Short Term Mean and Allan Deviation are both computed fresh from the raw VALUE column every time - they are not values that were written to the CSV during acquisition, and toggling them never changes the underlying log file." & vbCrLf &
+    "PLAYBACK CHART" & vbLf & vbLf &
+    "The Playback Chart loads a previously saved CSV log file and lets you review, zoom and analyse it after the fact - independent of the Live Chart, which only shows data while a device is actively running." & vbLf & vbLf &
+    "LOADING A CSV" & vbLf &
+    "LOAD .CSV FILE opens a saved log file from disk. If the CSV only contains data for one device, every Dev.2 checkbox and control is automatically greyed out and unchecked - there is nothing to plot for a device that isn't in the file." & vbLf &
+    "Save Settings stores the current chart control settings (scale, checkboxes, etc.) so they're restored next time." & vbLf & vbLf &
+    "DEVICES" & vbLf &
+    "The Dev 1 / Dev 2 radio buttons choose which device's readings feed the PPM Deviation/Tempco calculation and the Y-axis Min/Max reference - they don't hide or show any traces themselves." & vbLf & vbLf &
+    "X-AXIS SCALE" & vbLf &
+    "Sets the chart's time axis in minutes and controls how much of the log is visible at once." & vbLf & vbLf &
+    "Y-AXIS SCALE" & vbLf &
+    "ZOOM IN / ZOOM OUT - zoom the Y-axis in or out around the centre line." & vbLf &
+    "SHIFT UP / SHIFT DOWN - move the current Y-axis max/min window up or down by 20%, for panning through a large range without changing the zoom level." & vbLf &
+    "ZOOM ALL - resets the Y-axis to show the entire chart." & vbLf &
+    "Auto Min/Max - automatically sets the Y-axis range from the data instead of a fixed range." & vbLf &
+    "Tidy Scale - rounds the Y-axis labels to tidier numbers instead of raw calculated values." & vbLf &
+    "SAVE / LOAD - stores or recalls the current Y-axis Min/Max into one of four saved slots, for quickly switching between preferred view ranges." & vbLf &
+    "x1k / x1000k - rescales the displayed values by 1,000 or 1,000,000 (e.g. VDC to mVDC or " & Global.Microsoft.VisualBasic.ChrW(181) & "VDC) without altering the underlying data." & vbLf & vbLf &
+    "NAVIGATION" & vbLf &
+    "RIGHT >> scrolls the visible window rightward through the chart." & vbLf & vbLf &
+    "DEV 1 TRACES / DEV 2 TRACES" & vbLf &
+    "Each checkbox shows or hides one trace on the top chart, all calculated from the loaded CSV:" & vbLf &
+    "  Data - the raw VALUE reading logged for every sample." & vbLf &
+    "  Mean - the cumulative Mean recorded in the CSV statistics for that device, running from whenever stats were last reset during acquisition." & vbLf &
+    "  STDEV - the recorded Standard Deviation for that device." & vbLf &
+    "  SEM - the recorded Standard Error of the Mean for that device." & vbLf &
+    "  Max Diff. - the recorded Maximum-Minimum spread for that device." & vbLf &
+    "  PPM Deviation - the recorded PPM deviation statistic for that device (this is the value saved to the CSV during acquisition - see the PPM Deviation / Tempco section below for the separate, recalculated-on-the-fly PPM trace)." & vbLf &
+    "  Short Term Mean - see below." & vbLf &
+    "  Allan Deviation - see below." & vbLf & vbLf &
+    $"SHORT TERM MEAN" & vbLf &
+    $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, recomputed directly from the CSV's VALUE column - the same concept as the Short-Term Mean on the Live Analysis chart, but calculated retrospectively from the file rather than live. It responds faster to recent changes than the recorded Mean trace, at the cost of being noisier, and is purely a display trace - it doesn't affect the recorded Mean/STDEV/SEM or anything written back to the CSV." & vbLf & vbLf &
+    "ALLAN DEVIATION" & vbLf &
+    "Checking Dev 1 or Dev 2 Allan Deviation opens a separate pop-up chart plotting that device's Allan deviation - a stability metric showing how much the average reading wanders as you change the averaging time, rather than a single STDEV number for the whole file." & vbLf &
+    "The pop-up's X-axis is averaging time (tau, in samples) and the Y-axis is the resulting deviation in ppm of that device's overall mean - log-log axes rounded outward to whole decades (1, 10, 100...) rather than tightly fitted to the data." & vbLf &
+    "Starting at the top-left (tau=1) and reading rightward: the closer the curve hugs its dashed 'Ideal' line, the more that stretch is behaving like pure random noise - each step right is genuinely buying more stability. Where the curve pulls away and rises above the dashed line, averaging longer has stopped helping - a flat stretch is a noise floor, a rising stretch is long-term drift making things worse." & vbLf &
+    "Each device gets its own grey dashed 'Ideal' reference line, anchored to that device's own first plotted point, showing what pure white-noise behaviour looks like." & vbLf &
+    "It's a reference, not a hard boundary - the real curve can dip below it too, which is just statistical scatter in the estimate itself, especially on the right where only a few independent samples remain to compare. The pop-up has its own Notes panel repeating this explanation alongside the chart." & vbLf &
+    "The 'Overlapping (smoother tail)' checkbox switches between non-overlapping Allan deviation (disjoint tau-length blocks - fewer pairs at large tau, so the tail can look noisy/jagged) and overlapping (a sliding window that reuses every sample many times over, giving a much smoother tail from the same data, at the cost of the points no longer being fully statistically independent)." & vbLf & vbLf &
+    "AVERAGING / NOISE / RANGE (per device)" & vbLf &
+    "The numeric box next to '- Avg.' sets how many points the raw Data trace itself is rolling-averaged over before being plotted (0 disables it, range 0-100). This smooths the Data trace directly, unlike Short Term Mean, which is a separate overlay trace and never alters Data itself." & vbLf &
+    "'- RMS Noise' and '- Max-Min' are read-only figures calculated for whatever portion of the chart is currently visible/zoomed: RMS Noise is a noise calculation that accounts for drift over time, and Max-Min is the peak-to-peak spread of the visible data." & vbLf &
+    "Line / Point switch that device's Data trace between a connected line and individual points." & vbLf & vbLf &
+    "PPM DEVIATION / TEMPCO" & vbLf &
+    "Enable PPM turns on a separate, live-recalculated PPM trace (distinct from the recorded 'PPM Deviation' checkbox trace above) for whichever device is selected by the Dev 1/Dev 2 radio buttons in the DEVICES panel." & vbLf &
+    "PPM Deviation calculates deviation from the median/baseline value in parts-per-million; PPM/DegC calculates a temperature coefficient (PPM per degree C) instead." & vbLf & vbLf &
+    "TEMP/HUM" & vbLf &
+    "Temp and Hum. show or hide the logged temperature and humidity traces. Temp/Hum Max. and Min. and Temp Avg. summarise the recorded values." & vbLf & vbLf &
+    "MISC." & vbLf &
+    "ToolTip Values - shows a tooltip with the exact value when hovering over a point on the chart." & vbLf &
+    "Light Mode - switches the chart to a white background, better suited to printing than the default dark theme." & vbLf & vbLf &
+    "IMPORTANT" & vbLf &
+    "- All Dev.2 controls are automatically disabled for a single-device CSV - there's no need to manually hide them." & vbLf &
+    "- Short Term Mean and Allan Deviation are both computed fresh from the raw VALUE column every time - they are not values that were written to the CSV during acquisition, and toggling them never changes the underlying log file." & vbLf &
     "- The recorded Mean/STDEV/SEM/Max Diff./PPM Deviation traces reflect whatever statistics were being calculated live at acquisition time, and depend on when Reset Stats was last pressed during logging."
         }
 
