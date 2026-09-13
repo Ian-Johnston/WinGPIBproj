@@ -1128,6 +1128,37 @@ Public Class Chart
 
             DualDev = True
 
+            ' Which of these two device names is "Dev 1" vs "Dev 2" must not
+            ' be decided by which one merely happens to log first in the
+            ' file - that's arbitrary per run and can differ CSV to CSV (or
+            ' even by deleting the first record). DEV1_MEAN/DEV2_MEAN are
+            ' fixed to the actual acquisition-time hardware slots, not to
+            ' row order, so if row 0's own VALUE tracks DEV2_MEAN more
+            ' closely than DEV1_MEAN, row 0's device is really physical
+            ' Device 2 - swap the labels so everything downstream (colours,
+            ' checkboxes, Mean/STDEV/SEM/MaxDiff/Deviation traces) lines up
+            ' with the correct device.
+            Dim row0 As DataRow = dataTable1.Rows(0)
+            Dim dev1MeanText As String = row0("DEV1_MEAN").ToString().Trim()
+            Dim dev2MeanText As String = row0("DEV2_MEAN").ToString().Trim()
+
+            If dev1MeanText <> "" AndAlso dev1MeanText.ToLower() <> "nil" AndAlso
+               dev2MeanText <> "" AndAlso dev2MeanText.ToLower() <> "nil" Then
+
+                Dim rowValue As Double = Convert.ToDouble(row0("VALUE"))
+                Dim dev1Mean As Double = ParseInvariantDouble(dev1MeanText)
+                Dim dev2Mean As Double = ParseInvariantDouble(dev2MeanText)
+
+                If Math.Abs(rowValue - dev2Mean) < Math.Abs(rowValue - dev1Mean) Then
+                    Dim swapName As String = Devname1
+                    Devname1 = Devname2
+                    Devname2 = swapName
+                End If
+
+            End If
+            ' Else: no usable stats columns (old CSV) - nothing to check
+            ' against, so fall back to file row order as before.
+
             DeviceName1.Text = Devname1
             DeviceName2.Text = Devname2
 
@@ -1323,12 +1354,16 @@ Public Class Chart
 
         If (CSVfilenamePlayback.Text <> "" And ChartLoaded = True And CSVfileok = True) Then
 
-            ' Reset various vars
-            CurrentPos = 0
-            TargetPos = 49
-            RangeReqd = 49
-            EndRange = 500
-            CentreRange = 0
+            ' NOTE: CurrentPos/TargetPos/RangeReqd/EndRange/CentreRange are
+            ' deliberately NOT reset here. This function doesn't actually
+            ' re-read a fresh window of the file (that loop below is
+            ' commented out) - it just refreshes settings/traces against
+            ' whatever's already in dataTable1. Resetting the zoom/scroll
+            ' bookkeeping here used to silently discard the user's current
+            ' zoom level (e.g. Zoom In several times, then check a
+            ' checkbox that routes through here) without ever restoring
+            ' the actual zoomed view, so the next Scroll/Shift button
+            ' would jump back out to whatever this reset left behind.
 
             'Loading.Visible = True
             Me.Refresh()
@@ -1378,7 +1413,7 @@ Public Class Chart
                 End If
             End If
 
-            CheckPathCSVfile()
+            CheckPathCSVfile(recalculateYAxis:=False)
             PrintXscale()
             GetMinMaxScales()
             FixTicks()
@@ -1433,6 +1468,36 @@ Public Class Chart
             FilterGenPPMDevice1()
             FilterGenPPMDevice2()
             UpdatePlaybackStatsSeries()
+
+            ' ZOOM ALL just reloaded the entire file into dataTable1, so
+            ' this is the one place Auto Min/Max should actually re-fit to
+            ' everything - refresh YmaxFromDT/YminFromDT here (otherwise
+            ' GetMinMaxScales() reuses whatever was left over from the
+            ' initial load's smaller window, and traces outside that stale
+            ' range stay clipped even after "showing all"). X-axis-only
+            ' navigation (Zoom In/Out, Scroll, Shift) and other checkboxes
+            ' deliberately do NOT do this - the Y-axis should only move
+            ' when the user asks it to via Zoom All or the Y-axis controls.
+            If CheckBoxMaxMin.Checked Then
+
+                Dim scanMax As Double = Double.MinValue
+                Dim scanMin As Double = Double.MaxValue
+
+                For Each row As DataRow In dataTable1.Rows
+                    Dim currentValue As Double = CDbl(row("VALUE"))
+                    If currentValue > scanMax Then scanMax = currentValue
+                    If currentValue < scanMin Then scanMin = currentValue
+                Next
+
+                YmaxFromDT = scanMax
+                YminFromDT = scanMin
+
+                If YmaxFromDT - YminFromDT = 0 Then
+                    YmaxFromDT += YmaxFromDT / 1000
+                    YminFromDT -= YmaxFromDT / 1000
+                End If
+
+            End If
 
             'Get max and min values of Dev1 & Dev2, keep whichever is max/min value and use for setting scale
             GetMinMaxScales()
@@ -1703,9 +1768,19 @@ Public Class Chart
 
 
 
-    Private Sub CheckPathCSVfile()
+    Private Sub CheckPathCSVfile(Optional recalculateYAxis As Boolean = True)
 
         ' With the data now in the datatable now process it.
+        '
+        ' recalculateYAxis gates two things further down that should only
+        ' happen on a genuine fresh load: the Auto Min/Max Y-axis recompute,
+        ' and resetting CurrentPos/TargetPos/RangeReqd back to the full
+        ' file. It defaults True so BrowseToFile_Click (a real fresh load)
+        ' behaves exactly as before. RefreshPlaybackCSVFile() passes False,
+        ' because it calls this without having re-read the file first -
+        ' dataTable1 still only holds whatever the last zoom/scroll left in
+        ' it, so doing either of those here would silently rescale the
+        ' Y-axis and/or discard the user's current zoom level.
 
         ' Flag is true if user browsed for file, false if using text boxes
         If (BrowseFile = False) Then
@@ -1760,20 +1835,31 @@ Public Class Chart
             ' Temp override the above for testing
             'RangeReqd = numberlinesCSV
 
+            ' Only reset the zoom/scroll window to the full file on a
+            ' genuine fresh load. RefreshPlaybackCSVFile() calls this with
+            ' recalculateYAxis:=False specifically because it's refreshing
+            ' settings/traces against whatever the user has already
+            ' zoomed/scrolled to - forcing CurrentPos/TargetPos/RangeReqd
+            ' back to the full range here discarded that zoom level (the
+            ' next Scroll/Zoom button would then jump from wherever this
+            ' left things, not from where the user actually was).
+            If recalculateYAxis Then
 
-            'If (DualDev = True) Then
-            'RangeRequired.Text = (numberlinesCSV / 2) - numberofmetadatalines
-            'TargetPosition.Text = (numberlinesCSV / 2) - numberofmetadatalines
-            'RangeReqd = numberlinesCSV / 2
-            'Else
-            RangeRequired.Text = numberlinesCSV - numberofmetadatalines
-            TargetPosition.Text = numberlinesCSV - numberofmetadatalines
-            RangeReqd = numberlinesCSV - numberofmetadatalines
-            'End If
+                'If (DualDev = True) Then
+                'RangeRequired.Text = (numberlinesCSV / 2) - numberofmetadatalines
+                'TargetPosition.Text = (numberlinesCSV / 2) - numberofmetadatalines
+                'RangeReqd = numberlinesCSV / 2
+                'Else
+                RangeRequired.Text = numberlinesCSV - numberofmetadatalines
+                TargetPosition.Text = numberlinesCSV - numberofmetadatalines
+                RangeReqd = numberlinesCSV - numberofmetadatalines
+                'End If
 
-            CurrentPosition.Text = CurrentPos
-            CurrentPos = 0
-            TargetPos = RangeReqd
+                CurrentPosition.Text = CurrentPos
+                CurrentPos = 0
+                TargetPos = RangeReqd
+
+            End If
 
             ' Print Yscale to chart
             GetSeconds()
@@ -1852,7 +1938,7 @@ Public Class Chart
 
 
 
-            If CheckBoxMaxMin.Checked Then
+            If CheckBoxMaxMin.Checked AndAlso recalculateYAxis Then
 
                 ' Reset min and max before scanning the current data
                 maxValue = Double.MinValue
@@ -3226,6 +3312,15 @@ Public Class Chart
 
     Private Sub FilterTempDevice1()
 
+        ' Unlike its sibling Filter*() functions, this one never cleared the
+        ' series before repopulating - callers were relying on having
+        ' already cleared Chart2.Series(2) themselves beforehand (e.g.
+        ' ShowAll() does this explicitly). Any caller that doesn't do that
+        ' (like TEMPavg's own TextChanged handler) ends up appending a full
+        ' duplicate copy of the Temp trace on top of the existing points
+        ' every time it runs, which is what was doubling the chart.
+        Chart2.Series(2).Points.Clear()
+
         If PlaybackTemp.Checked = True Then
 
             If TEMPavg.Text = "0" Then
@@ -4108,6 +4203,12 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
                 DEV1avg.Text = 100
             End If
             RefreshPlaybackCSVFile()
+
+            ' RefreshPlaybackCSVFile() only recalculates scales/ticks - it
+            ' never re-plots the Data trace itself, so changing the
+            ' averaging window here had no visible effect until something
+            ' else (e.g. Zoom All) happened to trigger a full replot.
+            FilterDeviceName1()
         End If
 
     End Sub
@@ -4123,6 +4224,10 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
                 DEV2avg.Text = 100
             End If
             RefreshPlaybackCSVFile()
+
+            ' See DEV1avg_TextChanged - RefreshPlaybackCSVFile() alone
+            ' doesn't re-plot the Data trace.
+            FilterDeviceName2()
         End If
 
     End Sub
@@ -4221,6 +4326,10 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
                     TEMPavg.Text = 100
                 End If
                 RefreshPlaybackCSVFile()
+
+                ' See DEV1avg_TextChanged - RefreshPlaybackCSVFile() alone
+                ' doesn't re-plot the Temp trace.
+                FilterTempDevice1()
             End If
 
         End If
@@ -5146,7 +5255,45 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         lg.BackColor = Color.Black
         AllanPopupChart.Legends.Add(lg)
 
+        ' Short explanation panel - overlaid directly on the chart's own
+        ' empty canvas below the legend (NOT docked as a sibling control),
+        ' so the chart keeps its full original size and the legend renders
+        ' exactly as before instead of being squeezed out.
+        Dim infoText As New RichTextBox With {
+            .Location = New Point(540, 120),
+            .Size = New Size(220, 390),
+            .Anchor = AnchorStyles.Top Or AnchorStyles.Right,
+            .ReadOnly = True,
+            .WordWrap = True,
+            .BorderStyle = BorderStyle.None,
+            .BackColor = Color.Black,
+            .ForeColor = Color.Gainsboro,
+            .Font = New Font("Segoe UI", 9),
+            .Text =
+    "WHAT IS THIS?" & vbCrLf &
+    "Allan Deviation shows how a device's average reading settles down as you average over longer spans (tau), instead of a single noise number for the whole file." & vbCrLf & vbCrLf &
+    "READING THE SHAPE" & vbCrLf &
+    "Falling (left): short-term noise is averaging out - longer averaging is helping." & vbCrLf &
+    "Flat: a noise floor - more averaging buys nothing here." & vbCrLf &
+    "Rising (right): long-term drift - averaging longer is making it worse." & vbCrLf & vbCrLf &
+    "THE DASHED LINE" & vbCrLf &
+    "Each device's grey dashed 'Ideal' line shows pure white-noise behaviour, anchored to that device's own first point. Wherever your curve pulls above its dashed line, something other than random noise (a floor, or drift) has taken over."
+        }
+
+        Dim headings() As String = {"WHAT IS THIS?", "READING THE SHAPE", "THE DASHED LINE"}
+        For Each heading As String In headings
+            Dim start As Integer = infoText.Text.IndexOf(heading, StringComparison.Ordinal)
+            If start >= 0 Then
+                infoText.Select(start, heading.Length)
+                infoText.SelectionFont = New Font(infoText.Font, FontStyle.Bold)
+                infoText.SelectionColor = Color.White
+            End If
+        Next
+        infoText.Select(0, 0)
+
         AllanPopupForm.Controls.Add(AllanPopupChart)
+        AllanPopupForm.Controls.Add(infoText)
+        infoText.BringToFront()
 
         AddHandler AllanPopupForm.FormClosed, AddressOf AllanPopupForm_FormClosed
 
@@ -5168,10 +5315,15 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
 
     Private Sub UpdateAllanSeries(seriesName As String, deviceName As String, show As Boolean, seriesColor As Color)
 
+        Dim idealSeriesName As String = seriesName & " (Ideal)"
+
         If AllanPopupChart Is Nothing Then Exit Sub
 
         If AllanPopupChart.Series.IndexOf(seriesName) >= 0 Then
             AllanPopupChart.Series.Remove(AllanPopupChart.Series(seriesName))
+        End If
+        If AllanPopupChart.Series.IndexOf(idealSeriesName) >= 0 Then
+            AllanPopupChart.Series.Remove(AllanPopupChart.Series(idealSeriesName))
         End If
 
         If Not show Then Exit Sub
@@ -5199,12 +5351,53 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
             .MarkerColor = seriesColor
         }
 
+        Dim firstTau As Integer = 0
+        Dim firstSigmaPpm As Double = 0.0
+        Dim haveFirst As Boolean = False
+
         For Each point As KeyValuePair(Of Integer, Double) In ComputeAllanDeviation(rawValues)
             Dim sigmaPpm As Double = (point.Value / overallMean) * 1000000.0
-            If sigmaPpm > 0.0 Then newSeries.Points.AddXY(point.Key, sigmaPpm)
+            If sigmaPpm > 0.0 Then
+                newSeries.Points.AddXY(point.Key, sigmaPpm)
+                If Not haveFirst Then
+                    firstTau = point.Key
+                    firstSigmaPpm = sigmaPpm
+                    haveFirst = True
+                End If
+            End If
         Next
 
         AllanPopupChart.Series.Add(newSeries)
+
+        ' "Ideal" (white noise) reference line: a straight slope -1/2 on
+        ' these log-log axes, anchored to this device's own first plotted
+        ' point - i.e. what the curve would look like if averaging longer
+        ' kept reducing noise indefinitely with no floor or drift. Only
+        ' needs two points since it's a straight line on a log-log plot.
+        ' Wherever the real curve departs upward from this dashed line,
+        ' something other than plain white noise has taken over (a
+        ' flicker floor, or long-term drift) and further averaging isn't
+        ' buying you anything.
+        If haveFirst AndAlso newSeries.Points.Count >= 2 Then
+
+            Dim lastTau As Double = newSeries.Points(newSeries.Points.Count - 1).XValue
+
+            Dim idealSeries As New Series(idealSeriesName) With {
+                .ChartType = SeriesChartType.Line,
+                .ChartArea = "Main",
+                .Legend = "Main",
+                .Color = Color.Gray,
+                .BorderWidth = 1,
+                .BorderDashStyle = ChartDashStyle.Dash
+            }
+
+            idealSeries.Points.AddXY(firstTau, firstSigmaPpm)
+            Dim idealEndSigma As Double = firstSigmaPpm * Math.Sqrt(firstTau / lastTau)
+            idealSeries.Points.AddXY(lastTau, idealEndSigma)
+
+            AllanPopupChart.Series.Add(idealSeries)
+
+        End If
 
     End Sub
 
@@ -5322,6 +5515,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
     "ALLAN DEVIATION" & vbCrLf &
     "Checking Dev 1 or Dev 2 Allan Deviation opens a separate pop-up chart plotting that device's Allan deviation - a stability metric showing how much the average reading wanders as you change the averaging time, rather than a single STDEV number for the whole file." & vbCrLf &
     "The pop-up's X-axis is averaging time (tau, in samples) and the Y-axis is the resulting deviation in ppm of that device's overall mean, both on log-log scales. The characteristic shape is diagnostic: falling on the left means short-term noise averages out as tau grows; a flat middle is a flicker-noise floor that more averaging can't beat; rising on the right means long-term drift, where averaging longer actually makes it worse." & vbCrLf &
+    "Each device also gets a grey dashed 'Ideal' reference line, anchored to that device's own first plotted point with a slope showing what pure random (white) noise would look like if averaging longer kept reducing it forever. Wherever your actual curve departs upward from its dashed line - flattening out or turning up - averaging longer has stopped helping." & vbCrLf &
     "Both devices can be shown on the same pop-up at once. Unchecking both boxes, or closing the pop-up window directly, closes it and syncs the checkboxes back to unchecked. If you load a different CSV while the pop-up is open, toggle a checkbox off and back on to recalculate it from the new file." & vbCrLf & vbCrLf &
     "AVERAGING / NOISE / RANGE (per device)" & vbCrLf &
     "The numeric box next to '- Avg.' sets how many points the raw Data trace itself is rolling-averaged over before being plotted (0 disables it, range 0-100). This smooths the Data trace directly, unlike Short Term Mean, which is a separate overlay trace and never alters Data itself." & vbCrLf &
