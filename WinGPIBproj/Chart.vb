@@ -5483,8 +5483,8 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
                 .ChartArea = "Main",
                 .Legend = "Main",
                 .Color = Color.Gray,
-                .BorderWidth = 1,
-                .BorderDashStyle = ChartDashStyle.Dash
+                .BorderWidth = 2,
+                .BorderDashStyle = ChartDashStyle.Dot
             }
 
             idealSeries.Points.AddXY(firstTau, firstSigmaPpm)
