@@ -66,7 +66,14 @@ Public Class Chart
     Dim variancevalue As Double
     Dim variancetemp As Double
     Dim calcppmvalue As Double
-    Dim inputvalueMeasurements() As Double
+    ' DEV1avg/DEV2avg/TEMPavg rolling-average buffers - previously all
+    ' three shared one "inputvalueMeasurements" array, so whenever two of
+    ' them were set to the same window size the buffer never got reset
+    ' between traces and their smoothing corrupted each other. Each trace
+    ' now gets its own.
+    Dim Dev1AvgBuffer() As Double
+    Dim Dev2AvgBuffer() As Double
+    Dim TempAvgBuffer() As Double
 
     Dim DEV1rollingAverageValues As New List(Of Double)         ' Create a list to store the rolling average values
     Dim DEV2rollingAverageValues As New List(Of Double)         ' Create a list to store the rolling average values
@@ -76,9 +83,9 @@ Public Class Chart
 
     ' Retrospective Short-Term Mean traces (Playback top chart) - a rolling
     ' average over the last few raw VALUE readings, recomputed fresh each
-    ' time the chart is (re)plotted, independent of the existing DEV1avg/
-    ' DEV2avg rolling-average feature and its shared inputvalueMeasurements
-    ' state. Same idea as LiveWatch.vb's Short-Term Mean checkbox.
+    ' time the chart is (re)plotted, independent of the DEV1avg/DEV2avg/
+    ' TEMPavg rolling-average feature above. Same idea as LiveWatch.vb's
+    ' Short-Term Mean checkbox.
     Private Const ShortTermMeanWindow As Integer = 30
 
     Dim numberofmetadatalines As Integer = 0
@@ -2077,7 +2084,7 @@ Public Class Chart
 
 
 
-    Function CalculateRollingAverage(ByVal inputvalue As Double, numDataPoints As Integer) As Double                     ' rolling average
+    Function CalculateRollingAverage(ByVal inputvalue As Double, numDataPoints As Integer, ByRef buffer() As Double) As Double                     ' rolling average
 
         If numDataPoints < 1 Then
             numDataPoints = 1
@@ -2087,23 +2094,23 @@ Public Class Chart
             numDataPoints = 500
         End If
 
-        ' Initialize the inputvalueMeasurements array if not already done
-        If inputvalueMeasurements Is Nothing OrElse inputvalueMeasurements.Length <> numDataPoints Then
-            ReDim inputvalueMeasurements(numDataPoints - 1)
+        ' Initialize this trace's own buffer if not already done
+        If buffer Is Nothing OrElse buffer.Length <> numDataPoints Then
+            ReDim buffer(numDataPoints - 1)
         End If
 
         ' Update the array with the latest values
         For i As Integer = 0 To numDataPoints - 2
-            inputvalueMeasurements(i) = inputvalueMeasurements(i + 1)
+            buffer(i) = buffer(i + 1)
         Next
-        inputvalueMeasurements(numDataPoints - 1) = inputvalue
+        buffer(numDataPoints - 1) = inputvalue
 
         ' Calculate the rolling average of the values
         Dim sumValue As Double = 0.0
         Dim numValidPoints As Integer = 0 ' To track the number of valid data points (non-zero)
         For i As Integer = 0 To numDataPoints - 1
-            If inputvalueMeasurements(i) <> 0 Then
-                sumValue += inputvalueMeasurements(i)
+            If buffer(i) <> 0 Then
+                sumValue += buffer(i)
                 numValidPoints += 1
             End If
         Next
@@ -3200,7 +3207,7 @@ Public Class Chart
                     Dim variancevalue As Double = Convert.ToDouble(dr("VALUE"))
 
                     ' Call the CalculateRollingAverage function to get the rolling average
-                    Dim Dev1rollingAverageValue As Double = CalculateRollingAverage(variancevalue, Val(DEV1avg.Text))
+                    Dim Dev1rollingAverageValue As Double = CalculateRollingAverage(variancevalue, Val(DEV1avg.Text), Dev1AvgBuffer)
 
                     ' Store the rolling average value in the list
                     DEV1rollingAverageValues.Add(Dev1rollingAverageValue)
@@ -3248,7 +3255,7 @@ Public Class Chart
                     Dim variancevalue As Double = Convert.ToDouble(dr("VALUE"))
 
                     ' Call the CalculateRollingAverage function to get the rolling average
-                    Dim Dev2rollingAverageValue As Double = CalculateRollingAverage(variancevalue, Val(DEV2avg.Text))
+                    Dim Dev2rollingAverageValue As Double = CalculateRollingAverage(variancevalue, Val(DEV2avg.Text), Dev2AvgBuffer)
 
                     ' Store the rolling average value in the list
                     DEV2rollingAverageValues.Add(Dev2rollingAverageValue)
@@ -3355,7 +3362,7 @@ Public Class Chart
                     Dim variancevalue As Double = Convert.ToDouble(dr("TEMP"))
 
                     ' Call the CalculateRollingAverage function to get the rolling average
-                    Dim TemprollingAverageValue As Double = CalculateRollingAverage(variancevalue, Val(TEMPavg.Text))
+                    Dim TemprollingAverageValue As Double = CalculateRollingAverage(variancevalue, Val(TEMPavg.Text), TempAvgBuffer)
 
                     ' Store the rolling average value in the list
                     TEMProllingAverageValues.Add(TemprollingAverageValue)
@@ -3375,6 +3382,12 @@ Public Class Chart
 
 
     Private Sub FilterHumDevice1()
+
+        ' Same missing-clear bug FilterTempDevice1() had - callers were
+        ' relying on having already cleared Chart2.Series(3) themselves
+        ' beforehand. Clearing here makes this function self-contained and
+        ' safe to call more than once per load, same as its siblings.
+        Chart2.Series(3).Points.Clear()
 
         ' Filter Humidity from Device 1
         If (PlaybackHum.Checked = True) Then
