@@ -5150,6 +5150,17 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
 
     Private Sub RefreshAllanChart()
 
+        ' No CSV loaded means DeviceName1/2.Text are both blank, so neither
+        ' device would have anything to plot - opening the pop-up anyway
+        ' would leave its logarithmic axes with zero data points to
+        ' auto-range from, which crashes MSChart on the next repaint.
+        If Not (ChartLoaded AndAlso CSVfileok) Then
+            CheckPlaybackDev1Allan.Checked = False
+            CheckPlaybackDev2Allan.Checked = False
+            If AllanPopupForm IsNot Nothing Then AllanPopupForm.Close()
+            Exit Sub
+        End If
+
         Dim showDev1 As Boolean = CheckPlaybackDev1Allan.Checked
         Dim showDev2 As Boolean = CheckPlaybackDev2Allan.Checked
 
@@ -5240,7 +5251,15 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         Dim ca As New ChartArea("Main")
         ca.BackColor = Color.Black
 
+        ' Explicit fallback Minimum/Maximum on both axes - a logarithmic
+        ' axis that's left on Auto with zero series/points to range from
+        ' (e.g. the pop-up ends up empty for any reason) throws an
+        ' InvalidOperationException from MSChart on the next repaint.
+        ' RescaleAllanAxes() overwrites these with real values as soon as
+        ' there's actual data.
         ca.AxisX.IsLogarithmic = True
+        ca.AxisX.Minimum = 1
+        ca.AxisX.Maximum = 10
         ca.AxisX.Title = "Averaging Time - tau (samples)"
         ca.AxisX.TitleForeColor = Color.White
         ca.AxisX.LabelStyle.ForeColor = Color.White
@@ -5248,6 +5267,8 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         ca.AxisX.MajorGrid.LineColor = Color.FromArgb(45, 45, 45)
 
         ca.AxisY.IsLogarithmic = True
+        ca.AxisY.Minimum = 0.001
+        ca.AxisY.Maximum = 1
         ca.AxisY.Title = "Allan Deviation (ppm)"
         ca.AxisY.TitleForeColor = Color.White
         ca.AxisY.LabelStyle.ForeColor = Color.White
@@ -5322,11 +5343,33 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
 
         ' Keep the checkboxes in sync if the user closes the pop-up directly
         ' (via its own close button) instead of unchecking both boxes first.
-        CheckPlaybackDev1Allan.Checked = False
-        CheckPlaybackDev2Allan.Checked = False
+        ' Guarded against this Chart form already being closed/disposed
+        ' (e.g. when Chart_FormClosing below is what triggered this Close)
+        ' - its own checkboxes would already be gone, so touching them
+        ' would throw.
+        If Not Me.IsDisposed Then
+            CheckPlaybackDev1Allan.Checked = False
+            CheckPlaybackDev2Allan.Checked = False
+        End If
 
         AllanPopupForm = Nothing
         AllanPopupChart = Nothing
+
+    End Sub
+
+    Private Sub Chart_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+
+        ' The Allan Deviation pop-up depends entirely on this form's own
+        ' live state (dataTable1, DeviceName1/2, the Allan checkboxes) - it
+        ' must not be left running once this form is gone. Interacting
+        ' with it afterwards (e.g. the Overlapping checkbox, which
+        ' recomputes and repaints the chart) could crash with an MSChart
+        ' "logarithmic scale" exception once that data is no longer valid.
+        ' Closing it here, while this form's own controls are still alive,
+        ' also lets AllanPopupForm_FormClosed's checkbox sync run safely.
+        If AllanPopupForm IsNot Nothing AndAlso Not AllanPopupForm.IsDisposed Then
+            AllanPopupForm.Close()
+        End If
 
     End Sub
 
