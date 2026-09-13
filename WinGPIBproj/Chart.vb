@@ -684,6 +684,13 @@ Public Class Chart
         Next
 
 
+        ' A new CSV invalidates whatever the Allan Deviation pop-up (if
+        ' open) was showing - it doesn't refresh itself on a new load, so
+        ' close it and let the user re-check a box once the new file is
+        ' in, rather than leaving it showing stale data from the old CSV.
+        CheckPlaybackDev1Allan.Checked = False
+        CheckPlaybackDev2Allan.Checked = False
+
         ' Reset statistics controls until file format is known.
         CheckPlaybackDev1Mean.Checked = False
         CheckPlaybackDev1Stdev.Checked = False
