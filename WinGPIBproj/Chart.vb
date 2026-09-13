@@ -5155,11 +5155,22 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
 
     Private AllanPopupForm As Form = Nothing
     Private AllanPopupChart As DataVisualization.Charting.Chart = Nothing
+    Private AllanToolTip As ToolTip = Nothing
 
     ' False = non-overlapping (disjoint tau-length blocks, fewer pairs at
     ' large tau, noisier tail). True = overlapping (sliding window, reuses
     ' every sample many times over, much smoother tail from the same data).
     Private AllanUseOverlapping As Boolean = False
+
+    ' Adds a Modified Allan Deviation (MDEV) curve alongside each shown
+    ' device's regular ADEV curve. MDEV applies an extra averaging stage
+    ' that makes it react differently to phase noise than ADEV does, so a
+    ' visibly steeper MDEV-vs-ADEV gap at short tau indicates phase/timing
+    ' noise the regular ADEV curve can't distinguish on its own. Always
+    ' uses the standard (overlapping) MDEV estimator regardless of the
+    ' Overlapping checkbox above, since that's the only form MDEV is
+    ' normally computed in.
+    Private AllanShowMDEV As Boolean = False
 
     Private Sub AllanCheckbox_CheckedChanged(sender As Object, e As EventArgs) _
     Handles CheckPlaybackDev1Allan.CheckedChanged, CheckPlaybackDev2Allan.CheckedChanged
@@ -5302,38 +5313,13 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         lg.BackColor = Color.Black
         AllanPopupChart.Legends.Add(lg)
 
-        ' Short explanation panel - overlaid directly on the chart's own
-        ' empty canvas below the legend (NOT docked as a sibling control),
-        ' so the chart keeps its full original size and the legend renders
-        ' exactly as before instead of being squeezed out.
-        Dim infoText As New RichTextBox With {
-            .Location = New Point(540, 115),
-            .Size = New Size(220, 395),
-            .Anchor = AnchorStyles.Top Or AnchorStyles.Right,
-            .ReadOnly = True,
-            .WordWrap = True,
-            .ScrollBars = RichTextBoxScrollBars.None,
-            .BorderStyle = BorderStyle.None,
-            .BackColor = Color.Black,
-            .ForeColor = Color.Gainsboro,
-            .Font = New Font("Segoe UI", 9),
-            .Text =
-    "Allan Deviation shows how a device's average reading settles down as you average over longer spans (tau), instead of a single noise number for the whole file." & vbLf & vbLf &
-    "Starting at the top-left (tau=1), the closer it hugs its 'Ideal' line, the more that stretch is behaving like pure random noise - each step right is genuinely buying more stability." & vbLf &
-    "Where the trace pulls away and rises above the dashed line, averaging longer has stopped helping - a noise floor (flat) or drift (rising) has taken over." & vbLf &
-    "It can dip below the dashed line - that's just statistical scatter in the estimate itself, especially on the right where only a few independent samples remain to compare." & vbLf & vbLf &
-    "Each device's grey dashed 'Ideal' line shows pure white-noise behaviour, anchored to that device's own first point - it's a reference, not a hard boundary."
-        }
-
-        infoText.Select(0, 0)
-
         ' Overlapping vs non-overlapping Allan deviation. Overlapping
         ' reuses every sample in many sliding windows instead of chopping
         ' the data into disjoint blocks, giving a much smoother curve at
         ' large tau from the same file - at the cost of the points no
         ' longer being statistically independent of each other.
         Dim overlapCheck As New CheckBox With {
-            .Location = New Point(540, 83),
+            .Location = New Point(540, 115),
             .Size = New Size(230, 24),
             .Text = "Overlapping (smoother tail)",
             .ForeColor = Color.White,
@@ -5347,11 +5333,32 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
                 RefreshAllanChart()
             End Sub
 
+        ' Adds a dotted MDEV curve alongside each shown device's ADEV
+        ' curve, in that device's own colour - see AllanShowMDEV.
+        Dim mdevCheck As New CheckBox With {
+            .Location = New Point(540, 142),
+            .Size = New Size(230, 24),
+            .Text = "Show MDEV",
+            .ForeColor = Color.White,
+            .BackColor = Color.Black,
+            .Anchor = AnchorStyles.Top Or AnchorStyles.Right,
+            .Checked = AllanShowMDEV
+        }
+        AddHandler mdevCheck.CheckedChanged,
+            Sub()
+                AllanShowMDEV = mdevCheck.Checked
+                RefreshAllanChart()
+            End Sub
+
+        AllanToolTip = New ToolTip()
+        AllanToolTip.SetToolTip(overlapCheck, "Smooths the tail by reusing every sample in sliding windows instead of separate blocks.")
+        AllanToolTip.SetToolTip(mdevCheck, "Adds a dotted curve that reveals phase/timing noise regular ADEV can't show on its own.")
+
         AllanPopupForm.Controls.Add(AllanPopupChart)
         AllanPopupForm.Controls.Add(overlapCheck)
-        AllanPopupForm.Controls.Add(infoText)
+        AllanPopupForm.Controls.Add(mdevCheck)
         overlapCheck.BringToFront()
-        infoText.BringToFront()
+        mdevCheck.BringToFront()
 
         AddHandler AllanPopupForm.FormClosed, AddressOf AllanPopupForm_FormClosed
 
@@ -5375,6 +5382,11 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         AllanPopupForm = Nothing
         AllanPopupChart = Nothing
 
+        If AllanToolTip IsNot Nothing Then
+            AllanToolTip.Dispose()
+            AllanToolTip = Nothing
+        End If
+
     End Sub
 
     Private Sub Chart_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
@@ -5396,6 +5408,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
     Private Sub UpdateAllanSeries(seriesName As String, deviceName As String, show As Boolean, seriesColor As Color)
 
         Dim idealSeriesName As String = seriesName & " (Ideal)"
+        Dim mdevSeriesName As String = seriesName & " (MDEV)"
 
         If AllanPopupChart Is Nothing Then Exit Sub
 
@@ -5404,6 +5417,9 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         End If
         If AllanPopupChart.Series.IndexOf(idealSeriesName) >= 0 Then
             AllanPopupChart.Series.Remove(AllanPopupChart.Series(idealSeriesName))
+        End If
+        If AllanPopupChart.Series.IndexOf(mdevSeriesName) >= 0 Then
+            AllanPopupChart.Series.Remove(AllanPopupChart.Series(mdevSeriesName))
         End If
 
         If Not show Then Exit Sub
@@ -5476,6 +5492,30 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
             idealSeries.Points.AddXY(lastTau, idealEndSigma)
 
             AllanPopupChart.Series.Add(idealSeries)
+
+        End If
+
+        ' Modified Allan Deviation (MDEV) - an additional curve in this
+        ' device's own colour, dotted so it reads as a companion to the
+        ' solid ADEV line above rather than a competing trace. See
+        ' AllanShowMDEV for why this exists.
+        If AllanShowMDEV Then
+
+            Dim mdevSeries As New Series(mdevSeriesName) With {
+                .ChartType = SeriesChartType.Line,
+                .ChartArea = "Main",
+                .Legend = "Main",
+                .Color = seriesColor,
+                .BorderWidth = 2,
+                .BorderDashStyle = ChartDashStyle.Dot
+            }
+
+            For Each point As KeyValuePair(Of Integer, Double) In ComputeModifiedAllanDeviation(rawValues)
+                Dim sigmaPpm As Double = (point.Value / overallMean) * 1000000.0
+                If sigmaPpm > 0.0 Then mdevSeries.Points.AddXY(point.Key, sigmaPpm)
+            Next
+
+            If mdevSeries.Points.Count > 0 Then AllanPopupChart.Series.Add(mdevSeries)
 
         End If
 
@@ -5565,6 +5605,73 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
 
     End Function
 
+    ' Modified Allan Deviation (MDEV) - the standard IEEE-1139 estimator,
+    ' always computed the "overlapping" way since that's the only form
+    ' MDEV is normally used in (there's no meaningful non-overlapping
+    ' variant). Defined on phase data, so the raw frequency-like VALUE
+    ' readings are integrated (cumulative sum) first. The extra averaging
+    ' stage this adds is what makes MDEV react differently than ADEV to
+    ' phase noise - that's its whole purpose.
+    Private Function ComputeModifiedAllanDeviation(rawValues As List(Of Double)) As List(Of KeyValuePair(Of Integer, Double))
+
+        Dim results As New List(Of KeyValuePair(Of Integer, Double))
+
+        Dim n As Integer = rawValues.Count
+        If n < 6 Then Return results
+
+        Dim x(n) As Double
+        x(0) = 0.0
+        For k As Integer = 0 To n - 1
+            x(k + 1) = x(k) + rawValues(k)
+        Next
+
+        Dim maxTau As Integer = n \ 3
+        If maxTau < 1 Then Return results
+
+        Const stepsPerDecade As Integer = 8
+        Dim taus As New SortedSet(Of Integer)
+        Dim i As Integer = 0
+        Do
+            Dim tau As Integer = CInt(Math.Round(Math.Pow(10.0, i / stepsPerDecade)))
+            If tau >= 1 AndAlso tau <= maxTau Then taus.Add(tau)
+            i += 1
+        Loop While Math.Pow(10.0, i / stepsPerDecade) <= maxTau
+
+        For Each tau As Integer In taus
+
+            Dim m As Integer = tau
+            Dim count As Integer = n - 3 * m + 1
+            If count < 1 Then Continue For
+
+            ' Running sum of the second difference of phase (three points m
+            ' apart) over an m-wide inner window, slid one sample at a time -
+            ' the standard efficient way to compute MDEV without recomputing
+            ' the inner sum from scratch at every step.
+            Dim innerSum As Double = 0.0
+            For k As Integer = 0 To m - 1
+                innerSum += x(k + 2 * m) - 2.0 * x(k + m) + x(k)
+            Next
+
+            Dim sumSq As Double = innerSum * innerSum
+
+            For j As Integer = 1 To count - 1
+                Dim dropIndex As Integer = j - 1
+                Dim addIndex As Integer = dropIndex + m
+                Dim dropVal As Double = x(dropIndex + 2 * m) - 2.0 * x(dropIndex + m) + x(dropIndex)
+                Dim addVal As Double = x(addIndex + 2 * m) - 2.0 * x(addIndex + m) + x(addIndex)
+                innerSum += addVal - dropVal
+                sumSq += innerSum * innerSum
+            Next
+
+            Dim sigma As Double = Math.Sqrt(sumSq / (2.0 * tau * tau * m * m * count))
+            results.Add(New KeyValuePair(Of Integer, Double)(tau, sigma))
+
+        Next
+
+        Return results
+
+    End Function
+
 
     ' ==============================================================
     ' Playback Chart help
@@ -5630,7 +5737,8 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
     "Starting at the top-left (tau=1) and reading rightward: the closer the curve hugs its dashed 'Ideal' line, the more that stretch is behaving like pure random noise - each step right is genuinely buying more stability. Where the curve pulls away and rises above the dashed line, averaging longer has stopped helping - a flat stretch is a noise floor, a rising stretch is long-term drift making things worse." & vbLf &
     "Each device gets its own grey dashed 'Ideal' reference line, anchored to that device's own first plotted point, showing what pure white-noise behaviour looks like." & vbLf &
     "It's a reference, not a hard boundary - the real curve can dip below it too, which is just statistical scatter in the estimate itself, especially on the right where only a few independent samples remain to compare. The pop-up has its own Notes panel repeating this explanation alongside the chart." & vbLf &
-    "The 'Overlapping (smoother tail)' checkbox switches between non-overlapping Allan deviation (disjoint tau-length blocks - fewer pairs at large tau, so the tail can look noisy/jagged) and overlapping (a sliding window that reuses every sample many times over, giving a much smoother tail from the same data, at the cost of the points no longer being fully statistically independent)." & vbLf & vbLf &
+    "The 'Overlapping (smoother tail)' checkbox switches between non-overlapping Allan deviation (disjoint tau-length blocks - fewer pairs at large tau, so the tail can look noisy/jagged) and overlapping (a sliding window that reuses every sample many times over, giving a much smoother tail from the same data, at the cost of the points no longer being fully statistically independent)." & vbLf &
+    "The 'Show MDEV' checkbox adds a second, dotted curve per device - Modified Allan Deviation, a variant that applies an extra averaging stage making it react differently than regular ADEV to phase/timing noise specifically. On its own ADEV can't tell ordinary amplitude noise apart from phase noise - both just look like a similar falling slope. If MDEV runs visibly steeper than its device's ADEV curve at short tau, that's a sign of phase noise ADEV alone wouldn't have shown you." & vbLf & vbLf &
     "AVERAGING / NOISE / RANGE (per device)" & vbLf &
     "The numeric box next to '- Avg.' sets how many points the raw Data trace itself is rolling-averaged over before being plotted (0 disables it, range 0-100). This smooths the Data trace directly, unlike Short Term Mean, which is a separate overlay trace and never alters Data itself." & vbLf &
     "'- RMS Noise' and '- Max-Min' are read-only figures calculated for whatever portion of the chart is currently visible/zoomed: RMS Noise is a noise calculation that accounts for drift over time, and Max-Min is the peak-to-peak spread of the visible data." & vbLf &
