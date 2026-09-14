@@ -2924,6 +2924,7 @@ Partial Class Formtest
             HistoryGridPopupForms.Remove(gridName)
         End Sub
 
+        ApplySquareCorners(f)
         f.Show(Me)
     End Sub
 
@@ -4199,6 +4200,7 @@ Partial Class Formtest
             GroupBoxCustom.Enabled = False
         End If
 
+        ApplySquareCorners(UserInitPopup)
         UserInitPopup.Show(Me)
         UserInitPopup.BringToFront()
         UserInitPopup.Refresh()
@@ -4254,6 +4256,7 @@ Partial Class Formtest
         Timer17.Start()
 
 
+        ApplySquareCorners(f)
         f.Show(owner)   ' modeless, doesn’t block loading
     End Sub
 
@@ -4367,6 +4370,7 @@ Partial Class Formtest
 
             f.Controls.Add(lbl)
             f.TopMost = True
+            ApplySquareCorners(f)
             f.Show()
 
             BigTextPopupForms(key) = f

@@ -42,17 +42,6 @@ Imports MoonSharp.Interpreter
 
 Public Class Formtest
 
-    ' Use Win10-style square window corners on Windows 11
-    <DllImport("dwmapi.dll")>
-    Private Shared Function DwmSetWindowAttribute(
-    hwnd As IntPtr,
-    dwAttribute As Integer,
-    ByRef pvAttribute As Integer,
-    cbAttribute As Integer) As Integer
-    End Function
-    Private Const DWMWA_WINDOW_CORNER_PREFERENCE As Integer = 33
-    Private Const DWMWCP_DONOTROUND As Integer = 1
-
     ' IODevices form tracker
     Private ioDevicesOffsetInitialized As Boolean = False
     Private ioDevicesOffsetX As Integer
@@ -277,9 +266,8 @@ Public Class Formtest
             TabControl1.Appearance = TabAppearance.FlatButtons
             'TabControl1.Appearance = TabAppearance.Buttons
 
-            ' Use Win10-style square window corners on Windows 11
-            Dim cornerPreference As Integer = DWMWCP_DONOTROUND
-            DwmSetWindowAttribute(Me.Handle, DWMWA_WINDOW_CORNER_PREFERENCE, cornerPreference, Marshal.SizeOf(cornerPreference))
+            ' Use Win10-style square window corners on Windows 11.....oh how I hate the rounded corners!
+            ApplySquareCorners(Me)
 
             ' Theme adjustment for Win11, otherwise disabled controls are hardly visible!
             If My.Settings.ThemeSet = True Then
@@ -288,7 +276,7 @@ Public Class Formtest
             End If
             CheckBoxThemeSet.Checked = My.Settings.ThemeSet
 
-            BannerText1 = "WinGPIB   V5.020"
+            BannerText1 = "WinGPIB   V5.021"
             BannerText2 = "                                                                            "
             BannerText3 = "Free for Non-Commercial Use • Support WinGPIB — see About"
             Me.Text = BannerText1 & BannerText2 & BannerText3.ToString()
@@ -2731,6 +2719,7 @@ Public Class Formtest
             dlg.AcceptButton = okButton
             dlg.CancelButton = okButton
 
+            ApplySquareCorners(dlg)
             dlg.ShowDialog(Me)
 
         End Using
@@ -2930,6 +2919,7 @@ Public Class Formtest
                 frm.ActiveControl = Nothing
             End Sub
 
+            ApplySquareCorners(frm)
             frm.ShowDialog()
 
         End Using
@@ -3218,6 +3208,7 @@ Public Class Formtest
             noticeForm.Controls.Add(layout)
 
             ' Show the dialog
+            ApplySquareCorners(noticeForm)
             noticeForm.ShowDialog(Me)
         End Using
 

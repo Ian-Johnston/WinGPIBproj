@@ -27,6 +27,10 @@
         End Try
     End Sub
 
+    Private Sub JsonViewer_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        ApplySquareCorners(Me)
+    End Sub
+
 
     Public Sub LoadJson(jsonText As String)
         Try

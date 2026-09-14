@@ -4202,6 +4202,7 @@ Partial Class Formtest
         f.Controls.Add(pnl)
         f.Controls.Add(rtb)
 
+        ApplySquareCorners(f)
         If f.ShowDialog(Me) = DialogResult.OK Then
             Return resultText
         Else
@@ -4319,6 +4320,7 @@ Partial Class Formtest
         End Sub
 
         ' MODELLESS: main app still usable
+        ApplySquareCorners(f)
         f.Show(Me)
 
     End Sub

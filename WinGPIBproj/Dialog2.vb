@@ -13,6 +13,8 @@ Public Class Dialog2
 
     Public Sub Dialog2_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
 
+        ApplySquareCorners(Me)
+
         'Me.Location = Windows.Forms.Cursor.Position
         LabelWarning1.Text = Warning1
         LabelWarning2.Text = Warning2

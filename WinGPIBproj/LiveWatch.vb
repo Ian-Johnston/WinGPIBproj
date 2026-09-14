@@ -573,59 +573,59 @@ Partial Class Formtest
     .ScrollBars = RichTextBoxScrollBars.Vertical,
     .BorderStyle = BorderStyle.Fixed3D,
     .Text =
-    "LIVE CHART STATISTICS" & vbCrLf & vbCrLf &
-    "WinGPIB can calculate live statistics independently for Device 1 and Device 2 using each raw incoming measurement reading." & vbCrLf &
-    "Statistics run automatically whenever a device is actively acquiring and its Enable Statistics checkbox is checked - independent of whether the Live Chart or Data Log/CSV logging is running." & vbCrLf &
-    "The Enable Statistics checkbox for each device is located in that device's configuration box on the Cmd Line tab, alongside its other settings. It can only be changed while the device is stopped - tick it before pressing Run, as it locks once the device starts." & vbCrLf &
-    "The optional Live Chart rolling average does not affect these statistics." & vbCrLf & vbCrLf &
-    "SAMPLES (N)" & vbCrLf &
-    "The total number of individual readings included in the current statistics calculation." & vbCrLf &
-    "The sample count starts from zero when RESET STAT is pressed." & vbCrLf & vbCrLf &
-    "MEAN" & vbCrLf &
-    "The arithmetic average of all readings collected since the statistics were started or reset." & vbCrLf & vbCrLf &
-    "MAX / MIN RECORDED" & vbCrLf &
-    "The highest and lowest individual raw readings seen since the statistics were started or reset." & vbCrLf &
-    "These update on every new reading and are cleared back to a fresh state by RESET STAT." & vbCrLf & vbCrLf &
-    "STDEV - STANDARD DEVIATION" & vbCrLf &
-    "Shows how much the individual readings vary or scatter around the calculated mean." & vbCrLf &
-    "A smaller STDEV generally indicates less variation or noise in the readings." & vbCrLf & vbCrLf &
-    "WinGPIB calculates sample standard deviation using Welford's running algorithm. This is mathematically equivalent to the conventional sample STDEV calculation but avoids having to store every individual reading." & vbCrLf & vbCrLf &
-    "Sample STDEV = Sqrt(Sum((Xi - Mean)^2) / (N - 1))" & vbCrLf & vbCrLf &
-    "SEM - STANDARD ERROR OF THE MEAN" & vbCrLf &
-    "Shows how precisely the mean has been determined from the accumulated readings." & vbCrLf &
-    "SEM is derived from the STDEV and decreases as more independent readings are averaged." & vbCrLf & vbCrLf &
-    "SEM = STDEV / Sqrt(N)" & vbCrLf & vbCrLf &
-    "AVERAGING GAIN (DIGITS)" & vbCrLf &
-    "Shows the theoretical increase in resolution obtained by averaging N independent readings." & vbCrLf & vbCrLf &
-    "Averaging Gain = 0.5 x Log10(N)" & vbCrLf & vbCrLf &
-    "Examples:" & vbCrLf &
-    "  10 readings     = 0.50 digits" & vbCrLf &
-    "  100 readings    = 1.00 digits" & vbCrLf &
-    "  1,000 readings  = 1.50 digits" & vbCrLf &
-    "  10,000 readings = 2.00 digits" & vbCrLf & vbCrLf &
-    "LIVE ANALYSIS CHART" & vbCrLf &
-    "The Live Analysis chart displays the raw Device 1 and Device 2 readings together with their running Mean, STDEV and SEM, plus temperature when enabled." & vbCrLf &
-    "The analysis chart uses the same raw readings as the statistics calculations and is not affected by the optional Live Chart rolling average." & vbCrLf &
-    "The Live Analysis chart does not require the Live Chart to be started - it runs from the same live statistics as soon as a device is running with Enable Statistics checked." & vbCrLf &
-    "When both Device 1 and Device 2 are running together, the chart advances once per matched pair of readings rather than once per device, so the two devices share a common position on the chart instead of doubling the update rate." & vbCrLf &
-    "The X-axis shows elapsed time (HH:mm:ss), calculated from the sample rate of whichever device(s) are running." & vbCrLf & vbCrLf &
-    "LIVE ANALYSIS CHART - MISC. OPTIONS" & vbCrLf &
-    "ANTI-ALIASING - Smooths lines and text on this chart and the main Live Chart. Keep this on to avoid a jagged/moire look on traces with many closely-packed points; only turn it off to compare against unsmoothed rendering." & vbCrLf &
-    "FAST RENDERING - Switches every trace on this chart to FastLine, a stripped-down renderer built for very large point counts that skips anti-aliasing entirely regardless of the Anti-Aliasing setting above. Only useful if the chart becomes slow with a very large or unbounded rolling window. Overrides Smooth Lines while checked." & vbCrLf &
-    "SMOOTH LINES - Draws each trace as a curved spline between points instead of straight segments. Purely cosmetic - a curve can visually suggest values in between samples that were never actually measured, so treat it as a display preference, not a data change." & vbCrLf &
-    $"SHORT-TERM MEAN - Plots the Mean trace as a rolling average of only the last {ShortTermMeanWindow} readings instead of the full cumulative Mean since Reset Stats. Responds faster to recent changes but is noisier. This affects the Mean TRACE on this chart only - it does not change the Mean shown in the DEVICE DATA panel, STDEV/SEM/PPM Deviation, or what is written to the CSV log. Checking or unchecking it only affects the trace from that moment onwards - points already plotted are not redrawn, so you will see a kink in the trace at the point you toggled it." & vbCrLf & vbCrLf &
-    "DATA LOG / CSV" & vbCrLf &
-    "When statistics are enabled, the current Samples, Mean, STDEV, SEM and Averaging Gain values are also available in the Data Log and CSV output." & vbCrLf &
-    "Statistics fields remain in fixed positions for Device 1 and Device 2. When statistics are disabled for a device, those fields are left blank." & vbCrLf & vbCrLf &
-    "IMPORTANT" & vbCrLf &
-    "• The statistics are calculated independently for Device 1 and Device 2." & vbCrLf &
-    "• RESET STAT clears the accumulated statistics for that device and starts again from zero." & vbCrLf &
-    "• Statistics are calculated from individual raw readings before any optional Live Chart rolling averaging is applied." & vbCrLf &
-    "• Statistics run whenever the device is active and Enable Statistics is checked - the Live Chart and Data Log/CSV logging do not need to be running." & vbCrLf &
-    "• The Enable Statistics checkbox locks while its device is running - enable it before pressing Run, not after." & vbCrLf &
-    "• STDEV includes all variation present in the readings, including random noise, drift, temperature effects and other changes." & vbCrLf &
-    "• SEM is most meaningful when the readings are independent and the underlying measured value is stable." & vbCrLf &
-    "• A small SEM does not by itself represent the total measurement uncertainty or accuracy." & vbCrLf &
+    "LIVE CHART STATISTICS" & vbLf &
+    "WinGPIB can calculate live statistics independently for Device 1 and Device 2 using each raw incoming measurement reading." & vbLf &
+    "Statistics run automatically whenever a device is actively acquiring and its Enable Statistics checkbox is checked - independent of whether the Live Chart or Data Log/CSV logging is running." & vbLf &
+    "The Enable Statistics checkbox for each device is located in that device's configuration box on the Cmd Line tab, alongside its other settings. It can only be changed while the device is stopped - tick it before pressing Run, as it locks once the device starts." & vbLf &
+    "The optional Live Chart rolling average does not affect these statistics." & vbLf & vbLf &
+    "SAMPLES (N)" & vbLf &
+    "The total number of individual readings included in the current statistics calculation." & vbLf &
+    "The sample count starts from zero when RESET STAT is pressed." & vbLf & vbLf &
+    "MEAN" & vbLf &
+    "The arithmetic average of all readings collected since the statistics were started or reset." & vbLf & vbLf &
+    "MAX / MIN RECORDED" & vbLf &
+    "The highest and lowest individual raw readings seen since the statistics were started or reset." & vbLf &
+    "These update on every new reading and are cleared back to a fresh state by RESET STAT." & vbLf & vbLf &
+    "STDEV - STANDARD DEVIATION" & vbLf &
+    "Shows how much the individual readings vary or scatter around the calculated mean." & vbLf &
+    "A smaller STDEV generally indicates less variation or noise in the readings." & vbLf & vbLf &
+    "WinGPIB calculates sample standard deviation using Welford's running algorithm. This is mathematically equivalent to the conventional sample STDEV calculation but avoids having to store every individual reading." & vbLf & vbLf &
+    "Sample STDEV = Sqrt(Sum((Xi - Mean)^2) / (N - 1))" & vbLf & vbLf &
+    "SEM - STANDARD ERROR OF THE MEAN" & vbLf &
+    "Shows how precisely the mean has been determined from the accumulated readings." & vbLf &
+    "SEM is derived from the STDEV and decreases as more independent readings are averaged." & vbLf & vbLf &
+    "SEM = STDEV / Sqrt(N)" & vbLf & vbLf &
+    "AVERAGING GAIN (DIGITS)" & vbLf &
+    "Shows the theoretical increase in resolution obtained by averaging N independent readings." & vbLf & vbLf &
+    "Averaging Gain = 0.5 x Log10(N)" & vbLf & vbLf &
+    "Examples:" & vbLf &
+    "  10 readings     = 0.50 digits" & vbLf &
+    "  100 readings    = 1.00 digits" & vbLf &
+    "  1,000 readings  = 1.50 digits" & vbLf &
+    "  10,000 readings = 2.00 digits" & vbLf & vbLf &
+    "LIVE ANALYSIS CHART" & vbLf &
+    "The Live Analysis chart displays the raw Device 1 and Device 2 readings together with their running Mean, STDEV and SEM, plus temperature when enabled." & vbLf &
+    "The analysis chart uses the same raw readings as the statistics calculations and is not affected by the optional Live Chart rolling average." & vbLf &
+    "The Live Analysis chart does not require the Live Chart to be started - it runs from the same live statistics as soon as a device is running with Enable Statistics checked." & vbLf &
+    "When both Device 1 and Device 2 are running together, the chart advances once per matched pair of readings rather than once per device, so the two devices share a common position on the chart instead of doubling the update rate." & vbLf &
+    "The X-axis shows elapsed time (HH:mm:ss), calculated from the sample rate of whichever device(s) are running." & vbLf & vbLf &
+    "LIVE ANALYSIS CHART - MISC. OPTIONS" & vbLf &
+    "ANTI-ALIASING - Smooths lines and text on this chart and the main Live Chart. Keep this on to avoid a jagged/moire look on traces with many closely-packed points; only turn it off to compare against unsmoothed rendering." & vbLf &
+    "FAST RENDERING - Switches every trace on this chart to FastLine, a stripped-down renderer built for very large point counts that skips anti-aliasing entirely regardless of the Anti-Aliasing setting above. Only useful if the chart becomes slow with a very large or unbounded rolling window. Overrides Smooth Lines while checked." & vbLf &
+    "SMOOTH LINES - Draws each trace as a curved spline between points instead of straight segments. Purely cosmetic - a curve can visually suggest values in between samples that were never actually measured, so treat it as a display preference, not a data change." & vbLf &
+    $"SHORT-TERM MEAN - Plots the Mean trace as a rolling average of only the last {ShortTermMeanWindow} readings instead of the full cumulative Mean since Reset Stats. Responds faster to recent changes but is noisier. This affects the Mean TRACE on this chart only - it does not change the Mean shown in the DEVICE DATA panel, STDEV/SEM/PPM Deviation, or what is written to the CSV log. Checking or unchecking it only affects the trace from that moment onwards - points already plotted are not redrawn, so you will see a kink in the trace at the point you toggled it." & vbLf & vbLf &
+    "DATA LOG / CSV" & vbLf &
+    "When statistics are enabled, the current Samples, Mean, STDEV, SEM and Averaging Gain values are also available in the Data Log and CSV output." & vbLf &
+    "Statistics fields remain in fixed positions for Device 1 and Device 2. When statistics are disabled for a device, those fields are left blank." & vbLf & vbLf &
+    "NOTES" & vbLf &
+    "• The statistics are calculated independently for Device 1 and Device 2." & vbLf &
+    "• RESET STAT clears the accumulated statistics for that device and starts again from zero." & vbLf &
+    "• Statistics are calculated from individual raw readings before any optional Live Chart rolling averaging is applied." & vbLf &
+    "• Statistics run whenever the device is active and Enable Statistics is checked - the Live Chart and Data Log/CSV logging do not need to be running." & vbLf &
+    "• The Enable Statistics checkbox locks while its device is running - enable it before pressing Run, not after." & vbLf &
+    "• STDEV includes all variation present in the readings, including random noise, drift, temperature effects and other changes." & vbLf &
+    "• SEM is most meaningful when the readings are independent and the underlying measured value is stable." & vbLf &
+    "• A small SEM does not by itself represent the total measurement uncertainty or accuracy." & vbLf &
     "• Averaging reduces random noise but does not remove systematic errors or long-term drift."
 }
 
@@ -641,7 +641,7 @@ Partial Class Formtest
     "LIVE ANALYSIS CHART",
     "LIVE ANALYSIS CHART - MISC. OPTIONS",
     "DATA LOG / CSV",
-    "IMPORTANT"
+    "NOTES"
 }
 
         For Each heading As String In headings
@@ -652,6 +652,39 @@ Partial Class Formtest
             If start >= 0 Then
                 txt.Select(start, heading.Length)
                 txt.SelectionFont = New Font(txt.Font, FontStyle.Bold)
+            End If
+
+        Next
+
+        ' Indent each section's body text (everything between one heading
+        ' and the next) so it reads as clearly belonging under its
+        ' heading. Uses SelectionIndent (a paragraph-level left margin)
+        ' rather than literal leading spaces - spaces would only indent
+        ' the first visual line of a wrapped paragraph, leaving wrapped
+        ' continuation lines flush left and ragged. Same approach as the
+        ' Playback Chart Help dialog.
+        For i As Integer = 0 To headings.Length - 1
+
+            Dim headingStart As Integer =
+            txt.Text.IndexOf(headings(i), StringComparison.Ordinal)
+
+            If headingStart < 0 Then Continue For
+
+            ' +1 skips past the vbLf that ends the heading's own line -
+            ' starting the selection exactly on that character would still
+            ' count as touching the heading's paragraph, indenting it too.
+            Dim bodyStart As Integer = headingStart + headings(i).Length + 1
+            Dim bodyEnd As Integer = txt.Text.Length
+
+            If i < headings.Length - 1 Then
+                Dim nextHeadingStart As Integer =
+                txt.Text.IndexOf(headings(i + 1), StringComparison.Ordinal)
+                If nextHeadingStart > bodyStart Then bodyEnd = nextHeadingStart
+            End If
+
+            If bodyEnd > bodyStart Then
+                txt.Select(bodyStart, bodyEnd - bodyStart)
+                txt.SelectionIndent = 20
             End If
 
         Next
@@ -689,6 +722,7 @@ Partial Class Formtest
 
         frm.AcceptButton = btn
 
+        ApplySquareCorners(frm)
         frm.Show()
 
     End Sub
@@ -2147,26 +2181,65 @@ Partial Class Formtest
         AddHandler chkFastRendering.CheckedChanged, Sub(s, ev) ApplyLiveAnalysisChartType()
         AddHandler chkSmoothLines.CheckedChanged, Sub(s, ev) ApplyLiveAnalysisChartType()
 
+        ' Tracks each device's run state across calls so a fresh Run can be
+        ' told apart from a continuing one - see RefreshDeviceAvailability.
+        Dim dev1WasActive As Boolean = False
+        Dim dev2WasActive As Boolean = False
+        Dim tempWasActive As Boolean = False
+
+        Dim ClearLiveAnalysisSeries = Sub(seriesNames As String())
+                                          For Each seriesName In seriesNames
+                                              If LiveAnalysisChart.Series.IndexOf(seriesName) >= 0 Then
+                                                  LiveAnalysisChart.Series(seriesName).Points.Clear()
+                                              End If
+                                          Next
+                                      End Sub
+
         Dim RefreshDeviceAvailability = Sub()
                                             Dim dev1Active As Boolean = (ButtonDev1Run.Text = "Stop") OrElse (ButtonDev12Run.Text = "Stop")
                                             Dim dev2Active As Boolean = (ButtonDev2Run.Text = "Stop") OrElse (ButtonDev12Run.Text = "Stop")
-                                            Dim tempActive As Boolean = Timer1.Enabled
 
-                                            Dim SetGroup = Sub(boxes As CheckBox(), active As Boolean)
-                                                               For Each cb As CheckBox In boxes
-                                                                   cb.Enabled = active
-                                                                   If active Then
+                                            ' The Temperature trace advances whenever EITHER device produces a
+                                            ' new sample (see "newDev1Sample = True Or newDev2Sample = True"
+                                            ' in UpdateLiveAnalysisChart) - it has nothing to do with Timer1,
+                                            ' so its active/reset state needs to follow the same condition.
+                                            Dim tempActive As Boolean = dev1Active OrElse dev2Active
+
+                                            ' Resuming (stopped -> running) clears that device's traces and
+                                            ' re-enables its checkboxes fresh for the new run. Stopping
+                                            ' (running -> stopped) deliberately does nothing here any more -
+                                            ' the checkboxes and traces are left exactly as they were, frozen,
+                                            ' so the last run's data stays on screen for review instead of
+                                            ' vanishing the moment Stop is pressed.
+                                            Dim EnableGroup = Sub(boxes As CheckBox())
+                                                                   For Each cb As CheckBox In boxes
+                                                                       cb.Enabled = True
                                                                        cb.BackColor = CType(cb.Tag, Color)
-                                                                   Else
-                                                                       cb.Checked = False
-                                                                       cb.BackColor = Color.LightGray
-                                                                   End If
-                                                               Next
-                                                           End Sub
+                                                                   Next
+                                                               End Sub
 
-                                            SetGroup(dev1Boxes, dev1Active)
-                                            SetGroup(dev2Boxes, dev2Active)
-                                            SetGroup(tempBoxes, tempActive)
+                                            If dev1Active AndAlso Not dev1WasActive Then
+                                                ClearLiveAnalysisSeries({"Device 1", "Dev 1 Mean", "Dev 1 STDEV", "Dev 1 SEM", "Dev 1 PPM Deviation"})
+                                                q1ShortTermMean.Clear() : sum1ShortTermMean = 0.0
+                                                LiveAnalysisLastStats1Count = Stats1Count
+                                                EnableGroup(dev1Boxes)
+                                            End If
+
+                                            If dev2Active AndAlso Not dev2WasActive Then
+                                                ClearLiveAnalysisSeries({"Device 2", "Dev 2 Mean", "Dev 2 STDEV", "Dev 2 SEM", "Dev 2 PPM Deviation"})
+                                                q2ShortTermMean.Clear() : sum2ShortTermMean = 0.0
+                                                LiveAnalysisLastStats2Count = Stats2Count
+                                                EnableGroup(dev2Boxes)
+                                            End If
+
+                                            If tempActive AndAlso Not tempWasActive Then
+                                                ClearLiveAnalysisSeries({"Temperature"})
+                                                EnableGroup(tempBoxes)
+                                            End If
+
+                                            dev1WasActive = dev1Active
+                                            dev2WasActive = dev2Active
+                                            tempWasActive = tempActive
                                         End Sub
 
         RefreshDeviceAvailability()
@@ -2320,6 +2393,7 @@ Partial Class Formtest
         LiveAnalysisLastStats1Count = Stats1Count
         LiveAnalysisLastStats2Count = Stats2Count
 
+        ApplySquareCorners(LiveAnalysisForm)
         LiveAnalysisForm.Show()
 
     End Sub

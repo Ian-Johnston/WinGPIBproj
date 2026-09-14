@@ -5024,6 +5024,7 @@ Partial Class Formtest
         If UserKeypadPopupForm IsNot Nothing AndAlso Not UserKeypadPopupForm.IsDisposed Then Exit Sub
 
         UserKeypadPopupForm = New Form()
+        ApplySquareCorners(UserKeypadPopupForm)
         UserKeypadPopupForm.FormBorderStyle = FormBorderStyle.FixedToolWindow
         UserKeypadPopupForm.Text = caption
         UserKeypadPopupForm.TopMost = True
@@ -5421,6 +5422,7 @@ Partial Class Formtest
                 ChartPopupForms.Remove(chartName)
             End Sub
 
+        ApplySquareCorners(f)
         f.Show(Me)
     End Sub
 

@@ -159,6 +159,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="User-Polynomials.vb" />
+    <Compile Include="WindowTheming.vb" />
     <Compile Include="FormUserConfigEditor.vb">
       <SubType>Form</SubType>
     </Compile>

@@ -1003,6 +1003,7 @@ Handles RadioButton34581.CheckedChanged,
         txt.SelectionStart = 0
         txt.SelectionLength = 0
 
+        ApplySquareCorners(frm)
         frm.ShowDialog(Me)
         'frm.Show(Me)
 

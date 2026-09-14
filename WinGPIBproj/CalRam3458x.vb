@@ -2598,6 +2598,7 @@ Partial Class Formtest
         txt.SelectionStart = 0
         txt.SelectionLength = 0
 
+        ApplySquareCorners(frm)
         frm.ShowDialog(Me)
 
     End Sub

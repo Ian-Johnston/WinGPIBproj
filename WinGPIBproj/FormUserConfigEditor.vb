@@ -198,6 +198,9 @@ Public Class FormUserConfigEditor
         Me.StartPosition = FormStartPosition.CenterParent
         Me.TopMost = False
 
+        ' Use Win10-style square window corners on Windows 11
+        ApplySquareCorners(Me)
+
         ' --- Load size from settings or fall back to default ---
         Dim defaultSize As New Size(900, 700)
         Dim s As String = My.Settings.UserGui_Editor

@@ -1,9 +1,49 @@
 ﻿' Playback chart control
 
+Imports System.Runtime.InteropServices
 Imports System.Windows.Forms.DataVisualization.Charting
 
 
 Public Class Chart
+
+    ' Used to hand off the Allan Deviation pop-up's resize-grip drag to
+    ' Windows' own native bottom-right resize handling - same approach as
+    ' LiveWatch.vb's Live Analysis chart pop-up.
+    <DllImport("user32.dll")>
+    Private Shared Function ReleaseCapture() As Boolean
+    End Function
+
+    <DllImport("user32.dll", CharSet:=CharSet.Auto)>
+    Private Shared Function SendMessage(hWnd As IntPtr, msg As Integer, wParam As Integer, lParam As Integer) As Integer
+    End Function
+
+    ' My.Resources.grip is a dark icon meant for a light background (e.g.
+    ' LiveWatch.vb's pop-up) - on this pop-up's solid black background it
+    ' would barely be visible, so invert its colours (alpha untouched) via
+    ' a ColorMatrix rather than needing a second image resource.
+    Private Function InvertGripImage(source As Image) As Bitmap
+
+        Dim inverted As New Bitmap(source.Width, source.Height)
+
+        Dim colorMatrix As New Imaging.ColorMatrix(New Single()() {
+            New Single() {-1, 0, 0, 0, 0},
+            New Single() {0, -1, 0, 0, 0},
+            New Single() {0, 0, -1, 0, 0},
+            New Single() {0, 0, 0, 1, 0},
+            New Single() {1, 1, 1, 0, 1}
+        })
+
+        Using attributes As New Imaging.ImageAttributes()
+            attributes.SetColorMatrix(colorMatrix)
+            Using g As Graphics = Graphics.FromImage(inverted)
+                g.DrawImage(source, New Rectangle(0, 0, source.Width, source.Height),
+                            0, 0, source.Width, source.Height, GraphicsUnit.Pixel, attributes)
+            End Using
+        End Using
+
+        Return inverted
+
+    End Function
 
     Dim gChartPlayback As Array = Array.CreateInstance(GetType(Double), 500)  ' playback chart
 
@@ -105,6 +145,9 @@ Public Class Chart
 
 
     Private Sub Formtest_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
+
+        ' Use Win10-style square window corners on Windows 11
+        ApplySquareCorners(Me)
 
         ' Theme adjustment for Win11, otherwise disabled controls are hardly visible!
         If My.Settings.ThemeSet = True Then
@@ -5252,8 +5295,10 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         ' already drawing the decade lines, just ticking twice as often.
         ca.AxisX.Interval = 0.5
         ca.AxisY.Interval = 0.25
-        ' Fixed-point (never scientific notation), trimmed to 3 decimals.
-        ca.AxisX.LabelStyle.Format = "0.###"
+        ' X (tau, always a whole sample count) rounded to no decimals for
+        ' display; Y kept at 3 decimals since Allan deviation values are
+        ' usually well under 1 and would mostly round to "0".
+        ca.AxisX.LabelStyle.Format = "0"
         ca.AxisY.LabelStyle.Format = "0.###"
 
     End Sub
@@ -5354,14 +5399,41 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         AllanToolTip.SetToolTip(overlapCheck, "Smooths the tail by reusing every sample in sliding windows instead of separate blocks.")
         AllanToolTip.SetToolTip(mdevCheck, "Adds a dotted curve that reveals phase/timing noise regular ADEV can't show on its own.")
 
+        ' Bottom-right resize grip - purely a visual cue that the window can
+        ' be resized. Dragging it hands off to Windows' own native resize
+        ' (WM_NCLBUTTONDOWN / HTBOTTOMRIGHT) rather than us tracking the
+        ' drag - same approach as LiveWatch.vb's Live Analysis chart pop-up.
+        Dim allanGrip As New PictureBox With {
+            .Image = InvertGripImage(My.Resources.grip),
+            .SizeMode = PictureBoxSizeMode.StretchImage,
+            .Size = New Size(36, 36),
+            .BackColor = Color.Transparent,
+            .Cursor = Cursors.SizeNWSE,
+            .Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
+        }
+        allanGrip.Location = New Point(
+            AllanPopupForm.ClientSize.Width - allanGrip.Width,
+            AllanPopupForm.ClientSize.Height - allanGrip.Height)
+
+        AddHandler allanGrip.MouseDown,
+        Sub(gripSender As Object, gripArgs As MouseEventArgs)
+            If gripArgs.Button = MouseButtons.Left Then
+                ReleaseCapture()
+                SendMessage(AllanPopupForm.Handle, &HA1, 17, 0)   ' WM_NCLBUTTONDOWN, HTBOTTOMRIGHT
+            End If
+        End Sub
+
         AllanPopupForm.Controls.Add(AllanPopupChart)
         AllanPopupForm.Controls.Add(overlapCheck)
         AllanPopupForm.Controls.Add(mdevCheck)
+        AllanPopupForm.Controls.Add(allanGrip)
         overlapCheck.BringToFront()
         mdevCheck.BringToFront()
+        allanGrip.BringToFront()
 
         AddHandler AllanPopupForm.FormClosed, AddressOf AllanPopupForm_FormClosed
 
+        ApplySquareCorners(AllanPopupForm)
         AllanPopupForm.Show()
 
     End Sub
@@ -5760,6 +5832,13 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
 "If MDEV runs visibly steeper than its device's ADEV curve at short tau, that's a sign of phase noise ADEV alone wouldn't show." & vbLf & vbLf &
 "MDEV formula:" & vbLf &
 "Mod sigma(tau) = sqrt( sum( (second-difference sum over an m-sample window)^2 ) / (2 x tau^2 x m^2 x (N-3m+1)) ), where m = tau and the second difference is taken on x, the cumulative sum (integration) of the raw readings." & vbLf & vbLf &
+"COMMON QUESTIONS" & vbLf &
+"Why doesn't Allan Deviation match the recorded STDEV?" & vbLf & vbLf &
+"That's expected, not a bug - STDEV and Allan Deviation at tau=1 are answering two different questions." & vbLf & vbLf &
+"STDEV (the recorded/Data tab/Live Analysis figure) measures how far every individual reading sits from the overall mean of the whole run: sqrt(sum((Xi - Mean)^2) / (N-1)). If the reading drifts slowly over the logging session (thermal settling, reference aging, environmental changes), that drift adds to the spread away from the overall mean, and STDEV counts all of that as deviation, whether it's random noise or systematic drift." & vbLf & vbLf &
+"Allan Deviation at tau=1 measures something narrower: the RMS of the difference between consecutive readings. Two back-to-back samples are barely affected by slow drift, so ADEV(tau=1) picks up almost purely the short-term, sample-to-sample (white) noise floor, filtered clean of slow drift." & vbLf & vbLf &
+"Example: if ADEV(tau=1) reads ~0.2 ppm while recorded STDEV reads ~0.4 ppm and never drops below ~0.3 ppm, that gap is informative - it means the true random noise floor is around 0.2 ppm, and roughly half of what STDEV reports as variation is actually systematic drift, not noise." & vbLf & vbLf &
+"STDEV alone can't separate genuinely noisy from drifting, and will always read equal to or higher than the ADEV noise floor whenever any drift is present. Check whether the Allan Deviation curve rises again at larger tau - that's the classic drift signature, and it's where the variability STDEV was counting shows up." & vbLf & vbLf &
 "AVERAGING / NOISE / RANGE (per device)" & vbLf &
 "The numeric box next to '- Avg.' sets how many points the raw Data trace itself is rolling-averaged over before being plotted (0 disables it, range 0-100). This smooths the Data trace directly, unlike Short Term Mean, which is a separate overlay trace and never alters Data itself." & vbLf & vbLf &
 "'- RMS Noise' and '- Max-Min' are read-only figures calculated for whatever portion of the chart is currently visible/zoomed: RMS Noise is a noise calculation that accounts for drift over time, and Max-Min is the peak-to-peak spread of the visible data." & vbLf & vbLf &
@@ -5790,6 +5869,7 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
         "DEV 1 TRACES / DEV 2 TRACES",
         "SHORT TERM MEAN",
         "ALLAN DEVIATION",
+        "COMMON QUESTIONS",
         "AVERAGING / NOISE / RANGE (per device)",
         "PPM DEVIATION / TEMPCO",
         "TEMP/HUM",
@@ -5903,6 +5983,7 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
 
         frm.AcceptButton = btn
 
+        ApplySquareCorners(frm)
         frm.Show()
 
     End Sub
