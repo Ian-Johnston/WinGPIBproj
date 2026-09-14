@@ -1605,8 +1605,20 @@ Public Class Chart
             Dim interval As Double = totalRange / (numberOfTicks - 1)           ' mins
             Dim intervalc As Double = (maxXc - minXc) / (numberOfTicks - 1)     ' counts
 
-            ' Ratio of counts to mins
-            Dim ticklabelgridratio As Integer = ((maxXc - minXc) / Xscaletotal.Text)
+            ' Ratio of counts to mins. Xscaletotal can be "0" for a CSV
+            ' whose logged duration rounds to 0 minutes (e.g. a very short
+            ' file, or - as with a repeated-timestamp test file - one where
+            ' every row shares the same DATETIME so no elapsed time can be
+            ' derived at all); dividing by that zero produces Infinity,
+            ' which throws OverflowException when narrowed to Integer.
+            ' Fall back to a ratio of 1 rather than crash.
+            Dim ticklabelgridratioRaw As Double = (maxXc - minXc) / Val(Xscaletotal.Text)
+            Dim ticklabelgridratio As Integer = 1
+            If Not Double.IsNaN(ticklabelgridratioRaw) AndAlso
+               Math.Abs(ticklabelgridratioRaw) <= Integer.MaxValue Then
+                ticklabelgridratio = CInt(ticklabelgridratioRaw)
+                If ticklabelgridratio = 0 Then ticklabelgridratio = 1
+            End If
 
             With Chart2.ChartAreas(0).AxisX
                 '.Minimum = minX
@@ -1657,8 +1669,15 @@ Public Class Chart
             Dim interval As Double = totalRange / (numberOfTicks - 1)           ' mins
             Dim intervalc As Double = (maxXc - minXc) / (numberOfTicks - 1)     ' counts
 
-            ' Ratio of counts to mins
-            Dim ticklabelgridratio As Integer = ((maxXc - minXc) / Xscaletotal.Text)
+            ' Ratio of counts to mins - see the single-device branch above
+            ' for why this needs to be guarded against Xscaletotal = "0".
+            Dim ticklabelgridratioRaw As Double = (maxXc - minXc) / Val(Xscaletotal.Text)
+            Dim ticklabelgridratio As Integer = 1
+            If Not Double.IsNaN(ticklabelgridratioRaw) AndAlso
+               Math.Abs(ticklabelgridratioRaw) <= Integer.MaxValue Then
+                ticklabelgridratio = CInt(ticklabelgridratioRaw)
+                If ticklabelgridratio = 0 Then ticklabelgridratio = 1
+            End If
 
             With Chart2.ChartAreas(0).AxisX
 
@@ -1734,6 +1753,14 @@ Public Class Chart
             DateTimeSplit2 = DateStop.Add(TimeStop.TimeOfDay)
             TimePoint = ((DateTimeSplit2 - DateTimeSplit1).TotalSeconds) / (endRowIndex - startRowIndex)
         End If
+
+        ' A CSV where every row shares the same DATETIME (or logs faster
+        ' than the timestamp's 1-second resolution) computes an elapsed
+        ' time of 0, so TimePoint ends up 0 - which then zeroes out
+        ' MinsTotal/Xscaletotal downstream and can divide by zero in
+        ' FixTicks. Fall back to 1 second/sample so the chart still shows
+        ' sensible (if approximate) time labels instead of all zeros.
+        If TimePoint <= 0 Then TimePoint = 1
 
     End Sub
 
