@@ -173,6 +173,7 @@ Public Class Chart
 
         RadioButtonPPMDev.BackColor = Color.White
         RadioButtonPPMTempo.BackColor = Color.White
+        RadioButtonPPMTempoLinReg.BackColor = Color.White
 
         PlaybackTemp.BackColor = Color.Red
         PlaybackHum.BackColor = Color.DodgerBlue
@@ -244,7 +245,7 @@ Public Class Chart
         CheckBoxMedianV.Enabled = True
         CheckBoxMedianT.Enabled = False
 
-        RadioButtonPPMDev.Checked = False
+        RadioButtonPPMDev.Checked = True
         RadioButtonPPMDev.Enabled = True
         RadioButtonPPMTempo.Enabled = True
         PPMBox1.Enabled = True
@@ -2094,7 +2095,7 @@ Public Class Chart
 
                 LabelPPMtop.Visible = True
 
-                If RadioButtonPPMTempo.Checked = True Then
+                If RadioButtonPPMTempo.Checked = True Or RadioButtonPPMTempoLinReg.Checked = True Then
                     LabelPPMdegctop.Visible = True
                 Else
                     LabelPPMdegctop.Visible = False
@@ -3146,6 +3147,7 @@ Public Class Chart
             'RefreshChart.Enabled = True
             RadioButtonPPMDev.Enabled = True
             RadioButtonPPMTempo.Enabled = True
+            RadioButtonPPMTempoLinReg.Enabled = True
             MedianValue.Enabled = True
             RadioButtonDev1.Enabled = True
             RadioButtonDev2.Enabled = True
@@ -3165,6 +3167,7 @@ Public Class Chart
             'RefreshChart.Enabled = False
             RadioButtonPPMDev.Enabled = False
             RadioButtonPPMTempo.Enabled = False
+            RadioButtonPPMTempoLinReg.Enabled = False
             MedianValue.Enabled = False
             RadioButtonDev1.Enabled = False
             RadioButtonDev2.Enabled = False
@@ -3242,6 +3245,16 @@ Public Class Chart
         MedianTemp.Enabled = True
         MedianTempText.Enabled = True
         CheckBoxMedianT.Enabled = True
+        RefreshPlaybackCSVFile()
+    End Sub
+
+
+    Private Sub RadioButtonPPMTempoLinReg_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButtonPPMTempoLinReg.CheckedChanged
+        ' A least-squares fit finds its own baseline from every point, so
+        ' unlike the instant-ratio Tempco above it needs no Initial Temp.
+        MedianTemp.Enabled = False
+        MedianTempText.Enabled = False
+        CheckBoxMedianT.Enabled = False
         RefreshPlaybackCSVFile()
     End Sub
 
@@ -3405,46 +3418,50 @@ Public Class Chart
         ' every time it runs, which is what was doubling the chart.
         Chart2.Series(2).Points.Clear()
 
-        If PlaybackTemp.Checked = True Then
+        ' The rolling-average list is rebuilt unconditionally below (when
+        ' TEMPavg is in use) because GeneratePPMColumn() reads from it for
+        ' the Tempco calculation regardless of whether the Temp trace is
+        ' actually being displayed. PlaybackTemp.Checked now only gates
+        ' whether points get added to the chart series - it must not gate
+        ' whether the underlying temperature data gets computed at all.
+        If TEMPavg.Text = "0" Then
 
-            If TEMPavg.Text = "0" Then
-
-                ' Filter Temperature from Device 1
-                If (PlaybackTemp.Checked = True) Then
-                    Dim selectedRows3() As DataRow = dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
-                    'Add filtered data to series
-
-                    For Each dr As DataRow In selectedRows3
-                        Chart2.Series(2).Points.AddXY(dr("DEVICE"), dr("TEMP"))
-                    Next
-
-                End If
-
-            Else
-
-                TEMProllingAverageValues.Clear()
-
+            ' Filter Temperature from Device 1
+            If PlaybackTemp.Checked = True Then
                 Dim selectedRows3() As DataRow = dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
+                'Add filtered data to series
 
-                ' Iterate through the filtered data and calculate the rolling average for each data point
                 For Each dr As DataRow In selectedRows3
-
-                    Dim variancevalue As Double = Convert.ToDouble(dr("TEMP"))
-
-                    ' Call the CalculateRollingAverage function to get the rolling average
-                    Dim TemprollingAverageValue As Double = CalculateRollingAverage(variancevalue, Val(TEMPavg.Text), TempAvgBuffer)
-
-                    ' Store the rolling average value in the list
-                    TEMProllingAverageValues.Add(TemprollingAverageValue)
-
-                    ' Add the data point with the rolling average value to the chart's series
-                    Chart2.Series(2).Points.AddXY(dr("DEVICE"), TemprollingAverageValue)
-
-                    'Console.WriteLine("Rolling Average Value for Temperature " & TemprollingAverageValue)
-
+                    Chart2.Series(2).Points.AddXY(dr("DEVICE"), dr("TEMP"))
                 Next
 
             End If
+
+        Else
+
+            TEMProllingAverageValues.Clear()
+
+            Dim selectedRows3() As DataRow = dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
+
+            ' Iterate through the filtered data and calculate the rolling average for each data point
+            For Each dr As DataRow In selectedRows3
+
+                Dim variancevalue As Double = Convert.ToDouble(dr("TEMP"))
+
+                ' Call the CalculateRollingAverage function to get the rolling average
+                Dim TemprollingAverageValue As Double = CalculateRollingAverage(variancevalue, Val(TEMPavg.Text), TempAvgBuffer)
+
+                ' Store the rolling average value in the list
+                TEMProllingAverageValues.Add(TemprollingAverageValue)
+
+                ' Add the data point with the rolling average value to the chart's series
+                If PlaybackTemp.Checked = True Then
+                    Chart2.Series(2).Points.AddXY(dr("DEVICE"), TemprollingAverageValue)
+                End If
+
+                'Console.WriteLine("Rolling Average Value for Temperature " & TemprollingAverageValue)
+
+            Next
 
         End If
 
@@ -3607,31 +3624,27 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
                     End If
 
 
-                    If PlaybackTemp.Checked = True Then
-
-                        ' get Temp value either from csv data or from AVG list
-                        If TEMPavg.Text = "0" Then
-                            variancetemp = Val((dataTable1.Rows(i)("TEMP")))
-                            TEMProllingAverageValue = variancetemp      ' this is the value that is used later
-                        Else
-                            ' Use the rolling average value from the TemprollingAverageValue list
-                            TEMProllingAverageValue = TEMProllingAverageValues(tempTEMPcounter)
-                            'variancetemp = TEMProllingAverageValues(tempTEMPcounter)
-                            'tempTEMPcounter = tempTEMPcounter + 1
-                            tempTEMPcounter += 1
-                            If tempTEMPcounter = TEMProllingAverageValues.Count Then         ' protect counter overruning past last entry
-                                'tempTEMPcounter = tempTEMPcounter - 1
-                                tempTEMPcounter -= 1
-                            End If
+                    ' Get this row's temperature either from the CSV data or
+                    ' the AVG list - independent of whether the raw Temp
+                    ' trace checkbox is ticked. That checkbox only controls
+                    ' whether the Temp line is drawn on the chart; it used
+                    ' to also gate this block, which meant Tempco was
+                    ' silently computed against a phantom 0 degC baseline
+                    ' (TEMProllingAverageValue's unassigned default) instead
+                    ' of the real temperature whenever Temp display was off.
+                    If TEMPavg.Text = "0" Then
+                        variancetemp = Val((dataTable1.Rows(i)("TEMP")))
+                        TEMProllingAverageValue = variancetemp      ' this is the value that is used later
+                    Else
+                        ' Use the rolling average value from the TemprollingAverageValue list
+                        TEMProllingAverageValue = TEMProllingAverageValues(tempTEMPcounter)
+                        'variancetemp = TEMProllingAverageValues(tempTEMPcounter)
+                        'tempTEMPcounter = tempTEMPcounter + 1
+                        tempTEMPcounter += 1
+                        If tempTEMPcounter = TEMProllingAverageValues.Count Then         ' protect counter overruning past last entry
+                            'tempTEMPcounter = tempTEMPcounter - 1
+                            tempTEMPcounter -= 1
                         End If
-
-                    End If
-
-
-                    ' hack to compensate for DIV/0 problem. Slightly adjust the temperature!
-                    If TEMProllingAverageValue = mediantempd Then       ' avoid DIV/0
-                        'TEMProllingAverageValue = TEMProllingAverageValue + 0.0000001
-                        TEMProllingAverageValue += 0.0000001
                     End If
 
 
@@ -3696,6 +3709,105 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
                     End If
                 End If
             Next
+        End If
+
+
+        ' Add PPM data to datatable - PPM Tempco via linear regression.
+        ' Fits a straight line through every (Temp, Value) point for the
+        ' selected device instead of comparing each point back to one fixed
+        ' baseline sample - the best available estimate when the logged
+        ' temperature only drifts a small amount (see the ADI Tempco
+        ' article: a reliable Tempco needs a large, deliberate temperature
+        ' swing; with only ambient drift to work with, a whole-range fit is
+        ' the least-bad estimator, not a substitute for a proper chamber
+        ' sweep). Also reports the fit's standard error so the Initial
+        ' Value/Initial Temp boxes can show how much to trust the number.
+        If (RadioButtonPPMTempoLinReg.Checked = True) Then
+
+            Dim sumT As Double = 0.0
+            Dim sumV As Double = 0.0
+            Dim sumTV As Double = 0.0
+            Dim sumTT As Double = 0.0
+            Dim fitCount As Integer = 0
+
+            For i = 0 To dataTable1.Rows.Count - 1
+                If (dataTable1.Rows(i)("DEVICE")) = PPMdevice Then
+                    Dim tRow As Double = Val(dataTable1.Rows(i)("TEMP"))
+                    Dim vRow As Double = Val(dataTable1.Rows(i)("VALUE"))
+                    sumT += tRow
+                    sumV += vRow
+                    sumTV += tRow * vRow
+                    sumTT += tRow * tRow
+                    fitCount += 1
+                End If
+            Next
+
+            Dim fittedPpmDegC As Double = 0.0
+            Dim fittedPpmDegCStdErr As Double = 0.0
+
+            If fitCount >= 2 Then
+
+                Dim meanT As Double = sumT / fitCount
+                Dim meanV As Double = sumV / fitCount
+                Dim denom As Double = (fitCount * sumTT) - (sumT * sumT)
+
+                If denom <> 0 Then
+
+                    ' Least-squares slope: volts per degree C.
+                    Dim slope As Double = ((fitCount * sumTV) - (sumT * sumV)) / denom
+                    Dim intercept As Double = meanV - (slope * meanT)
+
+                    ' Normalise into ppm/DegC using the same nominal value the
+                    ' instant-ratio calc above uses (Initial Value box/CSV).
+                    fittedPpmDegC = (slope / medianvalued) * 1000000
+
+                    ' Standard error of the slope - residual scatter around
+                    ' the fitted line, scaled by how spread out the actual
+                    ' temperatures are. A small tempSpan (little real
+                    ' temperature drift to fit against) inflates this,
+                    ' which is exactly the honest signal that the fit is
+                    ' resting on a small temperature range.
+                    Dim sumResidualSq As Double = 0.0
+                    For i = 0 To dataTable1.Rows.Count - 1
+                        If (dataTable1.Rows(i)("DEVICE")) = PPMdevice Then
+                            Dim tRow As Double = Val(dataTable1.Rows(i)("TEMP"))
+                            Dim vRow As Double = Val(dataTable1.Rows(i)("VALUE"))
+                            Dim residual As Double = vRow - (intercept + slope * tRow)
+                            sumResidualSq += residual * residual
+                        End If
+                    Next
+
+                    If fitCount > 2 Then
+                        Dim residualVariance As Double = sumResidualSq / (fitCount - 2)
+                        Dim slopeStdErr As Double = Math.Sqrt(residualVariance * fitCount / denom)
+                        fittedPpmDegCStdErr = (slopeStdErr / medianvalued) * 1000000
+                    End If
+
+                End If
+
+            End If
+
+            ' Show the fitted Tempco and its uncertainty for reference -
+            ' the boxes stay disabled for this radio since they aren't
+            ' user-editable inputs here.
+            MedianValue.Text = fittedPpmDegC.ToString("0.####", Globalization.CultureInfo.InvariantCulture)
+            MedianTemp.Text = "+/-" & fittedPpmDegCStdErr.ToString("0.####", Globalization.CultureInfo.InvariantCulture)
+
+            If fittedPpmDegC > 99 Then fittedPpmDegC = 99
+            If fittedPpmDegC < -99 Then fittedPpmDegC = -99
+
+            Dim offsetfactorFit As Double = ((YaxisMaximumVal - YaxisMinimumVal) / 2) + YaxisMinimumVal
+            Dim scalefactorFit As Double = ((YaxisMaximumVal - YaxisMinimumVal) / ppmscalerange)
+            Dim displayValueFit As Double = (fittedPpmDegC * scalefactorFit) + offsetfactorFit
+
+            ' One fitted number for the whole current view - draw it as a flat
+            ' line across every plotted row rather than a per-point ratio.
+            For i = 0 To dataTable1.Rows.Count - 1
+                If (dataTable1.Rows(i)("DEVICE")) = PPMdevice Then
+                    dataTable1.Rows(i)("PPM") = displayValueFit
+                End If
+            Next
+
         End If
 
 
@@ -5874,6 +5986,8 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
 "Enable PPM turns on a separate, live-recalculated PPM trace (distinct from the recorded 'PPM Deviation' checkbox trace above) for whichever device is selected by the Dev 1/Dev 2 radio buttons in the DEVICES panel." & vbLf & vbLf &
 "PPM Deviation formula: (Value - Baseline Value) / Baseline Value x 1,000,000" & vbLf & vbLf &
 "PPM/DegC (temperature coefficient) formula: PPM Deviation / (Temp - Baseline Temp)" & vbLf & vbLf &
+"PPM/DegC often spikes or looks noisy right at the start of a file, then settles - this is expected. It divides by how far temperature has moved from baseline, which is close to zero at the start, so ordinary reading noise gets massively amplified until temperature has drifted enough to measure reliably." & vbLf & vbLf &
+"PPM/DegC (Fit) avoids this by fitting one straight line through all the Temp/Value points instead of dividing point-by-point, giving one steady figure for the whole view. It also shows a +/- uncertainty in the Initial Value/Initial Temp boxes - a large +/- means this file's real temperature range is too small to trust the number." & vbLf & vbLf &
 "TEMP/HUM" & vbLf &
 "Temp and Hum. show or hide the logged temperature and humidity traces. Temp/Hum Max. and Min. and Temp Avg. summarise the recorded values." & vbLf & vbLf &
 "MISC." & vbLf &

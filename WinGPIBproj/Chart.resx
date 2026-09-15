@@ -120,9 +120,11 @@
   <metadata name="ToolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
-  <metadata name="ToolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
+  <data name="RadioButtonPPMTempoLinReg.ToolTip" xml:space="preserve">
+    <value>One steady Tempco number for the whole trend, instead of a noisy point-by-point value.
+A 'least-squares' line fit through all the Value-vs-Temp points in view, so noise averages
+out instead of spiking near zero-ΔT</value>
+  </data>
   <data name="RMSwindow.ToolTip" xml:space="preserve">
     <value>RMS Window is a variable that represents the size of the window used for calculating the moving average.
 The moving average is a statistical calculation used to analyze data points by creating a series of
