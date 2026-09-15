@@ -174,6 +174,7 @@ Public Class Chart
         RadioButtonPPMDev.BackColor = Color.White
         RadioButtonPPMTempo.BackColor = Color.White
         RadioButtonPPMTempoLinReg.BackColor = Color.White
+        RadioButtonPPMTempoRolling.BackColor = Color.White
 
         PlaybackTemp.BackColor = Color.Red
         PlaybackHum.BackColor = Color.DodgerBlue
@@ -3133,21 +3134,12 @@ Public Class Chart
 
     Private Sub CheckBoxPPMenable_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxPPMenable.CheckedChanged
 
-        If (RadioButtonPPMTempo.Checked = True) Then
-            MedianTemp.Enabled = True
-            MedianTempText.Enabled = True
-            CheckBoxMedianT.Enabled = True
-        Else
-            MedianTemp.Enabled = False
-            MedianTempText.Enabled = False
-            CheckBoxMedianT.Enabled = False
-        End If
-
         If CheckBoxPPMenable.Checked = True Then
             'RefreshChart.Enabled = True
             RadioButtonPPMDev.Enabled = True
             RadioButtonPPMTempo.Enabled = True
             RadioButtonPPMTempoLinReg.Enabled = True
+            RadioButtonPPMTempoRolling.Enabled = True
             MedianValue.Enabled = True
             RadioButtonDev1.Enabled = True
             RadioButtonDev2.Enabled = True
@@ -3168,6 +3160,7 @@ Public Class Chart
             RadioButtonPPMDev.Enabled = False
             RadioButtonPPMTempo.Enabled = False
             RadioButtonPPMTempoLinReg.Enabled = False
+            RadioButtonPPMTempoRolling.Enabled = False
             MedianValue.Enabled = False
             RadioButtonDev1.Enabled = False
             RadioButtonDev2.Enabled = False
@@ -3221,6 +3214,49 @@ Public Class Chart
 
         End If
 
+        ' Re-applies whichever radio is currently selected's MedianTemp/
+        ' MedianValue/CheckBoxMedianV state, since toggling Enable PPM
+        ' doesn't fire any radio's own CheckedChanged (that only fires
+        ' when the selection itself changes) - without this, switching
+        ' Enable PPM off and back on while PPM/DegC (Fit) is selected
+        ' would leave these controls back in their generic enabled state
+        ' instead of Fit mode's read-only/forced-from-CSV state. Placed
+        ' after the general Enabled block above so it takes precedence.
+        If CheckBoxPPMenable.Checked = True Then
+            If (RadioButtonPPMTempo.Checked = True) Then
+                MedianTemp.Enabled = True
+                MedianTempText.Enabled = True
+                CheckBoxMedianT.Enabled = True
+                MedianTemp.ReadOnly = False
+            ElseIf (RadioButtonPPMTempoLinReg.Checked = True) Then
+                MedianTemp.Enabled = True
+                MedianTempText.Enabled = True
+                CheckBoxMedianT.Enabled = False
+                MedianTemp.ReadOnly = True
+            Else
+                MedianTemp.Enabled = False
+                MedianTempText.Enabled = False
+                CheckBoxMedianT.Enabled = False
+                MedianTemp.ReadOnly = False
+            End If
+
+            MedianValue.ReadOnly = (RadioButtonPPMTempoLinReg.Checked = True)
+
+            ' PPM/DegC (Fit) overwrites MedianValue.Text with its own
+            ' fitted result every refresh - if CheckBoxMedianV were left
+            ' unchecked, the next refresh would read that fitted ppm
+            ' number back in as if it were the real baseline Value,
+            ' corrupting the fit. Force it on and lock it while Fit mode
+            ' is selected so medianvalued always comes from the stable
+            ' MedianValueCSV instead.
+            If (RadioButtonPPMTempoLinReg.Checked = True) Then
+                CheckBoxMedianV.Checked = True
+                CheckBoxMedianV.Enabled = False
+            Else
+                CheckBoxMedianV.Enabled = True
+            End If
+        End If
+
         'RefreshPlaybackCSVFile()
 
         If CheckBoxPPMenable.Checked = False Then
@@ -3237,6 +3273,9 @@ Public Class Chart
         MedianTemp.Enabled = False
         MedianTempText.Enabled = False
         CheckBoxMedianT.Enabled = False
+        MedianValue.ReadOnly = False
+        MedianTemp.ReadOnly = False
+        CheckBoxMedianV.Enabled = True
         MedianValueText.Text = "- Initial Value"
         MedianTempText.Text = "- Initial Temp"
         RefreshPlaybackCSVFile()
@@ -3247,6 +3286,9 @@ Public Class Chart
         MedianTemp.Enabled = True
         MedianTempText.Enabled = True
         CheckBoxMedianT.Enabled = True
+        MedianValue.ReadOnly = False
+        MedianTemp.ReadOnly = False
+        CheckBoxMedianV.Enabled = True
         MedianValueText.Text = "- Initial Value"
         MedianTempText.Text = "- Initial Temp"
         RefreshPlaybackCSVFile()
@@ -3258,12 +3300,42 @@ Public Class Chart
         ' unlike the instant-ratio Tempco above it needs no Initial Temp.
         ' These two boxes get repurposed to show the fit result instead -
         ' relabel them so that's obvious rather than looking like a stale
-        ' Initial Value/Initial Temp reading.
+        ' Initial Value/Initial Temp reading. ReadOnly (not Enabled=False)
+        ' so the displayed fit/uncertainty stays legible instead of greyed
+        ' out, while still blocking edits to a value that isn't a real
+        ' input here and would just get overwritten on the next refresh.
+        MedianTemp.Enabled = True
+        MedianTempText.Enabled = True
+        CheckBoxMedianT.Enabled = False
+        MedianValue.ReadOnly = True
+        MedianTemp.ReadOnly = True
+        ' Fit mode overwrites MedianValue.Text with its own result every
+        ' refresh - if CheckBoxMedianV were left unchecked, the next
+        ' refresh would read that fitted ppm number back in as if it were
+        ' the real baseline Value, corrupting the fit. Force it on and
+        ' lock it so medianvalued always comes from MedianValueCSV.
+        CheckBoxMedianV.Checked = True
+        CheckBoxMedianV.Enabled = False
+        MedianValueText.Text = "- Fit ppm/DegC"
+        MedianTempText.Text = "- +/- Uncert."
+        RefreshPlaybackCSVFile()
+    End Sub
+
+
+    Private Sub RadioButtonPPMTempoRolling_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButtonPPMTempoRolling.CheckedChanged
+        ' A rolling fit re-fits its own baseline out of every window as it
+        ' slides along, so it needs no Initial Temp either. Unlike the
+        ' whole-file Fit, there's no single result to show in these boxes -
+        ' it's a continuously varying trend - so they're just reverted to
+        ' their normal Initial Value/Initial Temp meaning (disabled/unused).
         MedianTemp.Enabled = False
         MedianTempText.Enabled = False
         CheckBoxMedianT.Enabled = False
-        MedianValueText.Text = "- Fit ppm/DegC"
-        MedianTempText.Text = "- +/- Uncertainty"
+        CheckBoxMedianV.Enabled = True
+        MedianValue.ReadOnly = False
+        MedianTemp.ReadOnly = False
+        MedianValueText.Text = "- Initial Value"
+        MedianTempText.Text = "- Initial Temp"
         RefreshPlaybackCSVFile()
     End Sub
 
@@ -3814,6 +3886,69 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
             For i = 0 To dataTable1.Rows.Count - 1
                 If (dataTable1.Rows(i)("DEVICE")) = PPMdevice Then
                     dataTable1.Rows(i)("PPM") = displayValueFit
+                End If
+            Next
+
+        End If
+
+
+        ' Add PPM data to datatable - PPM Tempco via a rolling-window fit.
+        ' Same least-squares idea as PPM/DegC (Fit), but re-fitted from
+        ' scratch over just the trailing RMSwindow points ending at each
+        ' row instead of the whole file at once - reuses noise-averaging
+        ' the same way the whole-file fit does, but lets the result
+        ' genuinely change as it slides through the log, since the meter's
+        ' real behaviour is never perfectly the same at every temperature.
+        If (RadioButtonPPMTempoRolling.Checked = True) Then
+
+            Dim rollWindowSize As Integer = Val(RMSwindow.Text)
+            If rollWindowSize < 2 Then rollWindowSize = 2
+
+            Dim offsetfactorRoll As Double = ((YaxisMaximumVal - YaxisMinimumVal) / 2) + YaxisMinimumVal
+            Dim scalefactorRoll As Double = ((YaxisMaximumVal - YaxisMinimumVal) / ppmscalerange)
+
+            Dim rollWindow As New Queue(Of KeyValuePair(Of Double, Double))   ' (Temp, Value)
+            Dim rollSumT As Double = 0.0
+            Dim rollSumV As Double = 0.0
+            Dim rollSumTV As Double = 0.0
+            Dim rollSumTT As Double = 0.0
+
+            For i = 0 To dataTable1.Rows.Count - 1
+                If (dataTable1.Rows(i)("DEVICE")) = PPMdevice Then
+
+                    Dim rowTemp As Double = Val(dataTable1.Rows(i)("TEMP"))
+                    Dim rowValue As Double = Val(dataTable1.Rows(i)("VALUE"))
+
+                    rollWindow.Enqueue(New KeyValuePair(Of Double, Double)(rowTemp, rowValue))
+                    rollSumT += rowTemp
+                    rollSumV += rowValue
+                    rollSumTV += rowTemp * rowValue
+                    rollSumTT += rowTemp * rowTemp
+
+                    If rollWindow.Count > rollWindowSize Then
+                        Dim dropped As KeyValuePair(Of Double, Double) = rollWindow.Dequeue()
+                        rollSumT -= dropped.Key
+                        rollSumV -= dropped.Value
+                        rollSumTV -= dropped.Key * dropped.Value
+                        rollSumTT -= dropped.Key * dropped.Key
+                    End If
+
+                    Dim rollPpm As Double = 0.00000001   ' not enough points in the window yet
+
+                    If rollWindow.Count >= 2 Then
+                        Dim n As Integer = rollWindow.Count
+                        Dim rollDenom As Double = (n * rollSumTT) - (rollSumT * rollSumT)
+                        If rollDenom <> 0 Then
+                            Dim rollSlope As Double = ((n * rollSumTV) - (rollSumT * rollSumV)) / rollDenom
+                            rollPpm = (rollSlope / medianvalued) * 1000000
+                        End If
+                    End If
+
+                    If rollPpm > 99 Then rollPpm = 99
+                    If rollPpm < -99 Then rollPpm = -99
+
+                    dataTable1.Rows(i)("PPM") = (rollPpm * scalefactorRoll) + offsetfactorRoll
+
                 End If
             Next
 
@@ -4453,6 +4588,32 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
 
         'CheckBoxMedianV.Checked = False
 
+    End Sub
+
+    ' A manually-typed Initial Value/Initial Temp otherwise just sits in
+    ' the box - nothing re-ran GeneratePPMColumn() to pick it up until
+    ' something else happened to trigger a refresh. Apply it as soon as
+    ' the user presses Enter or moves on to another control.
+    Private Sub MedianValue_KeyDown(sender As Object, e As KeyEventArgs) Handles MedianValue.KeyDown
+        If e.KeyCode = Keys.Enter Then
+            e.SuppressKeyPress = True   ' stop the Windows "ding" for Enter in a plain TextBox
+            RefreshPlaybackCSVFile()
+        End If
+    End Sub
+
+    Private Sub MedianValue_Leave(sender As Object, e As EventArgs) Handles MedianValue.Leave
+        RefreshPlaybackCSVFile()
+    End Sub
+
+    Private Sub MedianTemp_KeyDown(sender As Object, e As KeyEventArgs) Handles MedianTemp.KeyDown
+        If e.KeyCode = Keys.Enter Then
+            e.SuppressKeyPress = True
+            RefreshPlaybackCSVFile()
+        End If
+    End Sub
+
+    Private Sub MedianTemp_Leave(sender As Object, e As EventArgs) Handles MedianTemp.Leave
+        RefreshPlaybackCSVFile()
     End Sub
 
     Private Sub RadioButtonDev1_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButtonDev1.CheckedChanged
@@ -5997,6 +6158,8 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
 "PPM/DegC (temperature coefficient) formula: PPM Deviation / (Temp - Baseline Temp)" & vbLf & vbLf &
 "PPM/DegC often spikes or looks noisy right at the start of a file, then settles - this is expected. It divides by how far temperature has moved from baseline, which is close to zero at the start, so ordinary reading noise gets massively amplified until temperature has drifted enough to measure reliably." & vbLf & vbLf &
 "PPM/DegC (Fit) avoids this by fitting one straight line through all the Temp/Value points instead of dividing point-by-point, giving one steady figure for the whole view. It also shows a +/- uncertainty in the Initial Value/Initial Temp boxes - a large +/- means this file's real temperature range is too small to trust the number." & vbLf & vbLf &
+"PPM/DegC (Trend) works the same way as Fit, but re-fits over just the last 'RMS window' points at a time instead of the whole file, sliding forward as it goes - so the figure can genuinely drift over time instead of being one fixed number for the whole chart." & vbLf & vbLf &
+"For Fit and Trend, Initial Value is still used to convert the fitted slope into ppm - leave '- From CSV' checked so it matches the real logged baseline. Typing in a different number doesn't change the meter's behaviour, it just changes what 1 ppm is measured against, so the result will look smaller or larger without anything real having changed." & vbLf & vbLf &
 "TEMP/HUM" & vbLf &
 "Temp and Hum. show or hide the logged temperature and humidity traces. Temp/Hum Max. and Min. and Temp Avg. summarise the recorded values." & vbLf & vbLf &
 "MISC." & vbLf &

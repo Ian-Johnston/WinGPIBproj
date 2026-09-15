@@ -102,6 +102,7 @@ Partial Class Chart
         Me.CheckBoxMedianT = New System.Windows.Forms.CheckBox()
         Me.CheckBoxMedianV = New System.Windows.Forms.CheckBox()
         Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.RadioButtonPPMTempoRolling = New System.Windows.Forms.RadioButton()
         Me.RadioButtonPPMTempoLinReg = New System.Windows.Forms.RadioButton()
         Me.RadioButtonPPMTempo = New System.Windows.Forms.RadioButton()
         Me.RadioButtonPPMDev = New System.Windows.Forms.RadioButton()
@@ -607,9 +608,9 @@ Partial Class Chart
         Me.CheckBoxToolTips.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.CheckBoxToolTips.Location = New System.Drawing.Point(8, 19)
         Me.CheckBoxToolTips.Name = "CheckBoxToolTips"
-        Me.CheckBoxToolTips.Size = New System.Drawing.Size(97, 17)
+        Me.CheckBoxToolTips.Size = New System.Drawing.Size(67, 17)
         Me.CheckBoxToolTips.TabIndex = 114
-        Me.CheckBoxToolTips.Text = "ToolTip Values"
+        Me.CheckBoxToolTips.Text = "ToolTips"
         Me.ToolTip1.SetToolTip(Me.CheckBoxToolTips, "Enable tootip values on graphs")
         Me.CheckBoxToolTips.UseVisualStyleBackColor = True
         '
@@ -878,7 +879,7 @@ Partial Class Chart
         '
         'MedianValue
         '
-        Me.MedianValue.Location = New System.Drawing.Point(874, 42)
+        Me.MedianValue.Location = New System.Drawing.Point(872, 42)
         Me.MedianValue.Name = "MedianValue"
         Me.MedianValue.Size = New System.Drawing.Size(75, 20)
         Me.MedianValue.TabIndex = 144
@@ -888,7 +889,7 @@ Partial Class Chart
         'MedianValueText
         '
         Me.MedianValueText.AutoSize = True
-        Me.MedianValueText.Location = New System.Drawing.Point(950, 45)
+        Me.MedianValueText.Location = New System.Drawing.Point(948, 45)
         Me.MedianValueText.Name = "MedianValueText"
         Me.MedianValueText.Size = New System.Drawing.Size(67, 13)
         Me.MedianValueText.TabIndex = 145
@@ -897,7 +898,7 @@ Partial Class Chart
         'CheckBoxPPMenable
         '
         Me.CheckBoxPPMenable.AutoSize = True
-        Me.CheckBoxPPMenable.Location = New System.Drawing.Point(874, 20)
+        Me.CheckBoxPPMenable.Location = New System.Drawing.Point(872, 20)
         Me.CheckBoxPPMenable.Name = "CheckBoxPPMenable"
         Me.CheckBoxPPMenable.Size = New System.Drawing.Size(85, 17)
         Me.CheckBoxPPMenable.TabIndex = 146
@@ -909,7 +910,7 @@ Partial Class Chart
         '
         Me.RadioButtonDev1.AutoSize = True
         Me.RadioButtonDev1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.RadioButtonDev1.Location = New System.Drawing.Point(94, 15)
+        Me.RadioButtonDev1.Location = New System.Drawing.Point(92, 15)
         Me.RadioButtonDev1.Name = "RadioButtonDev1"
         Me.RadioButtonDev1.Size = New System.Drawing.Size(54, 17)
         Me.RadioButtonDev1.TabIndex = 147
@@ -921,7 +922,7 @@ Partial Class Chart
         '
         Me.RadioButtonDev2.AutoSize = True
         Me.RadioButtonDev2.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.RadioButtonDev2.Location = New System.Drawing.Point(155, 15)
+        Me.RadioButtonDev2.Location = New System.Drawing.Point(153, 15)
         Me.RadioButtonDev2.Name = "RadioButtonDev2"
         Me.RadioButtonDev2.Size = New System.Drawing.Size(54, 17)
         Me.RadioButtonDev2.TabIndex = 148
@@ -945,7 +946,7 @@ Partial Class Chart
         Me.PPMBox1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.PPMBox1.Location = New System.Drawing.Point(866, 4)
         Me.PPMBox1.Name = "PPMBox1"
-        Me.PPMBox1.Size = New System.Drawing.Size(363, 87)
+        Me.PPMBox1.Size = New System.Drawing.Size(408, 87)
         Me.PPMBox1.TabIndex = 149
         Me.PPMBox1.TabStop = False
         Me.PPMBox1.Text = "PPM. DEVIATION / TEMPCO"
@@ -986,19 +987,32 @@ Partial Class Chart
         '
         'Panel1
         '
+        Me.Panel1.Controls.Add(Me.RadioButtonPPMTempoRolling)
         Me.Panel1.Controls.Add(Me.RadioButtonPPMTempoLinReg)
         Me.Panel1.Controls.Add(Me.RadioButtonPPMTempo)
         Me.Panel1.Controls.Add(Me.RadioButtonPPMDev)
-        Me.Panel1.Location = New System.Drawing.Point(246, 28)
+        Me.Panel1.Location = New System.Drawing.Point(281, 8)
         Me.Panel1.Name = "Panel1"
-        Me.Panel1.Size = New System.Drawing.Size(115, 57)
+        Me.Panel1.Size = New System.Drawing.Size(125, 75)
         Me.Panel1.TabIndex = 157
+        '
+        'RadioButtonPPMTempoRolling
+        '
+        Me.RadioButtonPPMTempoRolling.AutoSize = True
+        Me.RadioButtonPPMTempoRolling.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.RadioButtonPPMTempoRolling.Location = New System.Drawing.Point(9, 58)
+        Me.RadioButtonPPMTempoRolling.Name = "RadioButtonPPMTempoRolling"
+        Me.RadioButtonPPMTempoRolling.Size = New System.Drawing.Size(117, 17)
+        Me.RadioButtonPPMTempoRolling.TabIndex = 158
+        Me.RadioButtonPPMTempoRolling.Text = "PPM/DegC (Trend)"
+        Me.ToolTip1.SetToolTip(Me.RadioButtonPPMTempoRolling, resources.GetString("RadioButtonPPMTempoRolling.ToolTip"))
+        Me.RadioButtonPPMTempoRolling.UseVisualStyleBackColor = True
         '
         'RadioButtonPPMTempoLinReg
         '
         Me.RadioButtonPPMTempoLinReg.AutoSize = True
         Me.RadioButtonPPMTempoLinReg.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.RadioButtonPPMTempoLinReg.Location = New System.Drawing.Point(9, 38)
+        Me.RadioButtonPPMTempoLinReg.Location = New System.Drawing.Point(9, 40)
         Me.RadioButtonPPMTempoLinReg.Name = "RadioButtonPPMTempoLinReg"
         Me.RadioButtonPPMTempoLinReg.Size = New System.Drawing.Size(100, 17)
         Me.RadioButtonPPMTempoLinReg.TabIndex = 157
@@ -1010,7 +1024,7 @@ Partial Class Chart
         '
         Me.RadioButtonPPMTempo.AutoSize = True
         Me.RadioButtonPPMTempo.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.RadioButtonPPMTempo.Location = New System.Drawing.Point(9, 21)
+        Me.RadioButtonPPMTempo.Location = New System.Drawing.Point(9, 22)
         Me.RadioButtonPPMTempo.Name = "RadioButtonPPMTempo"
         Me.RadioButtonPPMTempo.Size = New System.Drawing.Size(80, 17)
         Me.RadioButtonPPMTempo.TabIndex = 156
@@ -1036,16 +1050,16 @@ Partial Class Chart
         '
         Me.PPMscaleText.AutoSize = True
         Me.PPMscaleText.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.PPMscaleText.Location = New System.Drawing.Point(240, 16)
+        Me.PPMscaleText.Location = New System.Drawing.Point(246, 16)
         Me.PPMscaleText.Name = "PPMscaleText"
-        Me.PPMscaleText.Size = New System.Drawing.Size(66, 13)
+        Me.PPMscaleText.Size = New System.Drawing.Size(40, 13)
         Me.PPMscaleText.TabIndex = 154
-        Me.PPMscaleText.Text = "- PPM Scale"
+        Me.PPMscaleText.Text = "- Scale"
         '
         'PPMscalerangeentry
         '
         Me.PPMscalerangeentry.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.PPMscalerangeentry.Location = New System.Drawing.Point(212, 13)
+        Me.PPMscalerangeentry.Location = New System.Drawing.Point(218, 13)
         Me.PPMscalerangeentry.Name = "PPMscalerangeentry"
         Me.PPMscalerangeentry.Size = New System.Drawing.Size(26, 20)
         Me.PPMscalerangeentry.TabIndex = 151
@@ -1056,7 +1070,7 @@ Partial Class Chart
         '
         Me.MedianTempText.AutoSize = True
         Me.MedianTempText.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.MedianTempText.Location = New System.Drawing.Point(84, 65)
+        Me.MedianTempText.Location = New System.Drawing.Point(82, 65)
         Me.MedianTempText.Name = "MedianTempText"
         Me.MedianTempText.Size = New System.Drawing.Size(67, 13)
         Me.MedianTempText.TabIndex = 150
@@ -1065,7 +1079,7 @@ Partial Class Chart
         'MedianTemp
         '
         Me.MedianTemp.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.MedianTemp.Location = New System.Drawing.Point(8, 62)
+        Me.MedianTemp.Location = New System.Drawing.Point(6, 62)
         Me.MedianTemp.Name = "MedianTemp"
         Me.MedianTemp.Size = New System.Drawing.Size(75, 20)
         Me.MedianTemp.TabIndex = 150
@@ -1090,9 +1104,9 @@ Partial Class Chart
         Me.GroupBoxMisc.Controls.Add(Me.CheckBoxToolTips)
         Me.GroupBoxMisc.Enabled = False
         Me.GroupBoxMisc.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.GroupBoxMisc.Location = New System.Drawing.Point(1235, 4)
+        Me.GroupBoxMisc.Location = New System.Drawing.Point(1279, 4)
         Me.GroupBoxMisc.Name = "GroupBoxMisc"
-        Me.GroupBoxMisc.Size = New System.Drawing.Size(120, 87)
+        Me.GroupBoxMisc.Size = New System.Drawing.Size(76, 87)
         Me.GroupBoxMisc.TabIndex = 155
         Me.GroupBoxMisc.TabStop = False
         Me.GroupBoxMisc.Text = "MISC."
@@ -1103,9 +1117,9 @@ Partial Class Chart
         Me.CheckBoxColours.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.CheckBoxColours.Location = New System.Drawing.Point(8, 40)
         Me.CheckBoxColours.Name = "CheckBoxColours"
-        Me.CheckBoxColours.Size = New System.Drawing.Size(79, 17)
+        Me.CheckBoxColours.Size = New System.Drawing.Size(64, 17)
         Me.CheckBoxColours.TabIndex = 117
-        Me.CheckBoxColours.Text = "Light Mode"
+        Me.CheckBoxColours.Text = "Light M."
         Me.ToolTip1.SetToolTip(Me.CheckBoxColours, "Set form to light mode, better for printing.")
         Me.CheckBoxColours.UseVisualStyleBackColor = True
         '
@@ -2245,4 +2259,5 @@ Partial Class Chart
     Friend WithEvents CheckPlaybackDev2Allan As CheckBox
     Friend WithEvents ButtonPlaybackHelp As Button
     Friend WithEvents RadioButtonPPMTempoLinReg As RadioButton
+    Friend WithEvents RadioButtonPPMTempoRolling As RadioButton
 End Class
