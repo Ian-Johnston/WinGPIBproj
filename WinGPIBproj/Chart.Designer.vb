@@ -23,9 +23,9 @@ Partial Class Chart
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
-        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Chart))
         Me.Chart2 = New System.Windows.Forms.DataVisualization.Charting.Chart()
         Me.ButtonScrollLeft = New System.Windows.Forms.Button()
@@ -202,22 +202,22 @@ Partial Class Chart
         'Chart2
         '
         Me.Chart2.BackColor = System.Drawing.SystemColors.Control
-        ChartArea1.BackColor = System.Drawing.Color.Black
-        ChartArea1.BorderColor = System.Drawing.Color.White
-        ChartArea1.BorderWidth = 2
-        ChartArea1.Name = "ChartArea1"
-        Me.Chart2.ChartAreas.Add(ChartArea1)
-        Legend1.Name = "Legend1"
-        Me.Chart2.Legends.Add(Legend1)
+        ChartArea2.BackColor = System.Drawing.Color.Black
+        ChartArea2.BorderColor = System.Drawing.Color.White
+        ChartArea2.BorderWidth = 2
+        ChartArea2.Name = "ChartArea1"
+        Me.Chart2.ChartAreas.Add(ChartArea2)
+        Legend2.Name = "Legend1"
+        Me.Chart2.Legends.Add(Legend2)
         Me.Chart2.Location = New System.Drawing.Point(211, 287)
         Me.Chart2.Name = "Chart2"
-        Series1.ChartArea = "ChartArea1"
-        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series1.Color = System.Drawing.Color.Yellow
-        Series1.Enabled = False
-        Series1.Legend = "Legend1"
-        Series1.Name = "Series1"
-        Me.Chart2.Series.Add(Series1)
+        Series2.ChartArea = "ChartArea1"
+        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series2.Color = System.Drawing.Color.Yellow
+        Series2.Enabled = False
+        Series2.Legend = "Legend1"
+        Series2.Name = "Series1"
+        Me.Chart2.Series.Add(Series2)
         Me.Chart2.Size = New System.Drawing.Size(938, 412)
         Me.Chart2.TabIndex = 52
         Me.Chart2.Text = "Chart2"
@@ -878,7 +878,7 @@ Partial Class Chart
         '
         'MedianValue
         '
-        Me.MedianValue.Location = New System.Drawing.Point(876, 42)
+        Me.MedianValue.Location = New System.Drawing.Point(874, 42)
         Me.MedianValue.Name = "MedianValue"
         Me.MedianValue.Size = New System.Drawing.Size(75, 20)
         Me.MedianValue.TabIndex = 144
@@ -888,7 +888,7 @@ Partial Class Chart
         'MedianValueText
         '
         Me.MedianValueText.AutoSize = True
-        Me.MedianValueText.Location = New System.Drawing.Point(952, 45)
+        Me.MedianValueText.Location = New System.Drawing.Point(950, 45)
         Me.MedianValueText.Name = "MedianValueText"
         Me.MedianValueText.Size = New System.Drawing.Size(67, 13)
         Me.MedianValueText.TabIndex = 145
@@ -964,7 +964,7 @@ Partial Class Chart
         '
         Me.CheckBoxMedianT.AutoSize = True
         Me.CheckBoxMedianT.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CheckBoxMedianT.Location = New System.Drawing.Point(161, 65)
+        Me.CheckBoxMedianT.Location = New System.Drawing.Point(168, 65)
         Me.CheckBoxMedianT.Name = "CheckBoxMedianT"
         Me.CheckBoxMedianT.Size = New System.Drawing.Size(79, 17)
         Me.CheckBoxMedianT.TabIndex = 196
@@ -977,7 +977,7 @@ Partial Class Chart
         Me.CheckBoxMedianV.Checked = True
         Me.CheckBoxMedianV.CheckState = System.Windows.Forms.CheckState.Checked
         Me.CheckBoxMedianV.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CheckBoxMedianV.Location = New System.Drawing.Point(161, 41)
+        Me.CheckBoxMedianV.Location = New System.Drawing.Point(168, 41)
         Me.CheckBoxMedianV.Name = "CheckBoxMedianV"
         Me.CheckBoxMedianV.Size = New System.Drawing.Size(79, 17)
         Me.CheckBoxMedianV.TabIndex = 195
@@ -1056,7 +1056,7 @@ Partial Class Chart
         '
         Me.MedianTempText.AutoSize = True
         Me.MedianTempText.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.MedianTempText.Location = New System.Drawing.Point(86, 65)
+        Me.MedianTempText.Location = New System.Drawing.Point(84, 65)
         Me.MedianTempText.Name = "MedianTempText"
         Me.MedianTempText.Size = New System.Drawing.Size(67, 13)
         Me.MedianTempText.TabIndex = 150
@@ -1065,7 +1065,7 @@ Partial Class Chart
         'MedianTemp
         '
         Me.MedianTemp.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.MedianTemp.Location = New System.Drawing.Point(10, 62)
+        Me.MedianTemp.Location = New System.Drawing.Point(8, 62)
         Me.MedianTemp.Name = "MedianTemp"
         Me.MedianTemp.Size = New System.Drawing.Size(75, 20)
         Me.MedianTemp.TabIndex = 150

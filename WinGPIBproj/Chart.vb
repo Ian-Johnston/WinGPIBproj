@@ -3237,6 +3237,8 @@ Public Class Chart
         MedianTemp.Enabled = False
         MedianTempText.Enabled = False
         CheckBoxMedianT.Enabled = False
+        MedianValueText.Text = "- Initial Value"
+        MedianTempText.Text = "- Initial Temp"
         RefreshPlaybackCSVFile()
     End Sub
 
@@ -3245,6 +3247,8 @@ Public Class Chart
         MedianTemp.Enabled = True
         MedianTempText.Enabled = True
         CheckBoxMedianT.Enabled = True
+        MedianValueText.Text = "- Initial Value"
+        MedianTempText.Text = "- Initial Temp"
         RefreshPlaybackCSVFile()
     End Sub
 
@@ -3252,9 +3256,14 @@ Public Class Chart
     Private Sub RadioButtonPPMTempoLinReg_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButtonPPMTempoLinReg.CheckedChanged
         ' A least-squares fit finds its own baseline from every point, so
         ' unlike the instant-ratio Tempco above it needs no Initial Temp.
+        ' These two boxes get repurposed to show the fit result instead -
+        ' relabel them so that's obvious rather than looking like a stale
+        ' Initial Value/Initial Temp reading.
         MedianTemp.Enabled = False
         MedianTempText.Enabled = False
         CheckBoxMedianT.Enabled = False
+        MedianValueText.Text = "- Fit ppm/DegC"
+        MedianTempText.Text = "- +/- Uncertainty"
         RefreshPlaybackCSVFile()
     End Sub
 
