@@ -800,7 +800,11 @@ Public Class Chart
         ' Single pass to analyze, load data and collect metadata
         ' ==========================================================
 
+        Dim lineNumber As Integer = 0
+
         For Each line As String In lines
+
+            lineNumber += 1
 
             If line.TrimStart().StartsWith("//") Then
 
@@ -867,22 +871,28 @@ Public Class Chart
                            StringSplitOptions.None)
 
 
-                ' Minimum valid old WinGPIB CSV = 6 fields.
+                ' Minimum valid old WinGPIB CSV = 6 fields. A single bad
+                ' line - anywhere in the file, not just the end - used to
+                ' abort the whole load and discard every otherwise-good
+                ' row. Report exactly which line and let the user choose
+                ' to skip just that one line instead (e.g. a line that's
+                ' nothing but null bytes from a write interrupted by the
+                ' PC going to sleep mid-log) or abort to fix it by hand.
                 If values.Length < 6 Then
 
-                    Dialog2.Warning1 =
-                    "Inconsistent CSV - Invalid data format detected"
+                    Dim choice As DialogResult = MessageBox.Show(
+                        "Inconsistency/corruption detected on line " & lineNumber & "." & vbCrLf & vbCrLf &
+                        "Skip this line and continue loading?",
+                        "Inconsistent CSV",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Warning)
 
-                    Dialog2.Warning2 =
-                    "Each data line must contain at least 6 fields"
-
-                    Dialog2.Warning3 =
-                    "Please fix and try again."
-
-                    Dialog2.ShowDialog(Me)
-
-                    ChartOffReadyForCSV()
-                    Return
+                    If choice = DialogResult.Yes Then
+                        Continue For
+                    Else
+                        ChartOffReadyForCSV()
+                        Return
+                    End If
 
                 End If
 
@@ -890,19 +900,19 @@ Public Class Chart
                 ' First field must be numeric INDEX.
                 If Not IsNumeric(values(0)) Then
 
-                    Dialog2.Warning1 =
-                    "Inconsistent CSV - Invalid data format detected"
+                    Dim choice As DialogResult = MessageBox.Show(
+                        "Inconsistency/corruption detected on line " & lineNumber & "." & vbCrLf & vbCrLf &
+                        "Skip this line and continue loading?",
+                        "Inconsistent CSV",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Warning)
 
-                    Dialog2.Warning2 =
-                    "Each data line in the CSV should start with a number"
-
-                    Dialog2.Warning3 =
-                    "Please fix and try again."
-
-                    Dialog2.ShowDialog(Me)
-
-                    ChartOffReadyForCSV()
-                    Return
+                    If choice = DialogResult.Yes Then
+                        Continue For
+                    Else
+                        ChartOffReadyForCSV()
+                        Return
+                    End If
 
                 End If
 
@@ -5636,6 +5646,17 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         Dim ca As New ChartArea("Main")
         ca.BackColor = Color.Black
 
+        ' The plot area is pinned to a fixed rectangle instead of being
+        ' left on MSChart's default auto-layout, which shares space
+        ' between the chart area and the legend based on the legend's
+        ' current content - enabling MDEV (longer/more legend entries)
+        ' was shrinking and shifting the plotted chart itself every time
+        ' it was toggled. The actual split between plot and legend is set
+        ' up just below in UpdateAllanChartLayout(), which keeps the
+        ' legend column a roughly constant PIXEL width regardless of the
+        ' popup's size - so maximizing the window hands all the extra
+        ' space to the plot instead of stretching the legend along with it.
+
         ' Explicit fallback Minimum/Maximum on both axes - a logarithmic
         ' axis that's left on Auto with zero series/points to range from
         ' (e.g. the pop-up ends up empty for any reason) throws an
@@ -5646,6 +5667,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         ca.AxisX.Minimum = 1
         ca.AxisX.Maximum = 10
         ca.AxisX.Title = "Averaging Time - tau (samples)"
+        ca.AxisX.TitleFont = New Font("Microsoft Sans Serif", 10.0!, FontStyle.Regular)
         ca.AxisX.TitleForeColor = Color.White
         ca.AxisX.LabelStyle.ForeColor = Color.White
         ca.AxisX.LineColor = Color.Gray
@@ -5655,6 +5677,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         ca.AxisY.Minimum = 0.001
         ca.AxisY.Maximum = 1
         ca.AxisY.Title = "Allan Deviation (ppm)"
+        ca.AxisY.TitleFont = New Font("Microsoft Sans Serif", 10.0!, FontStyle.Regular)
         ca.AxisY.TitleForeColor = Color.White
         ca.AxisY.LabelStyle.ForeColor = Color.White
         ca.AxisY.LineColor = Color.Gray
@@ -5667,13 +5690,46 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         lg.BackColor = Color.Black
         AllanPopupChart.Legends.Add(lg)
 
+        ' Only the plot area gets a fixed rectangle - the legend is left
+        ' on MSChart's own auto-layout (as originally), which correctly
+        ' lays entries out in a single tidy column into whatever space
+        ' isn't claimed by the chart area below. Giving the legend its own
+        ' explicit Position/LegendStyle was tried and made things worse
+        ' (entries scattered, and disappeared entirely with few items) -
+        ' not worth the risk versus the minor cosmetic tradeoff of the
+        ' legend's auto-computed width growing somewhat on maximize.
+        Dim UpdateAllanChartLayout =
+        Sub()
+            Const legendPixelWidth As Integer = 190
+            Const rightMarginPixels As Integer = 10
+
+            Dim totalWidth As Integer = AllanPopupChart.Width
+            If totalWidth <= 0 Then Exit Sub
+
+            Dim legendPct As Single = CSng(legendPixelWidth) / totalWidth * 100.0F
+            If legendPct > 45.0F Then legendPct = 45.0F   ' safety clamp for a very small window
+            Dim marginPct As Single = CSng(rightMarginPixels) / totalWidth * 100.0F
+
+            Dim chartWidthPct As Single = 100.0F - legendPct - marginPct - 4.0F   ' 4 = small gap between plot and legend
+
+            ca.Position = New ElementPosition(2, 3, chartWidthPct, 90)
+        End Sub
+
+        ' Not called here yet - AllanPopupChart.Width is still whatever
+        ' WinForms' default is until it's actually added to the form and
+        ' Dock=Fill has taken effect, so an initial call here would
+        ' calculate against the wrong size. Called for real just after
+        ' AllanPopupForm.Controls.Add(AllanPopupChart) below, then kept in
+        ' sync on every subsequent resize via the handler.
+        AddHandler AllanPopupChart.Resize, Sub() UpdateAllanChartLayout()
+
         ' Overlapping vs non-overlapping Allan deviation. Overlapping
         ' reuses every sample in many sliding windows instead of chopping
         ' the data into disjoint blocks, giving a much smoother curve at
         ' large tau from the same file - at the cost of the points no
         ' longer being statistically independent of each other.
         Dim overlapCheck As New CheckBox With {
-            .Location = New Point(540, 115),
+            .Location = New Point(540, 169),
             .Size = New Size(230, 24),
             .Text = "Overlapping (smoother tail)",
             .ForeColor = Color.White,
@@ -5690,7 +5746,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         ' Adds a dotted MDEV curve alongside each shown device's ADEV
         ' curve, in that device's own colour - see AllanShowMDEV.
         Dim mdevCheck As New CheckBox With {
-            .Location = New Point(540, 142),
+            .Location = New Point(540, 196),
             .Size = New Size(230, 24),
             .Text = "Show MDEV",
             .ForeColor = Color.White,
@@ -5733,6 +5789,11 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         End Sub
 
         AllanPopupForm.Controls.Add(AllanPopupChart)
+
+        ' Now that Dock=Fill has taken effect against the actual form
+        ' size, this can calculate the real initial plot/legend split.
+        UpdateAllanChartLayout()
+
         AllanPopupForm.Controls.Add(overlapCheck)
         AllanPopupForm.Controls.Add(mdevCheck)
         AllanPopupForm.Controls.Add(allanGrip)

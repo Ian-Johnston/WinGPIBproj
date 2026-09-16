@@ -1,7 +1,7 @@
 ﻿' Multithreaded-communication-for-GPIB-Visa-Serial
 ' Base GPIB device code by Pawel Wzietek and modified/extended by Ian Johnston
 '
-' Pawel's original thread - www.codeproject.com/Articles/1166996/Multithreaded-communication-for-GPIB-Visa-Serial-i
+' Pawel's original code - https://github.com/pawel-wzietek/IODevices
 ' Ian's thread - www.eevblog.com/forum/metrology/3458a-logging-via-windows-app-revisited/
 ' Prologix code by Marco
 '
@@ -9,8 +9,6 @@
 ' I am not a VB programmer, heck I'm not even a programmer!!!......but I usually manage to hack things together and that includes writing apps for Windows.
 ' You'll see some 'methods' in this source which you may laugh at or say "OMG".......well, all I can say is that despite the iffy programming, this Windows app WORKS!!!
 ' Ian Johnston
-'
-' Main form AutoScaleMode was originally set to FONT, now set to NONE
 '
 ' Example console
 ' Console.WriteLine("Rolling Average Value for Device " & PPMdevice & " - " & tempcounter & " - " & PPMdegCrollingAverageValue)
@@ -264,7 +262,7 @@ Public Class Formtest
             ' Change standard tabs to button style
             TabControl1.Multiline = True
             TabControl1.Appearance = TabAppearance.FlatButtons
-            'TabControl1.Appearance = TabAppearance.Buttons
+            'TabControl1.Appearance = TabAppearance.Buttons         ' old buttons on tabs
 
             ' Use Win10-style square window corners on Windows 11.....oh how I hate the rounded corners!
             ApplySquareCorners(Me)
@@ -276,23 +274,12 @@ Public Class Formtest
             End If
             CheckBoxThemeSet.Checked = My.Settings.ThemeSet
 
-            BannerText1 = "WinGPIB   V5.024"
+            BannerText1 = "WinGPIB   V5.025"
             BannerText2 = "                                                                            "
             BannerText3 = "Free for Non-Commercial Use • Support WinGPIB — see About"
             Me.Text = BannerText1 & BannerText2 & BannerText3.ToString()
 
-
-            ' Check for the existance of the WinGPIBdata folder at C:\Users\[username]\Documents and if it
-            ' doesn't exist then copy it from C:\Users\[username]\OneDrive\Documents to C:\Users\[username]\Documents folder
-            'If My.Computer.FileSystem.DirectoryExists(strPathOD) Then
-            ' The OneDrive folder exists so now copy if the target folder doesn't exist
-            'If Not My.Computer.FileSystem.DirectoryExists(strPath) Then
-            'My.Computer.FileSystem.CopyDirectory(strPathOD, strPath, True)
-            'End If
-            'End If
-
-            ' Hide the Advantest R6581 tab as it's not finished yet
-            'TabControl1.TabPages.Remove(TabPage11)
+            ' Advantest R6581 tab
             AllRegularConstantsReadR6581.Checked = True         ' default checked radio button
 
             ' Check for the existence of the WinGPIBdata folder in the OneDrive folder and if it exists then copy it to the documents folder
