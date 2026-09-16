@@ -172,7 +172,7 @@ Partial Class Formtest
             ' plot to chart Device 1
             If DisableRollingChart.Checked = False Then
                 Chart1.Series(0).Points.AddY(txtr1achart)
-                If Chart1.Series(0).Points.Count > XaxisPoints.Text Then  'sliding graph: last n points
+                If Chart1.Series(0).Points.Count > Val(XaxisPoints.Text) Then  'sliding graph: last n points
                     Chart1.Series(0).Points.RemoveAt(0)
                 End If
             Else
@@ -195,7 +195,7 @@ Partial Class Formtest
 
                 If DisableRollingChart.Checked = False Then
                     Chart1.Series(2).Points.AddY(txtr3achart)
-                    If Chart1.Series(2).Points.Count > XaxisPoints.Text Then  'sliding graph: last n points
+                    If Chart1.Series(2).Points.Count > Val(XaxisPoints.Text) Then  'sliding graph: last n points
                         Chart1.Series(2).Points.RemoveAt(0)
                     End If
                 Else
@@ -230,7 +230,7 @@ Partial Class Formtest
 
             If DisableRollingChart.Checked = False Then
                 Chart1.Series(1).Points.AddY(txtr2achart)
-                If Chart1.Series(1).Points.Count > XaxisPoints.Text Then  'sliding graph: last n points
+                If Chart1.Series(1).Points.Count > Val(XaxisPoints.Text) Then  'sliding graph: last n points
                     Chart1.Series(1).Points.RemoveAt(0)
                 End If
             Else
@@ -253,7 +253,7 @@ Partial Class Formtest
 
                 If DisableRollingChart.Checked = False Then
                     Chart1.Series(2).Points.AddY(txtr3achart)
-                    If Chart1.Series(2).Points.Count > XaxisPoints.Text Then  'sliding graph: last n points
+                    If Chart1.Series(2).Points.Count > Val(XaxisPoints.Text) Then  'sliding graph: last n points
                         Chart1.Series(2).Points.RemoveAt(0)
                     End If
                 Else
@@ -1429,13 +1429,13 @@ Partial Class Formtest
                     YaxisDiff.Text = Format(range, "#0.00000000")
                 Else
                     UpdateChartYAxisMinMaxInterval()
-                    YaxisDiff.Text = Format(CDbl(Dev1Max.Text) - CDbl(Dev1Min.Text), "#0.00000000")
+                    YaxisDiff.Text = Format(Val(Dev1Max.Text) - Val(Dev1Min.Text), "#0.00000000")
                 End If
             End If
 
             If (EnableAutoYChart1.Checked = False And EnableChart1.Checked = True And EnableChart2.Checked = False) Then
                 UpdateChartYAxisMinMaxInterval()
-                YaxisDiff.Text = Format(CDbl(Dev1Max.Text) - CDbl(Dev1Min.Text), "#0.00000000")
+                YaxisDiff.Text = Format(Val(Dev1Max.Text) - Val(Dev1Min.Text), "#0.00000000")
             End If
 
 
@@ -1472,13 +1472,13 @@ Partial Class Formtest
                     YaxisDiff.Text = Format(range, "#0.00000000")
                 Else
                     UpdateChartYAxisMinMaxInterval()
-                    YaxisDiff.Text = Format(CDbl(Dev1Max.Text) - CDbl(Dev1Min.Text), "#0.00000000")
+                    YaxisDiff.Text = Format(Val(Dev1Max.Text) - Val(Dev1Min.Text), "#0.00000000")
                 End If
             End If
 
             If (EnableAutoYChart1.Checked = False And EnableChart1.Checked = False And EnableChart2.Checked = True) Then
                 UpdateChartYAxisMinMaxInterval()
-                YaxisDiff.Text = Format(CDbl(Dev1Max.Text) - CDbl(Dev1Min.Text), "#0.00000000")
+                YaxisDiff.Text = Format(Val(Dev1Max.Text) - Val(Dev1Min.Text), "#0.00000000")
             End If
 
 
@@ -1527,27 +1527,27 @@ Partial Class Formtest
                     YaxisDiff.Text = Format(range, "#0.00000000")
                 Else
                     UpdateChartYAxisMinMaxInterval()
-                    YaxisDiff.Text = Format(CDbl(Dev1Max.Text) - CDbl(Dev1Min.Text), "#0.00000000")
+                    YaxisDiff.Text = Format(Val(Dev1Max.Text) - Val(Dev1Min.Text), "#0.00000000")
                 End If
             End If
 
             If (EnableAutoYChart1.Checked = False And EnableChart1.Checked = True And EnableChart2.Checked = True) Then
                 UpdateChartYAxisMinMaxInterval()
-                YaxisDiff.Text = Format(CDbl(Dev1Max.Text) - CDbl(Dev1Min.Text), "#0.00000000")
+                YaxisDiff.Text = Format(Val(Dev1Max.Text) - Val(Dev1Min.Text), "#0.00000000")
             End If
 
-
-            If (XaxisPoints.Text < 100) Then
-                XaxisPoints.Text = 100
-            End If
+            ' The 100-minimum clamp used to run right here, every ~100ms
+            ' tick regardless of focus - so deleting a digit while typing
+            ' a new value (e.g. "100" -> "00" on the way to "50") got
+            ' immediately overwritten back to "100" before the rest could
+            ' be typed. XaxisPoints_Leave/_KeyDown now enforce the same
+            ' minimum exactly once, when the user actually finishes
+            ' editing, instead of fighting every keystroke.
 
         Else
             Dev1Min.ReadOnly = False
             Dev1Max.ReadOnly = False
             'ButtonClearChart.Enabled = True
-            If (XaxisPoints.Text < 100) Then
-                XaxisPoints.Text = 100
-            End If
 
         End If
 
@@ -1601,29 +1601,159 @@ Partial Class Formtest
     End Sub
 
 
+    ' Rejects (and reverts) anything that doesn't parse as a number, or
+    ' that would make Max <= Min, instead of nudging the other textbox by
+    ' 1 - that nudge could itself be defeated by editing both boxes
+    ' without tabbing through in the right order, and didn't stop
+    ' non-numeric text reaching UpdateChartYAxisMinMaxInterval() at all.
+    ' Reverting to the axis's own last-good value means an invalid entry
+    ' is simply ignored until the user types a valid one, per request.
     Private Sub Dev1Max_Leave(sender As Object, e As EventArgs) Handles Dev1Max.Leave
 
-        If CDbl(Dev1Max.Text) <= CDbl(Dev1Min.Text) Then
-            Dev1Max.Text = CDbl(Dev1Min.Text) + 1
+        Dim maxVal As Double
+        Dim minVal As Double
+
+        If Not Double.TryParse(Dev1Max.Text, maxVal) OrElse
+           Not Double.TryParse(Dev1Min.Text, minVal) OrElse
+           maxVal <= minVal Then
+            Dev1Max.Text = Chart1.ChartAreas(0).AxisY.Maximum.ToString(Globalization.CultureInfo.InvariantCulture)
+            Exit Sub
         End If
+
+        UpdateChartYAxisMinMaxInterval()
 
     End Sub
 
 
     Private Sub Dev1Min_Leave(sender As Object, e As EventArgs) Handles Dev1Min.Leave
 
-        If CDbl(Dev1Min.Text) >= CDbl(Dev1Max.Text) Then
-            Dev1Min.Text = CDbl(Dev1Max.Text) - 1
+        Dim maxVal As Double
+        Dim minVal As Double
+
+        If Not Double.TryParse(Dev1Max.Text, maxVal) OrElse
+           Not Double.TryParse(Dev1Min.Text, minVal) OrElse
+           minVal >= maxVal Then
+            Dev1Min.Text = Chart1.ChartAreas(0).AxisY.Minimum.ToString(Globalization.CultureInfo.InvariantCulture)
+            Exit Sub
         End If
 
+        UpdateChartYAxisMinMaxInterval()
+
+    End Sub
+
+
+    ' Applies the typed value as soon as the user presses Enter, instead
+    ' of only on Leave (tabbing/clicking away).
+    Private Sub Dev1Max_KeyDown(sender As Object, e As KeyEventArgs) Handles Dev1Max.KeyDown
+        If e.KeyCode = Keys.Enter Then
+            e.SuppressKeyPress = True
+            Dev1Max_Leave(sender, e)
+        End If
+    End Sub
+
+    Private Sub Dev1Min_KeyDown(sender As Object, e As KeyEventArgs) Handles Dev1Min.KeyDown
+        If e.KeyCode = Keys.Enter Then
+            e.SuppressKeyPress = True
+            Dev1Min_Leave(sender, e)
+        End If
+    End Sub
+
+
+    ' XaxisPoints had no validation at all - non-numeric text (or anything
+    ' below the app's existing 100-point minimum, already enforced
+    ' elsewhere) would reach several unguarded numeric comparisons against
+    ' this box's raw .Text throughout this file and throw. Enforced here
+    ' at the point of entry instead, so the box always holds a safe value
+    ' by the time anything else reads it.
+    Private Sub XaxisPoints_Leave(sender As Object, e As EventArgs) Handles XaxisPoints.Leave
+
+        Dim points As Integer
+
+        If Not Integer.TryParse(XaxisPoints.Text, points) OrElse points < 100 Then
+            XaxisPoints.Text = "100"
+        End If
+
+    End Sub
+
+    Private Sub XaxisPoints_KeyDown(sender As Object, e As KeyEventArgs) Handles XaxisPoints.KeyDown
+        If e.KeyCode = Keys.Enter Then
+            e.SuppressKeyPress = True
+            XaxisPoints_Leave(sender, e)
+        End If
+    End Sub
+
+
+    ' Same reject-and-revert pattern as Dev1Max/Dev1Min: an invalid or
+    ' non-numeric entry, or one that would make Max <= Min, is ignored
+    ' and the box reverts to the temperature axis's own last-good value,
+    ' rather than silently doing nothing (the previous behaviour, since
+    ' every reader already guarded on Max > Min without telling the user
+    ' why their edit wasn't taking effect).
+    Private Sub LCTempMax_Leave(sender As Object, e As EventArgs) Handles LCTempMax.Leave
+
+        Dim maxVal As Double
+        Dim minVal As Double
+
+        If Not Double.TryParse(LCTempMax.Text, maxVal) OrElse
+           Not Double.TryParse(LCTempMin.Text, minVal) OrElse
+           maxVal <= minVal Then
+            LCTempMax.Text = Chart1.ChartAreas(0).AxisY2.Maximum.ToString(Globalization.CultureInfo.InvariantCulture)
+            Exit Sub
+        End If
+
+        UpdateChartTemperatureYAxisMinMaxInterval()
+
+    End Sub
+
+    Private Sub LCTempMin_Leave(sender As Object, e As EventArgs) Handles LCTempMin.Leave
+
+        Dim maxVal As Double
+        Dim minVal As Double
+
+        If Not Double.TryParse(LCTempMax.Text, maxVal) OrElse
+           Not Double.TryParse(LCTempMin.Text, minVal) OrElse
+           minVal >= maxVal Then
+            LCTempMin.Text = Chart1.ChartAreas(0).AxisY2.Minimum.ToString(Globalization.CultureInfo.InvariantCulture)
+            Exit Sub
+        End If
+
+        UpdateChartTemperatureYAxisMinMaxInterval()
+
+    End Sub
+
+    Private Sub LCTempMax_KeyDown(sender As Object, e As KeyEventArgs) Handles LCTempMax.KeyDown
+        If e.KeyCode = Keys.Enter Then
+            e.SuppressKeyPress = True
+            LCTempMax_Leave(sender, e)
+        End If
+    End Sub
+
+    Private Sub LCTempMin_KeyDown(sender As Object, e As KeyEventArgs) Handles LCTempMin.KeyDown
+        If e.KeyCode = Keys.Enter Then
+            e.SuppressKeyPress = True
+            LCTempMin_Leave(sender, e)
+        End If
     End Sub
 
 
     Private Sub UpdateChartYAxisMinMaxInterval()
 
-        ' Parse the minimum and maximum values from the text inputs
-        Dim minVal As Double = CDbl(Dev1Min.Text)
-        Dim maxVal As Double = CDbl(Dev1Max.Text)
+        ' Parse the minimum and maximum values from the text inputs.
+        ' This runs unconditionally every 100ms from the live chart
+        ' timer, regardless of whether the textboxes currently hold a
+        ' valid range (e.g. mid-edit) - the Leave/Enter handlers above
+        ' only catch the common case of finishing an edit and moving on.
+        ' Assigning an inverted or unparsable range straight to AxisY
+        ' throws, and that exception was unhandled here, leaving the
+        ' chart broken (a red X) until the app was restarted. Skip the
+        ' update instead - the axis just keeps its last good range until
+        ' the textboxes hold a valid one.
+        Dim minVal As Double
+        Dim maxVal As Double
+
+        If Not Double.TryParse(Dev1Min.Text, minVal) Then Exit Sub
+        If Not Double.TryParse(Dev1Max.Text, maxVal) Then Exit Sub
+        If maxVal <= minVal Then Exit Sub
 
         ' Set the minimum and maximum values for the Y-axis
         Chart1.ChartAreas(0).AxisY.Minimum = minVal
@@ -1653,6 +1783,13 @@ Partial Class Formtest
         ' Parse the minimum and maximum values from the text inputs
         Dim TminVal As Double = Val(LCTempMin.Text)
         Dim TmaxVal As Double = Val(LCTempMax.Text)
+
+        ' Every call site already checks Max > Min before calling this,
+        ' but relying on every caller to remember that is exactly the
+        ' fragile pattern that let the Dev1Max/Dev1Min crash happen -
+        ' guard it here too so this can never assign an inverted range to
+        ' AxisY2 even if a future caller forgets the check.
+        If TmaxVal <= TminVal Then Exit Sub
 
         ' Set the minimum and maximum values for the Y-axis
         Chart1.ChartAreas(0).AxisY2.Minimum = TminVal

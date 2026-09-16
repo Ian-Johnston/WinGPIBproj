@@ -3,7 +3,6 @@
 '
 ' Pawel's original code - https://github.com/pawel-wzietek/IODevices
 ' Ian's thread - www.eevblog.com/forum/metrology/3458a-logging-via-windows-app-revisited/
-' Prologix code by Marco
 '
 ' Disclaimer from Ian:
 ' I am not a VB programmer, heck I'm not even a programmer!!!......but I usually manage to hack things together and that includes writing apps for Windows.
@@ -274,7 +273,7 @@ Public Class Formtest
             End If
             CheckBoxThemeSet.Checked = My.Settings.ThemeSet
 
-            BannerText1 = "WinGPIB   V5.025"
+            BannerText1 = "WinGPIB   V5.026"
             BannerText2 = "                                                                            "
             BannerText3 = "Free for Non-Commercial Use • Support WinGPIB — see About"
             Me.Text = BannerText1 & BannerText2 & BannerText3.ToString()
