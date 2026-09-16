@@ -90,6 +90,15 @@ Public Class Chart
     Dim medianvalued As Double
     Dim mediantempd As Double
 
+    ' Whatever MedianValue/MedianTemp held right before switching into
+    ' PPM/DegC (Fit) mode, which overwrites both boxes with its own
+    ' result/uncertainty display. Restored when switching to any other
+    ' PPM radio, so a manually-typed Initial Value/Initial Temp (i.e.
+    ' "- From CSV" unchecked) doesn't get permanently replaced by Fit
+    ' mode's leftover text - nothing else would otherwise put it back.
+    Dim SavedMedianValueBeforeFit As String = ""
+    Dim SavedMedianTempBeforeFit As String = ""
+
     Dim currentValue As Double
 
     'Dim maxValue As Double = -10000000.0
@@ -3279,7 +3288,28 @@ Public Class Chart
     End Sub
 
 
+    ' Restores whatever was in MedianValue/MedianTemp before Fit mode
+    ' replaced them with its own result/uncertainty, if there's anything
+    ' saved to restore - a no-op when arriving from any mode other than
+    ' Fit, since nothing gets saved unless Fit mode was actually entered.
+    Private Sub RestoreMedianTextIfLeavingFit()
+        If SavedMedianValueBeforeFit <> "" Then
+            MedianValue.Text = SavedMedianValueBeforeFit
+            MedianTemp.Text = SavedMedianTempBeforeFit
+            SavedMedianValueBeforeFit = ""
+            SavedMedianTempBeforeFit = ""
+        End If
+    End Sub
+
+
     Private Sub RadioButtonPPMDev_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButtonPPMDev.CheckedChanged
+        ' A RadioButton group fires CheckedChanged twice per click - once
+        ' for the radio becoming unchecked, once for the one becoming
+        ' checked. Without this guard, switching AWAY from this radio ran
+        ' its "entering this mode" logic too, corrupting state meant only
+        ' for actually selecting it (see the matching guards below).
+        If RadioButtonPPMDev.Checked = False Then Exit Sub
+
         MedianTemp.Enabled = False
         MedianTempText.Enabled = False
         CheckBoxMedianT.Enabled = False
@@ -3288,11 +3318,14 @@ Public Class Chart
         CheckBoxMedianV.Enabled = True
         MedianValueText.Text = "- Initial Value"
         MedianTempText.Text = "- Initial Temp"
+        RestoreMedianTextIfLeavingFit()
         RefreshPlaybackCSVFile()
     End Sub
 
 
     Private Sub RadioButtonPPMTempo_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButtonPPMTempo.CheckedChanged
+        If RadioButtonPPMTempo.Checked = False Then Exit Sub
+
         MedianTemp.Enabled = True
         MedianTempText.Enabled = True
         CheckBoxMedianT.Enabled = True
@@ -3301,6 +3334,7 @@ Public Class Chart
         CheckBoxMedianV.Enabled = True
         MedianValueText.Text = "- Initial Value"
         MedianTempText.Text = "- Initial Temp"
+        RestoreMedianTextIfLeavingFit()
         RefreshPlaybackCSVFile()
     End Sub
 
@@ -3314,11 +3348,17 @@ Public Class Chart
         ' so the displayed fit/uncertainty stays legible instead of greyed
         ' out, while still blocking edits to a value that isn't a real
         ' input here and would just get overwritten on the next refresh.
+        If RadioButtonPPMTempoLinReg.Checked = False Then Exit Sub
+
         MedianTemp.Enabled = True
         MedianTempText.Enabled = True
         CheckBoxMedianT.Enabled = False
         MedianValue.ReadOnly = True
         MedianTemp.ReadOnly = True
+        ' Remember whatever was here before Fit mode overwrites it, so
+        ' switching to another radio can restore it (see field comment).
+        SavedMedianValueBeforeFit = MedianValue.Text
+        SavedMedianTempBeforeFit = MedianTemp.Text
         ' Fit mode overwrites MedianValue.Text with its own result every
         ' refresh - if CheckBoxMedianV were left unchecked, the next
         ' refresh would read that fitted ppm number back in as if it were
@@ -3338,6 +3378,8 @@ Public Class Chart
         ' whole-file Fit, there's no single result to show in these boxes -
         ' it's a continuously varying trend - so they're just reverted to
         ' their normal Initial Value/Initial Temp meaning (disabled/unused).
+        If RadioButtonPPMTempoRolling.Checked = False Then Exit Sub
+
         MedianTemp.Enabled = False
         MedianTempText.Enabled = False
         CheckBoxMedianT.Enabled = False
@@ -3346,6 +3388,7 @@ Public Class Chart
         MedianTemp.ReadOnly = False
         MedianValueText.Text = "- Initial Value"
         MedianTempText.Text = "- Initial Temp"
+        RestoreMedianTextIfLeavingFit()
         RefreshPlaybackCSVFile()
     End Sub
 
@@ -3871,7 +3914,12 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
                     If fitCount > 2 Then
                         Dim residualVariance As Double = sumResidualSq / (fitCount - 2)
                         Dim slopeStdErr As Double = Math.Sqrt(residualVariance * fitCount / denom)
-                        fittedPpmDegCStdErr = (slopeStdErr / medianvalued) * 1000000
+                        ' Abs() because this is an uncertainty magnitude,
+                        ' not a signed value - dividing by a negative
+                        ' Initial Value (e.g. a manually-typed negative
+                        ' baseline) would otherwise flip its sign and
+                        ' display as "+/--0.162" instead of "+/-0.162".
+                        fittedPpmDegCStdErr = Math.Abs((slopeStdErr / medianvalued) * 1000000)
                     End If
 
                 End If
@@ -3882,7 +3930,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
             ' the boxes stay disabled for this radio since they aren't
             ' user-editable inputs here.
             MedianValue.Text = fittedPpmDegC.ToString("0.####", Globalization.CultureInfo.InvariantCulture)
-            MedianTemp.Text = "+/-" & fittedPpmDegCStdErr.ToString("0.####", Globalization.CultureInfo.InvariantCulture)
+            MedianTemp.Text = "+/- " & fittedPpmDegCStdErr.ToString("0.####", Globalization.CultureInfo.InvariantCulture)
 
             If fittedPpmDegC > 99 Then fittedPpmDegC = 99
             If fittedPpmDegC < -99 Then fittedPpmDegC = -99

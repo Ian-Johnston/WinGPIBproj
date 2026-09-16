@@ -11,11 +11,9 @@
 '
 ' Example console
 ' Console.WriteLine("Rolling Average Value for Device " & PPMdevice & " - " & tempcounter & " - " & PPMdegCrollingAverageValue)
-'
 
 
 'Imports System.Threading
-'Imports System.Runtime.InteropServices
 Imports System.Diagnostics
 Imports System.IO
 'Imports System
@@ -273,7 +271,7 @@ Public Class Formtest
             End If
             CheckBoxThemeSet.Checked = My.Settings.ThemeSet
 
-            BannerText1 = "WinGPIB   V5.026"
+            BannerText1 = "WinGPIB   V5.027"
             BannerText2 = "                                                                            "
             BannerText3 = "Free for Non-Commercial Use • Support WinGPIB — see About"
             Me.Text = BannerText1 & BannerText2 & BannerText3.ToString()
