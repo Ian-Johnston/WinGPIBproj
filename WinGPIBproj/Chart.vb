@@ -212,9 +212,9 @@ Public Class Chart
         ' Allan Deviation pop-up chart checkboxes - light tint of each
         ' device's usual colour (Dev1=Yellow, Dev2=Aqua) so they read as
         ' related but distinct from the Data checkboxes above.
-        CheckPlaybackDev1Allan.BackColor = Color.LightYellow
+        CheckPlaybackDev1Allan.BackColor = Color.Khaki
         CheckPlaybackDev1Allan.ForeColor = Color.Black
-        CheckPlaybackDev2Allan.BackColor = Color.LightCyan
+        CheckPlaybackDev2Allan.BackColor = Color.Turquoise
         CheckPlaybackDev2Allan.ForeColor = Color.Black
 
         GroupBoxMisc.Enabled = True
@@ -344,6 +344,9 @@ Public Class Chart
         statsArea.AxisX.MinorTickMark.Enabled = False
 
         statsArea.AxisX.MajorGrid.Enabled = True
+        ' FixTicks() explicitly disables ChartAreas(0)'s own X minor grid
+        ' every refresh, so the main chart never actually shows one either
+        ' - keep this panel matching that (no minor grid on either axis).
         statsArea.AxisX.MinorGrid.Enabled = False
 
         statsArea.AxisY.MajorGrid.Enabled = True
@@ -1663,6 +1666,11 @@ Public Class Chart
 
             End With
 
+            ' Match the Statistics panel's X spacing to the value that
+            ' actually ends up applied here (intervalc), not whatever
+            ' PrintXscale() computed earlier and this just overwrote.
+            Chart2.ChartAreas("Statistics").AxisX.MajorGrid.Interval = intervalc
+
         End If
 
 
@@ -1718,6 +1726,9 @@ Public Class Chart
                 Next
 
             End With
+
+            ' Same reasoning as the single-device branch above.
+            Chart2.ChartAreas("Statistics").AxisX.MajorGrid.Interval = intervalc
         End If
 
     End Sub
@@ -1824,6 +1835,12 @@ Public Class Chart
         ' X-axis
         Chart2.ChartAreas(0).AxisX.MajorGrid.Interval = Xscaletotal.Text * 1.024 * 10
         Chart2.ChartAreas(0).AxisX.MinorGrid.Interval = Xscaletotal.Text * 0.513 * 10
+
+        ' NOTE: this MajorGrid.Interval assignment for ChartAreas(0) gets
+        ' overwritten by FixTicks() (called after this in the load
+        ' sequence), which sets its own X interval (intervalc) to match
+        ' the 28-tick custom labels - so the Statistics panel's matching
+        ' X interval is set there instead, alongside intervalc, not here.
         ' Y-Axis
         Chart2.ChartAreas(0).AxisY.MajorGrid.Interval = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 8
         Chart2.ChartAreas(0).AxisY.MinorGrid.Interval = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 32
@@ -2005,6 +2022,8 @@ Public Class Chart
             LabelHum.Visible = True
             LabelPPMtop.Visible = True
             LabelPPMdegctop.Visible = True
+            LabelTopChart.Visible = True
+            LabelBottomChart.Visible = True
             Loading.Visible = True
 
             'dataTable1.Clear()
@@ -4818,6 +4837,8 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         LabelHum.Visible = False
         LabelPPMtop.Visible = False
         LabelPPMdegctop.Visible = False
+        LabelTopChart.Visible = False
+        LabelBottomChart.Visible = False
         Loading.Visible = False
         PleaseLoadCSV.Visible = True
 
@@ -4833,12 +4854,31 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
             Chart2.ChartAreas(0).AxisY.MinorGrid.LineColor = Color.FromArgb(150, 85, 85, 85)
             Chart2.ChartAreas(0).AxisY2.MajorGrid.LineColor = Color.FromArgb(100, 85, 85, 85)
             Chart2.ChartAreas(0).AxisY2.MinorGrid.LineColor = Color.FromArgb(100, 85, 85, 85)
-            Chart2.Series(0).Color = Color.GreenYellow
-            Chart2.Series(1).Color = Color.Violet
+            Chart2.Series(0).Color = Color.Yellow
+            Chart2.Series(1).Color = Color.Aqua
+            CheckPlaybackDev1Data.BackColor = Color.Yellow
+            CheckPlaybackDev1Data.ResetForeColor()
+            CheckPlaybackDev2Data.BackColor = Color.Aqua
+            CheckPlaybackDev2Data.ResetForeColor()
             Chart2.Series(2).Color = Color.Red
             Chart2.Series(3).Color = Color.DodgerBlue
             Chart2.Series(4).Color = Color.White
             Chart2.ChartAreas(0).BackColor = Color.Black
+            Chart2.ChartAreas("Statistics").BackColor = Color.Black
+            Chart2.ChartAreas("Statistics").AxisX.MajorGrid.LineColor = Color.FromArgb(255, 85, 85, 85)
+            Chart2.ChartAreas("Statistics").AxisY.MajorGrid.LineColor = Color.FromArgb(255, 85, 85, 85)
+
+            ' Statistics-area traces - reassert their original colours,
+            ' same reasoning as the ChartArea background above.
+            Chart2.Series(6).Color = Color.LightGray    ' Dev 1 STDEV
+            Chart2.Series(11).Color = Color.Gold        ' Dev 1 Max Diff
+            Chart2.Series(12).Color = Color.White       ' Dev 1 PPM Deviation
+            Chart2.Series(14).Color = Color.LightGray   ' Dev 2 PPM Deviation
+
+            ' Keep the checkbox that toggles this trace matching its
+            ' colour, same idea as the Allan trace-select checkboxes.
+            CheckPlaybackDev1Deviation.BackColor = Color.White
+            CheckPlaybackDev1Deviation.ResetForeColor()
 
             ' label colours
             Xscale.BackColor = Color.Black
@@ -4865,6 +4905,10 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
             Chart2.ChartAreas(0).AxisY2.MinorGrid.LineColor = Color.FromArgb(50, 185, 185, 185)
             Chart2.Series(0).Color = Color.DarkGreen
             Chart2.Series(1).Color = Color.DarkViolet
+            CheckPlaybackDev1Data.BackColor = Color.DarkGreen
+            CheckPlaybackDev1Data.ForeColor = Color.White
+            CheckPlaybackDev2Data.BackColor = Color.DarkViolet
+            CheckPlaybackDev2Data.ForeColor = Color.White
             Chart2.Series(2).Color = Color.Red
             Chart2.Series(3).Color = Color.DodgerBlue
             Chart2.Series(4).Color = Color.Gray
@@ -4885,8 +4929,39 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
             ' Set background colours to white
             Chart2.BackColor = Color.White
             Me.BackColor = Color.White
+
+            ' Chart2 actually has a 2nd ChartArea ("Statistics", added in
+            ' Formtest_Load) rendered as its own panel below the main
+            ' plot - only ChartAreas(0) was being switched above, so this
+            ' one stayed black. Its axis label text is already black
+            ' (never changed), so flipping just the background to white
+            ' is enough to make it match instead of staying illegible.
+            Chart2.ChartAreas("Statistics").BackColor = Color.White
+            Chart2.ChartAreas("Statistics").AxisX.MajorGrid.LineColor = Color.FromArgb(155, 185, 185, 185)
+            Chart2.ChartAreas("Statistics").AxisY.MajorGrid.LineColor = Color.FromArgb(155, 185, 185, 185)
+
+            ' Same four traces, darkened for visibility against the new
+            ' white Statistics panel - LightGray/Gold/White all wash out
+            ' or vanish outright (your reported Dev 1 PPM Deviation case).
+            Chart2.Series(6).Color = Color.DarkGray    ' Dev 1 STDEV
+            Chart2.Series(11).Color = Color.DarkGoldenrod ' Dev 1 Max Diff
+            Chart2.Series(12).Color = Color.Black      ' Dev 1 PPM Deviation
+            Chart2.Series(14).Color = Color.DarkGray   ' Dev 2 PPM Deviation
+
+            ' Match the checkbox to the now-black trace, or a white
+            ' checkbox with the default dark text becomes just as hard to
+            ' associate with its (now black) trace as the trace itself was.
+            CheckPlaybackDev1Deviation.BackColor = Color.Black
+            CheckPlaybackDev1Deviation.ForeColor = Color.White
         End If
 
+        ' The Allan Deviation pop-up is a separate Chart control and was
+        ' left untouched by all of the above, so it stayed black even
+        ' after switching Light Mode on. Re-theme it (background, grid,
+        ' legend, checkboxes, grip) and refresh its trace colours if it's
+        ' currently open; both are no-ops if it isn't.
+        ApplyAllanChartTheme()
+        RefreshAllanChart()
 
     End Sub
 
@@ -5499,6 +5574,18 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
 
             Chart2.ChartAreas("Statistics").RecalculateAxesScale()
 
+            ' Match the main chart area's grid spacing (8 major divisions)
+            ' instead of leaving this on MSChart's own auto-interval, which
+            ' picks a density unrelated to the main chart's and made the
+            ' two panels' gridlines look inconsistent side by side.
+            Dim statsYRange As Double =
+            Chart2.ChartAreas("Statistics").AxisY.Maximum -
+            Chart2.ChartAreas("Statistics").AxisY.Minimum
+
+            If statsYRange > 0 Then
+                Chart2.ChartAreas("Statistics").AxisY.MajorGrid.Interval = statsYRange / 8
+            End If
+
         End If
 
     End Sub
@@ -5612,12 +5699,100 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
 
         EnsureAllanPopupOpen()
 
-        UpdateAllanSeries("Dev 1 Allan Deviation", DeviceName1.Text, showDev1, Color.Yellow)
-        UpdateAllanSeries("Dev 2 Allan Deviation", DeviceName2.Text, showDev2, Color.Aqua)
+        ' Yellow/Aqua read fine on the popup's default black background,
+        ' but are nearly invisible on the white background Light Mode
+        ' (CheckBoxColours) switches to - use darker analogues in that
+        ' case, same idea as the existing Chart2 series colour swap.
+        ' Match the Allan checkboxes' own colours (CheckPlaybackDev1Allan/
+        ' Dev2Allan) rather than Chart2's Series(0)/(1) - light mode
+        ' matches Chart2 because that's what those checkboxes were set to
+        ' for light mode; normal mode matches the checkboxes' existing
+        ' LightYellow/LightCyan instead of Chart2's Yellow/Aqua.
+        ' Khaki/Turquoise instead of LightYellow/LightCyan - those two were
+        ' too close to each other (both very pale) to tell apart at a
+        ' glance against the black background; these keep the same
+        ' yellow/cyan family but with enough contrast to distinguish.
+        Dim dev1AllanColor As Color = If(CheckBoxColours.Checked, Color.SeaGreen, Color.Khaki)
+        Dim dev2AllanColor As Color = If(CheckBoxColours.Checked, Color.MediumOrchid, Color.Turquoise)
+
+        UpdateAllanSeries("Dev 1 Allan Deviation", DeviceName1.Text, showDev1, dev1AllanColor)
+        UpdateAllanSeries("Dev 2 Allan Deviation", DeviceName2.Text, showDev2, dev2AllanColor)
 
         RescaleAllanAxes()
 
     End Sub
+
+
+    ' Applies Light Mode (CheckBoxColours) to the Allan popup's static
+    ' chrome - background, grid, axis/legend colours, the two trace-select
+    ' checkboxes' colours, and the resize grip - everything that doesn't
+    ' already get re-set on every RefreshAllanChart() call. Safe to call
+    ' whether or not the popup is currently open. Trace colours themselves
+    ' are handled separately in RefreshAllanChart(), since those need to
+    ' stay correct across every refresh, not just at theme-switch time.
+    Private Sub ApplyAllanChartTheme()
+
+        If AllanPopupChart Is Nothing OrElse AllanPopupForm Is Nothing Then Exit Sub
+
+        Dim lightMode As Boolean = CheckBoxColours.Checked
+
+        Dim bg As Color = If(lightMode, Color.White, Color.Black)
+        Dim fg As Color = If(lightMode, Color.Black, Color.White)
+        Dim gridColor As Color = If(lightMode, Color.FromArgb(200, 200, 200), Color.FromArgb(45, 45, 45))
+        Dim axisLineColor As Color = If(lightMode, Color.DimGray, Color.Gray)
+
+        AllanPopupChart.BackColor = bg
+
+        Dim ca As ChartArea = AllanPopupChart.ChartAreas("Main")
+        ca.BackColor = bg
+        ca.AxisX.TitleForeColor = fg
+        ca.AxisX.LabelStyle.ForeColor = fg
+        ca.AxisX.LineColor = axisLineColor
+        ca.AxisX.MajorGrid.LineColor = gridColor
+        ca.AxisY.TitleForeColor = fg
+        ca.AxisY.LabelStyle.ForeColor = fg
+        ca.AxisY.LineColor = axisLineColor
+        ca.AxisY.MajorGrid.LineColor = gridColor
+
+        Dim lg As Legend = AllanPopupChart.Legends("Main")
+        lg.ForeColor = fg
+        lg.BackColor = bg
+
+        For Each ctl As Control In AllanPopupForm.Controls
+            If TypeOf ctl Is CheckBox Then
+                ctl.ForeColor = fg
+                ctl.BackColor = bg
+            ElseIf TypeOf ctl Is PictureBox Then
+                ' The grip icon is inverted (dark -> light) for a black
+                ' background - on white it needs to stay in its original
+                ' dark form, or it disappears the same way the traces did.
+                DirectCast(ctl, PictureBox).Image = If(lightMode, My.Resources.grip, InvertGripImage(My.Resources.grip))
+            End If
+        Next
+
+        ' Match the Dev1/Dev2 Allan trace-select checkboxes on the main
+        ' Playback chart to the same colours as their traces, same as the
+        ' dev1AllanColor/dev2AllanColor swap in RefreshAllanChart(). These
+        ' two never had an explicit ForeColor originally (only BackColor),
+        ' so it's only set here for light mode's darker background - dark
+        ' mode resets it back to inherited/default instead of forcing a
+        ' colour that was never part of the original design.
+        If lightMode Then
+            CheckPlaybackDev1Allan.BackColor = Color.SeaGreen
+            CheckPlaybackDev1Allan.ForeColor = Color.White
+            CheckPlaybackDev2Allan.BackColor = Color.MediumOrchid
+            CheckPlaybackDev2Allan.ForeColor = Color.White
+        Else
+            CheckPlaybackDev1Allan.BackColor = Color.Khaki
+            CheckPlaybackDev1Allan.ForeColor = Color.Black
+            CheckPlaybackDev2Allan.BackColor = Color.Turquoise
+            CheckPlaybackDev2Allan.ForeColor = Color.Black
+        End If
+
+        AllanPopupChart.Invalidate()
+
+    End Sub
+
 
     ' MSChart's logarithmic axis only labels whole decades (1, 10, 100, ...),
     ' which can leave very few gridlines when the data spans less than a
@@ -5850,6 +6025,11 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         allanGrip.BringToFront()
 
         AddHandler AllanPopupForm.FormClosed, AddressOf AllanPopupForm_FormClosed
+
+        ' Apply the current Light Mode state so a freshly-opened popup
+        ' matches whatever the main chart is already set to, instead of
+        ' always opening in the dark-mode colours it was built with above.
+        ApplyAllanChartTheme()
 
         ApplySquareCorners(AllanPopupForm)
         AllanPopupForm.Show()

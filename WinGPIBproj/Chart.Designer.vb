@@ -23,9 +23,9 @@ Partial Class Chart
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
-        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Chart))
         Me.Chart2 = New System.Windows.Forms.DataVisualization.Charting.Chart()
         Me.ButtonScrollLeft = New System.Windows.Forms.Button()
@@ -64,7 +64,7 @@ Partial Class Chart
         Me.LabelTempC = New System.Windows.Forms.Label()
         Me.ButtonShiftUp = New System.Windows.Forms.Button()
         Me.ButtonShiftDn = New System.Windows.Forms.Button()
-        Me.Label14 = New System.Windows.Forms.Label()
+        Me.LabelTopChart = New System.Windows.Forms.Label()
         Me.CheckBoxToolTips = New System.Windows.Forms.CheckBox()
         Me.CheckBoxMaxMin = New System.Windows.Forms.CheckBox()
         Me.Scale1 = New System.Windows.Forms.Label()
@@ -185,8 +185,8 @@ Partial Class Chart
         Me.Label24 = New System.Windows.Forms.Label()
         Me.GroupBox3 = New System.Windows.Forms.GroupBox()
         Me.GroupBox4 = New System.Windows.Forms.GroupBox()
-        Me.Label13 = New System.Windows.Forms.Label()
         Me.GroupBox5 = New System.Windows.Forms.GroupBox()
+        Me.LabelBottomChart = New System.Windows.Forms.Label()
         CType(Me.Chart2, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.PPMBox1.SuspendLayout()
         Me.Panel1.SuspendLayout()
@@ -203,23 +203,23 @@ Partial Class Chart
         'Chart2
         '
         Me.Chart2.BackColor = System.Drawing.SystemColors.Control
-        ChartArea2.BackColor = System.Drawing.Color.Black
-        ChartArea2.BorderColor = System.Drawing.Color.White
-        ChartArea2.BorderWidth = 2
-        ChartArea2.Name = "ChartArea1"
-        Me.Chart2.ChartAreas.Add(ChartArea2)
-        Legend2.Name = "Legend1"
-        Me.Chart2.Legends.Add(Legend2)
+        ChartArea1.BackColor = System.Drawing.Color.Black
+        ChartArea1.BorderColor = System.Drawing.Color.White
+        ChartArea1.BorderWidth = 2
+        ChartArea1.Name = "ChartArea1"
+        Me.Chart2.ChartAreas.Add(ChartArea1)
+        Legend1.Name = "Legend1"
+        Me.Chart2.Legends.Add(Legend1)
         Me.Chart2.Location = New System.Drawing.Point(211, 287)
         Me.Chart2.Name = "Chart2"
-        Series2.ChartArea = "ChartArea1"
-        Series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series2.Color = System.Drawing.Color.Yellow
-        Series2.Enabled = False
-        Series2.Legend = "Legend1"
-        Series2.Name = "Series1"
-        Me.Chart2.Series.Add(Series2)
-        Me.Chart2.Size = New System.Drawing.Size(938, 412)
+        Series1.ChartArea = "ChartArea1"
+        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series1.Color = System.Drawing.Color.Yellow
+        Series1.Enabled = False
+        Series1.Legend = "Legend1"
+        Series1.Name = "Series1"
+        Me.Chart2.Series.Add(Series1)
+        Me.Chart2.Size = New System.Drawing.Size(938, 335)
         Me.Chart2.TabIndex = 52
         Me.Chart2.Text = "Chart2"
         '
@@ -592,15 +592,17 @@ Partial Class Chart
         Me.ToolTip1.SetToolTip(Me.ButtonShiftDn, "Move graph max/min limits down by 20%")
         Me.ButtonShiftDn.UseVisualStyleBackColor = True
         '
-        'Label14
+        'LabelTopChart
         '
-        Me.Label14.AutoSize = True
-        Me.Label14.Location = New System.Drawing.Point(485, 785)
-        Me.Label14.Name = "Label14"
-        Me.Label14.Size = New System.Drawing.Size(413, 13)
-        Me.Label14.TabIndex = 113
-        Me.Label14.Text = "Hover mouse over Dev1 && Dev 2 data points on chart to see value (ToolTips enable" &
+        Me.LabelTopChart.AutoSize = True
+        Me.LabelTopChart.ForeColor = System.Drawing.SystemColors.ControlDarkDark
+        Me.LabelTopChart.Location = New System.Drawing.Point(510, 652)
+        Me.LabelTopChart.Name = "LabelTopChart"
+        Me.LabelTopChart.Size = New System.Drawing.Size(413, 13)
+        Me.LabelTopChart.TabIndex = 113
+        Me.LabelTopChart.Text = "Hover mouse over Dev1 && Dev 2 data points on chart to see value (ToolTips enable" &
     "d)"
+        Me.LabelTopChart.Visible = False
         '
         'CheckBoxToolTips
         '
@@ -1953,15 +1955,6 @@ Partial Class Chart
         Me.GroupBox4.TabStop = False
         Me.GroupBox4.Text = "DEV 1 TRACES"
         '
-        'Label13
-        '
-        Me.Label13.AutoSize = True
-        Me.Label13.Location = New System.Drawing.Point(1269, 711)
-        Me.Label13.Name = "Label13"
-        Me.Label13.Size = New System.Drawing.Size(81, 39)
-        Me.Label13.TabIndex = 579
-        Me.Label13.Text = "Initial baseline" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "value is derived" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "from Stats."
-        '
         'GroupBox5
         '
         Me.GroupBox5.Controls.Add(Me.CheckPlaybackDev2Allan)
@@ -1980,14 +1973,26 @@ Partial Class Chart
         Me.GroupBox5.TabStop = False
         Me.GroupBox5.Text = "DEV 2 TRACES"
         '
+        'LabelBottomChart
+        '
+        Me.LabelBottomChart.AutoSize = True
+        Me.LabelBottomChart.ForeColor = System.Drawing.SystemColors.ControlDarkDark
+        Me.LabelBottomChart.Location = New System.Drawing.Point(439, 785)
+        Me.LabelBottomChart.Name = "LabelBottomChart"
+        Me.LabelBottomChart.Size = New System.Drawing.Size(552, 13)
+        Me.LabelBottomChart.TabIndex = 582
+        Me.LabelBottomChart.Text = "STDEV, SEM, MAX DIFF. && PPM Deviation                  Initial baseline for PPM " &
+    "Deviation value is derived from Stats."
+        Me.LabelBottomChart.Visible = False
+        '
         'Chart
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1359, 801)
+        Me.Controls.Add(Me.LabelBottomChart)
         Me.Controls.Add(Me.ButtonPlaybackHelp)
         Me.Controls.Add(Me.GroupBox5)
-        Me.Controls.Add(Me.Label13)
         Me.Controls.Add(Me.GroupBox4)
         Me.Controls.Add(Me.GroupBox3)
         Me.Controls.Add(Me.Label24)
@@ -2043,7 +2048,7 @@ Partial Class Chart
         Me.Controls.Add(Me.Scale2)
         Me.Controls.Add(Me.Scale1)
         Me.Controls.Add(Me.LabelTempC)
-        Me.Controls.Add(Me.Label14)
+        Me.Controls.Add(Me.LabelTopChart)
         Me.Controls.Add(Me.ButtonShiftDn)
         Me.Controls.Add(Me.ButtonShiftUp)
         Me.Controls.Add(Me.LabelHum)
@@ -2135,7 +2140,7 @@ Partial Class Chart
     Friend WithEvents LabelTempC As Label
     Friend WithEvents ButtonShiftUp As Button
     Friend WithEvents ButtonShiftDn As Button
-    Friend WithEvents Label14 As Label
+    Friend WithEvents LabelTopChart As Label
     Friend WithEvents CheckBoxToolTips As CheckBox
     Friend WithEvents CheckBoxMaxMin As CheckBox
     Friend WithEvents Scale1 As Label
@@ -2251,7 +2256,6 @@ Partial Class Chart
     Friend WithEvents CheckPlaybackDev1Deviation As CheckBox
     Friend WithEvents CheckPlaybackDev1MaxDiff As CheckBox
     Friend WithEvents Label5 As Label
-    Friend WithEvents Label13 As Label
     Friend WithEvents GroupBox5 As GroupBox
     Friend WithEvents CheckPlaybackDev1ShortTermMean As CheckBox
     Friend WithEvents CheckPlaybackDev2ShortTermMean As CheckBox
@@ -2260,4 +2264,5 @@ Partial Class Chart
     Friend WithEvents ButtonPlaybackHelp As Button
     Friend WithEvents RadioButtonPPMTempoLinReg As RadioButton
     Friend WithEvents RadioButtonPPMTempoRolling As RadioButton
+    Friend WithEvents LabelBottomChart As Label
 End Class
