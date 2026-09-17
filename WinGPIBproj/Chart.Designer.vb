@@ -575,9 +575,9 @@ Partial Class Chart
         '
         'ButtonShiftUp
         '
-        Me.ButtonShiftUp.Location = New System.Drawing.Point(18, 359)
+        Me.ButtonShiftUp.Location = New System.Drawing.Point(18, 354)
         Me.ButtonShiftUp.Name = "ButtonShiftUp"
-        Me.ButtonShiftUp.Size = New System.Drawing.Size(50, 72)
+        Me.ButtonShiftUp.Size = New System.Drawing.Size(64, 72)
         Me.ButtonShiftUp.TabIndex = 104
         Me.ButtonShiftUp.Text = "SHIFT" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "UP"
         Me.ToolTip1.SetToolTip(Me.ButtonShiftUp, "Move graph max/min limits up by 20%")
@@ -585,9 +585,9 @@ Partial Class Chart
         '
         'ButtonShiftDn
         '
-        Me.ButtonShiftDn.Location = New System.Drawing.Point(18, 439)
+        Me.ButtonShiftDn.Location = New System.Drawing.Point(18, 444)
         Me.ButtonShiftDn.Name = "ButtonShiftDn"
-        Me.ButtonShiftDn.Size = New System.Drawing.Size(50, 72)
+        Me.ButtonShiftDn.Size = New System.Drawing.Size(64, 72)
         Me.ButtonShiftDn.TabIndex = 105
         Me.ButtonShiftDn.Text = "SHIFT" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "DOWN"
         Me.ToolTip1.SetToolTip(Me.ButtonShiftDn, "Move graph max/min limits down by 20%")
@@ -597,7 +597,7 @@ Partial Class Chart
         '
         Me.LabelTopChart.AutoSize = True
         Me.LabelTopChart.ForeColor = System.Drawing.SystemColors.ControlDarkDark
-        Me.LabelTopChart.Location = New System.Drawing.Point(510, 652)
+        Me.LabelTopChart.Location = New System.Drawing.Point(510, 654)
         Me.LabelTopChart.Name = "LabelTopChart"
         Me.LabelTopChart.Size = New System.Drawing.Size(413, 13)
         Me.LabelTopChart.TabIndex = 113
@@ -2083,8 +2083,6 @@ Partial Class Chart
         Me.Controls.Add(Me.GroupBox1)
         Me.Controls.Add(Me.YaxisBox1)
         Me.Controls.Add(Me.GroupBox2)
-        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog
-        Me.MaximizeBox = False
         Me.Name = "Chart"
         Me.Text = "WinGPIB    Playback Chart                                                        " &
     "                                                      Free for Non-Commercial Us" &

@@ -17,31 +17,46 @@ Public Class Chart
     Private Shared Function SendMessage(hWnd As IntPtr, msg As Integer, wParam As Integer, lParam As Integer) As Integer
     End Function
 
-    ' My.Resources.grip is a dark icon meant for a light background (e.g.
-    ' LiveWatch.vb's pop-up) - on this pop-up's solid black background it
-    ' would barely be visible, so invert its colours (alpha untouched) via
-    ' a ColorMatrix rather than needing a second image resource.
-    Private Function InvertGripImage(source As Image) As Bitmap
+    ' My.Resources.grip is NOT actually transparent - despite looking like
+    ' a dark icon on an empty background, every pixel is fully opaque
+    ' (Alpha=255), with a flat mid-grey (245,245,245) baked in behind the
+    ' diagonal line glyph. That meant a PictureBox's BackColor showing it
+    ' (with SizeMode=StretchImage) had no visible effect whatsoever - the
+    ' image itself always painted over the whole control, in both light
+    ' and dark themes; it only ever looked passable by coincidence (grey
+    ' is close to Windows' default control colour, and inverted-to-near-
+    ' black happens to blend with a black popup background).
+    ' This builds a REAL transparent version at runtime: pixels close to
+    ' that flat grey background become transparent (in proportion to how
+    ' close, preserving the glyph's original anti-aliased soft edges),
+    ' and surviving (glyph) pixels are recoloured to lineColor - so the
+    ' PictureBox's own BackColor finally shows through correctly, and the
+    ' glyph can be tinted to whatever colour reads clearly on that
+    ' background (dark grey for a light background, near-white for a
+    ' dark one), replacing the old invert-the-whole-image approach.
+    Private Function MakeGripTransparent(source As Bitmap, lineColor As Color) As Bitmap
 
-        Dim inverted As New Bitmap(source.Width, source.Height)
+        Const backgroundBrightness As Double = 245.0
+        Const opaqueBelowBrightness As Double = 160.0
+        Dim alphaScale As Double = 255.0 / (backgroundBrightness - opaqueBelowBrightness)
 
-        Dim colorMatrix As New Imaging.ColorMatrix(New Single()() {
-            New Single() {-1, 0, 0, 0, 0},
-            New Single() {0, -1, 0, 0, 0},
-            New Single() {0, 0, -1, 0, 0},
-            New Single() {0, 0, 0, 1, 0},
-            New Single() {1, 1, 1, 0, 1}
-        })
+        Dim result As New Bitmap(source.Width, source.Height, Imaging.PixelFormat.Format32bppArgb)
 
-        Using attributes As New Imaging.ImageAttributes()
-            attributes.SetColorMatrix(colorMatrix)
-            Using g As Graphics = Graphics.FromImage(inverted)
-                g.DrawImage(source, New Rectangle(0, 0, source.Width, source.Height),
-                            0, 0, source.Width, source.Height, GraphicsUnit.Pixel, attributes)
-            End Using
-        End Using
+        For y As Integer = 0 To source.Height - 1
+            For x As Integer = 0 To source.Width - 1
+                Dim p As Color = source.GetPixel(x, y)
+                ' R/G/B are Bytes, and VB's "+" on two Bytes stays a Byte
+                ' (unlike C#, it doesn't widen to Integer) - summing three
+                ' of them overflows Byte's 0-255 range for anything but
+                ' very dark pixels, throwing OverflowException. Widen to
+                ' Integer first so the sum (up to 765) fits.
+                Dim brightness As Double = (CInt(p.R) + CInt(p.G) + CInt(p.B)) / 3.0
+                Dim alpha As Integer = CInt(Math.Max(0.0, Math.Min(255.0, (backgroundBrightness - brightness) * alphaScale)))
+                result.SetPixel(x, y, Color.FromArgb(alpha, lineColor))
+            Next
+        Next
 
-        Return inverted
+        Return result
 
     End Function
 
@@ -662,6 +677,507 @@ Public Class Chart
         CheckPlaybackDev2ShortTermMean.Enabled = False
         CheckPlaybackDev2Allan.Enabled = False
 
+        InitializeResizableLayout()
+
+    End Sub
+
+
+    ' ==========================================================
+    ' Resizable-form layout support
+    ' ==========================================================
+    ' The form was originally FixedDialog/non-resizable with every
+    ' control absolutely positioned. Making it resizable needs three
+    ' different strategies depending on what a control actually is:
+    '  - The control panel above the chart (GroupBoxes, Load/Save/Help
+    '    buttons, CSV path box) stays exactly as designed internally,
+    '    but re-centres as one block instead of sitting stranded at the
+    '    left of a widened window.
+    '  - Chart2 itself is anchored to grow with the form on all sides.
+    '  - The right-hand PPM/DegC/%RH scale (Scale1-Scale25 plus their
+    '    header labels) isn't a real chart axis - it's individually
+    '    managed Label controls whose Text gets written elsewhere
+    '    (PrintYscale()) but whose position was never touched. These
+    '    track the chart's right edge and stretch proportionally to its
+    '    height as the chart resizes.
+
+    Private OriginalGroupALeft As New Dictionary(Of Control, Integer)
+    Private OriginalGroupALeftBound As Integer
+    Private OriginalGroupARightBound As Integer
+
+    ' Bottom-right resize grip - see InitializeResizableLayout. Kept as a
+    ' field so CheckBoxColours_CheckedChanged can keep its BackColor in
+    ' sync with the form's own background on theme switches.
+    Private FormGrip As PictureBox
+
+    Private OriginalChart2Top As Integer
+    Private OriginalChart2Left As Integer
+    Private OriginalChart2Height As Integer
+    Private OriginalChart2Width As Integer
+
+    ' ChartAreas(0)/("Statistics")'s Position.X/Width are percentages of
+    ' Chart2's own width, so the side margins they create grow in pixels
+    ' as Chart2 widens - the plot barely gained any of the extra space.
+    ' InnerPlotPosition.X/Width (the actual visible margin before the
+    ' plotted area, e.g. room for the Y-axis value labels) is itself a
+    ' percentage of Position's width, not of Chart2 - so fixing Position
+    ' alone still let this inner margin grow just as much as before,
+    ' since ALL the freed-up width was flowing into Position's own size.
+    ' Both layers need the same "keep the original pixel margin" fix.
+    ' These record the ORIGINAL absolute pixel margins for each layer so
+    ' they can be held constant on resize (see UpdateChartAreaHorizontalMargins).
+    ' RepositionResizableLayout adds a small extra pad on top of the
+    ' captured inner margins - but only once the form has actually been
+    ' enlarged beyond its original size, ramping in from 0 (see
+    ' InnerMarginPadPx below) - since at Form_Load the axis may only be
+    ' showing short/default values, and once real data loads, longer/
+    ' higher-precision values (e.g. "1.0000197082") need a bit more room
+    ' than that initial snapshot alone would reserve. Ramping from 0
+    ' right at the original size (rather than always adding the full pad)
+    ' keeps the chart's width exactly as it was on load/at minimum size -
+    ' adding it unconditionally caused a visible jump to a narrower plot
+    ' the instant the form was resized even slightly, which then never
+    ' relaxed back even when the form was shrunk back to its minimum.
+    Private Const InnerMarginPadPx As Double = 20.0
+
+    Private OriginalMainAreaLeftMarginPx As Double
+    Private OriginalMainAreaRightMarginPx As Double
+    Private OriginalMainInnerLeftMarginPx As Double
+    Private OriginalMainInnerRightMarginPx As Double
+    Private OriginalStatsAreaLeftMarginPx As Double
+    Private OriginalStatsAreaRightMarginPx As Double
+    Private OriginalStatsInnerLeftMarginPx As Double
+    Private OriginalStatsInnerRightMarginPx As Double
+
+    ' Same problem again but vertically: Chart2 has two stacked
+    ' ChartAreas (main + "Statistics", see BrowseToFile_Click), whose
+    ' Position.Y/Height and InnerPlotPosition.Y/Height are also baked-in
+    ' percentages of Chart2's height - so the top margin above the main
+    ' plot, the gap between the two plots, and the bottom margin below
+    ' the Statistics plot all grow in pixels as Chart2 gets taller. These
+    ' record the ORIGINAL pixel values so they can be held constant on
+    ' resize (see UpdateChartAreaVerticalMargins) - the two plot areas
+    ' absorb all the extra/lost height between them, split in their
+    ' original height ratio so neither one dominates the growth.
+    Private OriginalMainAreaTopMarginPx As Double
+    Private OriginalAreaGapPx As Double
+    Private OriginalStatsAreaBottomMarginPx As Double
+    Private OriginalMainAreaHeightRatio As Double
+
+    Private OriginalMainInnerTopMarginPx As Double
+    Private OriginalMainInnerBottomMarginPx As Double
+    Private OriginalStatsInnerTopMarginPx As Double
+    Private OriginalStatsInnerBottomMarginPx As Double
+
+    ' Fraction (0.0 = chart top, 1.0 = chart bottom) for each Scale1-25
+    ' label, based on its INDEX in the 25-label set rather than its
+    ' original pixel position - pinning Scale1 exactly to the chart's top
+    ' and Scale25 exactly to its bottom regardless of chart size, with
+    ' the rest evenly spread between. Preserving the original pixel gap
+    ' instead (the first attempt) amplified the small original overshoot
+    ' above/below the chart into a large visible gap once the chart grew.
+    Private OriginalScaleLabelFraction As New Dictionary(Of Control, Double)
+
+    ' LabelTempC/LabelHum ("DegC"/"%RH") - kept as a rigid pair (fixed
+    ' gap between them) and centred over the chart's actual plot right
+    ' edge, same reasoning as the Scale1-25 Y fix.
+    Private OriginalTempHumBlockWidth As Integer
+    Private OriginalLabelHumGapFromTempC As Integer
+
+    ' ButtonShiftUp/ButtonShiftDn sit to the left of Chart2 - tracked
+    ' relative to its Left edge so they stay glued to it, and moved as a
+    ' single rigid pair (their own spacing never changes) to stay at the
+    ' same relative vertical position as the chart's height changes.
+    Private OriginalShiftButtonLeftOffset As New Dictionary(Of Control, Integer)
+    Private OriginalShiftPairCenterFraction As Double
+    Private OriginalShiftButtonOffsetFromPairCenter As New Dictionary(Of Control, Integer)
+
+    Private Sub InitializeResizableLayout()
+
+        ' Group B: the chart's own right-hand scale - tracks the chart's
+        ' right edge, and stretches with its height. Built first so Group
+        ' A's sweep below can exclude these by reference.
+        OriginalChart2Top = Chart2.Top
+        OriginalChart2Left = Chart2.Left
+        OriginalChart2Height = Chart2.Height
+        OriginalChart2Width = Chart2.Width
+
+        Dim mainPos = Chart2.ChartAreas(0).Position
+        OriginalMainAreaLeftMarginPx = (mainPos.X / 100.0) * OriginalChart2Width
+        OriginalMainAreaRightMarginPx = ((100.0 - mainPos.X - mainPos.Width) / 100.0) * OriginalChart2Width
+
+        Dim mainPosWidthPx As Double = (mainPos.Width / 100.0) * OriginalChart2Width
+        Dim mainInner = Chart2.ChartAreas(0).InnerPlotPosition
+        OriginalMainInnerLeftMarginPx = (mainInner.X / 100.0) * mainPosWidthPx
+        OriginalMainInnerRightMarginPx = ((100.0 - mainInner.X - mainInner.Width) / 100.0) * mainPosWidthPx
+
+        Dim statsPos = Chart2.ChartAreas("Statistics").Position
+        OriginalStatsAreaLeftMarginPx = (statsPos.X / 100.0) * OriginalChart2Width
+        OriginalStatsAreaRightMarginPx = ((100.0 - statsPos.X - statsPos.Width) / 100.0) * OriginalChart2Width
+
+        Dim statsPosWidthPx As Double = (statsPos.Width / 100.0) * OriginalChart2Width
+        Dim statsInner = Chart2.ChartAreas("Statistics").InnerPlotPosition
+        OriginalStatsInnerLeftMarginPx = (statsInner.X / 100.0) * statsPosWidthPx
+        OriginalStatsInnerRightMarginPx = ((100.0 - statsInner.X - statsInner.Width) / 100.0) * statsPosWidthPx
+
+        OriginalMainAreaTopMarginPx = (mainPos.Y / 100.0) * OriginalChart2Height
+        OriginalAreaGapPx = ((statsPos.Y - (mainPos.Y + mainPos.Height)) / 100.0) * OriginalChart2Height
+        OriginalStatsAreaBottomMarginPx = ((100.0 - statsPos.Y - statsPos.Height) / 100.0) * OriginalChart2Height
+
+        Dim originalMainHeightPx As Double = (mainPos.Height / 100.0) * OriginalChart2Height
+        Dim originalStatsHeightPx As Double = (statsPos.Height / 100.0) * OriginalChart2Height
+        OriginalMainAreaHeightRatio = originalMainHeightPx / (originalMainHeightPx + originalStatsHeightPx)
+
+        OriginalMainInnerTopMarginPx = (mainInner.Y / 100.0) * originalMainHeightPx
+        OriginalMainInnerBottomMarginPx = ((100.0 - mainInner.Y - mainInner.Height) / 100.0) * originalMainHeightPx
+
+        OriginalStatsInnerTopMarginPx = (statsInner.Y / 100.0) * originalStatsHeightPx
+        OriginalStatsInnerBottomMarginPx = ((100.0 - statsInner.Y - statsInner.Height) / 100.0) * originalStatsHeightPx
+
+        OriginalShiftButtonLeftOffset(ButtonShiftUp) = ButtonShiftUp.Left - OriginalChart2Left
+        OriginalShiftButtonLeftOffset(ButtonShiftDn) = ButtonShiftDn.Left - OriginalChart2Left
+
+        Dim pairCenterY As Double =
+        (ButtonShiftUp.Top + ButtonShiftDn.Top + ButtonShiftDn.Height) / 2.0
+
+        OriginalShiftPairCenterFraction = (pairCenterY - OriginalChart2Top) / OriginalChart2Height
+        OriginalShiftButtonOffsetFromPairCenter(ButtonShiftUp) = CInt(ButtonShiftUp.Top - pairCenterY)
+        OriginalShiftButtonOffsetFromPairCenter(ButtonShiftDn) = CInt(ButtonShiftDn.Top - pairCenterY)
+
+        ' Static header captions above the chart (DegC/%RH/PPM) - Chart2's
+        ' Top never actually changes on resize (only Height/Width do, per
+        ' its Anchor below), so these just need to track the right edge
+        ' horizontally; no vertical repositioning needed at all.
+        Dim headerLabels As New List(Of Control) From {
+            LabelPPMtop, LabelPPMdegctop
+        }
+        For Each ctl As Control In headerLabels
+            ctl.Anchor = AnchorStyles.Top Or AnchorStyles.Right
+        Next
+
+        ' LabelTempC/LabelHum ("DegC"/"%RH") are handled separately below
+        ' (not via Anchor) - they need to track the chart's actual PLOT
+        ' right edge, which is a percentage of Chart2's width and so
+        ' drifts away from a fixed-pixel Anchor as the chart widens.
+        headerLabels.Add(LabelTempC)
+        headerLabels.Add(LabelHum)
+        OriginalTempHumBlockWidth = (LabelHum.Left + LabelHum.Width) - LabelTempC.Left
+        OriginalLabelHumGapFromTempC = LabelHum.Left - LabelTempC.Left
+
+        Dim scaleLabels As Control() = {
+            Scale1, Scale2, Scale3, Scale4, Scale5, Scale6, Scale7, Scale8,
+            Scale9, Scale10, Scale11, Scale12, Scale13, Scale14, Scale15,
+            Scale16, Scale17, Scale18, Scale19, Scale20, Scale21, Scale22,
+            Scale23, Scale24, Scale25
+        }
+        For i As Integer = 0 To scaleLabels.Length - 1
+            OriginalScaleLabelFraction(scaleLabels(i)) = i / CDbl(scaleLabels.Length - 1)
+            scaleLabels(i).Anchor = AnchorStyles.Top Or AnchorStyles.Right
+        Next
+
+        Dim groupB As New List(Of Control)
+        groupB.AddRange(headerLabels)
+        groupB.AddRange(scaleLabels)
+
+        ' Group A: the fixed top control panel - internal layout
+        ' untouched, just re-centred horizontally as one block on resize.
+        ' Built by SWEEPING every direct child of the form above the
+        ' chart, rather than naming controls individually - several
+        ' controls that visually sit "inside" a GroupBox (e.g. the Y-AXIS
+        ' SCALE box's Save button, 1/2/3/4 checkboxes, and Max/Min boxes;
+        ' the X-AXIS SCALE box's nav/zoom buttons) turned out to actually
+        ' be separate sibling controls on the form, not real children of
+        ' that GroupBox - moving just the GroupBox left them behind. A
+        ' position-based sweep catches those automatically regardless of
+        ' the real parent/child structure, since it only cares whether a
+        ' control is a direct child of the form sitting above the chart.
+        Const groupABottomLimit As Integer = 280   ' Chart2 starts at Y=287
+
+        Dim minLeft As Integer = Integer.MaxValue
+        Dim maxRight As Integer = Integer.MinValue
+
+        For Each ctl As Control In Me.Controls
+            If ctl Is Chart2 Then Continue For
+            If groupB.Contains(ctl) Then Continue For
+            If ctl.Top >= groupABottomLimit Then Continue For
+
+            OriginalGroupALeft(ctl) = ctl.Left
+            minLeft = Math.Min(minLeft, ctl.Left)
+            maxRight = Math.Max(maxRight, ctl.Left + ctl.Width)
+        Next
+
+        OriginalGroupALeftBound = minLeft
+        OriginalGroupARightBound = maxRight
+
+        Chart2.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
+
+        ' Bottom-right resize grip, same visual affordance as the Allan
+        ' Deviation and Live Analysis pop-ups - purely a drag handle
+        ' (this form already has a real Sizable border), so no different
+        ' from dragging the border itself. My.Resources.grip is made
+        ' properly transparent at runtime (see MakeGripTransparent) since
+        ' the raw asset is fully opaque with a flat grey baked in, which
+        ' otherwise hides whatever BackColor is set here entirely. The
+        ' glyph itself is tinted a fixed dark grey - legible against both
+        ' this form's normal (light grey) and Light Mode (white)
+        ' backgrounds, so it doesn't need to change with the theme, only
+        ' BackColor does (kept in sync by CheckBoxColours_CheckedChanged).
+        FormGrip = New PictureBox With {
+            .Image = MakeGripTransparent(My.Resources.grip, Color.FromArgb(105, 105, 105)),
+            .SizeMode = PictureBoxSizeMode.StretchImage,
+            .Size = New Size(30, 30),
+            .BackColor = If(CheckBoxColours.Checked, Color.White, SystemColors.Control),
+            .Cursor = Cursors.SizeNWSE,
+            .Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
+        }
+        FormGrip.Location = New Point(
+            Me.ClientSize.Width - FormGrip.Width,
+            Me.ClientSize.Height - FormGrip.Height)
+
+        AddHandler FormGrip.MouseDown,
+            Sub(gripSender As Object, gripArgs As MouseEventArgs)
+                If gripArgs.Button = MouseButtons.Left Then
+                    ReleaseCapture()
+                    SendMessage(Me.Handle, &HA1, 17, 0)   ' WM_NCLBUTTONDOWN, HTBOTTOMRIGHT
+                End If
+            End Sub
+
+        Me.Controls.Add(FormGrip)
+        FormGrip.BringToFront()
+
+        ' Only allow growing - shrinking below the originally designed
+        ' layout risks controls overlapping, since most of them
+        ' (everything except the three groups handled here) have no
+        ' resize behaviour of their own at all.
+        Me.MinimumSize = Me.Size
+
+        ' Apply once immediately, rather than waiting for the first
+        ' Resize event, so controls whose live-computed position is a
+        ' small deliberate correction over their raw designed position
+        ' (e.g. LabelBottomChart's centring, Scale1-25's top/bottom pin)
+        ' show correctly from the moment the form opens, instead of
+        ' visibly snapping there the first time the user drags the grip.
+        RepositionResizableLayout()
+
+    End Sub
+
+    Private Sub RepositionResizableLayout()
+
+        If OriginalGroupALeft.Count = 0 Then Exit Sub   ' not initialized yet
+
+        ' Group A: re-centre the whole top panel as one block.
+        Dim groupWidth As Integer = OriginalGroupARightBound - OriginalGroupALeftBound
+        Dim newLeftBound As Integer = (Me.ClientSize.Width - groupWidth) \ 2
+        Dim offsetX As Integer = newLeftBound - OriginalGroupALeftBound
+
+        For Each kvp In OriginalGroupALeft
+            kvp.Key.Left = kvp.Value + offsetX
+        Next
+
+        ' Group B: Scale1-25 pinned by index fraction between the MAIN
+        ' plot area's actual visible top/bottom edges. Two nested
+        ' percentages compose this, both set in BrowseToFile_Click:
+        '   - ChartAreas(0).Position (7,4,91,70) - this ChartArea's own
+        '     rectangle, as a % of Chart2's full control.
+        '   - ChartAreas(0).InnerPlotPosition (8,5,88,90) - the actual
+        '     plotted-data rectangle, as a % of THAT Position rectangle,
+        '     not of Chart2 directly (it excludes the margin reserved for
+        '     axis labels/titles). Using Position alone (a prior attempt)
+        '     overshot on both ends, since the axis-label margin it
+        '     includes sits outside the true plotted area.
+        If OriginalChart2Height > 0 Then
+
+            ' Recompute Position's X/Width percentages so the ORIGINAL
+            ' pixel side margins are preserved (not stretched along with
+            ' Chart2's growing width) - the plot itself absorbs the extra
+            ' space instead. Must run before reading Position below so
+            ' the Scale1-25/DegC-RH placement picks up the fresh value.
+            ' The inner margins get a small extra pad on top of what was
+            ' originally captured, so real (longer/higher-precision) axis
+            ' text has room once the chart is enlarged - but the pad is
+            ' ramped in from 0 as Chart2 widens past its original size,
+            ' rather than always-on, so the chart's width at/near its
+            ' original size (including back at MinimumSize) is unchanged.
+            Dim growthPx As Double = Math.Max(0.0, Chart2.Width - OriginalChart2Width)
+            Dim rampDistancePx As Double = Math.Max(1.0, OriginalChart2Width * 0.5)
+            Dim effectiveInnerPadPx As Double = InnerMarginPadPx * Math.Min(1.0, growthPx / rampDistancePx)
+
+            UpdateChartAreaHorizontalMargins(Chart2.ChartAreas(0),
+                OriginalMainAreaLeftMarginPx, OriginalMainAreaRightMarginPx,
+                OriginalMainInnerLeftMarginPx + effectiveInnerPadPx, OriginalMainInnerRightMarginPx + effectiveInnerPadPx)
+            UpdateChartAreaHorizontalMargins(Chart2.ChartAreas("Statistics"),
+                OriginalStatsAreaLeftMarginPx, OriginalStatsAreaRightMarginPx,
+                OriginalStatsInnerLeftMarginPx + effectiveInnerPadPx, OriginalStatsInnerRightMarginPx + effectiveInnerPadPx)
+
+            ' Same idea vertically: hold the top/gap/bottom margins
+            ' between and around the two stacked ChartAreas fixed in
+            ' pixels, so the plot areas absorb the extra/lost height as
+            ' Chart2 gets taller/shorter instead of the gaps growing.
+            UpdateChartAreaVerticalMargins()
+
+            Dim areaPos = Chart2.ChartAreas(0).Position
+            Dim innerPos = Chart2.ChartAreas(0).InnerPlotPosition
+
+            Dim plotYPercent As Double = areaPos.Y + (innerPos.Y / 100.0) * areaPos.Height
+            Dim plotHeightPercent As Double = (innerPos.Height / 100.0) * areaPos.Height
+
+            Dim mainAreaTop As Double = Chart2.Top + (plotYPercent / 100.0) * Chart2.Height
+            Dim mainAreaHeight As Double = (plotHeightPercent / 100.0) * Chart2.Height
+
+            For Each kvp In OriginalScaleLabelFraction
+                ' Centre the label vertically on its target line rather
+                ' than aligning its top edge to it - otherwise every
+                ' label sits its own half-height too low, imperceptible
+                ' between tightly-packed middle labels but visible at the
+                ' two extremes against the chart's hard top/bottom border.
+                kvp.Key.Top = CInt(mainAreaTop + kvp.Value * mainAreaHeight) - (kvp.Key.Height \ 2)
+            Next
+
+            ' ButtonShiftUp/ButtonShiftDn - stay glued to Chart2's left
+            ' edge, and move as one rigid pair (fixed gap between them)
+            ' to the same relative vertical position on the chart -
+            ' not stretched apart the way Scale1-25 are.
+            For Each kvp In OriginalShiftButtonLeftOffset
+                kvp.Key.Left = Chart2.Left + kvp.Value
+            Next
+
+            Dim newPairCenterY As Double =
+            Chart2.Top + (OriginalShiftPairCenterFraction * Chart2.Height)
+
+            For Each kvp In OriginalShiftButtonOffsetFromPairCenter
+                kvp.Key.Top = CInt(newPairCenterY) + kvp.Value
+            Next
+
+            ' LabelTempC/LabelHum centred over the chart's actual plot
+            ' RIGHT edge - same X-composition as the Y one above, using
+            ' Position/InnerPlotPosition's X/Width instead of Y/Height.
+            Dim plotRightPercent As Double =
+            areaPos.X + ((innerPos.X + innerPos.Width) / 100.0) * areaPos.Width
+            Dim plotRightX As Double = Chart2.Left + (plotRightPercent / 100.0) * Chart2.Width
+
+            Dim tempHumBlockLeft As Integer = CInt(plotRightX) - (OriginalTempHumBlockWidth \ 2)
+            LabelTempC.Left = tempHumBlockLeft
+            LabelHum.Left = tempHumBlockLeft + OriginalLabelHumGapFromTempC
+
+            ' LabelTopChart ("Hover mouse...") sits just below the top
+            ' chart's own shared X-axis time scale, which renders in the
+            ' gap between the main and Statistics panels - i.e. just
+            ' below ChartAreas(0)'s own rectangle (areaPos), NOT the
+            ' bottom of the whole two-panel Chart2 control. That gap
+            ' can be sizeable on a large/maximized window (the Statistics
+            ' panel gets a share of all the extra height too), so anchoring
+            ' to Chart2's overall bottom instead - tried briefly - left it
+            ' stranded deep inside the (often empty) Statistics panel.
+            Dim chart0BottomY As Double =
+            Chart2.Top + ((areaPos.Y + areaPos.Height) / 100.0) * Chart2.Height
+
+            ' The X-axis tick label font itself grows with the chart (MSChart
+            ' auto-fits it), so the same fixed +4-7 offset that clears the
+            ' text fine at the original size starts to overlap it once the
+            ' chart is much taller and that font has grown - ramped in the
+            ' same way as InnerMarginPadPx, so the offset at/near the
+            ' original height is unchanged and the extra clearance only
+            ' phases in as the chart is actually enlarged.
+            Dim heightGrowthPx As Double = Math.Max(0.0, Chart2.Height - OriginalChart2Height)
+            Dim heightRampDistancePx As Double = Math.Max(1.0, OriginalChart2Height * 0.5)
+            Dim labelTopChartExtraDropPx As Double = 6.0 * Math.Min(1.0, heightGrowthPx / heightRampDistancePx)
+
+            LabelTopChart.Top = CInt(chart0BottomY) + 4 - 7 + CInt(labelTopChartExtraDropPx)
+            LabelTopChart.Left = Chart2.Left + (Chart2.Width - LabelTopChart.Width) \ 2 + 20
+        End If
+
+        ' LabelBottomChart sits at the very bottom of the form, centred
+        ' across its full width.
+        LabelBottomChart.Top = Me.ClientSize.Height - LabelBottomChart.Height - 4
+        LabelBottomChart.Left = (Me.ClientSize.Width - LabelBottomChart.Width) \ 2 + 10
+
+        ' PleaseLoadCSV/Loading (shown before a CSV is loaded, over where
+        ' the chart will appear) - horizontal centring only, Top untouched.
+        PleaseLoadCSV.Left = (Me.ClientSize.Width - PleaseLoadCSV.Width) \ 2
+        Loading.Left = (Me.ClientSize.Width - Loading.Width) \ 2
+
+    End Sub
+
+    Private Sub Chart_Resize(sender As Object, e As EventArgs) Handles MyBase.Resize
+        RepositionResizableLayout()
+    End Sub
+
+    ' Rewrites BOTH a ChartArea's Position.X/Width (percentage of Chart2's
+    ' width) AND its InnerPlotPosition.X/Width (percentage of Position's
+    ' OWN width, not Chart2's) so the resulting ABSOLUTE pixel margins at
+    ' each layer match their original values, regardless of Chart2's
+    ' current width. Y/Height are left untouched on both. Fixing Position
+    ' alone made no visible difference, since all the freed-up width just
+    ' flowed straight into Position's growing size, which InnerPlotPosition's
+    ' own percentage then scaled up from - InnerPlotPosition is what
+    ' actually creates the visible gap before the plotted black area
+    ' (e.g. room for the Y-axis value labels). The inner margins passed in
+    ' already include a small extra pad (see InnerMarginPadPx) so real,
+    ' longer/higher-precision axis text doesn't get jammed against the
+    ' plot edge.
+    Private Sub UpdateChartAreaHorizontalMargins(ca As ChartArea,
+                                                  outerLeftMarginPx As Double, outerRightMarginPx As Double,
+                                                  innerLeftMarginPx As Double, innerRightMarginPx As Double)
+        If Chart2.Width <= 0 Then Exit Sub
+
+        Dim outerLeftPct As Single = CSng((outerLeftMarginPx / Chart2.Width) * 100.0)
+        Dim outerRightPct As Single = CSng((outerRightMarginPx / Chart2.Width) * 100.0)
+        Dim outerWidthPct As Single = 100.0F - outerLeftPct - outerRightPct
+        ca.Position = New ElementPosition(outerLeftPct, ca.Position.Y, outerWidthPct, ca.Position.Height)
+
+        Dim positionWidthPx As Double = (outerWidthPct / 100.0) * Chart2.Width
+        If positionWidthPx <= 0 Then Exit Sub
+
+        Dim innerLeftPct As Single = CSng((innerLeftMarginPx / positionWidthPx) * 100.0)
+        Dim innerRightPct As Single = CSng((innerRightMarginPx / positionWidthPx) * 100.0)
+        Dim innerWidthPct As Single = 100.0F - innerLeftPct - innerRightPct
+        ca.InnerPlotPosition = New ElementPosition(innerLeftPct, ca.InnerPlotPosition.Y, innerWidthPct, ca.InnerPlotPosition.Height)
+    End Sub
+
+    ' Rewrites both stacked ChartAreas' Position.Y/Height (percentage of
+    ' Chart2's height) AND InnerPlotPosition.Y/Height (percentage of each
+    ' area's own Position height) so the top margin above the main plot,
+    ' the gap between the main and Statistics plots, and the bottom
+    ' margin below the Statistics plot all stay fixed in pixels as
+    ' Chart2's height changes. The height left over after those three
+    ' fixed margins is split between the two plot areas in their
+    ' original height ratio, so both grow/shrink together rather than
+    ' one dominating.
+    Private Sub UpdateChartAreaVerticalMargins()
+        If Chart2.Height <= 0 Then Exit Sub
+
+        Dim remainingHeightPx As Double =
+            Chart2.Height - OriginalMainAreaTopMarginPx - OriginalAreaGapPx - OriginalStatsAreaBottomMarginPx
+        If remainingHeightPx <= 0 Then Exit Sub
+
+        Dim mainHeightPx As Double = remainingHeightPx * OriginalMainAreaHeightRatio
+        Dim statsHeightPx As Double = remainingHeightPx - mainHeightPx
+        If mainHeightPx <= 0 OrElse statsHeightPx <= 0 Then Exit Sub
+
+        Dim ca0 = Chart2.ChartAreas(0)
+        Dim mainYPct As Single = CSng((OriginalMainAreaTopMarginPx / Chart2.Height) * 100.0)
+        Dim mainHeightPct As Single = CSng((mainHeightPx / Chart2.Height) * 100.0)
+        ca0.Position = New ElementPosition(ca0.Position.X, mainYPct, ca0.Position.Width, mainHeightPct)
+
+        Dim caStats = Chart2.ChartAreas("Statistics")
+        ' Nudged up a few pixels from the strict main-plus-gap boundary -
+        ' sat a little too low otherwise, at every window size.
+        Const statsAreaUpShiftPx As Double = 6.0
+        Dim statsYPx As Double = OriginalMainAreaTopMarginPx + mainHeightPx + OriginalAreaGapPx - statsAreaUpShiftPx
+        Dim statsYPct As Single = CSng((statsYPx / Chart2.Height) * 100.0)
+        Dim statsHeightPct As Single = CSng((statsHeightPx / Chart2.Height) * 100.0)
+        caStats.Position = New ElementPosition(caStats.Position.X, statsYPct, caStats.Position.Width, statsHeightPct)
+
+        Dim mainInnerTopPct As Single = CSng((OriginalMainInnerTopMarginPx / mainHeightPx) * 100.0)
+        Dim mainInnerBottomPct As Single = CSng((OriginalMainInnerBottomMarginPx / mainHeightPx) * 100.0)
+        ca0.InnerPlotPosition = New ElementPosition(
+            ca0.InnerPlotPosition.X, mainInnerTopPct, ca0.InnerPlotPosition.Width,
+            100.0F - mainInnerTopPct - mainInnerBottomPct)
+
+        Dim statsInnerTopPct As Single = CSng((OriginalStatsInnerTopMarginPx / statsHeightPx) * 100.0)
+        Dim statsInnerBottomPct As Single = CSng((OriginalStatsInnerBottomMarginPx / statsHeightPx) * 100.0)
+        caStats.InnerPlotPosition = New ElementPosition(
+            caStats.InnerPlotPosition.X, statsInnerTopPct, caStats.InnerPlotPosition.Width,
+            100.0F - statsInnerTopPct - statsInnerBottomPct)
     End Sub
 
 
@@ -4910,6 +5426,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
             ' Set background colours to normal
             Chart2.BackColor = SystemColors.Control
             Me.BackColor = SystemColors.Control
+            If FormGrip IsNot Nothing Then FormGrip.BackColor = SystemColors.Control
         Else
             ' light mode
             Chart2.ChartAreas(0).AxisX.MajorGrid.LineColor = Color.FromArgb(155, 185, 185, 185)
@@ -4944,6 +5461,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
             ' Set background colours to white
             Chart2.BackColor = Color.White
             Me.BackColor = Color.White
+            If FormGrip IsNot Nothing Then FormGrip.BackColor = Color.White
 
             ' Chart2 actually has a 2nd ChartArea ("Statistics", added in
             ' Formtest_Load) rendered as its own panel below the main
@@ -5778,10 +6296,15 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
                 ctl.ForeColor = fg
                 ctl.BackColor = bg
             ElseIf TypeOf ctl Is PictureBox Then
-                ' The grip icon is inverted (dark -> light) for a black
-                ' background - on white it needs to stay in its original
-                ' dark form, or it disappears the same way the traces did.
-                DirectCast(ctl, PictureBox).Image = If(lightMode, My.Resources.grip, InvertGripImage(My.Resources.grip))
+                ' The grip glyph is tinted dark for a white/light background
+                ' or near-white for a black one, or it disappears the same
+                ' way the traces did. BackColor also needs setting explicitly
+                ' (not left Transparent) now that the image is genuinely
+                ' transparent instead of a flat opaque square - see
+                ' MakeGripTransparent.
+                Dim gripPic As PictureBox = DirectCast(ctl, PictureBox)
+                gripPic.Image = MakeGripTransparent(My.Resources.grip, If(lightMode, Color.FromArgb(105, 105, 105), Color.FromArgb(220, 220, 220)))
+                gripPic.BackColor = bg
             End If
         Next
 
@@ -6006,11 +6529,15 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         ' be resized. Dragging it hands off to Windows' own native resize
         ' (WM_NCLBUTTONDOWN / HTBOTTOMRIGHT) rather than us tracking the
         ' drag - same approach as LiveWatch.vb's Live Analysis chart pop-up.
+        ' Built assuming the default dark/black popup background below -
+        ' ApplyAllanChartTheme() (called right after this popup is fully
+        ' built) immediately re-syncs both Image and BackColor to
+        ' whatever theme is actually current, same as everything else here.
         Dim allanGrip As New PictureBox With {
-            .Image = InvertGripImage(My.Resources.grip),
+            .Image = MakeGripTransparent(My.Resources.grip, Color.FromArgb(220, 220, 220)),
             .SizeMode = PictureBoxSizeMode.StretchImage,
             .Size = New Size(36, 36),
-            .BackColor = Color.Transparent,
+            .BackColor = Color.Black,
             .Cursor = Cursors.SizeNWSE,
             .Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
         }
