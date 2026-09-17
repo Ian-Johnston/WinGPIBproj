@@ -185,6 +185,15 @@ Public Class Chart
         RadioButtonPPMTempoLinReg.BackColor = Color.White
         RadioButtonPPMTempoRolling.BackColor = Color.White
 
+        ' These default to Enabled=True in the Designer, but CheckBoxPPMenable
+        ' only flips them via its own CheckedChanged handler - which never
+        ' fires on its own just from a Designer default, so without this
+        ' they'd sit enabled at startup despite Enable PPM being unchecked.
+        RadioButtonPPMDev.Enabled = False
+        RadioButtonPPMTempo.Enabled = False
+        RadioButtonPPMTempoLinReg.Enabled = False
+        RadioButtonPPMTempoRolling.Enabled = False
+
         PlaybackTemp.BackColor = Color.Red
         PlaybackHum.BackColor = Color.DodgerBlue
 
@@ -256,8 +265,6 @@ Public Class Chart
         CheckBoxMedianT.Enabled = False
 
         RadioButtonPPMDev.Checked = True
-        RadioButtonPPMDev.Enabled = True
-        RadioButtonPPMTempo.Enabled = True
         PPMBox1.Enabled = True
         RadioButtonDev1.Checked = True
         MedianValue.Enabled = False
@@ -2025,6 +2032,9 @@ Public Class Chart
             LabelTopChart.Visible = True
             LabelTopTopChart.Visible = True
             LabelBottomChart.Visible = True
+            CheckBoxColours.Enabled = True
+            CheckBoxToolTips.Enabled = True
+            CheckBoxPPMenable.Enabled = True
             Loading.Visible = True
 
             'dataTable1.Clear()
@@ -4841,6 +4851,9 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         LabelTopChart.Visible = False
         LabelTopTopChart.Visible = True
         LabelBottomChart.Visible = False
+        CheckBoxColours.Enabled = False
+        CheckBoxToolTips.Enabled = False
+        CheckBoxPPMenable.Enabled = False
         Loading.Visible = False
         PleaseLoadCSV.Visible = True
 
