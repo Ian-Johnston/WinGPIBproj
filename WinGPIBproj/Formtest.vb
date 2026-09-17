@@ -271,7 +271,7 @@ Public Class Formtest
             End If
             CheckBoxThemeSet.Checked = My.Settings.ThemeSet
 
-            BannerText1 = "WinGPIB   V5.029"
+            BannerText1 = "WinGPIB   V5.030"
             BannerText2 = "                                                                            "
             BannerText3 = "Free for Non-Commercial Use • Support WinGPIB — see About"
             Me.Text = BannerText1 & BannerText2 & BannerText3.ToString()
@@ -2993,9 +2993,7 @@ Public Class Formtest
     End Sub
 
 
-
     ' Check for program updates and download
-
     Private Const UpdateInfoUrl As String = "https://www.ianjohnston.com/WinGPIB/WinGPIBupdate.txt"
     Private Const DownloadBaseUrl As String = "https://www.ianjohnston.com/WinGPIB/"
 
@@ -3020,8 +3018,8 @@ Public Class Formtest
             If latest > current Then
                 Dim zipUrl As String = BuildZipUrlFromVersion(latest) ' e.g. .../WinGPIB_V3_284.zip
                 Dim sb As New StringBuilder()
-                sb.AppendLine($"A new version is available: V{latest.Major}.{latest.Minor}")
-                sb.AppendLine($"You have: V{current.Major}.{current.Minor}")
+                sb.AppendLine($"A new version is available: V{latest.Major}.{latest.Minor:D3}")
+                sb.AppendLine($"You have: V{current.Major}.{current.Minor:D3}")
 
                 If Not String.IsNullOrWhiteSpace(notesText) Then
                     sb.AppendLine().AppendLine("Notes:")
@@ -3034,7 +3032,7 @@ Public Class Formtest
                     Process.Start(New ProcessStartInfo(zipUrl) With {.UseShellExecute = True})
                 End If
             Else
-                MessageBox.Show(Me, $"You're up to date. (V{current.Major}.{current.Minor})", "Check for Updates", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                MessageBox.Show(Me, $"You're up to date. (V{current.Major}.{current.Minor:D3})", "Check for Updates", MessageBoxButtons.OK, MessageBoxIcon.Information)
             End If
 
         Catch ex As Exception
@@ -3069,7 +3067,7 @@ Public Class Formtest
 
     ' Builds "WinGPIB_V<major>_<minor>.zip"
     Private Shared Function BuildZipUrlFromVersion(ver As Version) As String
-        Return $"{DownloadBaseUrl}WinGPIB_V{ver.Major}_{ver.Minor}.zip"
+        Return $"{DownloadBaseUrl}WinGPIB_V{ver.Major}_{ver.Minor:D3}.zip"
     End Function
 
     ' Parse version + multi-line NOTES (supports "notes=" or "NOTES=")
