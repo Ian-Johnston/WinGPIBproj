@@ -2023,6 +2023,7 @@ Public Class Chart
             LabelPPMtop.Visible = True
             LabelPPMdegctop.Visible = True
             LabelTopChart.Visible = True
+            LabelTopTopChart.Visible = True
             LabelBottomChart.Visible = True
             Loading.Visible = True
 
@@ -4838,6 +4839,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         LabelPPMtop.Visible = False
         LabelPPMdegctop.Visible = False
         LabelTopChart.Visible = False
+        LabelTopTopChart.Visible = True
         LabelBottomChart.Visible = False
         Loading.Visible = False
         PleaseLoadCSV.Visible = True

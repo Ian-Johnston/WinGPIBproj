@@ -23,9 +23,9 @@ Partial Class Chart
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
-        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea6 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend6 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series6 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Chart))
         Me.Chart2 = New System.Windows.Forms.DataVisualization.Charting.Chart()
         Me.ButtonScrollLeft = New System.Windows.Forms.Button()
@@ -187,6 +187,7 @@ Partial Class Chart
         Me.GroupBox4 = New System.Windows.Forms.GroupBox()
         Me.GroupBox5 = New System.Windows.Forms.GroupBox()
         Me.LabelBottomChart = New System.Windows.Forms.Label()
+        Me.LabelTopTopChart = New System.Windows.Forms.Label()
         CType(Me.Chart2, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.PPMBox1.SuspendLayout()
         Me.Panel1.SuspendLayout()
@@ -203,22 +204,22 @@ Partial Class Chart
         'Chart2
         '
         Me.Chart2.BackColor = System.Drawing.SystemColors.Control
-        ChartArea1.BackColor = System.Drawing.Color.Black
-        ChartArea1.BorderColor = System.Drawing.Color.White
-        ChartArea1.BorderWidth = 2
-        ChartArea1.Name = "ChartArea1"
-        Me.Chart2.ChartAreas.Add(ChartArea1)
-        Legend1.Name = "Legend1"
-        Me.Chart2.Legends.Add(Legend1)
+        ChartArea6.BackColor = System.Drawing.Color.Black
+        ChartArea6.BorderColor = System.Drawing.Color.White
+        ChartArea6.BorderWidth = 2
+        ChartArea6.Name = "ChartArea1"
+        Me.Chart2.ChartAreas.Add(ChartArea6)
+        Legend6.Name = "Legend1"
+        Me.Chart2.Legends.Add(Legend6)
         Me.Chart2.Location = New System.Drawing.Point(211, 287)
         Me.Chart2.Name = "Chart2"
-        Series1.ChartArea = "ChartArea1"
-        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series1.Color = System.Drawing.Color.Yellow
-        Series1.Enabled = False
-        Series1.Legend = "Legend1"
-        Series1.Name = "Series1"
-        Me.Chart2.Series.Add(Series1)
+        Series6.ChartArea = "ChartArea1"
+        Series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+        Series6.Color = System.Drawing.Color.Yellow
+        Series6.Enabled = False
+        Series6.Legend = "Legend1"
+        Series6.Name = "Series1"
+        Me.Chart2.Series.Add(Series6)
         Me.Chart2.Size = New System.Drawing.Size(938, 335)
         Me.Chart2.TabIndex = 52
         Me.Chart2.Text = "Chart2"
@@ -951,13 +952,13 @@ Partial Class Chart
         Me.PPMBox1.Size = New System.Drawing.Size(408, 87)
         Me.PPMBox1.TabIndex = 149
         Me.PPMBox1.TabStop = False
-        Me.PPMBox1.Text = "PPM. DEVIATION / TEMPCO"
+        Me.PPMBox1.Text = "PPM DEVIATION / TEMPCO"
         '
         'Label5
         '
         Me.Label5.AutoSize = True
         Me.Label5.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label5.Location = New System.Drawing.Point(178, 0)
+        Me.Label5.Location = New System.Drawing.Point(175, 0)
         Me.Label5.Name = "Label5"
         Me.Label5.Size = New System.Drawing.Size(62, 13)
         Me.Label5.TabIndex = 579
@@ -1977,19 +1978,31 @@ Partial Class Chart
         '
         Me.LabelBottomChart.AutoSize = True
         Me.LabelBottomChart.ForeColor = System.Drawing.SystemColors.ControlDarkDark
-        Me.LabelBottomChart.Location = New System.Drawing.Point(439, 785)
+        Me.LabelBottomChart.Location = New System.Drawing.Point(411, 785)
         Me.LabelBottomChart.Name = "LabelBottomChart"
-        Me.LabelBottomChart.Size = New System.Drawing.Size(552, 13)
+        Me.LabelBottomChart.Size = New System.Drawing.Size(608, 13)
         Me.LabelBottomChart.TabIndex = 582
-        Me.LabelBottomChart.Text = "STDEV, SEM, MAX DIFF. && PPM Deviation                  Initial baseline for PPM " &
-    "Deviation value is derived from Stats."
+        Me.LabelBottomChart.Text = "STDEV, SEM, MAX DIFF. && PPM Deviation (from Stats)                  Initial base" &
+    "line for PPM Deviation value is derived from Stats."
         Me.LabelBottomChart.Visible = False
+        '
+        'LabelTopTopChart
+        '
+        Me.LabelTopTopChart.AutoSize = True
+        Me.LabelTopTopChart.ForeColor = System.Drawing.SystemColors.ControlDarkDark
+        Me.LabelTopTopChart.Location = New System.Drawing.Point(517, 230)
+        Me.LabelTopTopChart.Name = "LabelTopTopChart"
+        Me.LabelTopTopChart.Size = New System.Drawing.Size(390, 13)
+        Me.LabelTopTopChart.TabIndex = 583
+        Me.LabelTopTopChart.Text = "Data, Mean, Short Term Mean. PPM Deviation / Tempco, Temperature, Humidity"
+        Me.LabelTopTopChart.Visible = False
         '
         'Chart
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1359, 801)
+        Me.Controls.Add(Me.LabelTopTopChart)
         Me.Controls.Add(Me.LabelBottomChart)
         Me.Controls.Add(Me.ButtonPlaybackHelp)
         Me.Controls.Add(Me.GroupBox5)
@@ -2265,4 +2278,5 @@ Partial Class Chart
     Friend WithEvents RadioButtonPPMTempoLinReg As RadioButton
     Friend WithEvents RadioButtonPPMTempoRolling As RadioButton
     Friend WithEvents LabelBottomChart As Label
+    Friend WithEvents LabelTopTopChart As Label
 End Class
