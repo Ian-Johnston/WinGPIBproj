@@ -2084,9 +2084,7 @@ Partial Class Chart
         Me.Controls.Add(Me.YaxisBox1)
         Me.Controls.Add(Me.GroupBox2)
         Me.Name = "Chart"
-        Me.Text = "WinGPIB    Playback Chart                                                        " &
-    "                                                      Free for Non-Commercial Us" &
-    "e • Support WinGPIB — see About"
+        Me.Text = "WinGPIB    Playback Chart    (Free for Non-Commercial Use • Support WinGPIB — see About)"
         CType(Me.Chart2, System.ComponentModel.ISupportInitialize).EndInit()
         Me.PPMBox1.ResumeLayout(False)
         Me.PPMBox1.PerformLayout()

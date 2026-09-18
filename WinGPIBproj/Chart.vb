@@ -691,7 +691,10 @@ Public Class Chart
     '  - The control panel above the chart (GroupBoxes, Load/Save/Help
     '    buttons, CSV path box) stays exactly as designed internally,
     '    but re-centres as one block instead of sitting stranded at the
-    '    left of a widened window.
+    '    left of a widened window. The Load/Save/Help/CSV-path cluster at
+    '    the top left stays rigid with no internal spacing, but the 9
+    '    GroupBoxes get extra gaps inserted between them (up to 20px per
+    '    gap) as the form is widened - see OriginalGroupASlot.
     '  - Chart2 itself is anchored to grow with the form on all sides.
     '  - The right-hand PPM/DegC/%RH scale (Scale1-Scale25 plus their
     '    header labels) isn't a real chart axis - it's individually
@@ -703,6 +706,18 @@ Public Class Chart
     Private OriginalGroupALeft As New Dictionary(Of Control, Integer)
     Private OriginalGroupALeftBound As Integer
     Private OriginalGroupARightBound As Integer
+    Private OriginalFormClientWidth As Integer
+
+    ' Which of the 7 left-to-right "columns" a Group A control belongs to
+    ' (see ClassifyGroupASlot) - the top-left Load/Save/Help/CSV-path
+    ' cluster and YaxisBox1 ("Y-AXIS SCALE") are both slot 0 (the anchor,
+    ' never shifted for spacing), and GroupBox4/GroupBox3 ("DEV 1
+    ' TRACES"/"CSV", which share a left edge) and GroupBoxMisc/
+    ' GroupBoxMiscTempHum ("MISC."/"TEMP/HUM", which share a right edge)
+    ' are deliberately given the SAME slot number each, so both members
+    ' of those aligned pairs always get an identical extra shift and stay
+    ' aligned with each other as spacing is added.
+    Private OriginalGroupASlot As New Dictionary(Of Control, Integer)
 
     ' Bottom-right resize grip - see InitializeResizableLayout. Kept as a
     ' field so CheckBoxColours_CheckedChanged can keep its BackColor in
@@ -907,6 +922,11 @@ Public Class Chart
 
         OriginalGroupALeftBound = minLeft
         OriginalGroupARightBound = maxRight
+        OriginalFormClientWidth = Me.ClientSize.Width
+
+        For Each ctl As Control In OriginalGroupALeft.Keys
+            OriginalGroupASlot(ctl) = ClassifyGroupASlot(ctl.Top, OriginalGroupALeft(ctl))
+        Next
 
         Chart2.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
 
@@ -960,17 +980,65 @@ Public Class Chart
 
     End Sub
 
+    ' Assigns a Group A control to one of 7 left-to-right "column" slots
+    ' (0-6), based on its ORIGINAL Top/Left (never its live, possibly
+    ' already-shifted, position). The two GroupBox rows (DEV1/DEV2/PPM/
+    ' MISC at Top=4, and Y-AXIS/X-AXIS/CSV/DEVICES/TEMP-HUM at Top=93) use
+    ' independent X breakpoints, since their columns aren't meant to line
+    ' up with each other - except GroupBox4/GroupBox3 ("DEV 1 TRACES"/
+    ' "CSV", which share a left edge at X=502) and GroupBoxMisc/
+    ' GroupBoxMiscTempHum ("MISC."/"TEMP/HUM", sharing a right edge),
+    ' which are deliberately mapped to the SAME slot (2 and 6) so they
+    ' keep moving together. Any control sitting visually "inside" a
+    ' GroupBox but actually a separate sibling (see the sweep comment
+    ' above) still falls into that GroupBox's slot purely by X position,
+    ' with no need to know it by name.
+    Private Function ClassifyGroupASlot(top As Integer, left As Integer) As Integer
+
+        Dim isTopRow As Boolean = top < 93
+
+        If isTopRow AndAlso left < 502 Then Return 0   ' top-left Load/Save/Help/CSV-path cluster - fixed, no spacing
+
+        If isTopRow Then
+            ' DEV1(502) / DEV2(684) / PPM(866) / MISC(1279)
+            If left < 682 Then Return 2
+            If left < 864 Then Return 4
+            If left < 1276 Then Return 5
+            Return 6
+        Else
+            ' Y-AXIS(6) / X-AXIS(269) / CSV(502) / DEVICES(661) / TEMP-HUM(1235)
+            If left < 266 Then Return 0
+            If left < 500 Then Return 1
+            If left < 658 Then Return 2
+            If left < 1232 Then Return 3
+            Return 6
+        End If
+
+    End Function
+
     Private Sub RepositionResizableLayout()
 
         If OriginalGroupALeft.Count = 0 Then Exit Sub   ' not initialized yet
 
-        ' Group A: re-centre the whole top panel as one block.
+        ' Group A: re-centre the whole top panel as one block, and space
+        ' the 7 column slots (see ClassifyGroupASlot) apart from each
+        ' other as the form is widened - up to 30px per gap, ramped in
+        ' over the first 180px (6 gaps x 30px) of width growth beyond the
+        ' form's original size, so there's zero drift at/below that size.
+        Const groupASlotCount As Integer = 7
+        Const maxGapPerBoundaryPx As Double = 30.0
+
+        Dim formWidthGrowthPx As Double = Math.Max(0.0, Me.ClientSize.Width - OriginalFormClientWidth)
+        Dim gapPerBoundaryPx As Double = Math.Min(maxGapPerBoundaryPx, formWidthGrowthPx / (groupASlotCount - 1))
+        Dim totalExtraSpacingPx As Double = (groupASlotCount - 1) * gapPerBoundaryPx
+
         Dim groupWidth As Integer = OriginalGroupARightBound - OriginalGroupALeftBound
-        Dim newLeftBound As Integer = (Me.ClientSize.Width - groupWidth) \ 2
+        Dim newLeftBound As Integer = CInt((Me.ClientSize.Width - (groupWidth + totalExtraSpacingPx)) / 2.0)
         Dim offsetX As Integer = newLeftBound - OriginalGroupALeftBound
 
         For Each kvp In OriginalGroupALeft
-            kvp.Key.Left = kvp.Value + offsetX
+            Dim slotShiftPx As Integer = CInt(OriginalGroupASlot(kvp.Key) * gapPerBoundaryPx)
+            kvp.Key.Left = kvp.Value + offsetX + slotShiftPx
         Next
 
         ' Group B: Scale1-25 pinned by index fraction between the MAIN
@@ -5365,7 +5433,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         LabelPPMtop.Visible = False
         LabelPPMdegctop.Visible = False
         LabelTopChart.Visible = False
-        LabelTopTopChart.Visible = True
+        LabelTopTopChart.Visible = False
         LabelBottomChart.Visible = False
         CheckBoxColours.Enabled = False
         CheckBoxToolTips.Enabled = False

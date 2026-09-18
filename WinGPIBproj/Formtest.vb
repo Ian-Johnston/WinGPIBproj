@@ -271,10 +271,8 @@ Public Class Formtest
             End If
             CheckBoxThemeSet.Checked = My.Settings.ThemeSet
 
-            BannerText1 = "WinGPIB   V5.031"
-            BannerText2 = "                                                                            "
-            BannerText3 = "Free for Non-Commercial Use • Support WinGPIB — see About"
-            Me.Text = BannerText1 & BannerText2 & BannerText3.ToString()
+            BannerText1 = "WinGPIB - V5.032    (Free for Non-Commercial Use • Support WinGPIB — see About)"
+            Me.Text = BannerText1.ToString()
 
             ' Advantest R6581 tab
             AllRegularConstantsReadR6581.Checked = True         ' default checked radio button
