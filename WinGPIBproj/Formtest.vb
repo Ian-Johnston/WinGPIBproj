@@ -271,7 +271,7 @@ Public Class Formtest
             End If
             CheckBoxThemeSet.Checked = My.Settings.ThemeSet
 
-            BannerText1 = "WinGPIB - V5.032    (Free for Non-Commercial Use • Support WinGPIB — see About)"
+            BannerText1 = "WinGPIB - V5.033    (Free for Non-Commercial Use • Support WinGPIB — see About)"
             Me.Text = BannerText1.ToString()
 
             ' Advantest R6581 tab
@@ -3038,11 +3038,19 @@ Public Class Formtest
         End Try
     End Sub
 
-    ' Extracts version from your banner string (e.g., "WinGPIB   V3.283")
+    ' Extracts version from your banner string (e.g., "WinGPIB   V3.283").
+    ' BannerText1 now has the credit line merged onto the same string
+    ' (e.g. "WinGPIB - V5.032    Free for Non-Commercial Use..."), so only
+    ' the leading digits-and-dots run right after "V" is kept - otherwise
+    ' that trailing text got fed into ParseLooseVersion's Integer.TryParse
+    ' for the minor version component, which silently failed and produced
+    ' "V5.000" instead of "V5.032".
     Private Shared Function CurrentVersionFromBanner(banner As String) As Version
         If String.IsNullOrWhiteSpace(banner) Then Return New Version(0, 0)
         Dim i As Integer = banner.LastIndexOf("V"c)
         Dim s As String = If(i >= 0, banner.Substring(i + 1), banner)
+        Dim m As Match = Regex.Match(s, "^[0-9]+(\.[0-9]+)*")
+        If m.Success Then s = m.Value
         Return ParseLooseVersion(s)
     End Function
 
