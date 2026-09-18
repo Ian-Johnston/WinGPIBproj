@@ -689,12 +689,12 @@ Public Class Chart
     ' control absolutely positioned. Making it resizable needs three
     ' different strategies depending on what a control actually is:
     '  - The control panel above the chart (GroupBoxes, Load/Save/Help
-    '    buttons, CSV path box) stays exactly as designed internally,
-    '    but re-centres as one block instead of sitting stranded at the
-    '    left of a widened window. The Load/Save/Help/CSV-path cluster at
-    '    the top left stays rigid with no internal spacing, but the 9
-    '    GroupBoxes get extra gaps inserted between them (up to 20px per
-    '    gap) as the form is widened - see OriginalGroupASlot.
+    '    buttons, CSV path box) stays exactly as designed internally, and
+    '    stays left-justified at its original position as the form widens.
+    '    The Load/Save/Help/CSV-path cluster at the top left stays rigid
+    '    with no internal spacing, but the 9 GroupBoxes get extra gaps
+    '    inserted between them (up to 30px per gap) as the form is
+    '    widened - see OriginalGroupASlot.
     '  - Chart2 itself is anchored to grow with the form on all sides.
     '  - The right-hand PPM/DegC/%RH scale (Scale1-Scale25 plus their
     '    header labels) isn't a real chart axis - it's individually
@@ -704,8 +704,6 @@ Public Class Chart
     '    height as the chart resizes.
 
     Private OriginalGroupALeft As New Dictionary(Of Control, Integer)
-    Private OriginalGroupALeftBound As Integer
-    Private OriginalGroupARightBound As Integer
     Private OriginalFormClientWidth As Integer
 
     ' Which of the 7 left-to-right "columns" a Group A control belongs to
@@ -894,21 +892,20 @@ Public Class Chart
         groupB.AddRange(scaleLabels)
 
         ' Group A: the fixed top control panel - internal layout
-        ' untouched, just re-centred horizontally as one block on resize.
-        ' Built by SWEEPING every direct child of the form above the
-        ' chart, rather than naming controls individually - several
-        ' controls that visually sit "inside" a GroupBox (e.g. the Y-AXIS
-        ' SCALE box's Save button, 1/2/3/4 checkboxes, and Max/Min boxes;
-        ' the X-AXIS SCALE box's nav/zoom buttons) turned out to actually
-        ' be separate sibling controls on the form, not real children of
-        ' that GroupBox - moving just the GroupBox left them behind. A
-        ' position-based sweep catches those automatically regardless of
-        ' the real parent/child structure, since it only cares whether a
-        ' control is a direct child of the form sitting above the chart.
+        ' untouched, left-justified at its original position on resize
+        ' (only the spacing between its column slots grows - see
+        ' ClassifyGroupASlot). Built by SWEEPING every direct child of
+        ' the form above the chart, rather than naming controls
+        ' individually - several controls that visually sit "inside" a
+        ' GroupBox (e.g. the Y-AXIS SCALE box's Save button, 1/2/3/4
+        ' checkboxes, and Max/Min boxes; the X-AXIS SCALE box's nav/zoom
+        ' buttons) turned out to actually be separate sibling controls on
+        ' the form, not real children of that GroupBox - moving just the
+        ' GroupBox left them behind. A position-based sweep catches those
+        ' automatically regardless of the real parent/child structure,
+        ' since it only cares whether a control is a direct child of the
+        ' form sitting above the chart.
         Const groupABottomLimit As Integer = 280   ' Chart2 starts at Y=287
-
-        Dim minLeft As Integer = Integer.MaxValue
-        Dim maxRight As Integer = Integer.MinValue
 
         For Each ctl As Control In Me.Controls
             If ctl Is Chart2 Then Continue For
@@ -916,12 +913,8 @@ Public Class Chart
             If ctl.Top >= groupABottomLimit Then Continue For
 
             OriginalGroupALeft(ctl) = ctl.Left
-            minLeft = Math.Min(minLeft, ctl.Left)
-            maxRight = Math.Max(maxRight, ctl.Left + ctl.Width)
         Next
 
-        OriginalGroupALeftBound = minLeft
-        OriginalGroupARightBound = maxRight
         OriginalFormClientWidth = Me.ClientSize.Width
 
         For Each ctl As Control In OriginalGroupALeft.Keys
@@ -1020,25 +1013,49 @@ Public Class Chart
 
         If OriginalGroupALeft.Count = 0 Then Exit Sub   ' not initialized yet
 
-        ' Group A: re-centre the whole top panel as one block, and space
-        ' the 7 column slots (see ClassifyGroupASlot) apart from each
-        ' other as the form is widened - up to 30px per gap, ramped in
-        ' over the first 180px (6 gaps x 30px) of width growth beyond the
-        ' form's original size, so there's zero drift at/below that size.
+        ' Group A: stays left-justified at its original position (no
+        ' re-centring), and spaces the 7 column slots (see
+        ' ClassifyGroupASlot) apart from each other as the form is
+        ' widened - up to 30px per gap, ramped in over the first 180px
+        ' (6 gaps x 30px) of width growth beyond the form's original
+        ' size, so there's zero drift at/below that size.
         Const groupASlotCount As Integer = 7
         Const maxGapPerBoundaryPx As Double = 30.0
 
         Dim formWidthGrowthPx As Double = Math.Max(0.0, Me.ClientSize.Width - OriginalFormClientWidth)
         Dim gapPerBoundaryPx As Double = Math.Min(maxGapPerBoundaryPx, formWidthGrowthPx / (groupASlotCount - 1))
-        Dim totalExtraSpacingPx As Double = (groupASlotCount - 1) * gapPerBoundaryPx
 
-        Dim groupWidth As Integer = OriginalGroupARightBound - OriginalGroupALeftBound
-        Dim newLeftBound As Integer = CInt((Me.ClientSize.Width - (groupWidth + totalExtraSpacingPx)) / 2.0)
-        Dim offsetX As Integer = newLeftBound - OriginalGroupALeftBound
+        ' Once every gap has reached the 30px pixel limit, "DEVICES"
+        ' (slot 3) and "TEMP/HUM" (slot 6, sharing that slot - and its
+        ' current right-edge alignment - with "MISC.") each continue
+        ' growing further, alone, over a further 180px of form growth,
+        ' until DEVICES' left edge reaches where "DEV 2 TRACES" (slot 4)
+        ' ends up, and TEMP/HUM's left edge reaches where "MISC." (which
+        ' stays put) ends up - i.e. TEMP/HUM switches from being right-
+        ' aligned under MISC. to left-aligned with it. Row (Top) tells
+        ' TEMP/HUM's slot-6 members (Top >= 93) apart from MISC.'s own
+        ' (Top < 93), which must NOT get this extra shift.
+        Dim fullRampGrowthPx As Double = (groupASlotCount - 1) * maxGapPerBoundaryPx
+        Dim extraGrowthPx As Double = Math.Max(0.0, formWidthGrowthPx - fullRampGrowthPx)
+        Dim extraRampFraction As Double = Math.Min(1.0, extraGrowthPx / fullRampGrowthPx)
+
+        Dim devicesExtraTargetPx As Double =
+            (OriginalGroupALeft(GroupBox5) + 4 * maxGapPerBoundaryPx) -
+            (OriginalGroupALeft(GroupBox2) + 3 * maxGapPerBoundaryPx)
+        Dim tempHumExtraTargetPx As Double = OriginalGroupALeft(GroupBoxMisc) - OriginalGroupALeft(GroupBoxMiscTempHum)
+
+        Dim devicesExtraShiftPx As Double = devicesExtraTargetPx * extraRampFraction
+        Dim tempHumExtraShiftPx As Double = tempHumExtraTargetPx * extraRampFraction
 
         For Each kvp In OriginalGroupALeft
-            Dim slotShiftPx As Integer = CInt(OriginalGroupASlot(kvp.Key) * gapPerBoundaryPx)
-            kvp.Key.Left = kvp.Value + offsetX + slotShiftPx
+            Dim slot As Integer = OriginalGroupASlot(kvp.Key)
+            Dim extraShiftPx As Integer = 0
+            If slot = 3 Then
+                extraShiftPx = CInt(devicesExtraShiftPx)
+            ElseIf slot = 6 AndAlso kvp.Key.Top >= 93 Then
+                extraShiftPx = CInt(tempHumExtraShiftPx)
+            End If
+            kvp.Key.Left = kvp.Value + CInt(slot * gapPerBoundaryPx) + extraShiftPx
         Next
 
         ' Group B: Scale1-25 pinned by index fraction between the MAIN
