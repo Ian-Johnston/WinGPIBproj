@@ -804,6 +804,14 @@ Public Class Chart
     Private OriginalShiftPairCenterFraction As Double
     Private OriginalShiftButtonOffsetFromPairCenter As New Dictionary(Of Control, Integer)
 
+    ' Xscale/Xscaletotal sit just above the chart as a rigid pair (fixed
+    ' gap between them, same idea as LabelTempC/LabelHum) and are simply
+    ' centred on the form's width. LabelTopTopChart (a separate label at
+    ' a different Y, shown only before a CSV is loaded) is centred
+    ' independently the same way.
+    Private OriginalXscalePairWidth As Integer
+    Private OriginalXscaletotalGapFromXscale As Integer
+
     Private Sub InitializeResizableLayout()
 
         ' Group B: the chart's own right-hand scale - tracks the chart's
@@ -876,6 +884,9 @@ Public Class Chart
         OriginalTempHumBlockWidth = (LabelHum.Left + LabelHum.Width) - LabelTempC.Left
         OriginalLabelHumGapFromTempC = LabelHum.Left - LabelTempC.Left
 
+        OriginalXscalePairWidth = (Xscaletotal.Left + Xscaletotal.Width) - Xscale.Left
+        OriginalXscaletotalGapFromXscale = Xscaletotal.Left - Xscale.Left
+
         Dim scaleLabels As Control() = {
             Scale1, Scale2, Scale3, Scale4, Scale5, Scale6, Scale7, Scale8,
             Scale9, Scale10, Scale11, Scale12, Scale13, Scale14, Scale15,
@@ -910,6 +921,12 @@ Public Class Chart
         For Each ctl As Control In Me.Controls
             If ctl Is Chart2 Then Continue For
             If groupB.Contains(ctl) Then Continue For
+            ' Xscale/Xscaletotal/LabelTopTopChart sit between the control
+            ' panel and the chart (Y=210-243) but aren't part of the
+            ' GroupBox grid at all - they're independently centred below
+            ' (see OriginalXscalePairWidth etc.), not left-justified/
+            ' slot-spaced along with everything else here.
+            If ctl Is Xscale OrElse ctl Is Xscaletotal OrElse ctl Is LabelTopTopChart Then Continue For
             If ctl.Top >= groupABottomLimit Then Continue For
 
             OriginalGroupALeft(ctl) = ctl.Left
@@ -1179,6 +1196,13 @@ Public Class Chart
         ' the chart will appear) - horizontal centring only, Top untouched.
         PleaseLoadCSV.Left = (Me.ClientSize.Width - PleaseLoadCSV.Width) \ 2
         Loading.Left = (Me.ClientSize.Width - Loading.Width) \ 2
+
+        ' Xscale/Xscaletotal - rigid pair (fixed gap), centred as a block.
+        Dim xscalePairLeft As Integer = (Me.ClientSize.Width - OriginalXscalePairWidth) \ 2
+        Xscale.Left = xscalePairLeft
+        Xscaletotal.Left = xscalePairLeft + OriginalXscaletotalGapFromXscale
+
+        LabelTopTopChart.Left = (Me.ClientSize.Width - LabelTopTopChart.Width) \ 2
 
     End Sub
 
