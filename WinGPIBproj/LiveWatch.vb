@@ -747,15 +747,11 @@ Partial Class Formtest
         If value > Stats1Max Then Stats1Max = value
         If value < Stats1Min Then Stats1Min = value
 
-        ' PPM Deviation from first sample since last reset. Guarding only
-        ' against Stats1FirstValue being EXACTLY 0 isn't enough - a real
-        ' meter reading a near-zero/floating input almost never returns
-        ' the literal 0.0, just some tiny noise-floor residual (e.g.
-        ' 2.4E-7). Dividing by that still blows the ratio up to an
-        ' astronomical (though technically finite) number the moment the
-        ' reading moves away from it, which MSChart's own axis
-        ' auto-scaling then can't convert to a Decimal without throwing
-        ' OverflowException. A small absolute epsilon catches this.
+        ' PPM Deviation from first sample since last reset. A near-zero
+        ' baseline (a real meter reading ~0V rarely returns literal 0.0,
+        ' just a tiny noise-floor residual like 2.4E-7) still produces an
+        ' astronomical ratio here, which crashes MSChart's axis auto-
+        ' scaling - so the divisor needs an epsilon check, not just <> 0.
         'Stats1DeviationCurrent = (value - Stats1FirstValue) * 1000000
         Stats1DeviationCurrent = If(Math.Abs(Stats1FirstValue) > 0.000000001, (value - Stats1FirstValue) / Stats1FirstValue * 1000000, 0)
 
@@ -951,11 +947,10 @@ Partial Class Formtest
     End Sub
 
     ' Shared by the "Reset Stats" buttons above (after their confirmation
-    ' prompt) and the main Reset button (ButtonReset_Click in Formtest.vb),
-    ' which resets both devices back to their power-up "-" state silently.
-    ' Also resets LabelStats1Value (the big current-reading readout),
-    ' which the individual Reset Stats button never used to touch, even
-    ' though it's just as stale as the rest once the running stats reset.
+    ' prompt) and the main Reset button (ButtonReset_Click in Formtest.vb) -
+    ' resets Device 1's running stats and readouts (including
+    ' LabelStats1Value, the big current-reading display) back to their
+    ' power-up "-" state.
     Private Sub ResetStats1()
 
         Stats1Count = 0
@@ -2380,22 +2375,17 @@ Partial Class Formtest
                                             Dim dev2Active As Boolean = (ButtonDev2Run.Text = "Stop") OrElse (ButtonDev12Run.Text = "Stop")
 
                                             ' Temperature has its own separate USB sensor, started/stopped via
-                                            ' ButtonStart/ButtonEnd (TempHumidity.vb) - unlike Dev1Run/Dev2Run,
-                                            ' those are two separate buttons rather than one toggling Run/Stop
-                                            ' button, with ButtonEnd.Enabled=True meaning it's currently running
-                                            ' (set in ButtonStart_Click) and False meaning stopped (ButtonEnd_Click).
-                                            ' This used to be tied to dev1Active/dev2Active instead, which meant
-                                            ' the Temperature trace/checkboxes stayed "active" even with no
-                                            ' temperature device actually running, as long as either measurement
-                                            ' device was.
+                                            ' ButtonStart/ButtonEnd (TempHumidity.vb) - two separate buttons
+                                            ' rather than one toggling Run/Stop button, with
+                                            ' ButtonEnd.Enabled=True meaning it's currently running (set in
+                                            ' ButtonStart_Click) and False meaning stopped (ButtonEnd_Click).
                                             Dim tempActive As Boolean = ButtonEnd.Enabled
 
                                             ' Resuming (stopped -> running) clears that device's traces and
                                             ' re-enables its checkboxes fresh for the new run. Stopping
-                                            ' (running -> stopped) deliberately does nothing here any more -
-                                            ' the checkboxes and traces are left exactly as they were, frozen,
-                                            ' so the last run's data stays on screen for review instead of
-                                            ' vanishing the moment Stop is pressed.
+                                            ' (running -> stopped) does nothing here - the checkboxes and traces
+                                            ' are left exactly as they were, frozen, so the last run's data
+                                            ' stays on screen for review instead of vanishing on Stop.
                                             If dev1Active AndAlso Not dev1WasActive Then
                                                 ClearLiveAnalysisSeries({"Device 1", "Dev 1 Mean", "Dev 1 STDEV", "Dev 1 SEM", "Dev 1 PPM Deviation"})
                                                 q1ShortTermMean.Clear() : sum1ShortTermMean = 0.0
@@ -2431,19 +2421,14 @@ Partial Class Formtest
         AddHandler ButtonEnd.Click, RunButtonHandler
 
         ' Pressing the main Reset button tears down whatever device(s)
-        ' were connected - if this pop-out was left open across that
-        ' (e.g. was showing a dual-device run that got reset back to
-        ' single-device), its Dev 1/Dev 2/Temperature traces and
-        ' checkboxes would otherwise be left showing/enabled for a device
-        ' that's no longer there. Clearing here and marking all three
-        ' "not active" means the next real Run/Start also re-clears/
-        ' re-enables normally, exactly as if the chart had just been
-        ' freshly opened. Temperature is included even though Reset
-        ' doesn't itself touch the temperature sensor (ButtonStart/
-        ' ButtonEnd) - if it's still actually running, the next
-        ' RefreshDeviceAvailability() call (e.g. from ButtonStart/
-        ' ButtonEnd) will see tempActive=True with tempWasActive now
-        ' False and correctly re-clear/re-enable it too.
+        ' were connected - clears this pop-out's Dev 1/Dev 2/Temperature
+        ' traces and disables their checkboxes so a device that's no
+        ' longer connected doesn't stay showing/enabled here. Marking all
+        ' three "not active" means the next real Run/Start re-clears/
+        ' re-enables normally, as if the chart had just been freshly
+        ' opened - this covers Temperature too even though Reset doesn't
+        ' touch the sensor itself, since the next RefreshDeviceAvailability()
+        ' call will still see it correctly once it's genuinely restarted.
         Dim ResetHandler = Sub(s As Object, ev As EventArgs)
                                 ClearLiveAnalysisSeries({"Device 1", "Dev 1 Mean", "Dev 1 STDEV", "Dev 1 SEM", "Dev 1 PPM Deviation"})
                                 ClearLiveAnalysisSeries({"Device 2", "Dev 2 Mean", "Dev 2 STDEV", "Dev 2 SEM", "Dev 2 PPM Deviation"})
