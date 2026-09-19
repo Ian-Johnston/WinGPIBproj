@@ -93,12 +93,6 @@ Public Class Chart
     Dim medianvalued As Double
     Dim mediantempd As Double
 
-    ' Whatever MedianValue/MedianTemp held right before switching into
-    ' PPM/DegC (Fit) mode, which overwrites both boxes with its own
-    ' result/uncertainty display. Restored when switching to any other
-    ' PPM radio, so a manually-typed Initial Value/Initial Temp (i.e.
-    ' "- From CSV" unchecked) doesn't get permanently replaced by Fit
-    ' mode's leftover text - nothing else would otherwise put it back.
     Dim SavedMedianValueBeforeFit As String = ""
     Dim SavedMedianTempBeforeFit As String = ""
 
@@ -118,11 +112,7 @@ Public Class Chart
     Dim variancevalue As Double
     Dim variancetemp As Double
     Dim calcppmvalue As Double
-    ' DEV1avg/DEV2avg/TEMPavg rolling-average buffers - previously all
-    ' three shared one "inputvalueMeasurements" array, so whenever two of
-    ' them were set to the same window size the buffer never got reset
-    ' between traces and their smoothing corrupted each other. Each trace
-    ' now gets its own.
+
     Dim Dev1AvgBuffer() As Double
     Dim Dev2AvgBuffer() As Double
     Dim TempAvgBuffer() As Double
@@ -133,11 +123,6 @@ Public Class Chart
     Dim tempcounter As Integer = 0
     Dim tempTEMPcounter As Integer = 0
 
-    ' Retrospective Short-Term Mean traces (Playback top chart) - a rolling
-    ' average over the last few raw VALUE readings, recomputed fresh each
-    ' time the chart is (re)plotted, independent of the DEV1avg/DEV2avg/
-    ' TEMPavg rolling-average feature above. Same idea as LiveWatch.vb's
-    ' Short-Term Mean checkbox.
     Private Const ShortTermMeanWindow As Integer = 30
 
     Dim numberofmetadatalines As Integer = 0
@@ -297,7 +282,6 @@ Public Class Chart
         ' ==========================================================
         ' Chart2 initialise
         ' ==========================================================
-
         Chart2.Location = New Point(1, 202)
         Chart2.Size = New Size(1334, 610)
 
@@ -305,11 +289,9 @@ Public Class Chart
         Chart2.ChartAreas(0).AxisX.MajorTickMark.Enabled = True
         Chart2.ChartAreas(0).AxisX.Interval = 95
 
-        Chart2.ChartAreas(0).AxisY.LabelStyle.Font =
-        New Font("Verdana", 8)
+        Chart2.ChartAreas(0).AxisY.LabelStyle.Font = New Font("Verdana", 8)
 
-        Chart2.ChartAreas(0).AxisY.LabelStyle.Format =
-        "{000.0000000}"
+        Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{000.0000000}"
 
         Chart2.ChartAreas(0).AxisY.MajorTickMark.Enabled = True
         Chart2.ChartAreas(0).AxisX.MinorTickMark.Enabled = False
@@ -320,17 +302,13 @@ Public Class Chart
         Chart2.ChartAreas(0).AxisX.MinorGrid.Enabled = True
         Chart2.ChartAreas(0).AxisY.MinorGrid.Enabled = True
 
-        Chart2.ChartAreas(0).AxisX.MajorGrid.LineColor =
-        Color.FromArgb(255, 85, 85, 85)
+        Chart2.ChartAreas(0).AxisX.MajorGrid.LineColor = Color.FromArgb(255, 85, 85, 85)
 
-        Chart2.ChartAreas(0).AxisY.MajorGrid.LineColor =
-        Color.FromArgb(255, 85, 85, 85)
+        Chart2.ChartAreas(0).AxisY.MajorGrid.LineColor = Color.FromArgb(255, 85, 85, 85)
 
-        Chart2.ChartAreas(0).AxisX.MinorGrid.LineColor =
-        Color.FromArgb(150, 85, 85, 85)
+        Chart2.ChartAreas(0).AxisX.MinorGrid.LineColor = Color.FromArgb(150, 85, 85, 85)
 
-        Chart2.ChartAreas(0).AxisY.MinorGrid.LineColor =
-        Color.FromArgb(150, 85, 85, 85)
+        Chart2.ChartAreas(0).AxisY.MinorGrid.LineColor = Color.FromArgb(150, 85, 85, 85)
 
         Chart2.DataBindTable(gChartPlayback)
 
@@ -436,17 +414,13 @@ Public Class Chart
         ' Assign statistics series to correct ChartAreas
         ' ==========================================================
 
-        Chart2.Series(5).ChartArea =
-        Chart2.ChartAreas(0).Name
+        Chart2.Series(5).ChartArea = Chart2.ChartAreas(0).Name
 
-        Chart2.Series(8).ChartArea =
-        Chart2.ChartAreas(0).Name
+        Chart2.Series(8).ChartArea = Chart2.ChartAreas(0).Name
 
-        Chart2.Series(15).ChartArea =
-        Chart2.ChartAreas(0).Name
+        Chart2.Series(15).ChartArea = Chart2.ChartAreas(0).Name
 
-        Chart2.Series(16).ChartArea =
-        Chart2.ChartAreas(0).Name
+        Chart2.Series(16).ChartArea = Chart2.ChartAreas(0).Name
 
         Chart2.Series(6).ChartArea = "Statistics"
         Chart2.Series(7).ChartArea = "Statistics"
@@ -470,13 +444,11 @@ Public Class Chart
 
         For i As Integer = 0 To 16
 
-            Chart2.Series(i).ChartType =
-            DataVisualization.Charting.SeriesChartType.Line
+            Chart2.Series(i).ChartType = DataVisualization.Charting.SeriesChartType.Line
 
         Next
 
-        Chart2.Series(0).YValueType =
-        DataVisualization.Charting.ChartValueType.Single
+        Chart2.Series(0).YValueType = DataVisualization.Charting.ChartValueType.Single
 
 
         ' ==========================================================
@@ -554,26 +526,22 @@ Public Class Chart
 
         Chart2.ChartAreas(0).AxisY2.Interval = 1
 
-        Chart2.ChartAreas(0).AxisY2.MajorGrid.LineColor =
-        Color.FromArgb(100, 85, 85, 85)
+        Chart2.ChartAreas(0).AxisY2.MajorGrid.LineColor = Color.FromArgb(100, 85, 85, 85)
 
-        Chart2.ChartAreas(0).AxisY2.MinorGrid.LineColor =
-        Color.FromArgb(100, 85, 85, 85)
+        Chart2.ChartAreas(0).AxisY2.MinorGrid.LineColor = Color.FromArgb(100, 85, 85, 85)
 
 
         ' ==========================================================
         ' Temperature
         ' ==========================================================
 
-        Chart2.Series(2).YAxisType =
-        DataVisualization.Charting.AxisType.Secondary
+        Chart2.Series(2).YAxisType = DataVisualization.Charting.AxisType.Secondary
 
         Chart2.ChartAreas(0).AxisY2.Enabled = True
         Chart2.ChartAreas(0).AxisY2.Minimum = 15
         Chart2.ChartAreas(0).AxisY2.Maximum = 50
 
-        Chart2.ChartAreas(0).AxisY2.Enabled =
-        DataVisualization.Charting.AxisEnabled.True
+        Chart2.ChartAreas(0).AxisY2.Enabled = DataVisualization.Charting.AxisEnabled.True
 
         Chart2.ChartAreas(0).AxisY2.LabelStyle.Enabled = True
 
@@ -582,8 +550,7 @@ Public Class Chart
         ' Humidity
         ' ==========================================================
 
-        Chart2.Series(3).YAxisType =
-        DataVisualization.Charting.AxisType.Secondary
+        Chart2.Series(3).YAxisType = DataVisualization.Charting.AxisType.Secondary
 
 
         ' ==========================================================
@@ -628,8 +595,7 @@ Public Class Chart
 
         LabelTempC.Text = My.Settings.data324
         LabelHum.Text = My.Settings.data325
-        RadioButtonPPMTempo.Text =
-        "PPM/" & My.Settings.data324
+        'RadioButtonPPMTempo.Text = "PPM/" & My.Settings.data324
 
 
         ' ==========================================================
@@ -1360,8 +1326,7 @@ Public Class Chart
         ' Read CSV file
         ' ==========================================================
 
-        Dim lines As List(Of String) =
-        IO.File.ReadAllLines(filePlayback).ToList()
+        Dim lines As List(Of String) = IO.File.ReadAllLines(filePlayback).ToList()
 
 
         ' Initialize variables.
@@ -1423,11 +1388,9 @@ Public Class Chart
 
                 If CSVdelimit = "" Then
 
-                    Dim commaCount As Integer =
-                    line.Split(","c).Length - 1
+                    Dim commaCount As Integer = line.Split(","c).Length - 1
 
-                    Dim semicolonCount As Integer =
-                    line.Split(";"c).Length - 1
+                    Dim semicolonCount As Integer = line.Split(";"c).Length - 1
 
                     If commaCount >= 5 Then
 
@@ -1451,9 +1414,8 @@ Public Class Chart
                 ' Split data line
                 ' ----------------------------------------------------------
 
-                Dim values As String() =
-                line.Split(New String() {CSVdelimit},
-                           StringSplitOptions.None)
+                Dim values As String() = line.Split(New String() {CSVdelimit},
+                                                    StringSplitOptions.None)
 
 
                 ' Minimum valid old WinGPIB CSV = 6 fields. A single bad
@@ -1547,14 +1509,11 @@ Public Class Chart
                 row("DEVICE") = values(1)
                 row("DATETIME") = values(2)
 
-                row("VALUE") =
-                CDbl(Val(values(3)))
+                row("VALUE") = CDbl(Val(values(3)))
 
-                row("TEMP") =
-                CDbl(Val(values(4)))
+                row("TEMP") = CDbl(Val(values(4)))
 
-                row("HUM") =
-                CDbl(Val(values(5)))
+                row("HUM") = CDbl(Val(values(5)))
 
 
                 ' ----------------------------------------------------------
@@ -1634,15 +1593,12 @@ Public Class Chart
         ' Update metadata
         ' ==========================================================
 
-        MetadataChart.Text =
-        metadataBuilder.ToString()
+        MetadataChart.Text = metadataBuilder.ToString()
 
 
-        numberofmetadatalines =
-        lines.Count - numberlinesCSV
+        numberofmetadatalines = lines.Count - numberlinesCSV
 
-        numberlinesCSV =
-        lines.Count
+        numberlinesCSV = lines.Count
 
 
         ' ==========================================================
@@ -1762,11 +1718,9 @@ Public Class Chart
         ' Check if dual devices exist and update UI
         ' ==========================================================
 
-        Devname1 =
-        dataTable1.Rows(0).ItemArray(1).ToString()
+        Devname1 = dataTable1.Rows(0).ItemArray(1).ToString()
 
-        Devname2 =
-        dataTable1.Rows(1).ItemArray(1).ToString()
+        Devname2 = dataTable1.Rows(1).ItemArray(1).ToString()
 
 
         If Devname1 = Devname2 Then
@@ -1827,27 +1781,21 @@ Public Class Chart
 
         If Not DualDev Then
 
-            MedianValueCSV =
-            dataTable1.Rows(0).ItemArray(3).ToString()
+            MedianValueCSV = dataTable1.Rows(0).ItemArray(3).ToString()
 
-            MedianTempCSV =
-            dataTable1.Rows(0).ItemArray(4).ToString()
+            MedianTempCSV = dataTable1.Rows(0).ItemArray(4).ToString()
 
         ElseIf RadioButtonDev1.Checked Then
 
-            MedianValueCSV =
-            dataTable1.Rows(0).ItemArray(3).ToString()
+            MedianValueCSV = dataTable1.Rows(0).ItemArray(3).ToString()
 
-            MedianTempCSV =
-            dataTable1.Rows(0).ItemArray(4).ToString()
+            MedianTempCSV = dataTable1.Rows(0).ItemArray(4).ToString()
 
         ElseIf RadioButtonDev2.Checked Then
 
-            MedianValueCSV =
-            dataTable1.Rows(1).ItemArray(3).ToString()
+            MedianValueCSV = dataTable1.Rows(1).ItemArray(3).ToString()
 
-            MedianTempCSV =
-            dataTable1.Rows(1).ItemArray(4).ToString()
+            MedianTempCSV = dataTable1.Rows(1).ItemArray(4).ToString()
 
         End If
 
@@ -1858,49 +1806,39 @@ Public Class Chart
 
         If DualDev = False Then
 
-            Dim formatdata As String =
-            "yyyy-MM-dd_HH:mm:ss"
+            Dim formatdata As String = "yyyy-MM-dd_HH:mm:ss"
 
-            Dim DateTime8th As DateTime =
-            DateTime.ParseExact(
+            Dim DateTime8th As DateTime = DateTime.ParseExact(
                 dataTable1.Rows(8)("DATETIME").ToString(),
                 formatdata,
                 System.Globalization.CultureInfo.InvariantCulture)
 
-            Dim DateTime9th As DateTime =
-            DateTime.ParseExact(
+            Dim DateTime9th As DateTime = DateTime.ParseExact(
                 dataTable1.Rows(9)("DATETIME").ToString(),
                 formatdata,
                 System.Globalization.CultureInfo.InvariantCulture)
 
-            Dim timeDifference As TimeSpan =
-            DateTime9th.Subtract(DateTime8th)
+            Dim timeDifference As TimeSpan = DateTime9th.Subtract(DateTime8th)
 
-            SampleRateSecs.Text =
-            timeDifference.TotalSeconds
+            SampleRateSecs.Text = timeDifference.TotalSeconds
 
         Else
 
-            Dim formatdata As String =
-            "yyyy-MM-dd_HH:mm:ss"
+            Dim formatdata As String = "yyyy-MM-dd_HH:mm:ss"
 
-            Dim DateTime8th As DateTime =
-            DateTime.ParseExact(
+            Dim DateTime8th As DateTime = DateTime.ParseExact(
                 dataTable1.Rows(8)("DATETIME").ToString(),
                 formatdata,
                 System.Globalization.CultureInfo.InvariantCulture)
 
-            Dim DateTime10th As DateTime =
-            DateTime.ParseExact(
+            Dim DateTime10th As DateTime = DateTime.ParseExact(
                 dataTable1.Rows(10)("DATETIME").ToString(),
                 formatdata,
                 System.Globalization.CultureInfo.InvariantCulture)
 
-            Dim timeDifference As TimeSpan =
-            DateTime10th.Subtract(DateTime8th)
+            Dim timeDifference As TimeSpan = DateTime10th.Subtract(DateTime8th)
 
-            SampleRateSecs.Text =
-            timeDifference.TotalSeconds
+            SampleRateSecs.Text = timeDifference.TotalSeconds
 
         End If
 
@@ -3991,6 +3929,17 @@ Public Class Chart
 
     Private Sub FilterDeviceName1()
 
+        ' Unlike its other callers (Zoom/Scroll/ShowAll etc., which all
+        ' clear Chart2.Series(0) themselves beforehand), DEV1avg's own
+        ' TextChanged handler goes through RefreshPlaybackCSVFile() first,
+        ' which doesn't clear it - so without this, every edit to DEV1avg
+        ' appended a full extra pass over Device 1's data onto whatever
+        ' was already plotted, instead of replacing it. Same fix as
+        ' FilterTempDevice1(). Guarded by Count since DEV1avg_TextChanged
+        ' can fire from InitializeComponent() itself, before Chart2.Series
+        ' has any series added yet (that happens later, in Form_Load).
+        If Chart2.Series.Count > 0 Then Chart2.Series(0).Points.Clear()
+
         ' Device 1
         If DEV1avg.Text = "0" Then
 
@@ -4039,6 +3988,14 @@ Public Class Chart
 
 
     Private Sub FilterDeviceName2()
+
+        ' Same fix as FilterDeviceName1 - DEV2avg's own TextChanged handler
+        ' is the one caller that doesn't already clear Chart2.Series(1)
+        ' before calling this. Guarded by Count since DEV2avg_TextChanged
+        ' can fire from InitializeComponent() itself (setting DEV2avg.Text
+        ' at Designer-load time), before Chart2.Series has any series
+        ' added yet (that happens later, in Form_Load).
+        If Chart2.Series.Count > 1 Then Chart2.Series(1).Points.Clear()
 
         If DEV2avg.Text = "0" Then
 
@@ -4233,8 +4190,7 @@ Public Class Chart
         ' Set PPM scale vars for calc
         Dim ppmscalerange As Double
 
-        Dim ppmText As String =
-PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
+        Dim ppmText As String = PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
 
         If Not Double.TryParse(ppmText, ppmscalerange) Then
 
@@ -5296,8 +5252,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
 
     Private Sub PPMscalerangeentry_TextChanged(sender As Object, e As EventArgs) Handles PPMscalerangeentry.TextChanged
 
-        Dim userInput As String =
-        PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
+        Dim userInput As String = PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
 
         Dim value As Double
 
@@ -5311,8 +5266,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
             If PPMscalerangeentry.Text <> correctedText Then
 
                 PPMscalerangeentry.Text = correctedText
-                PPMscalerangeentry.SelectionStart =
-                PPMscalerangeentry.Text.Length
+                PPMscalerangeentry.SelectionStart = PPMscalerangeentry.Text.Length
 
                 Exit Sub
 
@@ -5786,9 +5740,8 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         If line.TrimStart().StartsWith("//") Then Exit Sub
         If String.IsNullOrEmpty(CSVdelimit) Then Exit Sub
 
-        Dim values As String() =
-            line.Split(New String() {CSVdelimit},
-                       StringSplitOptions.None)
+        Dim values As String() = line.Split(New String() {CSVdelimit},
+                                            StringSplitOptions.None)
 
         ' Old WinGPIB CSV requires at least the original 6 fields.
         If values.Length < 6 Then Exit Sub
@@ -5884,8 +5837,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         If CheckPlaybackDev1Mean.Checked = False Then Exit Sub
         If DeviceName1.Text = "" Then Exit Sub
 
-        Dim selectedRows() As DataRow =
-        dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
+        Dim selectedRows() As DataRow = dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
 
         For Each dr As DataRow In selectedRows
 
@@ -5909,8 +5861,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         If CheckPlaybackDev1Stdev.Checked = False Then Exit Sub
         If DeviceName1.Text = "" Then Exit Sub
 
-        Dim selectedRows() As DataRow =
-        dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
+        Dim selectedRows() As DataRow = dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
 
         For Each dr As DataRow In selectedRows
 
@@ -5934,8 +5885,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         If CheckPlaybackDev1SEM.Checked = False Then Exit Sub
         If DeviceName1.Text = "" Then Exit Sub
 
-        Dim selectedRows() As DataRow =
-        dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
+        Dim selectedRows() As DataRow = dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
 
         For Each dr As DataRow In selectedRows
 
@@ -5959,8 +5909,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         If CheckPlaybackDev2Mean.Checked = False Then Exit Sub
         If DeviceName2.Text = "" Then Exit Sub
 
-        Dim selectedRows() As DataRow =
-        dataTable1.Select("DEVICE ='" & DeviceName2.Text & "'")
+        Dim selectedRows() As DataRow = dataTable1.Select("DEVICE ='" & DeviceName2.Text & "'")
 
         For Each dr As DataRow In selectedRows
 
@@ -5984,8 +5933,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         If CheckPlaybackDev2Stdev.Checked = False Then Exit Sub
         If DeviceName2.Text = "" Then Exit Sub
 
-        Dim selectedRows() As DataRow =
-        dataTable1.Select("DEVICE ='" & DeviceName2.Text & "'")
+        Dim selectedRows() As DataRow = dataTable1.Select("DEVICE ='" & DeviceName2.Text & "'")
 
         For Each dr As DataRow In selectedRows
 
@@ -6009,8 +5957,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         If CheckPlaybackDev2SEM.Checked = False Then Exit Sub
         If DeviceName2.Text = "" Then Exit Sub
 
-        Dim selectedRows() As DataRow =
-        dataTable1.Select("DEVICE ='" & DeviceName2.Text & "'")
+        Dim selectedRows() As DataRow = dataTable1.Select("DEVICE ='" & DeviceName2.Text & "'")
 
         For Each dr As DataRow In selectedRows
 
@@ -6034,8 +5981,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         If CheckPlaybackDev1MaxDiff.Checked = False Then Exit Sub
         If DeviceName1.Text = "" Then Exit Sub
 
-        Dim selectedRows() As DataRow =
-        dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
+        Dim selectedRows() As DataRow = dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
 
         For Each dr As DataRow In selectedRows
 
@@ -6059,8 +6005,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         If CheckPlaybackDev1Deviation.Checked = False Then Exit Sub
         If DeviceName1.Text = "" Then Exit Sub
 
-        Dim selectedRows() As DataRow =
-        dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
+        Dim selectedRows() As DataRow = dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
 
         For Each dr As DataRow In selectedRows
 
@@ -6084,8 +6029,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         If CheckPlaybackDev2MaxDiff.Checked = False Then Exit Sub
         If DeviceName2.Text = "" Then Exit Sub
 
-        Dim selectedRows() As DataRow =
-        dataTable1.Select("DEVICE ='" & DeviceName2.Text & "'")
+        Dim selectedRows() As DataRow = dataTable1.Select("DEVICE ='" & DeviceName2.Text & "'")
 
         For Each dr As DataRow In selectedRows
 
@@ -6109,8 +6053,7 @@ PPMscalerangeentry.Text.Replace(vbCr, "").Replace(vbLf, "").Trim()
         If CheckPlaybackDev2Deviation.Checked = False Then Exit Sub
         If DeviceName2.Text = "" Then Exit Sub
 
-        Dim selectedRows() As DataRow =
-        dataTable1.Select("DEVICE ='" & DeviceName2.Text & "'")
+        Dim selectedRows() As DataRow = dataTable1.Select("DEVICE ='" & DeviceName2.Text & "'")
 
         For Each dr As DataRow In selectedRows
 
@@ -7073,8 +7016,7 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
 
         For Each heading As String In headings
 
-            Dim start As Integer =
-            txt.Text.IndexOf(heading, StringComparison.Ordinal)
+            Dim start As Integer = txt.Text.IndexOf(heading, StringComparison.Ordinal)
 
             If start >= 0 Then
                 txt.Select(start, heading.Length)
@@ -7102,8 +7044,7 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
 
         For Each formulaLine As String In formulaLines
 
-            Dim start As Integer =
-            txt.Text.IndexOf(formulaLine, StringComparison.Ordinal)
+            Dim start As Integer = txt.Text.IndexOf(formulaLine, StringComparison.Ordinal)
 
             If start >= 0 Then
                 txt.Select(start, formulaLine.Length)
@@ -7120,8 +7061,7 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
         ' continuation lines flush left and ragged.
         For i As Integer = 0 To headings.Length - 1
 
-            Dim headingStart As Integer =
-            txt.Text.IndexOf(headings(i), StringComparison.Ordinal)
+            Dim headingStart As Integer = txt.Text.IndexOf(headings(i), StringComparison.Ordinal)
 
             If headingStart < 0 Then Continue For
 

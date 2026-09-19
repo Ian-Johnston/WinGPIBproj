@@ -1029,9 +1029,9 @@ Partial Class Chart
         Me.RadioButtonPPMTempo.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.RadioButtonPPMTempo.Location = New System.Drawing.Point(9, 22)
         Me.RadioButtonPPMTempo.Name = "RadioButtonPPMTempo"
-        Me.RadioButtonPPMTempo.Size = New System.Drawing.Size(80, 17)
+        Me.RadioButtonPPMTempo.Size = New System.Drawing.Size(112, 17)
         Me.RadioButtonPPMTempo.TabIndex = 156
-        Me.RadioButtonPPMTempo.Text = "PPM/DegC"
+        Me.RadioButtonPPMTempo.Text = "PPM/DegC (point)"
         Me.ToolTip1.SetToolTip(Me.RadioButtonPPMTempo, "Tempco per point vs. the Initial Value/Initial Temp baseline")
         Me.RadioButtonPPMTempo.UseVisualStyleBackColor = True
         '
@@ -2084,7 +2084,8 @@ Partial Class Chart
         Me.Controls.Add(Me.YaxisBox1)
         Me.Controls.Add(Me.GroupBox2)
         Me.Name = "Chart"
-        Me.Text = "WinGPIB    Playback Chart    (Free for Non-Commercial Use • Support WinGPIB — see About)"
+        Me.Text = "WinGPIB    Playback Chart    (Free for Non-Commercial Use • Support WinGPIB — see" &
+    " About)"
         CType(Me.Chart2, System.ComponentModel.ISupportInitialize).EndInit()
         Me.PPMBox1.ResumeLayout(False)
         Me.PPMBox1.PerformLayout()
