@@ -2037,7 +2037,7 @@ Partial Class Formtest
         areaTemperature.BackColor = Color.Black
 
         areaTemperature.AxisY.IsStartedFromZero = False
-        areaTemperature.AxisY.LabelStyle.Format = "0.00"
+        areaTemperature.AxisY.LabelStyle.Format = "0.000"
 
         areaTemperature.AxisX.LabelStyle.ForeColor = Color.Black
         areaTemperature.AxisY.LabelStyle.ForeColor = Color.Black
@@ -2211,6 +2211,16 @@ Partial Class Formtest
         LiveAnalysisChart.Controls.Add(gbDev2)
         LiveAnalysisChart.Controls.Add(gbTemp)
         LiveAnalysisChart.Controls.Add(gbMisc)
+
+        ' Lets the user manually clear all three traces and restart the
+        ' sample counter without needing to Stop/Start a device - placed
+        ' directly below the Temperature groupbox in RepositionLiveToggles.
+        Dim btnResetLiveCharts As New Button With {
+            .Text = "Reset Charts",
+            .Height = 20,
+            .Font = New Font("Segoe UI", 8, FontStyle.Regular)
+        }
+        LiveAnalysisChart.Controls.Add(btnResetLiveCharts)
 
         Dim AddTraceToggle = Function(parent As GroupBox, seriesName As String, displayText As String, color As Color) As CheckBox
                                  Dim cb As New CheckBox With {
@@ -2447,6 +2457,22 @@ Partial Class Formtest
 
         AddHandler ButtonReset.Click, ResetHandler
 
+        ' Manual "Reset Charts" button - clears the plotted traces and
+        ' restarts the sample counter, leaving the devices themselves
+        ' (and the checkboxes' enabled state) untouched.
+        Dim ResetChartsButtonHandler = Sub(s As Object, ev As EventArgs)
+                                            ClearLiveAnalysisSeries({"Device 1", "Dev 1 Mean", "Dev 1 STDEV", "Dev 1 SEM", "Dev 1 PPM Deviation"})
+                                            ClearLiveAnalysisSeries({"Device 2", "Dev 2 Mean", "Dev 2 STDEV", "Dev 2 SEM", "Dev 2 PPM Deviation"})
+                                            ClearLiveAnalysisSeries({"Temperature"})
+                                            q1ShortTermMean.Clear() : sum1ShortTermMean = 0.0
+                                            q2ShortTermMean.Clear() : sum2ShortTermMean = 0.0
+                                            LiveAnalysisSample = 0
+                                            LiveAnalysisLastStats1Count = Stats1Count
+                                            LiveAnalysisLastStats2Count = Stats2Count
+                                        End Sub
+
+        AddHandler btnResetLiveCharts.Click, ResetChartsButtonHandler
+
         ' Re-enables the relevant device's checkboxes once it's actually
         ' reconnected - btncreate connects both devices (dual logging),
         ' btncreate2 connects Device 1 only, btncreate3 Device 2 only.
@@ -2524,6 +2550,13 @@ Partial Class Formtest
                                         PlaceGroupBox(gbDev2, dev2Boxes, leftDev2, colWidthPx, 1.0)
                                         PlaceGroupBox(gbTemp, tempBoxes, leftTemp, colWidthPx, 1.0)
                                         PlaceGroupBox(gbMisc, miscBoxes, leftMisc, miscColWidthPx, 1.0)
+
+                                        ' Bottom-aligned with Dev 2/Misc. (Temp. has fewer checkboxes, so
+                                        ' its own groupbox is shorter than its neighbours) rather than
+                                        ' simply sitting below gbTemp, which would stick out lower than
+                                        ' the rest of the row.
+                                        btnResetLiveCharts.Width = gbTemp.Width
+                                        btnResetLiveCharts.Location = New Point(gbTemp.Left, gbDev2.Bottom - btnResetLiveCharts.Height)
                                     End Sub
 
         RepositionLiveToggles()
