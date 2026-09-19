@@ -747,9 +747,17 @@ Partial Class Formtest
         If value > Stats1Max Then Stats1Max = value
         If value < Stats1Min Then Stats1Min = value
 
-        ' PPM Deviation from first sample since last reset
+        ' PPM Deviation from first sample since last reset. Guarding only
+        ' against Stats1FirstValue being EXACTLY 0 isn't enough - a real
+        ' meter reading a near-zero/floating input almost never returns
+        ' the literal 0.0, just some tiny noise-floor residual (e.g.
+        ' 2.4E-7). Dividing by that still blows the ratio up to an
+        ' astronomical (though technically finite) number the moment the
+        ' reading moves away from it, which MSChart's own axis
+        ' auto-scaling then can't convert to a Decimal without throwing
+        ' OverflowException. A small absolute epsilon catches this.
         'Stats1DeviationCurrent = (value - Stats1FirstValue) * 1000000
-        Stats1DeviationCurrent = If(Stats1FirstValue <> 0, (value - Stats1FirstValue) / Stats1FirstValue * 1000000, 0)
+        Stats1DeviationCurrent = If(Math.Abs(Stats1FirstValue) > 0.000000001, (value - Stats1FirstValue) / Stats1FirstValue * 1000000, 0)
 
         ' Need at least 2 readings for STDEV
         If Stats1Count >= 2 Then
@@ -824,9 +832,10 @@ Partial Class Formtest
         If value > Stats2Max Then Stats2Max = value
         If value < Stats2Min Then Stats2Min = value
 
-        ' PPM Deviation from first sample since last reset
+        ' PPM Deviation from first sample since last reset - see the same
+        ' near-zero-baseline note in UpdateStats1.
         'Stats2DeviationCurrent = (value - Stats2FirstValue) * 1000000
-        Stats2DeviationCurrent = If(Stats2FirstValue <> 0, (value - Stats2FirstValue) / Stats2FirstValue * 1000000, 0)
+        Stats2DeviationCurrent = If(Math.Abs(Stats2FirstValue) > 0.000000001, (value - Stats2FirstValue) / Stats2FirstValue * 1000000, 0)
 
         ' Need at least 2 readings for STDEV
         If Stats2Count >= 2 Then
@@ -921,6 +930,34 @@ Partial Class Formtest
 
         If confirmResult = DialogResult.No Then Exit Sub
 
+        ResetStats1()
+
+    End Sub
+
+    Private Sub ButtonStats2Reset_Click(sender As Object, e As EventArgs) Handles ButtonStats2Reset.Click
+
+        Dim confirmResult As DialogResult = MessageBox.Show(
+            "Resetting stats starts a new baseline value for PPM Deviation." & Environment.NewLine &
+            "This affects PPM Deviation from this point on, including the DEV2_DEVIATION value written to the CSV log." & Environment.NewLine & Environment.NewLine &
+            "Continue with the reset?",
+            "Reset Device 2 Stats",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Warning)
+
+        If confirmResult = DialogResult.No Then Exit Sub
+
+        ResetStats2()
+
+    End Sub
+
+    ' Shared by the "Reset Stats" buttons above (after their confirmation
+    ' prompt) and the main Reset button (ButtonReset_Click in Formtest.vb),
+    ' which resets both devices back to their power-up "-" state silently.
+    ' Also resets LabelStats1Value (the big current-reading readout),
+    ' which the individual Reset Stats button never used to touch, even
+    ' though it's just as stale as the rest once the running stats reset.
+    Private Sub ResetStats1()
+
         Stats1Count = 0
         Stats1Mean = 0.0
         Stats1M2 = 0.0
@@ -930,6 +967,8 @@ Partial Class Formtest
         Stats1DeviationCurrent = 0.0
         LiveAnalysisLastStats1Count = Stats1Count   ' keep chart's "last plotted" in sync with the reset
 
+        Dev1Meter.Text = "---------------"
+        LabelStats1Value.Text = "-"
         LabelStats1Samples.Text = "-"
         LabelStats1Mean.Text = "-"
         LabelStats1Stdev.Text = "-"
@@ -953,18 +992,7 @@ Partial Class Formtest
 
     End Sub
 
-
-    Private Sub ButtonStats2Reset_Click(sender As Object, e As EventArgs) Handles ButtonStats2Reset.Click
-
-        Dim confirmResult As DialogResult = MessageBox.Show(
-            "Resetting stats starts a new baseline value for PPM Deviation." & Environment.NewLine &
-            "This affects PPM Deviation from this point on, including the DEV2_DEVIATION value written to the CSV log." & Environment.NewLine & Environment.NewLine &
-            "Continue with the reset?",
-            "Reset Device 2 Stats",
-            MessageBoxButtons.YesNo,
-            MessageBoxIcon.Warning)
-
-        If confirmResult = DialogResult.No Then Exit Sub
+    Private Sub ResetStats2()
 
         Stats2Count = 0
         Stats2Mean = 0.0
@@ -975,6 +1003,8 @@ Partial Class Formtest
         Stats2DeviationCurrent = 0.0
         LiveAnalysisLastStats2Count = Stats2Count   ' keep chart's "last plotted" in sync with the reset
 
+        Dev2Meter.Text = "---------------"
+        LabelStats2Value.Text = "-"
         LabelStats2Samples.Text = "-"
         LabelStats2Mean.Text = "-"
         LabelStats2Stdev.Text = "-"
@@ -2332,15 +2362,33 @@ Partial Class Formtest
                                           Next
                                       End Sub
 
+        Dim EnableGroup = Sub(boxes As CheckBox())
+                               For Each cb As CheckBox In boxes
+                                   cb.Enabled = True
+                                   cb.BackColor = CType(cb.Tag, Color)
+                               Next
+                           End Sub
+
+        Dim DisableGroup = Sub(boxes As CheckBox())
+                                For Each cb As CheckBox In boxes
+                                    cb.Enabled = False
+                                Next
+                            End Sub
+
         Dim RefreshDeviceAvailability = Sub()
                                             Dim dev1Active As Boolean = (ButtonDev1Run.Text = "Stop") OrElse (ButtonDev12Run.Text = "Stop")
                                             Dim dev2Active As Boolean = (ButtonDev2Run.Text = "Stop") OrElse (ButtonDev12Run.Text = "Stop")
 
-                                            ' The Temperature trace advances whenever EITHER device produces a
-                                            ' new sample (see "newDev1Sample = True Or newDev2Sample = True"
-                                            ' in UpdateLiveAnalysisChart) - it has nothing to do with Timer1,
-                                            ' so its active/reset state needs to follow the same condition.
-                                            Dim tempActive As Boolean = dev1Active OrElse dev2Active
+                                            ' Temperature has its own separate USB sensor, started/stopped via
+                                            ' ButtonStart/ButtonEnd (TempHumidity.vb) - unlike Dev1Run/Dev2Run,
+                                            ' those are two separate buttons rather than one toggling Run/Stop
+                                            ' button, with ButtonEnd.Enabled=True meaning it's currently running
+                                            ' (set in ButtonStart_Click) and False meaning stopped (ButtonEnd_Click).
+                                            ' This used to be tied to dev1Active/dev2Active instead, which meant
+                                            ' the Temperature trace/checkboxes stayed "active" even with no
+                                            ' temperature device actually running, as long as either measurement
+                                            ' device was.
+                                            Dim tempActive As Boolean = ButtonEnd.Enabled
 
                                             ' Resuming (stopped -> running) clears that device's traces and
                                             ' re-enables its checkboxes fresh for the new run. Stopping
@@ -2348,13 +2396,6 @@ Partial Class Formtest
                                             ' the checkboxes and traces are left exactly as they were, frozen,
                                             ' so the last run's data stays on screen for review instead of
                                             ' vanishing the moment Stop is pressed.
-                                            Dim EnableGroup = Sub(boxes As CheckBox())
-                                                                   For Each cb As CheckBox In boxes
-                                                                       cb.Enabled = True
-                                                                       cb.BackColor = CType(cb.Tag, Color)
-                                                                   Next
-                                                               End Sub
-
                                             If dev1Active AndAlso Not dev1WasActive Then
                                                 ClearLiveAnalysisSeries({"Device 1", "Dev 1 Mean", "Dev 1 STDEV", "Dev 1 SEM", "Dev 1 PPM Deviation"})
                                                 q1ShortTermMean.Clear() : sum1ShortTermMean = 0.0
@@ -2388,6 +2429,52 @@ Partial Class Formtest
         AddHandler ButtonDev12Run.Click, RunButtonHandler
         AddHandler ButtonStart.Click, RunButtonHandler
         AddHandler ButtonEnd.Click, RunButtonHandler
+
+        ' Pressing the main Reset button tears down whatever device(s)
+        ' were connected - if this pop-out was left open across that
+        ' (e.g. was showing a dual-device run that got reset back to
+        ' single-device), its Dev 1/Dev 2/Temperature traces and
+        ' checkboxes would otherwise be left showing/enabled for a device
+        ' that's no longer there. Clearing here and marking all three
+        ' "not active" means the next real Run/Start also re-clears/
+        ' re-enables normally, exactly as if the chart had just been
+        ' freshly opened. Temperature is included even though Reset
+        ' doesn't itself touch the temperature sensor (ButtonStart/
+        ' ButtonEnd) - if it's still actually running, the next
+        ' RefreshDeviceAvailability() call (e.g. from ButtonStart/
+        ' ButtonEnd) will see tempActive=True with tempWasActive now
+        ' False and correctly re-clear/re-enable it too.
+        Dim ResetHandler = Sub(s As Object, ev As EventArgs)
+                                ClearLiveAnalysisSeries({"Device 1", "Dev 1 Mean", "Dev 1 STDEV", "Dev 1 SEM", "Dev 1 PPM Deviation"})
+                                ClearLiveAnalysisSeries({"Device 2", "Dev 2 Mean", "Dev 2 STDEV", "Dev 2 SEM", "Dev 2 PPM Deviation"})
+                                ClearLiveAnalysisSeries({"Temperature"})
+                                q1ShortTermMean.Clear() : sum1ShortTermMean = 0.0
+                                q2ShortTermMean.Clear() : sum2ShortTermMean = 0.0
+                                LiveAnalysisLastStats1Count = Stats1Count
+                                LiveAnalysisLastStats2Count = Stats2Count
+                                DisableGroup(dev1Boxes)
+                                DisableGroup(dev2Boxes)
+                                DisableGroup(tempBoxes)
+                                dev1WasActive = False
+                                dev2WasActive = False
+                                tempWasActive = False
+                            End Sub
+
+        AddHandler ButtonReset.Click, ResetHandler
+
+        ' Re-enables the relevant device's checkboxes once it's actually
+        ' reconnected - btncreate connects both devices (dual logging),
+        ' btncreate2 connects Device 1 only, btncreate3 Device 2 only.
+        Dim ConnectBothHandler = Sub(s As Object, ev As EventArgs)
+                                      EnableGroup(dev1Boxes)
+                                      EnableGroup(dev2Boxes)
+                                  End Sub
+        Dim ConnectDev1Handler = Sub(s As Object, ev As EventArgs) EnableGroup(dev1Boxes)
+        Dim ConnectDev2Handler = Sub(s As Object, ev As EventArgs) EnableGroup(dev2Boxes)
+
+        AddHandler btncreate.Click, ConnectBothHandler
+        AddHandler btncreate2.Click, ConnectDev1Handler
+        AddHandler btncreate3.Click, ConnectDev2Handler
 
         Dim RepositionLiveToggles = Sub()
                                         Dim cw As Double = LiveAnalysisChart.ClientSize.Width
@@ -2513,6 +2600,11 @@ Partial Class Formtest
             RemoveHandler ButtonDev2Run.Click, RunButtonHandler
             RemoveHandler ButtonDev12Run.Click, RunButtonHandler
 
+            RemoveHandler ButtonReset.Click, ResetHandler
+            RemoveHandler btncreate.Click, ConnectBothHandler
+            RemoveHandler btncreate2.Click, ConnectDev1Handler
+            RemoveHandler btncreate3.Click, ConnectDev2Handler
+
             LiveAnalysisChart = Nothing
             LiveAnalysisForm = Nothing
         End Sub
@@ -2616,7 +2708,11 @@ Partial Class Formtest
             LiveAnalysisChart.Series("Dev 1 Mean").Points.AddXY(x, dev1MeanToPlot)
             LiveAnalysisChart.Series("Dev 1 STDEV").Points.AddXY(x, Stats1StdevCurrent)
             LiveAnalysisChart.Series("Dev 1 SEM").Points.AddXY(x, Stats1SEMCurrent)
-            LiveAnalysisChart.Series("Dev 1 PPM Deviation").Points.AddXY(x, Stats1DeviationCurrent)
+            ' Defence in depth on top of the near-zero-baseline guard in
+            ' UpdateStats1 - a NaN/Infinity point here makes MSChart's own
+            ' axis auto-scaling throw OverflowException the next repaint.
+            LiveAnalysisChart.Series("Dev 1 PPM Deviation").Points.AddXY(
+                x, If(Double.IsNaN(Stats1DeviationCurrent) OrElse Double.IsInfinity(Stats1DeviationCurrent), 0, Stats1DeviationCurrent))
 
             LiveAnalysisLastStats1Count = Stats1Count
 
@@ -2638,7 +2734,9 @@ Partial Class Formtest
             LiveAnalysisChart.Series("Dev 2 Mean").Points.AddXY(x, dev2MeanToPlot)
             LiveAnalysisChart.Series("Dev 2 STDEV").Points.AddXY(x, Stats2StdevCurrent)
             LiveAnalysisChart.Series("Dev 2 SEM").Points.AddXY(x, Stats2SEMCurrent)
-            LiveAnalysisChart.Series("Dev 2 PPM Deviation").Points.AddXY(x, Stats2DeviationCurrent)
+            ' Defence in depth - see the same note on the Dev 1 PPM point above.
+            LiveAnalysisChart.Series("Dev 2 PPM Deviation").Points.AddXY(
+                x, If(Double.IsNaN(Stats2DeviationCurrent) OrElse Double.IsInfinity(Stats2DeviationCurrent), 0, Stats2DeviationCurrent))
 
             LiveAnalysisLastStats2Count = Stats2Count
 

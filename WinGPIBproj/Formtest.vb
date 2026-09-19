@@ -271,7 +271,7 @@ Public Class Formtest
             End If
             CheckBoxThemeSet.Checked = My.Settings.ThemeSet
 
-            BannerText1 = "WinGPIB - V5.035    (Free for Non-Commercial Use • Support WinGPIB — see About)"
+            BannerText1 = "WinGPIB - V5.036    (Free for Non-Commercial Use • Support WinGPIB — see About)"
             Me.Text = BannerText1.ToString()
 
             ' Advantest R6581 tab
@@ -2275,6 +2275,14 @@ Public Class Formtest
     End Sub
 
     Private Sub ButtonReset_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonReset.Click
+
+        ' Same reset ButtonStats1Reset/ButtonStats2Reset perform (big
+        ' value readout + all stats labels back to "-", running
+        ' stats/PPM baseline cleared) - but silently, without their
+        ' individual confirmation prompt, since a full device Reset
+        ' already makes that stale data's fate obvious.
+        ResetStats1()
+        ResetStats2()
 
         ButtonSaveSettings.Enabled = True
         btnBackup.Enabled = True
