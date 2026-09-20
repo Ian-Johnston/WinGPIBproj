@@ -459,8 +459,6 @@ Partial Class Formtest
         Me.Label215 = New System.Windows.Forms.Label()
         Me.Label214 = New System.Windows.Forms.Label()
         Me.Label213 = New System.Windows.Forms.Label()
-        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.Label212 = New System.Windows.Forms.Label()
         Me.Label211 = New System.Windows.Forms.Label()
         Me.Label210 = New System.Windows.Forms.Label()
@@ -1026,7 +1024,6 @@ Partial Class Formtest
         Me.Label3133478A = New System.Windows.Forms.Label()
         Me.ShowFilesCalRam3478A = New System.Windows.Forms.Button()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
-        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.Label145 = New System.Windows.Forms.Label()
         Me.Label79 = New System.Windows.Forms.Label()
         Me.Label81 = New System.Windows.Forms.Label()
@@ -1282,7 +1279,6 @@ Partial Class Formtest
         Me.CalAccuracyFinal = New System.Windows.Forms.TextBox()
         Me.Label117 = New System.Windows.Forms.Label()
         Me.Label121 = New System.Windows.Forms.Label()
-        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage14 = New System.Windows.Forms.TabPage()
         Me.ButtonUserStart = New System.Windows.Forms.Button()
         Me.ButtonUserTabGuide = New System.Windows.Forms.Button()
@@ -1343,6 +1339,10 @@ Partial Class Formtest
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer18 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer19 = New System.Windows.Forms.Timer(Me.components)
+        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.GroupBox9.SuspendLayout
@@ -2483,8 +2483,8 @@ Partial Class Formtest
         'Dev1Units
         '
         Me.Dev1Units.BackColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.Dev1Units.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.Dev1Units.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed
+        Me.Dev1Units.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.Dev1Units.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.Dev1Units.Font = New System.Drawing.Font("Microsoft Sans Serif", 20.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Dev1Units.Items.AddRange(New Object() {"", "nVDC", "µVDC", "mVDC", "VDC", "kVDC", "nVAC", "µVAC", "mVAC", "VAC", "kVAC", "nADC", "µADC", "mADC", "ADC", "nAAC", "µAAC", "mAAC", "AAC", "µΩ", "mΩ", "Ω", "kΩ", "MΩ", "GΩ", "pF", "nF", "µF", "mF", "F", "nH", "µH", "mH", "H", "Hz", "kHz", "MHz", "GHz", "µW", "mW", "W", "kW", "dBm", "dBW", "°C", "°F", "K", "ppm", "%", "dB", "S"})
@@ -2492,14 +2492,13 @@ Partial Class Formtest
         Me.Dev1Units.Name = "Dev1Units"
         Me.Dev1Units.Size = New System.Drawing.Size(142, 39)
         Me.Dev1Units.TabIndex = 73
-        Me.Dev1Units.Text = "VDC"
         Me.ToolTip1.SetToolTip(Me.Dev1Units, "Select the units." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "These are for display purposes only.")
         '
         'Dev2Units
         '
         Me.Dev2Units.BackColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.Dev2Units.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.Dev2Units.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed
+        Me.Dev2Units.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.Dev2Units.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.Dev2Units.Font = New System.Drawing.Font("Microsoft Sans Serif", 20.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Dev2Units.Items.AddRange(New Object() {"", "nVDC", "µVDC", "mVDC", "VDC", "kVDC", "nVAC", "µVAC", "mVAC", "VAC", "kVAC", "nADC", "µADC", "mADC", "ADC", "nAAC", "µAAC", "mAAC", "AAC", "µΩ", "mΩ", "Ω", "kΩ", "MΩ", "GΩ", "pF", "nF", "µF", "mF", "F", "nH", "µH", "mH", "H", "Hz", "kHz", "MHz", "GHz", "µW", "mW", "W", "kW", "dBm", "dBW", "°C", "°F", "K", "ppm", "%", "dB", "S"})
@@ -2507,7 +2506,6 @@ Partial Class Formtest
         Me.Dev2Units.Name = "Dev2Units"
         Me.Dev2Units.Size = New System.Drawing.Size(142, 39)
         Me.Dev2Units.TabIndex = 74
-        Me.Dev2Units.Text = "VDC"
         Me.ToolTip1.SetToolTip(Me.Dev2Units, "Select the units." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "These are for display purposes only.")
         '
         'ButtonRefreshPorts1
@@ -3769,7 +3767,7 @@ Partial Class Formtest
         Me.XaxisPointsLiveA.Size = New System.Drawing.Size(71, 20)
         Me.XaxisPointsLiveA.TabIndex = 750
         Me.XaxisPointsLiveA.Text = "500"
-        Me.ToolTip1.SetToolTip(Me.XaxisPointsLiveA, "Resolution && scroll mode")
+        Me.ToolTip1.SetToolTip(Me.XaxisPointsLiveA, "Data points for charts")
         '
         'Label48
         '
@@ -6075,26 +6073,6 @@ Partial Class Formtest
         Me.Label213.Size = New System.Drawing.Size(19, 13)
         Me.Label213.TabIndex = 537
         Me.Label213.Text = "Tx"
-        '
-        'OnOffLed2
-        '
-        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
-        Me.OnOffLed2.Name = "OnOffLed2"
-        Me.OnOffLed2.OffText = Nothing
-        Me.OnOffLed2.OnText = Nothing
-        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed2.TabIndex = 536
-        '
-        'OnOffLed1
-        '
-        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
-        Me.OnOffLed1.Name = "OnOffLed1"
-        Me.OnOffLed1.OffText = Nothing
-        Me.OnOffLed1.OnText = Nothing
-        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed1.TabIndex = 535
         '
         'Label212
         '
@@ -12080,16 +12058,6 @@ Partial Class Formtest
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = " PDVS2mini"
         '
-        'OnOffLed4
-        '
-        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
-        Me.OnOffLed4.Name = "OnOffLed4"
-        Me.OnOffLed4.OffText = Nothing
-        Me.OnOffLed4.OnText = Nothing
-        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed4.TabIndex = 797
-        '
         'Label145
         '
         Me.Label145.AutoSize = True
@@ -14915,16 +14883,6 @@ Partial Class Formtest
         Me.Label121.TabIndex = 554
         Me.Label121.Text = "Comms Delay (mS)"
         '
-        'OnOffLed3
-        '
-        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
-        Me.OnOffLed3.Name = "OnOffLed3"
-        Me.OnOffLed3.OffText = Nothing
-        Me.OnOffLed3.OnText = Nothing
-        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed3.TabIndex = 796
-        '
         'TabPage14
         '
         Me.TabPage14.Controls.Add(Me.ButtonUserStart)
@@ -15461,6 +15419,46 @@ Partial Class Formtest
         'Timer14
         '
         Me.Timer14.Interval = 50
+        '
+        'OnOffLed2
+        '
+        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
+        Me.OnOffLed2.Name = "OnOffLed2"
+        Me.OnOffLed2.OffText = Nothing
+        Me.OnOffLed2.OnText = Nothing
+        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed2.TabIndex = 536
+        '
+        'OnOffLed1
+        '
+        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
+        Me.OnOffLed1.Name = "OnOffLed1"
+        Me.OnOffLed1.OffText = Nothing
+        Me.OnOffLed1.OnText = Nothing
+        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed1.TabIndex = 535
+        '
+        'OnOffLed4
+        '
+        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
+        Me.OnOffLed4.Name = "OnOffLed4"
+        Me.OnOffLed4.OffText = Nothing
+        Me.OnOffLed4.OnText = Nothing
+        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed4.TabIndex = 797
+        '
+        'OnOffLed3
+        '
+        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
+        Me.OnOffLed3.Name = "OnOffLed3"
+        Me.OnOffLed3.OffText = Nothing
+        Me.OnOffLed3.OnText = Nothing
+        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed3.TabIndex = 796
         '
         'Formtest
         '

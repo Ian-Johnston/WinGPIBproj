@@ -2202,8 +2202,16 @@ Partial Class Formtest
         ' ==========================================================
         Dim liveToggles As New List(Of CheckBox)
 
-        Dim gbDev1 As New GroupBox With {.Text = "Device 1 - " & txtname1.Text, .BackColor = Color.WhiteSmoke, .Font = New Font("Segoe UI", 9, FontStyle.Bold)}
-        Dim gbDev2 As New GroupBox With {.Text = "Device 2 - " & txtname2.Text, .BackColor = Color.WhiteSmoke, .Font = New Font("Segoe UI", 9, FontStyle.Bold)}
+        ' txtname1/txtname2 are the CONFIGURED device names for each slot,
+        ' set up whether or not that device is actually connected right
+        ' now - showing them unconditionally in the groupbox title made a
+        ' device that was never connected (e.g. only Dev 1 was started)
+        ' look like it was, since its configured name still showed up here.
+        Dim dev1ActiveAtOpen As Boolean = (ButtonDev1Run.Text = "Stop") OrElse (ButtonDev12Run.Text = "Stop")
+        Dim dev2ActiveAtOpen As Boolean = (ButtonDev2Run.Text = "Stop") OrElse (ButtonDev12Run.Text = "Stop")
+
+        Dim gbDev1 As New GroupBox With {.Text = If(dev1ActiveAtOpen, "Device 1 - " & txtname1.Text, "Device 1"), .BackColor = Color.WhiteSmoke, .Font = New Font("Segoe UI", 9, FontStyle.Bold)}
+        Dim gbDev2 As New GroupBox With {.Text = If(dev2ActiveAtOpen, "Device 2 - " & txtname2.Text, "Device 2"), .BackColor = Color.WhiteSmoke, .Font = New Font("Segoe UI", 9, FontStyle.Bold)}
         Dim gbTemp As New GroupBox With {.Text = "Temperature", .BackColor = Color.WhiteSmoke, .Font = New Font("Segoe UI", 9, FontStyle.Bold)}
         Dim gbMisc As New GroupBox With {.Text = "Misc.", .BackColor = Color.WhiteSmoke, .Font = New Font("Segoe UI", 9, FontStyle.Bold)}
 
@@ -2216,7 +2224,7 @@ Partial Class Formtest
         ' sample counter without needing to Stop/Start a device - placed
         ' directly below the Temperature groupbox in RepositionLiveToggles.
         Dim btnResetLiveCharts As New Button With {
-            .Text = "Reset Charts",
+            .Text = "Restart Charts",
             .Height = 20,
             .Font = New Font("Segoe UI", 8, FontStyle.Regular)
         }
@@ -2422,6 +2430,18 @@ Partial Class Formtest
 
         RefreshDeviceAvailability()
 
+        ' RefreshDeviceAvailability() only ever ENABLES a group, on a
+        ' stopped->running transition - it deliberately never disables one,
+        ' so that stopping a device leaves its checkboxes/trace frozen for
+        ' review (see its own comment). That means a device that was never
+        ' connected at all is left at its checkboxes' default Enabled=True
+        ' from AddTraceToggle. This is the one place it's safe to disable
+        ' proactively - right when the popup is first shown, before
+        ' anything could have been "stopped and frozen" yet.
+        If Not dev1ActiveAtOpen Then DisableGroup(dev1Boxes)
+        If Not dev2ActiveAtOpen Then DisableGroup(dev2Boxes)
+        If Not ButtonEnd.Enabled Then DisableGroup(tempBoxes)
+
         Dim RunButtonHandler = Sub(s As Object, ev As EventArgs) RefreshDeviceAvailability()
 
         AddHandler ButtonDev1Run.Click, RunButtonHandler
@@ -2450,6 +2470,8 @@ Partial Class Formtest
                                 DisableGroup(dev1Boxes)
                                 DisableGroup(dev2Boxes)
                                 DisableGroup(tempBoxes)
+                                gbDev1.Text = "Device 1"
+                                gbDev2.Text = "Device 2"
                                 dev1WasActive = False
                                 dev2WasActive = False
                                 tempWasActive = False
@@ -2457,7 +2479,7 @@ Partial Class Formtest
 
         AddHandler ButtonReset.Click, ResetHandler
 
-        ' Manual "Reset Charts" button - clears the plotted traces and
+        ' Manual "Restart Charts" button - clears the plotted traces and
         ' restarts the sample counter, leaving the devices themselves
         ' (and the checkboxes' enabled state) untouched.
         Dim ResetChartsButtonHandler = Sub(s As Object, ev As EventArgs)
@@ -2473,15 +2495,25 @@ Partial Class Formtest
 
         AddHandler btnResetLiveCharts.Click, ResetChartsButtonHandler
 
-        ' Re-enables the relevant device's checkboxes once it's actually
-        ' reconnected - btncreate connects both devices (dual logging),
-        ' btncreate2 connects Device 1 only, btncreate3 Device 2 only.
+        ' Re-enables the relevant device's checkboxes and restores its
+        ' groupbox title (with the now-connected device's name) once it's
+        ' actually reconnected - btncreate connects both devices (dual
+        ' logging), btncreate2 connects Device 1 only, btncreate3 Device 2
+        ' only.
         Dim ConnectBothHandler = Sub(s As Object, ev As EventArgs)
                                       EnableGroup(dev1Boxes)
                                       EnableGroup(dev2Boxes)
+                                      gbDev1.Text = "Device 1 - " & txtname1.Text
+                                      gbDev2.Text = "Device 2 - " & txtname2.Text
                                   End Sub
-        Dim ConnectDev1Handler = Sub(s As Object, ev As EventArgs) EnableGroup(dev1Boxes)
-        Dim ConnectDev2Handler = Sub(s As Object, ev As EventArgs) EnableGroup(dev2Boxes)
+        Dim ConnectDev1Handler = Sub(s As Object, ev As EventArgs)
+                                      EnableGroup(dev1Boxes)
+                                      gbDev1.Text = "Device 1 - " & txtname1.Text
+                                  End Sub
+        Dim ConnectDev2Handler = Sub(s As Object, ev As EventArgs)
+                                      EnableGroup(dev2Boxes)
+                                      gbDev2.Text = "Device 2 - " & txtname2.Text
+                                  End Sub
 
         AddHandler btncreate.Click, ConnectBothHandler
         AddHandler btncreate2.Click, ConnectDev1Handler
