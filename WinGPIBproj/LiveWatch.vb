@@ -2084,14 +2084,14 @@ Partial Class Formtest
         ' Chart Area Titles
         ' ==========================================================
         Dim titleMeasurement As New DataVisualization.Charting.Title
-        titleMeasurement.Text = "DEVICE 1 & 2 DATA" & vbCrLf & "/ RUNNING MEAN"
+        titleMeasurement.Text = "DEVICE 1 & 2 DATA / RUNNING MEAN"
         titleMeasurement.DockedToChartArea = "Measurement"
         titleMeasurement.Docking = DataVisualization.Charting.Docking.Left
         titleMeasurement.IsDockedInsideChartArea = False
         titleMeasurement.Font = New Font("Segoe UI", 9, FontStyle.Bold)
         titleMeasurement.TextOrientation = DataVisualization.Charting.TextOrientation.Rotated270
         titleMeasurement.Position.Auto = False
-        titleMeasurement.Position = New DataVisualization.Charting.ElementPosition(2.0F, 19.0F, 4.0F, 25.0F)
+        titleMeasurement.Position = New DataVisualization.Charting.ElementPosition(2.0F, 9.0F, 4.0F, 45.0F)
         LiveAnalysisChart.Titles.Add(titleMeasurement)
 
 
@@ -2519,6 +2519,218 @@ Partial Class Formtest
         AddHandler btncreate2.Click, ConnectDev1Handler
         AddHandler btncreate3.Click, ConnectDev2Handler
 
+        ' Position/InnerPlotPosition on the three stacked ChartAreas
+        ' (Measurement/Statistics/Temperature) are percentages of
+        ' LiveAnalysisChart's own width/height, so their margins grow in
+        ' pixels as the popup is resized - same issue as the Playback
+        ' Chart, fixed the same way: hold the ORIGINAL pixel margins
+        ' constant, and let the three plot areas themselves absorb the
+        ' extra/lost space (split between them in their original height
+        ' ratio vertically; each area's own left/right margins held
+        ' independently horizontally).
+        Dim liveChartAreasInOrder As DataVisualization.Charting.ChartArea() =
+            {areaMeasurement, areaStatistics, areaTemperature}
+
+        Dim originalLiveChartWidth As Double
+        Dim originalLiveChartHeight As Double
+
+        Dim originalAreaLeftMarginPx As New Dictionary(Of DataVisualization.Charting.ChartArea, Double)
+        Dim originalAreaRightMarginPx As New Dictionary(Of DataVisualization.Charting.ChartArea, Double)
+        Dim originalAreaInnerLeftMarginPx As New Dictionary(Of DataVisualization.Charting.ChartArea, Double)
+        Dim originalAreaInnerRightMarginPx As New Dictionary(Of DataVisualization.Charting.ChartArea, Double)
+        Dim originalAreaHeightPx As New Dictionary(Of DataVisualization.Charting.ChartArea, Double)
+        Dim originalAreaInnerTopMarginPx As New Dictionary(Of DataVisualization.Charting.ChartArea, Double)
+        Dim originalAreaInnerBottomMarginPx As New Dictionary(Of DataVisualization.Charting.ChartArea, Double)
+
+        Dim originalAreaTopMarginPx As Double         ' above areaMeasurement
+        Dim originalGapMeasStatsPx As Double          ' between Measurement and Statistics
+        Dim originalGapStatsTempPx As Double          ' between Statistics and Temperature
+        Dim originalAreaBottomMarginPx As Double      ' below areaTemperature
+
+        ' The rotated axis-label titles (titleMeasurement etc.) are
+        ' separate Chart.Titles entries, NOT part of a ChartArea's own
+        ' Position/InnerPlotPosition - their own .Position is a percentage
+        ' of LiveAnalysisChart's whole width/height, so THEY were still
+        ' drifting (moving inward from the left/right edges as the popup
+        ' widened) even after the ChartArea margins above were fixed.
+        Dim liveChartTitlesInOrder As DataVisualization.Charting.Title() =
+            {titleMeasurement, titleStatistics, titleStatisticsPPM, titleTemperature}
+        Dim titleOwnerArea As New Dictionary(Of DataVisualization.Charting.Title, DataVisualization.Charting.ChartArea) From {
+            {titleMeasurement, areaMeasurement},
+            {titleStatistics, areaStatistics},
+            {titleStatisticsPPM, areaStatistics},
+            {titleTemperature, areaTemperature}
+        }
+
+        Dim originalTitleLeftPx As New Dictionary(Of DataVisualization.Charting.Title, Double)
+        Dim originalTitleRightPx As New Dictionary(Of DataVisualization.Charting.Title, Double)
+        Dim originalTitleWidthPx As New Dictionary(Of DataVisualization.Charting.Title, Double)
+        Dim originalTitleYFractionOfArea As New Dictionary(Of DataVisualization.Charting.Title, Double)
+        ' Height is deliberately left as its ORIGINAL raw percentage of
+        ' the whole chart, untouched - two different attempts to derive
+        ' it dynamically (as a fraction of the owning area, then as a
+        ' fixed pixel value) both under-sized it and clipped the rotated
+        ' text worse than before either fix existed. Left alone, it just
+        ' scales with the chart's height exactly as it always did.
+        Dim originalTitleHeightPct As New Dictionary(Of DataVisualization.Charting.Title, Single)
+
+        ' Extra breathing room added to the captured inner margins (the
+        ' space reserved for axis value labels) - baked into the baseline
+        ' itself rather than ramped in like the Playback Chart's version,
+        ' since there's no pre-existing "default look" here to preserve;
+        ' this control's own high-precision readouts (e.g. "0.9999937523")
+        ' need more room than MSChart's own auto margin was giving them.
+        Const innerMarginLeftPadPx As Double = 100.0
+        Const innerMarginRightPadPx As Double = 80.0
+
+        Dim CaptureOriginalChartAreaMargins = Sub()
+            originalLiveChartWidth = LiveAnalysisChart.Width
+            originalLiveChartHeight = LiveAnalysisChart.Height
+
+            For Each ca In liveChartAreasInOrder
+                Dim pos = ca.Position
+                originalAreaLeftMarginPx(ca) = (pos.X / 100.0) * originalLiveChartWidth
+                originalAreaRightMarginPx(ca) = ((100.0 - pos.X - pos.Width) / 100.0) * originalLiveChartWidth
+
+                Dim posWidthPx As Double = (pos.Width / 100.0) * originalLiveChartWidth
+                Dim inner = ca.InnerPlotPosition
+                originalAreaInnerLeftMarginPx(ca) = (inner.X / 100.0) * posWidthPx + innerMarginLeftPadPx
+                originalAreaInnerRightMarginPx(ca) = ((100.0 - inner.X - inner.Width) / 100.0) * posWidthPx + innerMarginRightPadPx
+
+                ' No pad added vertically - the X-axis time labels
+                ' ("00:00:00") are short and fixed-width, unlike the
+                ' left/right side's long value labels and rotated title.
+                ' Adding the same 90px here as well left the much shorter
+                ' Statistics/Temperature panels with barely any height
+                ' left over once their top+bottom margins were padded too.
+                Dim heightPx As Double = (pos.Height / 100.0) * originalLiveChartHeight
+                originalAreaHeightPx(ca) = heightPx
+                originalAreaInnerTopMarginPx(ca) = (inner.Y / 100.0) * heightPx
+                originalAreaInnerBottomMarginPx(ca) = ((100.0 - inner.Y - inner.Height) / 100.0) * heightPx
+            Next
+
+            Dim measPos = areaMeasurement.Position
+            Dim statsPos = areaStatistics.Position
+            Dim tempPos = areaTemperature.Position
+
+            ' The gap between two stacked areas is where the upper area's
+            ' own shared X-axis time labels ("00:00:00") actually render -
+            ' the ORIGINAL gap was a tiny ~1% of height, which held constant
+            ' in pixels wasn't enough room for that label row and started
+            ' overlapping the next area's own top axis labels. A smaller,
+            ' separate pad from the left/right one (that text is short and
+            ' fixed-height, unlike the long value labels/rotated title).
+            Const gapPadPx As Double = 20.0
+            Const topMarginPadPx As Double = 50.0
+
+            originalAreaTopMarginPx = (measPos.Y / 100.0) * originalLiveChartHeight + topMarginPadPx
+            originalGapMeasStatsPx = ((statsPos.Y - (measPos.Y + measPos.Height)) / 100.0) * originalLiveChartHeight + gapPadPx
+            originalGapStatsTempPx = ((tempPos.Y - (statsPos.Y + statsPos.Height)) / 100.0) * originalLiveChartHeight + gapPadPx
+            originalAreaBottomMarginPx = ((100.0 - tempPos.Y - tempPos.Height) / 100.0) * originalLiveChartHeight
+
+            ' Nudges the title in from the popup's edge by roughly one
+            ' character's width at its font size, so it isn't sitting
+            ' flush against the very edge of the window.
+            Const titleEdgeInsetPx As Double = 10.0
+
+            For Each t In liveChartTitlesInOrder
+                Dim tp = t.Position
+                originalTitleWidthPx(t) = (tp.Width / 100.0) * originalLiveChartWidth
+
+                ' Right-docked titles (e.g. "PPM DEVIATION") anchor to the
+                ' RIGHT edge instead - holding their distance from the LEFT
+                ' edge fixed would instead let their distance from the
+                ' right edge (the one that actually matters for them) grow.
+                If t.Docking = DataVisualization.Charting.Docking.Right Then
+                    originalTitleRightPx(t) = originalLiveChartWidth - ((tp.X + tp.Width) / 100.0) * originalLiveChartWidth + titleEdgeInsetPx
+                Else
+                    originalTitleLeftPx(t) = (tp.X / 100.0) * originalLiveChartWidth + titleEdgeInsetPx
+                End If
+
+                Dim ownerPos = titleOwnerArea(t).Position
+                originalTitleYFractionOfArea(t) = (tp.Y - ownerPos.Y) / ownerPos.Height
+                originalTitleHeightPct(t) = tp.Height
+            Next
+        End Sub
+
+        Dim ApplyChartAreaMargins = Sub()
+            If LiveAnalysisChart.Width <= 0 OrElse LiveAnalysisChart.Height <= 0 Then Exit Sub
+
+            ' Horizontal - each area's own left/right margins held fixed.
+            For Each ca In liveChartAreasInOrder
+                Dim leftPct As Single = CSng((originalAreaLeftMarginPx(ca) / LiveAnalysisChart.Width) * 100.0)
+                Dim rightPct As Single = CSng((originalAreaRightMarginPx(ca) / LiveAnalysisChart.Width) * 100.0)
+                Dim widthPct As Single = 100.0F - leftPct - rightPct
+                ca.Position = New DataVisualization.Charting.ElementPosition(leftPct, ca.Position.Y, widthPct, ca.Position.Height)
+
+                Dim positionWidthPx As Double = (widthPct / 100.0) * LiveAnalysisChart.Width
+                If positionWidthPx > 0 Then
+                    Dim innerLeftPct As Single = CSng((originalAreaInnerLeftMarginPx(ca) / positionWidthPx) * 100.0)
+                    Dim innerRightPct As Single = CSng((originalAreaInnerRightMarginPx(ca) / positionWidthPx) * 100.0)
+                    Dim innerWidthPct As Single = 100.0F - innerLeftPct - innerRightPct
+                    ca.InnerPlotPosition = New DataVisualization.Charting.ElementPosition(
+                        innerLeftPct, ca.InnerPlotPosition.Y, innerWidthPct, ca.InnerPlotPosition.Height)
+                End If
+            Next
+
+            ' Vertical - top/gap/gap/bottom margins held fixed, the three
+            ' plot areas splitting the remaining height in their original ratio.
+            Dim totalOriginalHeightPx As Double =
+                originalAreaHeightPx(areaMeasurement) + originalAreaHeightPx(areaStatistics) + originalAreaHeightPx(areaTemperature)
+            Dim remainingHeightPx As Double =
+                LiveAnalysisChart.Height - originalAreaTopMarginPx - originalGapMeasStatsPx - originalGapStatsTempPx - originalAreaBottomMarginPx
+            If remainingHeightPx <= 0 Then Exit Sub
+
+            Dim measHeightPx As Double = remainingHeightPx * (originalAreaHeightPx(areaMeasurement) / totalOriginalHeightPx)
+            Dim statsHeightPx As Double = remainingHeightPx * (originalAreaHeightPx(areaStatistics) / totalOriginalHeightPx)
+            Dim tempHeightPx As Double = remainingHeightPx - measHeightPx - statsHeightPx
+            If measHeightPx <= 0 OrElse statsHeightPx <= 0 OrElse tempHeightPx <= 0 Then Exit Sub
+
+            Dim measYPx As Double = originalAreaTopMarginPx
+            Dim statsYPx As Double = measYPx + measHeightPx + originalGapMeasStatsPx
+            Dim tempYPx As Double = statsYPx + statsHeightPx + originalGapStatsTempPx
+
+            Dim heights As New Dictionary(Of DataVisualization.Charting.ChartArea, Double) From {
+                {areaMeasurement, measHeightPx}, {areaStatistics, statsHeightPx}, {areaTemperature, tempHeightPx}
+            }
+            Dim tops As New Dictionary(Of DataVisualization.Charting.ChartArea, Double) From {
+                {areaMeasurement, measYPx}, {areaStatistics, statsYPx}, {areaTemperature, tempYPx}
+            }
+
+            For Each ca In liveChartAreasInOrder
+                Dim yPct As Single = CSng((tops(ca) / LiveAnalysisChart.Height) * 100.0)
+                Dim heightPct As Single = CSng((heights(ca) / LiveAnalysisChart.Height) * 100.0)
+                ca.Position = New DataVisualization.Charting.ElementPosition(ca.Position.X, yPct, ca.Position.Width, heightPct)
+
+                Dim innerTopPct As Single = CSng((originalAreaInnerTopMarginPx(ca) / heights(ca)) * 100.0)
+                Dim innerBottomPct As Single = CSng((originalAreaInnerBottomMarginPx(ca) / heights(ca)) * 100.0)
+                ca.InnerPlotPosition = New DataVisualization.Charting.ElementPosition(
+                    ca.InnerPlotPosition.X, innerTopPct, ca.InnerPlotPosition.Width, 100.0F - innerTopPct - innerBottomPct)
+            Next
+
+            ' Rotated titles - X/Width held at a fixed pixel distance from
+            ' LiveAnalysisChart's own left/right edges; Y/Height re-derived
+            ' from their owning ChartArea's CURRENT (just-updated above)
+            ' Position, using the fraction-within-the-area captured at
+            ' baseline, so they keep tracking their area vertically too.
+            For Each t In liveChartTitlesInOrder
+                Dim widthPct As Single = CSng((originalTitleWidthPx(t) / LiveAnalysisChart.Width) * 100.0)
+
+                Dim leftPct As Single
+                If t.Docking = DataVisualization.Charting.Docking.Right Then
+                    Dim leftPx As Double = LiveAnalysisChart.Width - originalTitleRightPx(t) - (widthPct / 100.0) * LiveAnalysisChart.Width
+                    leftPct = CSng((leftPx / LiveAnalysisChart.Width) * 100.0)
+                Else
+                    leftPct = CSng((originalTitleLeftPx(t) / LiveAnalysisChart.Width) * 100.0)
+                End If
+
+                Dim ownerPos = titleOwnerArea(t).Position
+                Dim yPct As Single = CSng(ownerPos.Y + originalTitleYFractionOfArea(t) * ownerPos.Height)
+
+                t.Position = New DataVisualization.Charting.ElementPosition(leftPct, yPct, widthPct, originalTitleHeightPct(t))
+            Next
+        End Sub
+
         Dim RepositionLiveToggles = Sub()
                                         Dim cw As Double = LiveAnalysisChart.ClientSize.Width
                                         Dim ch As Double = LiveAnalysisChart.ClientSize.Height
@@ -2591,8 +2803,14 @@ Partial Class Formtest
                                         btnResetLiveCharts.Location = New Point(gbTemp.Left, gbDev2.Bottom - btnResetLiveCharts.Height)
                                     End Sub
 
+        CaptureOriginalChartAreaMargins()
+        ApplyChartAreaMargins()
+
         RepositionLiveToggles()
-        AddHandler LiveAnalysisChart.Resize, Sub(s, ev) RepositionLiveToggles()
+        AddHandler LiveAnalysisChart.Resize, Sub(s, ev)
+                                                  ApplyChartAreaMargins()
+                                                  RepositionLiveToggles()
+                                              End Sub
 
 
 
