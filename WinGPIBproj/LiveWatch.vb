@@ -2377,6 +2377,12 @@ Partial Class Formtest
 
         Dim EnableGroup = Sub(boxes As CheckBox())
                                For Each cb As CheckBox In boxes
+                                   ' Mirrors DisableGroup also unchecking - otherwise a box left
+                                   ' unchecked by a previous disable (never-connected at open, or
+                                   ' Temperature being stopped) would come back enabled but still
+                                   ' unchecked once its device/sensor actually starts, instead of
+                                   ' defaulting to checked like a fresh AddTraceToggle box would.
+                                   cb.Checked = True
                                    cb.Enabled = True
                                    cb.BackColor = CType(cb.Tag, Color)
                                Next
@@ -2384,6 +2390,13 @@ Partial Class Formtest
 
         Dim DisableGroup = Sub(boxes As CheckBox())
                                 For Each cb As CheckBox In boxes
+                                    ' Unchecking (not just disabling) also fires
+                                    ' AddTraceToggle's CheckedChanged handler,
+                                    ' which disables the matching chart series -
+                                    ' otherwise a disabled-but-still-checked box
+                                    ' left its series "active" with no real
+                                    ' device/sensor behind it.
+                                    cb.Checked = False
                                     cb.Enabled = False
                                 Next
                             End Sub
@@ -2421,6 +2434,15 @@ Partial Class Formtest
                                             If tempActive AndAlso Not tempWasActive Then
                                                 ClearLiveAnalysisSeries({"Temperature"})
                                                 EnableGroup(tempBoxes)
+                                            End If
+
+                                            ' Unlike Dev1/Dev2, Temperature doesn't get frozen for review when
+                                            ' stopped - once ButtonEnd is pressed there's no more real sensor
+                                            ' behind it, so leaving its checkbox checked/enabled just kept
+                                            ' plotting a flatline. Disable and uncheck instead (this also turns
+                                            ' the series itself off via AddTraceToggle's CheckedChanged handler).
+                                            If Not tempActive AndAlso tempWasActive Then
+                                                DisableGroup(tempBoxes)
                                             End If
 
                                             dev1WasActive = dev1Active
@@ -2867,6 +2889,8 @@ Partial Class Formtest
             RemoveHandler ButtonDev1Run.Click, RunButtonHandler
             RemoveHandler ButtonDev2Run.Click, RunButtonHandler
             RemoveHandler ButtonDev12Run.Click, RunButtonHandler
+            RemoveHandler ButtonStart.Click, RunButtonHandler
+            RemoveHandler ButtonEnd.Click, RunButtonHandler
 
             RemoveHandler ButtonReset.Click, ResetHandler
             RemoveHandler btncreate.Click, ConnectBothHandler
