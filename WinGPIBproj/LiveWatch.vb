@@ -1969,7 +1969,7 @@ Partial Class Formtest
 
         areaStatistics.AxisY.IsStartedFromZero = False
         'areaStatistics.AxisY.LabelStyle.Format = "0.###E+00"
-        areaStatistics.AxisY.LabelStyle.Format = "0.0000000"
+        areaStatistics.AxisY.LabelStyle.Format = "0.00000000"
 
         areaStatistics.AxisX.LabelStyle.ForeColor = Color.Black
         areaStatistics.AxisY.LabelStyle.ForeColor = Color.Black
@@ -2287,12 +2287,12 @@ Partial Class Formtest
         liveAnalysisToolTip.SetToolTip(chkAntiAliasing, "Smooths lines and text on this chart and the main Live Chart." & vbCrLf & "Keep this ON to avoid a jagged/moire look on busy traces.")
 
         AddHandler chkAntiAliasing.CheckedChanged, Sub(s, ev)
-            Dim style = If(chkAntiAliasing.Checked,
-                DataVisualization.Charting.AntiAliasingStyles.All,
-                DataVisualization.Charting.AntiAliasingStyles.None)
-            LiveAnalysisChart.AntiAliasing = style
-            Chart1.AntiAliasing = style
-        End Sub
+                                                       Dim style = If(chkAntiAliasing.Checked,
+                                                           DataVisualization.Charting.AntiAliasingStyles.All,
+                                                           DataVisualization.Charting.AntiAliasingStyles.None)
+                                                       LiveAnalysisChart.AntiAliasing = style
+                                                       Chart1.AntiAliasing = style
+                                                   End Sub
 
         ' Fast Rendering and Smooth Lines only affect this pop-out's own
         ' series (not Chart1) - they change ChartType rather than a chart-wide
@@ -2341,22 +2341,22 @@ Partial Class Formtest
         ' series can't be both at once - Smooth Lines is disabled while Fast
         ' Rendering is checked so it's clear which one is actually in effect.
         Dim ApplyLiveAnalysisChartType = Sub()
-            Dim chartType As DataVisualization.Charting.SeriesChartType
+                                             Dim chartType As DataVisualization.Charting.SeriesChartType
 
-            If chkFastRendering.Checked Then
-                chartType = DataVisualization.Charting.SeriesChartType.FastLine
-            ElseIf chkSmoothLines.Checked Then
-                chartType = DataVisualization.Charting.SeriesChartType.Spline
-            Else
-                chartType = DataVisualization.Charting.SeriesChartType.Line
-            End If
+                                             If chkFastRendering.Checked Then
+                                                 chartType = DataVisualization.Charting.SeriesChartType.FastLine
+                                             ElseIf chkSmoothLines.Checked Then
+                                                 chartType = DataVisualization.Charting.SeriesChartType.Spline
+                                             Else
+                                                 chartType = DataVisualization.Charting.SeriesChartType.Line
+                                             End If
 
-            For Each s As DataVisualization.Charting.Series In LiveAnalysisChart.Series
-                s.ChartType = chartType
-            Next
+                                             For Each s As DataVisualization.Charting.Series In LiveAnalysisChart.Series
+                                                 s.ChartType = chartType
+                                             Next
 
-            chkSmoothLines.Enabled = Not chkFastRendering.Checked
-        End Sub
+                                             chkSmoothLines.Enabled = Not chkFastRendering.Checked
+                                         End Sub
 
         AddHandler chkFastRendering.CheckedChanged, Sub(s, ev) ApplyLiveAnalysisChartType()
         AddHandler chkSmoothLines.CheckedChanged, Sub(s, ev) ApplyLiveAnalysisChartType()
@@ -2376,30 +2376,30 @@ Partial Class Formtest
                                       End Sub
 
         Dim EnableGroup = Sub(boxes As CheckBox())
-                               For Each cb As CheckBox In boxes
-                                   ' Mirrors DisableGroup also unchecking - otherwise a box left
-                                   ' unchecked by a previous disable (never-connected at open, or
-                                   ' Temperature being stopped) would come back enabled but still
-                                   ' unchecked once its device/sensor actually starts, instead of
-                                   ' defaulting to checked like a fresh AddTraceToggle box would.
-                                   cb.Checked = True
-                                   cb.Enabled = True
-                                   cb.BackColor = CType(cb.Tag, Color)
-                               Next
-                           End Sub
+                              For Each cb As CheckBox In boxes
+                                  ' Mirrors DisableGroup also unchecking - otherwise a box left
+                                  ' unchecked by a previous disable (never-connected at open, or
+                                  ' Temperature being stopped) would come back enabled but still
+                                  ' unchecked once its device/sensor actually starts, instead of
+                                  ' defaulting to checked like a fresh AddTraceToggle box would.
+                                  cb.Checked = True
+                                  cb.Enabled = True
+                                  cb.BackColor = CType(cb.Tag, Color)
+                              Next
+                          End Sub
 
         Dim DisableGroup = Sub(boxes As CheckBox())
-                                For Each cb As CheckBox In boxes
-                                    ' Unchecking (not just disabling) also fires
-                                    ' AddTraceToggle's CheckedChanged handler,
-                                    ' which disables the matching chart series -
-                                    ' otherwise a disabled-but-still-checked box
-                                    ' left its series "active" with no real
-                                    ' device/sensor behind it.
-                                    cb.Checked = False
-                                    cb.Enabled = False
-                                Next
-                            End Sub
+                               For Each cb As CheckBox In boxes
+                                   ' Unchecking (not just disabling) also fires
+                                   ' AddTraceToggle's CheckedChanged handler,
+                                   ' which disables the matching chart series -
+                                   ' otherwise a disabled-but-still-checked box
+                                   ' left its series "active" with no real
+                                   ' device/sensor behind it.
+                                   cb.Checked = False
+                                   cb.Enabled = False
+                               Next
+                           End Sub
 
         Dim RefreshDeviceAvailability = Sub()
                                             Dim dev1Active As Boolean = (ButtonDev1Run.Text = "Stop") OrElse (ButtonDev12Run.Text = "Stop")
@@ -2482,22 +2482,22 @@ Partial Class Formtest
         ' touch the sensor itself, since the next RefreshDeviceAvailability()
         ' call will still see it correctly once it's genuinely restarted.
         Dim ResetHandler = Sub(s As Object, ev As EventArgs)
-                                ClearLiveAnalysisSeries({"Device 1", "Dev 1 Mean", "Dev 1 STDEV", "Dev 1 SEM", "Dev 1 PPM Deviation"})
-                                ClearLiveAnalysisSeries({"Device 2", "Dev 2 Mean", "Dev 2 STDEV", "Dev 2 SEM", "Dev 2 PPM Deviation"})
-                                ClearLiveAnalysisSeries({"Temperature"})
-                                q1ShortTermMean.Clear() : sum1ShortTermMean = 0.0
-                                q2ShortTermMean.Clear() : sum2ShortTermMean = 0.0
-                                LiveAnalysisLastStats1Count = Stats1Count
-                                LiveAnalysisLastStats2Count = Stats2Count
-                                DisableGroup(dev1Boxes)
-                                DisableGroup(dev2Boxes)
-                                DisableGroup(tempBoxes)
-                                gbDev1.Text = "Device 1"
-                                gbDev2.Text = "Device 2"
-                                dev1WasActive = False
-                                dev2WasActive = False
-                                tempWasActive = False
-                            End Sub
+                               ClearLiveAnalysisSeries({"Device 1", "Dev 1 Mean", "Dev 1 STDEV", "Dev 1 SEM", "Dev 1 PPM Deviation"})
+                               ClearLiveAnalysisSeries({"Device 2", "Dev 2 Mean", "Dev 2 STDEV", "Dev 2 SEM", "Dev 2 PPM Deviation"})
+                               ClearLiveAnalysisSeries({"Temperature"})
+                               q1ShortTermMean.Clear() : sum1ShortTermMean = 0.0
+                               q2ShortTermMean.Clear() : sum2ShortTermMean = 0.0
+                               LiveAnalysisLastStats1Count = Stats1Count
+                               LiveAnalysisLastStats2Count = Stats2Count
+                               DisableGroup(dev1Boxes)
+                               DisableGroup(dev2Boxes)
+                               DisableGroup(tempBoxes)
+                               gbDev1.Text = "Device 1"
+                               gbDev2.Text = "Device 2"
+                               dev1WasActive = False
+                               dev2WasActive = False
+                               tempWasActive = False
+                           End Sub
 
         AddHandler ButtonReset.Click, ResetHandler
 
@@ -2505,15 +2505,15 @@ Partial Class Formtest
         ' restarts the sample counter, leaving the devices themselves
         ' (and the checkboxes' enabled state) untouched.
         Dim ResetChartsButtonHandler = Sub(s As Object, ev As EventArgs)
-                                            ClearLiveAnalysisSeries({"Device 1", "Dev 1 Mean", "Dev 1 STDEV", "Dev 1 SEM", "Dev 1 PPM Deviation"})
-                                            ClearLiveAnalysisSeries({"Device 2", "Dev 2 Mean", "Dev 2 STDEV", "Dev 2 SEM", "Dev 2 PPM Deviation"})
-                                            ClearLiveAnalysisSeries({"Temperature"})
-                                            q1ShortTermMean.Clear() : sum1ShortTermMean = 0.0
-                                            q2ShortTermMean.Clear() : sum2ShortTermMean = 0.0
-                                            LiveAnalysisSample = 0
-                                            LiveAnalysisLastStats1Count = Stats1Count
-                                            LiveAnalysisLastStats2Count = Stats2Count
-                                        End Sub
+                                           ClearLiveAnalysisSeries({"Device 1", "Dev 1 Mean", "Dev 1 STDEV", "Dev 1 SEM", "Dev 1 PPM Deviation"})
+                                           ClearLiveAnalysisSeries({"Device 2", "Dev 2 Mean", "Dev 2 STDEV", "Dev 2 SEM", "Dev 2 PPM Deviation"})
+                                           ClearLiveAnalysisSeries({"Temperature"})
+                                           q1ShortTermMean.Clear() : sum1ShortTermMean = 0.0
+                                           q2ShortTermMean.Clear() : sum2ShortTermMean = 0.0
+                                           LiveAnalysisSample = 0
+                                           LiveAnalysisLastStats1Count = Stats1Count
+                                           LiveAnalysisLastStats2Count = Stats2Count
+                                       End Sub
 
         AddHandler btnResetLiveCharts.Click, ResetChartsButtonHandler
 
@@ -2523,19 +2523,19 @@ Partial Class Formtest
         ' logging), btncreate2 connects Device 1 only, btncreate3 Device 2
         ' only.
         Dim ConnectBothHandler = Sub(s As Object, ev As EventArgs)
-                                      EnableGroup(dev1Boxes)
-                                      EnableGroup(dev2Boxes)
-                                      gbDev1.Text = "Device 1 - " & txtname1.Text
-                                      gbDev2.Text = "Device 2 - " & txtname2.Text
-                                  End Sub
+                                     EnableGroup(dev1Boxes)
+                                     EnableGroup(dev2Boxes)
+                                     gbDev1.Text = "Device 1 - " & txtname1.Text
+                                     gbDev2.Text = "Device 2 - " & txtname2.Text
+                                 End Sub
         Dim ConnectDev1Handler = Sub(s As Object, ev As EventArgs)
-                                      EnableGroup(dev1Boxes)
-                                      gbDev1.Text = "Device 1 - " & txtname1.Text
-                                  End Sub
+                                     EnableGroup(dev1Boxes)
+                                     gbDev1.Text = "Device 1 - " & txtname1.Text
+                                 End Sub
         Dim ConnectDev2Handler = Sub(s As Object, ev As EventArgs)
-                                      EnableGroup(dev2Boxes)
-                                      gbDev2.Text = "Device 2 - " & txtname2.Text
-                                  End Sub
+                                     EnableGroup(dev2Boxes)
+                                     gbDev2.Text = "Device 2 - " & txtname2.Text
+                                 End Sub
 
         AddHandler btncreate.Click, ConnectBothHandler
         AddHandler btncreate2.Click, ConnectDev1Handler
@@ -2606,152 +2606,152 @@ Partial Class Formtest
         Const innerMarginRightPadPx As Double = 80.0
 
         Dim CaptureOriginalChartAreaMargins = Sub()
-            originalLiveChartWidth = LiveAnalysisChart.Width
-            originalLiveChartHeight = LiveAnalysisChart.Height
+                                                  originalLiveChartWidth = LiveAnalysisChart.Width
+                                                  originalLiveChartHeight = LiveAnalysisChart.Height
 
-            For Each ca In liveChartAreasInOrder
-                Dim pos = ca.Position
-                originalAreaLeftMarginPx(ca) = (pos.X / 100.0) * originalLiveChartWidth
-                originalAreaRightMarginPx(ca) = ((100.0 - pos.X - pos.Width) / 100.0) * originalLiveChartWidth
+                                                  For Each ca In liveChartAreasInOrder
+                                                      Dim pos = ca.Position
+                                                      originalAreaLeftMarginPx(ca) = (pos.X / 100.0) * originalLiveChartWidth
+                                                      originalAreaRightMarginPx(ca) = ((100.0 - pos.X - pos.Width) / 100.0) * originalLiveChartWidth
 
-                Dim posWidthPx As Double = (pos.Width / 100.0) * originalLiveChartWidth
-                Dim inner = ca.InnerPlotPosition
-                originalAreaInnerLeftMarginPx(ca) = (inner.X / 100.0) * posWidthPx + innerMarginLeftPadPx
-                originalAreaInnerRightMarginPx(ca) = ((100.0 - inner.X - inner.Width) / 100.0) * posWidthPx + innerMarginRightPadPx
+                                                      Dim posWidthPx As Double = (pos.Width / 100.0) * originalLiveChartWidth
+                                                      Dim inner = ca.InnerPlotPosition
+                                                      originalAreaInnerLeftMarginPx(ca) = (inner.X / 100.0) * posWidthPx + innerMarginLeftPadPx
+                                                      originalAreaInnerRightMarginPx(ca) = ((100.0 - inner.X - inner.Width) / 100.0) * posWidthPx + innerMarginRightPadPx
 
-                ' No pad added vertically - the X-axis time labels
-                ' ("00:00:00") are short and fixed-width, unlike the
-                ' left/right side's long value labels and rotated title.
-                ' Adding the same 90px here as well left the much shorter
-                ' Statistics/Temperature panels with barely any height
-                ' left over once their top+bottom margins were padded too.
-                Dim heightPx As Double = (pos.Height / 100.0) * originalLiveChartHeight
-                originalAreaHeightPx(ca) = heightPx
-                originalAreaInnerTopMarginPx(ca) = (inner.Y / 100.0) * heightPx
-                originalAreaInnerBottomMarginPx(ca) = ((100.0 - inner.Y - inner.Height) / 100.0) * heightPx
-            Next
+                                                      ' No pad added vertically - the X-axis time labels
+                                                      ' ("00:00:00") are short and fixed-width, unlike the
+                                                      ' left/right side's long value labels and rotated title.
+                                                      ' Adding the same 90px here as well left the much shorter
+                                                      ' Statistics/Temperature panels with barely any height
+                                                      ' left over once their top+bottom margins were padded too.
+                                                      Dim heightPx As Double = (pos.Height / 100.0) * originalLiveChartHeight
+                                                      originalAreaHeightPx(ca) = heightPx
+                                                      originalAreaInnerTopMarginPx(ca) = (inner.Y / 100.0) * heightPx
+                                                      originalAreaInnerBottomMarginPx(ca) = ((100.0 - inner.Y - inner.Height) / 100.0) * heightPx
+                                                  Next
 
-            Dim measPos = areaMeasurement.Position
-            Dim statsPos = areaStatistics.Position
-            Dim tempPos = areaTemperature.Position
+                                                  Dim measPos = areaMeasurement.Position
+                                                  Dim statsPos = areaStatistics.Position
+                                                  Dim tempPos = areaTemperature.Position
 
-            ' The gap between two stacked areas is where the upper area's
-            ' own shared X-axis time labels ("00:00:00") actually render -
-            ' the ORIGINAL gap was a tiny ~1% of height, which held constant
-            ' in pixels wasn't enough room for that label row and started
-            ' overlapping the next area's own top axis labels. A smaller,
-            ' separate pad from the left/right one (that text is short and
-            ' fixed-height, unlike the long value labels/rotated title).
-            Const gapPadPx As Double = 20.0
-            Const topMarginPadPx As Double = 50.0
+                                                  ' The gap between two stacked areas is where the upper area's
+                                                  ' own shared X-axis time labels ("00:00:00") actually render -
+                                                  ' the ORIGINAL gap was a tiny ~1% of height, which held constant
+                                                  ' in pixels wasn't enough room for that label row and started
+                                                  ' overlapping the next area's own top axis labels. A smaller,
+                                                  ' separate pad from the left/right one (that text is short and
+                                                  ' fixed-height, unlike the long value labels/rotated title).
+                                                  Const gapPadPx As Double = 20.0
+                                                  Const topMarginPadPx As Double = 50.0
 
-            originalAreaTopMarginPx = (measPos.Y / 100.0) * originalLiveChartHeight + topMarginPadPx
-            originalGapMeasStatsPx = ((statsPos.Y - (measPos.Y + measPos.Height)) / 100.0) * originalLiveChartHeight + gapPadPx
-            originalGapStatsTempPx = ((tempPos.Y - (statsPos.Y + statsPos.Height)) / 100.0) * originalLiveChartHeight + gapPadPx
-            originalAreaBottomMarginPx = ((100.0 - tempPos.Y - tempPos.Height) / 100.0) * originalLiveChartHeight
+                                                  originalAreaTopMarginPx = (measPos.Y / 100.0) * originalLiveChartHeight + topMarginPadPx
+                                                  originalGapMeasStatsPx = ((statsPos.Y - (measPos.Y + measPos.Height)) / 100.0) * originalLiveChartHeight + gapPadPx
+                                                  originalGapStatsTempPx = ((tempPos.Y - (statsPos.Y + statsPos.Height)) / 100.0) * originalLiveChartHeight + gapPadPx
+                                                  originalAreaBottomMarginPx = ((100.0 - tempPos.Y - tempPos.Height) / 100.0) * originalLiveChartHeight
 
-            ' Nudges the title in from the popup's edge by roughly one
-            ' character's width at its font size, so it isn't sitting
-            ' flush against the very edge of the window.
-            Const titleEdgeInsetPx As Double = 10.0
+                                                  ' Nudges the title in from the popup's edge by roughly one
+                                                  ' character's width at its font size, so it isn't sitting
+                                                  ' flush against the very edge of the window.
+                                                  Const titleEdgeInsetPx As Double = 10.0
 
-            For Each t In liveChartTitlesInOrder
-                Dim tp = t.Position
-                originalTitleWidthPx(t) = (tp.Width / 100.0) * originalLiveChartWidth
+                                                  For Each t In liveChartTitlesInOrder
+                                                      Dim tp = t.Position
+                                                      originalTitleWidthPx(t) = (tp.Width / 100.0) * originalLiveChartWidth
 
-                ' Right-docked titles (e.g. "PPM DEVIATION") anchor to the
-                ' RIGHT edge instead - holding their distance from the LEFT
-                ' edge fixed would instead let their distance from the
-                ' right edge (the one that actually matters for them) grow.
-                If t.Docking = DataVisualization.Charting.Docking.Right Then
-                    originalTitleRightPx(t) = originalLiveChartWidth - ((tp.X + tp.Width) / 100.0) * originalLiveChartWidth + titleEdgeInsetPx
-                Else
-                    originalTitleLeftPx(t) = (tp.X / 100.0) * originalLiveChartWidth + titleEdgeInsetPx
-                End If
+                                                      ' Right-docked titles (e.g. "PPM DEVIATION") anchor to the
+                                                      ' RIGHT edge instead - holding their distance from the LEFT
+                                                      ' edge fixed would instead let their distance from the
+                                                      ' right edge (the one that actually matters for them) grow.
+                                                      If t.Docking = DataVisualization.Charting.Docking.Right Then
+                                                          originalTitleRightPx(t) = originalLiveChartWidth - ((tp.X + tp.Width) / 100.0) * originalLiveChartWidth + titleEdgeInsetPx
+                                                      Else
+                                                          originalTitleLeftPx(t) = (tp.X / 100.0) * originalLiveChartWidth + titleEdgeInsetPx
+                                                      End If
 
-                Dim ownerPos = titleOwnerArea(t).Position
-                originalTitleYFractionOfArea(t) = (tp.Y - ownerPos.Y) / ownerPos.Height
-                originalTitleHeightPct(t) = tp.Height
-            Next
-        End Sub
+                                                      Dim ownerPos = titleOwnerArea(t).Position
+                                                      originalTitleYFractionOfArea(t) = (tp.Y - ownerPos.Y) / ownerPos.Height
+                                                      originalTitleHeightPct(t) = tp.Height
+                                                  Next
+                                              End Sub
 
         Dim ApplyChartAreaMargins = Sub()
-            If LiveAnalysisChart.Width <= 0 OrElse LiveAnalysisChart.Height <= 0 Then Exit Sub
+                                        If LiveAnalysisChart.Width <= 0 OrElse LiveAnalysisChart.Height <= 0 Then Exit Sub
 
-            ' Horizontal - each area's own left/right margins held fixed.
-            For Each ca In liveChartAreasInOrder
-                Dim leftPct As Single = CSng((originalAreaLeftMarginPx(ca) / LiveAnalysisChart.Width) * 100.0)
-                Dim rightPct As Single = CSng((originalAreaRightMarginPx(ca) / LiveAnalysisChart.Width) * 100.0)
-                Dim widthPct As Single = 100.0F - leftPct - rightPct
-                ca.Position = New DataVisualization.Charting.ElementPosition(leftPct, ca.Position.Y, widthPct, ca.Position.Height)
+                                        ' Horizontal - each area's own left/right margins held fixed.
+                                        For Each ca In liveChartAreasInOrder
+                                            Dim leftPct As Single = CSng((originalAreaLeftMarginPx(ca) / LiveAnalysisChart.Width) * 100.0)
+                                            Dim rightPct As Single = CSng((originalAreaRightMarginPx(ca) / LiveAnalysisChart.Width) * 100.0)
+                                            Dim widthPct As Single = 100.0F - leftPct - rightPct
+                                            ca.Position = New DataVisualization.Charting.ElementPosition(leftPct, ca.Position.Y, widthPct, ca.Position.Height)
 
-                Dim positionWidthPx As Double = (widthPct / 100.0) * LiveAnalysisChart.Width
-                If positionWidthPx > 0 Then
-                    Dim innerLeftPct As Single = CSng((originalAreaInnerLeftMarginPx(ca) / positionWidthPx) * 100.0)
-                    Dim innerRightPct As Single = CSng((originalAreaInnerRightMarginPx(ca) / positionWidthPx) * 100.0)
-                    Dim innerWidthPct As Single = 100.0F - innerLeftPct - innerRightPct
-                    ca.InnerPlotPosition = New DataVisualization.Charting.ElementPosition(
-                        innerLeftPct, ca.InnerPlotPosition.Y, innerWidthPct, ca.InnerPlotPosition.Height)
-                End If
-            Next
+                                            Dim positionWidthPx As Double = (widthPct / 100.0) * LiveAnalysisChart.Width
+                                            If positionWidthPx > 0 Then
+                                                Dim innerLeftPct As Single = CSng((originalAreaInnerLeftMarginPx(ca) / positionWidthPx) * 100.0)
+                                                Dim innerRightPct As Single = CSng((originalAreaInnerRightMarginPx(ca) / positionWidthPx) * 100.0)
+                                                Dim innerWidthPct As Single = 100.0F - innerLeftPct - innerRightPct
+                                                ca.InnerPlotPosition = New DataVisualization.Charting.ElementPosition(
+                                                    innerLeftPct, ca.InnerPlotPosition.Y, innerWidthPct, ca.InnerPlotPosition.Height)
+                                            End If
+                                        Next
 
-            ' Vertical - top/gap/gap/bottom margins held fixed, the three
-            ' plot areas splitting the remaining height in their original ratio.
-            Dim totalOriginalHeightPx As Double =
-                originalAreaHeightPx(areaMeasurement) + originalAreaHeightPx(areaStatistics) + originalAreaHeightPx(areaTemperature)
-            Dim remainingHeightPx As Double =
-                LiveAnalysisChart.Height - originalAreaTopMarginPx - originalGapMeasStatsPx - originalGapStatsTempPx - originalAreaBottomMarginPx
-            If remainingHeightPx <= 0 Then Exit Sub
+                                        ' Vertical - top/gap/gap/bottom margins held fixed, the three
+                                        ' plot areas splitting the remaining height in their original ratio.
+                                        Dim totalOriginalHeightPx As Double =
+                                            originalAreaHeightPx(areaMeasurement) + originalAreaHeightPx(areaStatistics) + originalAreaHeightPx(areaTemperature)
+                                        Dim remainingHeightPx As Double =
+                                            LiveAnalysisChart.Height - originalAreaTopMarginPx - originalGapMeasStatsPx - originalGapStatsTempPx - originalAreaBottomMarginPx
+                                        If remainingHeightPx <= 0 Then Exit Sub
 
-            Dim measHeightPx As Double = remainingHeightPx * (originalAreaHeightPx(areaMeasurement) / totalOriginalHeightPx)
-            Dim statsHeightPx As Double = remainingHeightPx * (originalAreaHeightPx(areaStatistics) / totalOriginalHeightPx)
-            Dim tempHeightPx As Double = remainingHeightPx - measHeightPx - statsHeightPx
-            If measHeightPx <= 0 OrElse statsHeightPx <= 0 OrElse tempHeightPx <= 0 Then Exit Sub
+                                        Dim measHeightPx As Double = remainingHeightPx * (originalAreaHeightPx(areaMeasurement) / totalOriginalHeightPx)
+                                        Dim statsHeightPx As Double = remainingHeightPx * (originalAreaHeightPx(areaStatistics) / totalOriginalHeightPx)
+                                        Dim tempHeightPx As Double = remainingHeightPx - measHeightPx - statsHeightPx
+                                        If measHeightPx <= 0 OrElse statsHeightPx <= 0 OrElse tempHeightPx <= 0 Then Exit Sub
 
-            Dim measYPx As Double = originalAreaTopMarginPx
-            Dim statsYPx As Double = measYPx + measHeightPx + originalGapMeasStatsPx
-            Dim tempYPx As Double = statsYPx + statsHeightPx + originalGapStatsTempPx
+                                        Dim measYPx As Double = originalAreaTopMarginPx
+                                        Dim statsYPx As Double = measYPx + measHeightPx + originalGapMeasStatsPx
+                                        Dim tempYPx As Double = statsYPx + statsHeightPx + originalGapStatsTempPx
 
-            Dim heights As New Dictionary(Of DataVisualization.Charting.ChartArea, Double) From {
-                {areaMeasurement, measHeightPx}, {areaStatistics, statsHeightPx}, {areaTemperature, tempHeightPx}
-            }
-            Dim tops As New Dictionary(Of DataVisualization.Charting.ChartArea, Double) From {
-                {areaMeasurement, measYPx}, {areaStatistics, statsYPx}, {areaTemperature, tempYPx}
-            }
+                                        Dim heights As New Dictionary(Of DataVisualization.Charting.ChartArea, Double) From {
+                                            {areaMeasurement, measHeightPx}, {areaStatistics, statsHeightPx}, {areaTemperature, tempHeightPx}
+                                        }
+                                        Dim tops As New Dictionary(Of DataVisualization.Charting.ChartArea, Double) From {
+                                            {areaMeasurement, measYPx}, {areaStatistics, statsYPx}, {areaTemperature, tempYPx}
+                                        }
 
-            For Each ca In liveChartAreasInOrder
-                Dim yPct As Single = CSng((tops(ca) / LiveAnalysisChart.Height) * 100.0)
-                Dim heightPct As Single = CSng((heights(ca) / LiveAnalysisChart.Height) * 100.0)
-                ca.Position = New DataVisualization.Charting.ElementPosition(ca.Position.X, yPct, ca.Position.Width, heightPct)
+                                        For Each ca In liveChartAreasInOrder
+                                            Dim yPct As Single = CSng((tops(ca) / LiveAnalysisChart.Height) * 100.0)
+                                            Dim heightPct As Single = CSng((heights(ca) / LiveAnalysisChart.Height) * 100.0)
+                                            ca.Position = New DataVisualization.Charting.ElementPosition(ca.Position.X, yPct, ca.Position.Width, heightPct)
 
-                Dim innerTopPct As Single = CSng((originalAreaInnerTopMarginPx(ca) / heights(ca)) * 100.0)
-                Dim innerBottomPct As Single = CSng((originalAreaInnerBottomMarginPx(ca) / heights(ca)) * 100.0)
-                ca.InnerPlotPosition = New DataVisualization.Charting.ElementPosition(
-                    ca.InnerPlotPosition.X, innerTopPct, ca.InnerPlotPosition.Width, 100.0F - innerTopPct - innerBottomPct)
-            Next
+                                            Dim innerTopPct As Single = CSng((originalAreaInnerTopMarginPx(ca) / heights(ca)) * 100.0)
+                                            Dim innerBottomPct As Single = CSng((originalAreaInnerBottomMarginPx(ca) / heights(ca)) * 100.0)
+                                            ca.InnerPlotPosition = New DataVisualization.Charting.ElementPosition(
+                                                ca.InnerPlotPosition.X, innerTopPct, ca.InnerPlotPosition.Width, 100.0F - innerTopPct - innerBottomPct)
+                                        Next
 
-            ' Rotated titles - X/Width held at a fixed pixel distance from
-            ' LiveAnalysisChart's own left/right edges; Y/Height re-derived
-            ' from their owning ChartArea's CURRENT (just-updated above)
-            ' Position, using the fraction-within-the-area captured at
-            ' baseline, so they keep tracking their area vertically too.
-            For Each t In liveChartTitlesInOrder
-                Dim widthPct As Single = CSng((originalTitleWidthPx(t) / LiveAnalysisChart.Width) * 100.0)
+                                        ' Rotated titles - X/Width held at a fixed pixel distance from
+                                        ' LiveAnalysisChart's own left/right edges; Y/Height re-derived
+                                        ' from their owning ChartArea's CURRENT (just-updated above)
+                                        ' Position, using the fraction-within-the-area captured at
+                                        ' baseline, so they keep tracking their area vertically too.
+                                        For Each t In liveChartTitlesInOrder
+                                            Dim widthPct As Single = CSng((originalTitleWidthPx(t) / LiveAnalysisChart.Width) * 100.0)
 
-                Dim leftPct As Single
-                If t.Docking = DataVisualization.Charting.Docking.Right Then
-                    Dim leftPx As Double = LiveAnalysisChart.Width - originalTitleRightPx(t) - (widthPct / 100.0) * LiveAnalysisChart.Width
-                    leftPct = CSng((leftPx / LiveAnalysisChart.Width) * 100.0)
-                Else
-                    leftPct = CSng((originalTitleLeftPx(t) / LiveAnalysisChart.Width) * 100.0)
-                End If
+                                            Dim leftPct As Single
+                                            If t.Docking = DataVisualization.Charting.Docking.Right Then
+                                                Dim leftPx As Double = LiveAnalysisChart.Width - originalTitleRightPx(t) - (widthPct / 100.0) * LiveAnalysisChart.Width
+                                                leftPct = CSng((leftPx / LiveAnalysisChart.Width) * 100.0)
+                                            Else
+                                                leftPct = CSng((originalTitleLeftPx(t) / LiveAnalysisChart.Width) * 100.0)
+                                            End If
 
-                Dim ownerPos = titleOwnerArea(t).Position
-                Dim yPct As Single = CSng(ownerPos.Y + originalTitleYFractionOfArea(t) * ownerPos.Height)
+                                            Dim ownerPos = titleOwnerArea(t).Position
+                                            Dim yPct As Single = CSng(ownerPos.Y + originalTitleYFractionOfArea(t) * ownerPos.Height)
 
-                t.Position = New DataVisualization.Charting.ElementPosition(leftPct, yPct, widthPct, originalTitleHeightPct(t))
-            Next
-        End Sub
+                                            t.Position = New DataVisualization.Charting.ElementPosition(leftPct, yPct, widthPct, originalTitleHeightPct(t))
+                                        Next
+                                    End Sub
 
         Dim RepositionLiveToggles = Sub()
                                         Dim cw As Double = LiveAnalysisChart.ClientSize.Width
@@ -2830,9 +2830,9 @@ Partial Class Formtest
 
         RepositionLiveToggles()
         AddHandler LiveAnalysisChart.Resize, Sub(s, ev)
-                                                  ApplyChartAreaMargins()
-                                                  RepositionLiveToggles()
-                                              End Sub
+                                                 ApplyChartAreaMargins()
+                                                 RepositionLiveToggles()
+                                             End Sub
 
 
 
@@ -2979,315 +2979,317 @@ Partial Class Formtest
 
         Try
 
-        ' Advance ONE X-axis sample
-        LiveAnalysisSample += 1
+            ' Advance ONE X-axis sample
+            LiveAnalysisSample += 1
 
-        Dim x As Double = LiveAnalysisSample
+            Dim x As Double = LiveAnalysisSample
 
-        ' Device 1
-        If newDev1Sample = True Then
+            ' Device 1
+            If newDev1Sample = True Then
 
-            Dim dev1Raw As Double = CDbl(Val(NormalizeNumericResponse(txtr1a.Text)))
+                Dim dev1Raw As Double = CDbl(Val(NormalizeNumericResponse(txtr1a.Text)))
 
-            Dim dev1MeanToPlot As Double = Stats1Mean
-            If chkShortTermMean IsNot Nothing AndAlso chkShortTermMean.Checked Then
-                q1ShortTermMean.Enqueue(dev1Raw) : sum1ShortTermMean += dev1Raw
-                If q1ShortTermMean.Count > ShortTermMeanWindow Then sum1ShortTermMean -= q1ShortTermMean.Dequeue()
-                dev1MeanToPlot = sum1ShortTermMean / q1ShortTermMean.Count
+                Dim dev1MeanToPlot As Double = Stats1Mean
+                If chkShortTermMean IsNot Nothing AndAlso chkShortTermMean.Checked Then
+                    q1ShortTermMean.Enqueue(dev1Raw) : sum1ShortTermMean += dev1Raw
+                    If q1ShortTermMean.Count > ShortTermMeanWindow Then sum1ShortTermMean -= q1ShortTermMean.Dequeue()
+                    dev1MeanToPlot = sum1ShortTermMean / q1ShortTermMean.Count
+                End If
+
+                LiveAnalysisChart.Series("Device 1").Points.AddXY(x, dev1Raw)
+                LiveAnalysisChart.Series("Dev 1 Mean").Points.AddXY(x, dev1MeanToPlot)
+                LiveAnalysisChart.Series("Dev 1 STDEV").Points.AddXY(x, Stats1StdevCurrent)
+                LiveAnalysisChart.Series("Dev 1 SEM").Points.AddXY(x, Stats1SEMCurrent)
+                ' Defence in depth on top of the near-zero-baseline guard in
+                ' UpdateStats1 - a NaN/Infinity point here makes MSChart's own
+                ' axis auto-scaling throw OverflowException the next repaint.
+                LiveAnalysisChart.Series("Dev 1 PPM Deviation").Points.AddXY(
+                    x, If(Double.IsNaN(Stats1DeviationCurrent) OrElse Double.IsInfinity(Stats1DeviationCurrent), 0, Stats1DeviationCurrent))
+
+                LiveAnalysisLastStats1Count = Stats1Count
+
             End If
 
-            LiveAnalysisChart.Series("Device 1").Points.AddXY(x, dev1Raw)
-            LiveAnalysisChart.Series("Dev 1 Mean").Points.AddXY(x, dev1MeanToPlot)
-            LiveAnalysisChart.Series("Dev 1 STDEV").Points.AddXY(x, Stats1StdevCurrent)
-            LiveAnalysisChart.Series("Dev 1 SEM").Points.AddXY(x, Stats1SEMCurrent)
-            ' Defence in depth on top of the near-zero-baseline guard in
-            ' UpdateStats1 - a NaN/Infinity point here makes MSChart's own
-            ' axis auto-scaling throw OverflowException the next repaint.
-            LiveAnalysisChart.Series("Dev 1 PPM Deviation").Points.AddXY(
-                x, If(Double.IsNaN(Stats1DeviationCurrent) OrElse Double.IsInfinity(Stats1DeviationCurrent), 0, Stats1DeviationCurrent))
+            ' Device 2
+            If newDev2Sample = True Then
 
-            LiveAnalysisLastStats1Count = Stats1Count
+                Dim dev2Raw As Double = CDbl(Val(NormalizeNumericResponse(txtr2a.Text)))
 
-        End If
+                Dim dev2MeanToPlot As Double = Stats2Mean
+                If chkShortTermMean IsNot Nothing AndAlso chkShortTermMean.Checked Then
+                    q2ShortTermMean.Enqueue(dev2Raw) : sum2ShortTermMean += dev2Raw
+                    If q2ShortTermMean.Count > ShortTermMeanWindow Then sum2ShortTermMean -= q2ShortTermMean.Dequeue()
+                    dev2MeanToPlot = sum2ShortTermMean / q2ShortTermMean.Count
+                End If
 
-        ' Device 2
-        If newDev2Sample = True Then
+                LiveAnalysisChart.Series("Device 2").Points.AddXY(x, dev2Raw)
+                LiveAnalysisChart.Series("Dev 2 Mean").Points.AddXY(x, dev2MeanToPlot)
+                LiveAnalysisChart.Series("Dev 2 STDEV").Points.AddXY(x, Stats2StdevCurrent)
+                LiveAnalysisChart.Series("Dev 2 SEM").Points.AddXY(x, Stats2SEMCurrent)
+                ' Defence in depth - see the same note on the Dev 1 PPM point above.
+                LiveAnalysisChart.Series("Dev 2 PPM Deviation").Points.AddXY(
+                    x, If(Double.IsNaN(Stats2DeviationCurrent) OrElse Double.IsInfinity(Stats2DeviationCurrent), 0, Stats2DeviationCurrent))
 
-            Dim dev2Raw As Double = CDbl(Val(NormalizeNumericResponse(txtr2a.Text)))
+                LiveAnalysisLastStats2Count = Stats2Count
 
-            Dim dev2MeanToPlot As Double = Stats2Mean
-            If chkShortTermMean IsNot Nothing AndAlso chkShortTermMean.Checked Then
-                q2ShortTermMean.Enqueue(dev2Raw) : sum2ShortTermMean += dev2Raw
-                If q2ShortTermMean.Count > ShortTermMeanWindow Then sum2ShortTermMean -= q2ShortTermMean.Dequeue()
-                dev2MeanToPlot = sum2ShortTermMean / q2ShortTermMean.Count
             End If
-
-            LiveAnalysisChart.Series("Device 2").Points.AddXY(x, dev2Raw)
-            LiveAnalysisChart.Series("Dev 2 Mean").Points.AddXY(x, dev2MeanToPlot)
-            LiveAnalysisChart.Series("Dev 2 STDEV").Points.AddXY(x, Stats2StdevCurrent)
-            LiveAnalysisChart.Series("Dev 2 SEM").Points.AddXY(x, Stats2SEMCurrent)
-            ' Defence in depth - see the same note on the Dev 1 PPM point above.
-            LiveAnalysisChart.Series("Dev 2 PPM Deviation").Points.AddXY(
-                x, If(Double.IsNaN(Stats2DeviationCurrent) OrElse Double.IsInfinity(Stats2DeviationCurrent), 0, Stats2DeviationCurrent))
-
-            LiveAnalysisLastStats2Count = Stats2Count
-
-        End If
-
-        ' Temperature
-        If newDev1Sample = True Or newDev2Sample = True Then
 
             ' Temperature
-            Dim currentTemp As Double = gCurrTemp + Val(TempOffset.Text)
-            LiveAnalysisChart.Series("Temperature").Points.AddXY(x, currentTemp)
+            If newDev1Sample = True Or newDev2Sample = True Then
 
-            ' X-axis scale
-            Dim laSampleRateText As String = ""
+                ' Temperature
+                Dim currentTemp As Double = gCurrTemp + Val(TempOffset.Text)
+                LiveAnalysisChart.Series("Temperature").Points.AddXY(x, currentTemp)
 
-            If ButtonDev12Run.Text = "Stop" Then
-                laSampleRateText = Dev12SampleRate.Text
-            ElseIf ButtonDev1Run.Text = "Stop" Then
-                laSampleRateText = Dev1SampleRate.Text
-            ElseIf ButtonDev2Run.Text = "Stop" Then
-                laSampleRateText = Dev2SampleRate.Text
+                ' X-axis scale
+                Dim laSampleRateText As String = ""
+
+                If ButtonDev12Run.Text = "Stop" Then
+                    laSampleRateText = Dev12SampleRate.Text
+                ElseIf ButtonDev1Run.Text = "Stop" Then
+                    laSampleRateText = Dev1SampleRate.Text
+                ElseIf ButtonDev2Run.Text = "Stop" Then
+                    laSampleRateText = Dev2SampleRate.Text
+                End If
+
+                If laSampleRateText <> "" Then
+
+                    Dim laTotalSeconds As Integer = CInt(Val(laSampleRateText) * LiveAnalysisSample)
+                    Dim laHours As Integer = laTotalSeconds \ 3600
+                    Dim laMinutes As Integer = (laTotalSeconds Mod 3600) \ 60
+                    Dim laSeconds As Integer = laTotalSeconds Mod 60
+
+                    'LiveAnalysisTimeLabel.Text = "Visible Chart =  " & $"{laHours}hrs {laMinutes:00}mins {laSeconds:00}secs"
+
+                End If
+
             End If
 
-            If laSampleRateText <> "" Then
+            ' X-axis behaviour
+            If DisableRollingChartLiveA.Checked = False Then
 
-                Dim laTotalSeconds As Integer = CInt(Val(laSampleRateText) * LiveAnalysisSample)
-                Dim laHours As Integer = laTotalSeconds \ 3600
-                Dim laMinutes As Integer = (laTotalSeconds Mod 3600) \ 60
-                Dim laSeconds As Integer = laTotalSeconds Mod 60
+                Dim windowN As Integer
 
-                'LiveAnalysisTimeLabel.Text = "Visible Chart =  " & $"{laHours}hrs {laMinutes:00}mins {laSeconds:00}secs"
+                If Not Integer.TryParse(XaxisPointsLiveA.Text, windowN) OrElse windowN < 2 Then
+                    windowN = 100
+                End If
+
+
+                ' Remove points that have moved outside the rolling window.
+                For Each s As DataVisualization.Charting.Series In LiveAnalysisChart.Series
+
+                    While s.Points.Count > 0 AndAlso s.Points(0).XValue < LiveAnalysisSample - windowN + 1
+                        s.Points.RemoveAt(0)
+                    End While
+
+                Next
+
+
+                ' Keep newest reading at the RIGHT edge.
+                ' This matches the normal Live Watch behaviour.
+                Dim xmax As Double = LiveAnalysisSample
+                Dim xmin As Double = xmax - (windowN - 1)
+
+
+                ' Sample rate for converting sample number to elapsed time.
+                Dim axisSampleRateText As String = ""
+
+                If ButtonDev12Run.Text = "Stop" Then
+                    axisSampleRateText = Dev12SampleRate.Text
+                ElseIf ButtonDev1Run.Text = "Stop" Then
+                    axisSampleRateText = Dev1SampleRate.Text
+                ElseIf ButtonDev2Run.Text = "Stop" Then
+                    axisSampleRateText = Dev2SampleRate.Text
+                End If
+
+                Dim axisSampleRateSeconds As Double = Val(axisSampleRateText)
+
+
+                For Each area As DataVisualization.Charting.ChartArea In LiveAnalysisChart.ChartAreas
+
+                    area.AxisX.Minimum = xmin
+                    area.AxisX.Maximum = xmax
+
+                    Dim domain As Double = windowN - 1
+                    If domain <= 0 Then domain = 10.0R
+
+                    area.AxisX.Interval = domain / 10.0R
+
+
+                    ' Replace numeric sample-index labels with elapsed time.
+                    area.AxisX.CustomLabels.Clear()
+
+                    If axisSampleRateSeconds > 0 Then
+
+                        Dim tickCount As Integer = 10
+                        Dim tickStep As Double = (xmax - xmin) / tickCount
+
+                        For i As Integer = 0 To tickCount
+
+                            Dim tickPos As Double = xmin + (i * tickStep)
+                            Dim tickSeconds As Integer = CInt(Math.Max(tickPos, 0) * axisSampleRateSeconds)
+
+                            Dim tickHours As Integer = tickSeconds \ 3600
+                            Dim tickMinutes As Integer = (tickSeconds Mod 3600) \ 60
+                            Dim tickSecs As Integer = tickSeconds Mod 60
+
+                            Dim tickLabel As String = $"{tickHours:00}:{tickMinutes:00}:{tickSecs:00}"
+
+                            Dim labelLow As Double = tickPos - (tickStep / 2)
+                            Dim labelHigh As Double = tickPos + (tickStep / 2)
+
+                            area.AxisX.CustomLabels.Add(labelLow, labelHigh, tickLabel)
+
+                        Next
+
+                    End If
+
+                Next
+
+            Else
+
+                ' Rolling disabled - retain all points, then convert the
+                ' auto-resolved axis range into elapsed-time labels the
+                ' same way as the rolling-enabled case.
+                Dim disabledSampleRateText As String = ""
+
+                If ButtonDev12Run.Text = "Stop" Then
+                    disabledSampleRateText = Dev12SampleRate.Text
+                ElseIf ButtonDev1Run.Text = "Stop" Then
+                    disabledSampleRateText = Dev1SampleRate.Text
+                ElseIf ButtonDev2Run.Text = "Stop" Then
+                    disabledSampleRateText = Dev2SampleRate.Text
+                End If
+
+                Dim disabledSampleRateSeconds As Double = Val(disabledSampleRateText)
+
+                For Each area As DataVisualization.Charting.ChartArea In LiveAnalysisChart.ChartAreas
+
+                    area.AxisX.Minimum = Double.NaN
+                    area.AxisX.Maximum = Double.NaN
+                    area.AxisX.Interval = Double.NaN
+                    area.AxisX.CustomLabels.Clear()
+
+                    area.RecalculateAxesScale()
+
+                    Dim resolvedMin As Double = area.AxisX.Minimum
+                    Dim resolvedMax As Double = area.AxisX.Maximum
+
+                    If disabledSampleRateSeconds > 0 AndAlso resolvedMax > resolvedMin Then
+
+                        Dim tickCount As Integer = 10
+                        Dim tickStep As Double = (resolvedMax - resolvedMin) / tickCount
+
+                        area.AxisX.Interval = tickStep
+
+                        For i As Integer = 0 To tickCount
+
+                            Dim tickPos As Double = resolvedMin + (i * tickStep)
+                            Dim tickSeconds As Integer = CInt(Math.Max(tickPos, 0) * disabledSampleRateSeconds)
+
+                            Dim tickHours As Integer = tickSeconds \ 3600
+                            Dim tickMinutes As Integer = (tickSeconds Mod 3600) \ 60
+                            Dim tickSecs As Integer = tickSeconds Mod 60
+
+                            Dim tickLabel As String = $"{tickHours:00}:{tickMinutes:00}:{tickSecs:00}"
+
+                            Dim labelLow As Double = tickPos - (tickStep / 2)
+                            Dim labelHigh As Double = tickPos + (tickStep / 2)
+
+                            area.AxisX.CustomLabels.Add(labelLow, labelHigh, tickLabel)
+
+                        Next
+
+                    End If
+
+                Next
 
             End If
 
-        End If
+            ' Measurement Y-axis autoscale
+            Dim measurementMin As Double = Double.MaxValue
+            Dim measurementMax As Double = Double.MinValue
+            Dim measurementPointsFound As Boolean = False
 
-        ' X-axis behaviour
-        If DisableRollingChartLiveA.Checked = False Then
+            Dim measurementSeriesNames() As String = {"Device 1", "Device 2", "Dev 1 Mean", "Dev 2 Mean"}
 
-            Dim windowN As Integer
+            For Each seriesName As String In measurementSeriesNames
 
-            If Not Integer.TryParse(XaxisPointsLiveA.Text, windowN) OrElse windowN < 2 Then
-                windowN = 100
-            End If
+                Dim s As DataVisualization.Charting.Series = LiveAnalysisChart.Series(seriesName)
 
+                If s.Enabled AndAlso s.Points.Count > 0 Then
 
-            ' Remove points that have moved outside the rolling window.
-            For Each s As DataVisualization.Charting.Series In LiveAnalysisChart.Series
+                    Dim sMin As Double = s.Points.Min(Function(p) p.YValues(0))
+                    Dim sMax As Double = s.Points.Max(Function(p) p.YValues(0))
 
-                While s.Points.Count > 0 AndAlso s.Points(0).XValue < LiveAnalysisSample - windowN + 1
-                    s.Points.RemoveAt(0)
-                End While
+                    measurementMin = Math.Min(measurementMin, sMin)
+                    measurementMax = Math.Max(measurementMax, sMax)
 
-            Next
-
-
-            ' Keep newest reading at the RIGHT edge.
-            ' This matches the normal Live Watch behaviour.
-            Dim xmax As Double = LiveAnalysisSample
-            Dim xmin As Double = xmax - (windowN - 1)
-
-
-            ' Sample rate for converting sample number to elapsed time.
-            Dim axisSampleRateText As String = ""
-
-            If ButtonDev12Run.Text = "Stop" Then
-                axisSampleRateText = Dev12SampleRate.Text
-            ElseIf ButtonDev1Run.Text = "Stop" Then
-                axisSampleRateText = Dev1SampleRate.Text
-            ElseIf ButtonDev2Run.Text = "Stop" Then
-                axisSampleRateText = Dev2SampleRate.Text
-            End If
-
-            Dim axisSampleRateSeconds As Double = Val(axisSampleRateText)
-
-
-            For Each area As DataVisualization.Charting.ChartArea In LiveAnalysisChart.ChartAreas
-
-                area.AxisX.Minimum = xmin
-                area.AxisX.Maximum = xmax
-
-                Dim domain As Double = windowN - 1
-                If domain <= 0 Then domain = 10.0R
-
-                area.AxisX.Interval = domain / 10.0R
-
-
-                ' Replace numeric sample-index labels with elapsed time.
-                area.AxisX.CustomLabels.Clear()
-
-                If axisSampleRateSeconds > 0 Then
-
-                    Dim tickCount As Integer = 10
-                    Dim tickStep As Double = (xmax - xmin) / tickCount
-
-                    For i As Integer = 0 To tickCount
-
-                        Dim tickPos As Double = xmin + (i * tickStep)
-                        Dim tickSeconds As Integer = CInt(Math.Max(tickPos, 0) * axisSampleRateSeconds)
-
-                        Dim tickHours As Integer = tickSeconds \ 3600
-                        Dim tickMinutes As Integer = (tickSeconds Mod 3600) \ 60
-                        Dim tickSecs As Integer = tickSeconds Mod 60
-
-                        Dim tickLabel As String = $"{tickHours:00}:{tickMinutes:00}:{tickSecs:00}"
-
-                        Dim labelLow As Double = tickPos - (tickStep / 2)
-                        Dim labelHigh As Double = tickPos + (tickStep / 2)
-
-                        area.AxisX.CustomLabels.Add(labelLow, labelHigh, tickLabel)
-
-                    Next
+                    measurementPointsFound = True
 
                 End If
 
             Next
 
-        Else
 
-            ' Rolling disabled - retain all points, then convert the
-            ' auto-resolved axis range into elapsed-time labels the
-            ' same way as the rolling-enabled case.
-            Dim disabledSampleRateText As String = ""
+            If measurementPointsFound = True Then
 
-            If ButtonDev12Run.Text = "Stop" Then
-                disabledSampleRateText = Dev12SampleRate.Text
-            ElseIf ButtonDev1Run.Text = "Stop" Then
-                disabledSampleRateText = Dev1SampleRate.Text
-            ElseIf ButtonDev2Run.Text = "Stop" Then
-                disabledSampleRateText = Dev2SampleRate.Text
-            End If
+                Dim range As Double = measurementMax - measurementMin
 
-            Dim disabledSampleRateSeconds As Double = Val(disabledSampleRateText)
+                ' Protect against identical readings.
+                If range <= 0 Then
 
-            For Each area As DataVisualization.Charting.ChartArea In LiveAnalysisChart.ChartAreas
+                    Dim buffer As Double = Math.Abs(measurementMin) * 0.000001
+                    If buffer = 0 Then buffer = 0.000000001
 
-                area.AxisX.Minimum = Double.NaN
-                area.AxisX.Maximum = Double.NaN
-                area.AxisX.Interval = Double.NaN
-                area.AxisX.CustomLabels.Clear()
+                    measurementMin -= buffer
+                    measurementMax += buffer
 
-                area.RecalculateAxesScale()
-
-                Dim resolvedMin As Double = area.AxisX.Minimum
-                Dim resolvedMax As Double = area.AxisX.Maximum
-
-                If disabledSampleRateSeconds > 0 AndAlso resolvedMax > resolvedMin Then
-
-                    Dim tickCount As Integer = 10
-                    Dim tickStep As Double = (resolvedMax - resolvedMin) / tickCount
-
-                    area.AxisX.Interval = tickStep
-
-                    For i As Integer = 0 To tickCount
-
-                        Dim tickPos As Double = resolvedMin + (i * tickStep)
-                        Dim tickSeconds As Integer = CInt(Math.Max(tickPos, 0) * disabledSampleRateSeconds)
-
-                        Dim tickHours As Integer = tickSeconds \ 3600
-                        Dim tickMinutes As Integer = (tickSeconds Mod 3600) \ 60
-                        Dim tickSecs As Integer = tickSeconds Mod 60
-
-                        Dim tickLabel As String = $"{tickHours:00}:{tickMinutes:00}:{tickSecs:00}"
-
-                        Dim labelLow As Double = tickPos - (tickStep / 2)
-                        Dim labelHigh As Double = tickPos + (tickStep / 2)
-
-                        area.AxisX.CustomLabels.Add(labelLow, labelHigh, tickLabel)
-
-                    Next
+                    range = measurementMax - measurementMin
 
                 End If
 
-            Next
 
-        End If
+                ' Small margin above and below traces.
+                Dim margin As Double = range * 0.05
 
-        ' Measurement Y-axis autoscale
-        Dim measurementMin As Double = Double.MaxValue
-        Dim measurementMax As Double = Double.MinValue
-        Dim measurementPointsFound As Boolean = False
-
-        Dim measurementSeriesNames() As String = {"Device 1", "Device 2", "Dev 1 Mean", "Dev 2 Mean"}
-
-        For Each seriesName As String In measurementSeriesNames
-
-            Dim s As DataVisualization.Charting.Series = LiveAnalysisChart.Series(seriesName)
-
-            If s.Enabled AndAlso s.Points.Count > 0 Then
-
-                Dim sMin As Double = s.Points.Min(Function(p) p.YValues(0))
-                Dim sMax As Double = s.Points.Max(Function(p) p.YValues(0))
-
-                measurementMin = Math.Min(measurementMin, sMin)
-                measurementMax = Math.Max(measurementMax, sMax)
-
-                measurementPointsFound = True
+                With LiveAnalysisChart.ChartAreas("Measurement").AxisY
+                    .Minimum = measurementMin - margin
+                    .Maximum = measurementMax + margin
+                    .Interval = ((measurementMax + margin) - (measurementMin - margin)) / 10.0R
+                End With
+                SetAdaptiveDecimalFormat(LiveAnalysisChart.ChartAreas("Measurement").AxisY, 10)
 
             End If
 
-        Next
-
-
-        If measurementPointsFound = True Then
-
-            Dim range As Double = measurementMax - measurementMin
-
-            ' Protect against identical readings.
-            If range <= 0 Then
-
-                Dim buffer As Double = Math.Abs(measurementMin) * 0.000001
-                If buffer = 0 Then buffer = 0.000000001
-
-                measurementMin -= buffer
-                measurementMax += buffer
-
-                range = measurementMax - measurementMin
-
-            End If
-
-
-            ' Small margin above and below traces.
-            Dim margin As Double = range * 0.05
-
-            With LiveAnalysisChart.ChartAreas("Measurement").AxisY
-                .Minimum = measurementMin - margin
-                .Maximum = measurementMax + margin
-                .Interval = ((measurementMax + margin) - (measurementMin - margin)) / 10.0R
+            ' STDEV / SEM Y-axis autoscale (primary)
+            With LiveAnalysisChart.ChartAreas("Statistics").AxisY
+                .Minimum = Double.NaN
+                .Maximum = Double.NaN
+                .Interval = Double.NaN
             End With
 
-        End If
+            ' PPM Deviation Y-axis autoscale (secondary)
+            With LiveAnalysisChart.ChartAreas("Statistics").AxisY2
+                .Minimum = Double.NaN
+                .Maximum = Double.NaN
+                .Interval = Double.NaN
+            End With
 
-        ' STDEV / SEM Y-axis autoscale (primary)
-        With LiveAnalysisChart.ChartAreas("Statistics").AxisY
-            .Minimum = Double.NaN
-            .Maximum = Double.NaN
-            .Interval = Double.NaN
-        End With
+            LiveAnalysisChart.ChartAreas("Statistics").RecalculateAxesScale()
+            EnsureValidAxisScale(LiveAnalysisChart.ChartAreas("Statistics").AxisY)
+            EnsureValidAxisScale(LiveAnalysisChart.ChartAreas("Statistics").AxisY2)
 
-        ' PPM Deviation Y-axis autoscale (secondary)
-        With LiveAnalysisChart.ChartAreas("Statistics").AxisY2
-            .Minimum = Double.NaN
-            .Maximum = Double.NaN
-            .Interval = Double.NaN
-        End With
+            ' Temperature Y-axis autoscale
+            With LiveAnalysisChart.ChartAreas("Temperature").AxisY
+                .Minimum = Double.NaN
+                .Maximum = Double.NaN
+                .Interval = Double.NaN
+            End With
 
-        LiveAnalysisChart.ChartAreas("Statistics").RecalculateAxesScale()
-        EnsureValidAxisScale(LiveAnalysisChart.ChartAreas("Statistics").AxisY)
-        EnsureValidAxisScale(LiveAnalysisChart.ChartAreas("Statistics").AxisY2)
-
-        ' Temperature Y-axis autoscale
-        With LiveAnalysisChart.ChartAreas("Temperature").AxisY
-            .Minimum = Double.NaN
-            .Maximum = Double.NaN
-            .Interval = Double.NaN
-        End With
-
-        LiveAnalysisChart.ChartAreas("Temperature").RecalculateAxesScale()
-        EnsureValidAxisScale(LiveAnalysisChart.ChartAreas("Temperature").AxisY)
+            LiveAnalysisChart.ChartAreas("Temperature").RecalculateAxesScale()
+            EnsureValidAxisScale(LiveAnalysisChart.ChartAreas("Temperature").AxisY)
+            EnsureMinimumGridLines(LiveAnalysisChart.ChartAreas("Temperature").AxisY, 5)
 
         Finally
             LiveAnalysisChart.ResumeLayout()
@@ -3295,11 +3297,10 @@ Partial Class Formtest
 
     End Sub
 
-    ' A ChartArea's RecalculateAxesScale() can leave Minimum/Maximum as NaN
-    ' when every series feeding that axis is currently disabled (e.g. all
-    ' Live Analysis trace checkboxes for an axis unchecked at once) - the
-    ' next Paint then throws OverflowException trying to render against a
-    ' NaN-bounded axis. Snap back to a safe placeholder range instead.
+    ' Falls back to a safe placeholder range when an axis has no valid
+    ' Minimum/Maximum - e.g. every series feeding it is currently disabled
+    ' (all trace checkboxes for that axis unchecked), which otherwise leaves
+    ' it NaN-bounded and throws on the next Paint.
     Private Sub EnsureValidAxisScale(axis As DataVisualization.Charting.Axis)
 
         If Double.IsNaN(axis.Minimum) OrElse Double.IsNaN(axis.Maximum) OrElse
@@ -3309,6 +3310,36 @@ Partial Class Formtest
             axis.Minimum = 0
             axis.Maximum = 1
             axis.Interval = 0.5
+
+        End If
+
+    End Sub
+
+    ' Divides the axis into exactly minDivisions equal gridlines, then
+    ' floors/ceils Minimum/Maximum onto that Interval so a gridline always
+    ' lands on both the top and bottom edge.
+    Private Sub EnsureMinimumGridLines(axis As DataVisualization.Charting.Axis, minDivisions As Integer)
+
+        If minDivisions > 0 AndAlso axis.Maximum > axis.Minimum Then
+
+            axis.Interval = (axis.Maximum - axis.Minimum) / minDivisions
+
+            axis.Minimum = Math.Floor(axis.Minimum / axis.Interval) * axis.Interval
+            axis.Maximum = Math.Ceiling(axis.Maximum / axis.Interval) * axis.Interval
+
+        End If
+
+    End Sub
+
+    ' Sets the axis label format to however many decimal places its current
+    ' Interval actually needs to show distinct values, never fewer than
+    ' minDecimals.
+    Private Sub SetAdaptiveDecimalFormat(axis As DataVisualization.Charting.Axis, minDecimals As Integer)
+
+        If axis.Interval > 0 Then
+
+            Dim neededDecimals As Integer = Math.Max(minDecimals, CInt(Math.Ceiling(-Math.Log10(axis.Interval))) + 1)
+            axis.LabelStyle.Format = "0." & New String("0"c, neededDecimals)
 
         End If
 
