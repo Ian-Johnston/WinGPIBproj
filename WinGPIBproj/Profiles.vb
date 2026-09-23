@@ -213,7 +213,6 @@ Partial Class Formtest
             My.Settings.data484 = Dev1IntEnable.Checked
             My.Settings.data509 = txtOperationDev1.Text
             My.Settings.data1342 = Dev1TextResponse.Checked
-            My.Settings.data1422 = CheckBoxStats1Enable.Checked
         End If
 
         ' Save Dev1 Profile 2
@@ -251,7 +250,6 @@ Partial Class Formtest
             My.Settings.data486 = Dev1IntEnable.Checked
             My.Settings.data510 = txtOperationDev1.Text
             My.Settings.data1343 = Dev1TextResponse.Checked
-            My.Settings.data1423 = CheckBoxStats1Enable.Checked
         End If
 
         ' Save Dev1 Profile 3
@@ -289,7 +287,6 @@ Partial Class Formtest
             My.Settings.data488 = Dev1IntEnable.Checked
             My.Settings.data511 = txtOperationDev1.Text
             My.Settings.data1344 = Dev1TextResponse.Checked
-            My.Settings.data1424 = CheckBoxStats1Enable.Checked
         End If
 
         ' Save Dev1 Profile 4
@@ -327,7 +324,6 @@ Partial Class Formtest
             My.Settings.data490 = Dev1IntEnable.Checked
             My.Settings.data512 = txtOperationDev1.Text
             My.Settings.data1345 = Dev1TextResponse.Checked
-            My.Settings.data1425 = CheckBoxStats1Enable.Checked
         End If
 
         ' Save Dev1 Profile 5
@@ -365,7 +361,6 @@ Partial Class Formtest
             My.Settings.data492 = Dev1IntEnable.Checked
             My.Settings.data513 = txtOperationDev1.Text
             My.Settings.data1346 = Dev1TextResponse.Checked
-            My.Settings.data1426 = CheckBoxStats1Enable.Checked
         End If
 
         ' Save Dev1 Profile 6
@@ -403,7 +398,6 @@ Partial Class Formtest
             My.Settings.data494 = Dev1IntEnable.Checked
             My.Settings.data514 = txtOperationDev1.Text
             My.Settings.data1347 = Dev1TextResponse.Checked
-            My.Settings.data1427 = CheckBoxStats1Enable.Checked
         End If
 
         ' Save Dev1 Profile 7
@@ -441,7 +435,6 @@ Partial Class Formtest
             My.Settings.data496 = Dev1IntEnable.Checked
             My.Settings.data515 = txtOperationDev1.Text
             My.Settings.data1348 = Dev1TextResponse.Checked
-            My.Settings.data1428 = CheckBoxStats1Enable.Checked
         End If
 
         ' Save Dev1 Profile 8
@@ -479,7 +472,6 @@ Partial Class Formtest
             My.Settings.data498 = Dev1IntEnable.Checked
             My.Settings.data516 = txtOperationDev1.Text
             My.Settings.data1349 = Dev1TextResponse.Checked
-            My.Settings.data1429 = CheckBoxStats1Enable.Checked
         End If
 
 
@@ -518,7 +510,6 @@ Partial Class Formtest
             My.Settings.data553 = Dev1IntEnable.Checked
             My.Settings.data554 = txtOperationDev1.Text
             My.Settings.data1350 = Dev1TextResponse.Checked
-            My.Settings.data1430 = CheckBoxStats1Enable.Checked
         End If
 
         ' Save Dev1 Profile 10
@@ -556,7 +547,6 @@ Partial Class Formtest
             My.Settings.data582 = Dev1IntEnable.Checked
             My.Settings.data583 = txtOperationDev1.Text
             My.Settings.data1351 = Dev1TextResponse.Checked
-            My.Settings.data1431 = CheckBoxStats1Enable.Checked
         End If
 
         ' Save Dev1 Profile 11
@@ -594,7 +584,6 @@ Partial Class Formtest
             My.Settings.data611 = Dev1IntEnable.Checked
             My.Settings.data612 = txtOperationDev1.Text
             My.Settings.data1352 = Dev1TextResponse.Checked
-            My.Settings.data1432 = CheckBoxStats1Enable.Checked
         End If
 
         ' Save Dev1 Profile 12
@@ -632,7 +621,6 @@ Partial Class Formtest
             My.Settings.data640 = Dev1IntEnable.Checked
             My.Settings.data641 = txtOperationDev1.Text
             My.Settings.data1353 = Dev1TextResponse.Checked
-            My.Settings.data1433 = CheckBoxStats1Enable.Checked
         End If
 
         ' Save Dev1 Profile 13
@@ -670,7 +658,6 @@ Partial Class Formtest
             My.Settings.data785 = Dev1IntEnable.Checked
             My.Settings.data786 = txtOperationDev1.Text
             My.Settings.data1354 = Dev1TextResponse.Checked
-            My.Settings.data1434 = CheckBoxStats1Enable.Checked
         End If
 
         ' Save Dev1 Profile 14
@@ -708,7 +695,6 @@ Partial Class Formtest
             My.Settings.data814 = Dev1IntEnable.Checked
             My.Settings.data815 = txtOperationDev1.Text
             My.Settings.data1355 = Dev1TextResponse.Checked
-            My.Settings.data1435 = CheckBoxStats1Enable.Checked
         End If
 
         ' Save Dev1 Profile 15
@@ -746,7 +732,6 @@ Partial Class Formtest
             My.Settings.data843 = Dev1IntEnable.Checked
             My.Settings.data844 = txtOperationDev1.Text
             My.Settings.data1356 = Dev1TextResponse.Checked
-            My.Settings.data1436 = CheckBoxStats1Enable.Checked
         End If
 
         ' Save Dev1 Profile 16
@@ -784,7 +769,6 @@ Partial Class Formtest
             My.Settings.data872 = Dev1IntEnable.Checked
             My.Settings.data873 = txtOperationDev1.Text
             My.Settings.data1357 = Dev1TextResponse.Checked
-            My.Settings.data1437 = CheckBoxStats1Enable.Checked
         End If
 
         ' Save Dev1 Profile 17
@@ -822,7 +806,6 @@ Partial Class Formtest
             My.Settings.data901 = Dev1IntEnable.Checked
             My.Settings.data902 = txtOperationDev1.Text
             My.Settings.data1358 = Dev1TextResponse.Checked
-            My.Settings.data1438 = CheckBoxStats1Enable.Checked
         End If
 
         ' Save Dev1 Profile 18
@@ -860,7 +843,6 @@ Partial Class Formtest
             My.Settings.data930 = Dev1IntEnable.Checked
             My.Settings.data931 = txtOperationDev1.Text
             My.Settings.data1359 = Dev1TextResponse.Checked
-            My.Settings.data1439 = CheckBoxStats1Enable.Checked
         End If
 
         ' Save Dev1 Profile 19
@@ -898,7 +880,6 @@ Partial Class Formtest
             My.Settings.data959 = Dev1IntEnable.Checked
             My.Settings.data960 = txtOperationDev1.Text
             My.Settings.data1360 = Dev1TextResponse.Checked
-            My.Settings.data1440 = CheckBoxStats1Enable.Checked
         End If
 
         ' Save Dev1 Profile 20
@@ -936,7 +917,6 @@ Partial Class Formtest
             My.Settings.data988 = Dev1IntEnable.Checked
             My.Settings.data989 = txtOperationDev1.Text
             My.Settings.data1361 = Dev1TextResponse.Checked
-            My.Settings.data1441 = CheckBoxStats1Enable.Checked
         End If
 
 
@@ -975,7 +955,6 @@ Partial Class Formtest
             My.Settings.data485 = Dev2SendQuery.Checked
             My.Settings.data517 = txtOperationDev2.Text
             My.Settings.data1362 = Dev2TextResponse.Checked
-            My.Settings.data1442 = CheckBoxStats2Enable.Checked
         End If
 
         ' Save Dev2 Profile 2
@@ -1013,7 +992,6 @@ Partial Class Formtest
             My.Settings.data487 = Dev2SendQuery.Checked
             My.Settings.data518 = txtOperationDev2.Text
             My.Settings.data1363 = Dev2TextResponse.Checked
-            My.Settings.data1443 = CheckBoxStats2Enable.Checked
         End If
 
         ' Save Dev2 Profile 3
@@ -1051,7 +1029,6 @@ Partial Class Formtest
             My.Settings.data489 = Dev2SendQuery.Checked
             My.Settings.data519 = txtOperationDev2.Text
             My.Settings.data1364 = Dev2TextResponse.Checked
-            My.Settings.data1444 = CheckBoxStats2Enable.Checked
         End If
 
         ' Save Dev2 Profile 4
@@ -1089,7 +1066,6 @@ Partial Class Formtest
             My.Settings.data491 = Dev2SendQuery.Checked
             My.Settings.data520 = txtOperationDev2.Text
             My.Settings.data1365 = Dev2TextResponse.Checked
-            My.Settings.data1445 = CheckBoxStats2Enable.Checked
         End If
 
         ' Save Dev2 Profile 5
@@ -1127,7 +1103,6 @@ Partial Class Formtest
             My.Settings.data493 = Dev2SendQuery.Checked
             My.Settings.data521 = txtOperationDev2.Text
             My.Settings.data1366 = Dev2TextResponse.Checked
-            My.Settings.data1446 = CheckBoxStats2Enable.Checked
         End If
 
         ' Save Dev2 Profile 6
@@ -1165,7 +1140,6 @@ Partial Class Formtest
             My.Settings.data495 = Dev2SendQuery.Checked
             My.Settings.data522 = txtOperationDev2.Text
             My.Settings.data1367 = Dev2TextResponse.Checked
-            My.Settings.data1447 = CheckBoxStats2Enable.Checked
         End If
 
         ' Save Dev2 Profile 7
@@ -1203,7 +1177,6 @@ Partial Class Formtest
             My.Settings.data497 = Dev2SendQuery.Checked
             My.Settings.data523 = txtOperationDev2.Text
             My.Settings.data1368 = Dev2TextResponse.Checked
-            My.Settings.data1448 = CheckBoxStats2Enable.Checked
         End If
 
         ' Save Dev2 Profile 8
@@ -1241,7 +1214,6 @@ Partial Class Formtest
             My.Settings.data499 = Dev2SendQuery.Checked
             My.Settings.data524 = txtOperationDev2.Text
             My.Settings.data1369 = Dev2TextResponse.Checked
-            My.Settings.data1449 = CheckBoxStats2Enable.Checked
         End If
 
         ' Save Dev2 Profile 9
@@ -1279,7 +1251,6 @@ Partial Class Formtest
             My.Settings.data669 = Dev2IntEnable.Checked
             My.Settings.data670 = txtOperationDev2.Text
             My.Settings.data1370 = Dev2TextResponse.Checked
-            My.Settings.data1450 = CheckBoxStats2Enable.Checked
         End If
 
         ' Save Dev2 Profile 10
@@ -1317,7 +1288,6 @@ Partial Class Formtest
             My.Settings.data698 = Dev2IntEnable.Checked
             My.Settings.data699 = txtOperationDev2.Text
             My.Settings.data1371 = Dev2TextResponse.Checked
-            My.Settings.data1451 = CheckBoxStats2Enable.Checked
         End If
 
         ' Save Dev2 Profile 11
@@ -1355,7 +1325,6 @@ Partial Class Formtest
             My.Settings.data727 = Dev2IntEnable.Checked
             My.Settings.data728 = txtOperationDev2.Text
             My.Settings.data1372 = Dev2TextResponse.Checked
-            My.Settings.data1452 = CheckBoxStats2Enable.Checked
         End If
 
         ' Save Dev2 Profile 12
@@ -1393,7 +1362,6 @@ Partial Class Formtest
             My.Settings.data756 = Dev2IntEnable.Checked
             My.Settings.data757 = txtOperationDev2.Text
             My.Settings.data1373 = Dev2TextResponse.Checked
-            My.Settings.data1453 = CheckBoxStats2Enable.Checked
         End If
 
         ' Save Dev2 Profile 13
@@ -1431,7 +1399,6 @@ Partial Class Formtest
             My.Settings.data1017 = Dev2SendQuery.Checked
             My.Settings.data1018 = txtOperationDev2.Text
             My.Settings.data1374 = Dev2TextResponse.Checked
-            My.Settings.data1454 = CheckBoxStats2Enable.Checked
         End If
 
         ' Save Dev2 Profile 14
@@ -1469,7 +1436,6 @@ Partial Class Formtest
             My.Settings.data1046 = Dev2SendQuery.Checked
             My.Settings.data1047 = txtOperationDev2.Text
             My.Settings.data1375 = Dev2TextResponse.Checked
-            My.Settings.data1455 = CheckBoxStats2Enable.Checked
         End If
 
         ' Save Dev2 Profile 15
@@ -1507,7 +1473,6 @@ Partial Class Formtest
             My.Settings.data1075 = Dev2SendQuery.Checked
             My.Settings.data1076 = txtOperationDev2.Text
             My.Settings.data1376 = Dev2TextResponse.Checked
-            My.Settings.data1456 = CheckBoxStats2Enable.Checked
         End If
 
         ' Save Dev2 Profile 16
@@ -1545,7 +1510,6 @@ Partial Class Formtest
             My.Settings.data1104 = Dev2SendQuery.Checked
             My.Settings.data1105 = txtOperationDev2.Text
             My.Settings.data1377 = Dev2TextResponse.Checked
-            My.Settings.data1457 = CheckBoxStats2Enable.Checked
         End If
 
         ' Save Dev2 Profile 17
@@ -1583,7 +1547,6 @@ Partial Class Formtest
             My.Settings.data1133 = Dev2SendQuery.Checked
             My.Settings.data1134 = txtOperationDev2.Text
             My.Settings.data1378 = Dev2TextResponse.Checked
-            My.Settings.data1458 = CheckBoxStats2Enable.Checked
         End If
 
         ' Save Dev2 Profile 18
@@ -1621,7 +1584,6 @@ Partial Class Formtest
             My.Settings.data1162 = Dev2SendQuery.Checked
             My.Settings.data1163 = txtOperationDev2.Text
             My.Settings.data1379 = Dev2TextResponse.Checked
-            My.Settings.data1459 = CheckBoxStats2Enable.Checked
         End If
 
         ' Save Dev2 Profile 19
@@ -1659,7 +1621,6 @@ Partial Class Formtest
             My.Settings.data1191 = Dev2SendQuery.Checked
             My.Settings.data1192 = txtOperationDev2.Text
             My.Settings.data1380 = Dev2TextResponse.Checked
-            My.Settings.data1460 = CheckBoxStats2Enable.Checked
         End If
 
         ' Save Dev2 Profile 20
@@ -1697,7 +1658,6 @@ Partial Class Formtest
             My.Settings.data1220 = Dev2SendQuery.Checked
             My.Settings.data1221 = txtOperationDev2.Text
             My.Settings.data1381 = Dev2TextResponse.Checked
-            My.Settings.data1461 = CheckBoxStats2Enable.Checked
         End If
 
 
@@ -1789,7 +1749,6 @@ Partial Class Formtest
 
         Dev1TextResponse.Checked = My.Settings.data1342
 
-        CheckBoxStats1Enable.Checked = My.Settings.data1422
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 0
 
@@ -1855,7 +1814,6 @@ Partial Class Formtest
 
         Dev1TextResponse.Checked = My.Settings.data1343
 
-        CheckBoxStats1Enable.Checked = My.Settings.data1423
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 1
 
@@ -1919,7 +1877,6 @@ Partial Class Formtest
         txtOperationDev1.Text = My.Settings.data511
 
         Dev1TextResponse.Checked = My.Settings.data1344
-        CheckBoxStats1Enable.Checked = My.Settings.data1424
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 2
 
@@ -1978,7 +1935,6 @@ Partial Class Formtest
         txtOperationDev1.Text = My.Settings.data512
 
         Dev1TextResponse.Checked = My.Settings.data1345
-        CheckBoxStats1Enable.Checked = My.Settings.data1425
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 3
 
@@ -2037,7 +1993,6 @@ Partial Class Formtest
         txtOperationDev1.Text = My.Settings.data513
 
         Dev1TextResponse.Checked = My.Settings.data1346
-        CheckBoxStats1Enable.Checked = My.Settings.data1426
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 4
 
@@ -2096,7 +2051,6 @@ Partial Class Formtest
         txtOperationDev1.Text = My.Settings.data514
 
         Dev1TextResponse.Checked = My.Settings.data1347
-        CheckBoxStats1Enable.Checked = My.Settings.data1427
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 5
 
@@ -2156,7 +2110,6 @@ Partial Class Formtest
         txtOperationDev1.Text = My.Settings.data515
 
         Dev1TextResponse.Checked = My.Settings.data1348
-        CheckBoxStats1Enable.Checked = My.Settings.data1428
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 6
 
@@ -2216,7 +2169,6 @@ Partial Class Formtest
         txtOperationDev1.Text = My.Settings.data516
 
         Dev1TextResponse.Checked = My.Settings.data1349
-        CheckBoxStats1Enable.Checked = My.Settings.data1429
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 7
 
@@ -2262,7 +2214,6 @@ Partial Class Formtest
         txtOperationDev1.Text = My.Settings.data554
 
         Dev1TextResponse.Checked = My.Settings.data1350
-        CheckBoxStats1Enable.Checked = My.Settings.data1430
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 8
 
@@ -2308,7 +2259,6 @@ Partial Class Formtest
         txtOperationDev1.Text = My.Settings.data583
 
         Dev1TextResponse.Checked = My.Settings.data1351
-        CheckBoxStats1Enable.Checked = My.Settings.data1431
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 9
 
@@ -2354,7 +2304,6 @@ Partial Class Formtest
         txtOperationDev1.Text = My.Settings.data612
 
         Dev1TextResponse.Checked = My.Settings.data1352
-        CheckBoxStats1Enable.Checked = My.Settings.data1432
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 10
 
@@ -2400,7 +2349,6 @@ Partial Class Formtest
         txtOperationDev1.Text = My.Settings.data641
 
         Dev1TextResponse.Checked = My.Settings.data1353
-        CheckBoxStats1Enable.Checked = My.Settings.data1433
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 11
 
@@ -2446,7 +2394,6 @@ Partial Class Formtest
         txtOperationDev1.Text = My.Settings.data786
 
         Dev1TextResponse.Checked = My.Settings.data1354
-        CheckBoxStats1Enable.Checked = My.Settings.data1434
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 12
 
@@ -2492,7 +2439,6 @@ Partial Class Formtest
         txtOperationDev1.Text = My.Settings.data815
 
         Dev1TextResponse.Checked = My.Settings.data1355
-        CheckBoxStats1Enable.Checked = My.Settings.data1435
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 13
 
@@ -2538,7 +2484,6 @@ Partial Class Formtest
         txtOperationDev1.Text = My.Settings.data844
 
         Dev1TextResponse.Checked = My.Settings.data1356
-        CheckBoxStats1Enable.Checked = My.Settings.data1436
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 14
 
@@ -2584,7 +2529,6 @@ Partial Class Formtest
         txtOperationDev1.Text = My.Settings.data873
 
         Dev1TextResponse.Checked = My.Settings.data1357
-        CheckBoxStats1Enable.Checked = My.Settings.data1437
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 15
 
@@ -2630,7 +2574,6 @@ Partial Class Formtest
         txtOperationDev1.Text = My.Settings.data902
 
         Dev1TextResponse.Checked = My.Settings.data1358
-        CheckBoxStats1Enable.Checked = My.Settings.data1438
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 16
 
@@ -2676,7 +2619,6 @@ Partial Class Formtest
         txtOperationDev1.Text = My.Settings.data931
 
         Dev1TextResponse.Checked = My.Settings.data1359
-        CheckBoxStats1Enable.Checked = My.Settings.data1439
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 17
 
@@ -2722,7 +2664,6 @@ Partial Class Formtest
         txtOperationDev1.Text = My.Settings.data960
 
         Dev1TextResponse.Checked = My.Settings.data1360
-        CheckBoxStats1Enable.Checked = My.Settings.data1440
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 18
 
@@ -2768,7 +2709,6 @@ Partial Class Formtest
         txtOperationDev1.Text = My.Settings.data989
 
         Dev1TextResponse.Checked = My.Settings.data1361
-        CheckBoxStats1Enable.Checked = My.Settings.data1441
 
         If Not _suppressDev1Sync Then cboDev1Device.SelectedIndex = 19
 
@@ -2833,7 +2773,6 @@ Partial Class Formtest
         txtOperationDev2.Text = My.Settings.data517
 
         Dev2TextResponse.Checked = My.Settings.data1362
-        CheckBoxStats2Enable.Checked = My.Settings.data1442
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 0
 
@@ -2894,7 +2833,6 @@ Partial Class Formtest
         txtOperationDev2.Text = My.Settings.data518
 
         Dev2TextResponse.Checked = My.Settings.data1363
-        CheckBoxStats2Enable.Checked = My.Settings.data1443
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 1
 
@@ -2954,7 +2892,6 @@ Partial Class Formtest
         txtOperationDev2.Text = My.Settings.data519
 
         Dev2TextResponse.Checked = My.Settings.data1364
-        CheckBoxStats2Enable.Checked = My.Settings.data1444
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 2
 
@@ -3011,7 +2948,6 @@ Partial Class Formtest
         txtOperationDev2.Text = My.Settings.data520
 
         Dev2TextResponse.Checked = My.Settings.data1365
-        CheckBoxStats2Enable.Checked = My.Settings.data1445
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 3
 
@@ -3067,7 +3003,6 @@ Partial Class Formtest
         txtOperationDev2.Text = My.Settings.data521
 
         Dev2TextResponse.Checked = My.Settings.data1366
-        CheckBoxStats2Enable.Checked = My.Settings.data1446
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 4
 
@@ -3123,7 +3058,6 @@ Partial Class Formtest
         txtOperationDev2.Text = My.Settings.data522
 
         Dev2TextResponse.Checked = My.Settings.data1367
-        CheckBoxStats2Enable.Checked = My.Settings.data1447
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 5
 
@@ -3179,7 +3113,6 @@ Partial Class Formtest
         txtOperationDev2.Text = My.Settings.data523
 
         Dev2TextResponse.Checked = My.Settings.data1368
-        CheckBoxStats2Enable.Checked = My.Settings.data1448
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 6
 
@@ -3236,7 +3169,6 @@ Partial Class Formtest
         txtOperationDev2.Text = My.Settings.data524
 
         Dev2TextResponse.Checked = My.Settings.data1369
-        CheckBoxStats2Enable.Checked = My.Settings.data1449
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 7
 
@@ -3281,7 +3213,6 @@ Partial Class Formtest
         txtOperationDev2.Text = My.Settings.data670
 
         Dev2TextResponse.Checked = My.Settings.data1370
-        CheckBoxStats2Enable.Checked = My.Settings.data1450
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 8
 
@@ -3324,7 +3255,6 @@ Partial Class Formtest
         txtOperationDev2.Text = My.Settings.data699
 
         Dev2TextResponse.Checked = My.Settings.data1371
-        CheckBoxStats2Enable.Checked = My.Settings.data1451
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 9
 
@@ -3367,7 +3297,6 @@ Partial Class Formtest
         txtOperationDev2.Text = My.Settings.data728
 
         Dev2TextResponse.Checked = My.Settings.data1372
-        CheckBoxStats2Enable.Checked = My.Settings.data1452
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 10
 
@@ -3410,7 +3339,6 @@ Partial Class Formtest
         txtOperationDev2.Text = My.Settings.data757
 
         Dev2TextResponse.Checked = My.Settings.data1373
-        CheckBoxStats2Enable.Checked = My.Settings.data1453
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 11
 
@@ -3453,7 +3381,6 @@ Partial Class Formtest
         txtOperationDev2.Text = My.Settings.data1018
 
         Dev2TextResponse.Checked = My.Settings.data1374
-        CheckBoxStats2Enable.Checked = My.Settings.data1454
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 12
 
@@ -3496,7 +3423,6 @@ Partial Class Formtest
         txtOperationDev2.Text = My.Settings.data1047
 
         Dev2TextResponse.Checked = My.Settings.data1375
-        CheckBoxStats2Enable.Checked = My.Settings.data1455
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 13
 
@@ -3539,7 +3465,6 @@ Partial Class Formtest
         txtOperationDev2.Text = My.Settings.data1076
 
         Dev2TextResponse.Checked = My.Settings.data1376
-        CheckBoxStats2Enable.Checked = My.Settings.data1456
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 14
 
@@ -3582,7 +3507,6 @@ Partial Class Formtest
         txtOperationDev2.Text = My.Settings.data1105
 
         Dev2TextResponse.Checked = My.Settings.data1377
-        CheckBoxStats2Enable.Checked = My.Settings.data1457
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 15
 
@@ -3625,7 +3549,6 @@ Partial Class Formtest
         txtOperationDev2.Text = My.Settings.data1134
 
         Dev2TextResponse.Checked = My.Settings.data1378
-        CheckBoxStats2Enable.Checked = My.Settings.data1458
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 16
 
@@ -3668,7 +3591,6 @@ Partial Class Formtest
         txtOperationDev2.Text = My.Settings.data1163
 
         Dev2TextResponse.Checked = My.Settings.data1379
-        CheckBoxStats2Enable.Checked = My.Settings.data1459
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 17
 
@@ -3711,7 +3633,6 @@ Partial Class Formtest
         txtOperationDev2.Text = My.Settings.data1192
 
         Dev2TextResponse.Checked = My.Settings.data1380
-        CheckBoxStats2Enable.Checked = My.Settings.data1460
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 18
 
@@ -3754,7 +3675,6 @@ Partial Class Formtest
         txtOperationDev2.Text = My.Settings.data1221
 
         Dev2TextResponse.Checked = My.Settings.data1381
-        CheckBoxStats2Enable.Checked = My.Settings.data1461
 
         If Not _suppressDev2Sync Then cboDev2Device.SelectedIndex = 19
 
@@ -4347,4 +4267,4 @@ Partial Class Formtest
 
 
 
-End Class
+End Class

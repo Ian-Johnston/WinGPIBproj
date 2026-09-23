@@ -138,6 +138,7 @@ Partial Class Formtest
 
             ' DATA tab
             UpdateProjectedTimeLabel()
+            UpdateLiveChartPopoutAvailability()
 
 
             ' Stop
@@ -203,6 +204,7 @@ Partial Class Formtest
             'dev2.Dispose()
 
             UpdateProjectedTimeLabel()
+            UpdateLiveChartPopoutAvailability()
             'LabelXaxisProjectedTime.Text = "Not running"
 
         End If
@@ -305,6 +307,7 @@ Partial Class Formtest
 
             ' DATA tab
             UpdateProjectedTimeLabel()
+            UpdateLiveChartPopoutAvailability()
 
 
             ' Stop
@@ -342,6 +345,7 @@ Partial Class Formtest
             'dev1.Dispose()
 
             UpdateProjectedTimeLabel()
+            UpdateLiveChartPopoutAvailability()
             'LabelXaxisProjectedTime.Text = "Not running"
 
         End If
@@ -487,6 +491,7 @@ Partial Class Formtest
 
             ' DATA tab
             UpdateProjectedTimeLabel()
+            UpdateLiveChartPopoutAvailability()
 
 
             ' Stop
@@ -524,6 +529,7 @@ Partial Class Formtest
             'dev2.Dispose()
 
             UpdateProjectedTimeLabel()
+            UpdateLiveChartPopoutAvailability()
             'LabelXaxisProjectedTime.Text = "Not running"
 
         End If

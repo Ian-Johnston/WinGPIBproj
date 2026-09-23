@@ -74,7 +74,7 @@ Partial Class Formtest
         Dim dev1MaxDiff As String = ""
         Dim dev1Deviation As String = ""
 
-        If CheckBoxStats1Enable.Checked = True AndAlso Stats1Count > 0 Then
+        If Stats1Count > 0 Then
 
             dev1Samples = Stats1Count.ToString()
 
@@ -132,7 +132,7 @@ Partial Class Formtest
         Dim dev2MaxDiff As String = ""
         Dim dev2Deviation As String = ""
 
-        If CheckBoxStats2Enable.Checked = True AndAlso Stats2Count > 0 Then
+        If Stats2Count > 0 Then
 
             dev2Samples = Stats2Count.ToString()
 
@@ -389,7 +389,7 @@ Partial Class Formtest
         ' Device 1 statistics
         ' ==========================================================
 
-        If CheckBoxStats1Enable.Checked = True AndAlso Stats1Count > 0 Then
+        If Stats1Count > 0 Then
 
             dev1CountText =
             Stats1Count.ToString(Globalization.CultureInfo.InvariantCulture)
@@ -451,7 +451,7 @@ Partial Class Formtest
         ' Device 2 statistics
         ' ==========================================================
 
-        If CheckBoxStats2Enable.Checked = True AndAlso Stats2Count > 0 Then
+        If Stats2Count > 0 Then
 
             dev2CountText =
             Stats2Count.ToString(Globalization.CultureInfo.InvariantCulture)

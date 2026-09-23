@@ -1727,10 +1727,36 @@ Public Class Chart
 
             DualDev = False
 
-            DeviceName1.Text = Devname1
-            DeviceName2.Text = ""
+            ' A single-device CSV doesn't itself record which hardware slot
+            ' (1 or 2) was used - unless Statistics were running for that
+            ' device, in which case exactly one of DEV1_MEAN/DEV2_MEAN in
+            ' row 0 has real values (the other is blank), which tells us
+            ' which slot it actually was. Without that, there's nothing in
+            ' the file to go on, so it falls back to assuming Device 1, as
+            ' before.
+            Dim row0 As DataRow = dataTable1.Rows(0)
+            Dim dev1MeanText As String = row0("DEV1_MEAN").ToString().Trim()
+            Dim dev2MeanText As String = row0("DEV2_MEAN").ToString().Trim()
 
-            DisableDualDeviceControls()
+            Dim isActuallyDevice2 As Boolean =
+                (dev1MeanText = "" OrElse dev1MeanText.ToLower() = "nil") AndAlso
+                dev2MeanText <> "" AndAlso dev2MeanText.ToLower() <> "nil"
+
+            If isActuallyDevice2 Then
+
+                DeviceName1.Text = ""
+                DeviceName2.Text = Devname1
+
+                UseDevice2AsSoleDevice()
+
+            Else
+
+                DeviceName1.Text = Devname1
+                DeviceName2.Text = ""
+
+                DisableDualDeviceControls()
+
+            End If
 
         Else
 
@@ -1773,6 +1799,11 @@ Public Class Chart
             EnableDualDeviceControls()
 
         End If
+
+        ' RadioButtonDev1/Dev2 (which device drives the PPM/Tempco
+        ' calculation) don't otherwise get corrected for whichever device
+        ' this CSV actually has - update them now the detection above is done.
+        UpdatePPMDeviceAvailability()
 
 
         ' ==========================================================
@@ -1893,6 +1924,13 @@ Public Class Chart
 
         CheckPlaybackDev2Allan.Checked = False
         CheckPlaybackDev2Allan.Enabled = False
+
+        ' Dev.1 is the sole device here, so make sure its Data/Short-Term
+        ' Mean/Allan checkboxes are enabled - a previously loaded CSV may
+        ' have left them disabled via UseDevice2AsSoleDevice().
+        CheckPlaybackDev1Data.Enabled = True
+        CheckPlaybackDev1ShortTermMean.Enabled = True
+        CheckPlaybackDev1Allan.Enabled = True
     End Sub
 
     Private Sub EnableDualDeviceControls()
@@ -1928,6 +1966,88 @@ Public Class Chart
 
         ' Allan Deviation checkbox is likewise not a recorded CSV column.
         CheckPlaybackDev2Allan.Enabled = True
+
+        ' Dev.1's Data/Short-Term Mean/Allan checkboxes aren't covered by
+        ' the V5/V6 block either, and a previously loaded single-device CSV
+        ' may have left them disabled via UseDevice2AsSoleDevice().
+        CheckPlaybackDev1Data.Enabled = True
+        CheckPlaybackDev1ShortTermMean.Enabled = True
+        CheckPlaybackDev1Allan.Enabled = True
+    End Sub
+
+    ' Mirror of DisableDualDeviceControls() for a single-device CSV that
+    ' turns out to be physical Device 2, not Device 1 - disables Dev.1's
+    ' side (which is enabled by default) and switches on Dev.2's base
+    ' controls (which aren't enabled by default).
+    Private Sub UseDevice2AsSoleDevice()
+        DEV1avg.Enabled = False
+        CheckDev1Line.Enabled = False
+        CheckDev1Point.Enabled = False
+        Dev1MaxMin.Enabled = False
+        RMSaverageDev1.Enabled = False
+        Label12.Enabled = False
+        Label10.Enabled = False
+        Label8.Enabled = False
+
+        CheckPlaybackDev1Data.Checked = False
+        CheckPlaybackDev1Data.Enabled = False
+
+        CheckPlaybackDev1Mean.Checked = False
+        CheckPlaybackDev1Mean.Enabled = False
+        CheckPlaybackDev1Stdev.Checked = False
+        CheckPlaybackDev1Stdev.Enabled = False
+        CheckPlaybackDev1SEM.Checked = False
+        CheckPlaybackDev1SEM.Enabled = False
+
+        CheckPlaybackDev1MaxDiff.Checked = False
+        CheckPlaybackDev1MaxDiff.Enabled = False
+        CheckPlaybackDev1Deviation.Checked = False
+        CheckPlaybackDev1Deviation.Enabled = False
+
+        CheckPlaybackDev1ShortTermMean.Checked = False
+        CheckPlaybackDev1ShortTermMean.Enabled = False
+
+        CheckPlaybackDev1Allan.Checked = False
+        CheckPlaybackDev1Allan.Enabled = False
+
+        DEV2avg.Enabled = True
+        CheckDev2Line.Enabled = True
+        CheckDev2Point.Enabled = True
+        Dev2MaxMin.Enabled = True
+        RMSaverageDev2.Enabled = True
+        Label22.Enabled = True
+        Label17.Enabled = True
+        Label9.Enabled = True
+
+        CheckPlaybackDev2Data.Enabled = True
+
+        ' Short-Term Mean and Allan Deviation aren't recorded CSV columns
+        ' (they're recomputed from raw VALUE), so - like CheckPlaybackDev2Data -
+        ' they aren't covered by the V5/V6 column-detection block and default
+        ' to disabled; re-enable them here now Dev.2 is the active device.
+        CheckPlaybackDev2ShortTermMean.Enabled = True
+        CheckPlaybackDev2Allan.Enabled = True
+    End Sub
+
+    ' RadioButtonDev1/Dev2 pick which device's data drives the PPM/Tempco
+    ' calculation (GeneratePPMColumn). A device that isn't present in the
+    ' loaded CSV must not be selectable there - selecting it makes
+    ' GeneratePPMColumn filter on a blank DeviceName, so PPM computes
+    ' nothing. Called after every CSV load, and whenever Enable PPM is
+    ' turned on, so the selection always matches what's actually loaded.
+    Private Sub UpdatePPMDeviceAvailability()
+
+        If CheckBoxPPMenable.Checked Then
+            RadioButtonDev1.Enabled = DeviceName1.Text <> ""
+            RadioButtonDev2.Enabled = DeviceName2.Text <> ""
+        End If
+
+        If RadioButtonDev1.Checked AndAlso DeviceName1.Text = "" AndAlso DeviceName2.Text <> "" Then
+            RadioButtonDev2.Checked = True
+        ElseIf RadioButtonDev2.Checked AndAlso DeviceName2.Text = "" AndAlso DeviceName1.Text <> "" Then
+            RadioButtonDev1.Checked = True
+        End If
+
     End Sub
 
 
@@ -3694,8 +3814,7 @@ Public Class Chart
             RadioButtonPPMTempoLinReg.Enabled = True
             RadioButtonPPMTempoRolling.Enabled = True
             MedianValue.Enabled = True
-            RadioButtonDev1.Enabled = True
-            RadioButtonDev2.Enabled = True
+            UpdatePPMDeviceAvailability()
             MedianValueText.Enabled = True
             PPMscalerangeentry.Enabled = True
             PPMscaleText.Enabled = True
@@ -4111,11 +4230,20 @@ Public Class Chart
         ' actually being displayed. PlaybackTemp.Checked now only gates
         ' whether points get added to the chart series - it must not gate
         ' whether the underlying temperature data gets computed at all.
+        ' Temperature/Humidity are shared readings, not device-specific -
+        ' every row carries the same TEMP/HUM regardless of which device
+        ' logged it. So filter using whichever device name is actually
+        ' populated: normally that's DeviceName1, but for a single-device
+        ' CSV that turned out to be physical Device 2 (DeviceName1 is left
+        ' blank in that case), fall back to DeviceName2 - otherwise the
+        ' DEVICE='' filter below matches nothing and Temp never displays.
+        Dim tempDeviceName As String = If(DeviceName1.Text <> "", DeviceName1.Text, DeviceName2.Text)
+
         If TEMPavg.Text = "0" Then
 
-            ' Filter Temperature from Device 1
+            ' Filter Temperature from whichever device is actually present
             If PlaybackTemp.Checked = True Then
-                Dim selectedRows3() As DataRow = dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
+                Dim selectedRows3() As DataRow = dataTable1.Select("DEVICE ='" & tempDeviceName & "'")
                 'Add filtered data to series
 
                 For Each dr As DataRow In selectedRows3
@@ -4128,7 +4256,7 @@ Public Class Chart
 
             TEMProllingAverageValues.Clear()
 
-            Dim selectedRows3() As DataRow = dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
+            Dim selectedRows3() As DataRow = dataTable1.Select("DEVICE ='" & tempDeviceName & "'")
 
             ' Iterate through the filtered data and calculate the rolling average for each data point
             For Each dr As DataRow In selectedRows3
@@ -4163,9 +4291,14 @@ Public Class Chart
         ' safe to call more than once per load, same as its siblings.
         Chart2.Series(3).Points.Clear()
 
-        ' Filter Humidity from Device 1
+        ' Humidity is a shared reading like Temperature (not device-
+        ' specific) - see FilterTempDevice1()'s tempDeviceName for why this
+        ' falls back to DeviceName2 when DeviceName1 is blank.
+        Dim humDeviceName As String = If(DeviceName1.Text <> "", DeviceName1.Text, DeviceName2.Text)
+
+        ' Filter Humidity from whichever device is actually present
         If (PlaybackHum.Checked = True) Then
-            Dim selectedRows4() As DataRow = dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
+            Dim selectedRows4() As DataRow = dataTable1.Select("DEVICE ='" & humDeviceName & "'")
             'Add filtered data to series
             For Each dr As DataRow In selectedRows4
                 Chart2.Series(3).Points.AddXY(dr("DEVICE"), dr("HUM"))

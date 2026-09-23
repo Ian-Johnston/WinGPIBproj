@@ -33,6 +33,39 @@ Partial Class Formtest
     Dim txtr2achart As String
     Dim txtr3achart As String
 
+    ' Chart1 (Live Watch) data buffers/plottables. Each list is passed to its
+    ' Scatter plottable by reference at creation time (ScatterSourceCoordinatesList
+    ' holds the same List instance rather than copying it), so appending to or
+    ' trimming the list here is all that's needed before the next Refresh().
+    ' X is an ever-incrementing sample index, never renumbered when points
+    ' are trimmed from the front of the list.
+    Dim Chart1Dev1Data As New List(Of ScottPlot.Coordinates)
+    Dim Chart1Dev2Data As New List(Of ScottPlot.Coordinates)
+    Dim Chart1TempData As New List(Of ScottPlot.Coordinates)
+    Dim Chart1Dev1NextX As Integer = 0
+    Dim Chart1Dev2NextX As Integer = 0
+    Dim Chart1TempNextX As Integer = 0
+    Dim Chart1Dev1Series As ScottPlot.Plottables.Scatter
+    Dim Chart1Dev2Series As ScottPlot.Plottables.Scatter
+    Dim Chart1TempSeries As ScottPlot.Plottables.Scatter
+    Dim Chart1TempAxis As ScottPlot.IYAxis
+    Dim Chart1Crosshair As ScottPlot.Plottables.Crosshair
+    Dim Chart1HighlightMarker As ScottPlot.Plottables.Marker
+    Dim Chart1HighlightText As ScottPlot.Plottables.Text
+    Dim Chart1LastRightClickPixel As ScottPlot.Pixel
+    Dim Chart1LastLeftClickTime As DateTime = DateTime.MinValue
+    Dim Chart1LastLeftClickPixel As ScottPlot.Pixel
+
+    ' Two-point delta/measurement tool - see Chart1OnDoubleClick.
+    Dim Chart1MeasureMarkerA As ScottPlot.Plottables.Marker
+    Dim Chart1MeasureMarkerB As ScottPlot.Plottables.Marker
+    Dim Chart1MeasureLine As ScottPlot.Plottables.LinePlot
+    Dim Chart1MeasureText As ScottPlot.Plottables.Text
+    Dim Chart1MeasureHavePointA As Boolean = False
+    Dim Chart1MeasureHavePointB As Boolean = False
+    Dim Chart1MeasurePointA As ScottPlot.DataPoint
+    Dim Chart1MeasureAxisA As ScottPlot.IYAxis
+
     Dim inst_value1FChartMin As Double = 0
     Dim inst_value1FChartMax As Double = 10
     Dim inst_value2FChartMin As Double = 0
@@ -154,6 +187,480 @@ Partial Class Formtest
     End Function
 
 
+    ' Appends one Y value to a Chart1 series buffer (X is the series' own
+    ' ever-incrementing sample counter), then trims from the front once the
+    ' sliding window size is exceeded - unless DisableRollingChart is
+    ' checked, in which case the buffer is left to grow without bound.
+    Private Sub Chart1AddPoint(data As List(Of ScottPlot.Coordinates), ByRef nextX As Integer, y As Double)
+
+        data.Add(New ScottPlot.Coordinates(nextX, y))
+        nextX += 1
+
+        If DisableRollingChart.Checked = False Then
+
+            Dim windowN As Integer
+            If Not Integer.TryParse(XaxisPoints.Text, windowN) OrElse windowN < 2 Then windowN = 100
+
+            If data.Count > windowN Then data.RemoveAt(0)
+
+        End If
+
+    End Sub
+
+    ' Sets Chart1's primary Y axis range (ScottPlot equivalent of setting
+    ' AxisY.Minimum/Maximum). The fixed-division tick/label formatting is
+    ' applied uniformly every render by Chart1RenderStarting below, so it
+    ' doesn't need to be (re-)configured here. Only ever called from the
+    ' autoscale-from-data path, so also echoes the detected range into the
+    ' (now read-only) Dev1Max/Dev1Min boxes for display.
+    Private Sub Chart1SetYAxisRange(minV As Double, maxV As Double)
+
+        ' Small margin so the trace doesn't sit flush against the top/bottom
+        ' edge of the plot, where a very stable/flat signal can be hard to see.
+        Dim margin As Double = (maxV - minV) * 0.05
+
+        FormsPlot1.Plot.Axes.Left.Min = minV - margin
+        FormsPlot1.Plot.Axes.Left.Max = maxV + margin
+
+        Dev1Max.Text = maxV.ToString(Globalization.CultureInfo.InvariantCulture)
+        Dev1Min.Text = minV.ToString(Globalization.CultureInfo.InvariantCulture)
+
+    End Sub
+
+    ' Checks one series' nearest point to the mouse and, if it's closer
+    ' (in pixels) than the best candidate found so far, replaces it.
+    ' Comparing pixel distance rather than raw coordinate distance is what
+    ' makes this a fair comparison between Dev1/2 (left axis, ~1.0 scale)
+    ' and Temperature (right axis, ~20 scale).
+    Private Sub Chart1ConsiderHoverCandidate(series As ScottPlot.Plottables.Scatter, mouseLocation As ScottPlot.Coordinates,
+                                              yAxis As ScottPlot.IYAxis, mousePixel As ScottPlot.Pixel,
+                                              ByRef found As Boolean, ByRef bestPoint As ScottPlot.DataPoint,
+                                              ByRef bestYAxis As ScottPlot.IYAxis, ByRef bestColor As ScottPlot.Color,
+                                              ByRef bestDistance As Single)
+
+        ' A hidden trace (CheckBoxDevice1Hide/CheckBoxDevice2Hide) still has
+        ' live data underneath, but shouldn't be hoverable/measurable while
+        ' it isn't actually shown - otherwise the hover tooltip and the
+        ' measurement tool can both land on points from a trace the user
+        ' can't see, which looks like a stray marker with nothing to
+        ' anchor it to.
+        If Not series.IsVisible Then Exit Sub
+
+        ' series.Data.GetNearest(...) (the interface-level shortcut) always
+        ' scales distance using the primary axis's pixels-per-unit, which is
+        ' meaningless for Temperature on a differently-scaled axis - call
+        ' the underlying utility directly instead, passing the actual axes.
+        Dim dataSource As ScottPlot.IDataSource = DirectCast(series.Data, ScottPlot.IDataSource)
+        Dim point As ScottPlot.DataPoint = ScottPlot.DataSourceUtilities.GetNearestSmart(
+            dataSource, mouseLocation, FormsPlot1.Plot.LastRender, 15, FormsPlot1.Plot.Axes.Bottom, yAxis)
+        If Not point.IsReal Then Exit Sub
+
+        Dim pointPixel As ScottPlot.Pixel = FormsPlot1.Plot.GetPixel(point.Coordinates, FormsPlot1.Plot.Axes.Bottom, yAxis)
+        Dim distance As Single = pointPixel.DistanceFrom(mousePixel)
+
+        If distance < bestDistance Then
+            found = True
+            bestPoint = point
+            bestYAxis = yAxis
+            bestColor = series.LineStyle.Color
+            bestDistance = distance
+        End If
+
+    End Sub
+
+    ' Finds whichever of Chart1's three traces has a point nearest the given
+    ' pixel (shared by the hover tooltip and the "Copy Value At Cursor" menu
+    ' action).
+    Private Sub Chart1FindNearestPoint(mousePixel As ScottPlot.Pixel, ByRef found As Boolean, ByRef bestPoint As ScottPlot.DataPoint,
+                                        ByRef bestYAxis As ScottPlot.IYAxis, ByRef bestColor As ScottPlot.Color)
+
+        Dim mouseLocationPrimary As ScottPlot.Coordinates = FormsPlot1.Plot.GetCoordinates(mousePixel)
+        Dim mouseLocationTemp As ScottPlot.Coordinates = FormsPlot1.Plot.GetCoordinates(mousePixel, FormsPlot1.Plot.Axes.Bottom, Chart1TempAxis)
+
+        Dim bestDistance As Single = Single.MaxValue
+
+        Chart1ConsiderHoverCandidate(Chart1Dev1Series, mouseLocationPrimary, FormsPlot1.Plot.Axes.Left, mousePixel, found, bestPoint, bestYAxis, bestColor, bestDistance)
+        Chart1ConsiderHoverCandidate(Chart1Dev2Series, mouseLocationPrimary, FormsPlot1.Plot.Axes.Left, mousePixel, found, bestPoint, bestYAxis, bestColor, bestDistance)
+        Chart1ConsiderHoverCandidate(Chart1TempSeries, mouseLocationTemp, Chart1TempAxis, mousePixel, found, bestPoint, bestYAxis, bestColor, bestDistance)
+
+    End Sub
+
+    ' Moves the crosshair/marker/text label to whichever of Chart1's three
+    ' traces has a point nearest the mouse, or hides them when nothing is
+    ' close enough.
+    Private Sub Chart1ShowValueOnHover(sender As Object, e As MouseEventArgs)
+
+        Dim mousePixel As New ScottPlot.Pixel(CSng(e.X), CSng(e.Y))
+
+        Dim found As Boolean = False
+        Dim bestPoint As ScottPlot.DataPoint = Nothing
+        Dim bestYAxis As ScottPlot.IYAxis = Nothing
+        Dim bestColor As ScottPlot.Color = Nothing
+
+        Chart1FindNearestPoint(mousePixel, found, bestPoint, bestYAxis, bestColor)
+
+        If Not found Then
+            If Chart1Crosshair.IsVisible Then
+                Chart1Crosshair.IsVisible = False
+                Chart1HighlightMarker.IsVisible = False
+                Chart1HighlightText.IsVisible = False
+                FormsPlot1.Refresh()
+            End If
+            Exit Sub
+        End If
+
+        Chart1Crosshair.IsVisible = True
+        Chart1Crosshair.Position = bestPoint.Coordinates
+        Chart1Crosshair.Axes.YAxis = bestYAxis
+        Chart1Crosshair.LineColor = bestColor
+
+        Chart1HighlightMarker.IsVisible = True
+        Chart1HighlightMarker.Location = bestPoint.Coordinates
+        Chart1HighlightMarker.Axes.YAxis = bestYAxis
+        Chart1HighlightMarker.MarkerStyle.LineColor = bestColor
+
+        Chart1HighlightText.IsVisible = True
+        Chart1HighlightText.Location = bestPoint.Coordinates
+        Chart1HighlightText.Axes.YAxis = bestYAxis
+        Chart1HighlightText.LabelText = bestPoint.Y.ToString("0.########")
+        Chart1HighlightText.LabelFontColor = bestColor
+
+        ' Flip the label to whichever side of the point keeps it inside the
+        ' plot area, instead of always drawing above-right (which runs off
+        ' the top near the top edge, or off the right near the right edge).
+        Const edgeMarginPx As Single = 40
+
+        Dim bestPixel As ScottPlot.Pixel = FormsPlot1.Plot.GetPixel(bestPoint.Coordinates, FormsPlot1.Plot.Axes.Bottom, bestYAxis)
+        Dim dataRect As ScottPlot.PixelRect = FormsPlot1.Plot.LastRender.DataRect
+
+        Dim nearTop As Boolean = (bestPixel.Y - dataRect.Top) < edgeMarginPx
+        Dim nearRight As Boolean = (dataRect.Right - bestPixel.X) < edgeMarginPx
+
+        Chart1HighlightText.OffsetY = If(nearTop, 7, -7)
+        Chart1HighlightText.OffsetX = If(nearRight, -7, 7)
+
+        Chart1HighlightText.LabelAlignment =
+            If(nearTop,
+               If(nearRight, ScottPlot.Alignment.UpperRight, ScottPlot.Alignment.UpperLeft),
+               If(nearRight, ScottPlot.Alignment.LowerRight, ScottPlot.Alignment.LowerLeft))
+
+        ' Point A of the measurement tool is set but B isn't locked yet -
+        ' live-preview the delta against whatever point the mouse is
+        ' currently nearest to, using the same bestPoint/bestYAxis just
+        ' found for the ordinary hover display above.
+        If Chart1MeasureHavePointA AndAlso Not Chart1MeasureHavePointB Then
+            Chart1UpdateMeasureDisplay(bestPoint, bestYAxis)
+        End If
+
+        FormsPlot1.Refresh()
+
+    End Sub
+
+    ' Unchecks "AutoScale Y-axis" on any mouse-down (see its use elsewhere
+    ' in this file), and separately remembers where a right-click happened,
+    ' since the context menu's own action callbacks only receive the Plot,
+    ' not the click position - see Chart1CopyValueAtCursor. Also detects
+    ' left-button double-clicks itself, by timing consecutive mouse-downs -
+    ' see Chart1OnDoubleClick for why, instead of relying on FormsPlot1's
+    ' own DoubleClick event.
+    Private Sub Chart1OnMouseDown(sender As Object, e As MouseEventArgs)
+
+        Chart1AutoScaleYAxis.Checked = False
+
+        If e.Button = MouseButtons.Right Then
+            Chart1LastRightClickPixel = New ScottPlot.Pixel(CSng(e.X), CSng(e.Y))
+        End If
+
+        If e.Button = MouseButtons.Left Then
+
+            Dim thisPixel As New ScottPlot.Pixel(CSng(e.X), CSng(e.Y))
+            Dim elapsedMs As Double = (DateTime.Now - Chart1LastLeftClickTime).TotalMilliseconds
+            Dim dx As Single = thisPixel.X - Chart1LastLeftClickPixel.X
+            Dim dy As Single = thisPixel.Y - Chart1LastLeftClickPixel.Y
+            Dim distance As Single = CSng(Math.Sqrt(dx * dx + dy * dy))
+
+            If elapsedMs <= SystemInformation.DoubleClickTime AndAlso
+               distance <= SystemInformation.DoubleClickSize.Width Then
+
+                ' Consume it, rather than leaving this click available to
+                ' pair with a third - so 4 rapid clicks are two separate
+                ' double-clicks, not three overlapping ones.
+                Chart1LastLeftClickTime = DateTime.MinValue
+                Chart1OnDoubleClick(thisPixel)
+
+            Else
+
+                Chart1LastLeftClickTime = DateTime.Now
+                Chart1LastLeftClickPixel = thisPixel
+
+            End If
+
+        End If
+
+    End Sub
+
+    ' "Copy Value At Cursor" context menu action - copies the Y value of
+    ' whichever trace's nearest point was closest to where the menu was
+    ' opened.
+    Private Sub Chart1CopyValueAtCursor(plot As ScottPlot.Plot)
+
+        Dim found As Boolean = False
+        Dim bestPoint As ScottPlot.DataPoint = Nothing
+        Dim bestYAxis As ScottPlot.IYAxis = Nothing
+        Dim bestColor As ScottPlot.Color = Nothing
+
+        Chart1FindNearestPoint(Chart1LastRightClickPixel, found, bestPoint, bestYAxis, bestColor)
+
+        If found Then
+            Clipboard.SetText(bestPoint.Y.ToString("0.########", Globalization.CultureInfo.InvariantCulture))
+        End If
+
+    End Sub
+
+    ' Two-point delta/measurement tool. Double-click was otherwise unused
+    ' on Chart1 (DoubleLeftClickBenchmark is disabled in Formtest.vb), so
+    ' it's free to repurpose here:
+    '   1st double-click - places point A
+    '   2nd double-click - places point B and locks in the delta
+    '   3rd double-click - clears both and starts over
+    ' Not wired to FormsPlot1's own DoubleClick event - per Microsoft's own
+    ' documented Control mouse-event order (MouseDown, MouseUp, Click,
+    ' MouseDown, MouseUp, DoubleClick), DoubleClick fires AFTER the second
+    ' MouseUp, by which point the button is already released, so there's no
+    ' reliable way to confirm it was the left button from there. Detected
+    ' instead by timing consecutive left mouse-downs in Chart1OnMouseDown,
+    ' which passes the click pixel straight through here.
+    Private Sub Chart1OnDoubleClick(mousePixel As ScottPlot.Pixel)
+
+        Dim found As Boolean = False
+        Dim bestPoint As ScottPlot.DataPoint = Nothing
+        Dim bestYAxis As ScottPlot.IYAxis = Nothing
+        Dim bestColor As ScottPlot.Color = Nothing
+
+        Chart1FindNearestPoint(mousePixel, found, bestPoint, bestYAxis, bestColor)
+
+        If Chart1MeasureHavePointB Then
+
+            Chart1ClearMeasurement(FormsPlot1.Plot)
+
+        ElseIf Chart1MeasureHavePointA Then
+
+            ' Nothing nearby to lock in as point B (e.g. the trace point A
+            ' is on has since been hidden) - clear the in-progress
+            ' measurement instead of silently leaving it stuck with only A
+            ' placed and no way to advance it.
+            If Not found Then
+                Chart1ClearMeasurement(FormsPlot1.Plot)
+                Exit Sub
+            End If
+
+            Chart1MeasureHavePointB = True
+
+            Chart1MeasureMarkerB.IsVisible = True
+            Chart1MeasureMarkerB.Location = bestPoint.Coordinates
+            Chart1MeasureMarkerB.Axes.YAxis = bestYAxis
+
+            Chart1UpdateMeasureDisplay(bestPoint, bestYAxis)
+
+            FormsPlot1.Refresh()
+
+        Else
+
+            If Not found Then Exit Sub
+
+            Chart1MeasureHavePointA = True
+            Chart1MeasurePointA = bestPoint
+            Chart1MeasureAxisA = bestYAxis
+
+            Chart1MeasureMarkerA.IsVisible = True
+            Chart1MeasureMarkerA.Location = bestPoint.Coordinates
+            Chart1MeasureMarkerA.Axes.YAxis = bestYAxis
+
+            FormsPlot1.Refresh()
+
+        End If
+
+    End Sub
+
+    ' Updates the connecting line and delta label between point A and the
+    ' given second point - shared by the live preview (Chart1ShowValueOnHover,
+    ' while B isn't locked yet) and the final locked-in point B
+    ' (Chart1OnDoubleClick). A connecting line only makes sense when both
+    ' points share the same Y-axis (Dev1/Dev2 both use the left axis, but
+    ' Temperature uses its own right axis on a different scale) - otherwise
+    ' just the two raw values are shown, with no line and no delta.
+    Private Sub Chart1UpdateMeasureDisplay(pointB As ScottPlot.DataPoint, axisB As ScottPlot.IYAxis)
+
+        Dim sameAxis As Boolean = axisB Is Chart1MeasureAxisA
+
+        Chart1MeasureLine.IsVisible = sameAxis
+        If sameAxis Then
+            Chart1MeasureLine.Axes.YAxis = axisB
+            Chart1MeasureLine.Start = Chart1MeasurePointA.Coordinates
+            Chart1MeasureLine.[End] = pointB.Coordinates
+        End If
+
+        Chart1MeasureText.IsVisible = True
+        Chart1MeasureText.Location = pointB.Coordinates
+        Chart1MeasureText.Axes.YAxis = axisB
+
+        If sameAxis Then
+            Dim deltaX As Double = pointB.X - Chart1MeasurePointA.X
+            Dim deltaY As Double = pointB.Y - Chart1MeasurePointA.Y
+            Chart1MeasureText.LabelText = "dY " & deltaY.ToString("0.########") & "   dX " & deltaX.ToString("0") & " samples"
+        Else
+            Chart1MeasureText.LabelText = "A " & Chart1MeasurePointA.Y.ToString("0.########") & "   B " & pointB.Y.ToString("0.########")
+        End If
+
+        ' Flip the label to whichever side of point B keeps it inside the
+        ' plot area - same edge-avoidance approach as the hover label in
+        ' Chart1ShowValueOnHover, but with a much wider right-edge margin
+        ' since this label's text runs a lot longer than a single value.
+        Const edgeMarginTopPx As Single = 40
+        Const edgeMarginRightPx As Single = 300
+
+        Dim pointBPixel As ScottPlot.Pixel = FormsPlot1.Plot.GetPixel(pointB.Coordinates, FormsPlot1.Plot.Axes.Bottom, axisB)
+        Dim dataRect As ScottPlot.PixelRect = FormsPlot1.Plot.LastRender.DataRect
+
+        Dim nearTop As Boolean = (pointBPixel.Y - dataRect.Top) < edgeMarginTopPx
+        Dim nearRight As Boolean = (dataRect.Right - pointBPixel.X) < edgeMarginRightPx
+
+        Chart1MeasureText.OffsetY = If(nearTop, 7, -7)
+        Chart1MeasureText.OffsetX = If(nearRight, -7, 7)
+
+        Chart1MeasureText.LabelAlignment =
+            If(nearTop,
+               If(nearRight, ScottPlot.Alignment.UpperRight, ScottPlot.Alignment.UpperLeft),
+               If(nearRight, ScottPlot.Alignment.LowerRight, ScottPlot.Alignment.LowerLeft))
+
+    End Sub
+
+    ' Clears the two-point measurement tool - the 3rd double-click in
+    ' Chart1OnDoubleClick, the right-click menu's "Clear Measurement",
+    ' Esc (Chart1OnKeyDown), and ButtonClearChart_Click all use this.
+    ' Takes a Plot parameter (unused) so it matches the context-menu
+    ' action delegate signature directly.
+    Private Sub Chart1ClearMeasurement(plot As ScottPlot.Plot)
+
+        Chart1MeasureHavePointA = False
+        Chart1MeasureHavePointB = False
+
+        Chart1MeasureMarkerA.IsVisible = False
+        Chart1MeasureMarkerB.IsVisible = False
+        Chart1MeasureLine.IsVisible = False
+        Chart1MeasureText.IsVisible = False
+
+        FormsPlot1.Refresh()
+
+    End Sub
+
+    ' Esc clears the measurement tool - a quicker reset than the third
+    ' double-click or digging into the right-click menu. ScottPlot's own
+    ' KeyboardPanAndZoom/KeyboardAutoscale defaults already rely on
+    ' FormsPlot1 receiving key events while focused, so this follows the
+    ' same assumption.
+    Private Sub Chart1OnKeyDown(sender As Object, e As KeyEventArgs)
+
+        If e.KeyCode = Keys.Escape Then
+            Chart1ClearMeasurement(FormsPlot1.Plot)
+        End If
+
+    End Sub
+
+    ' Builds a fixed-count set of evenly-spaced manual ticks across
+    ' [axis.Min, axis.Max] and applies it immediately, so it's visible in
+    ' the render currently in progress (see Chart1RenderStarting). Returns
+    ' the tick generator so the caller can add further ticks of its own.
+    Private Function Chart1SetFixedDivisionTicks(axis As ScottPlot.IAxis, divisions As Integer, decimals As Integer, edge As ScottPlot.Edge, rp As ScottPlot.RenderPack) As ScottPlot.TickGenerators.NumericManual
+
+        Dim span As Double = axis.Max - axis.Min
+        If span = 0 OrElse divisions <= 0 Then Return Nothing
+
+        Dim numberFormat As String = "0." & New String("0"c, decimals)
+        Dim stepValue As Double = span / divisions
+
+        Dim positions(divisions) As Double
+        Dim labels(divisions) As String
+
+        For i As Integer = 0 To divisions
+
+            Dim tickValue As Double = axis.Min + i * stepValue
+            positions(i) = tickValue
+            labels(i) = tickValue.ToString(numberFormat)
+
+        Next
+
+        Dim manualTicks As New ScottPlot.TickGenerators.NumericManual(positions, labels)
+        manualTicks.Regenerate(New ScottPlot.CoordinateRange(axis.Min, axis.Max), edge,
+                                New ScottPlot.PixelLength(100), rp.Paint, axis.TickLabelStyle)
+
+        axis.TickGenerator = manualTicks
+
+        Return manualTicks
+
+    End Function
+
+    ' Gives Chart1 a fixed 12-division grid, and keeps Temperature's
+    ' (right-axis) tick labels aligned to those same gridlines - the shared
+    ' grid is built from the primary (left) axis only, so Temperature's
+    ' ticks are mapped to the same fractional heights as the left axis's.
+    Private Sub Chart1RenderStarting(sender As Object, rp As ScottPlot.RenderPack)
+
+        Const divisions As Integer = 12
+
+        Dim leftAxis As ScottPlot.IAxis = FormsPlot1.Plot.Axes.Left
+        Dim leftTicks = Chart1SetFixedDivisionTicks(leftAxis, divisions, 8, ScottPlot.Edge.Left, rp)
+
+        ' Extra ticks marking the actual detected Dev1 max/min - autoscale
+        ' pads the view a little beyond these (see Chart1SetYAxisRange), so
+        ' they no longer land exactly on the fixed-division grid above. Only
+        ' relevant in autoscale mode - in manual mode Dev1Max/Min already
+        ' are the axis edges.
+        If leftTicks IsNot Nothing AndAlso Chart1AutoScaleYAxis.Checked Then
+
+            Dim maxVal As Double
+            Dim minVal As Double
+
+            If Double.TryParse(Dev1Max.Text, maxVal) AndAlso maxVal >= leftAxis.Min AndAlso maxVal <= leftAxis.Max Then
+                leftTicks.AddMajor(maxVal, "Max " & maxVal.ToString("0.########"))
+            End If
+
+            If Double.TryParse(Dev1Min.Text, minVal) AndAlso minVal >= leftAxis.Min AndAlso minVal <= leftAxis.Max Then
+                leftTicks.AddMajor(minVal, "Min " & minVal.ToString("0.########"))
+            End If
+
+            leftTicks.Regenerate(New ScottPlot.CoordinateRange(leftAxis.Min, leftAxis.Max), ScottPlot.Edge.Left,
+                                  New ScottPlot.PixelLength(100), rp.Paint, leftAxis.TickLabelStyle)
+
+        End If
+
+        Dim leftSpan As Double = leftAxis.Max - leftAxis.Min
+        If leftSpan = 0 Then Exit Sub
+
+        Dim tempSpan As Double = Chart1TempAxis.Max - Chart1TempAxis.Min
+
+        Dim tempPositions(divisions) As Double
+        Dim tempLabels(divisions) As String
+
+        For i As Integer = 0 To divisions
+
+            Dim fraction As Double = i / divisions
+            Dim tempValue As Double = Chart1TempAxis.Min + fraction * tempSpan
+
+            tempPositions(i) = tempValue
+            tempLabels(i) = tempValue.ToString("0.0")
+
+        Next
+
+        Dim manualTempTicks As New ScottPlot.TickGenerators.NumericManual(tempPositions, tempLabels)
+        manualTempTicks.Regenerate(New ScottPlot.CoordinateRange(Chart1TempAxis.Min, Chart1TempAxis.Max),
+                                    ScottPlot.Edge.Right, New ScottPlot.PixelLength(100), rp.Paint, Chart1TempAxis.TickLabelStyle)
+
+        Chart1TempAxis.TickGenerator = manualTempTicks
+
+    End Sub
+
+
     Private Sub LiveChart()
 
         ' Chart 1 - Device 1 only
@@ -170,44 +677,28 @@ Partial Class Formtest
             txtr1achart = Format(inst_value1FChart, "#0.00000000")
 
             ' plot to chart Device 1
-            If DisableRollingChart.Checked = False Then
-                Chart1.Series(0).Points.AddY(txtr1achart)
-                If Chart1.Series(0).Points.Count > Val(XaxisPoints.Text) Then  'sliding graph: last n points
-                    Chart1.Series(0).Points.RemoveAt(0)
-                End If
-            Else
-                Chart1.Series(0).Points.AddY(txtr1achart)
-            End If
+            Chart1AddPoint(Chart1Dev1Data, Chart1Dev1NextX, Val(txtr1achart))
 
             ' Chart 3 - Temperature
             If (EnableChart3.Checked = True And RunChart = True) Then
                 ' set up max and min for temperature
-                If Val(LCTempMax.Text) > Val(LCTempMin.Text) Then
+                If Chart1AutoScaleYAxis.Checked AndAlso Val(LCTempMax.Text) > Val(LCTempMin.Text) Then
                     UpdateChartTemperatureYAxisMinMaxInterval()
                 End If
 
                 inst_value3FChart = gCurrTemp
-                'inst_value3FChart = inst_value3FChart + Val(TempOffset.Text)    ' integrate offset
                 inst_value3FChart += Val(TempOffset.Text)    ' integrate offset
                 txtr3achart = Format(inst_value3FChart, "#0.00000000")
 
                 ' plot to chart
-
-                If DisableRollingChart.Checked = False Then
-                    Chart1.Series(2).Points.AddY(txtr3achart)
-                    If Chart1.Series(2).Points.Count > Val(XaxisPoints.Text) Then  'sliding graph: last n points
-                        Chart1.Series(2).Points.RemoveAt(0)
-                    End If
-                Else
-                    Chart1.Series(2).Points.AddY(txtr3achart)
-                End If
+                Chart1AddPoint(Chart1TempData, Chart1TempNextX, Val(txtr3achart))
 
                 ' Temp - record min & max for display (resettable)
                 Resetmaxdiffrecorded_temp()
             End If
 
             If (EnableChart3.Checked = False And RunChart = True) Then      ' dummy data so chart vertical data can align if temperature is checked later
-                Chart1.Series(2).Points.AddY(0.0)
+                Chart1AddPoint(Chart1TempData, Chart1TempNextX, 0.0)
             End If
 
         End If
@@ -227,46 +718,28 @@ Partial Class Formtest
             txtr2achart = Format(inst_value2FChart, "#0.00000000")
 
             ' plot to chart Device 2
-
-            If DisableRollingChart.Checked = False Then
-                Chart1.Series(1).Points.AddY(txtr2achart)
-                If Chart1.Series(1).Points.Count > Val(XaxisPoints.Text) Then  'sliding graph: last n points
-                    Chart1.Series(1).Points.RemoveAt(0)
-                End If
-            Else
-                Chart1.Series(1).Points.AddY(txtr2achart)
-            End If
+            Chart1AddPoint(Chart1Dev2Data, Chart1Dev2NextX, Val(txtr2achart))
 
             ' Chart 3 - Temperature
             If (EnableChart3.Checked = True And RunChart = True) Then
                 ' set up max and min for temperature
-                If Val(LCTempMax.Text) > Val(LCTempMin.Text) Then
+                If Chart1AutoScaleYAxis.Checked AndAlso Val(LCTempMax.Text) > Val(LCTempMin.Text) Then
                     UpdateChartTemperatureYAxisMinMaxInterval()
                 End If
 
                 inst_value3FChart = gCurrTemp
-                'inst_value3FChart = inst_value3FChart + Val(TempOffset.Text)    ' integrate offset
                 inst_value3FChart += Val(TempOffset.Text)   ' integrate offset
                 txtr3achart = Format(inst_value3FChart, "#0.00000000")
 
                 ' plot to chart
-
-                If DisableRollingChart.Checked = False Then
-                    Chart1.Series(2).Points.AddY(txtr3achart)
-                    If Chart1.Series(2).Points.Count > Val(XaxisPoints.Text) Then  'sliding graph: last n points
-                        Chart1.Series(2).Points.RemoveAt(0)
-                    End If
-                Else
-                    Chart1.Series(2).Points.AddY(txtr3achart)
-                End If
-
+                Chart1AddPoint(Chart1TempData, Chart1TempNextX, Val(txtr3achart))
 
                 ' Temp - record min & max for display (resettable)
                 Resetmaxdiffrecorded_temp()
             End If
 
             If (EnableChart3.Checked = False And RunChart = True) Then      ' dummy data so chart vertical data can align if temperature is checked later
-                Chart1.Series(2).Points.AddY(0.0)
+                Chart1AddPoint(Chart1TempData, Chart1TempNextX, 0.0)
             End If
 
         End If
@@ -324,24 +797,8 @@ Partial Class Formtest
             ' Plot Device 1 & Device 2 to normal Live Watch chart
             ' ==========================================================
 
-            If DisableRollingChart.Checked = False Then
-
-                Chart1.Series(0).Points.AddY(txtr1achart)
-                Chart1.Series(1).Points.AddY(txtr2achart)
-
-                If Chart1.Series(0).Points.Count > Val(XaxisPoints.Text) Then
-
-                    Chart1.Series(0).Points.RemoveAt(0)
-                    Chart1.Series(1).Points.RemoveAt(0)
-
-                End If
-
-            Else
-
-                Chart1.Series(0).Points.AddY(txtr1achart)
-                Chart1.Series(1).Points.AddY(txtr2achart)
-
-            End If
+            Chart1AddPoint(Chart1Dev1Data, Chart1Dev1NextX, Val(txtr1achart))
+            Chart1AddPoint(Chart1Dev2Data, Chart1Dev2NextX, Val(txtr2achart))
 
 
             ' ==========================================================
@@ -351,7 +808,7 @@ Partial Class Formtest
             If (EnableChart3.Checked = True And RunChart = True) Then
 
                 ' Set up max and min for temperature
-                If Val(LCTempMax.Text) > Val(LCTempMin.Text) Then
+                If Chart1AutoScaleYAxis.Checked AndAlso Val(LCTempMax.Text) > Val(LCTempMin.Text) Then
 
                     UpdateChartTemperatureYAxisMinMaxInterval()
 
@@ -365,22 +822,7 @@ Partial Class Formtest
 
 
                 ' Plot temperature
-                If DisableRollingChart.Checked = False Then
-
-                    Chart1.Series(2).Points.AddY(txtr3achart)
-
-                    If Chart1.Series(2).Points.Count > Val(XaxisPoints.Text) Then
-
-                        Chart1.Series(2).Points.RemoveAt(0)
-
-                    End If
-
-                Else
-
-                    Chart1.Series(2).Points.AddY(txtr3achart)
-
-                End If
-
+                Chart1AddPoint(Chart1TempData, Chart1TempNextX, Val(txtr3achart))
 
                 ' Temp - record min & max for display (resettable)
                 Resetmaxdiffrecorded_temp()
@@ -392,7 +834,7 @@ Partial Class Formtest
             ' if temperature is enabled later
             If (EnableChart3.Checked = False And RunChart = True) Then
 
-                Chart1.Series(2).Points.AddY(0.0)
+                Chart1AddPoint(Chart1TempData, Chart1TempNextX, 0.0)
 
             End If
 
@@ -403,147 +845,132 @@ Partial Class Formtest
         ' Fixed X window so trace appears
         ' at the right and scrolls left
         ' ============================
-        If DisableRollingChart.Checked = False Then
+        ' Skipped entirely while the user has manually panned/zoomed away
+        ' (Chart1AutoScaleYAxis unchecked), so their view isn't disturbed -
+        ' newly-added points still get drawn via the Refresh() below, just
+        ' without moving the axis limits to chase them.
+        If Chart1AutoScaleYAxis.Checked = False Then
 
-            If Chart1.ChartAreas.Count > 0 Then
-                Dim ca = Chart1.ChartAreas(0)
-
-                ' How many points wide should the visible window be?
-                Dim windowN As Integer
-                If Not Integer.TryParse(XaxisPoints.Text, windowN) OrElse windowN < 2 Then
-                    windowN = 100
-                End If
-
-                ' Pick the first series that actually has data
-                Dim sRef As DataVisualization.Charting.Series = Nothing
-                For si As Integer = 0 To Chart1.Series.Count - 1
-                    If Chart1.Series(si).Points.Count > 0 Then
-                        sRef = Chart1.Series(si)
-                        Exit For
-                    End If
-                Next
-
-                If sRef IsNot Nothing Then
-                    ' Use the point index as X (0,1,2,...) instead of XValue
-                    Dim lastIndex As Integer = sRef.Points.Count - 1
-                    Dim window As Integer = windowN - 1
-
-                    Dim xmin As Double = lastIndex - window
-                    Dim xmax As Double = lastIndex
-
-                    ca.AxisX.Minimum = xmin
-                    ca.AxisX.Maximum = xmax
-
-                    Dim domain As Double = window
-                    If domain <= 0 Then domain = 10.0R
-                    ca.AxisX.Interval = domain / 10.0R
-
-                    ' Determine applicable sample rate for time labels.
-                    Dim liveChartSampleRateText As String = ""
-
-                    If EnableChart1.Checked = True AndAlso EnableChart2.Checked = True Then
-                        liveChartSampleRateText = Dev12SampleRate.Text
-                    ElseIf EnableChart1.Checked = True Then
-                        liveChartSampleRateText = Dev1SampleRate.Text
-                    ElseIf EnableChart2.Checked = True Then
-                        liveChartSampleRateText = Dev2SampleRate.Text
-                    End If
-
-                    Dim liveChartSampleRateSeconds As Double = Val(liveChartSampleRateText)
-
-                    ' Replace numeric sample-index labels with elapsed time.
-                    ca.AxisX.CustomLabels.Clear()
-
-                    If liveChartSampleRateSeconds > 0 Then
-
-                        Dim tickCount As Integer = 10
-                        Dim tickStep As Double = (xmax - xmin) / tickCount
-
-                        For i As Integer = 0 To tickCount
-
-                            Dim tickPos As Double = xmin + (i * tickStep)
-                            Dim tickSeconds As Integer = CInt(Math.Max(tickPos, 0) * liveChartSampleRateSeconds)
-
-                            Dim tickHours As Integer = tickSeconds \ 3600
-                            Dim tickMinutes As Integer = (tickSeconds Mod 3600) \ 60
-                            Dim tickSecs As Integer = tickSeconds Mod 60
-
-                            Dim tickLabel As String = $"{tickHours:00}:{tickMinutes:00}:{tickSecs:00}"
-
-                            Dim labelLow As Double = tickPos - (tickStep / 2)
-                            Dim labelHigh As Double = tickPos + (tickStep / 2)
-
-                            ca.AxisX.CustomLabels.Add(labelLow, labelHigh, tickLabel)
-
-                        Next
-
-                    End If
-
-                Else
-                    ' No points yet – let chart decide
-                    ca.AxisX.Minimum = Double.NaN
-                    ca.AxisX.Maximum = Double.NaN
-                    ca.AxisX.Interval = Double.NaN
-                    ca.AxisX.CustomLabels.Clear()
-                End If
+            ' Keep "X-axis Scale Points" in sync with whatever width the
+            ' user has manually zoomed/panned to (wheel, drag-zoom, etc.),
+            ' so re-enabling AutoScale Y-axis resumes with that same window
+            ' width instead of snapping back to a stale typed-in value.
+            Dim currentSpan As Double = FormsPlot1.Plot.Axes.Bottom.Max - FormsPlot1.Plot.Axes.Bottom.Min
+            If currentSpan > 0 Then
+                XaxisPoints.Text = CInt(Math.Round(currentSpan)).ToString()
             End If
 
-        Else
-            ' Rolling disabled – let chart auto-manage X axis
-            If Chart1.ChartAreas.Count > 0 Then
-                Dim ca = Chart1.ChartAreas(0)
+        ElseIf DisableRollingChart.Checked = False Then
 
-                ca.AxisX.Minimum = Double.NaN
-                ca.AxisX.Maximum = Double.NaN
-                ca.AxisX.Interval = Double.NaN
-                ca.AxisX.CustomLabels.Clear()
+            ' How many points wide should the visible window be?
+            Dim windowN As Integer
+            If Not Integer.TryParse(XaxisPoints.Text, windowN) OrElse windowN < 2 Then
+                windowN = 100
+            End If
 
-                ca.RecalculateAxesScale()
+            ' Use whichever series has advanced the furthest as "now"
+            Dim lastIndex As Integer = Math.Max(Chart1Dev1NextX, Math.Max(Chart1Dev2NextX, Chart1TempNextX)) - 1
 
-                Dim disabledMin As Double = ca.AxisX.Minimum
-                Dim disabledMax As Double = ca.AxisX.Maximum
+            If lastIndex >= 0 Then
 
-                Dim liveChartSampleRateTextDisabled As String = ""
+                Dim window As Integer = windowN - 1
+
+                Dim xmin As Double = lastIndex - window
+                Dim xmax As Double = lastIndex
+
+                FormsPlot1.Plot.Axes.SetLimitsX(xmin, xmax)
+
+                ' Determine applicable sample rate for time labels.
+                Dim liveChartSampleRateText As String = ""
 
                 If EnableChart1.Checked = True AndAlso EnableChart2.Checked = True Then
-                    liveChartSampleRateTextDisabled = Dev12SampleRate.Text
+                    liveChartSampleRateText = Dev12SampleRate.Text
                 ElseIf EnableChart1.Checked = True Then
-                    liveChartSampleRateTextDisabled = Dev1SampleRate.Text
+                    liveChartSampleRateText = Dev1SampleRate.Text
                 ElseIf EnableChart2.Checked = True Then
-                    liveChartSampleRateTextDisabled = Dev2SampleRate.Text
+                    liveChartSampleRateText = Dev2SampleRate.Text
                 End If
 
-                Dim liveChartSampleRateSecondsDisabled As Double = Val(liveChartSampleRateTextDisabled)
+                Dim liveChartSampleRateSeconds As Double = Val(liveChartSampleRateText)
 
-                If liveChartSampleRateSecondsDisabled > 0 AndAlso disabledMax > disabledMin Then
+                ' Replace numeric sample-index labels with elapsed time.
+                If liveChartSampleRateSeconds > 0 Then
 
                     Dim tickCount As Integer = 10
-                    Dim tickStep As Double = (disabledMax - disabledMin) / tickCount
-
-                    ca.AxisX.Interval = tickStep
+                    Dim tickStep As Double = (xmax - xmin) / tickCount
+                    Dim tickPositions(tickCount) As Double
+                    Dim tickLabels(tickCount) As String
 
                     For i As Integer = 0 To tickCount
 
-                        Dim tickPos As Double = disabledMin + (i * tickStep)
-                        Dim tickSeconds As Integer = CInt(Math.Max(tickPos, 0) * liveChartSampleRateSecondsDisabled)
+                        Dim tickPos As Double = xmin + (i * tickStep)
+                        Dim tickSeconds As Integer = CInt(Math.Max(tickPos, 0) * liveChartSampleRateSeconds)
 
                         Dim tickHours As Integer = tickSeconds \ 3600
                         Dim tickMinutes As Integer = (tickSeconds Mod 3600) \ 60
                         Dim tickSecs As Integer = tickSeconds Mod 60
 
-                        Dim tickLabel As String = $"{tickHours:00}:{tickMinutes:00}:{tickSecs:00}"
-
-                        Dim labelLow As Double = tickPos - (tickStep / 2)
-                        Dim labelHigh As Double = tickPos + (tickStep / 2)
-
-                        ca.AxisX.CustomLabels.Add(labelLow, labelHigh, tickLabel)
+                        tickPositions(i) = tickPos
+                        tickLabels(i) = $"{tickHours:00}:{tickMinutes:00}:{tickSecs:00}"
 
                     Next
 
+                    FormsPlot1.Plot.Axes.Bottom.SetTicks(tickPositions, tickLabels)
+
                 End If
 
+            Else
+                ' No points yet – let ScottPlot decide
+                FormsPlot1.Plot.Axes.AutoScaleX()
             End If
+
+        Else
+            ' Rolling disabled – let the X axis grow to show all data
+            FormsPlot1.Plot.Axes.AutoScaleX()
+
+            Dim disabledMin As Double = FormsPlot1.Plot.Axes.Bottom.Min
+            Dim disabledMax As Double = FormsPlot1.Plot.Axes.Bottom.Max
+
+            Dim liveChartSampleRateTextDisabled As String = ""
+
+            If EnableChart1.Checked = True AndAlso EnableChart2.Checked = True Then
+                liveChartSampleRateTextDisabled = Dev12SampleRate.Text
+            ElseIf EnableChart1.Checked = True Then
+                liveChartSampleRateTextDisabled = Dev1SampleRate.Text
+            ElseIf EnableChart2.Checked = True Then
+                liveChartSampleRateTextDisabled = Dev2SampleRate.Text
+            End If
+
+            Dim liveChartSampleRateSecondsDisabled As Double = Val(liveChartSampleRateTextDisabled)
+
+            If liveChartSampleRateSecondsDisabled > 0 AndAlso disabledMax > disabledMin Then
+
+                Dim tickCount As Integer = 10
+                Dim tickStep As Double = (disabledMax - disabledMin) / tickCount
+                Dim tickPositions(tickCount) As Double
+                Dim tickLabels(tickCount) As String
+
+                For i As Integer = 0 To tickCount
+
+                    Dim tickPos As Double = disabledMin + (i * tickStep)
+                    Dim tickSeconds As Integer = CInt(Math.Max(tickPos, 0) * liveChartSampleRateSecondsDisabled)
+
+                    Dim tickHours As Integer = tickSeconds \ 3600
+                    Dim tickMinutes As Integer = (tickSeconds Mod 3600) \ 60
+                    Dim tickSecs As Integer = tickSeconds Mod 60
+
+                    tickPositions(i) = tickPos
+                    tickLabels(i) = $"{tickHours:00}:{tickMinutes:00}:{tickSecs:00}"
+
+                Next
+
+                FormsPlot1.Plot.Axes.Bottom.SetTicks(tickPositions, tickLabels)
+
+            End If
+
         End If
+
+        FormsPlot1.Refresh()
 
         'UpdateLiveAnalysisChart()
 
@@ -729,8 +1156,6 @@ Partial Class Formtest
 
     Private Sub UpdateStats1(value As Double)
 
-        If CheckBoxStats1Enable.Checked = False Then Exit Sub
-
         Stats1Count += 1
 
         If Stats1Count = 1 Then
@@ -809,8 +1234,6 @@ Partial Class Formtest
 
 
     Private Sub UpdateStats2(value As Double)
-
-        If CheckBoxStats2Enable.Checked = False Then Exit Sub
 
         Stats2Count += 1
 
@@ -1219,13 +1642,18 @@ Partial Class Formtest
 
     Private Sub ButtonClearChart_Click(sender As Object, e As EventArgs) Handles ButtonClearChart.Click
 
-        Chart1.Visible = False
+        FormsPlot1.Visible = False
         StartChartMessage.Visible = True
 
         ' Clear charts
-        Chart1.Series(0).Points.Clear()
-        Chart1.Series(1).Points.Clear()
-        Chart1.Series(2).Points.Clear()
+        Chart1Dev1Data.Clear()
+        Chart1Dev2Data.Clear()
+        Chart1TempData.Clear()
+        Chart1Dev1NextX = 0
+        Chart1Dev2NextX = 0
+        Chart1TempNextX = 0
+        Chart1ClearMeasurement(FormsPlot1.Plot)
+        FormsPlot1.Refresh()
 
         ' Reset saved max/min values for auto-scale
         inst_value1FChartMax = inst_value1FChart
@@ -1249,7 +1677,6 @@ Partial Class Formtest
         q1.Clear() : q2.Clear() : sum1 = 0 : sum2 = 0
 
         RunChart = False
-        'ButtonLiveChartPopout.Enabled = False
 
         YaxisDiff.Text = "0"
 
@@ -1268,9 +1695,6 @@ Partial Class Formtest
             ButtonPauseChart.Text = "Start Chart"
             ButtonClearChart.Enabled = True
 
-            ' Disable Live Analysis while Live Chart is paused
-            'ButtonLiveChartPopout.Enabled = False
-
         End If
 
         ' Chart currently paused and user just hit run
@@ -1279,10 +1703,6 @@ Partial Class Formtest
             ButtonPauseChart.Text = "Pause Chart"
             ButtonClearChart.Enabled = False
 
-            ' Enable Live Analysis only if at least one
-            ' statistics function is enabled
-            'ButtonLiveChartPopout.Enabled = CheckBoxStats1Enable.Checked OrElse CheckBoxStats2Enable.Checked
-
             ' Set Y-scale of chart based on Min/Max ensuring at least 1DP and number of DP's set in Min/Max
             ' Parse values from textboxes
             Dim minValue As Double
@@ -1290,7 +1710,7 @@ Partial Class Formtest
 
             If Double.TryParse(Dev1Min.Text, minValue) AndAlso
            Double.TryParse(Dev1Max.Text, maxValue) AndAlso
-           EnableAutoYChart1.Checked = False Then
+           Chart1AutoScaleYAxis.Checked = False Then
 
                 ' Determine the number of decimal places based on maximum precision
                 Dim decimalPlaces As Integer =
@@ -1298,18 +1718,9 @@ Partial Class Formtest
 
                 UpdateChartYAxisMinMaxInterval()
 
-                ' Set the number of decimal places for Y-axis labels
-                Chart1.ChartAreas(0).AxisY.LabelStyle.Format = "F8"
-
-                ' Disable auto-fit to prevent automatic scaling
-                Chart1.ChartAreas(0).AxisY.IsLabelAutoFit = False
-
-                ' Ensure that auto-fit is turned off to prevent automatic scaling
-                Chart1.ChartAreas(0).AxisY.IsStartedFromZero = False
-
             End If
 
-            Chart1.Visible = True
+            FormsPlot1.Visible = True
             StartChartMessage.Visible = False
 
         End If
@@ -1352,8 +1763,8 @@ Partial Class Formtest
         ' This sub called by 100mS permanent timer4
 
         ' Chart sample counters
-        Dim chartPoints1 As Integer = Chart1.Series(0).Points.Count
-        Dim chartPoints2 As Integer = Chart1.Series(1).Points.Count
+        Dim chartPoints1 As Integer = Chart1Dev1Data.Count
+        Dim chartPoints2 As Integer = Chart1Dev2Data.Count
 
         Dim points As Integer = 0
         Dim sampleRateText As String = ""
@@ -1399,6 +1810,10 @@ Partial Class Formtest
         If sampleRateText <> "" AndAlso pointsLabel IsNot Nothing Then
             pointsLabel.Text = points.ToString()
 
+            ' points is capped by the X-axis rolling window (Chart1AddPoint
+            ' trims the oldest points off once it's exceeded) - that's
+            ' deliberate here, since this label reflects the time span of
+            ' the currently VISIBLE chart, not total elapsed run time.
             Dim totalSeconds As Integer = CInt(Val(sampleRateText) * points)
             Dim hours As Integer = totalSeconds \ 3600
             Dim minutes As Integer = (totalSeconds Mod 3600) \ 60
@@ -1421,13 +1836,22 @@ Partial Class Formtest
             End If
 
 
+            ' A running device whose trace is currently hidden
+            ' (CheckBoxDevice1Hide/CheckBoxDevice2Hide) shouldn't factor
+            ' into the autoscaled Y-range below - otherwise hiding a trace
+            ' leaves the axis sized for data the user can no longer see.
+            Dim dev1Visible As Boolean = EnableChart1.Checked AndAlso Not CheckBoxDevice1Hide.Checked
+            Dim dev2Visible As Boolean = EnableChart2.Checked AndAlso Not CheckBoxDevice2Hide.Checked
+
             ' Autoscale chart y-axis - Device 1 only
-            If (EnableAutoYChart1.Checked = True And EnableChart1.Checked = True And EnableChart2.Checked = False) Then
-                ' Check if 5samples have been received
-                If Chart1.Series(0).Points.Count >= 5 Then
+            If (Chart1AutoScaleYAxis.Checked = True And dev1Visible = True And dev2Visible = False) Then
+                ' Autoscale as soon as any data has arrived - the range=0
+                ' buffer below covers a single repeated value (e.g. min =
+                ' max = 1.000000).
+                If Chart1Dev1Data.Count >= 1 Then
                     ' Autoscale the minimum and maximum of the Y-axis
-                    Dim minValue1 As Double = Chart1.Series(0).Points.Min(Function(p) p.YValues(0))
-                    Dim maxValue1 As Double = Chart1.Series(0).Points.Max(Function(p) p.YValues(0))
+                    Dim minValue1 As Double = Chart1Dev1Data.Min(Function(p) p.Y)
+                    Dim maxValue1 As Double = Chart1Dev1Data.Max(Function(p) p.Y)
 
                     ' Ensure the difference is not zero to avoid crashes
                     Dim range As Double = maxValue1 - minValue1
@@ -1440,17 +1864,8 @@ Partial Class Formtest
                         range = maxValue1 - minValue1 ' Recalculate range
                     End If
 
-                    Chart1.ChartAreas(0).AxisY.Minimum = minValue1
-                    Chart1.ChartAreas(0).AxisY.Maximum = maxValue1
-
-                    ' Customize the Y-axis interval to control the tick marks and labels
-                    Chart1.ChartAreas(0).AxisY.Interval = (range) / 10 ' Adjust as needed
-
                     ' Prevent scientific notation (e-notation) on the Y-axis labels
-                    Chart1.ChartAreas(0).AxisY.LabelStyle.Format = "#0.########"
-
-                    ' Autoscale the Y-axis
-                    Chart1.ChartAreas(0).RecalculateAxesScale()
+                    Chart1SetYAxisRange(minValue1, maxValue1)
                     YaxisDiff.Text = Format(range, "#0.00000000")
                 Else
                     UpdateChartYAxisMinMaxInterval()
@@ -1458,19 +1873,23 @@ Partial Class Formtest
                 End If
             End If
 
-            If (EnableAutoYChart1.Checked = False And EnableChart1.Checked = True And EnableChart2.Checked = False) Then
-                UpdateChartYAxisMinMaxInterval()
+            ' Deliberately doesn't call UpdateChartYAxisMinMaxInterval() here
+            ' every tick - that would keep re-locking the axis to the
+            ' textbox values and fight any manual mouse pan/zoom. The
+            ' textboxes' own Leave/KeyDown handlers already apply a new
+            ' range the moment the user actually edits them.
+            If (Chart1AutoScaleYAxis.Checked = False And EnableChart1.Checked = True And EnableChart2.Checked = False) Then
                 YaxisDiff.Text = Format(Val(Dev1Max.Text) - Val(Dev1Min.Text), "#0.00000000")
             End If
 
 
             ' Autoscale chart y-axis - Device 2 only
-            If (EnableAutoYChart1.Checked = True And EnableChart1.Checked = False And EnableChart2.Checked = True) Then
-                ' Check if 5 samples have been received
-                If Chart1.Series(1).Points.Count >= 5 Then
+            If (Chart1AutoScaleYAxis.Checked = True And dev1Visible = False And dev2Visible = True) Then
+                ' Autoscale as soon as any data has arrived.
+                If Chart1Dev2Data.Count >= 1 Then
                     ' Autoscale the minimum and maximum of the Y-axis
-                    Dim minValue2 As Double = Chart1.Series(1).Points.Min(Function(p) p.YValues(0))
-                    Dim maxValue2 As Double = Chart1.Series(1).Points.Max(Function(p) p.YValues(0))
+                    Dim minValue2 As Double = Chart1Dev2Data.Min(Function(p) p.Y)
+                    Dim maxValue2 As Double = Chart1Dev2Data.Max(Function(p) p.Y)
 
                     ' Ensure the difference is not zero to avoid crashes
                     Dim range As Double = maxValue2 - minValue2
@@ -1483,17 +1902,8 @@ Partial Class Formtest
                         range = maxValue2 - minValue2 ' Recalculate range
                     End If
 
-                    Chart1.ChartAreas(0).AxisY.Minimum = minValue2
-                    Chart1.ChartAreas(0).AxisY.Maximum = maxValue2
-
-                    ' Customize the Y-axis interval to control the tick marks and labels
-                    Chart1.ChartAreas(0).AxisY.Interval = (range) / 10 ' Adjust as needed
-
                     ' Prevent scientific notation (e-notation) on the Y-axis labels
-                    Chart1.ChartAreas(0).AxisY.LabelStyle.Format = "#0.########"
-
-                    ' Autoscale the Y-axis
-                    Chart1.ChartAreas(0).RecalculateAxesScale()
+                    Chart1SetYAxisRange(minValue2, maxValue2)
                     YaxisDiff.Text = Format(range, "#0.00000000")
                 Else
                     UpdateChartYAxisMinMaxInterval()
@@ -1501,8 +1911,7 @@ Partial Class Formtest
                 End If
             End If
 
-            If (EnableAutoYChart1.Checked = False And EnableChart1.Checked = False And EnableChart2.Checked = True) Then
-                UpdateChartYAxisMinMaxInterval()
+            If (Chart1AutoScaleYAxis.Checked = False And EnableChart1.Checked = False And EnableChart2.Checked = True) Then
                 YaxisDiff.Text = Format(Val(Dev1Max.Text) - Val(Dev1Min.Text), "#0.00000000")
             End If
 
@@ -1510,16 +1919,16 @@ Partial Class Formtest
 
 
             ' Autoscale chart y-axis - Device 1 & Device 2
-            If (EnableAutoYChart1.Checked = True And EnableChart1.Checked = True And EnableChart2.Checked = True) Then
-                ' Check if 5 samples have been received
-                If (Chart1.Series(0).Points.Count >= 5 And Chart1.Series(1).Points.Count >= 5) Then
+            If (Chart1AutoScaleYAxis.Checked = True And dev1Visible = True And dev2Visible = True) Then
+                ' Autoscale as soon as both devices have any data.
+                If (Chart1Dev1Data.Count >= 1 And Chart1Dev2Data.Count >= 1) Then
 
                     ' Get the minimum and maximum values from both series
-                    Dim minValue1 As Double = Chart1.Series(0).Points.Min(Function(p) p.YValues(0))
-                    Dim minValue2 As Double = Chart1.Series(1).Points.Min(Function(p) p.YValues(0))
+                    Dim minValue1 As Double = Chart1Dev1Data.Min(Function(p) p.Y)
+                    Dim minValue2 As Double = Chart1Dev2Data.Min(Function(p) p.Y)
 
-                    Dim maxValue1 As Double = Chart1.Series(0).Points.Max(Function(p) p.YValues(0))
-                    Dim maxValue2 As Double = Chart1.Series(1).Points.Max(Function(p) p.YValues(0))
+                    Dim maxValue1 As Double = Chart1Dev1Data.Max(Function(p) p.Y)
+                    Dim maxValue2 As Double = Chart1Dev2Data.Max(Function(p) p.Y)
 
                     ' Calculate the overall minimum and maximum values
                     Dim overallMin As Double = Math.Min(minValue1, minValue2)
@@ -1536,18 +1945,9 @@ Partial Class Formtest
                         range = overallMax - overallMin ' Recalculate range
                     End If
 
-                    ' Set the minimum and maximum values for both Y-axes
-                    Chart1.ChartAreas(0).AxisY.Minimum = overallMin
-                    Chart1.ChartAreas(0).AxisY.Maximum = overallMax
-
-                    ' Customize the Y-axis interval to control the tick marks and labels
-                    Chart1.ChartAreas(0).AxisY.Interval = (range) / 10 ' Adjust as needed
-
-                    ' Prevent scientific notation (e-notation) on the Y-axis labels
-                    Chart1.ChartAreas(0).AxisY.LabelStyle.Format = "#0.########"
-
-                    ' Recalculate the scale of the Y-axis
-                    Chart1.ChartAreas(0).RecalculateAxesScale()
+                    ' Set the minimum and maximum values for the Y-axis,
+                    ' preventing scientific notation on its labels
+                    Chart1SetYAxisRange(overallMin, overallMax)
 
                     YaxisDiff.Text = Format(range, "#0.00000000")
                 Else
@@ -1556,18 +1956,9 @@ Partial Class Formtest
                 End If
             End If
 
-            If (EnableAutoYChart1.Checked = False And EnableChart1.Checked = True And EnableChart2.Checked = True) Then
-                UpdateChartYAxisMinMaxInterval()
+            If (Chart1AutoScaleYAxis.Checked = False And EnableChart1.Checked = True And EnableChart2.Checked = True) Then
                 YaxisDiff.Text = Format(Val(Dev1Max.Text) - Val(Dev1Min.Text), "#0.00000000")
             End If
-
-            ' The 100-minimum clamp used to run right here, every ~100ms
-            ' tick regardless of focus - so deleting a digit while typing
-            ' a new value (e.g. "100" -> "00" on the way to "50") got
-            ' immediately overwritten back to "100" before the rest could
-            ' be typed. XaxisPoints_Leave/_KeyDown now enforce the same
-            ' minimum exactly once, when the user actually finishes
-            ' editing, instead of fighting every keystroke.
 
         Else
             Dev1Min.ReadOnly = False
@@ -1593,35 +1984,47 @@ Partial Class Formtest
 
 
         If CheckBoxDevice1Hide.Checked = True Then
-            Chart1.Series(0).Enabled = False
+            Chart1Dev1Series.IsVisible = False
         Else
-            Chart1.Series(0).Enabled = True
+            Chart1Dev1Series.IsVisible = True
         End If
 
         If CheckBoxDevice2Hide.Checked = True Then
-            Chart1.Series(1).Enabled = False
+            Chart1Dev2Series.IsVisible = False
         Else
-            Chart1.Series(1).Enabled = True
+            Chart1Dev2Series.IsVisible = True
         End If
 
         If CheckBoxTempHide.Checked = True Then
-            Chart1.Series(2).Enabled = False
+            Chart1TempSeries.IsVisible = False
         Else
-            Chart1.Series(2).Enabled = True
+            Chart1TempSeries.IsVisible = True
         End If
+
+        FormsPlot1.Refresh()
 
     End Sub
 
 
-    Private Sub EnableAutoYChart1_CheckedChanged(sender As Object, e As EventArgs) Handles EnableAutoYChart1.CheckedChanged
+    Private Sub Chart1AutoScaleYAxis_CheckedChanged(sender As Object, e As EventArgs) Handles Chart1AutoScaleYAxis.CheckedChanged
 
-        If EnableAutoYChart1.Checked = True Then
-            Dev1Max.Enabled = False
-            Dev1Min.Enabled = False
+        ' ReadOnly (not Enabled = False) while autoscaling, so the boxes stay
+        ' legible as autoscale continuously writes the detected min/max into
+        ' them, instead of greying out.
+        If Chart1AutoScaleYAxis.Checked = True Then
+            Dev1Max.ReadOnly = True
+            Dev1Min.ReadOnly = True
         Else
-            Dev1Max.Enabled = True
-            Dev1Min.Enabled = True
+            Dev1Max.ReadOnly = False
+            Dev1Min.ReadOnly = False
         End If
+
+        ' XaxisPoints is the opposite: it DRIVES the rolling window width
+        ' while following live data, so it stays editable then - but once
+        ' manual mouse pan/zoom takes over, it should only ever reflect
+        ' whatever width the user just set (see LiveChart()), not be typed
+        ' into, so it's read-only while unchecked.
+        XaxisPoints.ReadOnly = Not Chart1AutoScaleYAxis.Checked
 
     End Sub
 
@@ -1641,7 +2044,7 @@ Partial Class Formtest
         If Not Double.TryParse(Dev1Max.Text, maxVal) OrElse
            Not Double.TryParse(Dev1Min.Text, minVal) OrElse
            maxVal <= minVal Then
-            Dev1Max.Text = Chart1.ChartAreas(0).AxisY.Maximum.ToString(Globalization.CultureInfo.InvariantCulture)
+            Dev1Max.Text = FormsPlot1.Plot.Axes.Left.Max.ToString(Globalization.CultureInfo.InvariantCulture)
             Exit Sub
         End If
 
@@ -1658,7 +2061,7 @@ Partial Class Formtest
         If Not Double.TryParse(Dev1Max.Text, maxVal) OrElse
            Not Double.TryParse(Dev1Min.Text, minVal) OrElse
            minVal >= maxVal Then
-            Dev1Min.Text = Chart1.ChartAreas(0).AxisY.Minimum.ToString(Globalization.CultureInfo.InvariantCulture)
+            Dev1Min.Text = FormsPlot1.Plot.Axes.Left.Min.ToString(Globalization.CultureInfo.InvariantCulture)
             Exit Sub
         End If
 
@@ -1692,6 +2095,11 @@ Partial Class Formtest
     ' by the time anything else reads it.
     Private Sub XaxisPoints_Leave(sender As Object, e As EventArgs) Handles XaxisPoints.Leave
 
+        ' While read-only (AutoScale Y-axis unchecked) this box just
+        ' reflects the mouse-set view width, which can legitimately be
+        ' under 100 - only clamp actual typed user input.
+        If XaxisPoints.ReadOnly Then Exit Sub
+
         Dim points As Integer
 
         If Not Integer.TryParse(XaxisPoints.Text, points) OrElse points < 100 Then
@@ -1722,7 +2130,7 @@ Partial Class Formtest
         If Not Double.TryParse(LCTempMax.Text, maxVal) OrElse
            Not Double.TryParse(LCTempMin.Text, minVal) OrElse
            maxVal <= minVal Then
-            LCTempMax.Text = Chart1.ChartAreas(0).AxisY2.Maximum.ToString(Globalization.CultureInfo.InvariantCulture)
+            LCTempMax.Text = Chart1TempAxis.Max.ToString(Globalization.CultureInfo.InvariantCulture)
             Exit Sub
         End If
 
@@ -1738,7 +2146,7 @@ Partial Class Formtest
         If Not Double.TryParse(LCTempMax.Text, maxVal) OrElse
            Not Double.TryParse(LCTempMin.Text, minVal) OrElse
            minVal >= maxVal Then
-            LCTempMin.Text = Chart1.ChartAreas(0).AxisY2.Minimum.ToString(Globalization.CultureInfo.InvariantCulture)
+            LCTempMin.Text = Chart1TempAxis.Min.ToString(Globalization.CultureInfo.InvariantCulture)
             Exit Sub
         End If
 
@@ -1781,24 +2189,10 @@ Partial Class Formtest
         If maxVal <= minVal Then Exit Sub
 
         ' Set the minimum and maximum values for the Y-axis
-        Chart1.ChartAreas(0).AxisY.Minimum = minVal
-        Chart1.ChartAreas(0).AxisY.Maximum = maxVal
+        FormsPlot1.Plot.Axes.Left.Min = minVal
+        FormsPlot1.Plot.Axes.Left.Max = maxVal
 
-        ' Calculate the range of the Y-axis
-        Dim scalerange As Double = maxVal - minVal
-
-        ' Calculate the interval to have 11 labels
-        Dim interval As Double = scalerange / 10
-
-        ' Set the interval for the Y-axis
-        Chart1.ChartAreas(0).AxisY.Interval = interval
-
-        ' Configure major grid lines
-        With Chart1.ChartAreas(0).AxisY.MajorGrid
-            .LineColor = Color.Gray
-            .LineDashStyle = DataVisualization.Charting.ChartDashStyle.Dot
-            .LineWidth = 1
-        End With
+        FormsPlot1.Refresh()
 
     End Sub
 
@@ -1813,31 +2207,16 @@ Partial Class Formtest
         ' but relying on every caller to remember that is exactly the
         ' fragile pattern that let the Dev1Max/Dev1Min crash happen -
         ' guard it here too so this can never assign an inverted range to
-        ' AxisY2 even if a future caller forgets the check.
+        ' the temperature axis even if a future caller forgets the check.
         If TmaxVal <= TminVal Then Exit Sub
 
-        ' Set the minimum and maximum values for the Y-axis
-        Chart1.ChartAreas(0).AxisY2.Minimum = TminVal
-        Chart1.ChartAreas(0).AxisY2.Maximum = TmaxVal
+        ' Set the minimum and maximum values for the Y-axis. Tick/label
+        ' formatting is applied uniformly every render by
+        ' Chart1RenderStarting, so it doesn't need to be set here too.
+        Chart1TempAxis.Min = TminVal
+        Chart1TempAxis.Max = TmaxVal
 
-        ' Calculate the range of the Y-axis
-        Dim Tscalerange As Double = TmaxVal - TminVal
-
-        ' Calculate the interval to have 11 labels
-        Dim interval As Double = Tscalerange / 10
-
-        ' Set the interval for the Y-axis
-        Chart1.ChartAreas(0).AxisY2.Interval = interval
-
-        ' Force labels to show 1 decimal place
-        Chart1.ChartAreas(0).AxisY2.LabelStyle.Format = "0.0"
-
-        ' Configure major grid lines
-        With Chart1.ChartAreas(0).AxisY2.MajorGrid
-            .LineColor = Color.Gray
-            .LineDashStyle = DataVisualization.Charting.ChartDashStyle.Dot
-            .LineWidth = 1
-        End With
+        FormsPlot1.Refresh()
 
     End Sub
 
@@ -2291,7 +2670,10 @@ Partial Class Formtest
                                                            DataVisualization.Charting.AntiAliasingStyles.All,
                                                            DataVisualization.Charting.AntiAliasingStyles.None)
                                                        LiveAnalysisChart.AntiAliasing = style
-                                                       Chart1.AntiAliasing = style
+                                                       Chart1Dev1Series.LineStyle.AntiAlias = chkAntiAliasing.Checked
+                                                       Chart1Dev2Series.LineStyle.AntiAlias = chkAntiAliasing.Checked
+                                                       Chart1TempSeries.LineStyle.AntiAlias = chkAntiAliasing.Checked
+                                                       FormsPlot1.Refresh()
                                                    End Sub
 
         ' Fast Rendering and Smooth Lines only affect this pop-out's own
@@ -2950,15 +3332,15 @@ Partial Class Formtest
 
         ' Determine whether each device has a fresh (unflushed)
         ' reading waiting since the last time it was plotted.
-        Dim newDev1Sample As Boolean = CheckBoxStats1Enable.Checked = True AndAlso Stats1Count <> LiveAnalysisLastStats1Count
-        Dim newDev2Sample As Boolean = CheckBoxStats2Enable.Checked = True AndAlso Stats2Count <> LiveAnalysisLastStats2Count
+        Dim newDev1Sample As Boolean = Stats1Count <> LiveAnalysisLastStats1Count
+        Dim newDev2Sample As Boolean = Stats2Count <> LiveAnalysisLastStats2Count
 
         ' Decide whether to advance the chart yet.
         Dim dev1CurrentlyRunning As Boolean = ButtonDev1Run.Text = "Stop" OrElse ButtonDev12Run.Text = "Stop"
         Dim dev2CurrentlyRunning As Boolean = ButtonDev2Run.Text = "Stop" OrElse ButtonDev12Run.Text = "Stop"
 
-        Dim dev1Contributing As Boolean = dev1CurrentlyRunning AndAlso CheckBoxStats1Enable.Checked = True AndAlso Stats1Count > 0
-        Dim dev2Contributing As Boolean = dev2CurrentlyRunning AndAlso CheckBoxStats2Enable.Checked = True AndAlso Stats2Count > 0
+        Dim dev1Contributing As Boolean = dev1CurrentlyRunning AndAlso Stats1Count > 0
+        Dim dev2Contributing As Boolean = dev2CurrentlyRunning AndAlso Stats2Count > 0
 
         Dim readyToAdvance As Boolean
 
@@ -3346,23 +3728,17 @@ Partial Class Formtest
     End Sub
 
 
-    Private Sub StatisticsEnable_CheckedChanged(sender As Object, e As EventArgs) _
-    Handles CheckBoxStats1Enable.CheckedChanged,
-            CheckBoxStats2Enable.CheckedChanged
+    ' The Live Analysis Charts button should be available whenever there's
+    ' live data to analyse - i.e. whenever any device is actually running -
+    ' regardless of the separate DATA tab chart's own Pause/Start state
+    ' (pausing the chart's display doesn't stop acquisition, so it
+    ' shouldn't block Live Analysis either).
+    Private Sub UpdateLiveChartPopoutAvailability()
 
-        If CheckBoxStats1Enable.Checked = True Or CheckBoxStats2Enable.Checked = True Then
-
-            ButtonLiveChartPopout.Enabled = True
-
-        End If
-
-        If CheckBoxStats1Enable.Checked = False And CheckBoxStats2Enable.Checked = False Then
-
-            ButtonLiveChartPopout.Enabled = False
-
-        End If
-
-        'ButtonLiveChartPopout.Enabled = RunChart AndAlso (CheckBoxStats1Enable.Checked OrElse CheckBoxStats2Enable.Checked)
+        ButtonLiveChartPopout.Enabled =
+            ButtonDev1Run.Text = "Stop" OrElse
+            ButtonDev2Run.Text = "Stop" OrElse
+            ButtonDev12Run.Text = "Stop"
 
     End Sub
 

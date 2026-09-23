@@ -271,7 +271,7 @@ Public Class Formtest
             End If
             CheckBoxThemeSet.Checked = My.Settings.ThemeSet
 
-            BannerText1 = "WinGPIB - V5.042    (Free for Non-Commercial Use • Support WinGPIB — see About)"
+            BannerText1 = "WinGPIB - V5.100    (Free for Non-Commercial Use • Support WinGPIB — see About)"
             Me.Text = BannerText1.ToString()
 
             ' Advantest R6581 tab
@@ -473,69 +473,140 @@ Public Class Formtest
             Initialise3458ACalRamControls()     ' initialize the 3458A calram buttons
 
             ' Live Chart
+            ' Size/Location here instead of the Designer, so it's easy to tweak.
+            FormsPlot1.Location = New Point(8, 199)
+            FormsPlot1.Size = New Size(1030, 395)
+
             ' label style
-            Chart1.ChartAreas(0).AxisY.LabelStyle.Font = New Font("Microsoft Sans Serif", 9)
-            Chart1.ChartAreas(0).AxisY2.LabelStyle.Font = New Font("Microsoft Sans Serif", 9)
-            Chart1.ChartAreas(0).AxisX.LabelStyle.Font = New Font("Microsoft Sans Serif", 9)
-            Chart1.ChartAreas(0).AxisX.LabelStyle.Enabled = True
-            Chart1.ChartAreas(0).AxisY.LabelStyle.Enabled = True
-            ' tick marks
-            Chart1.ChartAreas(0).AxisX.MajorTickMark.Enabled = True
-            Chart1.ChartAreas(0).AxisY.MajorTickMark.Enabled = True
-            Chart1.ChartAreas(0).AxisX.MinorTickMark.Enabled = False
-            Chart1.ChartAreas(0).AxisY.MinorTickMark.Enabled = False
-            ' grid
-            Chart1.ChartAreas(0).AxisX.MajorGrid.Enabled = True
-            Chart1.ChartAreas(0).AxisY.MajorGrid.Enabled = True
-            Chart1.ChartAreas(0).AxisX.MinorGrid.Enabled = True
-            Chart1.ChartAreas(0).AxisY.MinorGrid.Enabled = True
-            Chart1.ChartAreas(0).AxisX.MajorGrid.LineColor = Color.FromArgb(255, 85, 85, 85)
-            Chart1.ChartAreas(0).AxisY.MajorGrid.LineColor = Color.FromArgb(255, 85, 85, 85)
-            Chart1.ChartAreas(0).AxisX.MinorGrid.LineColor = Color.FromArgb(150, 85, 85, 85)
-            Chart1.ChartAreas(0).AxisY.MinorGrid.LineColor = Color.FromArgb(150, 85, 85, 85)
+            FormsPlot1.Plot.Axes.Bottom.TickLabelStyle.FontSize = 9
+            FormsPlot1.Plot.Axes.Left.TickLabelStyle.FontSize = 13
 
-            Chart1.DataBindTable(gChartTemp)
-            Chart1.Series(0).ChartType = 2
-            Chart1.Series.Clear()
-            Chart1.ChartAreas(0).BorderWidth = 1
+            ' grid (Plot.Grid's Major/MinorLine* setters apply to both axes)
+            FormsPlot1.Plot.Grid.MajorLineColor = New ScottPlot.Color(Color.FromArgb(255, 85, 85, 85))
+            FormsPlot1.Plot.Grid.MajorLinePattern = ScottPlot.LinePattern.Dotted
+            FormsPlot1.Plot.Grid.MinorLineColor = New ScottPlot.Color(Color.FromArgb(150, 85, 85, 85))
+            FormsPlot1.Plot.Grid.MinorLineWidth = 1
+            FormsPlot1.Plot.Grid.XAxisStyle.MinorLineStyle.Pattern = ScottPlot.LinePattern.Dotted
+            FormsPlot1.Plot.Grid.YAxisStyle.MinorLineStyle.Pattern = ScottPlot.LinePattern.Dotted
 
-            Chart1.Series.Add("Device 1")
-            Chart1.Series.Add("Device 2")
-            Chart1.Series.Add("Temperature")
+            FormsPlot1.Plot.Axes.FrameColor(New ScottPlot.Color(Color.White))
 
-            Chart1.Series(0).ChartType = DataVisualization.Charting.SeriesChartType.Line
-            Chart1.Series(1).ChartType = DataVisualization.Charting.SeriesChartType.Line
-            Chart1.Series(2).ChartType = DataVisualization.Charting.SeriesChartType.Line
+            Chart1Dev1Data.Clear()
+            Chart1Dev2Data.Clear()
+            Chart1TempData.Clear()
+            Chart1Dev1NextX = 0
+            Chart1Dev2NextX = 0
+            Chart1TempNextX = 0
 
-            Chart1.Series(2).YAxisType = DataVisualization.Charting.AxisType.Secondary
-            Chart1.ChartAreas(0).AxisY2.Enabled = True
-            Chart1.ChartAreas(0).AxisY2.Minimum = 15
-            Chart1.ChartAreas(0).AxisY2.Maximum = 30
-            Chart1.ChartAreas(0).AxisY2.Enabled = DataVisualization.Charting.AxisEnabled.True
-            Chart1.ChartAreas(0).AxisY2.LabelStyle.Enabled = True
+            Chart1Dev1Series = FormsPlot1.Plot.Add.Scatter(Chart1Dev1Data, New ScottPlot.Color(Color.Yellow))
+            Chart1Dev2Series = FormsPlot1.Plot.Add.Scatter(Chart1Dev2Data, New ScottPlot.Color(Color.Cyan))
+            Chart1TempSeries = FormsPlot1.Plot.Add.Scatter(Chart1TempData, New ScottPlot.Color(Color.Red))
 
-            Chart1.Series(0).YValueType = DataVisualization.Charting.ChartValueType.Single
+            Chart1Dev1Series.MarkerStyle.IsVisible = False
+            Chart1Dev2Series.MarkerStyle.IsVisible = False
+            Chart1TempSeries.MarkerStyle.IsVisible = False
 
-            Chart1.Legends(0).Enabled = False 'set true to see channel colour labels
+            ' Temperature plots against its own secondary (right-hand) Y-axis
+            Chart1TempAxis = FormsPlot1.Plot.Axes.Right
+            Chart1TempAxis.IsVisible = True
+            Chart1TempAxis.Min = 15
+            Chart1TempAxis.Max = 30
+            Chart1TempSeries.Axes.YAxis = Chart1TempAxis
 
-            Chart1.ChartAreas(0).AxisX.IntervalAutoMode = DataVisualization.Charting.IntervalAutoMode.VariableCount
-            Chart1.ChartAreas(0).AxisY.IntervalAutoMode = DataVisualization.Charting.IntervalAutoMode.VariableCount
-            Chart1.ChartAreas(0).AxisY.LabelAutoFitStyle = DataVisualization.Charting.LabelAutoFitStyles.DecreaseFont 'default is staggered
+            ' Hover-to-see-value: a crosshair, highlighted marker and text
+            ' label that jump to whichever trace's nearest point is closest
+            ' to the mouse - see Chart1ShowValueOnHover in LiveWatch.vb.
+            Chart1Crosshair = FormsPlot1.Plot.Add.Crosshair(0, 0)
+            Chart1Crosshair.IsVisible = False
 
-            Chart1.ChartAreas(0).AxisX.IntervalOffset = 0
-            Chart1.Series(0).Color = Color.Yellow
-            Chart1.Series(1).Color = Color.Cyan
-            Chart1.Series(2).Color = Color.Red
+            Chart1HighlightMarker = FormsPlot1.Plot.Add.Marker(0, 0)
+            Chart1HighlightMarker.Shape = ScottPlot.MarkerShape.OpenCircle
+            Chart1HighlightMarker.Size = 12
+            Chart1HighlightMarker.LineWidth = 2
+            Chart1HighlightMarker.IsVisible = False
 
-            Chart1.ChartAreas(0).AxisX.MajorGrid.LineDashStyle = DataVisualization.Charting.ChartDashStyle.Dot
-            Chart1.ChartAreas(0).AxisY.MajorGrid.LineDashStyle = DataVisualization.Charting.ChartDashStyle.Dot
-            'Chart1.ChartAreas(0).AxisY2.MajorGrid.LineDashStyle = DataVisualization.Charting.ChartDashStyle.Dot
+            Chart1HighlightText = FormsPlot1.Plot.Add.Text("", 0, 0)
+            Chart1HighlightText.LabelAlignment = ScottPlot.Alignment.LowerLeft
+            Chart1HighlightText.LabelBold = True
+            Chart1HighlightText.OffsetX = 7
+            Chart1HighlightText.OffsetY = -7
+            Chart1HighlightText.LabelBackgroundColor = New ScottPlot.Color(Color.FromArgb(40, 40, 40))
+            Chart1HighlightText.IsVisible = False
 
-            Chart1.Series(0).YValueMembers = inst_value1FChart
-            Chart1.Series(1).YValueMembers = inst_value2FChart
-            Chart1.Series(2).YValueMembers = inst_value3FChart
+            ' Two-point delta/measurement tool - see Chart1OnDoubleClick in
+            ' LiveWatch.vb. Diamond markers so they're visually distinct
+            ' from the round hover marker above.
+            Chart1MeasureMarkerA = FormsPlot1.Plot.Add.Marker(0, 0)
+            Chart1MeasureMarkerA.Shape = ScottPlot.MarkerShape.FilledDiamond
+            Chart1MeasureMarkerA.Size = 10
+            Chart1MeasureMarkerA.Color = New ScottPlot.Color(Color.White)
+            Chart1MeasureMarkerA.IsVisible = False
 
-            Chart1.Visible = False              ' hide chart on boot
+            Chart1MeasureMarkerB = FormsPlot1.Plot.Add.Marker(0, 0)
+            Chart1MeasureMarkerB.Shape = ScottPlot.MarkerShape.FilledDiamond
+            Chart1MeasureMarkerB.Size = 10
+            Chart1MeasureMarkerB.Color = New ScottPlot.Color(Color.White)
+            Chart1MeasureMarkerB.IsVisible = False
+
+            Chart1MeasureLine = FormsPlot1.Plot.Add.Line(0, 0, 0, 0)
+            Chart1MeasureLine.LineColor = New ScottPlot.Color(Color.White)
+            Chart1MeasureLine.LinePattern = ScottPlot.LinePattern.Dashed
+            Chart1MeasureLine.MarkerSize = 0
+            Chart1MeasureLine.IsVisible = False
+
+            Chart1MeasureText = FormsPlot1.Plot.Add.Text("", 0, 0)
+            Chart1MeasureText.LabelAlignment = ScottPlot.Alignment.LowerLeft
+            Chart1MeasureText.LabelBold = True
+            Chart1MeasureText.OffsetX = 7
+            Chart1MeasureText.OffsetY = -7
+            Chart1MeasureText.LabelBackgroundColor = New ScottPlot.Color(Color.FromArgb(40, 40, 40))
+            Chart1MeasureText.LabelFontColor = New ScottPlot.Color(Color.White)
+            Chart1MeasureText.IsVisible = False
+
+            AddHandler FormsPlot1.MouseMove, AddressOf Chart1ShowValueOnHover
+
+            ' Fixed 12-division grid, with Temperature's tick labels lined
+            ' up to the same gridlines - see Chart1RenderStarting in
+            ' LiveWatch.vb. RenderStarting is a plain delegate-typed
+            ' property (not a true CLR event), so it takes direct
+            ' assignment rather than AddHandler/RemoveHandler.
+            FormsPlot1.Plot.RenderManager.RenderStarting = New EventHandler(Of ScottPlot.RenderPack)(AddressOf Chart1RenderStarting)
+
+            FormsPlot1.Plot.Legend.IsVisible = False ' set true to see channel colour labels
+
+            FormsPlot1.Plot.FigureBackground.Color = New ScottPlot.Color(SystemColors.Control)
+            FormsPlot1.Plot.DataBackground.Color = ScottPlot.Colors.Black
+
+            ' No real use for this here, and it frees up double-click for
+            ' the measurement tool below instead.
+            FormsPlot1.UserInputProcessor.DoubleLeftClickBenchmark(False)
+
+            ' Right-click (no drag) context menu, trimmed to just the
+            ' entries actually wanted - OpenSaveImageDialog is ScottPlot's
+            ' own built-in save-image handler, reused as-is. Menu is typed
+            ' as the IPlotMenu interface, which doesn't expose that method,
+            ' so it needs casting to the concrete WinForms implementation.
+            Dim chart1Menu As ScottPlot.WinForms.FormsPlotMenu = DirectCast(FormsPlot1.Menu, ScottPlot.WinForms.FormsPlotMenu)
+            chart1Menu.Clear()
+            chart1Menu.Add("Save Image", AddressOf chart1Menu.OpenSaveImageDialog)
+            chart1Menu.Add("Copy Value At Cursor", AddressOf Chart1CopyValueAtCursor)
+            chart1Menu.Add("Clear Measurement", AddressOf Chart1ClearMeasurement)
+
+            ' Manually panning/zooming (drag, scroll, etc.) unchecks
+            ' "AutoScale Y-axis" so LiveChart()/ChartControl() stop
+            ' overriding the view every tick and switch to the Y-axis Scale
+            ' Max/Min boxes - see Chart1AutoScaleYAxis's use in LiveWatch.vb.
+            ' Also remembers where a right-click happened, since context
+            ' menu actions only receive the Plot, not the click position -
+            ' see Chart1CopyValueAtCursor in LiveWatch.vb.
+            AddHandler FormsPlot1.MouseDown, AddressOf Chart1OnMouseDown
+            AddHandler FormsPlot1.MouseWheel, Sub(s, ev) Chart1AutoScaleYAxis.Checked = False
+
+            ' Esc clears the measurement tool - see Chart1OnKeyDown in
+            ' LiveWatch.vb.
+            AddHandler FormsPlot1.KeyDown, AddressOf Chart1OnKeyDown
+
+            FormsPlot1.Visible = False              ' hide chart on boot
             StartChartMessage.Visible = True
 
             IODeviceLabel1.BackColor = Color.Yellow
@@ -3171,6 +3242,231 @@ Public Class Formtest
                 "OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; " & vbCrLf &
                 "OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT " & vbCrLf &
                 "(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
+
+            ' OK button
+            Dim btnOK As New Button()
+            btnOK.Text = "OK"
+            btnOK.DialogResult = DialogResult.OK
+            btnOK.AutoSize = True
+
+            noticeForm.AcceptButton = btnOK
+            noticeForm.CancelButton = btnOK
+
+            ' Layout so the RichTextBox doesn't cover the button
+            Dim layout As New TableLayoutPanel With {
+                .Dock = DockStyle.Fill,
+                .RowCount = 2,
+                .ColumnCount = 1
+            }
+            layout.RowStyles.Add(New RowStyle(SizeType.Percent, 100.0F))
+            layout.RowStyles.Add(New RowStyle(SizeType.AutoSize))
+
+            Dim panelButtons As New FlowLayoutPanel With {
+                .Dock = DockStyle.Fill,
+                .FlowDirection = FlowDirection.RightToLeft,
+                .AutoSize = True,
+                .Padding = New Padding(8)
+            }
+            panelButtons.Controls.Add(btnOK)
+
+            layout.Controls.Add(rtb, 0, 0)
+            layout.Controls.Add(panelButtons, 0, 1)
+
+            noticeForm.Controls.Add(layout)
+
+            ' Show the dialog
+            ApplySquareCorners(noticeForm)
+            noticeForm.ShowDialog(Me)
+        End Using
+
+    End Sub
+
+
+    Private Sub ButtonLiveChartHelp_Click(sender As Object, e As EventArgs) Handles ButtonLiveChartHelp.Click
+
+        Using noticeForm As New Form()
+            noticeForm.Text = "Live Chart Help"
+            noticeForm.Size = New Size(600, 480)
+            noticeForm.StartPosition = FormStartPosition.CenterParent
+            noticeForm.FormBorderStyle = FormBorderStyle.FixedDialog
+            noticeForm.MaximizeBox = False
+            noticeForm.MinimizeBox = False
+            noticeForm.ShowInTaskbar = False
+
+            Dim rtb As New RichTextBox()
+            rtb.Dock = DockStyle.Fill
+            rtb.ReadOnly = True
+            rtb.BackColor = SystemColors.Window
+            rtb.Font = New Font("Segoe UI", 10)
+            rtb.WordWrap = True
+
+            Dim headerFont As New Font("Segoe UI", 10, FontStyle.Bold)
+            Dim bodyFont As New Font("Segoe UI", 10)
+
+            ' Adds a bold section header followed by its (regular-weight)
+            ' body text - keeps each section brief, not a full reference.
+            Dim addSection =
+                Sub(header As String, body As String)
+                    rtb.SelectionStart = rtb.TextLength
+                    rtb.SelectionFont = headerFont
+                    rtb.AppendText(header & vbCrLf)
+
+                    rtb.SelectionStart = rtb.TextLength
+                    rtb.SelectionFont = bodyFont
+                    rtb.AppendText(body & vbCrLf & vbCrLf)
+                End Sub
+
+            addSection("Mouse Controls",
+                "- Pan - Left-click + drag" & vbCrLf &
+                "- Zoom (drag in/out) - Right-click + drag" & vbCrLf &
+                "- Box zoom a region - Middle-click + drag" & vbCrLf &
+                "- Reset view to fit all data - Middle-click" & vbCrLf &
+                "- Zoom in/out at cursor - Shift/Ctrl + scroll" & vbCrLf &
+                "- Measure delta between two points - Double-click 2 points, double-click again to clear" & vbCrLf &
+                "- Clear measurement - Esc" & vbCrLf &
+                "- Mouse controls will disable AutoScale." & vbCrLf &
+                "- Right click on chart for menu." & vbCrLf &
+                "- Hover trace for datapoint at cursor.")
+
+            addSection("Y-Axis Scale",
+                "AutoScale Y-axis keeps the view following the newest data. Unchecking it " &
+                "(or panning/zooming with the mouse) switches to the manual Y-axis Scale Max/Min boxes instead.")
+
+            addSection("Chart Controls",
+                "Start/Pause Chart toggles the running trace. Clear Chart resets the chart and its data.")
+
+            addSection("X-Axis / Rolling Window",
+                "X-axis Scale Points sets how many samples are shown before the chart scrolls. " &
+                "Disable X-axis Rolling Chart keeps all data on screen instead of scrolling.")
+
+            ' The AppendText calls above leave the caret/selection at the
+            ' very end, which RichTextBox auto-scrolls to keep in view -
+            ' reset it back to the top so the popup opens there instead.
+            ' ScrollToCaret() needs the control's handle to already exist
+            ' to reliably take effect, which it won't yet at this point, so
+            ' it's repeated once the form is actually shown.
+            rtb.SelectionStart = 0
+            rtb.SelectionLength = 0
+            AddHandler noticeForm.Shown, Sub(s, ev) rtb.ScrollToCaret()
+
+            ' OK button
+            Dim btnOK As New Button()
+            btnOK.Text = "OK"
+            btnOK.DialogResult = DialogResult.OK
+            btnOK.AutoSize = True
+
+            noticeForm.AcceptButton = btnOK
+            noticeForm.CancelButton = btnOK
+
+            ' Layout so the RichTextBox doesn't cover the button
+            Dim layout As New TableLayoutPanel With {
+                .Dock = DockStyle.Fill,
+                .RowCount = 2,
+                .ColumnCount = 1
+            }
+            layout.RowStyles.Add(New RowStyle(SizeType.Percent, 100.0F))
+            layout.RowStyles.Add(New RowStyle(SizeType.AutoSize))
+
+            Dim panelButtons As New FlowLayoutPanel With {
+                .Dock = DockStyle.Fill,
+                .FlowDirection = FlowDirection.RightToLeft,
+                .AutoSize = True,
+                .Padding = New Padding(8)
+            }
+            panelButtons.Controls.Add(btnOK)
+
+            layout.Controls.Add(rtb, 0, 0)
+            layout.Controls.Add(panelButtons, 0, 1)
+
+            noticeForm.Controls.Add(layout)
+
+            ' Show the dialog
+            ApplySquareCorners(noticeForm)
+            noticeForm.ShowDialog(Me)
+        End Using
+
+    End Sub
+
+    Private Sub ButtonSCOTTPLOTack_Click(sender As Object, e As EventArgs) Handles ButtonSCOTTPLOTack.Click
+
+        Using noticeForm As New Form()
+            noticeForm.Text = "Third-Party License - ScottPlot"
+            noticeForm.Size = New Size(700, 500)
+            noticeForm.StartPosition = FormStartPosition.CenterParent
+            noticeForm.FormBorderStyle = FormBorderStyle.FixedDialog
+            noticeForm.MaximizeBox = False
+            noticeForm.MinimizeBox = False
+            noticeForm.ShowInTaskbar = False
+
+            ' License text
+            Dim rtb As New RichTextBox()
+            rtb.Dock = DockStyle.Fill
+            rtb.ReadOnly = True
+            rtb.BackColor = SystemColors.Window
+            rtb.Font = New Font("Consolas", 10)
+            rtb.WordWrap = False
+            rtb.DetectUrls = True
+
+            AddHandler rtb.LinkClicked, Sub(s, ev)
+                                            Try
+                                                Process.Start(New ProcessStartInfo(ev.LinkText) With {.UseShellExecute = True})
+                                            Catch
+                                                ' ignore
+                                            End Try
+                                        End Sub
+
+            rtb.Text =
+                "WinGPIB uses the ScottPlot charting library, as follows:" & vbCrLf & vbCrLf &
+                "ScottPlot" & vbCrLf &
+                "https://scottplot.net" & vbCrLf & vbCrLf &
+                "MIT License" & vbCrLf & vbCrLf &
+                "Copyright (c) 2018 Scott Harden / Harden Technologies, LLC" & vbCrLf & vbCrLf &
+                "Permission is hereby granted, free of charge, to any person obtaining a copy " & vbCrLf &
+                "of this software and associated documentation files (the ""Software""), to deal " & vbCrLf &
+                "in the Software without restriction, including without limitation the rights " & vbCrLf &
+                "to use, copy, modify, merge, publish, distribute, sublicense, and/or sell " & vbCrLf &
+                "copies of the Software, and to permit persons to whom the Software is " & vbCrLf &
+                "furnished to do so, subject to the following conditions:" & vbCrLf & vbCrLf &
+                "The above copyright notice and this permission notice shall be included in all " & vbCrLf &
+                "copies or substantial portions of the Software." & vbCrLf & vbCrLf &
+                "THE SOFTWARE IS PROVIDED ""AS IS"", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR " & vbCrLf &
+                "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, " & vbCrLf &
+                "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE " & vbCrLf &
+                "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER " & vbCrLf &
+                "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, " & vbCrLf &
+                "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE " & vbCrLf &
+                "SOFTWARE." & vbCrLf & vbCrLf &
+                "ScottPlot also bundles several other MIT/Apache/ODbL-licensed third-party " & vbCrLf &
+                "components internally (colormap and palette data, a circular buffer, a " & vbCrLf &
+                "triangulation algorithm). Their full individual license texts are in " & vbCrLf &
+                "ThirdPartyLicenses\ScottPlot-NOTICES.txt, distributed alongside this " & vbCrLf &
+                "application." & vbCrLf & vbCrLf &
+                "----------------------------------------------------------------------" & vbCrLf & vbCrLf &
+                "SkiaSharp / HarfBuzzSharp" & vbCrLf &
+                "https://github.com/mono/SkiaSharp" & vbCrLf & vbCrLf &
+                "WinGPIB uses SkiaSharp (and HarfBuzzSharp, maintained in the same " & vbCrLf &
+                "repository) as the rendering engine behind ScottPlot's Windows Forms " & vbCrLf &
+                "control." & vbCrLf & vbCrLf &
+                "MIT License" & vbCrLf & vbCrLf &
+                "Copyright (c) 2015-2016 Xamarin, Inc." & vbCrLf &
+                "Copyright (c) 2017-2018 Microsoft Corporation." & vbCrLf & vbCrLf &
+                "Permission is hereby granted, free of charge, to any person obtaining a copy " & vbCrLf &
+                "of this software and associated documentation files (the ""Software""), to deal " & vbCrLf &
+                "in the Software without restriction, including without limitation the rights " & vbCrLf &
+                "to use, copy, modify, merge, publish, distribute, sublicense, and/or sell " & vbCrLf &
+                "copies of the Software, and to permit persons to whom the Software is " & vbCrLf &
+                "furnished to do so, subject to the following conditions:" & vbCrLf & vbCrLf &
+                "The above copyright notice and this permission notice shall be included in all " & vbCrLf &
+                "copies or substantial portions of the Software." & vbCrLf & vbCrLf &
+                "THE SOFTWARE IS PROVIDED ""AS IS"", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR " & vbCrLf &
+                "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, " & vbCrLf &
+                "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE " & vbCrLf &
+                "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER " & vbCrLf &
+                "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, " & vbCrLf &
+                "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE " & vbCrLf &
+                "SOFTWARE." & vbCrLf & vbCrLf &
+                "(Also reproduced in ThirdPartyLicenses\SkiaSharp-LICENSE.txt, " & vbCrLf &
+                "distributed alongside this application.)"
 
             ' OK button
             Dim btnOK As New Button()
