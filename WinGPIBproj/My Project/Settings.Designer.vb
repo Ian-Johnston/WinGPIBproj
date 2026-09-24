@@ -18485,6 +18485,30 @@ Namespace My
                 Me("data1463") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("40")>  _
+        Public Property data1464() As Decimal
+            Get
+                Return CType(Me("data1464"),Decimal)
+            End Get
+            Set
+                Me("data1464") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("70")>  _
+        Public Property data1465() As Decimal
+            Get
+                Return CType(Me("data1465"),Decimal)
+            End Get
+            Set
+                Me("data1465") = value
+            End Set
+        End Property
     End Class
 End Namespace
 

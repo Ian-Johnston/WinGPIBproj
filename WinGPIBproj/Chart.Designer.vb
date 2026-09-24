@@ -23,16 +23,10 @@ Partial Class Chart
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
-        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Chart))
-        Me.Chart2 = New System.Windows.Forms.DataVisualization.Charting.Chart()
-        Me.ButtonScrollLeft = New System.Windows.Forms.Button()
-        Me.ButtonScrollRight = New System.Windows.Forms.Button()
+        Me.FormsPlot2 = New ScottPlot.WinForms.FormsPlot()
         Me.CurrentPosition = New System.Windows.Forms.TextBox()
         Me.TargetPosition = New System.Windows.Forms.TextBox()
-        Me.RangeRequired = New System.Windows.Forms.TextBox()
         Me.Label27 = New System.Windows.Forms.Label()
         Me.CSVfilenamePlayback = New System.Windows.Forms.TextBox()
         Me.Label1 = New System.Windows.Forms.Label()
@@ -43,12 +37,6 @@ Partial Class Chart
         Me.Label4 = New System.Windows.Forms.Label()
         Me.YaxisMax = New System.Windows.Forms.Label()
         Me.YaxisMaximum = New System.Windows.Forms.TextBox()
-        Me.ButtonZoomOut = New System.Windows.Forms.Button()
-        Me.ButtonZoomIn = New System.Windows.Forms.Button()
-        Me.ButtonYmaxInc = New System.Windows.Forms.Button()
-        Me.ButtonYmaxDec = New System.Windows.Forms.Button()
-        Me.ButtonYminDec = New System.Windows.Forms.Button()
-        Me.ButtonYminInc = New System.Windows.Forms.Button()
         Me.BrowseToFile = New System.Windows.Forms.Button()
         Me.ButtonDisplayAll = New System.Windows.Forms.Button()
         Me.DeviceName1 = New System.Windows.Forms.TextBox()
@@ -62,36 +50,6 @@ Partial Class Chart
         Me.ButtonSaveSettings = New System.Windows.Forms.Button()
         Me.LabelHum = New System.Windows.Forms.Label()
         Me.LabelTempC = New System.Windows.Forms.Label()
-        Me.ButtonShiftUp = New System.Windows.Forms.Button()
-        Me.ButtonShiftDn = New System.Windows.Forms.Button()
-        Me.LabelTopChart = New System.Windows.Forms.Label()
-        Me.CheckBoxToolTips = New System.Windows.Forms.CheckBox()
-        Me.CheckBoxMaxMin = New System.Windows.Forms.CheckBox()
-        Me.Scale1 = New System.Windows.Forms.Label()
-        Me.Scale2 = New System.Windows.Forms.Label()
-        Me.Scale3 = New System.Windows.Forms.Label()
-        Me.Scale4 = New System.Windows.Forms.Label()
-        Me.Scale5 = New System.Windows.Forms.Label()
-        Me.Scale6 = New System.Windows.Forms.Label()
-        Me.Scale7 = New System.Windows.Forms.Label()
-        Me.Scale8 = New System.Windows.Forms.Label()
-        Me.Scale9 = New System.Windows.Forms.Label()
-        Me.Scale10 = New System.Windows.Forms.Label()
-        Me.Scale11 = New System.Windows.Forms.Label()
-        Me.Scale12 = New System.Windows.Forms.Label()
-        Me.Scale13 = New System.Windows.Forms.Label()
-        Me.Scale14 = New System.Windows.Forms.Label()
-        Me.Scale15 = New System.Windows.Forms.Label()
-        Me.Scale16 = New System.Windows.Forms.Label()
-        Me.Scale25 = New System.Windows.Forms.Label()
-        Me.Scale17 = New System.Windows.Forms.Label()
-        Me.Scale24 = New System.Windows.Forms.Label()
-        Me.Scale18 = New System.Windows.Forms.Label()
-        Me.Scale23 = New System.Windows.Forms.Label()
-        Me.Scale19 = New System.Windows.Forms.Label()
-        Me.Scale20 = New System.Windows.Forms.Label()
-        Me.Scale21 = New System.Windows.Forms.Label()
-        Me.Scale22 = New System.Windows.Forms.Label()
         Me.MedianValue = New System.Windows.Forms.TextBox()
         Me.MedianValueText = New System.Windows.Forms.Label()
         Me.CheckBoxPPMenable = New System.Windows.Forms.CheckBox()
@@ -117,12 +75,7 @@ Partial Class Chart
         Me.MinsTotal = New System.Windows.Forms.TextBox()
         Me.Label16 = New System.Windows.Forms.Label()
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
-        Me.ButtonScrollLeftSMALL = New System.Windows.Forms.Button()
-        Me.ButtonScrollRightSMALL = New System.Windows.Forms.Button()
-        Me.CheckBoxYscaletidy = New System.Windows.Forms.CheckBox()
         Me.ShowFiles2 = New System.Windows.Forms.Button()
-        Me.YaxisSave = New System.Windows.Forms.Button()
-        Me.YaxisLoad = New System.Windows.Forms.Button()
         Me.CheckX1000 = New System.Windows.Forms.CheckBox()
         Me.CheckX1000000 = New System.Windows.Forms.CheckBox()
         Me.DEV2avg = New System.Windows.Forms.TextBox()
@@ -149,6 +102,7 @@ Partial Class Chart
         Me.CheckPlaybackDev2ShortTermMean = New System.Windows.Forms.CheckBox()
         Me.CheckPlaybackDev1Allan = New System.Windows.Forms.CheckBox()
         Me.CheckPlaybackDev2Allan = New System.Windows.Forms.CheckBox()
+        Me.HUMavg = New System.Windows.Forms.TextBox()
         Me.ButtonPlaybackHelp = New System.Windows.Forms.Button()
         Me.Xscaletotal = New System.Windows.Forms.Label()
         Me.Loading = New System.Windows.Forms.Label()
@@ -157,14 +111,8 @@ Partial Class Chart
         Me.CheckDev2Line = New System.Windows.Forms.CheckBox()
         Me.CheckDev2Point = New System.Windows.Forms.CheckBox()
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
-        Me.YaxisCheck1 = New System.Windows.Forms.CheckBox()
-        Me.YaxisCheck2 = New System.Windows.Forms.CheckBox()
-        Me.YaxisCheck3 = New System.Windows.Forms.CheckBox()
-        Me.YaxisCheck4 = New System.Windows.Forms.CheckBox()
         Me.YaxisBox1 = New System.Windows.Forms.GroupBox()
-        Me.Label23 = New System.Windows.Forms.Label()
-        Me.YaxisPerDiv = New System.Windows.Forms.TextBox()
-        Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.CheckBoxPBXYaxis = New System.Windows.Forms.CheckBox()
         Me.SampleRateSecs = New System.Windows.Forms.TextBox()
         Me.Label25 = New System.Windows.Forms.Label()
         Me.Label22 = New System.Windows.Forms.Label()
@@ -177,23 +125,25 @@ Partial Class Chart
         Me.Label12 = New System.Windows.Forms.Label()
         Me.LabelPPMdegctop = New System.Windows.Forms.Label()
         Me.GroupBoxMiscTempHum = New System.Windows.Forms.GroupBox()
+        Me.Label13 = New System.Windows.Forms.Label()
+        Me.ChartScaleHUMMax = New System.Windows.Forms.TextBox()
+        Me.ChartScaleHUMMin = New System.Windows.Forms.TextBox()
+        Me.Label14 = New System.Windows.Forms.Label()
+        Me.Label15 = New System.Windows.Forms.Label()
         Me.Label11 = New System.Windows.Forms.Label()
         Me.PleaseLoadCSV = New System.Windows.Forms.Label()
         Me.MetadataChart = New System.Windows.Forms.TextBox()
-        Me.ScaleX28 = New System.Windows.Forms.Label()
-        Me.ScaleX1 = New System.Windows.Forms.Label()
-        Me.Label24 = New System.Windows.Forms.Label()
         Me.GroupBox3 = New System.Windows.Forms.GroupBox()
         Me.GroupBox4 = New System.Windows.Forms.GroupBox()
         Me.GroupBox5 = New System.Windows.Forms.GroupBox()
         Me.LabelBottomChart = New System.Windows.Forms.Label()
         Me.LabelTopTopChart = New System.Windows.Forms.Label()
-        CType(Me.Chart2, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.LabelPPMstats = New System.Windows.Forms.Label()
+        Me.PanelChartSplitter = New System.Windows.Forms.Panel()
         Me.PPMBox1.SuspendLayout()
         Me.Panel1.SuspendLayout()
         Me.GroupBoxMisc.SuspendLayout()
         Me.YaxisBox1.SuspendLayout()
-        Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         Me.GroupBoxMiscTempHum.SuspendLayout()
         Me.GroupBox3.SuspendLayout()
@@ -201,48 +151,13 @@ Partial Class Chart
         Me.GroupBox5.SuspendLayout()
         Me.SuspendLayout()
         '
-        'Chart2
+        'FormsPlot2
         '
-        Me.Chart2.BackColor = System.Drawing.SystemColors.Control
-        ChartArea1.BackColor = System.Drawing.Color.Black
-        ChartArea1.BorderColor = System.Drawing.Color.White
-        ChartArea1.BorderWidth = 2
-        ChartArea1.Name = "ChartArea1"
-        Me.Chart2.ChartAreas.Add(ChartArea1)
-        Legend1.Name = "Legend1"
-        Me.Chart2.Legends.Add(Legend1)
-        Me.Chart2.Location = New System.Drawing.Point(211, 287)
-        Me.Chart2.Name = "Chart2"
-        Series1.ChartArea = "ChartArea1"
-        Series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
-        Series1.Color = System.Drawing.Color.Yellow
-        Series1.Enabled = False
-        Series1.Legend = "Legend1"
-        Series1.Name = "Series1"
-        Me.Chart2.Series.Add(Series1)
-        Me.Chart2.Size = New System.Drawing.Size(938, 335)
-        Me.Chart2.TabIndex = 52
-        Me.Chart2.Text = "Chart2"
-        '
-        'ButtonScrollLeft
-        '
-        Me.ButtonScrollLeft.Location = New System.Drawing.Point(272, 122)
-        Me.ButtonScrollLeft.Name = "ButtonScrollLeft"
-        Me.ButtonScrollLeft.Size = New System.Drawing.Size(73, 30)
-        Me.ButtonScrollLeft.TabIndex = 54
-        Me.ButtonScrollLeft.Text = "<< LEFT"
-        Me.ToolTip1.SetToolTip(Me.ButtonScrollLeft, "Scroll left through chart")
-        Me.ButtonScrollLeft.UseVisualStyleBackColor = True
-        '
-        'ButtonScrollRight
-        '
-        Me.ButtonScrollRight.Location = New System.Drawing.Point(422, 122)
-        Me.ButtonScrollRight.Name = "ButtonScrollRight"
-        Me.ButtonScrollRight.Size = New System.Drawing.Size(73, 30)
-        Me.ButtonScrollRight.TabIndex = 55
-        Me.ButtonScrollRight.Text = "RIGHT >>"
-        Me.ToolTip1.SetToolTip(Me.ButtonScrollRight, "Scroll right through chart")
-        Me.ButtonScrollRight.UseVisualStyleBackColor = True
+        Me.FormsPlot2.BackColor = System.Drawing.SystemColors.Control
+        Me.FormsPlot2.Location = New System.Drawing.Point(211, 287)
+        Me.FormsPlot2.Name = "FormsPlot2"
+        Me.FormsPlot2.Size = New System.Drawing.Size(938, 335)
+        Me.FormsPlot2.TabIndex = 52
         '
         'CurrentPosition
         '
@@ -263,16 +178,6 @@ Partial Class Chart
         Me.TargetPosition.Size = New System.Drawing.Size(46, 20)
         Me.TargetPosition.TabIndex = 57
         Me.TargetPosition.Text = "0"
-        '
-        'RangeRequired
-        '
-        Me.RangeRequired.Location = New System.Drawing.Point(180, -34)
-        Me.RangeRequired.Name = "RangeRequired"
-        Me.RangeRequired.ReadOnly = True
-        Me.RangeRequired.Size = New System.Drawing.Size(25, 20)
-        Me.RangeRequired.TabIndex = 58
-        Me.RangeRequired.Text = "50"
-        Me.RangeRequired.Visible = False
         '
         'Label27
         '
@@ -334,7 +239,7 @@ Partial Class Chart
         '
         'YaxisMinimum
         '
-        Me.YaxisMinimum.Location = New System.Drawing.Point(13, 156)
+        Me.YaxisMinimum.Location = New System.Drawing.Point(13, 160)
         Me.YaxisMinimum.Name = "YaxisMinimum"
         Me.YaxisMinimum.Size = New System.Drawing.Size(83, 20)
         Me.YaxisMinimum.TabIndex = 71
@@ -345,90 +250,30 @@ Partial Class Chart
         '
         Me.Label4.AutoSize = True
         Me.Label4.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label4.Location = New System.Drawing.Point(97, 140)
+        Me.Label4.Location = New System.Drawing.Point(97, 137)
         Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(36, 13)
+        Me.Label4.Size = New System.Drawing.Size(67, 13)
         Me.Label4.TabIndex = 72
-        Me.Label4.Text = "- Max."
+        Me.Label4.Text = "- Y-axis Max."
         '
         'YaxisMax
         '
         Me.YaxisMax.AutoSize = True
         Me.YaxisMax.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.YaxisMax.Location = New System.Drawing.Point(97, 159)
+        Me.YaxisMax.Location = New System.Drawing.Point(91, 70)
         Me.YaxisMax.Name = "YaxisMax"
-        Me.YaxisMax.Size = New System.Drawing.Size(33, 13)
+        Me.YaxisMax.Size = New System.Drawing.Size(64, 13)
         Me.YaxisMax.TabIndex = 74
-        Me.YaxisMax.Text = "- Min."
+        Me.YaxisMax.Text = "- Y-axis Min."
         '
         'YaxisMaximum
         '
-        Me.YaxisMaximum.Location = New System.Drawing.Point(13, 137)
+        Me.YaxisMaximum.Location = New System.Drawing.Point(13, 134)
         Me.YaxisMaximum.Name = "YaxisMaximum"
         Me.YaxisMaximum.Size = New System.Drawing.Size(83, 20)
         Me.YaxisMaximum.TabIndex = 73
         Me.YaxisMaximum.Text = "15.000000"
         Me.YaxisMaximum.WordWrap = False
-        '
-        'ButtonZoomOut
-        '
-        Me.ButtonZoomOut.Location = New System.Drawing.Point(346, 163)
-        Me.ButtonZoomOut.Name = "ButtonZoomOut"
-        Me.ButtonZoomOut.Size = New System.Drawing.Size(75, 30)
-        Me.ButtonZoomOut.TabIndex = 78
-        Me.ButtonZoomOut.Text = "ZOOM OUT"
-        Me.ToolTip1.SetToolTip(Me.ButtonZoomOut, "Zoom out Y-axis on centre line")
-        Me.ButtonZoomOut.UseVisualStyleBackColor = True
-        '
-        'ButtonZoomIn
-        '
-        Me.ButtonZoomIn.Location = New System.Drawing.Point(272, 163)
-        Me.ButtonZoomIn.Name = "ButtonZoomIn"
-        Me.ButtonZoomIn.Size = New System.Drawing.Size(73, 30)
-        Me.ButtonZoomIn.TabIndex = 79
-        Me.ButtonZoomIn.Text = "ZOOM IN"
-        Me.ToolTip1.SetToolTip(Me.ButtonZoomIn, "Zoom in Y-axis on centre line")
-        Me.ButtonZoomIn.UseVisualStyleBackColor = True
-        '
-        'ButtonYmaxInc
-        '
-        Me.ButtonYmaxInc.Location = New System.Drawing.Point(212, 124)
-        Me.ButtonYmaxInc.Name = "ButtonYmaxInc"
-        Me.ButtonYmaxInc.Size = New System.Drawing.Size(30, 22)
-        Me.ButtonYmaxInc.TabIndex = 80
-        Me.ButtonYmaxInc.Text = ">"
-        Me.ToolTip1.SetToolTip(Me.ButtonYmaxInc, "Increase Y-axis maximum value")
-        Me.ButtonYmaxInc.UseVisualStyleBackColor = True
-        '
-        'ButtonYmaxDec
-        '
-        Me.ButtonYmaxDec.Location = New System.Drawing.Point(179, 124)
-        Me.ButtonYmaxDec.Name = "ButtonYmaxDec"
-        Me.ButtonYmaxDec.Size = New System.Drawing.Size(30, 22)
-        Me.ButtonYmaxDec.TabIndex = 81
-        Me.ButtonYmaxDec.Text = "<"
-        Me.ToolTip1.SetToolTip(Me.ButtonYmaxDec, "Decrease Y-axis maximum value")
-        Me.ButtonYmaxDec.UseVisualStyleBackColor = True
-        '
-        'ButtonYminDec
-        '
-        Me.ButtonYminDec.Location = New System.Drawing.Point(179, 145)
-        Me.ButtonYminDec.Name = "ButtonYminDec"
-        Me.ButtonYminDec.Size = New System.Drawing.Size(30, 22)
-        Me.ButtonYminDec.TabIndex = 83
-        Me.ButtonYminDec.Text = "<"
-        Me.ToolTip1.SetToolTip(Me.ButtonYminDec, "Decrease Y-axis minimum value")
-        Me.ButtonYminDec.UseVisualStyleBackColor = True
-        '
-        'ButtonYminInc
-        '
-        Me.ButtonYminInc.Location = New System.Drawing.Point(212, 145)
-        Me.ButtonYminInc.Name = "ButtonYminInc"
-        Me.ButtonYminInc.Size = New System.Drawing.Size(30, 22)
-        Me.ButtonYminInc.TabIndex = 82
-        Me.ButtonYminInc.Text = ">"
-        Me.ToolTip1.SetToolTip(Me.ButtonYminInc, "Increase Y-axis minimum value")
-        Me.ButtonYminInc.UseVisualStyleBackColor = True
         '
         'BrowseToFile
         '
@@ -442,9 +287,10 @@ Partial Class Chart
         '
         'ButtonDisplayAll
         '
-        Me.ButtonDisplayAll.Location = New System.Drawing.Point(422, 163)
+        Me.ButtonDisplayAll.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonDisplayAll.Location = New System.Drawing.Point(164, 36)
         Me.ButtonDisplayAll.Name = "ButtonDisplayAll"
-        Me.ButtonDisplayAll.Size = New System.Drawing.Size(73, 30)
+        Me.ButtonDisplayAll.Size = New System.Drawing.Size(88, 30)
         Me.ButtonDisplayAll.TabIndex = 85
         Me.ButtonDisplayAll.Text = "ZOOM ALL"
         Me.ToolTip1.SetToolTip(Me.ButtonDisplayAll, "Display all of chart")
@@ -476,7 +322,7 @@ Partial Class Chart
         '
         Me.PlaybackTemp.AutoSize = True
         Me.PlaybackTemp.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.PlaybackTemp.Location = New System.Drawing.Point(8, 24)
+        Me.PlaybackTemp.Location = New System.Drawing.Point(9, 24)
         Me.PlaybackTemp.Name = "PlaybackTemp"
         Me.PlaybackTemp.Size = New System.Drawing.Size(53, 17)
         Me.PlaybackTemp.TabIndex = 92
@@ -488,7 +334,7 @@ Partial Class Chart
         '
         Me.PlaybackHum.AutoSize = True
         Me.PlaybackHum.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.PlaybackHum.Location = New System.Drawing.Point(68, 24)
+        Me.PlaybackHum.Location = New System.Drawing.Point(122, 24)
         Me.PlaybackHum.Name = "PlaybackHum"
         Me.PlaybackHum.Size = New System.Drawing.Size(51, 17)
         Me.PlaybackHum.TabIndex = 93
@@ -522,9 +368,9 @@ Partial Class Chart
         Me.Label6.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label6.Location = New System.Drawing.Point(32, 69)
         Me.Label6.Name = "Label6"
-        Me.Label6.Size = New System.Drawing.Size(87, 13)
+        Me.Label6.Size = New System.Drawing.Size(60, 13)
         Me.Label6.TabIndex = 96
-        Me.Label6.Text = "Temp/Hum Max."
+        Me.Label6.Text = "Temp Max."
         '
         'Label7
         '
@@ -532,9 +378,9 @@ Partial Class Chart
         Me.Label7.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label7.Location = New System.Drawing.Point(32, 88)
         Me.Label7.Name = "Label7"
-        Me.Label7.Size = New System.Drawing.Size(84, 13)
+        Me.Label7.Size = New System.Drawing.Size(57, 13)
         Me.Label7.TabIndex = 97
-        Me.Label7.Text = "Temp/Hum Min."
+        Me.Label7.Text = "Temp Min."
         '
         'ButtonSaveSettings
         '
@@ -555,7 +401,7 @@ Partial Class Chart
         Me.LabelHum.BackColor = System.Drawing.Color.Black
         Me.LabelHum.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelHum.ForeColor = System.Drawing.Color.DodgerBlue
-        Me.LabelHum.Location = New System.Drawing.Point(1265, 205)
+        Me.LabelHum.Location = New System.Drawing.Point(1282, 205)
         Me.LabelHum.Name = "LabelHum"
         Me.LabelHum.Size = New System.Drawing.Size(36, 15)
         Me.LabelHum.TabIndex = 102
@@ -567,322 +413,15 @@ Partial Class Chart
         Me.LabelTempC.BackColor = System.Drawing.Color.Black
         Me.LabelTempC.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelTempC.ForeColor = System.Drawing.Color.Red
-        Me.LabelTempC.Location = New System.Drawing.Point(1229, 205)
+        Me.LabelTempC.Location = New System.Drawing.Point(1243, 205)
         Me.LabelTempC.Name = "LabelTempC"
         Me.LabelTempC.Size = New System.Drawing.Size(38, 15)
         Me.LabelTempC.TabIndex = 101
         Me.LabelTempC.Text = "DegC"
         '
-        'ButtonShiftUp
-        '
-        Me.ButtonShiftUp.Location = New System.Drawing.Point(18, 354)
-        Me.ButtonShiftUp.Name = "ButtonShiftUp"
-        Me.ButtonShiftUp.Size = New System.Drawing.Size(64, 72)
-        Me.ButtonShiftUp.TabIndex = 104
-        Me.ButtonShiftUp.Text = "SHIFT" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "UP"
-        Me.ToolTip1.SetToolTip(Me.ButtonShiftUp, "Move graph max/min limits up by 20%")
-        Me.ButtonShiftUp.UseVisualStyleBackColor = True
-        '
-        'ButtonShiftDn
-        '
-        Me.ButtonShiftDn.Location = New System.Drawing.Point(18, 444)
-        Me.ButtonShiftDn.Name = "ButtonShiftDn"
-        Me.ButtonShiftDn.Size = New System.Drawing.Size(64, 72)
-        Me.ButtonShiftDn.TabIndex = 105
-        Me.ButtonShiftDn.Text = "SHIFT" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "DOWN"
-        Me.ToolTip1.SetToolTip(Me.ButtonShiftDn, "Move graph max/min limits down by 20%")
-        Me.ButtonShiftDn.UseVisualStyleBackColor = True
-        '
-        'LabelTopChart
-        '
-        Me.LabelTopChart.AutoSize = True
-        Me.LabelTopChart.ForeColor = System.Drawing.SystemColors.ControlDarkDark
-        Me.LabelTopChart.Location = New System.Drawing.Point(510, 654)
-        Me.LabelTopChart.Name = "LabelTopChart"
-        Me.LabelTopChart.Size = New System.Drawing.Size(413, 13)
-        Me.LabelTopChart.TabIndex = 113
-        Me.LabelTopChart.Text = "Hover mouse over Dev1 && Dev 2 data points on chart to see value (ToolTips enable" &
-    "d)"
-        Me.LabelTopChart.Visible = False
-        '
-        'CheckBoxToolTips
-        '
-        Me.CheckBoxToolTips.AutoSize = True
-        Me.CheckBoxToolTips.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CheckBoxToolTips.Location = New System.Drawing.Point(8, 19)
-        Me.CheckBoxToolTips.Name = "CheckBoxToolTips"
-        Me.CheckBoxToolTips.Size = New System.Drawing.Size(67, 17)
-        Me.CheckBoxToolTips.TabIndex = 114
-        Me.CheckBoxToolTips.Text = "ToolTips"
-        Me.ToolTip1.SetToolTip(Me.CheckBoxToolTips, "Enable tootip values on graphs")
-        Me.CheckBoxToolTips.UseVisualStyleBackColor = True
-        '
-        'CheckBoxMaxMin
-        '
-        Me.CheckBoxMaxMin.AutoSize = True
-        Me.CheckBoxMaxMin.Checked = True
-        Me.CheckBoxMaxMin.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.CheckBoxMaxMin.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CheckBoxMaxMin.Location = New System.Drawing.Point(156, 90)
-        Me.CheckBoxMaxMin.Name = "CheckBoxMaxMin"
-        Me.CheckBoxMaxMin.Size = New System.Drawing.Size(93, 17)
-        Me.CheckBoxMaxMin.TabIndex = 115
-        Me.CheckBoxMaxMin.Text = "Auto Min/Max"
-        Me.CheckBoxMaxMin.UseVisualStyleBackColor = True
-        '
-        'Scale1
-        '
-        Me.Scale1.AutoSize = True
-        Me.Scale1.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale1.Location = New System.Drawing.Point(1311, 241)
-        Me.Scale1.Name = "Scale1"
-        Me.Scale1.Size = New System.Drawing.Size(22, 12)
-        Me.Scale1.TabIndex = 116
-        Me.Scale1.Text = "#.#"
-        '
-        'Scale2
-        '
-        Me.Scale2.AutoSize = True
-        Me.Scale2.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale2.Location = New System.Drawing.Point(1311, 256)
-        Me.Scale2.Name = "Scale2"
-        Me.Scale2.Size = New System.Drawing.Size(22, 12)
-        Me.Scale2.TabIndex = 118
-        Me.Scale2.Text = "#.#"
-        '
-        'Scale3
-        '
-        Me.Scale3.AutoSize = True
-        Me.Scale3.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale3.Location = New System.Drawing.Point(1311, 271)
-        Me.Scale3.Name = "Scale3"
-        Me.Scale3.Size = New System.Drawing.Size(22, 12)
-        Me.Scale3.TabIndex = 119
-        Me.Scale3.Text = "#.#"
-        '
-        'Scale4
-        '
-        Me.Scale4.AutoSize = True
-        Me.Scale4.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale4.Location = New System.Drawing.Point(1311, 287)
-        Me.Scale4.Name = "Scale4"
-        Me.Scale4.Size = New System.Drawing.Size(22, 12)
-        Me.Scale4.TabIndex = 120
-        Me.Scale4.Text = "#.#"
-        '
-        'Scale5
-        '
-        Me.Scale5.AutoSize = True
-        Me.Scale5.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale5.Location = New System.Drawing.Point(1311, 303)
-        Me.Scale5.Name = "Scale5"
-        Me.Scale5.Size = New System.Drawing.Size(22, 12)
-        Me.Scale5.TabIndex = 121
-        Me.Scale5.Text = "#.#"
-        '
-        'Scale6
-        '
-        Me.Scale6.AutoSize = True
-        Me.Scale6.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale6.Location = New System.Drawing.Point(1311, 320)
-        Me.Scale6.Name = "Scale6"
-        Me.Scale6.Size = New System.Drawing.Size(22, 12)
-        Me.Scale6.TabIndex = 122
-        Me.Scale6.Text = "#.#"
-        '
-        'Scale7
-        '
-        Me.Scale7.AutoSize = True
-        Me.Scale7.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale7.Location = New System.Drawing.Point(1311, 336)
-        Me.Scale7.Name = "Scale7"
-        Me.Scale7.Size = New System.Drawing.Size(22, 12)
-        Me.Scale7.TabIndex = 123
-        Me.Scale7.Text = "#.#"
-        '
-        'Scale8
-        '
-        Me.Scale8.AutoSize = True
-        Me.Scale8.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale8.Location = New System.Drawing.Point(1311, 352)
-        Me.Scale8.Name = "Scale8"
-        Me.Scale8.Size = New System.Drawing.Size(22, 12)
-        Me.Scale8.TabIndex = 124
-        Me.Scale8.Text = "#.#"
-        '
-        'Scale9
-        '
-        Me.Scale9.AutoSize = True
-        Me.Scale9.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale9.Location = New System.Drawing.Point(1311, 368)
-        Me.Scale9.Name = "Scale9"
-        Me.Scale9.Size = New System.Drawing.Size(22, 12)
-        Me.Scale9.TabIndex = 125
-        Me.Scale9.Text = "#.#"
-        '
-        'Scale10
-        '
-        Me.Scale10.AutoSize = True
-        Me.Scale10.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale10.Location = New System.Drawing.Point(1311, 384)
-        Me.Scale10.Name = "Scale10"
-        Me.Scale10.Size = New System.Drawing.Size(22, 12)
-        Me.Scale10.TabIndex = 126
-        Me.Scale10.Text = "#.#"
-        '
-        'Scale11
-        '
-        Me.Scale11.AutoSize = True
-        Me.Scale11.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale11.Location = New System.Drawing.Point(1311, 400)
-        Me.Scale11.Name = "Scale11"
-        Me.Scale11.Size = New System.Drawing.Size(22, 12)
-        Me.Scale11.TabIndex = 127
-        Me.Scale11.Text = "#.#"
-        '
-        'Scale12
-        '
-        Me.Scale12.AutoSize = True
-        Me.Scale12.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale12.Location = New System.Drawing.Point(1311, 417)
-        Me.Scale12.Name = "Scale12"
-        Me.Scale12.Size = New System.Drawing.Size(22, 12)
-        Me.Scale12.TabIndex = 129
-        Me.Scale12.Text = "#.#"
-        '
-        'Scale13
-        '
-        Me.Scale13.AutoSize = True
-        Me.Scale13.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale13.Location = New System.Drawing.Point(1311, 433)
-        Me.Scale13.Name = "Scale13"
-        Me.Scale13.Size = New System.Drawing.Size(22, 12)
-        Me.Scale13.TabIndex = 130
-        Me.Scale13.Text = "#.#"
-        '
-        'Scale14
-        '
-        Me.Scale14.AutoSize = True
-        Me.Scale14.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale14.Location = New System.Drawing.Point(1311, 449)
-        Me.Scale14.Name = "Scale14"
-        Me.Scale14.Size = New System.Drawing.Size(22, 12)
-        Me.Scale14.TabIndex = 131
-        Me.Scale14.Text = "#.#"
-        '
-        'Scale15
-        '
-        Me.Scale15.AutoSize = True
-        Me.Scale15.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale15.Location = New System.Drawing.Point(1311, 465)
-        Me.Scale15.Name = "Scale15"
-        Me.Scale15.Size = New System.Drawing.Size(22, 12)
-        Me.Scale15.TabIndex = 132
-        Me.Scale15.Text = "#.#"
-        '
-        'Scale16
-        '
-        Me.Scale16.AutoSize = True
-        Me.Scale16.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale16.Location = New System.Drawing.Point(1311, 481)
-        Me.Scale16.Name = "Scale16"
-        Me.Scale16.Size = New System.Drawing.Size(22, 12)
-        Me.Scale16.TabIndex = 134
-        Me.Scale16.Text = "#.#"
-        '
-        'Scale25
-        '
-        Me.Scale25.AutoSize = True
-        Me.Scale25.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale25.Location = New System.Drawing.Point(1311, 627)
-        Me.Scale25.Name = "Scale25"
-        Me.Scale25.Size = New System.Drawing.Size(22, 12)
-        Me.Scale25.TabIndex = 135
-        Me.Scale25.Text = "#.#"
-        '
-        'Scale17
-        '
-        Me.Scale17.AutoSize = True
-        Me.Scale17.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale17.Location = New System.Drawing.Point(1311, 497)
-        Me.Scale17.Name = "Scale17"
-        Me.Scale17.Size = New System.Drawing.Size(22, 12)
-        Me.Scale17.TabIndex = 136
-        Me.Scale17.Text = "#.#"
-        '
-        'Scale24
-        '
-        Me.Scale24.AutoSize = True
-        Me.Scale24.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale24.Location = New System.Drawing.Point(1311, 610)
-        Me.Scale24.Name = "Scale24"
-        Me.Scale24.Size = New System.Drawing.Size(22, 12)
-        Me.Scale24.TabIndex = 137
-        Me.Scale24.Text = "#.#"
-        '
-        'Scale18
-        '
-        Me.Scale18.AutoSize = True
-        Me.Scale18.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale18.Location = New System.Drawing.Point(1311, 514)
-        Me.Scale18.Name = "Scale18"
-        Me.Scale18.Size = New System.Drawing.Size(22, 12)
-        Me.Scale18.TabIndex = 138
-        Me.Scale18.Text = "#.#"
-        '
-        'Scale23
-        '
-        Me.Scale23.AutoSize = True
-        Me.Scale23.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale23.Location = New System.Drawing.Point(1311, 594)
-        Me.Scale23.Name = "Scale23"
-        Me.Scale23.Size = New System.Drawing.Size(22, 12)
-        Me.Scale23.TabIndex = 139
-        Me.Scale23.Text = "#.#"
-        '
-        'Scale19
-        '
-        Me.Scale19.AutoSize = True
-        Me.Scale19.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale19.Location = New System.Drawing.Point(1311, 530)
-        Me.Scale19.Name = "Scale19"
-        Me.Scale19.Size = New System.Drawing.Size(22, 12)
-        Me.Scale19.TabIndex = 140
-        Me.Scale19.Text = "#.#"
-        '
-        'Scale20
-        '
-        Me.Scale20.AutoSize = True
-        Me.Scale20.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale20.Location = New System.Drawing.Point(1311, 546)
-        Me.Scale20.Name = "Scale20"
-        Me.Scale20.Size = New System.Drawing.Size(22, 12)
-        Me.Scale20.TabIndex = 141
-        Me.Scale20.Text = "#.#"
-        '
-        'Scale21
-        '
-        Me.Scale21.AutoSize = True
-        Me.Scale21.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale21.Location = New System.Drawing.Point(1311, 563)
-        Me.Scale21.Name = "Scale21"
-        Me.Scale21.Size = New System.Drawing.Size(22, 12)
-        Me.Scale21.TabIndex = 142
-        Me.Scale21.Text = "#.#"
-        '
-        'Scale22
-        '
-        Me.Scale22.AutoSize = True
-        Me.Scale22.Font = New System.Drawing.Font("Verdana", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Scale22.Location = New System.Drawing.Point(1311, 579)
-        Me.Scale22.Name = "Scale22"
-        Me.Scale22.Size = New System.Drawing.Size(22, 12)
-        Me.Scale22.TabIndex = 143
-        Me.Scale22.Text = "#.#"
-        '
         'MedianValue
         '
-        Me.MedianValue.Location = New System.Drawing.Point(872, 42)
+        Me.MedianValue.Location = New System.Drawing.Point(895, 42)
         Me.MedianValue.Name = "MedianValue"
         Me.MedianValue.Size = New System.Drawing.Size(75, 20)
         Me.MedianValue.TabIndex = 144
@@ -892,7 +431,7 @@ Partial Class Chart
         'MedianValueText
         '
         Me.MedianValueText.AutoSize = True
-        Me.MedianValueText.Location = New System.Drawing.Point(948, 45)
+        Me.MedianValueText.Location = New System.Drawing.Point(971, 45)
         Me.MedianValueText.Name = "MedianValueText"
         Me.MedianValueText.Size = New System.Drawing.Size(67, 13)
         Me.MedianValueText.TabIndex = 145
@@ -901,7 +440,7 @@ Partial Class Chart
         'CheckBoxPPMenable
         '
         Me.CheckBoxPPMenable.AutoSize = True
-        Me.CheckBoxPPMenable.Location = New System.Drawing.Point(872, 20)
+        Me.CheckBoxPPMenable.Location = New System.Drawing.Point(895, 20)
         Me.CheckBoxPPMenable.Name = "CheckBoxPPMenable"
         Me.CheckBoxPPMenable.Size = New System.Drawing.Size(85, 17)
         Me.CheckBoxPPMenable.TabIndex = 146
@@ -913,7 +452,7 @@ Partial Class Chart
         '
         Me.RadioButtonDev1.AutoSize = True
         Me.RadioButtonDev1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.RadioButtonDev1.Location = New System.Drawing.Point(92, 15)
+        Me.RadioButtonDev1.Location = New System.Drawing.Point(106, 15)
         Me.RadioButtonDev1.Name = "RadioButtonDev1"
         Me.RadioButtonDev1.Size = New System.Drawing.Size(54, 17)
         Me.RadioButtonDev1.TabIndex = 147
@@ -925,7 +464,7 @@ Partial Class Chart
         '
         Me.RadioButtonDev2.AutoSize = True
         Me.RadioButtonDev2.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.RadioButtonDev2.Location = New System.Drawing.Point(153, 15)
+        Me.RadioButtonDev2.Location = New System.Drawing.Point(180, 15)
         Me.RadioButtonDev2.Name = "RadioButtonDev2"
         Me.RadioButtonDev2.Size = New System.Drawing.Size(54, 17)
         Me.RadioButtonDev2.TabIndex = 148
@@ -947,9 +486,9 @@ Partial Class Chart
         Me.PPMBox1.Controls.Add(Me.RadioButtonDev1)
         Me.PPMBox1.Enabled = False
         Me.PPMBox1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.PPMBox1.Location = New System.Drawing.Point(866, 4)
+        Me.PPMBox1.Location = New System.Drawing.Point(888, 4)
         Me.PPMBox1.Name = "PPMBox1"
-        Me.PPMBox1.Size = New System.Drawing.Size(408, 87)
+        Me.PPMBox1.Size = New System.Drawing.Size(467, 87)
         Me.PPMBox1.TabIndex = 149
         Me.PPMBox1.TabStop = False
         Me.PPMBox1.Text = "PPM DEVIATION / TEMPCO"
@@ -994,7 +533,7 @@ Partial Class Chart
         Me.Panel1.Controls.Add(Me.RadioButtonPPMTempoLinReg)
         Me.Panel1.Controls.Add(Me.RadioButtonPPMTempo)
         Me.Panel1.Controls.Add(Me.RadioButtonPPMDev)
-        Me.Panel1.Location = New System.Drawing.Point(281, 8)
+        Me.Panel1.Location = New System.Drawing.Point(338, 8)
         Me.Panel1.Name = "Panel1"
         Me.Panel1.Size = New System.Drawing.Size(125, 75)
         Me.Panel1.TabIndex = 157
@@ -1053,7 +592,7 @@ Partial Class Chart
         '
         Me.PPMscaleText.AutoSize = True
         Me.PPMscaleText.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.PPMscaleText.Location = New System.Drawing.Point(246, 16)
+        Me.PPMscaleText.Location = New System.Drawing.Point(289, 16)
         Me.PPMscaleText.Name = "PPMscaleText"
         Me.PPMscaleText.Size = New System.Drawing.Size(40, 13)
         Me.PPMscaleText.TabIndex = 154
@@ -1062,7 +601,7 @@ Partial Class Chart
         'PPMscalerangeentry
         '
         Me.PPMscalerangeentry.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.PPMscalerangeentry.Location = New System.Drawing.Point(218, 13)
+        Me.PPMscalerangeentry.Location = New System.Drawing.Point(261, 13)
         Me.PPMscalerangeentry.Name = "PPMscalerangeentry"
         Me.PPMscalerangeentry.Size = New System.Drawing.Size(26, 20)
         Me.PPMscalerangeentry.TabIndex = 151
@@ -1095,7 +634,7 @@ Partial Class Chart
         Me.LabelPPMtop.BackColor = System.Drawing.Color.Black
         Me.LabelPPMtop.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelPPMtop.ForeColor = System.Drawing.Color.White
-        Me.LabelPPMtop.Location = New System.Drawing.Point(1312, 205)
+        Me.LabelPPMtop.Location = New System.Drawing.Point(1319, 205)
         Me.LabelPPMtop.Name = "LabelPPMtop"
         Me.LabelPPMtop.Size = New System.Drawing.Size(34, 15)
         Me.LabelPPMtop.TabIndex = 152
@@ -1104,12 +643,11 @@ Partial Class Chart
         'GroupBoxMisc
         '
         Me.GroupBoxMisc.Controls.Add(Me.CheckBoxColours)
-        Me.GroupBoxMisc.Controls.Add(Me.CheckBoxToolTips)
         Me.GroupBoxMisc.Enabled = False
         Me.GroupBoxMisc.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.GroupBoxMisc.Location = New System.Drawing.Point(1279, 4)
+        Me.GroupBoxMisc.Location = New System.Drawing.Point(1279, 93)
         Me.GroupBoxMisc.Name = "GroupBoxMisc"
-        Me.GroupBoxMisc.Size = New System.Drawing.Size(76, 87)
+        Me.GroupBoxMisc.Size = New System.Drawing.Size(76, 109)
         Me.GroupBoxMisc.TabIndex = 155
         Me.GroupBoxMisc.TabStop = False
         Me.GroupBoxMisc.Text = "MISC."
@@ -1118,7 +656,7 @@ Partial Class Chart
         '
         Me.CheckBoxColours.AutoSize = True
         Me.CheckBoxColours.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CheckBoxColours.Location = New System.Drawing.Point(8, 40)
+        Me.CheckBoxColours.Location = New System.Drawing.Point(8, 24)
         Me.CheckBoxColours.Name = "CheckBoxColours"
         Me.CheckBoxColours.Size = New System.Drawing.Size(64, 17)
         Me.CheckBoxColours.TabIndex = 117
@@ -1161,40 +699,6 @@ Partial Class Chart
         'ToolTip1
         '
         '
-        'ButtonScrollLeftSMALL
-        '
-        Me.ButtonScrollLeftSMALL.Location = New System.Drawing.Point(347, 122)
-        Me.ButtonScrollLeftSMALL.Name = "ButtonScrollLeftSMALL"
-        Me.ButtonScrollLeftSMALL.Size = New System.Drawing.Size(30, 30)
-        Me.ButtonScrollLeftSMALL.TabIndex = 198
-        Me.ButtonScrollLeftSMALL.Text = "<"
-        Me.ToolTip1.SetToolTip(Me.ButtonScrollLeftSMALL, "Scroll left through chart")
-        Me.ButtonScrollLeftSMALL.UseVisualStyleBackColor = True
-        '
-        'ButtonScrollRightSMALL
-        '
-        Me.ButtonScrollRightSMALL.Location = New System.Drawing.Point(390, 122)
-        Me.ButtonScrollRightSMALL.Name = "ButtonScrollRightSMALL"
-        Me.ButtonScrollRightSMALL.Size = New System.Drawing.Size(30, 30)
-        Me.ButtonScrollRightSMALL.TabIndex = 199
-        Me.ButtonScrollRightSMALL.Text = ">"
-        Me.ToolTip1.SetToolTip(Me.ButtonScrollRightSMALL, "Scroll right through chart")
-        Me.ButtonScrollRightSMALL.UseVisualStyleBackColor = True
-        '
-        'CheckBoxYscaletidy
-        '
-        Me.CheckBoxYscaletidy.AutoSize = True
-        Me.CheckBoxYscaletidy.Checked = True
-        Me.CheckBoxYscaletidy.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.CheckBoxYscaletidy.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CheckBoxYscaletidy.Location = New System.Drawing.Point(156, 73)
-        Me.CheckBoxYscaletidy.Name = "CheckBoxYscaletidy"
-        Me.CheckBoxYscaletidy.Size = New System.Drawing.Size(76, 17)
-        Me.CheckBoxYscaletidy.TabIndex = 200
-        Me.CheckBoxYscaletidy.Text = "Tidy Scale"
-        Me.ToolTip1.SetToolTip(Me.CheckBoxYscaletidy, "Tidy-up Y-Scale annotations")
-        Me.CheckBoxYscaletidy.UseVisualStyleBackColor = True
-        '
         'ShowFiles2
         '
         Me.ShowFiles2.BackColor = System.Drawing.Color.WhiteSmoke
@@ -1205,27 +709,6 @@ Partial Class Chart
         Me.ShowFiles2.Text = "\WinGPIBdata"
         Me.ToolTip1.SetToolTip(Me.ShowFiles2, "Launch Windows File Explorer")
         Me.ShowFiles2.UseVisualStyleBackColor = True
-        '
-        'YaxisSave
-        '
-        Me.YaxisSave.Location = New System.Drawing.Point(212, 102)
-        Me.YaxisSave.Name = "YaxisSave"
-        Me.YaxisSave.Size = New System.Drawing.Size(48, 22)
-        Me.YaxisSave.TabIndex = 565
-        Me.YaxisSave.Text = "SAVE"
-        Me.ToolTip1.SetToolTip(Me.YaxisSave, "Save Min/Max to 1, 2, 3 or 4")
-        Me.YaxisSave.UseVisualStyleBackColor = True
-        '
-        'YaxisLoad
-        '
-        Me.YaxisLoad.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.YaxisLoad.Location = New System.Drawing.Point(155, 9)
-        Me.YaxisLoad.Name = "YaxisLoad"
-        Me.YaxisLoad.Size = New System.Drawing.Size(48, 22)
-        Me.YaxisLoad.TabIndex = 567
-        Me.YaxisLoad.Text = "LOAD"
-        Me.ToolTip1.SetToolTip(Me.YaxisLoad, "Load Y-Axis Min/Max to the graph")
-        Me.YaxisLoad.UseVisualStyleBackColor = True
         '
         'CheckX1000
         '
@@ -1532,6 +1015,17 @@ Partial Class Chart
         Me.ToolTip1.SetToolTip(Me.CheckPlaybackDev2Allan, "Calculated in Playback Chart")
         Me.CheckPlaybackDev2Allan.UseVisualStyleBackColor = True
         '
+        'HUMavg
+        '
+        Me.HUMavg.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.HUMavg.Location = New System.Drawing.Point(119, 46)
+        Me.HUMavg.Name = "HUMavg"
+        Me.HUMavg.Size = New System.Drawing.Size(26, 20)
+        Me.HUMavg.TabIndex = 588
+        Me.HUMavg.Text = "0"
+        Me.ToolTip1.SetToolTip(Me.HUMavg, "Set to '0' to disable averaging" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Range = 0 to 100.")
+        Me.HUMavg.WordWrap = False
+        '
         'ButtonPlaybackHelp
         '
         Me.ButtonPlaybackHelp.BackColor = System.Drawing.Color.WhiteSmoke
@@ -1612,53 +1106,11 @@ Partial Class Chart
         '
         Me.Timer1.Interval = 10000
         '
-        'YaxisCheck1
-        '
-        Me.YaxisCheck1.AutoSize = True
-        Me.YaxisCheck1.Location = New System.Drawing.Point(13, 116)
-        Me.YaxisCheck1.Name = "YaxisCheck1"
-        Me.YaxisCheck1.Size = New System.Drawing.Size(32, 17)
-        Me.YaxisCheck1.TabIndex = 560
-        Me.YaxisCheck1.Text = "1"
-        Me.YaxisCheck1.UseVisualStyleBackColor = True
-        '
-        'YaxisCheck2
-        '
-        Me.YaxisCheck2.AutoSize = True
-        Me.YaxisCheck2.Location = New System.Drawing.Point(50, 116)
-        Me.YaxisCheck2.Name = "YaxisCheck2"
-        Me.YaxisCheck2.Size = New System.Drawing.Size(32, 17)
-        Me.YaxisCheck2.TabIndex = 562
-        Me.YaxisCheck2.Text = "2"
-        Me.YaxisCheck2.UseVisualStyleBackColor = True
-        '
-        'YaxisCheck3
-        '
-        Me.YaxisCheck3.AutoSize = True
-        Me.YaxisCheck3.Location = New System.Drawing.Point(87, 116)
-        Me.YaxisCheck3.Name = "YaxisCheck3"
-        Me.YaxisCheck3.Size = New System.Drawing.Size(32, 17)
-        Me.YaxisCheck3.TabIndex = 563
-        Me.YaxisCheck3.Text = "3"
-        Me.YaxisCheck3.UseVisualStyleBackColor = True
-        '
-        'YaxisCheck4
-        '
-        Me.YaxisCheck4.AutoSize = True
-        Me.YaxisCheck4.Location = New System.Drawing.Point(124, 116)
-        Me.YaxisCheck4.Name = "YaxisCheck4"
-        Me.YaxisCheck4.Size = New System.Drawing.Size(32, 17)
-        Me.YaxisCheck4.TabIndex = 564
-        Me.YaxisCheck4.Text = "4"
-        Me.YaxisCheck4.UseVisualStyleBackColor = True
-        '
         'YaxisBox1
         '
-        Me.YaxisBox1.Controls.Add(Me.Label23)
-        Me.YaxisBox1.Controls.Add(Me.YaxisLoad)
-        Me.YaxisBox1.Controls.Add(Me.YaxisPerDiv)
-        Me.YaxisBox1.Controls.Add(Me.CheckBoxMaxMin)
-        Me.YaxisBox1.Controls.Add(Me.CheckBoxYscaletidy)
+        Me.YaxisBox1.Controls.Add(Me.CheckBoxPBXYaxis)
+        Me.YaxisBox1.Controls.Add(Me.ButtonDisplayAll)
+        Me.YaxisBox1.Controls.Add(Me.YaxisMax)
         Me.YaxisBox1.Enabled = False
         Me.YaxisBox1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.YaxisBox1.Location = New System.Drawing.Point(6, 93)
@@ -1666,38 +1118,20 @@ Partial Class Chart
         Me.YaxisBox1.Size = New System.Drawing.Size(258, 109)
         Me.YaxisBox1.TabIndex = 566
         Me.YaxisBox1.TabStop = False
-        Me.YaxisBox1.Text = "Y-AXIS SCALE"
+        Me.YaxisBox1.Text = "X && Y-AXIS SCALES"
         '
-        'Label23
+        'CheckBoxPBXYaxis
         '
-        Me.Label23.AutoSize = True
-        Me.Label23.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label23.Location = New System.Drawing.Point(91, 85)
-        Me.Label23.Name = "Label23"
-        Me.Label23.Size = New System.Drawing.Size(51, 13)
-        Me.Label23.TabIndex = 577
-        Me.Label23.Text = "- Per Div."
-        '
-        'YaxisPerDiv
-        '
-        Me.YaxisPerDiv.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.YaxisPerDiv.Location = New System.Drawing.Point(7, 82)
-        Me.YaxisPerDiv.Name = "YaxisPerDiv"
-        Me.YaxisPerDiv.ReadOnly = True
-        Me.YaxisPerDiv.Size = New System.Drawing.Size(83, 20)
-        Me.YaxisPerDiv.TabIndex = 576
-        Me.YaxisPerDiv.WordWrap = False
-        '
-        'GroupBox1
-        '
-        Me.GroupBox1.Controls.Add(Me.RangeRequired)
-        Me.GroupBox1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.GroupBox1.Location = New System.Drawing.Point(269, 93)
-        Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(229, 109)
-        Me.GroupBox1.TabIndex = 567
-        Me.GroupBox1.TabStop = False
-        Me.GroupBox1.Text = "X-AXIS SCALE"
+        Me.CheckBoxPBXYaxis.AutoSize = True
+        Me.CheckBoxPBXYaxis.Checked = True
+        Me.CheckBoxPBXYaxis.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.CheckBoxPBXYaxis.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.CheckBoxPBXYaxis.Location = New System.Drawing.Point(7, 19)
+        Me.CheckBoxPBXYaxis.Name = "CheckBoxPBXYaxis"
+        Me.CheckBoxPBXYaxis.Size = New System.Drawing.Size(146, 17)
+        Me.CheckBoxPBXYaxis.TabIndex = 86
+        Me.CheckBoxPBXYaxis.Text = "AutoScale X-axis && Y-axis"
+        Me.CheckBoxPBXYaxis.UseVisualStyleBackColor = True
         '
         'SampleRateSecs
         '
@@ -1757,7 +1191,7 @@ Partial Class Chart
         Me.GroupBox2.Controls.Add(Me.DeviceName1)
         Me.GroupBox2.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.GroupBox2.ForeColor = System.Drawing.SystemColors.ControlText
-        Me.GroupBox2.Location = New System.Drawing.Point(661, 93)
+        Me.GroupBox2.Location = New System.Drawing.Point(455, 93)
         Me.GroupBox2.Name = "GroupBox2"
         Me.GroupBox2.Size = New System.Drawing.Size(568, 109)
         Me.GroupBox2.TabIndex = 572
@@ -1830,7 +1264,7 @@ Partial Class Chart
         Me.LabelPPMdegctop.BackColor = System.Drawing.Color.Black
         Me.LabelPPMdegctop.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelPPMdegctop.ForeColor = System.Drawing.Color.White
-        Me.LabelPPMdegctop.Location = New System.Drawing.Point(1312, 217)
+        Me.LabelPPMdegctop.Location = New System.Drawing.Point(1319, 217)
         Me.LabelPPMdegctop.Name = "LabelPPMdegctop"
         Me.LabelPPMdegctop.Size = New System.Drawing.Size(34, 12)
         Me.LabelPPMdegctop.TabIndex = 573
@@ -1838,6 +1272,12 @@ Partial Class Chart
         '
         'GroupBoxMiscTempHum
         '
+        Me.GroupBoxMiscTempHum.Controls.Add(Me.Label13)
+        Me.GroupBoxMiscTempHum.Controls.Add(Me.HUMavg)
+        Me.GroupBoxMiscTempHum.Controls.Add(Me.ChartScaleHUMMax)
+        Me.GroupBoxMiscTempHum.Controls.Add(Me.ChartScaleHUMMin)
+        Me.GroupBoxMiscTempHum.Controls.Add(Me.Label14)
+        Me.GroupBoxMiscTempHum.Controls.Add(Me.Label15)
         Me.GroupBoxMiscTempHum.Controls.Add(Me.Label11)
         Me.GroupBoxMiscTempHum.Controls.Add(Me.TEMPavg)
         Me.GroupBoxMiscTempHum.Controls.Add(Me.PlaybackHum)
@@ -1848,12 +1288,62 @@ Partial Class Chart
         Me.GroupBoxMiscTempHum.Controls.Add(Me.PlaybackTemp)
         Me.GroupBoxMiscTempHum.Enabled = False
         Me.GroupBoxMiscTempHum.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.GroupBoxMiscTempHum.Location = New System.Drawing.Point(1235, 93)
+        Me.GroupBoxMiscTempHum.Location = New System.Drawing.Point(1044, 93)
         Me.GroupBoxMiscTempHum.Name = "GroupBoxMiscTempHum"
-        Me.GroupBoxMiscTempHum.Size = New System.Drawing.Size(120, 109)
+        Me.GroupBoxMiscTempHum.Size = New System.Drawing.Size(217, 109)
         Me.GroupBoxMiscTempHum.TabIndex = 156
         Me.GroupBoxMiscTempHum.TabStop = False
         Me.GroupBoxMiscTempHum.Text = "TEMP/HUM"
+        '
+        'Label13
+        '
+        Me.Label13.AutoSize = True
+        Me.Label13.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label13.Location = New System.Drawing.Point(145, 50)
+        Me.Label13.Name = "Label13"
+        Me.Label13.Size = New System.Drawing.Size(54, 13)
+        Me.Label13.TabIndex = 587
+        Me.Label13.Text = "Hum Avg."
+        '
+        'ChartScaleHUMMax
+        '
+        Me.ChartScaleHUMMax.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ChartScaleHUMMax.Location = New System.Drawing.Point(119, 65)
+        Me.ChartScaleHUMMax.Name = "ChartScaleHUMMax"
+        Me.ChartScaleHUMMax.Size = New System.Drawing.Size(26, 20)
+        Me.ChartScaleHUMMax.TabIndex = 583
+        Me.ChartScaleHUMMax.Text = "50"
+        Me.ChartScaleHUMMax.WordWrap = False
+        '
+        'ChartScaleHUMMin
+        '
+        Me.ChartScaleHUMMin.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ChartScaleHUMMin.Location = New System.Drawing.Point(119, 84)
+        Me.ChartScaleHUMMin.Name = "ChartScaleHUMMin"
+        Me.ChartScaleHUMMin.Size = New System.Drawing.Size(26, 20)
+        Me.ChartScaleHUMMin.TabIndex = 584
+        Me.ChartScaleHUMMin.Text = "15"
+        Me.ChartScaleHUMMin.WordWrap = False
+        '
+        'Label14
+        '
+        Me.Label14.AutoSize = True
+        Me.Label14.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label14.Location = New System.Drawing.Point(145, 69)
+        Me.Label14.Name = "Label14"
+        Me.Label14.Size = New System.Drawing.Size(55, 13)
+        Me.Label14.TabIndex = 585
+        Me.Label14.Text = "Hum Max."
+        '
+        'Label15
+        '
+        Me.Label15.AutoSize = True
+        Me.Label15.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label15.Location = New System.Drawing.Point(145, 88)
+        Me.Label15.Name = "Label15"
+        Me.Label15.Size = New System.Drawing.Size(52, 13)
+        Me.Label15.TabIndex = 586
+        Me.Label15.Text = "Hum Min."
         '
         'Label11
         '
@@ -1887,39 +1377,6 @@ Partial Class Chart
         Me.MetadataChart.Size = New System.Drawing.Size(247, 45)
         Me.MetadataChart.TabIndex = 575
         '
-        'ScaleX28
-        '
-        Me.ScaleX28.Font = New System.Drawing.Font("Verdana", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ScaleX28.Location = New System.Drawing.Point(192, 203)
-        Me.ScaleX28.Name = "ScaleX28"
-        Me.ScaleX28.Size = New System.Drawing.Size(38, 13)
-        Me.ScaleX28.TabIndex = 187
-        Me.ScaleX28.Text = "0"
-        Me.ScaleX28.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        Me.ScaleX28.Visible = False
-        '
-        'ScaleX1
-        '
-        Me.ScaleX1.Font = New System.Drawing.Font("Verdana", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ScaleX1.Location = New System.Drawing.Point(127, 203)
-        Me.ScaleX1.Name = "ScaleX1"
-        Me.ScaleX1.Size = New System.Drawing.Size(38, 13)
-        Me.ScaleX1.TabIndex = 160
-        Me.ScaleX1.Text = "0"
-        Me.ScaleX1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        Me.ScaleX1.Visible = False
-        '
-        'Label24
-        '
-        Me.Label24.Font = New System.Drawing.Font("Verdana", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label24.Location = New System.Drawing.Point(328, 203)
-        Me.Label24.Name = "Label24"
-        Me.Label24.Size = New System.Drawing.Size(38, 13)
-        Me.Label24.TabIndex = 576
-        Me.Label24.Text = "#"
-        Me.Label24.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        Me.Label24.Visible = False
-        '
         'GroupBox3
         '
         Me.GroupBox3.Controls.Add(Me.CurrentPosition)
@@ -1931,7 +1388,7 @@ Partial Class Chart
         Me.GroupBox3.Controls.Add(Me.TargetPosition)
         Me.GroupBox3.Controls.Add(Me.Label2)
         Me.GroupBox3.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.GroupBox3.Location = New System.Drawing.Point(502, 93)
+        Me.GroupBox3.Location = New System.Drawing.Point(283, 93)
         Me.GroupBox3.Name = "GroupBox3"
         Me.GroupBox3.Size = New System.Drawing.Size(153, 109)
         Me.GroupBox3.TabIndex = 577
@@ -1967,7 +1424,7 @@ Partial Class Chart
         Me.GroupBox5.Controls.Add(Me.CheckPlaybackDev2Stdev)
         Me.GroupBox5.Controls.Add(Me.CheckPlaybackDev2SEM)
         Me.GroupBox5.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.GroupBox5.Location = New System.Drawing.Point(684, 4)
+        Me.GroupBox5.Location = New System.Drawing.Point(693, 4)
         Me.GroupBox5.Name = "GroupBox5"
         Me.GroupBox5.Size = New System.Drawing.Size(178, 87)
         Me.GroupBox5.TabIndex = 580
@@ -1997,96 +1454,72 @@ Partial Class Chart
         Me.LabelTopTopChart.Text = "Data, Mean, Short Term Mean. PPM Deviation / Tempco, Temperature, Humidity"
         Me.LabelTopTopChart.Visible = False
         '
+        'LabelPPMstats
+        '
+        Me.LabelPPMstats.AutoSize = True
+        Me.LabelPPMstats.BackColor = System.Drawing.Color.Black
+        Me.LabelPPMstats.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelPPMstats.ForeColor = System.Drawing.Color.White
+        Me.LabelPPMstats.Location = New System.Drawing.Point(1253, 644)
+        Me.LabelPPMstats.Name = "LabelPPMstats"
+        Me.LabelPPMstats.Size = New System.Drawing.Size(34, 15)
+        Me.LabelPPMstats.TabIndex = 584
+        Me.LabelPPMstats.Text = "PPM"
+        '
+        'PanelChartSplitter
+        '
+        Me.PanelChartSplitter.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.PanelChartSplitter.BackColor = System.Drawing.Color.DimGray
+        Me.PanelChartSplitter.Cursor = System.Windows.Forms.Cursors.HSplit
+        Me.PanelChartSplitter.Location = New System.Drawing.Point(585, 644)
+        Me.PanelChartSplitter.Name = "PanelChartSplitter"
+        Me.PanelChartSplitter.Size = New System.Drawing.Size(200, 5)
+        Me.PanelChartSplitter.TabIndex = 585
+        Me.ToolTip1.SetToolTip(Me.PanelChartSplitter, "Grab and move to re-size charts")
+        '
         'Chart
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1359, 801)
+        Me.Controls.Add(Me.PanelChartSplitter)
+        Me.Controls.Add(Me.LabelPPMstats)
         Me.Controls.Add(Me.LabelTopTopChart)
         Me.Controls.Add(Me.LabelBottomChart)
         Me.Controls.Add(Me.ButtonPlaybackHelp)
         Me.Controls.Add(Me.GroupBox5)
         Me.Controls.Add(Me.GroupBox4)
         Me.Controls.Add(Me.GroupBox3)
-        Me.Controls.Add(Me.Label24)
         Me.Controls.Add(Me.MetadataChart)
         Me.Controls.Add(Me.PleaseLoadCSV)
         Me.Controls.Add(Me.GroupBoxMiscTempHum)
         Me.Controls.Add(Me.LabelPPMtop)
         Me.Controls.Add(Me.LabelPPMdegctop)
-        Me.Controls.Add(Me.ButtonYminInc)
-        Me.Controls.Add(Me.ButtonYminDec)
-        Me.Controls.Add(Me.ButtonYmaxInc)
         Me.Controls.Add(Me.ButtonSaveSettings)
-        Me.Controls.Add(Me.ButtonYmaxDec)
-        Me.Controls.Add(Me.YaxisSave)
-        Me.Controls.Add(Me.YaxisCheck4)
-        Me.Controls.Add(Me.YaxisCheck3)
-        Me.Controls.Add(Me.YaxisCheck2)
-        Me.Controls.Add(Me.YaxisCheck1)
         Me.Controls.Add(Me.ShowFiles2)
-        Me.Controls.Add(Me.ButtonScrollRightSMALL)
-        Me.Controls.Add(Me.ButtonScrollLeftSMALL)
         Me.Controls.Add(Me.Loading)
         Me.Controls.Add(Me.Xscaletotal)
         Me.Controls.Add(Me.Xscale)
-        Me.Controls.Add(Me.ScaleX28)
-        Me.Controls.Add(Me.ScaleX1)
         Me.Controls.Add(Me.CheckBoxPPMenable)
         Me.Controls.Add(Me.MedianValueText)
         Me.Controls.Add(Me.MedianValue)
-        Me.Controls.Add(Me.Scale22)
-        Me.Controls.Add(Me.Scale21)
-        Me.Controls.Add(Me.Scale20)
-        Me.Controls.Add(Me.Scale19)
-        Me.Controls.Add(Me.Scale23)
-        Me.Controls.Add(Me.Scale18)
-        Me.Controls.Add(Me.Scale24)
-        Me.Controls.Add(Me.Scale17)
-        Me.Controls.Add(Me.Scale25)
-        Me.Controls.Add(Me.Scale16)
-        Me.Controls.Add(Me.Scale15)
-        Me.Controls.Add(Me.Scale14)
-        Me.Controls.Add(Me.Scale13)
-        Me.Controls.Add(Me.Scale12)
-        Me.Controls.Add(Me.Scale11)
-        Me.Controls.Add(Me.Scale10)
-        Me.Controls.Add(Me.Scale9)
-        Me.Controls.Add(Me.Scale8)
-        Me.Controls.Add(Me.Scale7)
-        Me.Controls.Add(Me.Scale6)
-        Me.Controls.Add(Me.Scale5)
-        Me.Controls.Add(Me.Scale4)
-        Me.Controls.Add(Me.Scale3)
-        Me.Controls.Add(Me.Scale2)
-        Me.Controls.Add(Me.Scale1)
         Me.Controls.Add(Me.LabelTempC)
-        Me.Controls.Add(Me.LabelTopChart)
-        Me.Controls.Add(Me.ButtonShiftDn)
-        Me.Controls.Add(Me.ButtonShiftUp)
         Me.Controls.Add(Me.LabelHum)
-        Me.Controls.Add(Me.ButtonDisplayAll)
         Me.Controls.Add(Me.BrowseToFile)
-        Me.Controls.Add(Me.ButtonZoomIn)
-        Me.Controls.Add(Me.ButtonZoomOut)
-        Me.Controls.Add(Me.YaxisMax)
         Me.Controls.Add(Me.YaxisMaximum)
         Me.Controls.Add(Me.Label4)
         Me.Controls.Add(Me.YaxisMinimum)
         Me.Controls.Add(Me.Label27)
         Me.Controls.Add(Me.CSVfilenamePlayback)
-        Me.Controls.Add(Me.ButtonScrollRight)
-        Me.Controls.Add(Me.ButtonScrollLeft)
-        Me.Controls.Add(Me.Chart2)
+        Me.Controls.Add(Me.FormsPlot2)
         Me.Controls.Add(Me.PPMBox1)
         Me.Controls.Add(Me.GroupBoxMisc)
-        Me.Controls.Add(Me.GroupBox1)
         Me.Controls.Add(Me.YaxisBox1)
         Me.Controls.Add(Me.GroupBox2)
         Me.Name = "Chart"
         Me.Text = "WinGPIB    Playback Chart    (Free for Non-Commercial Use • Support WinGPIB — see" &
     " About)"
-        CType(Me.Chart2, System.ComponentModel.ISupportInitialize).EndInit()
         Me.PPMBox1.ResumeLayout(False)
         Me.PPMBox1.PerformLayout()
         Me.Panel1.ResumeLayout(False)
@@ -2095,8 +1528,6 @@ Partial Class Chart
         Me.GroupBoxMisc.PerformLayout()
         Me.YaxisBox1.ResumeLayout(False)
         Me.YaxisBox1.PerformLayout()
-        Me.GroupBox1.ResumeLayout(False)
-        Me.GroupBox1.PerformLayout()
         Me.GroupBox2.ResumeLayout(False)
         Me.GroupBox2.PerformLayout()
         Me.GroupBoxMiscTempHum.ResumeLayout(False)
@@ -2112,12 +1543,9 @@ Partial Class Chart
 
     End Sub
 
-    Friend WithEvents Chart2 As DataVisualization.Charting.Chart
-    Friend WithEvents ButtonScrollLeft As Button
-    Friend WithEvents ButtonScrollRight As Button
+    Friend WithEvents FormsPlot2 As ScottPlot.WinForms.FormsPlot
     Friend WithEvents CurrentPosition As TextBox
     Friend WithEvents TargetPosition As TextBox
-    Friend WithEvents RangeRequired As TextBox
     Friend WithEvents Label27 As Label
     Friend WithEvents CSVfilenamePlayback As TextBox
     Friend WithEvents Label1 As Label
@@ -2128,12 +1556,6 @@ Partial Class Chart
     Friend WithEvents Label4 As Label
     Friend WithEvents YaxisMax As Label
     Friend WithEvents YaxisMaximum As TextBox
-    Friend WithEvents ButtonZoomOut As Button
-    Friend WithEvents ButtonZoomIn As Button
-    Friend WithEvents ButtonYmaxInc As Button
-    Friend WithEvents ButtonYmaxDec As Button
-    Friend WithEvents ButtonYminDec As Button
-    Friend WithEvents ButtonYminInc As Button
     Friend WithEvents BrowseToFile As Button
     Friend WithEvents ButtonDisplayAll As Button
     Friend WithEvents DeviceName1 As TextBox
@@ -2148,36 +1570,6 @@ Partial Class Chart
     'Friend WithEvents RectangleShape1 As PowerPacks.RectangleShape
     Friend WithEvents LabelHum As Label
     Friend WithEvents LabelTempC As Label
-    Friend WithEvents ButtonShiftUp As Button
-    Friend WithEvents ButtonShiftDn As Button
-    Friend WithEvents LabelTopChart As Label
-    Friend WithEvents CheckBoxToolTips As CheckBox
-    Friend WithEvents CheckBoxMaxMin As CheckBox
-    Friend WithEvents Scale1 As Label
-    Friend WithEvents Scale2 As Label
-    Friend WithEvents Scale3 As Label
-    Friend WithEvents Scale4 As Label
-    Friend WithEvents Scale5 As Label
-    Friend WithEvents Scale6 As Label
-    Friend WithEvents Scale7 As Label
-    Friend WithEvents Scale8 As Label
-    Friend WithEvents Scale9 As Label
-    Friend WithEvents Scale10 As Label
-    Friend WithEvents Scale11 As Label
-    Friend WithEvents Scale12 As Label
-    Friend WithEvents Scale13 As Label
-    Friend WithEvents Scale14 As Label
-    Friend WithEvents Scale15 As Label
-    Friend WithEvents Scale16 As Label
-    Friend WithEvents Scale25 As Label
-    Friend WithEvents Scale17 As Label
-    Friend WithEvents Scale24 As Label
-    Friend WithEvents Scale18 As Label
-    Friend WithEvents Scale23 As Label
-    Friend WithEvents Scale19 As Label
-    Friend WithEvents Scale20 As Label
-    Friend WithEvents Scale21 As Label
-    Friend WithEvents Scale22 As Label
     Friend WithEvents MedianValue As TextBox
     Friend WithEvents MedianValueText As Label
     Friend WithEvents CheckBoxPPMenable As CheckBox
@@ -2201,23 +1593,13 @@ Partial Class Chart
     Friend WithEvents ToolTip1 As ToolTip
     Friend WithEvents Xscaletotal As Label
     Friend WithEvents Loading As Label
-    Friend WithEvents ButtonScrollLeftSMALL As Button
-    Friend WithEvents ButtonScrollRightSMALL As Button
-    Friend WithEvents CheckBoxYscaletidy As CheckBox
     Friend WithEvents CheckDev1Point As CheckBox
     Friend WithEvents CheckDev1Line As CheckBox
     Friend WithEvents CheckDev2Line As CheckBox
     Friend WithEvents CheckDev2Point As CheckBox
     Friend WithEvents ShowFiles2 As Button
     Friend WithEvents Timer1 As Timer
-    Friend WithEvents YaxisCheck1 As CheckBox
-    Friend WithEvents YaxisCheck2 As CheckBox
-    Friend WithEvents YaxisCheck3 As CheckBox
-    Friend WithEvents YaxisCheck4 As CheckBox
-    Friend WithEvents YaxisSave As Button
     Friend WithEvents YaxisBox1 As GroupBox
-    Friend WithEvents YaxisLoad As Button
-    Friend WithEvents GroupBox1 As GroupBox
     Friend WithEvents Dev2MaxMin As TextBox
     Friend WithEvents Label22 As Label
     Friend WithEvents GroupBox2 As GroupBox
@@ -2238,17 +1620,12 @@ Partial Class Chart
     Friend WithEvents PleaseLoadCSV As Label
     Friend WithEvents MetadataChart As TextBox
     Friend WithEvents CheckBoxColours As CheckBox
-    Friend WithEvents ScaleX28 As Label
-    Friend WithEvents ScaleX1 As Label
     Friend WithEvents RMSaverageDev1 As TextBox
     Friend WithEvents Label10 As Label
     Friend WithEvents RMSaverageDev2 As TextBox
     Friend WithEvents Label17 As Label
     Friend WithEvents Label21 As Label
     Friend WithEvents RMSwindow As TextBox
-    Friend WithEvents Label23 As Label
-    Friend WithEvents YaxisPerDiv As TextBox
-    Friend WithEvents Label24 As Label
     Friend WithEvents Label25 As Label
     Friend WithEvents SampleRateSecs As TextBox
     Friend WithEvents GroupBox3 As GroupBox
@@ -2276,4 +1653,13 @@ Partial Class Chart
     Friend WithEvents RadioButtonPPMTempoRolling As RadioButton
     Friend WithEvents LabelBottomChart As Label
     Friend WithEvents LabelTopTopChart As Label
+    Friend WithEvents Label13 As Label
+    Friend WithEvents HUMavg As TextBox
+    Friend WithEvents ChartScaleHUMMax As TextBox
+    Friend WithEvents ChartScaleHUMMin As TextBox
+    Friend WithEvents Label14 As Label
+    Friend WithEvents Label15 As Label
+    Friend WithEvents CheckBoxPBXYaxis As CheckBox
+    Friend WithEvents LabelPPMstats As Label
+    Friend WithEvents PanelChartSplitter As Panel
 End Class

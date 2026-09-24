@@ -252,8 +252,7 @@ Public Class Formtest
 
         Try
 
-            ' Prevent visible flicker when rows are added/removed
-            ' on every new sample.
+            ' Prevent visible flicker when rows are added/removed on every new sample.
             EnableDoubleBuffering(DataGridViewLogData)
 
             ' Change standard tabs to button style
@@ -271,7 +270,7 @@ Public Class Formtest
             End If
             CheckBoxThemeSet.Checked = My.Settings.ThemeSet
 
-            BannerText1 = "WinGPIB - V5.100    (Free for Non-Commercial Use • Support WinGPIB — see About)"
+            BannerText1 = "WinGPIB - V5.102    (Free for Non-Commercial Use • Support WinGPIB — see About)"
             Me.Text = BannerText1.ToString()
 
             ' Advantest R6581 tab
@@ -574,6 +573,9 @@ Public Class Formtest
 
             FormsPlot1.Plot.Legend.IsVisible = False ' set true to see channel colour labels
 
+            ' No horizontal margin, so the auto-fitted X axis (rolling disabled) fills the chart edge to edge.
+            FormsPlot1.Plot.Axes.MarginsX(0)
+
             FormsPlot1.Plot.FigureBackground.Color = New ScottPlot.Color(SystemColors.Control)
             FormsPlot1.Plot.DataBackground.Color = ScottPlot.Colors.Black
 
@@ -600,7 +602,12 @@ Public Class Formtest
             ' menu actions only receive the Plot, not the click position -
             ' see Chart1CopyValueAtCursor in LiveWatch.vb.
             AddHandler FormsPlot1.MouseDown, AddressOf Chart1OnMouseDown
-            AddHandler FormsPlot1.MouseWheel, Sub(s, ev) Chart1AutoScaleYAxis.Checked = False
+            AddHandler FormsPlot1.MouseWheel,
+                Sub(s, ev)
+                    Chart1AutoScaleYAxis.Checked = False
+                    Chart1EchoYRange()
+                End Sub
+            AddHandler FormsPlot1.MouseUp, Sub(s, ev) Chart1EchoYRange()
 
             ' Esc clears the measurement tool - see Chart1OnKeyDown in
             ' LiveWatch.vb.

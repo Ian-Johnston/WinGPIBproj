@@ -4,9 +4,7 @@ Imports System.Runtime.InteropServices
 
 Partial Class Formtest
 
-    ' Used to hand off the Live Analysis chart's resize-grip drag to Windows'
-    ' own native bottom-right resize handling, so we don't have to hand-roll
-    ' mouse-move resize math ourselves.
+    ' Hands the resize-grip drag off to Windows' native bottom-right resize handling.
     <DllImport("user32.dll")>
     Private Shared Function ReleaseCapture() As Boolean
     End Function
@@ -15,10 +13,8 @@ Partial Class Formtest
     Private Shared Function SendMessage(hWnd As IntPtr, msg As Integer, wParam As Integer, lParam As Integer) As Integer
     End Function
 
-    ' Builds a "minimum 3 decimals, trim trailing zeros beyond that" format
-    ' string for the given number of decimal places - shared so the stats
-    ' panel's value readouts always show exactly what the big meter shows,
-    ' not just something with the same number of decimals available.
+    ' Number format: minimum 3 decimals, trailing zeros trimmed beyond that.
+    ' Shared so the stats readouts match the big meter.
     Private Function BuildMinDpFormat(decimalPlaces As Integer) As String
         Dim minDp As Integer = Math.Min(3, decimalPlaces)
         Return "0." & New String("0"c, minDp) & New String("#"c, decimalPlaces - minDp)
@@ -33,12 +29,9 @@ Partial Class Formtest
     Dim txtr2achart As String
     Dim txtr3achart As String
 
-    ' Chart1 (Live Watch) data buffers/plottables. Each list is passed to its
-    ' Scatter plottable by reference at creation time (ScatterSourceCoordinatesList
-    ' holds the same List instance rather than copying it), so appending to or
-    ' trimming the list here is all that's needed before the next Refresh().
-    ' X is an ever-incrementing sample index, never renumbered when points
-    ' are trimmed from the front of the list.
+    ' Chart1 data buffers/plottables. Each list is held by reference by its Scatter,
+    ' so appending/trimming the list is enough before Refresh().
+    ' X is a sample index that is never renumbered when old points are trimmed.
     Dim Chart1Dev1Data As New List(Of ScottPlot.Coordinates)
     Dim Chart1Dev2Data As New List(Of ScottPlot.Coordinates)
     Dim Chart1TempData As New List(Of ScottPlot.Coordinates)
@@ -65,6 +58,13 @@ Partial Class Formtest
     Dim Chart1MeasureHavePointB As Boolean = False
     Dim Chart1MeasurePointA As ScottPlot.DataPoint
     Dim Chart1MeasureAxisA As ScottPlot.IYAxis
+
+    ' Data max/min found by autoscale (the view is padded beyond them); used for the Max/Min ticks.
+    Dim Chart1DetectedMax As Double = Double.NaN
+    Dim Chart1DetectedMin As Double = Double.NaN
+
+    ' Decimal places on the left Y axis labels; the Max/Min boxes use the same.
+    Private Const Chart1YDecimals As Integer = 8
 
     Dim inst_value1FChartMin As Double = 0
     Dim inst_value1FChartMax As Double = 10
@@ -137,11 +137,8 @@ Partial Class Formtest
     Private Stats2StdevCurrent As Double = 0.0
     Private Stats2SEMCurrent As Double = 0.0
 
-    ' "Short-Term Mean" - an alternate view for the Mean TRACE only (pop-out
-    ' chart display), a rolling average over the last few readings rather
-    ' than the full cumulative Mean since Reset Stats. Does not touch
-    ' Stats1Mean/Stats2Mean, so the Mean shown elsewhere, STDEV/SEM/PPM
-    ' Deviation, and the CSV log are all completely unaffected.
+    ' Short-Term Mean: display-only rolling average of the last few readings for the Mean trace.
+    ' Does not affect Stats1Mean/Stats2Mean, STDEV/SEM/PPM Deviation or the CSV.
     Private chkShortTermMean As CheckBox = Nothing
     Private Const ShortTermMeanWindow As Integer = 30
     Private q1ShortTermMean As New Queue(Of Double)
@@ -187,10 +184,8 @@ Partial Class Formtest
     End Function
 
 
-    ' Appends one Y value to a Chart1 series buffer (X is the series' own
-    ' ever-incrementing sample counter), then trims from the front once the
-    ' sliding window size is exceeded - unless DisableRollingChart is
-    ' checked, in which case the buffer is left to grow without bound.
+    ' Appends a Y value to a series buffer and trims from the front past the window size,
+    ' unless DisableRollingChart is checked.
     Private Sub Chart1AddPoint(data As List(Of ScottPlot.Coordinates), ByRef nextX As Integer, y As Double)
 
         data.Add(New ScottPlot.Coordinates(nextX, y))
@@ -207,12 +202,7 @@ Partial Class Formtest
 
     End Sub
 
-    ' Sets Chart1's primary Y axis range (ScottPlot equivalent of setting
-    ' AxisY.Minimum/Maximum). The fixed-division tick/label formatting is
-    ' applied uniformly every render by Chart1RenderStarting below, so it
-    ' doesn't need to be (re-)configured here. Only ever called from the
-    ' autoscale-from-data path, so also echoes the detected range into the
-    ' (now read-only) Dev1Max/Dev1Min boxes for display.
+    ' Sets Chart1's primary Y range (autoscale path) and remembers the detected data max/min.
     Private Sub Chart1SetYAxisRange(minV As Double, maxV As Double)
 
         ' Small margin so the trace doesn't sit flush against the top/bottom
@@ -222,34 +212,42 @@ Partial Class Formtest
         FormsPlot1.Plot.Axes.Left.Min = minV - margin
         FormsPlot1.Plot.Axes.Left.Max = maxV + margin
 
-        Dev1Max.Text = maxV.ToString(Globalization.CultureInfo.InvariantCulture)
-        Dev1Min.Text = minV.ToString(Globalization.CultureInfo.InvariantCulture)
+        Chart1DetectedMax = maxV
+        Chart1DetectedMin = minV
+        Chart1EchoYRange()
 
     End Sub
 
-    ' Checks one series' nearest point to the mouse and, if it's closer
-    ' (in pixels) than the best candidate found so far, replaces it.
-    ' Comparing pixel distance rather than raw coordinate distance is what
-    ' makes this a fair comparison between Dev1/2 (left axis, ~1.0 scale)
-    ' and Temperature (right axis, ~20 scale).
+    ' Keeps the Y-axis Max/Min boxes equal to the chart's current left-axis limits
+    ' (autoscale, mouse pan/zoom, keys). Skipped while the user is typing in either box.
+    Private Sub Chart1EchoYRange()
+
+        If Dev1Max.Focused OrElse Dev1Min.Focused Then Exit Sub
+
+        Dim lo As Double = FormsPlot1.Plot.Axes.Left.Min
+        Dim hi As Double = FormsPlot1.Plot.Axes.Left.Max
+        If Double.IsNaN(lo) OrElse Double.IsNaN(hi) OrElse Double.IsInfinity(lo) OrElse Double.IsInfinity(hi) OrElse hi <= lo Then Exit Sub
+
+        Dim numberFormat As String = "F" & Chart1YDecimals.ToString()
+        Dim maxText As String = hi.ToString(numberFormat, Globalization.CultureInfo.InvariantCulture)
+        Dim minText As String = lo.ToString(numberFormat, Globalization.CultureInfo.InvariantCulture)
+        If Dev1Max.Text <> maxText Then Dev1Max.Text = maxText
+        If Dev1Min.Text <> minText Then Dev1Min.Text = minText
+
+    End Sub
+
+    ' Replaces the best hover candidate if this series' nearest point is closer in pixels.
+    ' Pixel distance keeps Dev1/2 (left axis) and Temperature (right axis) comparable.
     Private Sub Chart1ConsiderHoverCandidate(series As ScottPlot.Plottables.Scatter, mouseLocation As ScottPlot.Coordinates,
                                               yAxis As ScottPlot.IYAxis, mousePixel As ScottPlot.Pixel,
                                               ByRef found As Boolean, ByRef bestPoint As ScottPlot.DataPoint,
                                               ByRef bestYAxis As ScottPlot.IYAxis, ByRef bestColor As ScottPlot.Color,
                                               ByRef bestDistance As Single)
 
-        ' A hidden trace (CheckBoxDevice1Hide/CheckBoxDevice2Hide) still has
-        ' live data underneath, but shouldn't be hoverable/measurable while
-        ' it isn't actually shown - otherwise the hover tooltip and the
-        ' measurement tool can both land on points from a trace the user
-        ' can't see, which looks like a stray marker with nothing to
-        ' anchor it to.
+        ' Hidden traces can't be hovered or measured.
         If Not series.IsVisible Then Exit Sub
 
-        ' series.Data.GetNearest(...) (the interface-level shortcut) always
-        ' scales distance using the primary axis's pixels-per-unit, which is
-        ' meaningless for Temperature on a differently-scaled axis - call
-        ' the underlying utility directly instead, passing the actual axes.
+        ' Series.Data.GetNearest ignores non-primary axes, so call the utility directly with the real axes.
         Dim dataSource As ScottPlot.IDataSource = DirectCast(series.Data, ScottPlot.IDataSource)
         Dim point As ScottPlot.DataPoint = ScottPlot.DataSourceUtilities.GetNearestSmart(
             dataSource, mouseLocation, FormsPlot1.Plot.LastRender, 15, FormsPlot1.Plot.Axes.Bottom, yAxis)
@@ -289,6 +287,8 @@ Partial Class Formtest
     ' traces has a point nearest the mouse, or hides them when nothing is
     ' close enough.
     Private Sub Chart1ShowValueOnHover(sender As Object, e As MouseEventArgs)
+
+        Chart1EchoYRange()
 
         Dim mousePixel As New ScottPlot.Pixel(CSng(e.X), CSng(e.Y))
 
@@ -344,10 +344,7 @@ Partial Class Formtest
                If(nearRight, ScottPlot.Alignment.UpperRight, ScottPlot.Alignment.UpperLeft),
                If(nearRight, ScottPlot.Alignment.LowerRight, ScottPlot.Alignment.LowerLeft))
 
-        ' Point A of the measurement tool is set but B isn't locked yet -
-        ' live-preview the delta against whatever point the mouse is
-        ' currently nearest to, using the same bestPoint/bestYAxis just
-        ' found for the ordinary hover display above.
+        ' While B isn't locked, live-preview the delta against the nearest point.
         If Chart1MeasureHavePointA AndAlso Not Chart1MeasureHavePointB Then
             Chart1UpdateMeasureDisplay(bestPoint, bestYAxis)
         End If
@@ -356,13 +353,8 @@ Partial Class Formtest
 
     End Sub
 
-    ' Unchecks "AutoScale Y-axis" on any mouse-down (see its use elsewhere
-    ' in this file), and separately remembers where a right-click happened,
-    ' since the context menu's own action callbacks only receive the Plot,
-    ' not the click position - see Chart1CopyValueAtCursor. Also detects
-    ' left-button double-clicks itself, by timing consecutive mouse-downs -
-    ' see Chart1OnDoubleClick for why, instead of relying on FormsPlot1's
-    ' own DoubleClick event.
+    ' Any mouse-down unchecks AutoScale Y-axis, records the right-click position for the menu,
+    ' and detects left double-clicks by timing consecutive mouse-downs (see Chart1OnDoubleClick).
     Private Sub Chart1OnMouseDown(sender As Object, e As MouseEventArgs)
 
         Chart1AutoScaleYAxis.Checked = False
@@ -399,9 +391,7 @@ Partial Class Formtest
 
     End Sub
 
-    ' "Copy Value At Cursor" context menu action - copies the Y value of
-    ' whichever trace's nearest point was closest to where the menu was
-    ' opened.
+    ' "Copy Value At Cursor" menu action: copies the Y value of the point nearest the right-click.
     Private Sub Chart1CopyValueAtCursor(plot As ScottPlot.Plot)
 
         Dim found As Boolean = False
@@ -417,19 +407,8 @@ Partial Class Formtest
 
     End Sub
 
-    ' Two-point delta/measurement tool. Double-click was otherwise unused
-    ' on Chart1 (DoubleLeftClickBenchmark is disabled in Formtest.vb), so
-    ' it's free to repurpose here:
-    '   1st double-click - places point A
-    '   2nd double-click - places point B and locks in the delta
-    '   3rd double-click - clears both and starts over
-    ' Not wired to FormsPlot1's own DoubleClick event - per Microsoft's own
-    ' documented Control mouse-event order (MouseDown, MouseUp, Click,
-    ' MouseDown, MouseUp, DoubleClick), DoubleClick fires AFTER the second
-    ' MouseUp, by which point the button is already released, so there's no
-    ' reliable way to confirm it was the left button from there. Detected
-    ' instead by timing consecutive left mouse-downs in Chart1OnMouseDown,
-    ' which passes the click pixel straight through here.
+    ' Two-point measurement: 1st double-click sets A, 2nd sets B and locks the delta, 3rd clears.
+    ' Detected in Chart1OnMouseDown by timing, as the DoubleClick event fires after the button is released.
     Private Sub Chart1OnDoubleClick(mousePixel As ScottPlot.Pixel)
 
         Dim found As Boolean = False
@@ -445,10 +424,7 @@ Partial Class Formtest
 
         ElseIf Chart1MeasureHavePointA Then
 
-            ' Nothing nearby to lock in as point B (e.g. the trace point A
-            ' is on has since been hidden) - clear the in-progress
-            ' measurement instead of silently leaving it stuck with only A
-            ' placed and no way to advance it.
+            ' No point nearby to lock in as B - clear instead of leaving the measurement stuck.
             If Not found Then
                 Chart1ClearMeasurement(FormsPlot1.Plot)
                 Exit Sub
@@ -482,13 +458,8 @@ Partial Class Formtest
 
     End Sub
 
-    ' Updates the connecting line and delta label between point A and the
-    ' given second point - shared by the live preview (Chart1ShowValueOnHover,
-    ' while B isn't locked yet) and the final locked-in point B
-    ' (Chart1OnDoubleClick). A connecting line only makes sense when both
-    ' points share the same Y-axis (Dev1/Dev2 both use the left axis, but
-    ' Temperature uses its own right axis on a different scale) - otherwise
-    ' just the two raw values are shown, with no line and no delta.
+    ' Updates the A-B line and label. Line and delta only when both points share a Y axis,
+    ' otherwise just the two raw values. Used by the hover preview and the locked B.
     Private Sub Chart1UpdateMeasureDisplay(pointB As ScottPlot.DataPoint, axisB As ScottPlot.IYAxis)
 
         Dim sameAxis As Boolean = axisB Is Chart1MeasureAxisA
@@ -512,10 +483,7 @@ Partial Class Formtest
             Chart1MeasureText.LabelText = "A " & Chart1MeasurePointA.Y.ToString("0.########") & "   B " & pointB.Y.ToString("0.########")
         End If
 
-        ' Flip the label to whichever side of point B keeps it inside the
-        ' plot area - same edge-avoidance approach as the hover label in
-        ' Chart1ShowValueOnHover, but with a much wider right-edge margin
-        ' since this label's text runs a lot longer than a single value.
+        ' Flip the label to keep it inside the plot; wider right margin as this text is longer.
         Const edgeMarginTopPx As Single = 40
         Const edgeMarginRightPx As Single = 300
 
@@ -535,11 +503,7 @@ Partial Class Formtest
 
     End Sub
 
-    ' Clears the two-point measurement tool - the 3rd double-click in
-    ' Chart1OnDoubleClick, the right-click menu's "Clear Measurement",
-    ' Esc (Chart1OnKeyDown), and ButtonClearChart_Click all use this.
-    ' Takes a Plot parameter (unused) so it matches the context-menu
-    ' action delegate signature directly.
+    ' Clears the measurement tool. The Plot parameter is unused, it only matches the menu delegate.
     Private Sub Chart1ClearMeasurement(plot As ScottPlot.Plot)
 
         Chart1MeasureHavePointA = False
@@ -554,23 +518,19 @@ Partial Class Formtest
 
     End Sub
 
-    ' Esc clears the measurement tool - a quicker reset than the third
-    ' double-click or digging into the right-click menu. ScottPlot's own
-    ' KeyboardPanAndZoom/KeyboardAutoscale defaults already rely on
-    ' FormsPlot1 receiving key events while focused, so this follows the
-    ' same assumption.
+    ' Esc clears the measurement tool.
     Private Sub Chart1OnKeyDown(sender As Object, e As KeyEventArgs)
 
         If e.KeyCode = Keys.Escape Then
             Chart1ClearMeasurement(FormsPlot1.Plot)
         End If
 
+        Chart1EchoYRange()
+
     End Sub
 
-    ' Builds a fixed-count set of evenly-spaced manual ticks across
-    ' [axis.Min, axis.Max] and applies it immediately, so it's visible in
-    ' the render currently in progress (see Chart1RenderStarting). Returns
-    ' the tick generator so the caller can add further ticks of its own.
+    ' Builds evenly spaced manual ticks across the axis range and applies them immediately.
+    ' Returns the generator so callers can add ticks.
     Private Function Chart1SetFixedDivisionTicks(axis As ScottPlot.IAxis, divisions As Integer, decimals As Integer, edge As ScottPlot.Edge, rp As ScottPlot.RenderPack) As ScottPlot.TickGenerators.NumericManual
 
         Dim span As Double = axis.Max - axis.Min
@@ -600,32 +560,35 @@ Partial Class Formtest
 
     End Function
 
-    ' Gives Chart1 a fixed 12-division grid, and keeps Temperature's
-    ' (right-axis) tick labels aligned to those same gridlines - the shared
-    ' grid is built from the primary (left) axis only, so Temperature's
-    ' ticks are mapped to the same fractional heights as the left axis's.
+    ' Fixed 12-division grid; Temperature's tick labels are mapped to the same gridlines as the left axis.
     Private Sub Chart1RenderStarting(sender As Object, rp As ScottPlot.RenderPack)
+
+        ' Mouse pan/zoom also moves the Temperature axis; snap it back to its Max/Min boxes before drawing.
+        Dim tempMin As Double = Val(LCTempMin.Text)
+        Dim tempMax As Double = Val(LCTempMax.Text)
+        If tempMax > tempMin Then
+            Chart1TempAxis.Min = tempMin
+            Chart1TempAxis.Max = tempMax
+        End If
 
         Const divisions As Integer = 12
 
         Dim leftAxis As ScottPlot.IAxis = FormsPlot1.Plot.Axes.Left
-        Dim leftTicks = Chart1SetFixedDivisionTicks(leftAxis, divisions, 8, ScottPlot.Edge.Left, rp)
+        Dim leftTicks = Chart1SetFixedDivisionTicks(leftAxis, divisions, Chart1YDecimals, ScottPlot.Edge.Left, rp)
 
-        ' Extra ticks marking the actual detected Dev1 max/min - autoscale
-        ' pads the view a little beyond these (see Chart1SetYAxisRange), so
-        ' they no longer land exactly on the fixed-division grid above. Only
-        ' relevant in autoscale mode - in manual mode Dev1Max/Min already
-        ' are the axis edges.
+        ' Extra ticks at the detected Dev1 max/min (autoscale only, as the view is padded beyond them).
         If leftTicks IsNot Nothing AndAlso Chart1AutoScaleYAxis.Checked Then
 
             Dim maxVal As Double
             Dim minVal As Double
 
-            If Double.TryParse(Dev1Max.Text, maxVal) AndAlso maxVal >= leftAxis.Min AndAlso maxVal <= leftAxis.Max Then
+            maxVal = Chart1DetectedMax
+            If Not Double.IsNaN(maxVal) AndAlso maxVal >= leftAxis.Min AndAlso maxVal <= leftAxis.Max Then
                 leftTicks.AddMajor(maxVal, "Max " & maxVal.ToString("0.########"))
             End If
 
-            If Double.TryParse(Dev1Min.Text, minVal) AndAlso minVal >= leftAxis.Min AndAlso minVal <= leftAxis.Max Then
+            minVal = Chart1DetectedMin
+            If Not Double.IsNaN(minVal) AndAlso minVal >= leftAxis.Min AndAlso minVal <= leftAxis.Max Then
                 leftTicks.AddMajor(minVal, "Min " & minVal.ToString("0.########"))
             End If
 
@@ -748,9 +711,7 @@ Partial Class Formtest
         ' Chart 1 & 2 - Device 1 & Device 2
         If (EnableChart1.Checked = True And EnableChart2.Checked = True And RunChart = True And Dev2GPIBActivity = True) Then
 
-            ' ==========================================================
             ' Device 1
-            ' ==========================================================
 
             ' Raw incoming reading
             inst_value1FChartRaw =
@@ -767,9 +728,7 @@ Partial Class Formtest
     Format(inst_value1FChart, "0.#########")
 
 
-            ' ==========================================================
             ' Device 2
-            ' ==========================================================
 
             ' Raw incoming reading
             inst_value2FChartRaw =
@@ -793,17 +752,13 @@ Partial Class Formtest
     Format(inst_value2FChart, "#0.00000000")
 
 
-            ' ==========================================================
             ' Plot Device 1 & Device 2 to normal Live Watch chart
-            ' ==========================================================
 
             Chart1AddPoint(Chart1Dev1Data, Chart1Dev1NextX, Val(txtr1achart))
             Chart1AddPoint(Chart1Dev2Data, Chart1Dev2NextX, Val(txtr2achart))
 
 
-            ' ==========================================================
             ' Chart 3 - Temperature
-            ' ==========================================================
 
             If (EnableChart3.Checked = True And RunChart = True) Then
 
@@ -841,20 +796,13 @@ Partial Class Formtest
         End If
 
 
-        ' ============================
         ' Fixed X window so trace appears
         ' at the right and scrolls left
-        ' ============================
-        ' Skipped entirely while the user has manually panned/zoomed away
-        ' (Chart1AutoScaleYAxis unchecked), so their view isn't disturbed -
-        ' newly-added points still get drawn via the Refresh() below, just
-        ' without moving the axis limits to chase them.
-        If Chart1AutoScaleYAxis.Checked = False Then
+        ' Skipped while the user has panned/zoomed manually (AutoScale unchecked); new points still draw.
+        ' With rolling disabled the X axis always fits the whole trace, whatever the AutoScale setting.
+        If Chart1AutoScaleYAxis.Checked = False AndAlso DisableRollingChart.Checked = False Then
 
-            ' Keep "X-axis Scale Points" in sync with whatever width the
-            ' user has manually zoomed/panned to (wheel, drag-zoom, etc.),
-            ' so re-enabling AutoScale Y-axis resumes with that same window
-            ' width instead of snapping back to a stale typed-in value.
+            ' Keep XaxisPoints in sync with the manually set view width.
             Dim currentSpan As Double = FormsPlot1.Plot.Axes.Bottom.Max - FormsPlot1.Plot.Axes.Bottom.Min
             If currentSpan > 0 Then
                 XaxisPoints.Text = CInt(Math.Round(currentSpan)).ToString()
@@ -1083,13 +1031,7 @@ Partial Class Formtest
 
         Next
 
-        ' Indent each section's body text (everything between one heading
-        ' and the next) so it reads as clearly belonging under its
-        ' heading. Uses SelectionIndent (a paragraph-level left margin)
-        ' rather than literal leading spaces - spaces would only indent
-        ' the first visual line of a wrapped paragraph, leaving wrapped
-        ' continuation lines flush left and ragged. Same approach as the
-        ' Playback Chart Help dialog.
+        ' Indents section body text with SelectionIndent so wrapped lines stay aligned.
         For i As Integer = 0 To headings.Length - 1
 
             Dim headingStart As Integer =
@@ -1172,11 +1114,8 @@ Partial Class Formtest
         If value > Stats1Max Then Stats1Max = value
         If value < Stats1Min Then Stats1Min = value
 
-        ' PPM Deviation from first sample since last reset. A near-zero
-        ' baseline (a real meter reading ~0V rarely returns literal 0.0,
-        ' just a tiny noise-floor residual like 2.4E-7) still produces an
-        ' astronomical ratio here, which crashes MSChart's axis auto-
-        ' scaling - so the divisor needs an epsilon check, not just <> 0.
+        ' PPM Deviation from the first sample since reset; the baseline needs an epsilon check
+        ' (near-zero readings give huge ratios).
         'Stats1DeviationCurrent = (value - Stats1FirstValue) * 1000000
         Stats1DeviationCurrent = If(Math.Abs(Stats1FirstValue) > 0.000000001, (value - Stats1FirstValue) / Stats1FirstValue * 1000000, 0)
 
@@ -1311,11 +1250,7 @@ Partial Class Formtest
 
     Private Sub ProcessLiveStatistics(deviceNumber As Integer, value As Double)
 
-        ' Statistics now live on the Meters tab and are shown
-        ' whenever the device is running, independent of whether
-        ' Live Chart or CSV logging is active. The per-device
-        ' Enable Statistics checkbox (checked inside UpdateStats1/2)
-        ' is the only gate.
+        ' Statistics show whenever the device is running; only the per-device Enable Statistics checkbox gates them.
 
         Select Case deviceNumber
 
@@ -1369,11 +1304,7 @@ Partial Class Formtest
 
     End Sub
 
-    ' Shared by the "Reset Stats" buttons above (after their confirmation
-    ' prompt) and the main Reset button (ButtonReset_Click in Formtest.vb) -
-    ' resets Device 1's running stats and readouts (including
-    ' LabelStats1Value, the big current-reading display) back to their
-    ' power-up "-" state.
+    ' Resets Device 1's running stats and readouts (incl. LabelStats1Value) to the power-up "-" state.
     Private Sub ResetStats1()
 
         Stats1Count = 0
@@ -1810,10 +1741,7 @@ Partial Class Formtest
         If sampleRateText <> "" AndAlso pointsLabel IsNot Nothing Then
             pointsLabel.Text = points.ToString()
 
-            ' points is capped by the X-axis rolling window (Chart1AddPoint
-            ' trims the oldest points off once it's exceeded) - that's
-            ' deliberate here, since this label reflects the time span of
-            ' the currently VISIBLE chart, not total elapsed run time.
+            ' Capped by the X-axis rolling window: this label shows the visible time span, not total run time.
             Dim totalSeconds As Integer = CInt(Val(sampleRateText) * points)
             Dim hours As Integer = totalSeconds \ 3600
             Dim minutes As Integer = (totalSeconds Mod 3600) \ 60
@@ -1836,10 +1764,7 @@ Partial Class Formtest
             End If
 
 
-            ' A running device whose trace is currently hidden
-            ' (CheckBoxDevice1Hide/CheckBoxDevice2Hide) shouldn't factor
-            ' into the autoscaled Y-range below - otherwise hiding a trace
-            ' leaves the axis sized for data the user can no longer see.
+            ' A running device with a hidden trace is excluded from the autoscaled Y range.
             Dim dev1Visible As Boolean = EnableChart1.Checked AndAlso Not CheckBoxDevice1Hide.Checked
             Dim dev2Visible As Boolean = EnableChart2.Checked AndAlso Not CheckBoxDevice2Hide.Checked
 
@@ -1873,11 +1798,7 @@ Partial Class Formtest
                 End If
             End If
 
-            ' Deliberately doesn't call UpdateChartYAxisMinMaxInterval() here
-            ' every tick - that would keep re-locking the axis to the
-            ' textbox values and fight any manual mouse pan/zoom. The
-            ' textboxes' own Leave/KeyDown handlers already apply a new
-            ' range the moment the user actually edits them.
+            ' Not applied every tick as it would fight manual pan/zoom; the textbox handlers apply edits.
             If (Chart1AutoScaleYAxis.Checked = False And EnableChart1.Checked = True And EnableChart2.Checked = False) Then
                 YaxisDiff.Text = Format(Val(Dev1Max.Text) - Val(Dev1Min.Text), "#0.00000000")
             End If
@@ -2019,23 +1940,14 @@ Partial Class Formtest
             Dev1Min.ReadOnly = False
         End If
 
-        ' XaxisPoints is the opposite: it DRIVES the rolling window width
-        ' while following live data, so it stays editable then - but once
-        ' manual mouse pan/zoom takes over, it should only ever reflect
-        ' whatever width the user just set (see LiveChart()), not be typed
-        ' into, so it's read-only while unchecked.
+        ' XaxisPoints drives the rolling window width while following live data;
+        ' after manual pan/zoom it only reflects the view width, so it's read-only.
         XaxisPoints.ReadOnly = Not Chart1AutoScaleYAxis.Checked
 
     End Sub
 
 
-    ' Rejects (and reverts) anything that doesn't parse as a number, or
-    ' that would make Max <= Min, instead of nudging the other textbox by
-    ' 1 - that nudge could itself be defeated by editing both boxes
-    ' without tabbing through in the right order, and didn't stop
-    ' non-numeric text reaching UpdateChartYAxisMinMaxInterval() at all.
-    ' Reverting to the axis's own last-good value means an invalid entry
-    ' is simply ignored until the user types a valid one, per request.
+    ' Rejects non-numeric input or Max <= Min and reverts the box to the axis's last good value.
     Private Sub Dev1Max_Leave(sender As Object, e As EventArgs) Handles Dev1Max.Leave
 
         Dim maxVal As Double
@@ -2087,12 +1999,7 @@ Partial Class Formtest
     End Sub
 
 
-    ' XaxisPoints had no validation at all - non-numeric text (or anything
-    ' below the app's existing 100-point minimum, already enforced
-    ' elsewhere) would reach several unguarded numeric comparisons against
-    ' this box's raw .Text throughout this file and throw. Enforced here
-    ' at the point of entry instead, so the box always holds a safe value
-    ' by the time anything else reads it.
+    ' Enforces a numeric value of at least 100 points so later comparisons on .Text are safe.
     Private Sub XaxisPoints_Leave(sender As Object, e As EventArgs) Handles XaxisPoints.Leave
 
         ' While read-only (AutoScale Y-axis unchecked) this box just
@@ -2116,12 +2023,7 @@ Partial Class Formtest
     End Sub
 
 
-    ' Same reject-and-revert pattern as Dev1Max/Dev1Min: an invalid or
-    ' non-numeric entry, or one that would make Max <= Min, is ignored
-    ' and the box reverts to the temperature axis's own last-good value,
-    ' rather than silently doing nothing (the previous behaviour, since
-    ' every reader already guarded on Max > Min without telling the user
-    ' why their edit wasn't taking effect).
+    ' Same reject-and-revert as Dev1Max/Min, using the temperature axis's last good value.
     Private Sub LCTempMax_Leave(sender As Object, e As EventArgs) Handles LCTempMax.Leave
 
         Dim maxVal As Double
@@ -2171,16 +2073,7 @@ Partial Class Formtest
 
     Private Sub UpdateChartYAxisMinMaxInterval()
 
-        ' Parse the minimum and maximum values from the text inputs.
-        ' This runs unconditionally every 100ms from the live chart
-        ' timer, regardless of whether the textboxes currently hold a
-        ' valid range (e.g. mid-edit) - the Leave/Enter handlers above
-        ' only catch the common case of finishing an edit and moving on.
-        ' Assigning an inverted or unparsable range straight to AxisY
-        ' throws, and that exception was unhandled here, leaving the
-        ' chart broken (a red X) until the app was restarted. Skip the
-        ' update instead - the axis just keeps its last good range until
-        ' the textboxes hold a valid one.
+        ' Runs every 100ms; skips unparsable or inverted ranges (assigning them throws) and keeps the last good range.
         Dim minVal As Double
         Dim maxVal As Double
 
@@ -2203,11 +2096,7 @@ Partial Class Formtest
         Dim TminVal As Double = Val(LCTempMin.Text)
         Dim TmaxVal As Double = Val(LCTempMax.Text)
 
-        ' Every call site already checks Max > Min before calling this,
-        ' but relying on every caller to remember that is exactly the
-        ' fragile pattern that let the Dev1Max/Dev1Min crash happen -
-        ' guard it here too so this can never assign an inverted range to
-        ' the temperature axis even if a future caller forgets the check.
+        ' Guards against an inverted range so the temperature axis can never be assigned one.
         If TmaxVal <= TminVal Then Exit Sub
 
         ' Set the minimum and maximum values for the Y-axis. Tick/label
@@ -2284,9 +2173,7 @@ Partial Class Formtest
         .AntiAliasing = DataVisualization.Charting.AntiAliasingStyles.All
     }
 
-        ' ==========================================================
         ' Chart Area 1 - Device readings and running means
-        ' ==========================================================
         Dim areaMeasurement As New DataVisualization.Charting.ChartArea("Measurement")
 
         areaMeasurement.Position = New DataVisualization.Charting.ElementPosition(4, 8, 88, 48)
@@ -2335,9 +2222,7 @@ Partial Class Formtest
         'areaMeasurement.AxisX.IntervalAutoMode = DataVisualization.Charting.IntervalAutoMode.VariableCount
 
 
-        ' ==========================================================
         ' Chart Area 2 - STDEV / SEM
-        ' ==========================================================
         Dim areaStatistics As New DataVisualization.Charting.ChartArea("Statistics")
 
         areaStatistics.Position =
@@ -2384,15 +2269,7 @@ Partial Class Formtest
 
         'areaStatistics.AxisX.IntervalAutoMode = DataVisualization.Charting.IntervalAutoMode.VariableCount
 
-        ' Secondary Y-axis for PPM Deviation.
-        '
-        ' PPM Deviation is already scaled to human-friendly units
-        ' (multiplied by 1,000,000), whereas STDEV/SEM on the
-        ' primary axis are raw, unscaled values several orders of
-        ' magnitude smaller. Sharing one axis would make one or
-        ' the other unreadable, so PPM Deviation gets its own
-        ' independent scale on the right while staying in the
-        ' same "measurement stability" panel.
+        ' PPM Deviation gets its own right-hand axis: it's in ppm, far larger than the raw STDEV/SEM values.
         areaStatistics.AxisY2.Enabled = DataVisualization.Charting.AxisEnabled.True
         areaStatistics.AxisY2.IsStartedFromZero = False
         areaStatistics.AxisY2.LabelStyle.Enabled = True
@@ -2405,9 +2282,7 @@ Partial Class Formtest
         areaStatistics.AxisY2.MinorGrid.Enabled = False
 
 
-        ' ==========================================================
         ' Chart Area 3 - Temperature
-        ' ==========================================================
         Dim areaTemperature As New DataVisualization.Charting.ChartArea("Temperature")
 
         areaTemperature.Position = New DataVisualization.Charting.ElementPosition(4, 82, 88, 15)
@@ -2459,9 +2334,7 @@ Partial Class Formtest
         LiveAnalysisChart.ChartAreas.Add(areaTemperature)
 
 
-        ' ==========================================================
         ' Chart Area Titles
-        ' ==========================================================
         Dim titleMeasurement As New DataVisualization.Charting.Title
         titleMeasurement.Text = "DEVICE 1 & 2 DATA / RUNNING MEAN"
         titleMeasurement.DockedToChartArea = "Measurement"
@@ -2510,9 +2383,7 @@ Partial Class Formtest
         LiveAnalysisChart.Titles.Add(titleTemperature)
 
 
-        ' ==========================================================
         ' Series
-        ' ==========================================================
 
         AddLiveAnalysisSeries(
         "Device 1",
@@ -2576,16 +2447,10 @@ Partial Class Formtest
         Color.Red)
 
 
-        ' ==========================================================
         ' Trace enable/disable checkboxes - Becomes Legends also
-        ' ==========================================================
         Dim liveToggles As New List(Of CheckBox)
 
-        ' txtname1/txtname2 are the CONFIGURED device names for each slot,
-        ' set up whether or not that device is actually connected right
-        ' now - showing them unconditionally in the groupbox title made a
-        ' device that was never connected (e.g. only Dev 1 was started)
-        ' look like it was, since its configured name still showed up here.
+        ' Only show a device name once it's actually connected, not its configured name.
         Dim dev1ActiveAtOpen As Boolean = (ButtonDev1Run.Text = "Stop") OrElse (ButtonDev12Run.Text = "Stop")
         Dim dev2ActiveAtOpen As Boolean = (ButtonDev2Run.Text = "Stop") OrElse (ButtonDev12Run.Text = "Stop")
 
@@ -2676,10 +2541,7 @@ Partial Class Formtest
                                                        FormsPlot1.Refresh()
                                                    End Sub
 
-        ' Fast Rendering and Smooth Lines only affect this pop-out's own
-        ' series (not Chart1) - they change ChartType rather than a chart-wide
-        ' rendering flag, and Chart1 may have its own reasons for whatever
-        ' chart type it already uses.
+        ' Fast Rendering / Smooth Lines only change this pop-out's series chart types, not Chart1.
         Dim chkFastRendering As New CheckBox With {
             .Text = "Fast Rendering",
             .ForeColor = Color.Black,
@@ -2702,10 +2564,8 @@ Partial Class Formtest
         gbMisc.Controls.Add(chkSmoothLines)
         liveAnalysisToolTip.SetToolTip(chkSmoothLines, "Curves the trace between points (spline) instead of straight" & vbCrLf & "segments. Cosmetic only - can visually suggest values that were" & vbCrLf & "never actually measured between samples.")
 
-        ' Display only - plots a rolling average of the last ShortTermMeanWindow
-        ' readings on the Mean trace instead of the full cumulative Mean.
-        ' Does not touch Stats1Mean/Stats2Mean, so the Mean shown elsewhere,
-        ' STDEV/SEM/PPM Deviation, and the CSV log are all unaffected.
+        ' Display only: rolling average of the last ShortTermMeanWindow readings on the Mean trace.
+        ' Stats1Mean/Stats2Mean, STDEV/SEM/PPM Deviation and the CSV are unaffected.
         chkShortTermMean = New CheckBox With {
             .Text = "Short-Term Mean",
             .ForeColor = Color.Black,
@@ -2759,11 +2619,7 @@ Partial Class Formtest
 
         Dim EnableGroup = Sub(boxes As CheckBox())
                               For Each cb As CheckBox In boxes
-                                  ' Mirrors DisableGroup also unchecking - otherwise a box left
-                                  ' unchecked by a previous disable (never-connected at open, or
-                                  ' Temperature being stopped) would come back enabled but still
-                                  ' unchecked once its device/sensor actually starts, instead of
-                                  ' defaulting to checked like a fresh AddTraceToggle box would.
+                                  ' Also uncheck, so a re-enabled box defaults to checked like a fresh AddTraceToggle box.
                                   cb.Checked = True
                                   cb.Enabled = True
                                   cb.BackColor = CType(cb.Tag, Color)
@@ -2772,12 +2628,7 @@ Partial Class Formtest
 
         Dim DisableGroup = Sub(boxes As CheckBox())
                                For Each cb As CheckBox In boxes
-                                   ' Unchecking (not just disabling) also fires
-                                   ' AddTraceToggle's CheckedChanged handler,
-                                   ' which disables the matching chart series -
-                                   ' otherwise a disabled-but-still-checked box
-                                   ' left its series "active" with no real
-                                   ' device/sensor behind it.
+                                   ' Unchecking fires AddTraceToggle's CheckedChanged, which disables the matching series.
                                    cb.Checked = False
                                    cb.Enabled = False
                                Next
@@ -2787,18 +2638,12 @@ Partial Class Formtest
                                             Dim dev1Active As Boolean = (ButtonDev1Run.Text = "Stop") OrElse (ButtonDev12Run.Text = "Stop")
                                             Dim dev2Active As Boolean = (ButtonDev2Run.Text = "Stop") OrElse (ButtonDev12Run.Text = "Stop")
 
-                                            ' Temperature has its own separate USB sensor, started/stopped via
-                                            ' ButtonStart/ButtonEnd (TempHumidity.vb) - two separate buttons
-                                            ' rather than one toggling Run/Stop button, with
-                                            ' ButtonEnd.Enabled=True meaning it's currently running (set in
-                                            ' ButtonStart_Click) and False meaning stopped (ButtonEnd_Click).
+                                            ' Temperature has its own sensor: ButtonStart/ButtonEnd (TempHumidity.vb) start/stop it,
+                                            ' ButtonEnd.Enabled = True means running.
                                             Dim tempActive As Boolean = ButtonEnd.Enabled
 
-                                            ' Resuming (stopped -> running) clears that device's traces and
-                                            ' re-enables its checkboxes fresh for the new run. Stopping
-                                            ' (running -> stopped) does nothing here - the checkboxes and traces
-                                            ' are left exactly as they were, frozen, so the last run's data
-                                            ' stays on screen for review instead of vanishing on Stop.
+                                            ' Stopped -> running clears that device's traces and re-enables its checkboxes.
+                                            ' Running -> stopped leaves them frozen so the last run stays on screen.
                                             If dev1Active AndAlso Not dev1WasActive Then
                                                 ClearLiveAnalysisSeries({"Device 1", "Dev 1 Mean", "Dev 1 STDEV", "Dev 1 SEM", "Dev 1 PPM Deviation"})
                                                 q1ShortTermMean.Clear() : sum1ShortTermMean = 0.0
@@ -2818,11 +2663,7 @@ Partial Class Formtest
                                                 EnableGroup(tempBoxes)
                                             End If
 
-                                            ' Unlike Dev1/Dev2, Temperature doesn't get frozen for review when
-                                            ' stopped - once ButtonEnd is pressed there's no more real sensor
-                                            ' behind it, so leaving its checkbox checked/enabled just kept
-                                            ' plotting a flatline. Disable and uncheck instead (this also turns
-                                            ' the series itself off via AddTraceToggle's CheckedChanged handler).
+                                            ' Unlike Dev1/Dev2, Temperature is disabled and unchecked when stopped (no sensor behind it).
                                             If Not tempActive AndAlso tempWasActive Then
                                                 DisableGroup(tempBoxes)
                                             End If
@@ -2834,14 +2675,8 @@ Partial Class Formtest
 
         RefreshDeviceAvailability()
 
-        ' RefreshDeviceAvailability() only ever ENABLES a group, on a
-        ' stopped->running transition - it deliberately never disables one,
-        ' so that stopping a device leaves its checkboxes/trace frozen for
-        ' review (see its own comment). That means a device that was never
-        ' connected at all is left at its checkboxes' default Enabled=True
-        ' from AddTraceToggle. This is the one place it's safe to disable
-        ' proactively - right when the popup is first shown, before
-        ' anything could have been "stopped and frozen" yet.
+        ' RefreshDeviceAvailability() never disables a group (so stopped devices stay frozen);
+        ' disable never-connected devices here, when the popup first opens.
         If Not dev1ActiveAtOpen Then DisableGroup(dev1Boxes)
         If Not dev2ActiveAtOpen Then DisableGroup(dev2Boxes)
         If Not ButtonEnd.Enabled Then DisableGroup(tempBoxes)
@@ -2854,15 +2689,8 @@ Partial Class Formtest
         AddHandler ButtonStart.Click, RunButtonHandler
         AddHandler ButtonEnd.Click, RunButtonHandler
 
-        ' Pressing the main Reset button tears down whatever device(s)
-        ' were connected - clears this pop-out's Dev 1/Dev 2/Temperature
-        ' traces and disables their checkboxes so a device that's no
-        ' longer connected doesn't stay showing/enabled here. Marking all
-        ' three "not active" means the next real Run/Start re-clears/
-        ' re-enables normally, as if the chart had just been freshly
-        ' opened - this covers Temperature too even though Reset doesn't
-        ' touch the sensor itself, since the next RefreshDeviceAvailability()
-        ' call will still see it correctly once it's genuinely restarted.
+        ' Main Reset: clears the Dev 1/Dev 2/Temperature traces and disables their checkboxes,
+        ' marking all three inactive so the next Run/Start re-clears and re-enables them.
         Dim ResetHandler = Sub(s As Object, ev As EventArgs)
                                ClearLiveAnalysisSeries({"Device 1", "Dev 1 Mean", "Dev 1 STDEV", "Dev 1 SEM", "Dev 1 PPM Deviation"})
                                ClearLiveAnalysisSeries({"Device 2", "Dev 2 Mean", "Dev 2 STDEV", "Dev 2 SEM", "Dev 2 PPM Deviation"})
@@ -2899,11 +2727,8 @@ Partial Class Formtest
 
         AddHandler btnResetLiveCharts.Click, ResetChartsButtonHandler
 
-        ' Re-enables the relevant device's checkboxes and restores its
-        ' groupbox title (with the now-connected device's name) once it's
-        ' actually reconnected - btncreate connects both devices (dual
-        ' logging), btncreate2 connects Device 1 only, btncreate3 Device 2
-        ' only.
+        ' Re-enables a reconnected device's checkboxes and restores its groupbox title.
+        ' btncreate = both devices, btncreate2 = Device 1, btncreate3 = Device 2.
         Dim ConnectBothHandler = Sub(s As Object, ev As EventArgs)
                                      EnableGroup(dev1Boxes)
                                      EnableGroup(dev2Boxes)
@@ -2923,15 +2748,8 @@ Partial Class Formtest
         AddHandler btncreate2.Click, ConnectDev1Handler
         AddHandler btncreate3.Click, ConnectDev2Handler
 
-        ' Position/InnerPlotPosition on the three stacked ChartAreas
-        ' (Measurement/Statistics/Temperature) are percentages of
-        ' LiveAnalysisChart's own width/height, so their margins grow in
-        ' pixels as the popup is resized - same issue as the Playback
-        ' Chart, fixed the same way: hold the ORIGINAL pixel margins
-        ' constant, and let the three plot areas themselves absorb the
-        ' extra/lost space (split between them in their original height
-        ' ratio vertically; each area's own left/right margins held
-        ' independently horizontally).
+        ' The stacked ChartAreas use percentage positions, so margins grow with the popup;
+        ' hold the original pixel margins constant and let the plot areas absorb the size change.
         Dim liveChartAreasInOrder As DataVisualization.Charting.ChartArea() =
             {areaMeasurement, areaStatistics, areaTemperature}
 
@@ -2951,12 +2769,8 @@ Partial Class Formtest
         Dim originalGapStatsTempPx As Double          ' between Statistics and Temperature
         Dim originalAreaBottomMarginPx As Double      ' below areaTemperature
 
-        ' The rotated axis-label titles (titleMeasurement etc.) are
-        ' separate Chart.Titles entries, NOT part of a ChartArea's own
-        ' Position/InnerPlotPosition - their own .Position is a percentage
-        ' of LiveAnalysisChart's whole width/height, so THEY were still
-        ' drifting (moving inward from the left/right edges as the popup
-        ' widened) even after the ChartArea margins above were fixed.
+        ' Rotated axis titles are separate Chart.Titles positioned as a percentage of the whole chart;
+        ' hold their distance from the left/right edges fixed.
         Dim liveChartTitlesInOrder As DataVisualization.Charting.Title() =
             {titleMeasurement, titleStatistics, titleStatisticsPPM, titleTemperature}
         Dim titleOwnerArea As New Dictionary(Of DataVisualization.Charting.Title, DataVisualization.Charting.ChartArea) From {
@@ -2970,20 +2784,11 @@ Partial Class Formtest
         Dim originalTitleRightPx As New Dictionary(Of DataVisualization.Charting.Title, Double)
         Dim originalTitleWidthPx As New Dictionary(Of DataVisualization.Charting.Title, Double)
         Dim originalTitleYFractionOfArea As New Dictionary(Of DataVisualization.Charting.Title, Double)
-        ' Height is deliberately left as its ORIGINAL raw percentage of
-        ' the whole chart, untouched - two different attempts to derive
-        ' it dynamically (as a fraction of the owning area, then as a
-        ' fixed pixel value) both under-sized it and clipped the rotated
-        ' text worse than before either fix existed. Left alone, it just
-        ' scales with the chart's height exactly as it always did.
+        ' Height is left as its original percentage, which scales correctly with the chart.
         Dim originalTitleHeightPct As New Dictionary(Of DataVisualization.Charting.Title, Single)
 
-        ' Extra breathing room added to the captured inner margins (the
-        ' space reserved for axis value labels) - baked into the baseline
-        ' itself rather than ramped in like the Playback Chart's version,
-        ' since there's no pre-existing "default look" here to preserve;
-        ' this control's own high-precision readouts (e.g. "0.9999937523")
-        ' need more room than MSChart's own auto margin was giving them.
+        ' Extra inner margin for axis value labels, baked into the baseline:
+        ' the high-precision readouts need more room than MSChart's auto margin gave.
         Const innerMarginLeftPadPx As Double = 100.0
         Const innerMarginRightPadPx As Double = 80.0
 
@@ -3001,12 +2806,7 @@ Partial Class Formtest
                                                       originalAreaInnerLeftMarginPx(ca) = (inner.X / 100.0) * posWidthPx + innerMarginLeftPadPx
                                                       originalAreaInnerRightMarginPx(ca) = ((100.0 - inner.X - inner.Width) / 100.0) * posWidthPx + innerMarginRightPadPx
 
-                                                      ' No pad added vertically - the X-axis time labels
-                                                      ' ("00:00:00") are short and fixed-width, unlike the
-                                                      ' left/right side's long value labels and rotated title.
-                                                      ' Adding the same 90px here as well left the much shorter
-                                                      ' Statistics/Temperature panels with barely any height
-                                                      ' left over once their top+bottom margins were padded too.
+                                                      ' No vertical padding: the X time labels are short and fixed-height.
                                                       Dim heightPx As Double = (pos.Height / 100.0) * originalLiveChartHeight
                                                       originalAreaHeightPx(ca) = heightPx
                                                       originalAreaInnerTopMarginPx(ca) = (inner.Y / 100.0) * heightPx
@@ -3017,13 +2817,8 @@ Partial Class Formtest
                                                   Dim statsPos = areaStatistics.Position
                                                   Dim tempPos = areaTemperature.Position
 
-                                                  ' The gap between two stacked areas is where the upper area's
-                                                  ' own shared X-axis time labels ("00:00:00") actually render -
-                                                  ' the ORIGINAL gap was a tiny ~1% of height, which held constant
-                                                  ' in pixels wasn't enough room for that label row and started
-                                                  ' overlapping the next area's own top axis labels. A smaller,
-                                                  ' separate pad from the left/right one (that text is short and
-                                                  ' fixed-height, unlike the long value labels/rotated title).
+                                                  ' Extra pad in the gap between stacked areas so the upper area's shared X labels
+                                                  ' don't overlap the next area's top labels.
                                                   Const gapPadPx As Double = 20.0
                                                   Const topMarginPadPx As Double = 50.0
 
@@ -3041,10 +2836,7 @@ Partial Class Formtest
                                                       Dim tp = t.Position
                                                       originalTitleWidthPx(t) = (tp.Width / 100.0) * originalLiveChartWidth
 
-                                                      ' Right-docked titles (e.g. "PPM DEVIATION") anchor to the
-                                                      ' RIGHT edge instead - holding their distance from the LEFT
-                                                      ' edge fixed would instead let their distance from the
-                                                      ' right edge (the one that actually matters for them) grow.
+                                                      ' Right-docked titles hold their distance from the right edge instead.
                                                       If t.Docking = DataVisualization.Charting.Docking.Right Then
                                                           originalTitleRightPx(t) = originalLiveChartWidth - ((tp.X + tp.Width) / 100.0) * originalLiveChartWidth + titleEdgeInsetPx
                                                       Else
@@ -3112,11 +2904,8 @@ Partial Class Formtest
                                                 ca.InnerPlotPosition.X, innerTopPct, ca.InnerPlotPosition.Width, 100.0F - innerTopPct - innerBottomPct)
                                         Next
 
-                                        ' Rotated titles - X/Width held at a fixed pixel distance from
-                                        ' LiveAnalysisChart's own left/right edges; Y/Height re-derived
-                                        ' from their owning ChartArea's CURRENT (just-updated above)
-                                        ' Position, using the fraction-within-the-area captured at
-                                        ' baseline, so they keep tracking their area vertically too.
+                                        ' Rotated titles keep a fixed pixel distance from the left/right edges; Y/Height track
+                                        ' their owning ChartArea using the fraction captured at baseline.
                                         For Each t In liveChartTitlesInOrder
                                             Dim widthPct As Single = CSng((originalTitleWidthPx(t) / LiveAnalysisChart.Width) * 100.0)
 
@@ -3146,11 +2935,8 @@ Partial Class Formtest
                                         Dim gap As Integer = 20        ' space between the group boxes
                                         Dim topPct As Double = 0       ' % from top of form
 
-                                        ' Wide enough for its checkbox columns, or its own title text,
-                                        ' whichever needs more room - a group with few checkboxes (like
-                                        ' Temperature) would otherwise wrap its own title. widthMultiplier
-                                        ' adds extra headroom on top of that for titles that can grow at
-                                        ' runtime (Dev 1/Dev 2 include the user-editable device name).
+                                        ' Wide enough for the checkbox columns or the title, whichever is larger;
+                                        ' widthMultiplier adds headroom for titles that grow (editable device names).
                                         Dim GroupWidth = Function(gb As GroupBox, boxes As CheckBox(), colWidth As Integer, widthMultiplier As Double) As Integer
                                                              Dim numCols As Integer = CInt(Math.Ceiling(boxes.Length / 2.0))
                                                              Dim columnWidth As Integer = (colWidth * numCols) + (pad * 2)
@@ -3199,10 +2985,7 @@ Partial Class Formtest
                                         PlaceGroupBox(gbTemp, tempBoxes, leftTemp, colWidthPx, 1.0)
                                         PlaceGroupBox(gbMisc, miscBoxes, leftMisc, miscColWidthPx, 1.0)
 
-                                        ' Bottom-aligned with Dev 2/Misc. (Temp. has fewer checkboxes, so
-                                        ' its own groupbox is shorter than its neighbours) rather than
-                                        ' simply sitting below gbTemp, which would stick out lower than
-                                        ' the rest of the row.
+                                        ' Bottom-aligned with Dev 2/Misc. since Temp. has fewer checkboxes and a shorter groupbox.
                                         btnResetLiveCharts.Width = gbTemp.Width
                                         btnResetLiveCharts.Location = New Point(gbTemp.Left, gbDev2.Bottom - btnResetLiveCharts.Height)
                                     End Sub
@@ -3352,11 +3135,7 @@ Partial Class Formtest
 
         If readyToAdvance = False Then Exit Sub
 
-        ' Everything below adds points to several series and rescales axes
-        ' in several separate steps - suspend repaint for the duration so
-        ' the chart never gets asked to paint a frame midway through this
-        ' update (which could otherwise show a briefly inconsistent mix of
-        ' old/new points and axis ranges).
+        ' Suspend repaint so the chart never paints a half-updated mix of points and axis ranges.
         LiveAnalysisChart.SuspendLayout()
 
         Try
@@ -3382,9 +3161,7 @@ Partial Class Formtest
                 LiveAnalysisChart.Series("Dev 1 Mean").Points.AddXY(x, dev1MeanToPlot)
                 LiveAnalysisChart.Series("Dev 1 STDEV").Points.AddXY(x, Stats1StdevCurrent)
                 LiveAnalysisChart.Series("Dev 1 SEM").Points.AddXY(x, Stats1SEMCurrent)
-                ' Defence in depth on top of the near-zero-baseline guard in
-                ' UpdateStats1 - a NaN/Infinity point here makes MSChart's own
-                ' axis auto-scaling throw OverflowException the next repaint.
+                ' NaN/Infinity points make MSChart's axis auto-scaling throw on the next repaint, so guard here too.
                 LiveAnalysisChart.Series("Dev 1 PPM Deviation").Points.AddXY(
                     x, If(Double.IsNaN(Stats1DeviationCurrent) OrElse Double.IsInfinity(Stats1DeviationCurrent), 0, Stats1DeviationCurrent))
 
@@ -3679,10 +3456,7 @@ Partial Class Formtest
 
     End Sub
 
-    ' Falls back to a safe placeholder range when an axis has no valid
-    ' Minimum/Maximum - e.g. every series feeding it is currently disabled
-    ' (all trace checkboxes for that axis unchecked), which otherwise leaves
-    ' it NaN-bounded and throws on the next Paint.
+    ' Falls back to a safe range when an axis has no valid Min/Max (all its traces disabled), which throws on Paint.
     Private Sub EnsureValidAxisScale(axis As DataVisualization.Charting.Axis)
 
         If Double.IsNaN(axis.Minimum) OrElse Double.IsNaN(axis.Maximum) OrElse
@@ -3728,11 +3502,7 @@ Partial Class Formtest
     End Sub
 
 
-    ' The Live Analysis Charts button should be available whenever there's
-    ' live data to analyse - i.e. whenever any device is actually running -
-    ' regardless of the separate DATA tab chart's own Pause/Start state
-    ' (pausing the chart's display doesn't stop acquisition, so it
-    ' shouldn't block Live Analysis either).
+    ' Live Analysis is available whenever any device is running, regardless of the DATA tab chart's Pause state.
     Private Sub UpdateLiveChartPopoutAvailability()
 
         ButtonLiveChartPopout.Enabled =

@@ -6,9 +6,24 @@ Imports System.Windows.Forms.DataVisualization.Charting
 
 Public Class Chart
 
-    ' Used to hand off the Allan Deviation pop-up's resize-grip drag to
-    ' Windows' own native bottom-right resize handling - same approach as
-    ' LiveWatch.vb's Live Analysis chart pop-up.
+    ' FormsPlot2 (Playback chart) size/location - tweak directly here.
+    ' Applied once in Formtest_Load; FormsPlot2.Anchor (set in
+    ' InitializeResizableLayout) then stretches it with the form on resize.
+    Private Shared ReadOnly PlaybackChartLocation As New Point(5, 230)
+    Private Shared ReadOnly PlaybackChartSize As New Size(1350, 415)
+
+    ' FormsPlot3 (Statistics chart: STDEV, SEM, Max Diff, PPM Deviation) size/location - tweak here.
+    ' Its X range and plot edges follow FormsPlot2 (see Chart3SyncFromTop).
+    Private Shared ReadOnly StatsChartLocation As New Point(5, 656)
+    Private Shared ReadOnly StatsChartSize As New Size(1350, 125)
+
+    ' Draggable splitter (PanelChartSplitter) between the two charts. False hides it and restores
+    ' the fixed split (the charts grow by the same percentage). Minimum chart heights while dragging.
+    Private Const PlaybackSplitterEnabled As Boolean = True
+    Private Const PlaybackMainChartMinHeight As Integer = 200
+    Private Const PlaybackStatsChartMinHeight As Integer = 80
+
+    ' Hands the Allan pop-up's resize-grip drag off to Windows' native bottom-right resize handling.
     <DllImport("user32.dll")>
     Private Shared Function ReleaseCapture() As Boolean
     End Function
@@ -17,13 +32,8 @@ Public Class Chart
     Private Shared Function SendMessage(hWnd As IntPtr, msg As Integer, wParam As Integer, lParam As Integer) As Integer
     End Function
 
-    ' My.Resources.grip is fully opaque (Alpha=255), with a flat mid-grey
-    ' (245,245,245) background baked in behind the diagonal glyph - not
-    ' actually transparent. This builds a transparent version at runtime:
-    ' pixels near that grey become transparent (proportionally, so the
-    ' glyph's anti-aliased edges stay soft), and surviving glyph pixels
-    ' are recoloured to lineColor - so a PictureBox's BackColor shows
-    ' through, and the glyph can be tinted to read clearly on any background.
+    ' Builds a transparent, tinted copy of My.Resources.grip (opaque with a flat grey background):
+    ' pixels near the grey become transparent proportionally, the rest are recoloured to lineColor.
     Private Function MakeGripTransparent(source As Bitmap, lineColor As Color) As Bitmap
 
         Const backgroundBrightness As Double = 245.0
@@ -51,6 +61,93 @@ Public Class Chart
     Dim gChartPlayback As Array = Array.CreateInstance(GetType(Double), 500)  ' playback chart
 
     Dim dataTable1 As New DataTable
+
+    ' FormsPlot2 data buffers and plottables. X is the 0-based row position.
+    ' Each list is held by reference by its Scatter, so updating the list updates the trace.
+    Dim Chart2Dev1Data As New List(Of ScottPlot.Coordinates)
+    Dim Chart2Dev2Data As New List(Of ScottPlot.Coordinates)
+    Dim Chart2TempData As New List(Of ScottPlot.Coordinates)
+    Dim Chart2HumData As New List(Of ScottPlot.Coordinates)
+    Dim Chart2PPMData As New List(Of ScottPlot.Coordinates)
+    Dim Chart2Dev1MeanData As New List(Of ScottPlot.Coordinates)
+    Dim Chart2Dev2MeanData As New List(Of ScottPlot.Coordinates)
+    Dim Chart2Dev1ShortTermMeanData As New List(Of ScottPlot.Coordinates)
+    Dim Chart2Dev2ShortTermMeanData As New List(Of ScottPlot.Coordinates)
+
+    ' Statistics data (STDEV/SEM/MaxDiff/Deviation), plotted on FormsPlot3.
+    Dim Chart2Dev1StdevData As New List(Of ScottPlot.Coordinates)
+    Dim Chart2Dev1SEMData As New List(Of ScottPlot.Coordinates)
+    Dim Chart2Dev1MaxDiffData As New List(Of ScottPlot.Coordinates)
+    Dim Chart2Dev1DeviationData As New List(Of ScottPlot.Coordinates)
+    Dim Chart2Dev2StdevData As New List(Of ScottPlot.Coordinates)
+    Dim Chart2Dev2SEMData As New List(Of ScottPlot.Coordinates)
+    Dim Chart2Dev2MaxDiffData As New List(Of ScottPlot.Coordinates)
+    Dim Chart2Dev2DeviationData As New List(Of ScottPlot.Coordinates)
+
+    Dim Chart2Dev1Series As ScottPlot.Plottables.Scatter
+    Dim Chart2Dev2Series As ScottPlot.Plottables.Scatter
+
+    ' Statistics chart (FormsPlot3) - created in code, see StatsChartLocation.
+    ' STDEV/SEM/Max Diff share the left axis; PPM Deviation is in ppm, not
+    ' the reading's units, so it gets the right-hand axis.
+    Dim FormsPlot3 As ScottPlot.WinForms.FormsPlot
+    Dim Chart3Dev1StdevSeries As ScottPlot.Plottables.Scatter
+    Dim Chart3Dev1SEMSeries As ScottPlot.Plottables.Scatter
+    Dim Chart3Dev1MaxDiffSeries As ScottPlot.Plottables.Scatter
+    Dim Chart3Dev1DeviationSeries As ScottPlot.Plottables.Scatter
+    Dim Chart3Dev2StdevSeries As ScottPlot.Plottables.Scatter
+    Dim Chart3Dev2SEMSeries As ScottPlot.Plottables.Scatter
+    Dim Chart3Dev2MaxDiffSeries As ScottPlot.Plottables.Scatter
+    Dim Chart3Dev2DeviationSeries As ScottPlot.Plottables.Scatter
+    ' Hover value and two-point measurement on the Statistics chart - same
+    ' behaviour as the Playback chart's Chart2* versions (no pan/zoom here).
+    Dim Chart3Crosshair As ScottPlot.Plottables.Crosshair
+    Dim Chart3HighlightMarker As ScottPlot.Plottables.Marker
+    Dim Chart3HighlightText As ScottPlot.Plottables.Text
+    Dim Chart3LastLeftClickTime As DateTime = DateTime.MinValue
+    Dim Chart3LastLeftClickPixel As ScottPlot.Pixel
+    Dim Chart3MeasureMarkerA As ScottPlot.Plottables.Marker
+    Dim Chart3MeasureMarkerB As ScottPlot.Plottables.Marker
+    Dim Chart3MeasureLine As ScottPlot.Plottables.LinePlot
+    Dim Chart3MeasureText As ScottPlot.Plottables.Text
+    Dim Chart3MeasureHavePointA As Boolean = False
+    Dim Chart3MeasureHavePointB As Boolean = False
+    Dim Chart3MeasurePointA As ScottPlot.DataPoint
+    Dim Chart3MeasureAxisA As ScottPlot.IYAxis
+    Dim Chart3LastXMin As Double = Double.NaN
+    Dim Chart3LastXMax As Double = Double.NaN
+    Dim Chart3LastPadLeft As Single = -1
+    Dim Chart3LastPadRight As Single = -1
+
+    ' Hover value display and two-point delta/measurement tool - same as
+    ' the Live Chart's (Chart1*) versions in LiveWatch.vb.
+    Dim Chart2Crosshair As ScottPlot.Plottables.Crosshair
+    Dim Chart2HighlightMarker As ScottPlot.Plottables.Marker
+    Dim Chart2HighlightText As ScottPlot.Plottables.Text
+    Dim Chart2LastRightClickPixel As ScottPlot.Pixel
+    Dim Chart2LastLeftClickTime As DateTime = DateTime.MinValue
+    Dim Chart2LastLeftClickPixel As ScottPlot.Pixel
+    Dim Chart2MeasureMarkerA As ScottPlot.Plottables.Marker
+    Dim Chart2MeasureMarkerB As ScottPlot.Plottables.Marker
+    Dim Chart2MeasureLine As ScottPlot.Plottables.LinePlot
+    Dim Chart2MeasureText As ScottPlot.Plottables.Text
+    Dim Chart2MeasureHavePointA As Boolean = False
+    Dim Chart2MeasureHavePointB As Boolean = False
+    Dim Chart2MeasurePointA As ScottPlot.DataPoint
+    Dim Chart2MeasureAxisA As ScottPlot.IYAxis
+    Dim Chart2TempSeries As ScottPlot.Plottables.Scatter
+    Dim Chart2HumSeries As ScottPlot.Plottables.Scatter
+    Dim Chart2PPMSeries As ScottPlot.Plottables.Scatter
+    Dim Chart2Dev1MeanSeries As ScottPlot.Plottables.Scatter
+    Dim Chart2Dev2MeanSeries As ScottPlot.Plottables.Scatter
+    Dim Chart2Dev1ShortTermMeanSeries As ScottPlot.Plottables.Scatter
+    Dim Chart2Dev2ShortTermMeanSeries As ScottPlot.Plottables.Scatter
+
+    ' Temperature, Humidity and PPM each have their own independent Y axis,
+    ' since their ranges differ too much to share one (~19-25 degC vs ~0-100 %RH).
+    Dim Chart2TempAxis As ScottPlot.IYAxis
+    Dim Chart2HumAxis As ScottPlot.IYAxis
+    Dim Chart2PPMAxis As ScottPlot.IYAxis
 
     Dim CurrentPos As Integer = 0
     Dim TargetPos As Integer = 49
@@ -128,17 +225,56 @@ Public Class Chart
     Dim numberofmetadatalines As Integer = 0
 
 
-    ' Val() only recognizes "." as a decimal separator, but Format()/.ToString()
-    ' write textbox values using the CURRENT CULTURE (e.g. "," on German Windows).
-    ' That mismatch let values like YaxisMaximum/YaxisMinimum and MedianValue/MedianTemp
-    ' truncate or collapse on non-US locales - use this everywhere such a textbox is
-    ' parsed back to a Double, paired with .ToString(..., CultureInfo.InvariantCulture)
-    ' on the write side, so both sides agree on "." regardless of OS locale.
+    ' Val() only accepts "." as decimal separator, but ToString() writes the current culture.
+    ' Use this to parse textboxes back to Double, paired with InvariantCulture on the write side.
     Private Function ParseInvariantDouble(text As String) As Double
         Dim result As Double
         Double.TryParse(text, Globalization.NumberStyles.Float, Globalization.CultureInfo.InvariantCulture, result)
         Return result
     End Function
+
+
+    ' Keeps Temp/Hum/PPM independent of the mouse controls: runs every render and overwrites any
+    ' pan/zoom applied to those axes, so only Dev1/Dev2 (Bottom/Left) respond.
+    Private Sub Chart2RenderStarting(sender As Object, rp As ScottPlot.RenderPack)
+
+        Chart3SyncFromTop(False, rp)
+
+        Chart2UpdateXscaleLabel()
+
+        Chart2ApplyLeftFormat()
+
+        Dim tempMin As Double = ParseInvariantDouble(ChartScaleMin.Text)
+        Dim tempMax As Double = ParseInvariantDouble(ChartScaleMax.Text)
+        If tempMax > tempMin Then
+            Chart2TempAxis.Min = tempMin
+            Chart2TempAxis.Max = tempMax
+        End If
+
+        Dim humMin As Double = ParseInvariantDouble(ChartScaleHUMMin.Text)
+        Dim humMax As Double = ParseInvariantDouble(ChartScaleHUMMax.Text)
+        If humMax > humMin Then
+            Chart2HumAxis.Min = humMin
+            Chart2HumAxis.Max = humMax
+        End If
+
+        ' PPMscalerangeentry is the full top-to-bottom span (5 = +2.5 at the top, -2.5 at the bottom).
+        If CheckBoxPBXYaxis.Checked Then Chart2AutoScaleXY()
+
+        Dim ppmRange As Double = ParseInvariantDouble(PPMscalerangeentry.Text)
+        If ppmRange > 0 Then
+            Chart2PPMAxis.Min = -ppmRange / 2
+            Chart2PPMAxis.Max = ppmRange / 2
+        End If
+
+        ' Ticks were generated before this hook ran, so regenerate them for the limits/format set above.
+        Dim tickLength As New ScottPlot.PixelLength(rp.DataRect.Height)
+        FormsPlot2.Plot.Axes.Left.RegenerateTicks(tickLength, rp.Paint)
+        Chart2TempAxis.RegenerateTicks(tickLength, rp.Paint)
+        Chart2HumAxis.RegenerateTicks(tickLength, rp.Paint)
+        Chart2PPMAxis.RegenerateTicks(tickLength, rp.Paint)
+
+    End Sub
 
 
     Private Sub Formtest_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
@@ -173,10 +309,8 @@ Public Class Chart
         RadioButtonPPMTempoLinReg.BackColor = Color.White
         RadioButtonPPMTempoRolling.BackColor = Color.White
 
-        ' These default to Enabled=True in the Designer, but CheckBoxPPMenable
-        ' only flips them via its own CheckedChanged handler - which never
-        ' fires on its own just from a Designer default, so without this
-        ' they'd sit enabled at startup despite Enable PPM being unchecked.
+        ' Designer default is Enabled=True, but CheckBoxPPMenable's handler doesn't fire at startup,
+        ' so disable these here while Enable PPM is unchecked.
         RadioButtonPPMDev.Enabled = False
         RadioButtonPPMTempo.Enabled = False
         RadioButtonPPMTempoLinReg.Enabled = False
@@ -218,10 +352,10 @@ Public Class Chart
         GroupBoxMiscTempHum.Enabled = True
         YaxisBox1.Enabled = True
 
-        YaxisLoad.Enabled = True
-
         ChartScaleMax.Text = My.Settings.data20
         ChartScaleMin.Text = My.Settings.data21
+        ChartScaleHUMMin.Text = My.Settings.data1464
+        ChartScaleHUMMax.Text = My.Settings.data1465
         YaxisMaximum.Text = My.Settings.data24
         YaxisMinimum.Text = My.Settings.data25
         MedianValue.Text = My.Settings.data26
@@ -231,21 +365,8 @@ Public Class Chart
 
         YaxisMaximum.ReadOnly = True
         YaxisMinimum.ReadOnly = True
-        RangeRequired.ReadOnly = True
 
-        ButtonScrollLeft.Enabled = False
-        ButtonScrollRight.Enabled = False
-        ButtonScrollLeftSMALL.Enabled = False
-        ButtonScrollRightSMALL.Enabled = False
-        ButtonZoomIn.Enabled = False
-        ButtonZoomOut.Enabled = False
-        ButtonYminInc.Enabled = False
-        ButtonYminDec.Enabled = False
-        ButtonYmaxInc.Enabled = False
-        ButtonYmaxDec.Enabled = False
         ButtonDisplayAll.Enabled = False
-        ButtonShiftUp.Enabled = False
-        ButtonShiftDn.Enabled = False
 
         CSVfilenamePlayback.ReadOnly = True
 
@@ -264,11 +385,6 @@ Public Class Chart
         PPMscalerangeentry.Enabled = False
         PPMscaleText.Enabled = False
 
-        YaxisCheck1.Checked = False
-        YaxisCheck2.Checked = False
-        YaxisCheck3.Checked = False
-        YaxisCheck4.Checked = False
-
         Loading.Visible = False
 
         PlaybackstrPath = "C:\Users\" & Environment.UserName & "\Documents\WinGPIBdata"
@@ -279,283 +395,252 @@ Public Class Chart
         ChartOffReadyForCSV()
 
 
-        ' ==========================================================
-        ' Chart2 initialise
-        ' ==========================================================
-        Chart2.Location = New Point(1, 202)
-        Chart2.Size = New Size(1334, 610)
+        ' FormsPlot2 initialise.
+        FormsPlot2.Location = PlaybackChartLocation
+        FormsPlot2.Size = PlaybackChartSize
 
-        Chart2.ChartAreas(0).AxisY.LabelStyle.Enabled = True
-        Chart2.ChartAreas(0).AxisX.MajorTickMark.Enabled = True
-        Chart2.ChartAreas(0).AxisX.Interval = 95
+        FormsPlot2.Plot.Axes.Bottom.TickLabelStyle.FontSize = 9
+        FormsPlot2.Plot.Axes.Left.TickLabelStyle.FontSize = 9
 
-        Chart2.ChartAreas(0).AxisY.LabelStyle.Font = New Font("Verdana", 8)
+        FormsPlot2.Plot.Grid.MajorLineColor = New ScottPlot.Color(Color.FromArgb(255, 85, 85, 85))
+        FormsPlot2.Plot.Grid.MajorLinePattern = ScottPlot.LinePattern.Dotted
+        FormsPlot2.Plot.Grid.MinorLineColor = New ScottPlot.Color(Color.FromArgb(150, 85, 85, 85))
+        FormsPlot2.Plot.Grid.MinorLineWidth = 1
+        FormsPlot2.Plot.Grid.XAxisStyle.MinorLineStyle.Pattern = ScottPlot.LinePattern.Dotted
+        FormsPlot2.Plot.Grid.YAxisStyle.MinorLineStyle.Pattern = ScottPlot.LinePattern.Dotted
 
-        Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{000.0000000}"
+        FormsPlot2.Plot.Axes.FrameColor(New ScottPlot.Color(Color.White))
 
-        Chart2.ChartAreas(0).AxisY.MajorTickMark.Enabled = True
-        Chart2.ChartAreas(0).AxisX.MinorTickMark.Enabled = False
-        Chart2.ChartAreas(0).AxisY.MinorTickMark.Enabled = False
+        FormsPlot2.Plot.FigureBackground.Color = New ScottPlot.Color(SystemColors.Control)
+        FormsPlot2.Plot.DataBackground.Color = ScottPlot.Colors.Black
 
-        Chart2.ChartAreas(0).AxisX.MajorGrid.Enabled = True
-        Chart2.ChartAreas(0).AxisY.MajorGrid.Enabled = True
-        Chart2.ChartAreas(0).AxisX.MinorGrid.Enabled = True
-        Chart2.ChartAreas(0).AxisY.MinorGrid.Enabled = True
+        FormsPlot2.Plot.Legend.IsVisible = False
 
-        Chart2.ChartAreas(0).AxisX.MajorGrid.LineColor = Color.FromArgb(255, 85, 85, 85)
-
-        Chart2.ChartAreas(0).AxisY.MajorGrid.LineColor = Color.FromArgb(255, 85, 85, 85)
-
-        Chart2.ChartAreas(0).AxisX.MinorGrid.LineColor = Color.FromArgb(150, 85, 85, 85)
-
-        Chart2.ChartAreas(0).AxisY.MinorGrid.LineColor = Color.FromArgb(150, 85, 85, 85)
-
-        Chart2.DataBindTable(gChartPlayback)
-
-        Chart2.Series(0).ChartType = 2
-        Chart2.Series.Clear()
-
-        Chart2.ChartAreas(0).BorderWidth = 1
+        ' Zero horizontal margin so the auto-fitted X axis has no empty space before the first or after the last point.
+        FormsPlot2.Plot.Axes.MarginsX(0)
 
 
-        ' ==========================================================
-        ' Add Statistics ChartArea BEFORE assigning series to it
-        ' ==========================================================
-
-        Dim statsArea As New DataVisualization.Charting.ChartArea("Statistics")
-
-        statsArea.BackColor = Color.Black
-        statsArea.BorderWidth = 1
-
-        statsArea.AxisX.LabelStyle.Enabled = False
-        statsArea.AxisX.MajorTickMark.Enabled = False
-        statsArea.AxisX.MinorTickMark.Enabled = False
-
-        statsArea.AxisX.MajorGrid.Enabled = True
-        ' FixTicks() explicitly disables ChartAreas(0)'s own X minor grid
-        ' every refresh, so the main chart never actually shows one either
-        ' - keep this panel matching that (no minor grid on either axis).
-        statsArea.AxisX.MinorGrid.Enabled = False
-
-        statsArea.AxisY.MajorGrid.Enabled = True
-        statsArea.AxisY.MinorGrid.Enabled = False
-
-        statsArea.AxisX.MajorGrid.LineDashStyle = DataVisualization.Charting.ChartDashStyle.Dot
-
-        statsArea.AxisY.MajorGrid.LineDashStyle = DataVisualization.Charting.ChartDashStyle.Dot
-
-        statsArea.AxisX.MajorGrid.LineColor = Color.FromArgb(255, 85, 85, 85)
-
-        statsArea.AxisY.MajorGrid.LineColor = Color.FromArgb(255, 85, 85, 85)
-
-        ' Match Y-axis scale appearance to main chart
-        statsArea.AxisY.LabelStyle.ForeColor = Color.Black
-        statsArea.AxisY.LabelStyle.Font = New Font("Verdana", 8)
-
-        statsArea.AxisY.IsLabelAutoFit = True
-        statsArea.AxisY.LabelAutoFitStyle = DataVisualization.Charting.LabelAutoFitStyles.DecreaseFont
-
-        'statsArea.AxisY.LabelStyle.Format = "0.0E+00"
-        statsArea.AxisY.LabelStyle.Format = "0.0000000"
-
-        statsArea.AxisX.LabelStyle.ForeColor = Color.Black
-
-        statsArea.Position.Auto = False
-        statsArea.Position = New DataVisualization.Charting.ElementPosition(7.0F, 77.0F, 91.0F, 20.0F)
-
-        statsArea.InnerPlotPosition.Auto = False
-        statsArea.InnerPlotPosition = New DataVisualization.Charting.ElementPosition(8.0F, 5.0F, 88.0F, 88.0F)
-
-        Chart2.ChartAreas.Add(statsArea)
-
-
-        ' ==========================================================
-        ' Main chart area
-        ' ==========================================================
-
-        Chart2.ChartAreas(0).Position.Auto = False
-
-        Chart2.ChartAreas(0).Position = New DataVisualization.Charting.ElementPosition(7.0F, 4.0F, 91.0F, 70.0F)
-
-        Chart2.ChartAreas(0).InnerPlotPosition.Auto = False
-
-        Chart2.ChartAreas(0).InnerPlotPosition = New DataVisualization.Charting.ElementPosition(8.0F, 5.0F, 88.0F, 90.0F)
-
-
-        ' ==========================================================
         ' Add chart series
-        ' ==========================================================
 
-        Chart2.Series.Add("Device 1")
-        Chart2.Series.Add("Device 2")
-        Chart2.Series.Add("Temperature")
-        Chart2.Series.Add("Humidity")
-        Chart2.Series.Add("PPM Dev 1")
+        Chart2Dev1Series = FormsPlot2.Plot.Add.Scatter(Chart2Dev1Data, New ScottPlot.Color(Color.Yellow))
+        Chart2Dev2Series = FormsPlot2.Plot.Add.Scatter(Chart2Dev2Data, New ScottPlot.Color(Color.Aqua))
+        Chart2TempSeries = FormsPlot2.Plot.Add.Scatter(Chart2TempData, New ScottPlot.Color(Color.Red))
+        Chart2HumSeries = FormsPlot2.Plot.Add.Scatter(Chart2HumData, New ScottPlot.Color(Color.DodgerBlue))
+        Chart2PPMSeries = FormsPlot2.Plot.Add.Scatter(Chart2PPMData, New ScottPlot.Color(Color.White))
 
-        Chart2.Series.Add("Dev 1 Mean")
-        Chart2.Series.Add("Dev 1 STDEV")
-        Chart2.Series.Add("Dev 1 SEM")
+        Chart2Dev1MeanSeries = FormsPlot2.Plot.Add.Scatter(Chart2Dev1MeanData, New ScottPlot.Color(Color.Orange))
+        Chart2Dev2MeanSeries = FormsPlot2.Plot.Add.Scatter(Chart2Dev2MeanData, New ScottPlot.Color(Color.Lime))
 
-        Chart2.Series.Add("Dev 2 Mean")
-        Chart2.Series.Add("Dev 2 STDEV")
-        Chart2.Series.Add("Dev 2 SEM")
+        Chart2Dev1ShortTermMeanSeries = FormsPlot2.Plot.Add.Scatter(Chart2Dev1ShortTermMeanData, New ScottPlot.Color(Color.OrangeRed))
+        Chart2Dev2ShortTermMeanSeries = FormsPlot2.Plot.Add.Scatter(Chart2Dev2ShortTermMeanData, New ScottPlot.Color(Color.Khaki))
 
-        Chart2.Series.Add("Dev 1 Max Diff")
-        Chart2.Series.Add("Dev 1 Deviation")
-
-        Chart2.Series.Add("Dev 2 Max Diff")
-        Chart2.Series.Add("Dev 2 Deviation")
-
-        Chart2.Series.Add("Dev 1 Short-Term Mean")
-        Chart2.Series.Add("Dev 2 Short-Term Mean")
-
-
-        ' ==========================================================
-        ' Assign statistics series to correct ChartAreas
-        ' ==========================================================
-
-        Chart2.Series(5).ChartArea = Chart2.ChartAreas(0).Name
-
-        Chart2.Series(8).ChartArea = Chart2.ChartAreas(0).Name
-
-        Chart2.Series(15).ChartArea = Chart2.ChartAreas(0).Name
-
-        Chart2.Series(16).ChartArea = Chart2.ChartAreas(0).Name
-
-        Chart2.Series(6).ChartArea = "Statistics"
-        Chart2.Series(7).ChartArea = "Statistics"
-        Chart2.Series(9).ChartArea = "Statistics"
-        Chart2.Series(10).ChartArea = "Statistics"
-
-        Chart2.Series(11).ChartArea = "Statistics"
-        Chart2.Series(12).ChartArea = "Statistics"
-        Chart2.Series(13).ChartArea = "Statistics"
-        Chart2.Series(14).ChartArea = "Statistics"
-
-
-        ' ==========================================================
-        ' Chart types
-        ' ==========================================================
-
-        CheckDev1Line.Checked = True
-        CheckDev1Point.Checked = False
-        CheckDev2Line.Checked = True
-        CheckDev2Point.Checked = False
-
-        For i As Integer = 0 To 16
-
-            Chart2.Series(i).ChartType = DataVisualization.Charting.SeriesChartType.Line
-
+        For Each s As ScottPlot.Plottables.Scatter In {Chart2Dev1Series, Chart2Dev2Series, Chart2TempSeries, Chart2HumSeries,
+                                                        Chart2PPMSeries, Chart2Dev1MeanSeries, Chart2Dev2MeanSeries,
+                                                        Chart2Dev1ShortTermMeanSeries, Chart2Dev2ShortTermMeanSeries}
+            s.MarkerStyle.IsVisible = False
         Next
 
-        Chart2.Series(0).YValueType = DataVisualization.Charting.ChartValueType.Single
+        ' Mean/Short-Term Mean have no data until their checkboxes are used, so start hidden.
+        Chart2Dev1MeanSeries.IsVisible = False
+        Chart2Dev2MeanSeries.IsVisible = False
+        Chart2Dev1ShortTermMeanSeries.IsVisible = False
+        Chart2Dev2ShortTermMeanSeries.IsVisible = False
 
 
-        ' ==========================================================
-        ' Colours
-        ' ==========================================================
+        ' Temperature: secondary (right-hand) axis, ranged from ChartScaleMin/Max.
 
-        Chart2.Series(0).Color = Color.Yellow
-        Chart2.Series(1).Color = Color.Aqua
-        Chart2.Series(2).Color = Color.Red
-        Chart2.Series(3).Color = Color.DodgerBlue
-        Chart2.Series(4).Color = Color.White
-
-        ' Device 1
-        Chart2.Series(5).Color = Color.Orange          ' Dev 1 Mean
-        Chart2.Series(6).Color = Color.LightGray       ' Dev 1 STDEV
-        Chart2.Series(7).Color = Color.DeepSkyBlue     ' Dev 1 SEM
-        Chart2.Series(11).Color = Color.Gold           ' Dev 1 Max Diff
-        Chart2.Series(12).Color = Color.White          ' Dev 1 PPM Deviation
-        Chart2.Series(15).Color = Color.OrangeRed      ' Dev 1 Short-Term Mean
-
-        ' Device 2
-        Chart2.Series(8).Color = Color.Lime            ' Dev 2 Mean
-        Chart2.Series(9).Color = Color.Magenta         ' Dev 2 STDEV
-        Chart2.Series(10).Color = Color.LimeGreen      ' Dev 2 SEM
-        Chart2.Series(13).Color = Color.HotPink        ' Dev 2 Max Diff
-        Chart2.Series(14).Color = Color.LightGray      ' Dev 2 PPM Deviation
-        Chart2.Series(16).Color = Color.Khaki   ' Dev 2 Short-Term Mean
+        Chart2TempAxis = FormsPlot2.Plot.Axes.Right
+        Chart2TempAxis.IsVisible = True
+        Chart2TempAxis.Min = 15
+        Chart2TempAxis.Max = 50
+        Chart2TempAxis.TickLabelStyle.FontSize = 9
+        Chart2TempSeries.Axes.YAxis = Chart2TempAxis
 
 
-        ' ==========================================================
-        ' Start statistics series hidden
-        ' ==========================================================
+        ' Humidity: its own axis, ranged from ChartScaleHUMMin/Max.
 
-        Chart2.Series(5).Enabled = False
-        Chart2.Series(6).Enabled = False
-        Chart2.Series(7).Enabled = False
-
-        Chart2.Series(8).Enabled = False
-        Chart2.Series(9).Enabled = False
-        Chart2.Series(10).Enabled = False
-
-        Chart2.Series(11).Enabled = False
-        Chart2.Series(12).Enabled = False
-        Chart2.Series(13).Enabled = False
-        Chart2.Series(14).Enabled = False
+        Chart2HumAxis = FormsPlot2.Plot.Axes.AddRightAxis()
+        Chart2HumAxis.IsVisible = True
+        Chart2HumAxis.TickLabelStyle.FontSize = 9
+        Chart2HumSeries.Axes.YAxis = Chart2HumAxis
 
 
-        ' ==========================================================
-        ' Existing chart settings
-        ' ==========================================================
+        ' PPM: a real third right-hand axis.
 
-        Chart2.Legends(0).Enabled = False
+        Chart2PPMAxis = FormsPlot2.Plot.Axes.AddRightAxis()
+        Chart2PPMAxis.IsVisible = True
+        Chart2PPMAxis.TickLabelStyle.FontSize = 9
+        Chart2PPMSeries.Axes.YAxis = Chart2PPMAxis
 
-        Chart2.ChartAreas(0).AxisX.IntervalAutoMode =
-        DataVisualization.Charting.IntervalAutoMode.VariableCount
+        ' Keeps Temp/Hum/PPM independent of the mouse: ScottPlot's drag/wheel zoom applies to every axis,
+        ' so Chart2RenderStarting snaps those axes back to their intended range each render.
+        FormsPlot2.Plot.RenderManager.RenderStarting = New EventHandler(Of ScottPlot.RenderPack)(AddressOf Chart2RenderStarting)
 
-        Chart2.ChartAreas(0).AxisY.LabelAutoFitStyle =
-        DataVisualization.Charting.LabelAutoFitStyles.DecreaseFont
+        ' Same as the Live Chart: any manual mouse pan/zoom switches
+        ' AutoScale Y-axis off, so the chart stops chasing the data.
+        Chart2Crosshair = FormsPlot2.Plot.Add.Crosshair(0, 0)
+        Chart2Crosshair.IsVisible = False
 
-        Chart2.ChartAreas(0).AxisX.IntervalOffset = 0
+        Chart2HighlightMarker = FormsPlot2.Plot.Add.Marker(0, 0)
+        Chart2HighlightMarker.Shape = ScottPlot.MarkerShape.OpenCircle
+        Chart2HighlightMarker.Size = 12
+        Chart2HighlightMarker.LineWidth = 2
+        Chart2HighlightMarker.IsVisible = False
 
-        Chart2.ChartAreas(0).AxisX.MajorGrid.LineDashStyle =
-        DataVisualization.Charting.ChartDashStyle.Dot
+        Chart2HighlightText = FormsPlot2.Plot.Add.Text("", 0, 0)
+        Chart2HighlightText.LabelAlignment = ScottPlot.Alignment.LowerLeft
+        Chart2HighlightText.LabelBold = True
+        Chart2HighlightText.OffsetX = 7
+        Chart2HighlightText.OffsetY = -7
+        Chart2HighlightText.LabelBackgroundColor = New ScottPlot.Color(Color.FromArgb(40, 40, 40))
+        Chart2HighlightText.IsVisible = False
 
-        Chart2.ChartAreas(0).AxisY.MajorGrid.LineDashStyle =
-        DataVisualization.Charting.ChartDashStyle.Dot
+        Chart2MeasureMarkerA = FormsPlot2.Plot.Add.Marker(0, 0)
+        Chart2MeasureMarkerA.Shape = ScottPlot.MarkerShape.FilledDiamond
+        Chart2MeasureMarkerA.Size = 10
+        Chart2MeasureMarkerA.Color = New ScottPlot.Color(Color.White)
+        Chart2MeasureMarkerA.IsVisible = False
 
-        Chart2.ChartAreas(0).AxisX.LabelStyle.Enabled = False
+        Chart2MeasureMarkerB = FormsPlot2.Plot.Add.Marker(0, 0)
+        Chart2MeasureMarkerB.Shape = ScottPlot.MarkerShape.FilledDiamond
+        Chart2MeasureMarkerB.Size = 10
+        Chart2MeasureMarkerB.Color = New ScottPlot.Color(Color.White)
+        Chart2MeasureMarkerB.IsVisible = False
 
-        Chart2.ChartAreas(0).AxisY2.MajorTickMark.Enabled = True
-        Chart2.ChartAreas(0).AxisY2.MinorTickMark.Enabled = False
+        Chart2MeasureLine = FormsPlot2.Plot.Add.Line(0, 0, 0, 0)
+        Chart2MeasureLine.LineColor = New ScottPlot.Color(Color.White)
+        Chart2MeasureLine.LinePattern = ScottPlot.LinePattern.Dashed
+        Chart2MeasureLine.MarkerSize = 0
+        Chart2MeasureLine.IsVisible = False
 
-        Chart2.ChartAreas(0).AxisY2.LabelAutoFitStyle =
-        DataVisualization.Charting.LabelAutoFitStyles.DecreaseFont
+        Chart2MeasureText = FormsPlot2.Plot.Add.Text("", 0, 0)
+        Chart2MeasureText.LabelAlignment = ScottPlot.Alignment.LowerLeft
+        Chart2MeasureText.LabelBold = True
+        Chart2MeasureText.OffsetX = 7
+        Chart2MeasureText.OffsetY = -7
+        Chart2MeasureText.LabelBackgroundColor = New ScottPlot.Color(Color.FromArgb(40, 40, 40))
+        Chart2MeasureText.LabelFontColor = New ScottPlot.Color(Color.White)
+        Chart2MeasureText.IsVisible = False
 
-        Chart2.ChartAreas(0).AxisY2.Interval = 1
+        AddHandler FormsPlot2.MouseMove, AddressOf Chart2ShowValueOnHover
 
-        Chart2.ChartAreas(0).AxisY2.MajorGrid.LineColor = Color.FromArgb(100, 85, 85, 85)
+        ' Frees up double-click for the measurement tool.
+        FormsPlot2.UserInputProcessor.DoubleLeftClickBenchmark(False)
 
-        Chart2.ChartAreas(0).AxisY2.MinorGrid.LineColor = Color.FromArgb(100, 85, 85, 85)
+        Dim chart2Menu As ScottPlot.WinForms.FormsPlotMenu = DirectCast(FormsPlot2.Menu, ScottPlot.WinForms.FormsPlotMenu)
+        chart2Menu.Clear()
+        chart2Menu.Add("Save Image", AddressOf chart2Menu.OpenSaveImageDialog)
+        chart2Menu.Add("Copy Value At Cursor", AddressOf Chart2CopyValueAtCursor)
+        chart2Menu.Add("Clear Measurement", AddressOf Chart2ClearMeasurement)
 
-
-        ' ==========================================================
-        ' Temperature
-        ' ==========================================================
-
-        Chart2.Series(2).YAxisType = DataVisualization.Charting.AxisType.Secondary
-
-        Chart2.ChartAreas(0).AxisY2.Enabled = True
-        Chart2.ChartAreas(0).AxisY2.Minimum = 15
-        Chart2.ChartAreas(0).AxisY2.Maximum = 50
-
-        Chart2.ChartAreas(0).AxisY2.Enabled = DataVisualization.Charting.AxisEnabled.True
-
-        Chart2.ChartAreas(0).AxisY2.LabelStyle.Enabled = True
-
-
-        ' ==========================================================
-        ' Humidity
-        ' ==========================================================
-
-        Chart2.Series(3).YAxisType = DataVisualization.Charting.AxisType.Secondary
+        AddHandler FormsPlot2.MouseDown, AddressOf Chart2OnMouseDown
+        AddHandler FormsPlot2.MouseWheel,
+            Sub(snd, ev)
+                CheckBoxPBXYaxis.Checked = False
+                Chart2EchoYRange()
+            End Sub
+        AddHandler FormsPlot2.MouseUp, Sub(snd, ev) Chart2EchoYRange()
+        AddHandler FormsPlot2.KeyDown, AddressOf Chart2OnKeyDown
 
 
-        ' ==========================================================
+        ' Statistics chart (FormsPlot3)
+
+        FormsPlot3 = New ScottPlot.WinForms.FormsPlot()
+        FormsPlot3.Location = StatsChartLocation
+        FormsPlot3.Size = StatsChartSize
+        FormsPlot3.Anchor = AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
+        FormsPlot3.Visible = FormsPlot2.Visible
+        Me.Controls.Add(FormsPlot3)
+
+        AddHandler FormsPlot2.VisibleChanged, Sub(snd, ev) FormsPlot3.Visible = FormsPlot2.Visible
+
+        FormsPlot3.Plot.Grid.MajorLinePattern = ScottPlot.LinePattern.Dotted
+        FormsPlot3.Plot.Grid.YAxisStyle.MinorLineStyle.Pattern = ScottPlot.LinePattern.Dotted
+        FormsPlot3.Plot.Axes.MarginsX(0)
+        FormsPlot3.Plot.Axes.Left.TickLabelStyle.FontSize = 9
+        FormsPlot3.Plot.Axes.Right.TickLabelStyle.FontSize = 9
+        FormsPlot3.Plot.Axes.Bottom.TickLabelStyle.FontSize = 9
+        FormsPlot3.Plot.Legend.IsVisible = False
+
+        Chart3Dev1StdevSeries = FormsPlot3.Plot.Add.Scatter(Chart2Dev1StdevData, New ScottPlot.Color(Color.LightGray))
+        Chart3Dev1SEMSeries = FormsPlot3.Plot.Add.Scatter(Chart2Dev1SEMData, New ScottPlot.Color(Color.DeepSkyBlue))
+        Chart3Dev1MaxDiffSeries = FormsPlot3.Plot.Add.Scatter(Chart2Dev1MaxDiffData, New ScottPlot.Color(Color.Gold))
+        Chart3Dev1DeviationSeries = FormsPlot3.Plot.Add.Scatter(Chart2Dev1DeviationData, New ScottPlot.Color(Color.White))
+        Chart3Dev2StdevSeries = FormsPlot3.Plot.Add.Scatter(Chart2Dev2StdevData, New ScottPlot.Color(Color.Magenta))
+        Chart3Dev2SEMSeries = FormsPlot3.Plot.Add.Scatter(Chart2Dev2SEMData, New ScottPlot.Color(Color.LimeGreen))
+        Chart3Dev2MaxDiffSeries = FormsPlot3.Plot.Add.Scatter(Chart2Dev2MaxDiffData, New ScottPlot.Color(Color.HotPink))
+        Chart3Dev2DeviationSeries = FormsPlot3.Plot.Add.Scatter(Chart2Dev2DeviationData, New ScottPlot.Color(Color.LightGray))
+
+        FormsPlot3.Plot.Axes.Right.IsVisible = True
+        Chart3Dev1DeviationSeries.Axes.YAxis = FormsPlot3.Plot.Axes.Right
+        Chart3Dev2DeviationSeries.Axes.YAxis = FormsPlot3.Plot.Axes.Right
+
+        For Each st As ScottPlot.Plottables.Scatter In Chart3AllSeries()
+            st.MarkerStyle.IsVisible = False
+            st.IsVisible = False
+        Next
+
+        ' Follows FormsPlot2 (X range, plot edges) - no mouse pan/zoom of
+        ' its own, just Save Image on the right-click menu.
+        FormsPlot3.UserInputProcessor.Disable()
+        Dim chart3Menu As ScottPlot.WinForms.FormsPlotMenu = DirectCast(FormsPlot3.Menu, ScottPlot.WinForms.FormsPlotMenu)
+        chart3Menu.Clear()
+        chart3Menu.Add("Save Image", AddressOf chart3Menu.OpenSaveImageDialog)
+
+        Chart3Crosshair = FormsPlot3.Plot.Add.Crosshair(0, 0)
+        Chart3Crosshair.IsVisible = False
+
+        Chart3HighlightMarker = FormsPlot3.Plot.Add.Marker(0, 0)
+        Chart3HighlightMarker.Shape = ScottPlot.MarkerShape.OpenCircle
+        Chart3HighlightMarker.Size = 12
+        Chart3HighlightMarker.LineWidth = 2
+        Chart3HighlightMarker.IsVisible = False
+
+        Chart3HighlightText = FormsPlot3.Plot.Add.Text("", 0, 0)
+        Chart3HighlightText.LabelAlignment = ScottPlot.Alignment.LowerLeft
+        Chart3HighlightText.LabelBold = True
+        Chart3HighlightText.OffsetX = 7
+        Chart3HighlightText.OffsetY = -7
+        Chart3HighlightText.LabelBackgroundColor = New ScottPlot.Color(Color.FromArgb(40, 40, 40))
+        Chart3HighlightText.IsVisible = False
+
+        Chart3MeasureMarkerA = FormsPlot3.Plot.Add.Marker(0, 0)
+        Chart3MeasureMarkerA.Shape = ScottPlot.MarkerShape.FilledDiamond
+        Chart3MeasureMarkerA.Size = 10
+        Chart3MeasureMarkerA.Color = New ScottPlot.Color(Color.White)
+        Chart3MeasureMarkerA.IsVisible = False
+
+        Chart3MeasureMarkerB = FormsPlot3.Plot.Add.Marker(0, 0)
+        Chart3MeasureMarkerB.Shape = ScottPlot.MarkerShape.FilledDiamond
+        Chart3MeasureMarkerB.Size = 10
+        Chart3MeasureMarkerB.Color = New ScottPlot.Color(Color.White)
+        Chart3MeasureMarkerB.IsVisible = False
+
+        Chart3MeasureLine = FormsPlot3.Plot.Add.Line(0, 0, 0, 0)
+        Chart3MeasureLine.LineColor = New ScottPlot.Color(Color.White)
+        Chart3MeasureLine.LinePattern = ScottPlot.LinePattern.Dashed
+        Chart3MeasureLine.MarkerSize = 0
+        Chart3MeasureLine.IsVisible = False
+
+        Chart3MeasureText = FormsPlot3.Plot.Add.Text("", 0, 0)
+        Chart3MeasureText.LabelAlignment = ScottPlot.Alignment.LowerLeft
+        Chart3MeasureText.LabelBold = True
+        Chart3MeasureText.OffsetX = 7
+        Chart3MeasureText.OffsetY = -7
+        Chart3MeasureText.LabelBackgroundColor = New ScottPlot.Color(Color.FromArgb(40, 40, 40))
+        Chart3MeasureText.LabelFontColor = New ScottPlot.Color(Color.White)
+        Chart3MeasureText.IsVisible = False
+
+        ' ScottPlot's own input handling stays disabled (no pan/zoom); these
+        ' are plain WinForms events, so they still fire.
+        AddHandler FormsPlot3.MouseMove, AddressOf Chart3ShowValueOnHover
+        AddHandler FormsPlot3.MouseDown, AddressOf Chart3OnMouseDown
+        AddHandler FormsPlot3.KeyDown, AddressOf Chart3OnKeyDown
+
+        Chart3ApplyTheme(CheckBoxColours.Checked)
+
+
         ' CSV file format
-        ' ==========================================================
 
         dataTable1.Columns.Add("INDEX", GetType(Integer))
         dataTable1.Columns.Add("DEVICE", GetType(String))
@@ -587,9 +672,7 @@ Public Class Chart
         dataTable1.Columns.Add("PPM", GetType(Double))
 
 
-        ' ==========================================================
         ' Misc
-        ' ==========================================================
 
         RMSwindow.Text = "100"
 
@@ -598,9 +681,7 @@ Public Class Chart
         'RadioButtonPPMTempo.Text = "PPM/" & My.Settings.data324
 
 
-        ' ==========================================================
         ' Playback trace checkboxes
-        ' ==========================================================
 
         CheckPlaybackDev1Data.Checked = True
         CheckPlaybackDev2Data.Checked = True
@@ -636,39 +717,25 @@ Public Class Chart
     End Sub
 
 
-    ' ==========================================================
-    ' Resizable-form layout support
-    ' ==========================================================
-    ' The form was originally FixedDialog/non-resizable with every
-    ' control absolutely positioned. Making it resizable needs three
-    ' different strategies depending on what a control actually is:
-    '  - The control panel above the chart (GroupBoxes, Load/Save/Help
-    '    buttons, CSV path box) stays exactly as designed internally, and
-    '    stays left-justified at its original position as the form widens.
-    '    The Load/Save/Help/CSV-path cluster at the top left stays rigid
-    '    with no internal spacing, but the 9 GroupBoxes get extra gaps
-    '    inserted between them (up to 30px per gap) as the form is
-    '    widened - see OriginalGroupASlot.
-    '  - Chart2 itself is anchored to grow with the form on all sides.
-    '  - The right-hand PPM/DegC/%RH scale (Scale1-Scale25 plus their
-    '    header labels) isn't a real chart axis - it's individually
-    '    managed Label controls whose Text gets written elsewhere
-    '    (PrintYscale()) but whose position was never touched. These
-    '    track the chart's right edge and stretch proportionally to its
-    '    height as the chart resizes.
+    ' Resizable-form layout:
+    '  - Top control panel keeps its layout; the GroupBoxes spread apart as the form widens (see OriginalGroupASlot).
+    '  - FormsPlot2/FormsPlot3 stretch with the form; the PPM/DegC/%RH header labels track the chart's right edge.
 
     Private OriginalGroupALeft As New Dictionary(Of Control, Integer)
     Private OriginalFormClientWidth As Integer
+    Private OriginalFormClientHeight As Integer
+    Private OriginalChart3Top As Integer
+    Private OriginalChart3Height As Integer
+    Private OriginalPPMStatsTopOffset As Integer
+    Private Chart3HeightShare As Double = 0     ' Statistics chart's share of the two charts' combined height
+    Private SplitterDragging As Boolean = False
+    Private SplitterDragStartY As Integer
+    Private SplitterDragStartMainHeight As Integer
+    Private ReadOnly SplitterClock As Stopwatch = Stopwatch.StartNew()
+    Private SplitterLastApplyMs As Long = 0
+    Private Const SplitterApplyIntervalMs As Long = 20      ' minimum time between resizes while dragging
 
-    ' Which of the 7 left-to-right "columns" a Group A control belongs to
-    ' (see ClassifyGroupASlot) - the top-left Load/Save/Help/CSV-path
-    ' cluster and YaxisBox1 ("Y-AXIS SCALE") are both slot 0 (the anchor,
-    ' never shifted for spacing), and GroupBox4/GroupBox3 ("DEV 1
-    ' TRACES"/"CSV", which share a left edge) and GroupBoxMisc/
-    ' GroupBoxMiscTempHum ("MISC."/"TEMP/HUM", which share a right edge)
-    ' are deliberately given the SAME slot number each, so both members
-    ' of those aligned pairs always get an identical extra shift and stay
-    ' aligned with each other as spacing is added.
+    ' Column slot of each Group A control (see ClassifyGroupASlot); slot 0 never shifts.
     Private OriginalGroupASlot As New Dictionary(Of Control, Integer)
 
     ' Bottom-right resize grip - see InitializeResizableLayout. Kept as a
@@ -681,184 +748,47 @@ Public Class Chart
     Private OriginalChart2Height As Integer
     Private OriginalChart2Width As Integer
 
-    ' ChartAreas(0)/("Statistics")'s Position.X/Width and InnerPlotPosition
-    ' (the visible margin before the plotted area, e.g. room for Y-axis
-    ' labels) are both percentages of Chart2's width, so their margins
-    ' grow in pixels as Chart2 widens. These record the ORIGINAL pixel
-    ' margins for each layer so they can be held constant on resize (see
-    ' UpdateChartAreaHorizontalMargins) - the plot absorbs the extra width
-    ' instead. A small extra pad ramps in on the inner margins once the
-    ' form is enlarged past its original size (see InnerMarginPadPx), so
-    ' longer/higher-precision axis text (e.g. "1.0000197082") has room to
-    ' fit, without affecting the chart's width at/below its original size.
-    Private Const InnerMarginPadPx As Double = 20.0
+    ' ScottPlot lays out its own margins from the rendered tick labels, so no margin tracking is needed on resize.
 
-    Private OriginalMainAreaLeftMarginPx As Double
-    Private OriginalMainAreaRightMarginPx As Double
-    Private OriginalMainInnerLeftMarginPx As Double
-    Private OriginalMainInnerRightMarginPx As Double
-    Private OriginalStatsAreaLeftMarginPx As Double
-    Private OriginalStatsAreaRightMarginPx As Double
-    Private OriginalStatsInnerLeftMarginPx As Double
-    Private OriginalStatsInnerRightMarginPx As Double
-
-    ' Same idea vertically: Chart2's two stacked ChartAreas (main +
-    ' "Statistics", see BrowseToFile_Click) have Position.Y/Height and
-    ' InnerPlotPosition.Y/Height as percentages of Chart2's height too, so
-    ' the top margin above the main plot, the gap between the two plots,
-    ' and the bottom margin below Statistics all grow as Chart2 gets
-    ' taller. These record the ORIGINAL pixel values so they can be held
-    ' constant on resize (see UpdateChartAreaVerticalMargins) - the two
-    ' plot areas split the extra/lost height between them, in their
-    ' original height ratio.
-    Private OriginalMainAreaTopMarginPx As Double
-    Private OriginalAreaGapPx As Double
-    Private OriginalStatsAreaBottomMarginPx As Double
-    Private OriginalMainAreaHeightRatio As Double
-
-    Private OriginalMainInnerTopMarginPx As Double
-    Private OriginalMainInnerBottomMarginPx As Double
-    Private OriginalStatsInnerTopMarginPx As Double
-    Private OriginalStatsInnerBottomMarginPx As Double
-
-    ' Fraction (0.0 = chart top, 1.0 = chart bottom) for each Scale1-25
-    ' label, by INDEX in the 25-label set rather than original pixel
-    ' position - pins Scale1 exactly to the chart's top and Scale25 to
-    ' its bottom regardless of size, evenly spreading the rest between.
-    Private OriginalScaleLabelFraction As New Dictionary(Of Control, Double)
-
-    ' LabelTempC/LabelHum ("DegC"/"%RH") - kept as a rigid pair (fixed
-    ' gap between them) and centred over the chart's actual plot right
-    ' edge, same reasoning as the Scale1-25 Y fix.
-    Private OriginalTempHumBlockWidth As Integer
-    Private OriginalLabelHumGapFromTempC As Integer
-
-    ' ButtonShiftUp/ButtonShiftDn sit to the left of Chart2 - tracked
-    ' relative to its Left edge so they stay glued to it, and moved as a
-    ' single rigid pair (their own spacing never changes) to stay at the
-    ' same relative vertical position as the chart's height changes.
-    Private OriginalShiftButtonLeftOffset As New Dictionary(Of Control, Integer)
-    Private OriginalShiftPairCenterFraction As Double
-    Private OriginalShiftButtonOffsetFromPairCenter As New Dictionary(Of Control, Integer)
-
-    ' Xscale/Xscaletotal sit just above the chart as a rigid pair (fixed
-    ' gap between them, same idea as LabelTempC/LabelHum) and are simply
-    ' centred on the form's width. LabelTopTopChart (a separate label at
-    ' a different Y, shown only before a CSV is loaded) is centred
-    ' independently the same way.
+    ' Xscale/Xscaletotal are a rigid pair centred on the form width, as is LabelTopTopChart (shown before a CSV loads).
     Private OriginalXscalePairWidth As Integer
     Private OriginalXscaletotalGapFromXscale As Integer
+
+    ' Total length of the CSV in minutes; Xscaletotal's text is display only (visible/total).
+    Private Chart2TotalMins As Double = 0
 
     Private Sub InitializeResizableLayout()
 
         ' Group B: the chart's own right-hand scale - tracks the chart's
         ' right edge, and stretches with its height. Built first so Group
         ' A's sweep below can exclude these by reference.
-        OriginalChart2Top = Chart2.Top
-        OriginalChart2Left = Chart2.Left
-        OriginalChart2Height = Chart2.Height
-        OriginalChart2Width = Chart2.Width
+        OriginalChart2Top = FormsPlot2.Top
+        OriginalChart2Left = FormsPlot2.Left
+        OriginalChart2Height = FormsPlot2.Height
+        OriginalChart2Width = FormsPlot2.Width
 
-        Dim mainPos = Chart2.ChartAreas(0).Position
-        OriginalMainAreaLeftMarginPx = (mainPos.X / 100.0) * OriginalChart2Width
-        OriginalMainAreaRightMarginPx = ((100.0 - mainPos.X - mainPos.Width) / 100.0) * OriginalChart2Width
-
-        Dim mainPosWidthPx As Double = (mainPos.Width / 100.0) * OriginalChart2Width
-        Dim mainInner = Chart2.ChartAreas(0).InnerPlotPosition
-        OriginalMainInnerLeftMarginPx = (mainInner.X / 100.0) * mainPosWidthPx
-        OriginalMainInnerRightMarginPx = ((100.0 - mainInner.X - mainInner.Width) / 100.0) * mainPosWidthPx
-
-        Dim statsPos = Chart2.ChartAreas("Statistics").Position
-        OriginalStatsAreaLeftMarginPx = (statsPos.X / 100.0) * OriginalChart2Width
-        OriginalStatsAreaRightMarginPx = ((100.0 - statsPos.X - statsPos.Width) / 100.0) * OriginalChart2Width
-
-        Dim statsPosWidthPx As Double = (statsPos.Width / 100.0) * OriginalChart2Width
-        Dim statsInner = Chart2.ChartAreas("Statistics").InnerPlotPosition
-        OriginalStatsInnerLeftMarginPx = (statsInner.X / 100.0) * statsPosWidthPx
-        OriginalStatsInnerRightMarginPx = ((100.0 - statsInner.X - statsInner.Width) / 100.0) * statsPosWidthPx
-
-        OriginalMainAreaTopMarginPx = (mainPos.Y / 100.0) * OriginalChart2Height
-        OriginalAreaGapPx = ((statsPos.Y - (mainPos.Y + mainPos.Height)) / 100.0) * OriginalChart2Height
-        OriginalStatsAreaBottomMarginPx = ((100.0 - statsPos.Y - statsPos.Height) / 100.0) * OriginalChart2Height
-
-        Dim originalMainHeightPx As Double = (mainPos.Height / 100.0) * OriginalChart2Height
-        Dim originalStatsHeightPx As Double = (statsPos.Height / 100.0) * OriginalChart2Height
-        OriginalMainAreaHeightRatio = originalMainHeightPx / (originalMainHeightPx + originalStatsHeightPx)
-
-        OriginalMainInnerTopMarginPx = (mainInner.Y / 100.0) * originalMainHeightPx
-        OriginalMainInnerBottomMarginPx = ((100.0 - mainInner.Y - mainInner.Height) / 100.0) * originalMainHeightPx
-
-        OriginalStatsInnerTopMarginPx = (statsInner.Y / 100.0) * originalStatsHeightPx
-        OriginalStatsInnerBottomMarginPx = ((100.0 - statsInner.Y - statsInner.Height) / 100.0) * originalStatsHeightPx
-
-        OriginalShiftButtonLeftOffset(ButtonShiftUp) = ButtonShiftUp.Left - OriginalChart2Left
-        OriginalShiftButtonLeftOffset(ButtonShiftDn) = ButtonShiftDn.Left - OriginalChart2Left
-
-        Dim pairCenterY As Double =
-        (ButtonShiftUp.Top + ButtonShiftDn.Top + ButtonShiftDn.Height) / 2.0
-
-        OriginalShiftPairCenterFraction = (pairCenterY - OriginalChart2Top) / OriginalChart2Height
-        OriginalShiftButtonOffsetFromPairCenter(ButtonShiftUp) = CInt(ButtonShiftUp.Top - pairCenterY)
-        OriginalShiftButtonOffsetFromPairCenter(ButtonShiftDn) = CInt(ButtonShiftDn.Top - pairCenterY)
-
-        ' Static header captions above the chart (DegC/%RH/PPM) - Chart2's
-        ' Top never actually changes on resize (only Height/Width do, per
-        ' its Anchor below), so these just need to track the right edge
-        ' horizontally; no vertical repositioning needed at all.
+        ' Header captions (DegC/%RH/PPM) only track the chart's right edge; Chart2's Top never changes.
         Dim headerLabels As New List(Of Control) From {
-            LabelPPMtop, LabelPPMdegctop
+            LabelPPMtop, LabelPPMdegctop, LabelTempC, LabelHum
         }
         For Each ctl As Control In headerLabels
             ctl.Anchor = AnchorStyles.Top Or AnchorStyles.Right
         Next
 
-        ' LabelTempC/LabelHum ("DegC"/"%RH") are handled separately below
-        ' (not via Anchor) - they need to track the chart's actual PLOT
-        ' right edge, which is a percentage of Chart2's width and so
-        ' drifts away from a fixed-pixel Anchor as the chart widens.
-        headerLabels.Add(LabelTempC)
-        headerLabels.Add(LabelHum)
-        OriginalTempHumBlockWidth = (LabelHum.Left + LabelHum.Width) - LabelTempC.Left
-        OriginalLabelHumGapFromTempC = LabelHum.Left - LabelTempC.Left
-
         OriginalXscalePairWidth = (Xscaletotal.Left + Xscaletotal.Width) - Xscale.Left
         OriginalXscaletotalGapFromXscale = Xscaletotal.Left - Xscale.Left
 
-        Dim scaleLabels As Control() = {
-            Scale1, Scale2, Scale3, Scale4, Scale5, Scale6, Scale7, Scale8,
-            Scale9, Scale10, Scale11, Scale12, Scale13, Scale14, Scale15,
-            Scale16, Scale17, Scale18, Scale19, Scale20, Scale21, Scale22,
-            Scale23, Scale24, Scale25
-        }
-        For i As Integer = 0 To scaleLabels.Length - 1
-            OriginalScaleLabelFraction(scaleLabels(i)) = i / CDbl(scaleLabels.Length - 1)
-            scaleLabels(i).Anchor = AnchorStyles.Top Or AnchorStyles.Right
-        Next
-
         Dim groupB As New List(Of Control)
         groupB.AddRange(headerLabels)
-        groupB.AddRange(scaleLabels)
 
-        ' Group A: the fixed top control panel - internal layout
-        ' untouched, left-justified at its original position on resize
-        ' (only the spacing between its column slots grows - see
-        ' ClassifyGroupASlot). Built by sweeping every direct child of the
-        ' form above the chart, rather than naming controls individually,
-        ' since some controls that look like they sit "inside" a GroupBox
-        ' (e.g. Y-AXIS SCALE's Save button and 1/2/3/4 checkboxes; X-AXIS
-        ' SCALE's nav/zoom buttons) are actually separate siblings on the
-        ' form - a position-based sweep catches those regardless of the
-        ' real parent/child structure.
+        ' Group A: the top control panel, found by sweeping every direct child of the form above the chart
+        ' (some controls that look inside a GroupBox are separate form siblings).
         Const groupABottomLimit As Integer = 280   ' Chart2 starts at Y=287
 
         For Each ctl As Control In Me.Controls
-            If ctl Is Chart2 Then Continue For
+            If ctl Is FormsPlot2 Then Continue For
             If groupB.Contains(ctl) Then Continue For
-            ' Xscale/Xscaletotal/LabelTopTopChart sit between the control
-            ' panel and the chart (Y=210-243) but aren't part of the
-            ' GroupBox grid at all - they're independently centred below
-            ' (see OriginalXscalePairWidth etc.), not left-justified/
-            ' slot-spaced along with everything else here.
+            ' Xscale/Xscaletotal/LabelTopTopChart are centred separately, not slot-spaced with the panel.
             If ctl Is Xscale OrElse ctl Is Xscaletotal OrElse ctl Is LabelTopTopChart Then Continue For
             If ctl.Top >= groupABottomLimit Then Continue For
 
@@ -866,20 +796,34 @@ Public Class Chart
         Next
 
         OriginalFormClientWidth = Me.ClientSize.Width
+        OriginalFormClientHeight = Me.ClientSize.Height
+        OriginalChart3Top = FormsPlot3.Top
+        OriginalChart3Height = FormsPlot3.Height
+        OriginalPPMStatsTopOffset = LabelPPMstats.Top - FormsPlot3.Top
+        LabelPPMstats.Anchor = AnchorStyles.Top Or AnchorStyles.Right
+
+        Chart3HeightShare = OriginalChart3Height / CDbl(OriginalChart2Height + OriginalChart3Height)
+        PanelChartSplitter.Anchor = AnchorStyles.Top
+        PanelChartSplitter.Visible = False      ' shown once a CSV is loaded
+        If PlaybackSplitterEnabled Then
+            AddHandler PanelChartSplitter.MouseDown, AddressOf PanelChartSplitter_MouseDown
+            AddHandler PanelChartSplitter.MouseMove, AddressOf PanelChartSplitter_MouseMove
+            AddHandler PanelChartSplitter.MouseUp, AddressOf PanelChartSplitter_MouseUp
+            AddHandler PanelChartSplitter.Paint, AddressOf PanelChartSplitter_Paint
+        End If
 
         For Each ctl As Control In OriginalGroupALeft.Keys
             OriginalGroupASlot(ctl) = ClassifyGroupASlot(ctl.Top, OriginalGroupALeft(ctl))
         Next
 
-        Chart2.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
+        ' Both charts stretch horizontally with the form; their heights (and
+        ' the Statistics chart's Top) are set in RepositionResizableLayout so
+        ' any extra form height is shared between them in proportion.
+        FormsPlot2.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+        FormsPlot3.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
 
-        ' Bottom-right resize grip, same affordance as the Allan Deviation
-        ' and Live Analysis pop-ups - a drag handle for this form's own
-        ' Sizable border. My.Resources.grip is made transparent at runtime
-        ' (see MakeGripTransparent) and tinted a fixed dark grey, legible
-        ' against both this form's normal and Light Mode backgrounds;
-        ' BackColor is kept in sync with the theme by
-        ' CheckBoxColours_CheckedChanged.
+        ' Bottom-right resize grip (as on the Allan Deviation and Live Analysis pop-ups), tinted to suit
+        ' both themes; BackColor follows the theme in CheckBoxColours_CheckedChanged.
         FormGrip = New PictureBox With {
             .Image = MakeGripTransparent(My.Resources.grip, Color.FromArgb(105, 105, 105)),
             .SizeMode = PictureBoxSizeMode.StretchImage,
@@ -903,199 +847,131 @@ Public Class Chart
         Me.Controls.Add(FormGrip)
         FormGrip.BringToFront()
 
-        ' Only allow growing - shrinking below the originally designed
-        ' layout risks controls overlapping, since most of them
-        ' (everything except the three groups handled here) have no
-        ' resize behaviour of their own at all.
+        ' Only allow growing: most controls have no resize behaviour and would overlap if shrunk.
         Me.MinimumSize = Me.Size
 
-        ' Apply once immediately rather than waiting for the first Resize
-        ' event, so controls with a computed (not raw designed) position -
-        ' e.g. LabelBottomChart's centring, Scale1-25's top/bottom pin -
-        ' show correctly from the moment the form opens.
+        ' Apply once now so computed positions are correct when the form opens.
         RepositionResizableLayout()
 
     End Sub
 
-    ' Assigns a Group A control to one of 7 left-to-right column slots
-    ' (0-6), based on its ORIGINAL Top/Left (never its live, possibly
-    ' already-shifted, position). The two GroupBox rows (DEV1/DEV2/PPM/
-    ' MISC at Top=4, and Y-AXIS/X-AXIS/CSV/DEVICES/TEMP-HUM at Top=93) use
-    ' independent X breakpoints, except GroupBox4/GroupBox3 ("DEV 1
-    ' TRACES"/"CSV", sharing a left edge at X=502) and GroupBoxMisc/
-    ' GroupBoxMiscTempHum ("MISC."/"TEMP/HUM", sharing a right edge),
-    ' which map to the SAME slot (2 and 6) so they move together. A
-    ' sibling control sitting inside a GroupBox's visual area (see the
-    ' sweep comment above) falls into that box's slot by X position alone.
+    ' Slot of a Group A control, numbered consecutively within its row (0 = leftmost, never shifted)
+    ' from its ORIGINAL Left. Controls inside a GroupBox's area fall into its slot by X position.
+    ' The PPM box and MISC. (right-most of each row) share a right edge - see RepositionResizableLayout.
     Private Function ClassifyGroupASlot(top As Integer, left As Integer) As Integer
 
-        Dim isTopRow As Boolean = top < 93
-
-        If isTopRow AndAlso left < 502 Then Return 0   ' top-left Load/Save/Help/CSV-path cluster - fixed, no spacing
-
-        If isTopRow Then
-            ' DEV1(502) / DEV2(684) / PPM(866) / MISC(1279)
-            If left < 682 Then Return 2
-            If left < 864 Then Return 4
-            If left < 1276 Then Return 5
-            Return 6
+        If top < 93 Then
+            If left < 502 Then Return 0
+            If left < 690 Then Return 1
+            If left < 880 Then Return 2
+            Return 3
         Else
-            ' Y-AXIS(6) / X-AXIS(269) / CSV(502) / DEVICES(661) / TEMP-HUM(1235)
-            If left < 266 Then Return 0
-            If left < 500 Then Return 1
-            If left < 658 Then Return 2
-            If left < 1232 Then Return 3
-            Return 6
+            If left < 270 Then Return 0
+            If left < 445 Then Return 1
+            If left < 1035 Then Return 2
+            If left < 1270 Then Return 3
+            Return 4
         End If
 
     End Function
+
+    ' Sets both charts' heights from the form height and the split (Chart3HeightShare); any extra form
+    ' height is shared between them. The gap between them is fixed and the splitter sits centred in it.
+    Private Sub ApplyChartHeights()
+
+        If OriginalChart2Height <= 0 OrElse FormsPlot3 Is Nothing Then Exit Sub
+
+        Dim growth As Integer = Math.Max(0, Me.ClientSize.Height - OriginalFormClientHeight)
+        Dim total As Integer = OriginalChart2Height + OriginalChart3Height + growth
+        Dim gapPx As Integer = OriginalChart3Top - (OriginalChart2Top + OriginalChart2Height)
+
+        Dim statsHeight As Integer = CInt(total * Chart3HeightShare)
+        statsHeight = Math.Max(PlaybackStatsChartMinHeight, Math.Min(statsHeight, total - PlaybackMainChartMinHeight))
+
+        FormsPlot2.Height = total - statsHeight
+        FormsPlot3.Height = statsHeight
+        FormsPlot3.Top = FormsPlot2.Top + FormsPlot2.Height + gapPx
+
+        PanelChartSplitter.Top = FormsPlot2.Top + FormsPlot2.Height + (gapPx - PanelChartSplitter.Height) \ 2
+
+        ' Stays at the top-right of the Statistics chart (Right anchor handles the horizontal side).
+        LabelPPMstats.Top = FormsPlot3.Top + OriginalPPMStatsTopOffset
+
+    End Sub
+
+    Private Sub PanelChartSplitter_MouseDown(sender As Object, e As MouseEventArgs)
+
+        If e.Button <> MouseButtons.Left Then Exit Sub
+
+        SplitterDragging = True
+        SplitterDragStartY = Control.MousePosition.Y
+        SplitterDragStartMainHeight = FormsPlot2.Height
+
+    End Sub
+
+    Private Sub PanelChartSplitter_MouseMove(sender As Object, e As MouseEventArgs)
+
+        If Not SplitterDragging Then Exit Sub
+
+        Dim growth As Integer = Math.Max(0, Me.ClientSize.Height - OriginalFormClientHeight)
+        Dim total As Integer = OriginalChart2Height + OriginalChart3Height + growth
+
+        Dim mainHeight As Integer = SplitterDragStartMainHeight + (Control.MousePosition.Y - SplitterDragStartY)
+        mainHeight = Math.Max(PlaybackMainChartMinHeight, Math.Min(mainHeight, total - PlaybackStatsChartMinHeight))
+
+        Chart3HeightShare = (total - mainHeight) / CDbl(total)
+
+        ' Throttled: resizing both charts on every mouse event is faster than they can redraw.
+        If SplitterClock.ElapsedMilliseconds - SplitterLastApplyMs >= SplitterApplyIntervalMs Then
+            SplitterLastApplyMs = SplitterClock.ElapsedMilliseconds
+            ApplyChartHeights()
+        End If
+
+    End Sub
+
+    Private Sub PanelChartSplitter_MouseUp(sender As Object, e As MouseEventArgs)
+
+        SplitterDragging = False
+        ApplyChartHeights()     ' final position, in case the last move was throttled
+
+    End Sub
+
+    ' Three small grip dots, centred on the bar.
+    Private Sub PanelChartSplitter_Paint(sender As Object, e As PaintEventArgs)
+
+        Dim y As Integer = (PanelChartSplitter.Height - 2) \ 2
+        Dim x As Integer = PanelChartSplitter.Width \ 2 - 8
+
+        Using dotBrush As New SolidBrush(Color.LightGray)
+            For i As Integer = 0 To 2
+                e.Graphics.FillRectangle(dotBrush, x + i * 8, y, 2, 2)
+            Next
+        End Using
+
+    End Sub
 
     Private Sub RepositionResizableLayout()
 
         If OriginalGroupALeft.Count = 0 Then Exit Sub   ' not initialized yet
 
-        ' Group A stays left-justified at its original position, and
-        ' spaces the 7 column slots (see ClassifyGroupASlot) apart as the
-        ' form widens - up to 30px per gap, ramped in over the first
-        ' 180px (6 gaps x 30px) of width growth beyond the original size.
-        Const groupASlotCount As Integer = 7
-        Const maxGapPerBoundaryPx As Double = 30.0
+        ' Group A spaces its column slots apart as the form widens; every gap in a row grows equally.
+        ' Both rows shift their right-most box by the same total (capped at 200px) so their right edges stay aligned.
+        Const bottomRowGaps As Integer = 4
+        Const topRowGaps As Integer = 3
+        Const maxTotalShiftPx As Double = 200.0
 
         Dim formWidthGrowthPx As Double = Math.Max(0.0, Me.ClientSize.Width - OriginalFormClientWidth)
-        Dim gapPerBoundaryPx As Double = Math.Min(maxGapPerBoundaryPx, formWidthGrowthPx / (groupASlotCount - 1))
-
-        ' Once every gap hits the 30px limit, "DEVICES" (slot 3) and
-        ' "TEMP/HUM" (slot 6, sharing that slot with "MISC.") each keep
-        ' moving alone over a further 180px of growth: DEVICES until its
-        ' left edge matches "DEV 2 TRACES" (slot 4), and TEMP/HUM until
-        ' its left edge matches "MISC." (which stays put) - switching
-        ' TEMP/HUM from right-aligned under MISC. to left-aligned with
-        ' it. Row (Top) tells TEMP/HUM's slot-6 members (Top >= 93) apart
-        ' from MISC.'s own (Top < 93), which must not get this extra shift.
-        Dim fullRampGrowthPx As Double = (groupASlotCount - 1) * maxGapPerBoundaryPx
-        Dim extraGrowthPx As Double = Math.Max(0.0, formWidthGrowthPx - fullRampGrowthPx)
-        Dim extraRampFraction As Double = Math.Min(1.0, extraGrowthPx / fullRampGrowthPx)
-
-        Dim devicesExtraTargetPx As Double =
-            (OriginalGroupALeft(GroupBox5) + 4 * maxGapPerBoundaryPx) -
-            (OriginalGroupALeft(GroupBox2) + 3 * maxGapPerBoundaryPx)
-        Dim tempHumExtraTargetPx As Double = OriginalGroupALeft(GroupBoxMisc) - OriginalGroupALeft(GroupBoxMiscTempHum)
-
-        Dim devicesExtraShiftPx As Double = devicesExtraTargetPx * extraRampFraction
-        Dim tempHumExtraShiftPx As Double = tempHumExtraTargetPx * extraRampFraction
+        Dim totalShiftPx As Double = Math.Min(maxTotalShiftPx, formWidthGrowthPx)
 
         For Each kvp In OriginalGroupALeft
             Dim slot As Integer = OriginalGroupASlot(kvp.Key)
-            Dim extraShiftPx As Integer = 0
-            If slot = 3 Then
-                extraShiftPx = CInt(devicesExtraShiftPx)
-            ElseIf slot = 6 AndAlso kvp.Key.Top >= 93 Then
-                extraShiftPx = CInt(tempHumExtraShiftPx)
-            End If
-            kvp.Key.Left = kvp.Value + CInt(slot * gapPerBoundaryPx) + extraShiftPx
+            Dim gapsInRow As Integer = If(kvp.Key.Top >= 93, bottomRowGaps, topRowGaps)
+            kvp.Key.Left = kvp.Value + CInt(slot * totalShiftPx / gapsInRow)
         Next
 
-        ' Group B: Scale1-25 pinned by index fraction between ChartAreas(0)'s
-        ' actual visible top/bottom edges. Two nested percentages compose
-        ' this, both set in BrowseToFile_Click:
-        '   - ChartAreas(0).Position (7,4,91,70) - this ChartArea's own
-        '     rectangle, as a % of Chart2's full control.
-        '   - ChartAreas(0).InnerPlotPosition (8,5,88,90) - the actual
-        '     plotted-data rectangle, as a % of THAT Position rectangle,
-        '     not of Chart2 directly (Position alone includes the margin
-        '     reserved for axis labels/titles, outside the true plotted
-        '     area).
-        If OriginalChart2Height > 0 Then
+        ApplyChartHeights()
 
-            ' Hold the ORIGINAL pixel side margins constant as Chart2
-            ' widens - the plot absorbs the extra space instead. Must run
-            ' before reading Position below so the Scale1-25/DegC-RH
-            ' placement picks up the fresh value. The inner margins get a
-            ' small extra pad, ramped in from 0 as Chart2 widens past its
-            ' original size, so real (longer/higher-precision) axis text
-            ' has room once the chart is enlarged, without affecting the
-            ' chart's width at/near its original size (including MinimumSize).
-            Dim growthPx As Double = Math.Max(0.0, Chart2.Width - OriginalChart2Width)
-            Dim rampDistancePx As Double = Math.Max(1.0, OriginalChart2Width * 0.5)
-            Dim effectiveInnerPadPx As Double = InnerMarginPadPx * Math.Min(1.0, growthPx / rampDistancePx)
-
-            UpdateChartAreaHorizontalMargins(Chart2.ChartAreas(0),
-                OriginalMainAreaLeftMarginPx, OriginalMainAreaRightMarginPx,
-                OriginalMainInnerLeftMarginPx + effectiveInnerPadPx, OriginalMainInnerRightMarginPx + effectiveInnerPadPx)
-            UpdateChartAreaHorizontalMargins(Chart2.ChartAreas("Statistics"),
-                OriginalStatsAreaLeftMarginPx, OriginalStatsAreaRightMarginPx,
-                OriginalStatsInnerLeftMarginPx + effectiveInnerPadPx, OriginalStatsInnerRightMarginPx + effectiveInnerPadPx)
-
-            ' Same idea vertically: hold the top/gap/bottom margins
-            ' between and around the two stacked ChartAreas fixed in
-            ' pixels, so the plot areas absorb the extra/lost height as
-            ' Chart2 gets taller/shorter instead of the gaps growing.
-            UpdateChartAreaVerticalMargins()
-
-            Dim areaPos = Chart2.ChartAreas(0).Position
-            Dim innerPos = Chart2.ChartAreas(0).InnerPlotPosition
-
-            Dim plotYPercent As Double = areaPos.Y + (innerPos.Y / 100.0) * areaPos.Height
-            Dim plotHeightPercent As Double = (innerPos.Height / 100.0) * areaPos.Height
-
-            Dim mainAreaTop As Double = Chart2.Top + (plotYPercent / 100.0) * Chart2.Height
-            Dim mainAreaHeight As Double = (plotHeightPercent / 100.0) * Chart2.Height
-
-            For Each kvp In OriginalScaleLabelFraction
-                ' Centre the label vertically on its target line rather
-                ' than aligning its top edge to it - otherwise every
-                ' label sits its own half-height too low, imperceptible
-                ' between tightly-packed middle labels but visible at the
-                ' two extremes against the chart's hard top/bottom border.
-                kvp.Key.Top = CInt(mainAreaTop + kvp.Value * mainAreaHeight) - (kvp.Key.Height \ 2)
-            Next
-
-            ' ButtonShiftUp/ButtonShiftDn - stay glued to Chart2's left
-            ' edge, and move as one rigid pair (fixed gap between them)
-            ' to the same relative vertical position on the chart -
-            ' not stretched apart the way Scale1-25 are.
-            For Each kvp In OriginalShiftButtonLeftOffset
-                kvp.Key.Left = Chart2.Left + kvp.Value
-            Next
-
-            Dim newPairCenterY As Double =
-            Chart2.Top + (OriginalShiftPairCenterFraction * Chart2.Height)
-
-            For Each kvp In OriginalShiftButtonOffsetFromPairCenter
-                kvp.Key.Top = CInt(newPairCenterY) + kvp.Value
-            Next
-
-            ' LabelTempC/LabelHum centred over the chart's actual plot
-            ' RIGHT edge - same X-composition as the Y one above, using
-            ' Position/InnerPlotPosition's X/Width instead of Y/Height.
-            Dim plotRightPercent As Double =
-            areaPos.X + ((innerPos.X + innerPos.Width) / 100.0) * areaPos.Width
-            Dim plotRightX As Double = Chart2.Left + (plotRightPercent / 100.0) * Chart2.Width
-
-            Dim tempHumBlockLeft As Integer = CInt(plotRightX) - (OriginalTempHumBlockWidth \ 2)
-            LabelTempC.Left = tempHumBlockLeft
-            LabelHum.Left = tempHumBlockLeft + OriginalLabelHumGapFromTempC
-
-            ' LabelTopChart ("Hover mouse...") sits just below the shared
-            ' X-axis time scale, which renders in the gap between the
-            ' main and Statistics panels - i.e. below ChartAreas(0)'s own
-            ' rectangle (areaPos), NOT the bottom of the whole two-panel
-            ' Chart2 control (that gap can be large on a maximized window,
-            ' since Statistics gets a share of the extra height too).
-            Dim chart0BottomY As Double =
-            Chart2.Top + ((areaPos.Y + areaPos.Height) / 100.0) * Chart2.Height
-
-            ' The X-axis tick label font grows with the chart (MSChart
-            ' auto-fits it), so extra clearance ramps in past the
-            ' original height to avoid overlapping it once the chart is
-            ' much taller.
-            Dim heightGrowthPx As Double = Math.Max(0.0, Chart2.Height - OriginalChart2Height)
-            Dim heightRampDistancePx As Double = Math.Max(1.0, OriginalChart2Height * 0.5)
-            Dim labelTopChartExtraDropPx As Double = 6.0 * Math.Min(1.0, heightGrowthPx / heightRampDistancePx)
-
-            LabelTopChart.Top = CInt(chart0BottomY) + 4 - 7 + CInt(labelTopChartExtraDropPx)
-            LabelTopChart.Left = Chart2.Left + (Chart2.Width - LabelTopChart.Width) \ 2 + 20
-        End If
+        PanelChartSplitter.Left = (Me.ClientSize.Width - PanelChartSplitter.Width) \ 2
 
         ' LabelBottomChart sits at the very bottom of the form, centred
         ' across its full width.
@@ -1108,9 +984,7 @@ Public Class Chart
         Loading.Left = (Me.ClientSize.Width - Loading.Width) \ 2
 
         ' Xscale/Xscaletotal - rigid pair (fixed gap), centred as a block.
-        Dim xscalePairLeft As Integer = (Me.ClientSize.Width - OriginalXscalePairWidth) \ 2
-        Xscale.Left = xscalePairLeft
-        Xscaletotal.Left = xscalePairLeft + OriginalXscaletotalGapFromXscale
+        CenterXscalePair()
 
         LabelTopTopChart.Left = (Me.ClientSize.Width - LabelTopTopChart.Width) \ 2
 
@@ -1120,81 +994,6 @@ Public Class Chart
         RepositionResizableLayout()
     End Sub
 
-    ' Rewrites BOTH a ChartArea's Position.X/Width (percentage of Chart2's
-    ' width) AND its InnerPlotPosition.X/Width (percentage of Position's
-    ' OWN width, not Chart2's) so the pixel margins at each layer match
-    ' the given values, regardless of Chart2's current width. Y/Height
-    ' are left untouched on both. InnerPlotPosition is what actually
-    ' creates the visible gap before the plotted area (e.g. room for
-    ' Y-axis labels), so both layers need fixing, not just Position. The
-    ' inner margins passed in already include a small extra pad (see
-    ' InnerMarginPadPx) so longer/higher-precision axis text doesn't get
-    ' jammed against the plot edge.
-    Private Sub UpdateChartAreaHorizontalMargins(ca As ChartArea,
-                                                  outerLeftMarginPx As Double, outerRightMarginPx As Double,
-                                                  innerLeftMarginPx As Double, innerRightMarginPx As Double)
-        If Chart2.Width <= 0 Then Exit Sub
-
-        Dim outerLeftPct As Single = CSng((outerLeftMarginPx / Chart2.Width) * 100.0)
-        Dim outerRightPct As Single = CSng((outerRightMarginPx / Chart2.Width) * 100.0)
-        Dim outerWidthPct As Single = 100.0F - outerLeftPct - outerRightPct
-        ca.Position = New ElementPosition(outerLeftPct, ca.Position.Y, outerWidthPct, ca.Position.Height)
-
-        Dim positionWidthPx As Double = (outerWidthPct / 100.0) * Chart2.Width
-        If positionWidthPx <= 0 Then Exit Sub
-
-        Dim innerLeftPct As Single = CSng((innerLeftMarginPx / positionWidthPx) * 100.0)
-        Dim innerRightPct As Single = CSng((innerRightMarginPx / positionWidthPx) * 100.0)
-        Dim innerWidthPct As Single = 100.0F - innerLeftPct - innerRightPct
-        ca.InnerPlotPosition = New ElementPosition(innerLeftPct, ca.InnerPlotPosition.Y, innerWidthPct, ca.InnerPlotPosition.Height)
-    End Sub
-
-    ' Rewrites both stacked ChartAreas' Position.Y/Height (percentage of
-    ' Chart2's height) AND InnerPlotPosition.Y/Height (percentage of each
-    ' area's own Position height) so the top margin above the main plot,
-    ' the gap between the main and Statistics plots, and the bottom
-    ' margin below the Statistics plot all stay fixed in pixels as
-    ' Chart2's height changes. The height left over after those three
-    ' fixed margins is split between the two plot areas in their
-    ' original height ratio, so both grow/shrink together rather than
-    ' one dominating.
-    Private Sub UpdateChartAreaVerticalMargins()
-        If Chart2.Height <= 0 Then Exit Sub
-
-        Dim remainingHeightPx As Double =
-            Chart2.Height - OriginalMainAreaTopMarginPx - OriginalAreaGapPx - OriginalStatsAreaBottomMarginPx
-        If remainingHeightPx <= 0 Then Exit Sub
-
-        Dim mainHeightPx As Double = remainingHeightPx * OriginalMainAreaHeightRatio
-        Dim statsHeightPx As Double = remainingHeightPx - mainHeightPx
-        If mainHeightPx <= 0 OrElse statsHeightPx <= 0 Then Exit Sub
-
-        Dim ca0 = Chart2.ChartAreas(0)
-        Dim mainYPct As Single = CSng((OriginalMainAreaTopMarginPx / Chart2.Height) * 100.0)
-        Dim mainHeightPct As Single = CSng((mainHeightPx / Chart2.Height) * 100.0)
-        ca0.Position = New ElementPosition(ca0.Position.X, mainYPct, ca0.Position.Width, mainHeightPct)
-
-        Dim caStats = Chart2.ChartAreas("Statistics")
-        ' Nudged up a few pixels from the strict main-plus-gap boundary -
-        ' sat a little too low otherwise, at every window size.
-        Const statsAreaUpShiftPx As Double = 6.0
-        Dim statsYPx As Double = OriginalMainAreaTopMarginPx + mainHeightPx + OriginalAreaGapPx - statsAreaUpShiftPx
-        Dim statsYPct As Single = CSng((statsYPx / Chart2.Height) * 100.0)
-        Dim statsHeightPct As Single = CSng((statsHeightPx / Chart2.Height) * 100.0)
-        caStats.Position = New ElementPosition(caStats.Position.X, statsYPct, caStats.Position.Width, statsHeightPct)
-
-        Dim mainInnerTopPct As Single = CSng((OriginalMainInnerTopMarginPx / mainHeightPx) * 100.0)
-        Dim mainInnerBottomPct As Single = CSng((OriginalMainInnerBottomMarginPx / mainHeightPx) * 100.0)
-        ca0.InnerPlotPosition = New ElementPosition(
-            ca0.InnerPlotPosition.X, mainInnerTopPct, ca0.InnerPlotPosition.Width,
-            100.0F - mainInnerTopPct - mainInnerBottomPct)
-
-        Dim statsInnerTopPct As Single = CSng((OriginalStatsInnerTopMarginPx / statsHeightPx) * 100.0)
-        Dim statsInnerBottomPct As Single = CSng((OriginalStatsInnerBottomMarginPx / statsHeightPx) * 100.0)
-        caStats.InnerPlotPosition = New ElementPosition(
-            caStats.InnerPlotPosition.X, statsInnerTopPct, caStats.InnerPlotPosition.Width,
-            100.0F - statsInnerTopPct - statsInnerBottomPct)
-    End Sub
 
 
     ' Large tooltips - same look and feel as the main form (Formtest.vb)
@@ -1276,23 +1075,38 @@ Public Class Chart
         End If
 
 
-        ' ==========================================================
         ' Reset table / chart
-        ' ==========================================================
 
         dataTable1.Clear()
 
-        For i As Integer = 0 To 4
-            Chart2.Series(i).Points.Clear()
-        Next
+        Chart2Dev1Data.Clear()
+        Chart2Dev2Data.Clear()
+        Chart2TempData.Clear()
+        Chart2HumData.Clear()
+        Chart2PPMData.Clear()
 
 
-        ' A new CSV invalidates whatever the Allan Deviation pop-up (if
-        ' open) was showing - it doesn't refresh itself on a new load, so
-        ' close it and let the user re-check a box once the new file is
-        ' in, rather than leaving it showing stale data from the old CSV.
+        ' A new CSV invalidates the Allan Deviation pop-up (it doesn't refresh itself), so close it.
         CheckPlaybackDev1Allan.Checked = False
         CheckPlaybackDev2Allan.Checked = False
+
+        ' The chart split returns to the default on every new CSV.
+        Chart3HeightShare = OriginalChart3Height / CDbl(OriginalChart2Height + OriginalChart3Height)
+        ApplyChartHeights()
+
+        ' Old measurement/hover markers point at the previous file's data.
+        Chart2Crosshair.IsVisible = False
+        Chart2HighlightMarker.IsVisible = False
+        Chart2HighlightText.IsVisible = False
+        Chart2ClearMeasurement(FormsPlot2.Plot)
+        Chart3Crosshair.IsVisible = False
+        Chart3HighlightMarker.IsVisible = False
+        Chart3HighlightText.IsVisible = False
+        Chart3ClearMeasurement()
+
+        ' Traces default to lines (not points) on every fresh load.
+        CheckDev1Line.Checked = True
+        CheckDev2Line.Checked = True
 
         ' Reset statistics controls until file format is known.
         CheckPlaybackDev1Mean.Checked = False
@@ -1322,9 +1136,7 @@ Public Class Chart
         CheckPlaybackDev2Allan.Enabled = False
 
 
-        ' ==========================================================
         ' Read CSV file
-        ' ==========================================================
 
         Dim lines As List(Of String) = IO.File.ReadAllLines(filePlayback).ToList()
 
@@ -1346,9 +1158,7 @@ Public Class Chart
         Dim v6ColumnsDetected As Boolean = False
 
 
-        ' ==========================================================
         ' Single pass to analyze, load data and collect metadata
-        ' ==========================================================
 
         Dim lineNumber As Integer = 0
 
@@ -1418,13 +1228,8 @@ Public Class Chart
                                                     StringSplitOptions.None)
 
 
-                ' Minimum valid old WinGPIB CSV = 6 fields. A single bad
-                ' line - anywhere in the file, not just the end - used to
-                ' abort the whole load and discard every otherwise-good
-                ' row. Report exactly which line and let the user choose
-                ' to skip just that one line instead (e.g. a line that's
-                ' nothing but null bytes from a write interrupted by the
-                ' PC going to sleep mid-log) or abort to fix it by hand.
+                ' Minimum valid old WinGPIB CSV = 6 fields. A bad line (e.g. null bytes from an interrupted write)
+                ' is reported, and the user can skip just that line or abort.
                 If values.Length < 6 Then
 
                     Dim choice As DialogResult = MessageBox.Show(
@@ -1464,29 +1269,8 @@ Public Class Chart
                 End If
 
 
-                ' ==========================================================
-                ' Detect CSV format
-                '
-                ' Old CSV:
-                '   0 INDEX
-                '   1 DEVICE
-                '   2 DATETIME
-                '   3 VALUE
-                '   4 TEMP
-                '   5 HUM
-                '
-                ' New V5 CSV:
-                '   + DEV1 Samples
-                '   + DEV1 Mean
-                '   + DEV1 STDEV
-                '   + DEV1 SEM
-                '   + DEV1 Gain
-                '   + DEV2 Samples
-                '   + DEV2 Mean
-                '   + DEV2 STDEV
-                '   + DEV2 SEM
-                '   + DEV2 Gain
-                ' ==========================================================
+                ' Detect CSV format. Old CSV: INDEX, DEVICE, DATETIME, VALUE, TEMP, HUM.
+                ' V5 adds DEV1 then DEV2: Samples, Mean, STDEV, SEM, Gain.
 
                 If values.Length >= 16 Then
                     statsColumnsDetected = True
@@ -1497,9 +1281,7 @@ Public Class Chart
                 End If
 
 
-                ' ==========================================================
                 ' Add data to DataTable
-                ' ==========================================================
 
                 Dim row As DataRow = dataTable1.NewRow()
 
@@ -1552,11 +1334,7 @@ Public Class Chart
                 End If
 
 
-                ' ----------------------------------------------------------
-                ' V6 statistics fields (Max Diff / Deviation) - appended
-                ' after the original V5 block, so V5 CSVs (exactly 16
-                ' fields) still load correctly with these left blank.
-                ' ----------------------------------------------------------
+                ' V6 statistics fields (Max Diff / Deviation) follow the V5 block; V5 CSVs (16 fields) load with these blank.
 
                 If values.Length >= 20 Then
 
@@ -1589,9 +1367,7 @@ Public Class Chart
         Next
 
 
-        ' ==========================================================
         ' Update metadata
-        ' ==========================================================
 
         MetadataChart.Text = metadataBuilder.ToString()
 
@@ -1601,14 +1377,12 @@ Public Class Chart
         numberlinesCSV = lines.Count
 
 
-        ' ==========================================================
         ' Check if CSV has enough lines
-        ' ==========================================================
 
         If numberlinesCSV < 40 Then
 
             Loading.Visible = False
-            Chart2.Visible = False
+            FormsPlot2.Visible = False
 
             Dialog2.Warning1 = "CSV file empty or too small!"
 
@@ -1626,14 +1400,12 @@ Public Class Chart
         End If
 
 
-        ' ==========================================================
         ' Check for missing delimiters
-        ' ==========================================================
 
         If String.IsNullOrEmpty(CSVdelimit) Then
 
             Loading.Visible = False
-            Chart2.Visible = False
+            FormsPlot2.Visible = False
 
             Dialog2.Warning1 = "Inconsistent CSV - Delimiters missing"
 
@@ -1651,9 +1423,7 @@ Public Class Chart
         End If
 
 
-        ' ==========================================================
         ' Add rows to dataTable1 in bulk
-        ' ==========================================================
 
         dataTable1.BeginLoadData()
 
@@ -1664,9 +1434,7 @@ Public Class Chart
         dataTable1.EndLoadData()
 
 
-        ' ==========================================================
         ' Enable statistics controls for V5 CSV
-        ' ==========================================================
 
         If statsColumnsDetected = True Then
 
@@ -1691,9 +1459,7 @@ Public Class Chart
         End If
 
 
-        ' ==========================================================
         ' Enable Max Diff / Deviation controls for V6 CSV only
-        ' ==========================================================
 
         If v6ColumnsDetected = True Then
 
@@ -1714,9 +1480,7 @@ Public Class Chart
         End If
 
 
-        ' ==========================================================
         ' Check if dual devices exist and update UI
-        ' ==========================================================
 
         Devname1 = dataTable1.Rows(0).ItemArray(1).ToString()
 
@@ -1727,13 +1491,8 @@ Public Class Chart
 
             DualDev = False
 
-            ' A single-device CSV doesn't itself record which hardware slot
-            ' (1 or 2) was used - unless Statistics were running for that
-            ' device, in which case exactly one of DEV1_MEAN/DEV2_MEAN in
-            ' row 0 has real values (the other is blank), which tells us
-            ' which slot it actually was. Without that, there's nothing in
-            ' the file to go on, so it falls back to assuming Device 1, as
-            ' before.
+            ' A single-device CSV doesn't record its hardware slot; if Statistics were running, exactly one of
+            ' DEV1_MEAN/DEV2_MEAN in row 0 has values and identifies it. Otherwise assume Device 1.
             Dim row0 As DataRow = dataTable1.Rows(0)
             Dim dev1MeanText As String = row0("DEV1_MEAN").ToString().Trim()
             Dim dev2MeanText As String = row0("DEV2_MEAN").ToString().Trim()
@@ -1762,16 +1521,8 @@ Public Class Chart
 
             DualDev = True
 
-            ' Which of these two device names is "Dev 1" vs "Dev 2" must not
-            ' be decided by which one merely happens to log first in the
-            ' file - that's arbitrary per run and can differ CSV to CSV (or
-            ' even by deleting the first record). DEV1_MEAN/DEV2_MEAN are
-            ' fixed to the actual acquisition-time hardware slots, not to
-            ' row order, so if row 0's own VALUE tracks DEV2_MEAN more
-            ' closely than DEV1_MEAN, row 0's device is really physical
-            ' Device 2 - swap the labels so everything downstream (colours,
-            ' checkboxes, Mean/STDEV/SEM/MaxDiff/Deviation traces) lines up
-            ' with the correct device.
+            ' Dev 1 vs Dev 2 follows the acquisition-time slots, not row order: if row 0's VALUE tracks
+            ' DEV2_MEAN more closely than DEV1_MEAN, row 0 is physical Device 2, so swap the labels.
             Dim row0 As DataRow = dataTable1.Rows(0)
             Dim dev1MeanText As String = row0("DEV1_MEAN").ToString().Trim()
             Dim dev2MeanText As String = row0("DEV2_MEAN").ToString().Trim()
@@ -1806,9 +1557,7 @@ Public Class Chart
         UpdatePPMDeviceAvailability()
 
 
-        ' ==========================================================
         ' Median starting values
-        ' ==========================================================
 
         If Not DualDev Then
 
@@ -1831,9 +1580,7 @@ Public Class Chart
         End If
 
 
-        ' ==========================================================
         ' Sample rate
-        ' ==========================================================
 
         If DualDev = False Then
 
@@ -1874,17 +1621,13 @@ Public Class Chart
         End If
 
 
-        ' ==========================================================
         ' Finalize chart
-        ' ==========================================================
 
         CheckPathCSVfile()
         PrintXscale()
         GetMinMaxScales()
         FixTicks()
         AverageNoise()
-
-        Yscaletidy()
 
         Loading.Visible = False
         PleaseLoadCSV.Visible = False
@@ -1952,11 +1695,7 @@ Public Class Chart
         Label17.Enabled = True
         Label9.Enabled = True
 
-        ' Dev.2 stats checkboxes (Mean/Stdev/SEM/MaxDiff/Deviation)
-        ' are left alone here - their Enabled state is already set
-        ' correctly by the V5/V6 column-detection block based on
-        ' what's actually in the CSV. Only the raw Dev.2 data
-        ' checkbox isn't covered by that block, so re-enable it here.
+        ' Dev.2 stats checkboxes are enabled by the V5/V6 column detection; only the raw Dev.2 data checkbox needs re-enabling here.
         CheckPlaybackDev2Data.Enabled = True
 
         ' Short-Term Mean isn't a recorded CSV column either (it's
@@ -1975,10 +1714,8 @@ Public Class Chart
         CheckPlaybackDev1Allan.Enabled = True
     End Sub
 
-    ' Mirror of DisableDualDeviceControls() for a single-device CSV that
-    ' turns out to be physical Device 2, not Device 1 - disables Dev.1's
-    ' side (which is enabled by default) and switches on Dev.2's base
-    ' controls (which aren't enabled by default).
+    ' Mirror of DisableDualDeviceControls() for a single-device CSV that is physical Device 2:
+    ' disables Dev.1's controls and enables Dev.2's.
     Private Sub UseDevice2AsSoleDevice()
         DEV1avg.Enabled = False
         CheckDev1Line.Enabled = False
@@ -2021,20 +1758,13 @@ Public Class Chart
 
         CheckPlaybackDev2Data.Enabled = True
 
-        ' Short-Term Mean and Allan Deviation aren't recorded CSV columns
-        ' (they're recomputed from raw VALUE), so - like CheckPlaybackDev2Data -
-        ' they aren't covered by the V5/V6 column-detection block and default
-        ' to disabled; re-enable them here now Dev.2 is the active device.
+        ' Short-Term Mean and Allan Deviation are recomputed from VALUE, not CSV columns, so re-enable them for Dev.2.
         CheckPlaybackDev2ShortTermMean.Enabled = True
         CheckPlaybackDev2Allan.Enabled = True
     End Sub
 
-    ' RadioButtonDev1/Dev2 pick which device's data drives the PPM/Tempco
-    ' calculation (GeneratePPMColumn). A device that isn't present in the
-    ' loaded CSV must not be selectable there - selecting it makes
-    ' GeneratePPMColumn filter on a blank DeviceName, so PPM computes
-    ' nothing. Called after every CSV load, and whenever Enable PPM is
-    ' turned on, so the selection always matches what's actually loaded.
+    ' RadioButtonDev1/Dev2 pick the device that drives the PPM/Tempco calculation; a device missing from
+    ' the CSV must not be selectable (blank DeviceName gives no PPM). Called after each load and when PPM is enabled.
     Private Sub UpdatePPMDeviceAvailability()
 
         If CheckBoxPPMenable.Checked Then
@@ -2066,16 +1796,8 @@ Public Class Chart
 
         If (CSVfilenamePlayback.Text <> "" And ChartLoaded = True And CSVfileok = True) Then
 
-            ' NOTE: CurrentPos/TargetPos/RangeReqd/EndRange/CentreRange are
-            ' deliberately NOT reset here. This function doesn't actually
-            ' re-read a fresh window of the file (that loop below is
-            ' commented out) - it just refreshes settings/traces against
-            ' whatever's already in dataTable1. Resetting the zoom/scroll
-            ' bookkeeping here used to silently discard the user's current
-            ' zoom level (e.g. Zoom In several times, then check a
-            ' checkbox that routes through here) without ever restoring
-            ' the actual zoomed view, so the next Scroll/Shift button
-            ' would jump back out to whatever this reset left behind.
+            ' CurrentPos/TargetPos/RangeReqd/EndRange/CentreRange are deliberately not reset: this only refreshes
+            ' settings/traces against the data already in dataTable1 and must keep the current zoom.
 
             'Loading.Visible = True
             Me.Refresh()
@@ -2083,12 +1805,6 @@ Public Class Chart
             BrowseFile = True
             filePlayback = CSVfilenamePlayback.Text     ' set filepath and file to same as existing
 
-            'dataTable1.Clear()
-            'Chart2.Series(0).Points.Clear()
-            'Chart2.Series(1).Points.Clear()
-            'Chart2.Series(2).Points.Clear()
-            'Chart2.Series(3).Points.Clear()
-            'Chart2.Series(4).Points.Clear()
 
             ' open CSV file and check for device
             ' Add entire CSV into datatable
@@ -2098,10 +1814,6 @@ Public Class Chart
             'Dim linecount As Integer = 1
             'For Each line As String In System.IO.File.ReadLines(filePlayback).Skip(CurrentPos).Take(numberlinesCSV)    '.First()           ' .Skip(CurrentPos).Take(TargetPos - CurrentPos)  
 
-            'If line.Contains("//") Then
-            ' Skip lines containing "//"
-            'Continue For
-            'End If
 
             'linecount = linecount + 1
             'dataTable1.Rows.Add(line.Split(CSVdelimit))
@@ -2148,18 +1860,16 @@ Public Class Chart
             CurrentPos = 0
             TargetPos = numberlinesCSV
             RangeReqd = numberlinesCSV
-            RangeRequired.Text = numberlinesCSV
 
             CurrentPosition.Text = CurrentPos
             TargetPosition.Text = TargetPos
-            RangeRequired.Text = RangeReqd
 
             dataTable1.Clear()
-            Chart2.Series(0).Points.Clear()
-            Chart2.Series(1).Points.Clear()
-            Chart2.Series(2).Points.Clear()
-            Chart2.Series(3).Points.Clear()
-            'Chart2.Series(4).Points.Clear()
+            Chart2Dev1Data.Clear()
+            Chart2Dev2Data.Clear()
+            Chart2TempData.Clear()
+            Chart2HumData.Clear()
+            'Chart2PPMData.Clear()
 
             ' Pull in batch of RangeReqd lines
             For Each line As String In System.IO.File.ReadLines(filePlayback).Skip(CurrentPos).Take(TargetPos - CurrentPos)
@@ -2181,38 +1891,8 @@ Public Class Chart
             FilterGenPPMDevice2()
             UpdatePlaybackStatsSeries()
 
-            ' ZOOM ALL just reloaded the entire file into dataTable1, so
-            ' this is the one place Auto Min/Max should actually re-fit to
-            ' everything - refresh YmaxFromDT/YminFromDT here (otherwise
-            ' GetMinMaxScales() reuses whatever was left over from the
-            ' initial load's smaller window, and traces outside that stale
-            ' range stay clipped even after "showing all"). X-axis-only
-            ' navigation (Zoom In/Out, Scroll, Shift) and other checkboxes
-            ' deliberately do NOT do this - the Y-axis should only move
-            ' when the user asks it to via Zoom All or the Y-axis controls.
-            If CheckBoxMaxMin.Checked Then
-
-                Dim scanMax As Double = Double.MinValue
-                Dim scanMin As Double = Double.MaxValue
-
-                For Each row As DataRow In dataTable1.Rows
-                    Dim currentValue As Double = CDbl(row("VALUE"))
-                    If currentValue > scanMax Then scanMax = currentValue
-                    If currentValue < scanMin Then scanMin = currentValue
-                Next
-
-                YmaxFromDT = scanMax
-                YminFromDT = scanMin
-
-                If YmaxFromDT - YminFromDT = 0 Then
-                    YmaxFromDT += YmaxFromDT / 1000
-                    YminFromDT -= YmaxFromDT / 1000
-                End If
-
-            End If
-
-            'Get max and min values of Dev1 & Dev2, keep whichever is max/min value and use for setting scale
-            GetMinMaxScales()
+            ' Same fit as AutoScale X-axis & Y-axis, so the two give an identical view.
+            Chart2AutoScaleXY()
 
             DevicesMinMax()
 
@@ -2225,24 +1905,13 @@ Public Class Chart
 
     Private Sub FixTicks()
 
-        ' Clear any existing custom labels.
-        Chart2.ChartAreas(0).AxisX.CustomLabels.Clear()
-
-        ' Rotate the labels on the secondary X-axis to display vertically
-        'Chart2.ChartAreas(0).AxisX.LabelStyle.Angle = -90
+        ' NumericManual tick generator: one tick per division, positioned at each range's centre (i).
+        Dim xTicks As New ScottPlot.TickGenerators.NumericManual()
+        Dim xTicks3 As New ScottPlot.TickGenerators.NumericManual()   ' same gridlines for the stats chart, no labels
 
 
         ' Single device CSV
         If DualDev = False Then
-            ' Assuming ScaleX1.Text and ScaleX28.Text contain the values of the first and last data points
-            Dim minX As Double
-            minX = Double.Parse(ScaleX1.Text)
-            'minX = Val(ScaleX1.Text)
-
-            Dim maxX As Double
-            maxX = Double.Parse(ScaleX28.Text)
-            'maxX = Val(ScaleX28.Text)
-
             ' min max counts
             Dim minXc As Double
             minXc = Double.Parse(CurrentPosition.Text)
@@ -2252,22 +1921,13 @@ Public Class Chart
             maxXc = Double.Parse(TargetPosition.Text)
             'maxXc = Val(TargetPosition.Text)
 
-            ' Calculate the total range and the desired number of ticks (28 in this case)
-            Dim totalRange As Double = maxX - minX
             Dim numberOfTicks As Integer = 28
 
             ' Calculate the interval to evenly space the ticks
-            Dim interval As Double = totalRange / (numberOfTicks - 1)           ' mins
             Dim intervalc As Double = (maxXc - minXc) / (numberOfTicks - 1)     ' counts
 
-            ' Ratio of counts to mins. Xscaletotal can be "0" for a CSV
-            ' whose logged duration rounds to 0 minutes (e.g. a very short
-            ' file, or - as with a repeated-timestamp test file - one where
-            ' every row shares the same DATETIME so no elapsed time can be
-            ' derived at all); dividing by that zero produces Infinity,
-            ' which throws OverflowException when narrowed to Integer.
-            ' Fall back to a ratio of 1 rather than crash.
-            Dim ticklabelgridratioRaw As Double = (maxXc - minXc) / Val(Xscaletotal.Text)
+            ' Counts-to-mins ratio; Xscaletotal can be 0 (very short file or identical timestamps), so fall back to 1.
+            Dim ticklabelgridratioRaw As Double = (maxXc - minXc) / Math.Round(Chart2TotalMins, 1)
             Dim ticklabelgridratio As Integer = 1
             If Not Double.IsNaN(ticklabelgridratioRaw) AndAlso
                Math.Abs(ticklabelgridratioRaw) <= Integer.MaxValue Then
@@ -2275,45 +1935,18 @@ Public Class Chart
                 If ticklabelgridratio = 0 Then ticklabelgridratio = 1
             End If
 
-            With Chart2.ChartAreas(0).AxisX
-                '.Minimum = minX
-                '.Maximum = maxX
-
-                .MinorGrid.Enabled = False
-                .MinorTickMark.Enabled = False
-
-                .MajorGrid.Interval = intervalc
-                .MajorTickMark.Enabled = True
-                .MajorTickMark.Interval = intervalc
-                .LabelStyle.Enabled = True
-                .LabelStyle.Interval = intervalc
-                .LabelStyle.Font = New Font("Arial", 8)
-
-                ' Calculate the x-axis labels
-                For i As Double = 1 To (Val(CSVfileLines.Text) + 2) Step intervalc              ' + 2 at the end seems to help fill in the far right X-Scale label that is sometimes missing!
-                    Dim ii As Double = i / ticklabelgridratio                                   ' Value to be displayed, i.e. 0 / 69.5 = 0, or, 1877 / 12 = 15
-                    .CustomLabels.Add(i - intervalc / 2, i + intervalc / 2, (ii + Val(CurrentPosition.Text) / ticklabelgridratio).ToString("0.00"))   ' Format to X.XX
-                Next
-
-            End With
-
-            ' Match the Statistics panel's X spacing to the value that
-            ' actually ends up applied here (intervalc), not whatever
-            ' PrintXscale() computed earlier and this just overwrote.
-            Chart2.ChartAreas("Statistics").AxisX.MajorGrid.Interval = intervalc
+            ' Calculate the x-axis labels
+            For i As Double = 1 To (Val(CSVfileLines.Text) + 2) Step intervalc              ' + 2 at the end seems to help fill in the far right X-Scale label that is sometimes missing!
+                Dim ii As Double = i / ticklabelgridratio                                   ' Value to be displayed, i.e. 0 / 69.5 = 0, or, 1877 / 12 = 15
+                xTicks.AddMajor(i, (ii + Val(CurrentPosition.Text) / ticklabelgridratio).ToString("0.00"))   ' Format to X.XX
+                xTicks3.AddMajor(i, "")
+            Next
 
         End If
 
 
         ' Dual device CSV
         If DualDev = True Then
-            ' Assuming ScaleX1.Text and ScaleX28.Text contain the values of the first and last data points
-            Dim minX As Double
-            minX = Double.Parse(ScaleX1.Text)
-
-            Dim maxX As Double
-            maxX = Double.Parse(ScaleX28.Text) / 2
-
             ' min max counts
             Dim minXc As Double
             minXc = Double.Parse(Val(CurrentPosition.Text) / 2)
@@ -2321,17 +1954,14 @@ Public Class Chart
             Dim maxXc As Double
             maxXc = Double.Parse(Val(TargetPosition.Text) / 2)
 
-            ' Calculate the total range and the desired number of ticks (28 in this case)
-            Dim totalRange As Double = maxX - minX
             Dim numberOfTicks As Integer = 28
 
             ' Calculate the interval to evenly space the ticks
-            Dim interval As Double = totalRange / (numberOfTicks - 1)           ' mins
             Dim intervalc As Double = (maxXc - minXc) / (numberOfTicks - 1)     ' counts
 
             ' Ratio of counts to mins - see the single-device branch above
             ' for why this needs to be guarded against Xscaletotal = "0".
-            Dim ticklabelgridratioRaw As Double = (maxXc - minXc) / Val(Xscaletotal.Text)
+            Dim ticklabelgridratioRaw As Double = (maxXc - minXc) / Math.Round(Chart2TotalMins, 1)
             Dim ticklabelgridratio As Integer = 1
             If Not Double.IsNaN(ticklabelgridratioRaw) AndAlso
                Math.Abs(ticklabelgridratioRaw) <= Integer.MaxValue Then
@@ -2339,28 +1969,18 @@ Public Class Chart
                 If ticklabelgridratio = 0 Then ticklabelgridratio = 1
             End If
 
-            With Chart2.ChartAreas(0).AxisX
+            For i As Double = 1 To (Val(CSVfileLines.Text) + 2) Step intervalc              ' + 2 at the end seems to help fill in the far right X-Scale label that is sometimes missing!
+                Dim ii As Integer = i / ticklabelgridratio                                   ' Value to be displayed, i.e. 0 / 69.5 = 0, or, 1877 / 12 = 15
+                xTicks.AddMajor(i, (ii + (Val(CurrentPosition.Text) / 2) / ticklabelgridratio).ToString("0.00"))   ' Format to X.XX
+                xTicks3.AddMajor(i, "")
+            Next
 
-                .MinorGrid.Enabled = False
-                .MinorTickMark.Enabled = False
-
-                .MajorGrid.Interval = intervalc
-                .MajorTickMark.Enabled = True
-                .MajorTickMark.Interval = intervalc
-                .LabelStyle.Enabled = True
-                .LabelStyle.Interval = intervalc
-                .LabelStyle.Font = New Font("Arial", 8)
-
-                For i As Double = 1 To (Val(CSVfileLines.Text) + 2) Step intervalc              ' + 2 at the end seems to help fill in the far right X-Scale label that is sometimes missing!
-                    Dim ii As Integer = i / ticklabelgridratio                                   ' Value to be displayed, i.e. 0 / 69.5 = 0, or, 1877 / 12 = 15
-                    .CustomLabels.Add(i - intervalc / 2, i + intervalc / 2, (ii + (Val(CurrentPosition.Text) / 2) / ticklabelgridratio).ToString("0.00"))   ' Format to X.XX
-                Next
-
-            End With
-
-            ' Same reasoning as the single-device branch above.
-            Chart2.ChartAreas("Statistics").AxisX.MajorGrid.Interval = intervalc
         End If
+
+        FormsPlot2.Plot.Axes.Bottom.TickGenerator = xTicks
+        If FormsPlot3 IsNot Nothing Then FormsPlot3.Plot.Axes.Bottom.TickGenerator = xTicks3
+        FormsPlot2.Plot.Axes.Bottom.TickLabelStyle.FontSize = 9
+        FormsPlot2.Refresh()
 
     End Sub
 
@@ -2417,44 +2037,53 @@ Public Class Chart
             TimePoint = ((DateTimeSplit2 - DateTimeSplit1).TotalSeconds) / (endRowIndex - startRowIndex)
         End If
 
-        ' A CSV where every row shares the same DATETIME (or logs faster
-        ' than the timestamp's 1-second resolution) computes an elapsed
-        ' time of 0, so TimePoint ends up 0 - which then zeroes out
-        ' MinsTotal/Xscaletotal downstream and can divide by zero in
-        ' FixTicks. Fall back to 1 second/sample so the chart still shows
-        ' sensible (if approximate) time labels instead of all zeros.
+        ' Identical or sub-second timestamps give an elapsed time of 0; fall back to 1 second/sample
+        ' to avoid zeroing MinsTotal/Xscaletotal and dividing by zero in FixTicks.
         If TimePoint <= 0 Then TimePoint = 1
 
     End Sub
 
 
+    ' Centres Xscale + Xscaletotal as a block (Xscaletotal's width changes with its text).
+    Private Sub CenterXscalePair()
+
+        If OriginalXscalePairWidth = 0 Then Exit Sub
+
+        Dim pairWidth As Integer = OriginalXscaletotalGapFromXscale + Xscaletotal.Width
+        Xscale.Left = (Me.ClientSize.Width - pairWidth) \ 2
+        Xscaletotal.Left = Xscale.Left + OriginalXscaletotalGapFromXscale
+
+    End Sub
+
+    ' Xscaletotal shows "visible mins / total mins": the visible span of the X axis (X is the sample
+    ' index) scaled to minutes, over the CSV's total length. Called on load and every render.
+    Private Sub Chart2UpdateXscaleLabel()
+
+        Dim text As String = Chart2TotalMins.ToString("0.0")
+        Dim sampleCount As Integer = Math.Max(Chart2Dev1Data.Count, Chart2Dev2Data.Count)
+        Dim span As Double = FormsPlot2.Plot.Axes.Bottom.Max - FormsPlot2.Plot.Axes.Bottom.Min
+
+        If sampleCount > 1 AndAlso Chart2TotalMins > 0 AndAlso Not Double.IsNaN(span) AndAlso Not Double.IsInfinity(span) Then
+            Dim visibleMins As Double = Math.Min(Chart2TotalMins, Math.Max(0, span * Chart2TotalMins / (sampleCount - 1)))
+            text = visibleMins.ToString("0.0") & "/" & text
+        End If
+
+        If Xscaletotal.Text <> text Then
+            Xscaletotal.Text = text
+            CenterXscalePair()
+        End If
+
+    End Sub
+
     Sub PrintXscale()
 
         ' TimePoint = time per point in secs
 
-        Dim TPsecs As Long
-
-        TPsecs = (TargetPos * TimePoint) / 60     ' IE. 905 entries @ 1sec sample rate = 15.08
-
-        Dim CPsecs As Long = (CurrentPos * TimePoint) / 60    ' Start       IE. 0 * 1 / 600 = n
-        Dim DispSecs As Long = TPsecs - CPsecs
-        Dim DispSecs28 As Long = (DispSecs / 27)                   ' per div
-
-        ' Each div point therefore = (DispSecs28 * number) + start  IE. 905 entries @ 1sec sample rate = 15mins, so (15/27)*0 = 0 thro to (15/27)*27 = 15
-        Xscaletotal.Text = (Val(RangeRequired.Text) * Val(MinsTotal.Text)) / numberlinesCSV ' length in mins of x-scale at current zoom/position
-
-        Dim XscaletotalInt As Double = Xscaletotal.Text
-        'Xscaletotal.Text = "" & Format(Math.Round(XscaletotalInt, 3), "###.0")
-        Xscaletotal.Text = "" & Format(Math.Round(XscaletotalInt, 3), "0.0")
-
-        ' Only display X scale divisions if more than 60mins log data
-        If (TPsecs > 1) Then       ' was TPsecs 27............bug here so disabled for now.
-            ' Make Xscale
-            'ScaleX1.Text = "" & Format(Math.Round(((XscaletotalInt / 27) * 0) + CPsecs, 2), "#0.0")           ' Format(Ymin, "#0.00000000")
-            'ScaleX28.Text = "" & Format(Math.Round(((XscaletotalInt / 27) * 27) + CPsecs, 2), "#0.0")
-            ScaleX1.Text = Format(Math.Round(((XscaletotalInt / 27) * 0) + CPsecs, 2))           ' Format(Ymin, "#0.00000000")
-            ScaleX28.Text = Format(Math.Round(((XscaletotalInt / 27) * 27) + CPsecs, 2))
-        End If
+        ' Total length of the loaded CSV in minutes.
+        Dim totalMins As Double = (RangeReqd * Val(MinsTotal.Text)) / numberlinesCSV
+        If Double.IsNaN(totalMins) OrElse Double.IsInfinity(totalMins) Then totalMins = 0
+        Chart2TotalMins = Math.Round(totalMins, 3)
+        Chart2UpdateXscaleLabel()
 
         If DualDev = False Then
             MinsTotal.Text = Format(Math.Round((numberlinesCSV * TimePoint) / 60, 2), "#0")
@@ -2462,55 +2091,10 @@ Public Class Chart
             MinsTotal.Text = Format(Math.Round(((numberlinesCSV / 2) * TimePoint) / 60, 2), "#0")
         End If
 
-        ' Dynamically set grid lines major & minor
-        ' X-axis
-        Chart2.ChartAreas(0).AxisX.MajorGrid.Interval = Xscaletotal.Text * 1.024 * 10
-        Chart2.ChartAreas(0).AxisX.MinorGrid.Interval = Xscaletotal.Text * 0.513 * 10
-
-        ' NOTE: this MajorGrid.Interval assignment for ChartAreas(0) gets
-        ' overwritten by FixTicks() (called after this in the load
-        ' sequence), which sets its own X interval (intervalc) to match
-        ' the 28-tick custom labels - so the Statistics panel's matching
-        ' X interval is set there instead, alongside intervalc, not here.
-        ' Y-Axis
-        Chart2.ChartAreas(0).AxisY.MajorGrid.Interval = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 8
-        Chart2.ChartAreas(0).AxisY.MinorGrid.Interval = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 32
-        'Chart2.Refresh()   ' This glitches the chart :-(
-
 
     End Sub
 
 
-    Sub PrintYscale()
-
-        ' Make scale
-        Scale1.Text = Format(Math.Round(ppmscalerangebit * 12, 2), "#0.00")           ' Format(Ymin, "#0.00000000")          Was using "--   " & & Format(Math.Round(ppmscalerangebit * 12, 2), "#0.00")
-        Scale2.Text = Format(Math.Round(ppmscalerangebit * 11, 2), "#0.00")
-        Scale3.Text = Format(Math.Round(ppmscalerangebit * 10, 2), "#0.00")
-        Scale4.Text = Format(Math.Round(ppmscalerangebit * 9, 2), "#0.00")
-        Scale5.Text = Format(Math.Round(ppmscalerangebit * 8, 2), "#0.00")
-        Scale6.Text = Format(Math.Round(ppmscalerangebit * 7, 2), "#0.00")
-        Scale7.Text = Format(Math.Round(ppmscalerangebit * 6, 2), "#0.00")
-        Scale8.Text = Format(Math.Round(ppmscalerangebit * 5, 2), "#0.00")
-        Scale9.Text = Format(Math.Round(ppmscalerangebit * 4, 2), "#0.00")
-        Scale10.Text = Format(Math.Round(ppmscalerangebit * 3, 2), "#0.00")
-        Scale11.Text = Format(Math.Round(ppmscalerangebit * 2, 2), "#0.00")
-        Scale12.Text = Format(Math.Round(ppmscalerangebit, 2), "#0.00")
-        Scale13.Text = Format(Math.Round(0, 2), "#0.00")         '"0.0"
-        Scale14.Text = Format(-Math.Round(ppmscalerangebit, 2), "#0.00")
-        Scale15.Text = Format(-Math.Round(ppmscalerangebit * 2, 2), "#0.00")
-        Scale16.Text = Format(-Math.Round(ppmscalerangebit * 3, 2), "#0.00")
-        Scale17.Text = Format(-Math.Round(ppmscalerangebit * 4, 2), "#0.00")
-        Scale18.Text = Format(-Math.Round(ppmscalerangebit * 5, 2), "#0.00")
-        Scale19.Text = Format(-Math.Round(ppmscalerangebit * 6, 2), "#0.00")
-        Scale20.Text = Format(-Math.Round(ppmscalerangebit * 7, 2), "#0.00")
-        Scale21.Text = Format(-Math.Round(ppmscalerangebit * 8, 2), "#0.00")
-        Scale22.Text = Format(-Math.Round(ppmscalerangebit * 9, 2), "#0.00")
-        Scale23.Text = Format(-Math.Round(ppmscalerangebit * 10, 2), "#0.00")
-        Scale24.Text = Format(-Math.Round(ppmscalerangebit * 11, 2), "#0.00")
-        Scale25.Text = Format(-Math.Round(ppmscalerangebit * 12, 2), "#0.00")
-
-    End Sub
 
 
 
@@ -2523,17 +2107,8 @@ Public Class Chart
 
     Private Sub CheckPathCSVfile(Optional recalculateYAxis As Boolean = True)
 
-        ' With the data now in the datatable now process it.
-        '
-        ' recalculateYAxis gates two things further down that should only
-        ' happen on a genuine fresh load: the Auto Min/Max Y-axis recompute,
-        ' and resetting CurrentPos/TargetPos/RangeReqd back to the full
-        ' file. It defaults True so BrowseToFile_Click (a real fresh load)
-        ' behaves exactly as before. RefreshPlaybackCSVFile() passes False,
-        ' because it calls this without having re-read the file first -
-        ' dataTable1 still only holds whatever the last zoom/scroll left in
-        ' it, so doing either of those here would silently rescale the
-        ' Y-axis and/or discard the user's current zoom level.
+        ' Process the loaded data. recalculateYAxis (default True) gates the Y-axis auto min/max and the zoom
+        ' reset, which only apply on a fresh load; RefreshPlaybackCSVFile() passes False.
 
         ' Flag is true if user browsed for file, false if using text boxes
         If (BrowseFile = False) Then
@@ -2568,42 +2143,16 @@ Public Class Chart
             ' CSVfileLines.Text = numberlinesCSV - numberofmetadatalines
             EndRange = numberlinesCSV
 
-            YaxisMaximum.ReadOnly = False
-            YaxisMinimum.ReadOnly = False
-            RangeRequired.ReadOnly = False
-            ButtonScrollLeft.Enabled = True
-            ButtonScrollRight.Enabled = True
-            ButtonScrollLeftSMALL.Enabled = True
-            ButtonScrollRightSMALL.Enabled = True
-            ButtonZoomIn.Enabled = True
-            ButtonZoomOut.Enabled = True
-            ButtonYminInc.Enabled = True
-            ButtonYminDec.Enabled = True
-            ButtonYmaxInc.Enabled = True
-            ButtonYmaxDec.Enabled = True
+            YaxisMaximum.ReadOnly = CheckBoxPBXYaxis.Checked
+            YaxisMinimum.ReadOnly = CheckBoxPBXYaxis.Checked
             ButtonDisplayAll.Enabled = True
-            ButtonShiftUp.Enabled = True
-            ButtonShiftDn.Enabled = True
 
             ' Temp override the above for testing
             'RangeReqd = numberlinesCSV
 
-            ' Only reset the zoom/scroll window to the full file on a
-            ' genuine fresh load. RefreshPlaybackCSVFile() calls this with
-            ' recalculateYAxis:=False specifically because it's refreshing
-            ' settings/traces against whatever the user has already
-            ' zoomed/scrolled to - forcing CurrentPos/TargetPos/RangeReqd
-            ' back to the full range here discarded that zoom level (the
-            ' next Scroll/Zoom button would then jump from wherever this
-            ' left things, not from where the user actually was).
+            ' Reset the zoom window to the full file only on a fresh load (recalculateYAxis), not on a refresh.
             If recalculateYAxis Then
 
-                'If (DualDev = True) Then
-                'RangeRequired.Text = (numberlinesCSV / 2) - numberofmetadatalines
-                'TargetPosition.Text = (numberlinesCSV / 2) - numberofmetadatalines
-                'RangeReqd = numberlinesCSV / 2
-                'Else
-                RangeRequired.Text = numberlinesCSV - numberofmetadatalines
                 TargetPosition.Text = numberlinesCSV - numberofmetadatalines
                 RangeReqd = numberlinesCSV - numberofmetadatalines
                 'End If
@@ -2618,73 +2167,33 @@ Public Class Chart
             GetSeconds()
             PrintXscale()
 
-            Chart2.Visible = True
+            FormsPlot2.Visible = True
 
-            Scale1.Visible = True
-            Scale2.Visible = True
-            Scale3.Visible = True
-            Scale4.Visible = True
-            Scale5.Visible = True
-            Scale6.Visible = True
-            Scale7.Visible = True
-            Scale8.Visible = True
-            Scale9.Visible = True
-            Scale10.Visible = True
-            Scale11.Visible = True
-            Scale12.Visible = True
-            Scale13.Visible = True
-            Scale14.Visible = True
-            Scale15.Visible = True
-            Scale16.Visible = True
-            Scale17.Visible = True
-            Scale18.Visible = True
-            Scale19.Visible = True
-            Scale20.Visible = True
-            Scale21.Visible = True
-            Scale22.Visible = True
-            Scale23.Visible = True
-            Scale24.Visible = True
-            Scale25.Visible = True
-            ButtonShiftUp.Visible = True
-            ButtonShiftDn.Visible = True
             Xscale.Visible = True
             Xscaletotal.Visible = True
             LabelTempC.Visible = True
             LabelHum.Visible = True
             LabelPPMtop.Visible = True
             LabelPPMdegctop.Visible = True
-            LabelTopChart.Visible = True
             LabelTopTopChart.Visible = True
             LabelBottomChart.Visible = True
+            LabelPPMstats.Visible = True
+            PanelChartSplitter.Visible = PlaybackSplitterEnabled
             CheckBoxColours.Enabled = True
-            CheckBoxToolTips.Enabled = True
             CheckBoxPPMenable.Enabled = True
             Loading.Visible = True
 
             'dataTable1.Clear()
-            Chart2.Series(0).Points.Clear()
-            Chart2.Series(1).Points.Clear()
-            Chart2.Series(2).Points.Clear()
-            Chart2.Series(3).Points.Clear()
-            Chart2.Series(4).Points.Clear()
+            Chart2Dev1Data.Clear()
+            Chart2Dev2Data.Clear()
+            Chart2TempData.Clear()
+            Chart2HumData.Clear()
+            Chart2PPMData.Clear()
 
 
-            ' dataTable1 format:
-            ' "INDEX" Integer
-            ' "DEVICE" String
-            ' "DATETIME" String
-            ' "VALUE" Double
-            ' "TEMP" Double
-            ' "HUM" Double
+            ' dataTable1 columns: INDEX (Integer), DEVICE (String), DATETIME (String), VALUE, TEMP, HUM (Double).
 
-            ' Add entire CSV into datatable, whether dual or single device
-            'For Each line As String In System.IO.File.ReadLines(filePlayback).Skip(CurrentPos).Take(TargetPos - CurrentPos)
-            'If line.Contains("//") Then
-            ' Skip lines containing "//"
-            'Continue For
-            'End If
-            'dataTable1.Rows.Add(line.Split(CSVdelimit))
-            'Next
+            ' Add the entire CSV into dataTable1, whether dual or single device.
 
             FilterDeviceName1()
             FilterDeviceName2()
@@ -2697,7 +2206,7 @@ Public Class Chart
 
 
 
-            If CheckBoxMaxMin.Checked AndAlso recalculateYAxis Then
+            If recalculateYAxis Then
 
                 ' Reset min and max before scanning the current data
                 maxValue = Double.MinValue
@@ -2721,19 +2230,10 @@ Public Class Chart
                 End If
 
 
-                Chart2.ChartAreas(0).AxisY.IsLogarithmic = False
-                ButtonShiftUp.Enabled = True
-                ButtonShiftDn.Enabled = True
-                Chart2.ChartAreas(0).AxisY.Maximum = Math.Round(YmaxFromDT, 7)
-                Chart2.ChartAreas(0).AxisY.Minimum = Math.Round(YminFromDT, 7)
+                FormsPlot2.Plot.Axes.Left.Max = Math.Round(YmaxFromDT, 7)
+                FormsPlot2.Plot.Axes.Left.Min = Math.Round(YminFromDT, 7)
                 YaxisMaximum.Text = YmaxFromDT.ToString(Globalization.CultureInfo.InvariantCulture)
                 YaxisMinimum.Text = YminFromDT.ToString(Globalization.CultureInfo.InvariantCulture)
-
-                Dim result As Double = (YmaxFromDT - YminFromDT) / 32
-                YaxisPerDiv.Text = result.ToString("#0.000000000")
-
-                ' Set axis interval
-                Chart2.ChartAreas(0).AxisY.Interval = (YmaxFromDT - YminFromDT) / 32
 
             End If
 
@@ -2743,31 +2243,21 @@ Public Class Chart
 
 
 
-            'Temp/Hum scale setting
-            Chart2.ChartAreas(0).AxisY2.Minimum = ParseInvariantDouble(ChartScaleMin.Text)
-            Chart2.ChartAreas(0).AxisY2.Maximum = ParseInvariantDouble(ChartScaleMax.Text)
-
-            Chart2.ChartAreas(0).AxisY2.Interval = (ParseInvariantDouble(ChartScaleMax.Text) - ParseInvariantDouble(ChartScaleMin.Text)) / 32
-            Chart2.ChartAreas(0).AxisY2.LabelStyle.Format = "00.0"
-
+            'Temperature/Humidity scale setting
+            Chart2TempAxis.Min = ParseInvariantDouble(ChartScaleMin.Text)
+            Chart2TempAxis.Max = ParseInvariantDouble(ChartScaleMax.Text)
+            Chart2HumAxis.Min = ParseInvariantDouble(ChartScaleHUMMin.Text)
+            Chart2HumAxis.Max = ParseInvariantDouble(ChartScaleHUMMax.Text)
 
 
-            ' Generate PPM column in table from data, then plot it.
-            ' Extracted into GeneratePPMColumn() so zoom/scroll/shift
-            ' can also regenerate PPM values for whatever subset of
-            ' rows they just reloaded, instead of only ever running
-            ' once against the initial full load.
+
+            ' Generate the PPM column from the data, then plot it (GeneratePPMColumn also runs on refresh).
             If (CheckBoxPPMenable.Checked = True) Then
 
                 GeneratePPMColumn()
 
                 FilterGenPPMDevice1()
                 FilterGenPPMDevice2()
-
-                PrintYscale()
-                Yscaletidy()      ' Tidy up X-scale annotations on graph in order to keep length same irrespective of numerical data and No. DP's
-
-                LabelPPMtop.Visible = True
 
                 If RadioButtonPPMTempo.Checked = True Or RadioButtonPPMTempoLinReg.Checked = True Then
                     LabelPPMdegctop.Visible = True
@@ -2777,34 +2267,6 @@ Public Class Chart
 
             Else
 
-                ' Erase scale
-                Scale1.Text = ""
-                Scale2.Text = ""
-                Scale3.Text = ""
-                Scale4.Text = ""
-                Scale5.Text = ""
-                Scale6.Text = ""
-                Scale7.Text = ""
-                Scale8.Text = ""
-                Scale9.Text = ""
-                Scale10.Text = ""
-                Scale11.Text = ""
-                Scale12.Text = ""
-                Scale13.Text = ""
-                Scale14.Text = ""
-                Scale15.Text = ""
-                Scale16.Text = ""
-                Scale17.Text = ""
-                Scale18.Text = ""
-                Scale19.Text = ""
-                Scale20.Text = ""
-                Scale21.Text = ""
-                Scale22.Text = ""
-                Scale23.Text = ""
-                Scale24.Text = ""
-                Scale25.Text = ""
-
-                LabelPPMtop.Visible = False
                 LabelPPMdegctop.Visible = False
 
             End If
@@ -2815,8 +2277,6 @@ Public Class Chart
             'DevicesMinMax()         ' get device min & max values
 
         End If
-
-        'CheckBoxMaxMin.Checked = False
 
     End Sub
 
@@ -2873,200 +2333,6 @@ Public Class Chart
     End Function
 
 
-    Private Sub ButtonZoomIn_Click(sender As Object, e As EventArgs) Handles ButtonZoomIn.Click
-
-        If ChartLoaded = True Then
-
-            ' CheckPathCSVfile()
-
-            If (CSVfileok = True) Then
-
-                ' Save off settings and calculate new zoom out settings
-                CurrentPosSave = CurrentPos
-                TargetPosSave = TargetPos
-                RangeReqdSave = RangeReqd
-                CentreRange = CurrentPos + (RangeReqd / 2)  ' current centre position
-                CurrentPos = CentreRange - (RangeReqd / 4)
-                TargetPos = CentreRange + (RangeReqd / 4)
-                'RangeReqd = RangeReqd / 2
-                RangeReqd /= 2
-                RangeRequired.Text = RangeReqd / 2
-
-                ' For dual-device CSVs, each sample is TWO consecutive
-                ' lines (Dev1 then Dev2). Keep the window aligned to
-                ' whole pairs so zooming never splits a pair - otherwise
-                ' the two devices end up with mismatched sample counts
-                ' and drift out of alignment with each other.
-                If DualDev = True Then
-                    If CurrentPos Mod 2 <> 0 Then CurrentPos -= 1
-                    Dim windowLen As Integer = TargetPos - CurrentPos
-                    If windowLen Mod 2 <> 0 Then windowLen += 1
-                    TargetPos = CurrentPos + windowLen
-                    RangeReqd = windowLen
-                End If
-
-                ' check new settings and if any out of range then put them back
-                If (CurrentPos < 1 Or TargetPos > EndRange Or RangeReqd < 50) Then
-                    CurrentPos = CurrentPosSave
-                    TargetPos = TargetPosSave
-                    RangeReqd = RangeReqdSave
-                    RangeRequired.Text = RangeReqdSave
-                End If
-
-                dataTable1.Clear()
-                Chart2.Series(0).Points.Clear()
-                Chart2.Series(1).Points.Clear()
-                Chart2.Series(2).Points.Clear()
-                Chart2.Series(3).Points.Clear()
-                'Chart2.Series(4).Points.Clear()
-
-                CurrentPosition.Text = CurrentPos
-                TargetPosition.Text = TargetPos
-                RangeRequired.Text = RangeReqd
-
-                ' Print Xscale to chart
-                PrintXscale()
-
-                ' Pull in batch of RangeReqd lines
-                For Each line As String In System.IO.File.ReadLines(filePlayback).Skip(CurrentPos).Take(TargetPos - CurrentPos)
-                    If line.Contains("//") Then
-                        ' Skip lines containing "//"
-                        Continue For
-                    End If
-                    AddPlaybackCSVRow(line)
-                Next
-
-                FilterDeviceName1()
-                FilterDeviceName2()
-                FilterShortTermMeanDevice1()
-                FilterShortTermMeanDevice2()
-                FilterTempDevice1()
-                FilterHumDevice1()
-                GeneratePPMColumn()
-                FilterGenPPMDevice1()
-                FilterGenPPMDevice2()
-                UpdatePlaybackStatsSeries()
-
-                'Get max and min values of Dev1 & Dev2, keep whichever is max/min value and use for setting scale
-                GetMinMaxScales()
-
-                DevicesMinMax()
-
-                FixTicks()
-
-                AverageNoise()
-
-            End If
-        End If
-
-    End Sub
-
-
-    Private Sub ButtonZoomOut_Click(sender As Object, e As EventArgs) Handles ButtonZoomOut.Click
-
-        If ChartLoaded = True Then
-
-            If (CSVfileok = True) Then
-
-                ' Save off settings and calculate new zoom out settings
-                CurrentPosSave = CurrentPos
-                TargetPosSave = TargetPos
-                RangeReqdSave = RangeReqd
-
-                CentreRange = CurrentPos + (RangeReqd / 2)  ' current centre position
-                CurrentPos = CentreRange - RangeReqd
-                TargetPos = CentreRange + RangeReqd
-
-                'RangeReqd = RangeReqd * 2
-                RangeReqd *= 2
-                RangeRequired.Text = RangeReqd * 2
-
-                ' For dual-device CSVs, each sample is TWO consecutive
-                ' lines (Dev1 then Dev2). Keep the window aligned to
-                ' whole pairs so zooming never splits a pair - otherwise
-                ' the two devices end up with mismatched sample counts
-                ' and drift out of alignment with each other.
-                If DualDev = True Then
-                    If CurrentPos Mod 2 <> 0 Then CurrentPos -= 1
-                    Dim windowLen As Integer = TargetPos - CurrentPos
-                    If windowLen Mod 2 <> 0 Then windowLen += 1
-                    TargetPos = CurrentPos + windowLen
-                    RangeReqd = windowLen
-                End If
-
-                ' check new settings and if any out of range then put them back
-                'If (CurrentPos < 1 Or TargetPos > EndRange Or RangeReqd > EndRange) Then
-                'CurrentPos = CurrentPosSave
-                'TargetPos = TargetPosSave
-                'RangeReqd = RangeReqdSave
-                'RangeRequired.Text = RangeReqdSave
-                'End If
-
-                ' check new settings and if any out of range
-                If (CurrentPos < 1 Or TargetPos > EndRange Or RangeReqd > EndRange) Then
-
-                    'RefreshPlaybackCSVFile()        ' Refresh entire chart since we've zooomed out fully
-                    'Exit Sub
-
-                    CurrentPos = 0
-                    TargetPos = numberlinesCSV
-                    RangeReqd = numberlinesCSV
-                    RangeRequired.Text = numberlinesCSV
-
-                    CurrentPosition.Text = CurrentPos
-                    TargetPosition.Text = TargetPos
-                    RangeRequired.Text = RangeReqd
-                End If
-
-
-                dataTable1.Clear()
-                Chart2.Series(0).Points.Clear()
-                Chart2.Series(1).Points.Clear()
-                Chart2.Series(2).Points.Clear()
-                Chart2.Series(3).Points.Clear()
-                'Chart2.Series(4).Points.Clear()
-
-                CurrentPosition.Text = CurrentPos
-                TargetPosition.Text = TargetPos
-                RangeRequired.Text = RangeReqd
-
-                ' Print Xscale to chart
-                'PrintXscale()
-
-                ' Pull in batch of RangeReqd lines
-                'For Each line As String In System.IO.File.ReadLines(filePlayback).Skip(CurrentPos).Take(TargetPos - CurrentPos)
-                'dataTable1.Rows.Add(line.Split(CSVdelimit))
-                'Next
-                For Each line As String In System.IO.File.ReadLines(filePlayback).Skip(CurrentPos).Take(TargetPos - CurrentPos)
-                    If line.Contains("//") Then
-                        ' Skip lines containing "//"
-                        Continue For
-                    End If
-                    AddPlaybackCSVRow(line)
-                Next
-
-                FilterDeviceName1()
-                FilterDeviceName2()
-                FilterShortTermMeanDevice1()
-                FilterShortTermMeanDevice2()
-                FilterTempDevice1()
-                FilterHumDevice1()
-                GeneratePPMColumn()
-                FilterGenPPMDevice1()
-                FilterGenPPMDevice2()
-                UpdatePlaybackStatsSeries()
-
-                PrintXscale()
-                GetMinMaxScales()                  'Get max and min values of Dev1 & Dev2, keep whichever is max/min value and use for setting scale
-                DevicesMinMax()
-                FixTicks()
-                AverageNoise()
-
-            End If
-        End If
-
-
-    End Sub
 
     Private Sub ButtonShowAll_Click(sender As Object, e As EventArgs) Handles ButtonDisplayAll.Click
 
@@ -3075,707 +2341,13 @@ Public Class Chart
 
     End Sub
 
-    Private Sub ButtonScrollRight_Click(sender As Object, e As EventArgs) Handles ButtonScrollRight.Click
-
-        If ChartLoaded = True Then
-
-            If (CSVfileok = True And RangeRequired.Text <> numberlinesCSV) Then      ' CSV ok and also only if graph is not full screen
-
-                If RangeRequired.Text > numberlinesCSV / 2 Then      ' must be less than half the entire data range
-                    RangeRequired.Text = numberlinesCSV / 2
-                    RangeReqd = numberlinesCSV / 2
-                Else
-                    RangeReqd = RangeRequired.Text
-                End If
-
-                ' Temp override the above for testing
-                RangeReqd = RangeRequired.Text
-                If (RangeReqd > numberlinesCSV) Then
-                    RangeReqd = numberlinesCSV
-                    RangeRequired.Text = numberlinesCSV
-                Else
-                    RangeRequired.Text = RangeReqd
-                End If
-
-                dataTable1.Clear()
-                Chart2.Series(0).Points.Clear()
-                Chart2.Series(1).Points.Clear()
-                Chart2.Series(2).Points.Clear()
-                Chart2.Series(3).Points.Clear()
-                'Chart2.Series(4).Points.Clear()
-
-                ' Update new start position var
-                'CurrentPos = CurrentPos + RangeReqd
-                CurrentPos += RangeReqd
-
-                ' Check that lines are available in current CSV file
-                If CurrentPos < EndRange Then
-                    TargetPos = CurrentPos + RangeReqd
-                    If TargetPos > EndRange Then
-                        TargetPos = EndRange
-                        CurrentPos = EndRange - RangeReqd
-                    End If
-                Else
-                    ' just make the range whats left to display however small
-                    'CurrentPos = CurrentPos - RangeReqd
-                    CurrentPos -= RangeReqd
-                    TargetPos = EndRange
-                End If
-
-                ' Print Xscale to chart
-                PrintXscale()
-
-                CurrentPosition.Text = CurrentPos
-                TargetPosition.Text = TargetPos
-                RangeRequired.Text = RangeReqd
-
-                ' Pull in batch of RangeReqd lines
-                For Each line As String In System.IO.File.ReadLines(filePlayback).Skip(CurrentPos).Take(TargetPos - CurrentPos)
-                    If line.Contains("//") Then
-                        ' Skip lines containing "//"
-                        Continue For
-                    End If
-                    AddPlaybackCSVRow(line)
-                Next
-
-                FilterDeviceName1()
-                FilterDeviceName2()
-                FilterShortTermMeanDevice1()
-                FilterShortTermMeanDevice2()
-                FilterTempDevice1()
-                FilterHumDevice1()
-                GeneratePPMColumn()
-                FilterGenPPMDevice1()
-                FilterGenPPMDevice2()
-                UpdatePlaybackStatsSeries()
-
-                'Get max and min values of Dev1 & Dev2, keep whichever is max/min value and use for setting scale
-                GetMinMaxScales()
-
-                DevicesMinMax()
-
-                FixTicks()
-
-                AverageNoise()
-
-            End If
-        End If
-
-    End Sub
-
-    Private Sub ButtonScrollRightSMALL_Click(sender As Object, e As EventArgs) Handles ButtonScrollRightSMALL.Click
-
-        If ChartLoaded = True Then
-
-            If (CSVfileok = True And RangeRequired.Text <> numberlinesCSV) Then      ' CSV ok and also only if graph is not full screen
-
-                If RangeRequired.Text > numberlinesCSV / 2 Then      ' must be less than half the entire data range
-                    RangeRequired.Text = numberlinesCSV / 2
-                    RangeReqd = numberlinesCSV / 2
-                Else
-                    RangeReqd = RangeRequired.Text
-                End If
-
-                ' Temp override the above for testing
-                RangeReqd = RangeRequired.Text
-                If (RangeReqd > numberlinesCSV) Then
-                    RangeReqd = numberlinesCSV
-                    RangeRequired.Text = numberlinesCSV
-                Else
-                    RangeRequired.Text = RangeReqd
-                End If
-
-                dataTable1.Clear()
-                Chart2.Series(0).Points.Clear()
-                Chart2.Series(1).Points.Clear()
-                Chart2.Series(2).Points.Clear()
-                Chart2.Series(3).Points.Clear()
-                'Chart2.Series(4).Points.Clear()
-
-                ' Update new start & End positions vars
-                'CurrentPos = CurrentPos + (RangeReqd / 10)
-                CurrentPos += (RangeReqd / 10)
-                TargetPos = CurrentPos + (RangeReqd / 10)
-
-                ' Check that lines are available in current CSV file
-                If CurrentPos < EndRange Then
-                    TargetPos = CurrentPos + RangeReqd
-                    If TargetPos > EndRange Then
-                        TargetPos = EndRange
-                        CurrentPos = EndRange - RangeReqd
-                    End If
-                Else
-                    ' just make the range whats left to display however small
-                    'CurrentPos = CurrentPos - RangeReqd
-                    CurrentPos -= RangeReqd
-                    TargetPos = EndRange
-                End If
-
-                ' Print Xscale to chart
-                PrintXscale()
-
-                CurrentPosition.Text = CurrentPos
-                TargetPosition.Text = TargetPos
-                RangeRequired.Text = RangeReqd
-
-                ' Pull in batch of RangeReqd lines
-                For Each line As String In System.IO.File.ReadLines(filePlayback).Skip(CurrentPos).Take(TargetPos - CurrentPos)
-                    If line.Contains("//") Then
-                        ' Skip lines containing "//"
-                        Continue For
-                    End If
-                    AddPlaybackCSVRow(line)
-                Next
-
-                FilterDeviceName1()
-                FilterDeviceName2()
-                FilterShortTermMeanDevice1()
-                FilterShortTermMeanDevice2()
-                FilterTempDevice1()
-                FilterHumDevice1()
-                GeneratePPMColumn()
-                FilterGenPPMDevice1()
-                FilterGenPPMDevice2()
-                UpdatePlaybackStatsSeries()
-
-                'Get max and min values of Dev1 & Dev2, keep whichever is max/min value and use for setting scale
-                GetMinMaxScales()
-
-                DevicesMinMax()
-
-                FixTicks()
-
-                AverageNoise()
-
-            End If
-        End If
-
-    End Sub
-
-
-    Private Sub ButtonScrollLeft_Click(sender As Object, e As EventArgs) Handles ButtonScrollLeft.Click
-
-        If ChartLoaded = True Then
-
-            If (CSVfileok = True And RangeRequired.Text <> numberlinesCSV) Then     ' CSV ok and also only if graph is not full screen
-
-                If RangeRequired.Text > numberlinesCSV / 2 Then      ' must be less than half the entire data range
-                    RangeRequired.Text = numberlinesCSV / 2
-                    RangeReqd = numberlinesCSV / 2
-                Else
-                    RangeReqd = RangeRequired.Text
-                End If
-
-                ' Temp override the above for testing
-                RangeReqd = RangeRequired.Text
-                If (RangeReqd > numberlinesCSV) Then
-                    RangeReqd = numberlinesCSV
-                    RangeRequired.Text = numberlinesCSV
-                Else
-                    RangeRequired.Text = RangeReqd
-                End If
-
-                dataTable1.Clear()
-                Chart2.Series(0).Points.Clear()
-                Chart2.Series(1).Points.Clear()
-                Chart2.Series(2).Points.Clear()
-                Chart2.Series(3).Points.Clear()
-                'Chart2.Series(4).Points.Clear()
-
-                ' Check that lines are available in current CSV
-                TargetPos = CurrentPos
-                CurrentPos = TargetPos - RangeReqd
-                If CurrentPos < 0 Then
-                    CurrentPos = 0
-                    TargetPos = CurrentPos + RangeReqd
-                End If
-
-                ' Print Xscale to chart
-                PrintXscale()
-
-                CurrentPosition.Text = CurrentPos
-                TargetPosition.Text = TargetPos
-                RangeRequired.Text = RangeReqd
-
-                ' Pull in batch of RangeReqd lines
-                For Each line As String In System.IO.File.ReadLines(filePlayback).Skip(CurrentPos).Take(TargetPos - CurrentPos)
-                    If line.Contains("//") Then
-                        ' Skip lines containing "//"
-                        Continue For
-                    End If
-                    AddPlaybackCSVRow(line)
-                Next
-
-                FilterDeviceName1()
-                FilterDeviceName2()
-                FilterShortTermMeanDevice1()
-                FilterShortTermMeanDevice2()
-                FilterTempDevice1()
-                FilterHumDevice1()
-                GeneratePPMColumn()
-                FilterGenPPMDevice1()
-                FilterGenPPMDevice2()
-                UpdatePlaybackStatsSeries()
-
-                'Get max and min values of Dev1 & Dev2, keep whichever is max/min value and use for setting scale
-                GetMinMaxScales()
-
-                DevicesMinMax()
-
-                FixTicks()
-
-                AverageNoise()
-
-            End If
-
-        End If
-
-    End Sub
-
-    Private Sub ButtonScrollLeftSMALL_Click(sender As Object, e As EventArgs) Handles ButtonScrollLeftSMALL.Click
-
-        If ChartLoaded = True Then
-
-            If (CSVfileok = True And RangeRequired.Text <> numberlinesCSV) Then     ' CSV ok and also only if graph is not full screen
-
-                If RangeRequired.Text > numberlinesCSV / 2 Then      ' must be less than half the entire data range
-                    RangeRequired.Text = numberlinesCSV / 2
-                    RangeReqd = numberlinesCSV / 2
-                Else
-                    RangeReqd = RangeRequired.Text
-                End If
-
-                ' Temp override the above for testing
-                RangeReqd = RangeRequired.Text
-                If (RangeReqd > numberlinesCSV) Then
-                    RangeReqd = numberlinesCSV
-                    RangeRequired.Text = numberlinesCSV
-                Else
-                    RangeRequired.Text = RangeReqd
-                End If
-
-                dataTable1.Clear()
-                Chart2.Series(0).Points.Clear()
-                Chart2.Series(1).Points.Clear()
-                Chart2.Series(2).Points.Clear()
-                Chart2.Series(3).Points.Clear()
-                'Chart2.Series(4).Points.Clear()
-
-                ' Update new start & End positions vars
-                'CurrentPos = CurrentPos - (RangeReqd / 10)
-                CurrentPos -= (RangeReqd / 10)
-                'TargetPos = TargetPos - (RangeReqd / 10)
-                TargetPos -= (RangeReqd / 10)
-
-                ' Check that lines are available in current CSV
-                'TargetPos = CurrentPos
-                'CurrentPos = TargetPos - RangeReqd
-                If CurrentPos < 0 Then
-                    CurrentPos = 0
-                    TargetPos = CurrentPos + RangeReqd
-                End If
-
-                ' Print Xscale to chart
-                PrintXscale()
-
-                CurrentPosition.Text = CurrentPos
-                TargetPosition.Text = TargetPos
-                RangeRequired.Text = RangeReqd
-
-                ' Pull in batch of RangeReqd lines
-                For Each line As String In System.IO.File.ReadLines(filePlayback).Skip(CurrentPos).Take(TargetPos - CurrentPos)
-                    If line.Contains("//") Then
-                        ' Skip lines containing "//"
-                        Continue For
-                    End If
-                    AddPlaybackCSVRow(line)
-                Next
-
-                FilterDeviceName1()
-                FilterDeviceName2()
-                FilterShortTermMeanDevice1()
-                FilterShortTermMeanDevice2()
-                FilterTempDevice1()
-                FilterHumDevice1()
-                GeneratePPMColumn()
-                FilterGenPPMDevice1()
-                FilterGenPPMDevice2()
-                UpdatePlaybackStatsSeries()
-
-                'Get max and min values of Dev1 & Dev2, keep whichever is max/min value and use for setting scale
-                GetMinMaxScales()
-
-                DevicesMinMax()
-
-                FixTicks()
-
-                AverageNoise()
-
-            End If
-
-        End If
-
-    End Sub
-
-    Private Sub ButtonShiftUp_Click(sender As Object, e As EventArgs) Handles ButtonShiftUp.Click
-
-        If ChartLoaded = True Then
-
-            If (CSVfileok = True) Then
-
-                Dim Playbacknewmax As Double = ParseInvariantDouble(YaxisMaximum.Text)
-                Dim Playbacknewmin As Double = ParseInvariantDouble(YaxisMinimum.Text)
-
-                'Playbacknewmax = Playbacknewmax + ((Playbacknewmax - Playbacknewmin) / 20)
-                Playbacknewmax += (Playbacknewmax - Playbacknewmin) / 20
-                YaxisMaximum.Text = Playbacknewmax.ToString(Globalization.CultureInfo.InvariantCulture)
-                YaxisMaximum.Text = Math.Round((ParseInvariantDouble(YaxisMaximum.Text)), 7).ToString(Globalization.CultureInfo.InvariantCulture)
-
-                'Playbacknewmin = Playbacknewmin + ((Playbacknewmax - Playbacknewmin) / 20)
-                Playbacknewmin += (Playbacknewmax - Playbacknewmin) / 20
-                YaxisMinimum.Text = Playbacknewmin.ToString(Globalization.CultureInfo.InvariantCulture)
-                YaxisMinimum.Text = Math.Round((ParseInvariantDouble(YaxisMinimum.Text)), 7).ToString(Globalization.CultureInfo.InvariantCulture)
-
-                Dim result As Double = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 32
-                YaxisPerDiv.Text = result.ToString("#0.000000000")
-
-
-                dataTable1.Clear()
-                Chart2.Series(0).Points.Clear()
-                Chart2.Series(1).Points.Clear()
-                Chart2.Series(2).Points.Clear()
-                Chart2.Series(3).Points.Clear()
-                'Chart2.Series(4).Points.Clear()
-
-                ' Pull in batch of RangeReqd lines
-                For Each line As String In System.IO.File.ReadLines(filePlayback).Skip(CurrentPos).Take(TargetPos - CurrentPos)
-                    If line.Contains("//") Then
-                        ' Skip lines containing "//"
-                        Continue For
-                    End If
-                    AddPlaybackCSVRow(line)
-                Next
-
-                FilterDeviceName1()
-                FilterDeviceName2()
-                FilterShortTermMeanDevice1()
-                FilterShortTermMeanDevice2()
-                FilterTempDevice1()
-                FilterHumDevice1()
-                GeneratePPMColumn()
-                FilterGenPPMDevice1()
-                FilterGenPPMDevice2()
-                UpdatePlaybackStatsSeries()
-
-                'Manual device scale setting
-                Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((ParseInvariantDouble(YaxisMinimum.Text)), 7)
-                Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((ParseInvariantDouble(YaxisMaximum.Text)), 7)  ' was 7
-                Dim intervalY As Double = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 20
-                If intervalY <= 0 Then intervalY = 0.0000001   ' avoid MSChart crash when Y-max = Y-min (flat/no-variance data)
-                Chart2.ChartAreas(0).AxisY.Interval = intervalY
-
-                YaxisCheck1.Checked = False
-                YaxisCheck2.Checked = False
-                YaxisCheck3.Checked = False
-                YaxisCheck4.Checked = False
-
-            End If
-        End If
-
-    End Sub
-
-    Private Sub ButtonShiftDn_Click(sender As Object, e As EventArgs) Handles ButtonShiftDn.Click
-
-        If ChartLoaded = True Then
-
-            If (CSVfileok = True) Then
-
-                Dim Playbacknewmax As Double = ParseInvariantDouble(YaxisMaximum.Text)
-                Dim Playbacknewmin As Double = ParseInvariantDouble(YaxisMinimum.Text)
-
-                'Playbacknewmax = Playbacknewmax - ((Playbacknewmax - Playbacknewmin) / 20)
-                Playbacknewmax -= (Playbacknewmax - Playbacknewmin) / 20
-                YaxisMaximum.Text = Playbacknewmax.ToString(Globalization.CultureInfo.InvariantCulture)
-                YaxisMaximum.Text = Math.Round((ParseInvariantDouble(YaxisMaximum.Text)), 7).ToString(Globalization.CultureInfo.InvariantCulture)
-
-                'Playbacknewmin = Playbacknewmin - ((Playbacknewmax - Playbacknewmin) / 20)
-                Playbacknewmin -= (Playbacknewmax - Playbacknewmin) / 20
-                'If (Playbacknewmin < 0) Then
-                'Playbacknewmin = 0
-                'End If
-                YaxisMinimum.Text = Playbacknewmin.ToString(Globalization.CultureInfo.InvariantCulture)
-                YaxisMinimum.Text = Math.Round((ParseInvariantDouble(YaxisMinimum.Text)), 7).ToString(Globalization.CultureInfo.InvariantCulture)
-
-                Dim result As Double = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 32
-                YaxisPerDiv.Text = result.ToString("#0.000000000")
-
-
-                dataTable1.Clear()
-                Chart2.Series(0).Points.Clear()
-                Chart2.Series(1).Points.Clear()
-                Chart2.Series(2).Points.Clear()
-                Chart2.Series(3).Points.Clear()
-                'Chart2.Series(4).Points.Clear()
-
-                ' Pull in batch of RangeReqd lines
-                For Each line As String In System.IO.File.ReadLines(filePlayback).Skip(CurrentPos).Take(TargetPos - CurrentPos)
-                    If line.Contains("//") Then
-                        ' Skip lines containing "//"
-                        Continue For
-                    End If
-                    AddPlaybackCSVRow(line)
-                Next
-
-                FilterDeviceName1()
-                FilterDeviceName2()
-                FilterShortTermMeanDevice1()
-                FilterShortTermMeanDevice2()
-                FilterTempDevice1()
-                FilterHumDevice1()
-                GeneratePPMColumn()
-                FilterGenPPMDevice1()
-                FilterGenPPMDevice2()
-                UpdatePlaybackStatsSeries()
-
-                'Manual device scale setting
-                Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((ParseInvariantDouble(YaxisMinimum.Text)), 7)
-                Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((ParseInvariantDouble(YaxisMaximum.Text)), 7)   ' was 7
-                Dim intervalY As Double = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 20
-                If intervalY <= 0 Then intervalY = 0.0000001   ' avoid MSChart crash when Y-max = Y-min (flat/no-variance data)
-                Chart2.ChartAreas(0).AxisY.Interval = intervalY
-
-                YaxisCheck1.Checked = False
-                YaxisCheck2.Checked = False
-                YaxisCheck3.Checked = False
-                YaxisCheck4.Checked = False
-
-            End If
-
-        End If
-
-    End Sub
-
-    Private Sub Yscaletidy()
-
-        ' Tidy up Y-scale annotations on graph in order to keep length same irrespective of numerical data and No. DP's
-        If CheckBoxYscaletidy.Checked = True Then
-            Dim x1 As String = CStr(YaxisMaximum.Text)   ' 0.9999995 or 999.0000000 etc
-            Dim x2 As String = CStr(YaxisMinimum.Text)   ' 0.9999995 or 999.0000000 etc
-
-            Dim CountMaxAfter = x1.Length - InStr(x1, ".")    ' after DP     5.0000165 would give 7, 999.95606 would give 5
-            Dim CountMinAfter = x2.Length - InStr(x2, ".")    ' after DP
-
-            Dim CountMaxBefore = YaxisMaximum.TextLength - CountMaxAfter - 1 ' before DP     5.0000165 would give 1, 999.95606 would give 3
-            Dim CountMinBefore = YaxisMinimum.TextLength - CountMinAfter - 1 ' before DP
-
-            ' test because CountMinBefore was coming in as 0, CountMaxBefore as 2......not sure why but only when setting a manual Y-axis scale!
-            If (CountMinBefore = 0) And CountMaxBefore = 1 Then
-                Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{0.0000000000}"  ' 0.999999599
-            End If
-            If (CountMinBefore = 0) And CountMaxBefore = 2 Then
-                Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{00.000000000}"  ' 00.999999599
-            End If
-            If (CountMinBefore = 0) And CountMaxBefore = 3 Then
-                Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{000.00000000}"  ' 000.99999999
-            End If
-            If (CountMinBefore = 0) And CountMaxBefore = 4 Then
-                Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{0000.0000000}"  ' 0000.9999999
-            End If
-            If (CountMinBefore = 0) And CountMaxBefore = 5 Then
-                Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{00000.000000}"  ' 00000.999999
-            End If
-            If (CountMinBefore = 0) And CountMaxBefore = 6 Then
-                Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{000000.00000}"  ' 000000.99999
-            End If
-            If (CountMinBefore = 0) And CountMaxBefore = 7 Then
-                Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{0000000.0000}"  ' 0000000.9999
-            End If
-            If (CountMinBefore = 0) And CountMaxBefore = 9 Then
-                Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{00000000.000}"  ' 00000000.999
-            End If
-            If (CountMinBefore = 0) And CountMaxBefore = 10 Then
-                Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{000000000.00}"  ' 000000000.99
-            End If
-
-
-            ' original
-            If CountMinBefore = 1 And CountMaxBefore = 1 Then
-                Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{0.0000000000}"  ' 0.999999599
-            End If
-
-            If (CountMinBefore = 1 Or CountMinBefore = 2) And CountMaxBefore = 2 Then
-                Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{00.000000000}"  ' 00.999999599
-            End If
-
-            If (CountMinBefore = 2 Or CountMinBefore = 3) And CountMaxBefore = 3 Then
-                Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{000.00000000}"  ' 000.99999999
-            End If
-
-            If (CountMinBefore = 3 Or CountMinBefore = 4) And CountMaxBefore = 4 Then
-                Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{0000.0000000}"  ' 0000.9999999
-            End If
-
-            If (CountMinBefore = 4 Or CountMinBefore = 5) And CountMaxBefore = 5 Then
-                Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{00000.000000}"  ' 00000.999999
-            End If
-
-            If (CountMinBefore = 5 Or CountMinBefore = 6) And CountMaxBefore = 6 Then
-                Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{000000.00000}"  ' 000000.99999
-            End If
-
-            If (CountMinBefore = 6 Or CountMinBefore = 7) And CountMaxBefore = 7 Then
-                Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{0000000.0000}"  ' 0000000.9999
-            End If
-
-            If (CountMinBefore = 7 Or CountMinBefore = 8) And CountMaxBefore = 8 Then
-                Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{00000000.000}"  ' 00000000.999
-            End If
-
-            If (CountMinBefore = 8 Or CountMinBefore = 9) And CountMaxBefore = 9 Then
-                Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{000000000.00}"  ' 000000000.99
-            End If
-
-            If (CountMinBefore = 9 Or CountMinBefore = 10) And CountMaxBefore = 10 Then
-                Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{0000000000.0}"  ' 0000000000.
-            End If
-
-        Else
-            Chart2.ChartAreas(0).AxisY.LabelStyle.Format = "{000.0000000}"     ' default as set up top by default
-        End If
-
-        'Chart2.Width = 1481
-
-
-    End Sub
-
-    ' Manually adjust Y value - max down
-    Private Sub ButtonYmaxDec_Click(sender As Object, e As EventArgs) Handles ButtonYmaxDec.Click
-        Ymin = ParseInvariantDouble(YaxisMinimum.Text)
-        Ymin += 0.00000000001
-        Ymax = ParseInvariantDouble(YaxisMaximum.Text)
-        Ymax -= (Ymax - Ymin) / 10  ' shift by a tenth
-        'If (Ymin < 0) Then
-        'Ymin = 0.0000001
-        'End If
-        'If (Ymin < Ymax And Ymin >= 0) Then
-        If (Ymin < Ymax) Then
-            YaxisMinimum.Text = Ymin.ToString("#0.00000000", Globalization.CultureInfo.InvariantCulture)
-            YaxisMaximum.Text = Ymax.ToString("#0.00000000", Globalization.CultureInfo.InvariantCulture)
-
-            Dim result As Double = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 32
-            YaxisPerDiv.Text = result.ToString("#0.000000000")
-
-            Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((ParseInvariantDouble(YaxisMinimum.Text)), 7)
-            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((ParseInvariantDouble(YaxisMaximum.Text)), 7)   ' was 7
-            Dim intervalY As Double = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 20
-            If intervalY <= 0 Then intervalY = 0.0000001   ' avoid MSChart crash when Y-max = Y-min (flat/no-variance data)
-            Chart2.ChartAreas(0).AxisY.Interval = intervalY
-        End If
-
-        YaxisCheck1.Checked = False
-        YaxisCheck2.Checked = False
-        YaxisCheck3.Checked = False
-        YaxisCheck4.Checked = False
-    End Sub
-
-
-    ' Manually adjust Y value - max up
-    Private Sub ButtonYmaxInc_Click(sender As Object, e As EventArgs) Handles ButtonYmaxInc.Click
-        Ymin = ParseInvariantDouble(YaxisMinimum.Text)
-        Ymin += 0.00000000001
-        Ymax = ParseInvariantDouble(YaxisMaximum.Text)
-        Ymax += (Ymax - Ymin) / 10  ' shift by a tenth
-
-        '        If (Ymin < 0) Then
-        '        Ymin = 0.0000001
-        '        End If
-        'If (Ymin < Ymax And Ymin >= 0) Then
-        If (Ymin < Ymax) Then
-            YaxisMinimum.Text = Ymin.ToString("#0.00000000", Globalization.CultureInfo.InvariantCulture)
-            YaxisMaximum.Text = Ymax.ToString("#0.00000000", Globalization.CultureInfo.InvariantCulture)
-
-            Dim result As Double = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 32
-            YaxisPerDiv.Text = result.ToString("#0.000000000")
-
-            Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((ParseInvariantDouble(YaxisMinimum.Text)), 7)
-            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((ParseInvariantDouble(YaxisMaximum.Text)), 7)   ' was 7
-            Dim intervalY As Double = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 20
-            If intervalY <= 0 Then intervalY = 0.0000001   ' avoid MSChart crash when Y-max = Y-min (flat/no-variance data)
-            Chart2.ChartAreas(0).AxisY.Interval = intervalY
-        End If
-
-        YaxisCheck1.Checked = False
-        YaxisCheck2.Checked = False
-        YaxisCheck3.Checked = False
-        YaxisCheck4.Checked = False
-    End Sub
-
-
-    ' Manually adjust Y value - min down
-    Private Sub ButtonYminDec_Click(sender As Object, e As EventArgs) Handles ButtonYminDec.Click
-        Ymin = ParseInvariantDouble(YaxisMinimum.Text)
-        Ymax = ParseInvariantDouble(YaxisMaximum.Text)
-        Ymin -= (Ymax - Ymin) / 10  ' shift by a tenth
-
-        '       If (Ymin < 0) Then
-        '       Ymin = 0.0000001
-        '       End If
-        'If (Ymin < Ymax And Ymin >= 0) Then
-        If (Ymin < Ymax) Then
-            YaxisMinimum.Text = Ymin.ToString("#0.00000000", Globalization.CultureInfo.InvariantCulture)
-            YaxisMaximum.Text = Ymax.ToString("#0.00000000", Globalization.CultureInfo.InvariantCulture)
-
-            Dim result As Double = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 32
-            YaxisPerDiv.Text = result.ToString("#0.000000000") '
-
-            Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((ParseInvariantDouble(YaxisMinimum.Text)), 7)
-            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((ParseInvariantDouble(YaxisMaximum.Text)), 7)   ' was 7
-            Dim intervalY As Double = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 20
-            If intervalY <= 0 Then intervalY = 0.0000001   ' avoid MSChart crash when Y-max = Y-min (flat/no-variance data)
-            Chart2.ChartAreas(0).AxisY.Interval = intervalY
-        End If
-
-        YaxisCheck1.Checked = False
-        YaxisCheck2.Checked = False
-        YaxisCheck3.Checked = False
-        YaxisCheck4.Checked = False
-    End Sub
-
-
-    ' Manually adjust Y value - max up
-    Private Sub ButtonYminInc_Click(sender As Object, e As EventArgs) Handles ButtonYminInc.Click
-        Ymin = ParseInvariantDouble(YaxisMinimum.Text)
-        Ymax = ParseInvariantDouble(YaxisMaximum.Text)
-        Ymin += (Ymax - Ymin) / 10  ' shift by a tenth
-        '        If (Ymin < 0) Then
-        '        Ymin = 0.0000001
-        '        End If
-        'If (Ymin < Ymax And Ymin >= 0) Then
-        If (Ymin < Ymax) Then
-            YaxisMinimum.Text = Ymin.ToString("#0.0000000000", Globalization.CultureInfo.InvariantCulture)
-            YaxisMaximum.Text = Ymax.ToString("#0.0000000000", Globalization.CultureInfo.InvariantCulture)
-
-            Dim result As Double = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 32
-            YaxisPerDiv.Text = result.ToString("#0.000000000")
-
-            Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((ParseInvariantDouble(YaxisMinimum.Text)), 7)
-            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((ParseInvariantDouble(YaxisMaximum.Text)), 7)   ' was 7
-            Dim intervalY As Double = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 20
-            If intervalY <= 0 Then intervalY = 0.0000001   ' avoid MSChart crash when Y-max = Y-min (flat/no-variance data)
-            Chart2.ChartAreas(0).AxisY.Interval = intervalY
-        End If
-
-        YaxisCheck1.Checked = False
-        YaxisCheck2.Checked = False
-        YaxisCheck3.Checked = False
-        YaxisCheck4.Checked = False
-    End Sub
-
 
     Private Sub ButtonSaveSettings_Click(sender As Object, e As EventArgs) Handles ButtonSaveSettings.Click
 
         My.Settings.data20 = ChartScaleMax.Text
         My.Settings.data21 = ChartScaleMin.Text
+        My.Settings.data1464 = ChartScaleHUMMin.Text
+        My.Settings.data1465 = ChartScaleHUMMax.Text
         My.Settings.data24 = YaxisMaximum.Text
         My.Settings.data25 = YaxisMinimum.Text
         My.Settings.data26 = MedianValue.Text
@@ -3785,24 +2357,835 @@ Public Class Chart
     End Sub
 
 
-    ' Show value of point on graph by mouse hover
-    Private Sub Chart2_GetToolTipText(sender As Object, e As ToolTipEventArgs) Handles Chart2.GetToolTipText
+    ' Statistics chart mouse tools - hover value and double-click A/B
+    ' measurement, same as FormsPlot2's (Chart2* above).
 
-        If (CheckBoxToolTips.Checked = True) Then
-            Chart2.Series(0).ToolTip = "#VAL{0.00000000}"   ' dev 1
-            Chart2.Series(1).ToolTip = "#VAL{0.00000000}"   ' dev 2
-            Chart2.Series(2).ToolTip = "#VAL{0.0}"          ' temperature
-            Chart2.Series(3).ToolTip = "#VAL{0.0}"          ' humidity
-            'Chart2.Series(4).ToolTip = "#VAL{0.00}"         ' PPM
+    Private Function Chart3HoverTargets() As List(Of Tuple(Of ScottPlot.Plottables.Scatter, List(Of ScottPlot.Coordinates), ScottPlot.IYAxis))
+
+        Dim leftAxis As ScottPlot.IYAxis = FormsPlot3.Plot.Axes.Left
+        Dim rightAxis As ScottPlot.IYAxis = FormsPlot3.Plot.Axes.Right
+
+        Return New List(Of Tuple(Of ScottPlot.Plottables.Scatter, List(Of ScottPlot.Coordinates), ScottPlot.IYAxis)) From {
+            Tuple.Create(Chart3Dev1StdevSeries, Chart2Dev1StdevData, leftAxis),
+            Tuple.Create(Chart3Dev1SEMSeries, Chart2Dev1SEMData, leftAxis),
+            Tuple.Create(Chart3Dev1MaxDiffSeries, Chart2Dev1MaxDiffData, leftAxis),
+            Tuple.Create(Chart3Dev1DeviationSeries, Chart2Dev1DeviationData, rightAxis),
+            Tuple.Create(Chart3Dev2StdevSeries, Chart2Dev2StdevData, leftAxis),
+            Tuple.Create(Chart3Dev2SEMSeries, Chart2Dev2SEMData, leftAxis),
+            Tuple.Create(Chart3Dev2MaxDiffSeries, Chart2Dev2MaxDiffData, leftAxis),
+            Tuple.Create(Chart3Dev2DeviationSeries, Chart2Dev2DeviationData, rightAxis)
+        }
+
+    End Function
+
+    Private Sub Chart3FindNearestPoint(mousePixel As ScottPlot.Pixel, ByRef found As Boolean, ByRef bestPoint As ScottPlot.DataPoint,
+                                        ByRef bestYAxis As ScottPlot.IYAxis, ByRef bestColor As ScottPlot.Color)
+
+        Dim bestDistance As Single = Single.MaxValue
+
+        For Each t In Chart3HoverTargets()
+
+            Dim series As ScottPlot.Plottables.Scatter = t.Item1
+            Dim yAxis As ScottPlot.IYAxis = t.Item3
+
+            If series Is Nothing OrElse Not series.IsVisible OrElse t.Item2.Count = 0 Then Continue For
+
+            Dim mouseLocation As ScottPlot.Coordinates = FormsPlot3.Plot.GetCoordinates(mousePixel, FormsPlot3.Plot.Axes.Bottom, yAxis)
+
+            Dim dataSource As ScottPlot.IDataSource = DirectCast(series.Data, ScottPlot.IDataSource)
+            Dim point As ScottPlot.DataPoint = ScottPlot.DataSourceUtilities.GetNearestSmart(
+                dataSource, mouseLocation, FormsPlot3.Plot.LastRender, 15, FormsPlot3.Plot.Axes.Bottom, yAxis)
+            If Not point.IsReal Then Continue For
+
+            Dim pointPixel As ScottPlot.Pixel = FormsPlot3.Plot.GetPixel(point.Coordinates, FormsPlot3.Plot.Axes.Bottom, yAxis)
+            Dim distance As Single = pointPixel.DistanceFrom(mousePixel)
+
+            If distance < bestDistance Then
+                found = True
+                bestPoint = point
+                bestYAxis = yAxis
+                bestColor = series.LineStyle.Color
+                bestDistance = distance
+            End If
+
+        Next
+
+    End Sub
+
+    Private Sub Chart3ShowValueOnHover(sender As Object, e As MouseEventArgs)
+
+        If Not FormsPlot3.Visible Then Exit Sub
+
+        Dim mousePixel As New ScottPlot.Pixel(CSng(e.X), CSng(e.Y))
+
+        Dim found As Boolean = False
+        Dim bestPoint As ScottPlot.DataPoint = Nothing
+        Dim bestYAxis As ScottPlot.IYAxis = Nothing
+        Dim bestColor As ScottPlot.Color = Nothing
+
+        Chart3FindNearestPoint(mousePixel, found, bestPoint, bestYAxis, bestColor)
+
+        If Not found Then
+            If Chart3Crosshair.IsVisible Then
+                Chart3Crosshair.IsVisible = False
+                Chart3HighlightMarker.IsVisible = False
+                Chart3HighlightText.IsVisible = False
+                FormsPlot3.Refresh()
+            End If
+            Exit Sub
+        End If
+
+        Chart3Crosshair.IsVisible = True
+        Chart3Crosshair.Position = bestPoint.Coordinates
+        Chart3Crosshair.Axes.YAxis = bestYAxis
+        Chart3Crosshair.LineColor = bestColor
+
+        Chart3HighlightMarker.IsVisible = True
+        Chart3HighlightMarker.Location = bestPoint.Coordinates
+        Chart3HighlightMarker.Axes.YAxis = bestYAxis
+        Chart3HighlightMarker.MarkerStyle.LineColor = bestColor
+
+        Chart3HighlightText.IsVisible = True
+        Chart3HighlightText.Location = bestPoint.Coordinates
+        Chart3HighlightText.Axes.YAxis = bestYAxis
+        Chart3HighlightText.LabelText = bestPoint.Y.ToString("0.########")
+        Chart3HighlightText.LabelFontColor = bestColor
+
+        Const edgeMarginPx As Single = 40
+
+        Dim bestPixel As ScottPlot.Pixel = FormsPlot3.Plot.GetPixel(bestPoint.Coordinates, FormsPlot3.Plot.Axes.Bottom, bestYAxis)
+        Dim dataRect As ScottPlot.PixelRect = FormsPlot3.Plot.LastRender.DataRect
+
+        Dim nearTop As Boolean = (bestPixel.Y - dataRect.Top) < edgeMarginPx
+        Dim nearRight As Boolean = (dataRect.Right - bestPixel.X) < edgeMarginPx
+
+        Chart3HighlightText.OffsetY = If(nearTop, 7, -7)
+        Chart3HighlightText.OffsetX = If(nearRight, -7, 7)
+
+        Chart3HighlightText.LabelAlignment =
+            If(nearTop,
+               If(nearRight, ScottPlot.Alignment.UpperRight, ScottPlot.Alignment.UpperLeft),
+               If(nearRight, ScottPlot.Alignment.LowerRight, ScottPlot.Alignment.LowerLeft))
+
+        If Chart3MeasureHavePointA AndAlso Not Chart3MeasureHavePointB Then
+            Chart3UpdateMeasureDisplay(bestPoint, bestYAxis)
+        End If
+
+        FormsPlot3.Refresh()
+
+    End Sub
+
+    ' Left-button double-clicks detected by timing consecutive mouse-downs
+    ' (see Chart2OnMouseDown for why).
+    Private Sub Chart3OnMouseDown(sender As Object, e As MouseEventArgs)
+
+        If e.Button <> MouseButtons.Left Then Exit Sub
+
+        Dim thisPixel As New ScottPlot.Pixel(CSng(e.X), CSng(e.Y))
+        Dim elapsedMs As Double = (DateTime.Now - Chart3LastLeftClickTime).TotalMilliseconds
+        Dim dx As Single = thisPixel.X - Chart3LastLeftClickPixel.X
+        Dim dy As Single = thisPixel.Y - Chart3LastLeftClickPixel.Y
+        Dim distance As Single = CSng(Math.Sqrt(dx * dx + dy * dy))
+
+        If elapsedMs <= SystemInformation.DoubleClickTime AndAlso
+           distance <= SystemInformation.DoubleClickSize.Width Then
+
+            Chart3LastLeftClickTime = DateTime.MinValue
+            Chart3OnDoubleClick(thisPixel)
+
         Else
-            Chart2.Series(0).ToolTip = ""   ' dev 1
-            Chart2.Series(1).ToolTip = ""   ' dev 2
-            Chart2.Series(2).ToolTip = ""   ' temperature
-            Chart2.Series(3).ToolTip = ""   ' humidity
-            'Chart2.Series(4).ToolTip = ""   ' PPM
+
+            Chart3LastLeftClickTime = DateTime.Now
+            Chart3LastLeftClickPixel = thisPixel
+
         End If
 
     End Sub
+
+    ' 1st double-click places point A, 2nd places B and locks the delta,
+    ' 3rd clears and starts over.
+    Private Sub Chart3OnDoubleClick(mousePixel As ScottPlot.Pixel)
+
+        Dim found As Boolean = False
+        Dim bestPoint As ScottPlot.DataPoint = Nothing
+        Dim bestYAxis As ScottPlot.IYAxis = Nothing
+        Dim bestColor As ScottPlot.Color = Nothing
+
+        Chart3FindNearestPoint(mousePixel, found, bestPoint, bestYAxis, bestColor)
+
+        If Chart3MeasureHavePointB Then
+
+            Chart3ClearMeasurement()
+
+        ElseIf Chart3MeasureHavePointA Then
+
+            If Not found Then
+                Chart3ClearMeasurement()
+                Exit Sub
+            End If
+
+            Chart3MeasureHavePointB = True
+
+            Chart3MeasureMarkerB.IsVisible = True
+            Chart3MeasureMarkerB.Location = bestPoint.Coordinates
+            Chart3MeasureMarkerB.Axes.YAxis = bestYAxis
+
+            Chart3UpdateMeasureDisplay(bestPoint, bestYAxis)
+
+            FormsPlot3.Refresh()
+
+        Else
+
+            If Not found Then Exit Sub
+
+            Chart3MeasureHavePointA = True
+            Chart3MeasurePointA = bestPoint
+            Chart3MeasureAxisA = bestYAxis
+
+            Chart3MeasureMarkerA.IsVisible = True
+            Chart3MeasureMarkerA.Location = bestPoint.Coordinates
+            Chart3MeasureMarkerA.Axes.YAxis = bestYAxis
+
+            FormsPlot3.Refresh()
+
+        End If
+
+    End Sub
+
+    Private Sub Chart3UpdateMeasureDisplay(pointB As ScottPlot.DataPoint, axisB As ScottPlot.IYAxis)
+
+        Dim sameAxis As Boolean = axisB Is Chart3MeasureAxisA
+
+        Chart3MeasureLine.IsVisible = sameAxis
+        If sameAxis Then
+            Chart3MeasureLine.Axes.YAxis = axisB
+            Chart3MeasureLine.Start = Chart3MeasurePointA.Coordinates
+            Chart3MeasureLine.[End] = pointB.Coordinates
+        End If
+
+        Chart3MeasureText.IsVisible = True
+        Chart3MeasureText.Location = pointB.Coordinates
+        Chart3MeasureText.Axes.YAxis = axisB
+
+        If sameAxis Then
+            Dim deltaX As Double = pointB.X - Chart3MeasurePointA.X
+            Dim deltaY As Double = pointB.Y - Chart3MeasurePointA.Y
+            Chart3MeasureText.LabelText = "dY " & deltaY.ToString("0.########") & "   dX " & deltaX.ToString("0") & " samples"
+        Else
+            Chart3MeasureText.LabelText = "A " & Chart3MeasurePointA.Y.ToString("0.########") & "   B " & pointB.Y.ToString("0.########")
+        End If
+
+        Const edgeMarginTopPx As Single = 40
+        Const edgeMarginRightPx As Single = 300
+
+        Dim pointBPixel As ScottPlot.Pixel = FormsPlot3.Plot.GetPixel(pointB.Coordinates, FormsPlot3.Plot.Axes.Bottom, axisB)
+        Dim dataRect As ScottPlot.PixelRect = FormsPlot3.Plot.LastRender.DataRect
+
+        Dim nearTop As Boolean = (pointBPixel.Y - dataRect.Top) < edgeMarginTopPx
+        Dim nearRight As Boolean = (dataRect.Right - pointBPixel.X) < edgeMarginRightPx
+
+        Chart3MeasureText.OffsetY = If(nearTop, 7, -7)
+        Chart3MeasureText.OffsetX = If(nearRight, -7, 7)
+
+        Chart3MeasureText.LabelAlignment =
+            If(nearTop,
+               If(nearRight, ScottPlot.Alignment.UpperRight, ScottPlot.Alignment.UpperLeft),
+               If(nearRight, ScottPlot.Alignment.LowerRight, ScottPlot.Alignment.LowerLeft))
+
+    End Sub
+
+    Private Sub Chart3ClearMeasurement()
+
+        Chart3MeasureHavePointA = False
+        Chart3MeasureHavePointB = False
+
+        Chart3MeasureMarkerA.IsVisible = False
+        Chart3MeasureMarkerB.IsVisible = False
+        Chart3MeasureLine.IsVisible = False
+        Chart3MeasureText.IsVisible = False
+
+        FormsPlot3.Refresh()
+
+    End Sub
+
+    Private Sub Chart3OnKeyDown(sender As Object, e As KeyEventArgs)
+
+        If e.KeyCode = Keys.Escape Then
+            Chart3ClearMeasurement()
+        End If
+
+    End Sub
+
+    Private Function Chart3AllSeries() As ScottPlot.Plottables.Scatter()
+        Return {Chart3Dev1StdevSeries, Chart3Dev1SEMSeries, Chart3Dev1MaxDiffSeries, Chart3Dev1DeviationSeries,
+                Chart3Dev2StdevSeries, Chart3Dev2SEMSeries, Chart3Dev2MaxDiffSeries, Chart3Dev2DeviationSeries}
+    End Function
+
+    ' Dark/light appearance for the Statistics chart, matching FormsPlot2
+    ' (called from CheckBoxColours_CheckedChanged and at creation).
+    Private Sub Chart3ApplyTheme(lightMode As Boolean)
+
+        If FormsPlot3 Is Nothing Then Exit Sub
+
+        If lightMode Then
+            FormsPlot3.Plot.Grid.MajorLineColor = New ScottPlot.Color(Color.FromArgb(155, 185, 185, 185))
+            FormsPlot3.Plot.Grid.MinorLineColor = New ScottPlot.Color(Color.FromArgb(155, 185, 185, 185))
+            FormsPlot3.Plot.DataBackground.Color = ScottPlot.Colors.White
+            FormsPlot3.Plot.FigureBackground.Color = New ScottPlot.Color(Color.White)
+            Chart3Dev1StdevSeries.Color = New ScottPlot.Color(Color.DarkGray)
+            Chart3Dev1MaxDiffSeries.Color = New ScottPlot.Color(Color.DarkGoldenrod)
+            Chart3Dev1DeviationSeries.Color = New ScottPlot.Color(Color.Black)
+            Chart3Dev2DeviationSeries.Color = New ScottPlot.Color(Color.DarkGray)
+        Else
+            FormsPlot3.Plot.Grid.MajorLineColor = New ScottPlot.Color(Color.FromArgb(255, 85, 85, 85))
+            FormsPlot3.Plot.Grid.MinorLineColor = New ScottPlot.Color(Color.FromArgb(150, 85, 85, 85))
+            FormsPlot3.Plot.DataBackground.Color = ScottPlot.Colors.Black
+            FormsPlot3.Plot.FigureBackground.Color = New ScottPlot.Color(SystemColors.Control)
+            Chart3Dev1StdevSeries.Color = New ScottPlot.Color(Color.LightGray)
+            Chart3Dev1MaxDiffSeries.Color = New ScottPlot.Color(Color.Gold)
+            Chart3Dev1DeviationSeries.Color = New ScottPlot.Color(Color.White)
+            Chart3Dev2DeviationSeries.Color = New ScottPlot.Color(Color.LightGray)
+        End If
+
+        FormsPlot3.Refresh()
+
+    End Sub
+
+    ' Keeps the Statistics chart aligned under FormsPlot2: copies its X range and left/right plot edges
+    ' (as fixed padding) and refits the stats Y axes to the visible traces.
+    ' force = False only acts when something changed (called from FormsPlot2's render).
+    Private Sub Chart3SyncFromTop(force As Boolean, Optional rp As ScottPlot.RenderPack = Nothing)
+
+        If FormsPlot3 Is Nothing Then Exit Sub
+
+        Dim xMin As Double = FormsPlot2.Plot.Axes.Bottom.Min
+        Dim xMax As Double = FormsPlot2.Plot.Axes.Bottom.Max
+
+        ' From a render, use that frame's own layout (RenderStarting runs after the layout is calculated);
+        ' LastRender would be a frame behind and make the two charts' edges jitter.
+        Dim haveLayout As Boolean = False
+        Dim padLeft As Single = -1
+        Dim padRight As Single = -1
+        If rp IsNot Nothing AndAlso rp.DataRect.HasArea Then
+            haveLayout = True
+            padLeft = rp.DataRect.Left - rp.ScaledFigureRect.Left
+            padRight = rp.ScaledFigureRect.Right - rp.DataRect.Right
+        Else
+            Dim lr As ScottPlot.RenderDetails = FormsPlot2.Plot.LastRender
+            If lr.DataRect.HasArea Then
+                haveLayout = True
+                padLeft = lr.Padding.Left
+                padRight = lr.Padding.Right
+            End If
+        End If
+
+        If Not force AndAlso xMin = Chart3LastXMin AndAlso xMax = Chart3LastXMax AndAlso
+           padLeft = Chart3LastPadLeft AndAlso padRight = Chart3LastPadRight Then Exit Sub
+
+        Chart3LastXMin = xMin
+        Chart3LastXMax = xMax
+        Chart3LastPadLeft = padLeft
+        Chart3LastPadRight = padRight
+
+        If Not Double.IsNaN(xMin) AndAlso Not Double.IsNaN(xMax) AndAlso
+           Not Double.IsInfinity(xMin) AndAlso Not Double.IsInfinity(xMax) AndAlso xMax > xMin Then
+            FormsPlot3.Plot.Axes.SetLimitsX(xMin, xMax)
+        End If
+
+        If haveLayout Then
+            FormsPlot3.Plot.Layout.Fixed(New ScottPlot.PixelPadding(padLeft, padRight, 4, 4))
+        End If
+
+        ' Only refit an axis that actually has something showing on it.
+        Dim leftHasData As Boolean = False
+        Dim rightHasData As Boolean = False
+        For Each st As ScottPlot.Plottables.Scatter In Chart3AllSeries()
+            If st.IsVisible AndAlso st.Data.GetScatterPoints().Count > 0 Then
+                If st.Axes.YAxis Is FormsPlot3.Plot.Axes.Right Then rightHasData = True Else leftHasData = True
+            End If
+        Next
+        If leftHasData Then FormsPlot3.Plot.Axes.AutoScaleY(FormsPlot3.Plot.Axes.Left)
+        If rightHasData Then FormsPlot3.Plot.Axes.AutoScaleY(FormsPlot3.Plot.Axes.Right)
+
+        Chart3SetDecimalLabels(FormsPlot3.Plot.Axes.Left)
+        Chart3SetDecimalLabels(FormsPlot3.Plot.Axes.Right)
+
+        FormsPlot3.Refresh()
+
+    End Sub
+
+    ' Plain decimal tick labels (never scientific notation, which
+    ' ScottPlot's default formatter switches to for very small values),
+    ' with one more decimal place than the tick spacing strictly needs.
+    Private Sub Chart3SetDecimalLabels(axis As ScottPlot.IYAxis)
+
+        Dim gen = TryCast(axis.TickGenerator, ScottPlot.TickGenerators.NumericAutomatic)
+        Dim span As Double = axis.Max - axis.Min
+        If gen Is Nothing OrElse span <= 0 OrElse Double.IsInfinity(span) OrElse Double.IsNaN(span) Then Exit Sub
+
+        Dim baseDp As Integer = Math.Max(0, CInt(Math.Ceiling(-Math.Log10(span / 10))))
+        Dim fmt As String = "F" & Math.Min(baseDp + 1, 12).ToString()
+        gen.LabelFormatter = Function(v As Double) v.ToString(fmt)
+
+    End Sub
+
+    ' Fits X to the Dev1/Dev2 data extent and Y to the same points (5% margin), echoing Y into the boxes.
+    ' Does not Refresh - also called mid-render.
+    Private Sub Chart2AutoScaleXY()
+
+        Dim xLo As Double = Double.MaxValue
+        Dim xHi As Double = Double.MinValue
+        Dim lo As Double = Double.MaxValue
+        Dim hi As Double = Double.MinValue
+
+        For pass As Integer = 0 To 1
+            Dim data As List(Of ScottPlot.Coordinates) = If(pass = 0, Chart2Dev1Data, Chart2Dev2Data)
+            Dim series As ScottPlot.Plottables.Scatter = If(pass = 0, Chart2Dev1Series, Chart2Dev2Series)
+            If data Is Nothing OrElse series Is Nothing OrElse Not series.IsVisible Then Continue For
+            For Each c As ScottPlot.Coordinates In data
+                If Double.IsNaN(c.Y) Then Continue For
+                If c.X < xLo Then xLo = c.X
+                If c.X > xHi Then xHi = c.X
+                If c.Y < lo Then lo = c.Y
+                If c.Y > hi Then hi = c.Y
+            Next
+        Next
+
+        If lo > hi Then Exit Sub
+
+        If xHi > xLo Then
+            FormsPlot2.Plot.Axes.Bottom.Min = xLo
+            FormsPlot2.Plot.Axes.Bottom.Max = xHi
+        End If
+
+        If hi - lo = 0 Then
+            Dim pad As Double = If(hi = 0, 0.001, Math.Abs(hi) / 1000)
+            lo -= pad
+            hi += pad
+        End If
+
+        Dim margin As Double = (hi - lo) * 0.05
+        FormsPlot2.Plot.Axes.Left.Min = lo - margin
+        FormsPlot2.Plot.Axes.Left.Max = hi + margin
+
+        Chart2EchoYRange()
+
+    End Sub
+
+    ' Left axis labels use fixed decimals, 2 more than the tick spacing needs; ScottPlot's default
+    ' drops all decimals above 1000 and otherwise uses general format.
+    Private Sub Chart2ApplyLeftFormat()
+
+        Dim leftAuto = TryCast(FormsPlot2.Plot.Axes.Left.TickGenerator, ScottPlot.TickGenerators.NumericAutomatic)
+        Dim leftSpan As Double = FormsPlot2.Plot.Axes.Left.Max - FormsPlot2.Plot.Axes.Left.Min
+        If leftAuto IsNot Nothing AndAlso leftSpan > 0 AndAlso Not Double.IsInfinity(leftSpan) Then
+            Dim leftFormat As String = "F" & Chart2LeftDecimals().ToString()
+            leftAuto.LabelFormatter = Function(v As Double) v.ToString(leftFormat)
+        End If
+
+    End Sub
+
+    ' Decimal places on the left axis labels (two more than the tick spacing needs, max 10);
+    ' the Max/Min boxes use the same.
+    Private Function Chart2LeftDecimals() As Integer
+
+        Dim span As Double = FormsPlot2.Plot.Axes.Left.Max - FormsPlot2.Plot.Axes.Left.Min
+        If span <= 0 OrElse Double.IsNaN(span) OrElse Double.IsInfinity(span) Then Return 2
+
+        Dim baseDp As Integer = Math.Max(0, CInt(Math.Ceiling(-Math.Log10(span / 10))))
+        Return Math.Min(baseDp + 2, 10)
+
+    End Function
+
+    ' Keeps the Y-axis Max/Min boxes equal to the chart's current left-axis limits
+    ' (autoscale, mouse pan/zoom, keys). Skipped while the user is typing in either box.
+    Private Sub Chart2EchoYRange()
+
+        Chart2ApplyLeftFormat()
+
+        If YaxisMaximum.Focused OrElse YaxisMinimum.Focused Then Exit Sub
+
+        Dim lo As Double = FormsPlot2.Plot.Axes.Left.Min
+        Dim hi As Double = FormsPlot2.Plot.Axes.Left.Max
+        If Double.IsNaN(lo) OrElse Double.IsNaN(hi) OrElse Double.IsInfinity(lo) OrElse Double.IsInfinity(hi) OrElse hi <= lo Then Exit Sub
+
+        Dim numberFormat As String = "F" & Chart2LeftDecimals().ToString()
+        Dim maxText As String = hi.ToString(numberFormat, Globalization.CultureInfo.InvariantCulture)
+        Dim minText As String = lo.ToString(numberFormat, Globalization.CultureInfo.InvariantCulture)
+        If YaxisMaximum.Text <> maxText Then YaxisMaximum.Text = maxText
+        If YaxisMinimum.Text <> minText Then YaxisMinimum.Text = minText
+
+    End Sub
+
+    ' Mouse tools - ported from the Live Chart (Chart1* in LiveWatch.vb):
+    ' hover value, double-click A/B delta measurement, right-click menu,
+    ' Esc to clear.
+
+    ' Every trace that can be hovered/measured, with the Y axis it is
+    ' actually plotted against.
+    Private Function Chart2HoverTargets() As List(Of Tuple(Of ScottPlot.Plottables.Scatter, List(Of ScottPlot.Coordinates), ScottPlot.IYAxis))
+
+        Dim leftAxis As ScottPlot.IYAxis = FormsPlot2.Plot.Axes.Left
+
+        Return New List(Of Tuple(Of ScottPlot.Plottables.Scatter, List(Of ScottPlot.Coordinates), ScottPlot.IYAxis)) From {
+            Tuple.Create(Chart2Dev1Series, Chart2Dev1Data, leftAxis),
+            Tuple.Create(Chart2Dev2Series, Chart2Dev2Data, leftAxis),
+            Tuple.Create(Chart2Dev1MeanSeries, Chart2Dev1MeanData, leftAxis),
+            Tuple.Create(Chart2Dev2MeanSeries, Chart2Dev2MeanData, leftAxis),
+            Tuple.Create(Chart2Dev1ShortTermMeanSeries, Chart2Dev1ShortTermMeanData, leftAxis),
+            Tuple.Create(Chart2Dev2ShortTermMeanSeries, Chart2Dev2ShortTermMeanData, leftAxis),
+            Tuple.Create(Chart2TempSeries, Chart2TempData, Chart2TempAxis),
+            Tuple.Create(Chart2HumSeries, Chart2HumData, Chart2HumAxis),
+            Tuple.Create(Chart2PPMSeries, Chart2PPMData, Chart2PPMAxis)
+        }
+
+    End Function
+
+    ' Finds whichever visible trace has a point nearest the given pixel.
+    ' Distance is compared in pixels, which is what makes it a fair
+    ' comparison between traces on differently-scaled axes.
+    Private Sub Chart2FindNearestPoint(mousePixel As ScottPlot.Pixel, ByRef found As Boolean, ByRef bestPoint As ScottPlot.DataPoint,
+                                        ByRef bestYAxis As ScottPlot.IYAxis, ByRef bestColor As ScottPlot.Color)
+
+        Dim bestDistance As Single = Single.MaxValue
+
+        For Each t In Chart2HoverTargets()
+
+            Dim series As ScottPlot.Plottables.Scatter = t.Item1
+            Dim yAxis As ScottPlot.IYAxis = t.Item3
+
+            ' Hidden or empty traces can't be hovered/measured.
+            If series Is Nothing OrElse Not series.IsVisible OrElse t.Item2.Count = 0 Then Continue For
+
+            Dim mouseLocation As ScottPlot.Coordinates = FormsPlot2.Plot.GetCoordinates(mousePixel, FormsPlot2.Plot.Axes.Bottom, yAxis)
+
+            Dim dataSource As ScottPlot.IDataSource = DirectCast(series.Data, ScottPlot.IDataSource)
+            Dim point As ScottPlot.DataPoint = ScottPlot.DataSourceUtilities.GetNearestSmart(
+                dataSource, mouseLocation, FormsPlot2.Plot.LastRender, 15, FormsPlot2.Plot.Axes.Bottom, yAxis)
+            If Not point.IsReal Then Continue For
+
+            Dim pointPixel As ScottPlot.Pixel = FormsPlot2.Plot.GetPixel(point.Coordinates, FormsPlot2.Plot.Axes.Bottom, yAxis)
+            Dim distance As Single = pointPixel.DistanceFrom(mousePixel)
+
+            If distance < bestDistance Then
+                found = True
+                bestPoint = point
+                bestYAxis = yAxis
+                bestColor = series.LineStyle.Color
+                bestDistance = distance
+            End If
+
+        Next
+
+    End Sub
+
+    Private Sub Chart2ShowValueOnHover(sender As Object, e As MouseEventArgs)
+
+        If Not FormsPlot2.Visible Then Exit Sub
+
+        Chart2EchoYRange()
+
+        Dim mousePixel As New ScottPlot.Pixel(CSng(e.X), CSng(e.Y))
+
+        Dim found As Boolean = False
+        Dim bestPoint As ScottPlot.DataPoint = Nothing
+        Dim bestYAxis As ScottPlot.IYAxis = Nothing
+        Dim bestColor As ScottPlot.Color = Nothing
+
+        Chart2FindNearestPoint(mousePixel, found, bestPoint, bestYAxis, bestColor)
+
+        If Not found Then
+            If Chart2Crosshair.IsVisible Then
+                Chart2Crosshair.IsVisible = False
+                Chart2HighlightMarker.IsVisible = False
+                Chart2HighlightText.IsVisible = False
+                FormsPlot2.Refresh()
+            End If
+            Exit Sub
+        End If
+
+        Chart2Crosshair.IsVisible = True
+        Chart2Crosshair.Position = bestPoint.Coordinates
+        Chart2Crosshair.Axes.YAxis = bestYAxis
+        Chart2Crosshair.LineColor = bestColor
+
+        Chart2HighlightMarker.IsVisible = True
+        Chart2HighlightMarker.Location = bestPoint.Coordinates
+        Chart2HighlightMarker.Axes.YAxis = bestYAxis
+        Chart2HighlightMarker.MarkerStyle.LineColor = bestColor
+
+        Chart2HighlightText.IsVisible = True
+        Chart2HighlightText.Location = bestPoint.Coordinates
+        Chart2HighlightText.Axes.YAxis = bestYAxis
+        Chart2HighlightText.LabelText = bestPoint.Y.ToString("0.########")
+        Chart2HighlightText.LabelFontColor = bestColor
+
+        ' Flip the label to whichever side of the point keeps it inside the
+        ' plot area.
+        Const edgeMarginPx As Single = 40
+
+        Dim bestPixel As ScottPlot.Pixel = FormsPlot2.Plot.GetPixel(bestPoint.Coordinates, FormsPlot2.Plot.Axes.Bottom, bestYAxis)
+        Dim dataRect As ScottPlot.PixelRect = FormsPlot2.Plot.LastRender.DataRect
+
+        Dim nearTop As Boolean = (bestPixel.Y - dataRect.Top) < edgeMarginPx
+        Dim nearRight As Boolean = (dataRect.Right - bestPixel.X) < edgeMarginPx
+
+        Chart2HighlightText.OffsetY = If(nearTop, 7, -7)
+        Chart2HighlightText.OffsetX = If(nearRight, -7, 7)
+
+        Chart2HighlightText.LabelAlignment =
+            If(nearTop,
+               If(nearRight, ScottPlot.Alignment.UpperRight, ScottPlot.Alignment.UpperLeft),
+               If(nearRight, ScottPlot.Alignment.LowerRight, ScottPlot.Alignment.LowerLeft))
+
+        ' Point A is set but B isn't locked yet - live-preview the delta.
+        If Chart2MeasureHavePointA AndAlso Not Chart2MeasureHavePointB Then
+            Chart2UpdateMeasureDisplay(bestPoint, bestYAxis)
+        End If
+
+        FormsPlot2.Refresh()
+
+    End Sub
+
+    ' Any mouse-down switches AutoScale off, records the right-click position, and detects left
+    ' double-clicks by timing consecutive mouse-downs (FormsPlot's DoubleClick event isn't reliable).
+    Private Sub Chart2OnMouseDown(sender As Object, e As MouseEventArgs)
+
+        CheckBoxPBXYaxis.Checked = False
+
+        If e.Button = MouseButtons.Right Then
+            Chart2LastRightClickPixel = New ScottPlot.Pixel(CSng(e.X), CSng(e.Y))
+        End If
+
+        If e.Button = MouseButtons.Left Then
+
+            Dim thisPixel As New ScottPlot.Pixel(CSng(e.X), CSng(e.Y))
+            Dim elapsedMs As Double = (DateTime.Now - Chart2LastLeftClickTime).TotalMilliseconds
+            Dim dx As Single = thisPixel.X - Chart2LastLeftClickPixel.X
+            Dim dy As Single = thisPixel.Y - Chart2LastLeftClickPixel.Y
+            Dim distance As Single = CSng(Math.Sqrt(dx * dx + dy * dy))
+
+            If elapsedMs <= SystemInformation.DoubleClickTime AndAlso
+               distance <= SystemInformation.DoubleClickSize.Width Then
+
+                Chart2LastLeftClickTime = DateTime.MinValue
+                Chart2OnDoubleClick(thisPixel)
+
+            Else
+
+                Chart2LastLeftClickTime = DateTime.Now
+                Chart2LastLeftClickPixel = thisPixel
+
+            End If
+
+        End If
+
+    End Sub
+
+    Private Sub Chart2CopyValueAtCursor(plot As ScottPlot.Plot)
+
+        Dim found As Boolean = False
+        Dim bestPoint As ScottPlot.DataPoint = Nothing
+        Dim bestYAxis As ScottPlot.IYAxis = Nothing
+        Dim bestColor As ScottPlot.Color = Nothing
+
+        Chart2FindNearestPoint(Chart2LastRightClickPixel, found, bestPoint, bestYAxis, bestColor)
+
+        If found Then
+            Clipboard.SetText(bestPoint.Y.ToString("0.########", Globalization.CultureInfo.InvariantCulture))
+        End If
+
+    End Sub
+
+    ' 1st double-click places point A, 2nd places B and locks the delta,
+    ' 3rd clears and starts over.
+    Private Sub Chart2OnDoubleClick(mousePixel As ScottPlot.Pixel)
+
+        Dim found As Boolean = False
+        Dim bestPoint As ScottPlot.DataPoint = Nothing
+        Dim bestYAxis As ScottPlot.IYAxis = Nothing
+        Dim bestColor As ScottPlot.Color = Nothing
+
+        Chart2FindNearestPoint(mousePixel, found, bestPoint, bestYAxis, bestColor)
+
+        If Chart2MeasureHavePointB Then
+
+            Chart2ClearMeasurement(FormsPlot2.Plot)
+
+        ElseIf Chart2MeasureHavePointA Then
+
+            ' Nothing nearby to lock in as B - clear rather than leave the
+            ' measurement stuck with only A placed.
+            If Not found Then
+                Chart2ClearMeasurement(FormsPlot2.Plot)
+                Exit Sub
+            End If
+
+            Chart2MeasureHavePointB = True
+
+            Chart2MeasureMarkerB.IsVisible = True
+            Chart2MeasureMarkerB.Location = bestPoint.Coordinates
+            Chart2MeasureMarkerB.Axes.YAxis = bestYAxis
+
+            Chart2UpdateMeasureDisplay(bestPoint, bestYAxis)
+
+            FormsPlot2.Refresh()
+
+        Else
+
+            If Not found Then Exit Sub
+
+            Chart2MeasureHavePointA = True
+            Chart2MeasurePointA = bestPoint
+            Chart2MeasureAxisA = bestYAxis
+
+            Chart2MeasureMarkerA.IsVisible = True
+            Chart2MeasureMarkerA.Location = bestPoint.Coordinates
+            Chart2MeasureMarkerA.Axes.YAxis = bestYAxis
+
+            FormsPlot2.Refresh()
+
+        End If
+
+    End Sub
+
+    ' A connecting line and delta only make sense when both points share
+    ' the same Y axis; otherwise just the two raw values are shown.
+    Private Sub Chart2UpdateMeasureDisplay(pointB As ScottPlot.DataPoint, axisB As ScottPlot.IYAxis)
+
+        Dim sameAxis As Boolean = axisB Is Chart2MeasureAxisA
+
+        Chart2MeasureLine.IsVisible = sameAxis
+        If sameAxis Then
+            Chart2MeasureLine.Axes.YAxis = axisB
+            Chart2MeasureLine.Start = Chart2MeasurePointA.Coordinates
+            Chart2MeasureLine.[End] = pointB.Coordinates
+        End If
+
+        Chart2MeasureText.IsVisible = True
+        Chart2MeasureText.Location = pointB.Coordinates
+        Chart2MeasureText.Axes.YAxis = axisB
+
+        If sameAxis Then
+            Dim deltaX As Double = pointB.X - Chart2MeasurePointA.X
+            Dim deltaY As Double = pointB.Y - Chart2MeasurePointA.Y
+            Chart2MeasureText.LabelText = "dY " & deltaY.ToString("0.########") & "   dX " & deltaX.ToString("0") & " samples"
+        Else
+            Chart2MeasureText.LabelText = "A " & Chart2MeasurePointA.Y.ToString("0.########") & "   B " & pointB.Y.ToString("0.########")
+        End If
+
+        Const edgeMarginTopPx As Single = 40
+        Const edgeMarginRightPx As Single = 300
+
+        Dim pointBPixel As ScottPlot.Pixel = FormsPlot2.Plot.GetPixel(pointB.Coordinates, FormsPlot2.Plot.Axes.Bottom, axisB)
+        Dim dataRect As ScottPlot.PixelRect = FormsPlot2.Plot.LastRender.DataRect
+
+        Dim nearTop As Boolean = (pointBPixel.Y - dataRect.Top) < edgeMarginTopPx
+        Dim nearRight As Boolean = (dataRect.Right - pointBPixel.X) < edgeMarginRightPx
+
+        Chart2MeasureText.OffsetY = If(nearTop, 7, -7)
+        Chart2MeasureText.OffsetX = If(nearRight, -7, 7)
+
+        Chart2MeasureText.LabelAlignment =
+            If(nearTop,
+               If(nearRight, ScottPlot.Alignment.UpperRight, ScottPlot.Alignment.UpperLeft),
+               If(nearRight, ScottPlot.Alignment.LowerRight, ScottPlot.Alignment.LowerLeft))
+
+    End Sub
+
+    ' Takes a Plot parameter (unused) so it matches the context-menu
+    ' action delegate signature directly.
+    Private Sub Chart2ClearMeasurement(plot As ScottPlot.Plot)
+
+        Chart2MeasureHavePointA = False
+        Chart2MeasureHavePointB = False
+
+        Chart2MeasureMarkerA.IsVisible = False
+        Chart2MeasureMarkerB.IsVisible = False
+        Chart2MeasureLine.IsVisible = False
+        Chart2MeasureText.IsVisible = False
+
+        FormsPlot2.Refresh()
+
+    End Sub
+
+    Private Sub Chart2OnKeyDown(sender As Object, e As KeyEventArgs)
+
+        If e.KeyCode = Keys.Escape Then
+            Chart2ClearMeasurement(FormsPlot2.Plot)
+        End If
+
+        Chart2EchoYRange()
+
+    End Sub
+
+    Private Sub CheckBoxPBXYaxis_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxPBXYaxis.CheckedChanged
+
+        ' ReadOnly (not Enabled = False) while autoscaling so the boxes stay
+        ' legible as autoscale writes the detected range into them - same as
+        ' the Live Chart. Stay locked until a CSV is actually loaded.
+        If CSVfileok Then
+            YaxisMaximum.ReadOnly = CheckBoxPBXYaxis.Checked
+            YaxisMinimum.ReadOnly = CheckBoxPBXYaxis.Checked
+        End If
+
+        If CheckBoxPBXYaxis.Checked AndAlso CSVfileok Then
+            Chart2AutoScaleXY()
+            FormsPlot2.Refresh()
+        End If
+
+    End Sub
+
+    ' Applies the Y-Axis Scale Max/Min boxes to the chart, rejecting (and
+    ' reverting the edited box) anything non-numeric or with Max <= Min -
+    ' same behaviour as the Live Chart's Dev1Max/Dev1Min boxes.
+    Private Sub ApplyPlaybackYAxisBoxes(editedIsMax As Boolean)
+
+        If YaxisMaximum.ReadOnly Then Exit Sub
+
+        Dim maxVal, minVal As Double
+        Dim inv As Globalization.CultureInfo = Globalization.CultureInfo.InvariantCulture
+
+        If Not Double.TryParse(YaxisMaximum.Text, Globalization.NumberStyles.Float, inv, maxVal) OrElse
+           Not Double.TryParse(YaxisMinimum.Text, Globalization.NumberStyles.Float, inv, minVal) OrElse
+           maxVal <= minVal Then
+            If editedIsMax Then
+                YaxisMaximum.Text = FormsPlot2.Plot.Axes.Left.Max.ToString(inv)
+            Else
+                YaxisMinimum.Text = FormsPlot2.Plot.Axes.Left.Min.ToString(inv)
+            End If
+            Exit Sub
+        End If
+
+        FormsPlot2.Plot.Axes.Left.Min = minVal
+        FormsPlot2.Plot.Axes.Left.Max = maxVal
+        FormsPlot2.Refresh()
+
+    End Sub
+
+    Private Sub YaxisMaximum_Leave(sender As Object, e As EventArgs) Handles YaxisMaximum.Leave
+        ApplyPlaybackYAxisBoxes(True)
+    End Sub
+
+    Private Sub YaxisMinimum_Leave(sender As Object, e As EventArgs) Handles YaxisMinimum.Leave
+        ApplyPlaybackYAxisBoxes(False)
+    End Sub
+
+    Private Sub YaxisMaximum_KeyDown(sender As Object, e As KeyEventArgs) Handles YaxisMaximum.KeyDown
+        If e.KeyCode = Keys.Enter Then
+            e.SuppressKeyPress = True
+            ApplyPlaybackYAxisBoxes(True)
+        End If
+    End Sub
+
+    Private Sub YaxisMinimum_KeyDown(sender As Object, e As KeyEventArgs) Handles YaxisMinimum.KeyDown
+        If e.KeyCode = Keys.Enter Then
+            e.SuppressKeyPress = True
+            ApplyPlaybackYAxisBoxes(False)
+        End If
+    End Sub
+
+
 
 
     Private Sub CheckBoxPPMenable_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxPPMenable.CheckedChanged
@@ -3819,11 +3202,6 @@ Public Class Chart
             PPMscalerangeentry.Enabled = True
             PPMscaleText.Enabled = True
             CheckBoxMedianV.Enabled = True
-            ' Scroll/Zoom/Y-adjust/Shift used to be disabled here
-            ' because enabling PPM mode never regenerated PPM values
-            ' for a reloaded subset (see GeneratePPMColumn()) - now
-            ' that every reload regenerates PPM correctly, these stay
-            ' enabled while PPM is on.
         Else
             CheckBoxMedianT.Enabled = False
             MedianTempText.Enabled = False
@@ -3840,60 +3218,14 @@ Public Class Chart
             PPMscalerangeentry.Enabled = False
             PPMscaleText.Enabled = False
             CheckBoxMedianV.Enabled = False
-            ButtonScrollLeft.Enabled = True
-            ButtonScrollRight.Enabled = True
-            ButtonScrollLeftSMALL.Enabled = True
-            ButtonScrollRightSMALL.Enabled = True
-            ButtonZoomIn.Enabled = True
-            ButtonZoomOut.Enabled = True
-            ButtonYminInc.Enabled = True
-            ButtonYminDec.Enabled = True
-            ButtonYmaxInc.Enabled = True
-            ButtonYmaxDec.Enabled = True
             ButtonDisplayAll.Enabled = True
-            ButtonShiftUp.Enabled = True
-            ButtonShiftDn.Enabled = True
 
-            ' Erase scale
-            Scale1.Text = ""
-            Scale2.Text = ""
-            Scale3.Text = ""
-            Scale4.Text = ""
-            Scale5.Text = ""
-            Scale6.Text = ""
-            Scale7.Text = ""
-            Scale8.Text = ""
-            Scale9.Text = ""
-            Scale10.Text = ""
-            Scale11.Text = ""
-            Scale12.Text = ""
-            Scale13.Text = ""
-            Scale14.Text = ""
-            Scale15.Text = ""
-            Scale16.Text = ""
-            Scale17.Text = ""
-            Scale18.Text = ""
-            Scale19.Text = ""
-            Scale20.Text = ""
-            Scale21.Text = ""
-            Scale22.Text = ""
-            Scale23.Text = ""
-            Scale24.Text = ""
-            Scale25.Text = ""
-
-            LabelPPMtop.Visible = False
             LabelPPMdegctop.Visible = False
 
         End If
 
-        ' Re-applies whichever radio is currently selected's MedianTemp/
-        ' MedianValue/CheckBoxMedianV state, since toggling Enable PPM
-        ' doesn't fire any radio's own CheckedChanged (that only fires
-        ' when the selection itself changes) - without this, switching
-        ' Enable PPM off and back on while PPM/DegC (Fit) is selected
-        ' would leave these controls back in their generic enabled state
-        ' instead of Fit mode's read-only/forced-from-CSV state. Placed
-        ' after the general Enabled block above so it takes precedence.
+        ' Re-applies the selected radio's MedianTemp/MedianValue/CheckBoxMedianV state, since toggling Enable PPM
+        ' doesn't fire the radios' CheckedChanged. Placed after the general block above so it takes precedence.
         If CheckBoxPPMenable.Checked = True Then
             If (RadioButtonPPMTempo.Checked = True) Then
                 MedianTemp.Enabled = True
@@ -3914,13 +3246,8 @@ Public Class Chart
 
             MedianValue.ReadOnly = (RadioButtonPPMTempoLinReg.Checked = True)
 
-            ' PPM/DegC (Fit) overwrites MedianValue.Text with its own
-            ' fitted result every refresh - if CheckBoxMedianV were left
-            ' unchecked, the next refresh would read that fitted ppm
-            ' number back in as if it were the real baseline Value,
-            ' corrupting the fit. Force it on and lock it while Fit mode
-            ' is selected so medianvalued always comes from the stable
-            ' MedianValueCSV instead.
+            ' Fit mode overwrites MedianValue.Text with its result each refresh; force CheckBoxMedianV on and lock it
+            ' so the baseline always comes from MedianValueCSV.
             If (RadioButtonPPMTempoLinReg.Checked = True) Then
                 CheckBoxMedianV.Checked = True
                 CheckBoxMedianV.Enabled = False
@@ -3931,20 +3258,18 @@ Public Class Chart
 
         'RefreshPlaybackCSVFile()
 
-        If CheckBoxPPMenable.Checked = False Then
-            Chart2.Series(4).Enabled = False
-        Else
-            Chart2.Series(4).Enabled = True
+        ' Unchecking hides the PPM trace (the scale stays); checking recomputes and shows it.
+        Chart2PPMSeries.IsVisible = CheckBoxPPMenable.Checked
+        If CheckBoxPPMenable.Checked = True Then
             RefreshPlaybackCSVFile()
+        Else
+            FormsPlot2.Refresh()
         End If
 
     End Sub
 
 
-    ' Restores whatever was in MedianValue/MedianTemp before Fit mode
-    ' replaced them with its own result/uncertainty, if there's anything
-    ' saved to restore - a no-op when arriving from any mode other than
-    ' Fit, since nothing gets saved unless Fit mode was actually entered.
+    ' Restores MedianValue/MedianTemp saved before Fit mode replaced them (no-op if Fit wasn't entered).
     Private Sub RestoreMedianTextIfLeavingFit()
         If SavedMedianValueBeforeFit <> "" Then
             MedianValue.Text = SavedMedianValueBeforeFit
@@ -3956,11 +3281,7 @@ Public Class Chart
 
 
     Private Sub RadioButtonPPMDev_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButtonPPMDev.CheckedChanged
-        ' A RadioButton group fires CheckedChanged twice per click - once
-        ' for the radio becoming unchecked, once for the one becoming
-        ' checked. Without this guard, switching AWAY from this radio ran
-        ' its "entering this mode" logic too, corrupting state meant only
-        ' for actually selecting it (see the matching guards below).
+        ' Radio groups fire CheckedChanged twice per click; ignore the radio being unchecked.
         If RadioButtonPPMDev.Checked = False Then Exit Sub
 
         MedianTemp.Enabled = False
@@ -3993,14 +3314,8 @@ Public Class Chart
 
 
     Private Sub RadioButtonPPMTempoLinReg_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButtonPPMTempoLinReg.CheckedChanged
-        ' A least-squares fit finds its own baseline from every point, so
-        ' unlike the instant-ratio Tempco above it needs no Initial Temp.
-        ' These two boxes get repurposed to show the fit result instead -
-        ' relabel them so that's obvious rather than looking like a stale
-        ' Initial Value/Initial Temp reading. ReadOnly (not Enabled=False)
-        ' so the displayed fit/uncertainty stays legible instead of greyed
-        ' out, while still blocking edits to a value that isn't a real
-        ' input here and would just get overwritten on the next refresh.
+        ' Fit needs no Initial Temp and reuses these two boxes for its result/uncertainty. ReadOnly (not disabled)
+        ' keeps them legible while blocking edits that would be overwritten on refresh.
         If RadioButtonPPMTempoLinReg.Checked = False Then Exit Sub
 
         MedianTemp.Enabled = True
@@ -4012,11 +3327,8 @@ Public Class Chart
         ' switching to another radio can restore it (see field comment).
         SavedMedianValueBeforeFit = MedianValue.Text
         SavedMedianTempBeforeFit = MedianTemp.Text
-        ' Fit mode overwrites MedianValue.Text with its own result every
-        ' refresh - if CheckBoxMedianV were left unchecked, the next
-        ' refresh would read that fitted ppm number back in as if it were
-        ' the real baseline Value, corrupting the fit. Force it on and
-        ' lock it so medianvalued always comes from MedianValueCSV.
+        ' Fit mode overwrites MedianValue.Text each refresh; force CheckBoxMedianV on and lock it
+        ' so the baseline always comes from MedianValueCSV.
         CheckBoxMedianV.Checked = True
         CheckBoxMedianV.Enabled = False
         MedianValueText.Text = "- Fit ppm/DegC"
@@ -4026,11 +3338,7 @@ Public Class Chart
 
 
     Private Sub RadioButtonPPMTempoRolling_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButtonPPMTempoRolling.CheckedChanged
-        ' A rolling fit re-fits its own baseline out of every window as it
-        ' slides along, so it needs no Initial Temp either. Unlike the
-        ' whole-file Fit, there's no single result to show in these boxes -
-        ' it's a continuously varying trend - so they're just reverted to
-        ' their normal Initial Value/Initial Temp meaning (disabled/unused).
+        ' A rolling fit needs no Initial Temp and has no single result, so the boxes revert to their normal meaning (unused).
         If RadioButtonPPMTempoRolling.Checked = False Then Exit Sub
 
         MedianTemp.Enabled = False
@@ -4048,16 +3356,9 @@ Public Class Chart
 
     Private Sub FilterDeviceName1()
 
-        ' Unlike its other callers (Zoom/Scroll/ShowAll etc., which all
-        ' clear Chart2.Series(0) themselves beforehand), DEV1avg's own
-        ' TextChanged handler goes through RefreshPlaybackCSVFile() first,
-        ' which doesn't clear it - so without this, every edit to DEV1avg
-        ' appended a full extra pass over Device 1's data onto whatever
-        ' was already plotted, instead of replacing it. Same fix as
-        ' FilterTempDevice1(). Guarded by Count since DEV1avg_TextChanged
-        ' can fire from InitializeComponent() itself, before Chart2.Series
-        ' has any series added yet (that happens later, in Form_Load).
-        If Chart2.Series.Count > 0 Then Chart2.Series(0).Points.Clear()
+        ' Clears the series first: DEV1avg's TextChanged goes through RefreshPlaybackCSVFile(), which doesn't clear it,
+        ' so points would be appended twice. (Same for FilterTempDevice1.)
+        Chart2Dev1Data.Clear()
 
         ' Device 1
         If DEV1avg.Text = "0" Then
@@ -4067,7 +3368,7 @@ Public Class Chart
                 Dim selectedRows() As DataRow = dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
                 ''Add filtered data to series
                 For Each dr As DataRow In selectedRows
-                    Chart2.Series(0).Points.AddXY(dr("DEVICE"), dr("VALUE"))
+                    Chart2Dev1Data.Add(New ScottPlot.Coordinates(Chart2Dev1Data.Count, Convert.ToDouble(dr("VALUE"))))
                 Next
             End If
 
@@ -4094,7 +3395,7 @@ Public Class Chart
                     DEV1rollingAverageValues.Add(Dev1rollingAverageValue)
 
                     ' Add the data point with the rolling average value to the chart's series
-                    Chart2.Series(0).Points.AddXY(dr("DEVICE"), Dev1rollingAverageValue)
+                    Chart2Dev1Data.Add(New ScottPlot.Coordinates(Chart2Dev1Data.Count, Dev1rollingAverageValue))
 
                     'Console.WriteLine("Rolling Average Value for Device 1 " & Dev1rollingAverageValue)
 
@@ -4109,12 +3410,9 @@ Public Class Chart
     Private Sub FilterDeviceName2()
 
         ' Same fix as FilterDeviceName1 - DEV2avg's own TextChanged handler
-        ' is the one caller that doesn't already clear Chart2.Series(1)
-        ' before calling this. Guarded by Count since DEV2avg_TextChanged
-        ' can fire from InitializeComponent() itself (setting DEV2avg.Text
-        ' at Designer-load time), before Chart2.Series has any series
-        ' added yet (that happens later, in Form_Load).
-        If Chart2.Series.Count > 1 Then Chart2.Series(1).Points.Clear()
+        ' is the one caller that doesn't already clear Chart2Dev2Data
+        ' before calling this.
+        Chart2Dev2Data.Clear()
 
         If DEV2avg.Text = "0" Then
 
@@ -4123,7 +3421,7 @@ Public Class Chart
                 Dim selectedRows2() As DataRow = dataTable1.Select("DEVICE ='" & DeviceName2.Text & "'")
                 'Add filtered data to series
                 For Each dr As DataRow In selectedRows2
-                    Chart2.Series(1).Points.AddXY(dr("DEVICE"), dr("VALUE"))
+                    Chart2Dev2Data.Add(New ScottPlot.Coordinates(Chart2Dev2Data.Count, Convert.ToDouble(dr("VALUE"))))
                 Next
             End If
 
@@ -4150,7 +3448,7 @@ Public Class Chart
                     DEV2rollingAverageValues.Add(Dev2rollingAverageValue)
 
                     ' Add the data point with the rolling average value to the chart's series
-                    Chart2.Series(1).Points.AddXY(dr("DEVICE"), Dev2rollingAverageValue)
+                    Chart2Dev2Data.Add(New ScottPlot.Coordinates(Chart2Dev2Data.Count, Dev2rollingAverageValue))
 
                     'Console.WriteLine("Rolling Average Value for Device 1 " & Dev1rollingAverageValue)
 
@@ -4165,7 +3463,8 @@ Public Class Chart
 
     Private Sub FilterShortTermMeanDevice1()
 
-        Chart2.Series("Dev 1 Short-Term Mean").Points.Clear()
+        Chart2Dev1ShortTermMeanData.Clear()
+        Chart2Dev1ShortTermMeanSeries.IsVisible = CheckPlaybackDev1ShortTermMean.Checked
 
         If Not CheckPlaybackDev1ShortTermMean.Checked Then Exit Sub
         If (DeviceName1.Text = "") Then Exit Sub
@@ -4181,7 +3480,7 @@ Public Class Chart
             window.Enqueue(v) : windowSum += v
             If window.Count > ShortTermMeanWindow Then windowSum -= window.Dequeue()
 
-            Chart2.Series("Dev 1 Short-Term Mean").Points.AddXY(dr("DEVICE"), windowSum / window.Count)
+            Chart2Dev1ShortTermMeanData.Add(New ScottPlot.Coordinates(Chart2Dev1ShortTermMeanData.Count, windowSum / window.Count))
 
         Next
 
@@ -4190,7 +3489,8 @@ Public Class Chart
 
     Private Sub FilterShortTermMeanDevice2()
 
-        Chart2.Series("Dev 2 Short-Term Mean").Points.Clear()
+        Chart2Dev2ShortTermMeanData.Clear()
+        Chart2Dev2ShortTermMeanSeries.IsVisible = CheckPlaybackDev2ShortTermMean.Checked
 
         If Not CheckPlaybackDev2ShortTermMean.Checked Then Exit Sub
         If (DeviceName2.Text = "") Then Exit Sub
@@ -4206,7 +3506,7 @@ Public Class Chart
             window.Enqueue(v) : windowSum += v
             If window.Count > ShortTermMeanWindow Then windowSum -= window.Dequeue()
 
-            Chart2.Series("Dev 2 Short-Term Mean").Points.AddXY(dr("DEVICE"), windowSum / window.Count)
+            Chart2Dev2ShortTermMeanData.Add(New ScottPlot.Coordinates(Chart2Dev2ShortTermMeanData.Count, windowSum / window.Count))
 
         Next
 
@@ -4215,28 +3515,12 @@ Public Class Chart
 
     Private Sub FilterTempDevice1()
 
-        ' Unlike its sibling Filter*() functions, this one never cleared the
-        ' series before repopulating - callers were relying on having
-        ' already cleared Chart2.Series(2) themselves beforehand (e.g.
-        ' ShowAll() does this explicitly). Any caller that doesn't do that
-        ' (like TEMPavg's own TextChanged handler) ends up appending a full
-        ' duplicate copy of the Temp trace on top of the existing points
-        ' every time it runs, which is what was doubling the chart.
-        Chart2.Series(2).Points.Clear()
+        ' Clears the series first; callers such as TEMPavg's TextChanged don't, and would duplicate the trace.
+        Chart2TempData.Clear()
 
-        ' The rolling-average list is rebuilt unconditionally below (when
-        ' TEMPavg is in use) because GeneratePPMColumn() reads from it for
-        ' the Tempco calculation regardless of whether the Temp trace is
-        ' actually being displayed. PlaybackTemp.Checked now only gates
-        ' whether points get added to the chart series - it must not gate
-        ' whether the underlying temperature data gets computed at all.
-        ' Temperature/Humidity are shared readings, not device-specific -
-        ' every row carries the same TEMP/HUM regardless of which device
-        ' logged it. So filter using whichever device name is actually
-        ' populated: normally that's DeviceName1, but for a single-device
-        ' CSV that turned out to be physical Device 2 (DeviceName1 is left
-        ' blank in that case), fall back to DeviceName2 - otherwise the
-        ' DEVICE='' filter below matches nothing and Temp never displays.
+        ' The rolling-average list is always rebuilt as GeneratePPMColumn() reads it for Tempco;
+        ' PlaybackTemp.Checked only gates adding points to the series.
+        ' Temp/Hum are shared by every row, so filter by whichever device name is populated (DeviceName2 if DeviceName1 is blank).
         Dim tempDeviceName As String = If(DeviceName1.Text <> "", DeviceName1.Text, DeviceName2.Text)
 
         If TEMPavg.Text = "0" Then
@@ -4247,7 +3531,7 @@ Public Class Chart
                 'Add filtered data to series
 
                 For Each dr As DataRow In selectedRows3
-                    Chart2.Series(2).Points.AddXY(dr("DEVICE"), dr("TEMP"))
+                    Chart2TempData.Add(New ScottPlot.Coordinates(Chart2TempData.Count, Convert.ToDouble(dr("TEMP"))))
                 Next
 
             End If
@@ -4271,7 +3555,7 @@ Public Class Chart
 
                 ' Add the data point with the rolling average value to the chart's series
                 If PlaybackTemp.Checked = True Then
-                    Chart2.Series(2).Points.AddXY(dr("DEVICE"), TemprollingAverageValue)
+                    Chart2TempData.Add(New ScottPlot.Coordinates(Chart2TempData.Count, TemprollingAverageValue))
                 End If
 
                 'Console.WriteLine("Rolling Average Value for Temperature " & TemprollingAverageValue)
@@ -4285,11 +3569,8 @@ Public Class Chart
 
     Private Sub FilterHumDevice1()
 
-        ' Same missing-clear bug FilterTempDevice1() had - callers were
-        ' relying on having already cleared Chart2.Series(3) themselves
-        ' beforehand. Clearing here makes this function self-contained and
-        ' safe to call more than once per load, same as its siblings.
-        Chart2.Series(3).Points.Clear()
+        ' Clears the series first so it is safe to call more than once per load.
+        Chart2HumData.Clear()
 
         ' Humidity is a shared reading like Temperature (not device-
         ' specific) - see FilterTempDevice1()'s tempDeviceName for why this
@@ -4301,7 +3582,7 @@ Public Class Chart
             Dim selectedRows4() As DataRow = dataTable1.Select("DEVICE ='" & humDeviceName & "'")
             'Add filtered data to series
             For Each dr As DataRow In selectedRows4
-                Chart2.Series(3).Points.AddXY(dr("DEVICE"), dr("HUM"))
+                Chart2HumData.Add(New ScottPlot.Coordinates(Chart2HumData.Count, Convert.ToDouble(dr("HUM"))))
             Next
         End If
 
@@ -4310,13 +3591,8 @@ Public Class Chart
 
     Private Sub GeneratePPMColumn()
 
-        ' Computes the PPM column for whatever rows currently sit in
-        ' dataTable1 - the initial full load, or a zoomed/scrolled/
-        ' shifted subset. Callers are responsible for having already
-        ' reloaded dataTable1 (and rebuilt the rolling-average lists
-        ' via FilterDeviceName1/2 and FilterTempDevice1, which happens
-        ' automatically since those always run before this is called)
-        ' for whatever range is currently in view.
+        ' Computes the PPM column for the rows currently in dataTable1; callers must have reloaded dataTable1
+        ' and rebuilt the rolling-average lists (FilterDeviceName1/2, FilterTempDevice1) for the range in view.
 
         If (CheckBoxPPMenable.Checked = False) Then Exit Sub
 
@@ -4364,9 +3640,6 @@ Public Class Chart
         End If
 
         Dim PPMdevice As String = ""
-        Dim YaxisMaximumVal As Double = Math.Round((ParseInvariantDouble(YaxisMaximum.Text)), 7)
-        Dim YaxisMinimumVal As Double = Math.Round((ParseInvariantDouble(YaxisMinimum.Text)), 7)
-        'Dim PPMscale As Double = ppmscalerange
 
 
         ' Get device from radio buttons
@@ -4443,14 +3716,8 @@ Public Class Chart
                     End If
 
 
-                    ' Get this row's temperature either from the CSV data or
-                    ' the AVG list - independent of whether the raw Temp
-                    ' trace checkbox is ticked. That checkbox only controls
-                    ' whether the Temp line is drawn on the chart; it used
-                    ' to also gate this block, which meant Tempco was
-                    ' silently computed against a phantom 0 degC baseline
-                    ' (TEMProllingAverageValue's unassigned default) instead
-                    ' of the real temperature whenever Temp display was off.
+                    ' Temperature for this row comes from the CSV data or the AVG list, independent of the Temp trace checkbox
+                    ' (which only controls drawing).
                     If TEMPavg.Text = "0" Then
                         variancetemp = Val((dataTable1.Rows(i)("TEMP")))
                         TEMProllingAverageValue = variancetemp      ' this is the value that is used later
@@ -4501,29 +3768,12 @@ Public Class Chart
                             calcppmvalue = -99
                         End If
 
-                        ' Adjust position of PPM graph on chart to suit right hand PPM scale - a hack!
-                        Dim offsetfactor As Double = ((YaxisMaximumVal - YaxisMinimumVal) / 2) + YaxisMinimumVal
-                        Dim scalefactor As Double = ((YaxisMaximumVal - YaxisMinimumVal) / ppmscalerange)
-                        'calcppmvalue = calcppmvalue * scalefactor
-                        calcppmvalue *= scalefactor
-                        'calcppmvalue = calcppmvalue + offsetfactor
-                        calcppmvalue += offsetfactor
-
+                        ' True ppm value, plotted on Chart2PPMAxis (ranged from PPMscalerangeentry in Chart2RenderStarting).
                         dataTable1.Rows(i)("PPM") = calcppmvalue
 
                     Else        ' force PPM/DegC to 0.0 if variance and median values are exactly the same
 
-                        calcppmvalue = 0.00000001     ' protecting against DIV/0
-
-                        ' Adjust position of PPM graph on chart to suit right hand PPM scale - a hack!
-                        Dim offsetfactor As Double = ((YaxisMaximumVal - YaxisMinimumVal) / 2) + YaxisMinimumVal
-                        Dim scalefactor As Double = ((YaxisMaximumVal - YaxisMinimumVal) / ppmscalerange)
-                        'calcppmvalue = calcppmvalue * scalefactor
-                        calcppmvalue *= scalefactor
-                        'calcppmvalue = calcppmvalue + offsetfactor
-                        calcppmvalue += offsetfactor
-
-                        dataTable1.Rows(i)("PPM") = calcppmvalue
+                        dataTable1.Rows(i)("PPM") = 0.00000001     ' protecting against DIV/0
 
                     End If
                 End If
@@ -4531,16 +3781,9 @@ Public Class Chart
         End If
 
 
-        ' Add PPM data to datatable - PPM Tempco via linear regression.
-        ' Fits a straight line through every (Temp, Value) point for the
-        ' selected device instead of comparing each point back to one fixed
-        ' baseline sample - the best available estimate when the logged
-        ' temperature only drifts a small amount (see the ADI Tempco
-        ' article: a reliable Tempco needs a large, deliberate temperature
-        ' swing; with only ambient drift to work with, a whole-range fit is
-        ' the least-bad estimator, not a substitute for a proper chamber
-        ' sweep). Also reports the fit's standard error so the Initial
-        ' Value/Initial Temp boxes can show how much to trust the number.
+        ' PPM Tempco via linear regression: fits a line through every (Temp, Value) point of the selected device
+        ' instead of comparing each point to one baseline. Also reports the fit's standard error
+        ' so the Initial Value/Initial Temp boxes show how much to trust it.
         If (RadioButtonPPMTempoLinReg.Checked = True) Then
 
             Dim sumT As Double = 0.0
@@ -4580,12 +3823,8 @@ Public Class Chart
                     ' instant-ratio calc above uses (Initial Value box/CSV).
                     fittedPpmDegC = (slope / medianvalued) * 1000000
 
-                    ' Standard error of the slope - residual scatter around
-                    ' the fitted line, scaled by how spread out the actual
-                    ' temperatures are. A small tempSpan (little real
-                    ' temperature drift to fit against) inflates this,
-                    ' which is exactly the honest signal that the fit is
-                    ' resting on a small temperature range.
+                    ' Standard error of the slope: residual scatter scaled by the temperature spread;
+                    ' a small tempSpan inflates it, signalling a poorly constrained fit.
                     Dim sumResidualSq As Double = 0.0
                     For i = 0 To dataTable1.Rows.Count - 1
                         If (dataTable1.Rows(i)("DEVICE")) = PPMdevice Then
@@ -4599,11 +3838,7 @@ Public Class Chart
                     If fitCount > 2 Then
                         Dim residualVariance As Double = sumResidualSq / (fitCount - 2)
                         Dim slopeStdErr As Double = Math.Sqrt(residualVariance * fitCount / denom)
-                        ' Abs() because this is an uncertainty magnitude,
-                        ' not a signed value - dividing by a negative
-                        ' Initial Value (e.g. a manually-typed negative
-                        ' baseline) would otherwise flip its sign and
-                        ' display as "+/--0.162" instead of "+/-0.162".
+                        ' Abs() as this is an uncertainty magnitude; a negative Initial Value would otherwise show "+/--0.162".
                         fittedPpmDegCStdErr = Math.Abs((slopeStdErr / medianvalued) * 1000000)
                     End If
 
@@ -4620,35 +3855,23 @@ Public Class Chart
             If fittedPpmDegC > 99 Then fittedPpmDegC = 99
             If fittedPpmDegC < -99 Then fittedPpmDegC = -99
 
-            Dim offsetfactorFit As Double = ((YaxisMaximumVal - YaxisMinimumVal) / 2) + YaxisMinimumVal
-            Dim scalefactorFit As Double = ((YaxisMaximumVal - YaxisMinimumVal) / ppmscalerange)
-            Dim displayValueFit As Double = (fittedPpmDegC * scalefactorFit) + offsetfactorFit
-
             ' One fitted number for the whole current view - draw it as a flat
             ' line across every plotted row rather than a per-point ratio.
             For i = 0 To dataTable1.Rows.Count - 1
                 If (dataTable1.Rows(i)("DEVICE")) = PPMdevice Then
-                    dataTable1.Rows(i)("PPM") = displayValueFit
+                    dataTable1.Rows(i)("PPM") = fittedPpmDegC
                 End If
             Next
 
         End If
 
 
-        ' Add PPM data to datatable - PPM Tempco via a rolling-window fit.
-        ' Same least-squares idea as PPM/DegC (Fit), but re-fitted from
-        ' scratch over just the trailing RMSwindow points ending at each
-        ' row instead of the whole file at once - reuses noise-averaging
-        ' the same way the whole-file fit does, but lets the result
-        ' genuinely change as it slides through the log, since the meter's
-        ' real behaviour is never perfectly the same at every temperature.
+        ' PPM Tempco via a rolling-window fit: the same least-squares fit as above, re-run over the trailing
+        ' RMSwindow points at each row, so the result can change through the log.
         If (RadioButtonPPMTempoRolling.Checked = True) Then
 
             Dim rollWindowSize As Integer = Val(RMSwindow.Text)
             If rollWindowSize < 2 Then rollWindowSize = 2
-
-            Dim offsetfactorRoll As Double = ((YaxisMaximumVal - YaxisMinimumVal) / 2) + YaxisMinimumVal
-            Dim scalefactorRoll As Double = ((YaxisMaximumVal - YaxisMinimumVal) / ppmscalerange)
 
             Dim rollWindow As New Queue(Of KeyValuePair(Of Double, Double))   ' (Temp, Value)
             Dim rollSumT As Double = 0.0
@@ -4690,7 +3913,7 @@ Public Class Chart
                     If rollPpm > 99 Then rollPpm = 99
                     If rollPpm < -99 Then rollPpm = -99
 
-                    dataTable1.Rows(i)("PPM") = (rollPpm * scalefactorRoll) + offsetfactorRoll
+                    dataTable1.Rows(i)("PPM") = rollPpm
 
                 End If
             Next
@@ -4793,15 +4016,6 @@ Public Class Chart
                         calcppmvalue = -99
                     End If
 
-                    ' Adjust position of PPM graph on chart to suit right hand PPM scale - a hack!
-                    Dim offsetfactor As Double = ((YaxisMaximumVal - YaxisMinimumVal) / 2) + YaxisMinimumVal
-                    Dim scalefactor As Double = ((YaxisMaximumVal - YaxisMinimumVal) / ppmscalerange)
-                    'calcppmvalue = calcppmvalue * scalefactor
-                    calcppmvalue *= scalefactor
-                    'calcppmvalue = calcppmvalue + offsetfactor
-                    calcppmvalue += offsetfactor
-
-
                     dataTable1.Rows(i)("PPM") = calcppmvalue
 
                 End If
@@ -4813,13 +4027,13 @@ Public Class Chart
 
     Private Sub FilterGenPPMDevice1()
 
-        ' Filter Dev 1 generated PPM 
+        ' Filter Dev 1 generated PPM
         If (CheckBoxPPMenable.Checked = True And RadioButtonDev1.Checked = True) Then
-            Chart2.Series(4).Points.Clear()
+            Chart2PPMData.Clear()
             Dim selectedRows5() As DataRow = dataTable1.Select("DEVICE ='" & DeviceName1.Text & "'")
             'Add filtered data to series
             For Each dr As DataRow In selectedRows5
-                Chart2.Series(4).Points.AddXY(dr("DEVICE"), dr("PPM"))
+                Chart2PPMData.Add(New ScottPlot.Coordinates(Chart2PPMData.Count, Convert.ToDouble(dr("PPM"))))
             Next
         End If
 
@@ -4828,13 +4042,13 @@ Public Class Chart
 
     Private Sub FilterGenPPMDevice2()
 
-        ' Filter Dev 2 generated PPM 
+        ' Filter Dev 2 generated PPM
         If (CheckBoxPPMenable.Checked = True And RadioButtonDev2.Checked = True) Then
-            Chart2.Series(4).Points.Clear()
+            Chart2PPMData.Clear()
             Dim selectedRows5() As DataRow = dataTable1.Select("DEVICE ='" & DeviceName2.Text & "'")
             'Add filtered data to series
             For Each dr As DataRow In selectedRows5
-                Chart2.Series(4).Points.AddXY(dr("DEVICE"), dr("PPM"))
+                Chart2PPMData.Add(New ScottPlot.Coordinates(Chart2PPMData.Count, Convert.ToDouble(dr("PPM"))))
             Next
         End If
 
@@ -4928,48 +4142,34 @@ Public Class Chart
 
 
 
+    ' Applies the Y-Axis Scale Max/Min boxes to the chart. On a fresh load or Zoom All they already hold
+    ' the scanned data range; otherwise they hold what the user last typed.
     Sub GetMinMaxScales()
-        Dim axisYMin, axisYMax As Double
-        Dim range As Double
-        Dim interval As Double
+        Dim axisYMax As Double = Math.Round(ParseInvariantDouble(YaxisMaximum.Text), 7)
+        Dim axisYMin As Double = Math.Round(ParseInvariantDouble(YaxisMinimum.Text), 7)
 
-        ' Calculate the axis Y minimum and maximum based on conditions
-        If CheckBoxMaxMin.Checked Then
-            axisYMax = Math.Round(CDbl(YmaxFromDT), 7)
-            axisYMin = Math.Round(CDbl(YminFromDT), 7)
+        FormsPlot2.Plot.Axes.Left.Max = axisYMax
+        FormsPlot2.Plot.Axes.Left.Min = axisYMin
+        YaxisMaximum.Text = axisYMax.ToString(Globalization.CultureInfo.InvariantCulture)
+        YaxisMinimum.Text = axisYMin.ToString(Globalization.CultureInfo.InvariantCulture)
 
-            Chart2.ChartAreas(0).AxisY.Maximum = axisYMax
-            Chart2.ChartAreas(0).AxisY.Minimum = axisYMin
-            YaxisMaximum.Text = axisYMax.ToString(Globalization.CultureInfo.InvariantCulture)
-            YaxisMinimum.Text = axisYMin.ToString(Globalization.CultureInfo.InvariantCulture)
+        ' Temperature and Humidity ranges come from their own textboxes; Chart2RenderStarting reapplies them
+        ' every render, so this is for immediate consistency.
+        Dim tempMin, tempMax As Double
+        tempMin = ParseInvariantDouble(ChartScaleMin.Text)
+        tempMax = ParseInvariantDouble(ChartScaleMax.Text)
 
-        Else
-            axisYMax = Math.Round(ParseInvariantDouble(YaxisMaximum.Text), 7)
-            axisYMin = Math.Round(ParseInvariantDouble(YaxisMinimum.Text), 7)
-            range = axisYMax - axisYMin
-            interval = range / 20
+        Chart2TempAxis.Min = tempMin
+        Chart2TempAxis.Max = tempMax
 
-            Chart2.ChartAreas(0).AxisY.Maximum = axisYMax
-            Chart2.ChartAreas(0).AxisY.Minimum = axisYMin
-            Chart2.ChartAreas(0).AxisY.Interval = interval
-            YaxisMaximum.Text = axisYMax.ToString(Globalization.CultureInfo.InvariantCulture)
-            YaxisMinimum.Text = axisYMin.ToString(Globalization.CultureInfo.InvariantCulture)
-        End If
+        Dim humMin, humMax As Double
+        humMin = ParseInvariantDouble(ChartScaleHUMMin.Text)
+        humMax = ParseInvariantDouble(ChartScaleHUMMax.Text)
 
-        ' Update Y axis per division
-        range = axisYMax - axisYMin
-        YaxisPerDiv.Text = (range / 32).ToString("#0.000000000")
+        Chart2HumAxis.Min = humMin
+        Chart2HumAxis.Max = humMax
 
-        ' Temp/Hum scale setting
-        Dim tempHumMin, tempHumMax As Double
-        tempHumMin = ParseInvariantDouble(ChartScaleMin.Text)
-        tempHumMax = ParseInvariantDouble(ChartScaleMax.Text)
-        interval = (tempHumMax - tempHumMin) / 32
-
-        Chart2.ChartAreas(0).AxisY2.Minimum = tempHumMin
-        Chart2.ChartAreas(0).AxisY2.Maximum = tempHumMax
-        Chart2.ChartAreas(0).AxisY2.Interval = interval
-        Chart2.ChartAreas(0).AxisY2.LabelStyle.Format = "00.0"
+        FormsPlot2.Refresh()
     End Sub
 
 
@@ -4985,9 +4185,10 @@ Public Class Chart
         'RefreshPlaybackCSVFile()
 
         If PlaybackTemp.Checked = False Then
-            Chart2.Series(2).Enabled = False
+            Chart2TempSeries.IsVisible = False
+            FormsPlot2.Refresh()
         Else
-            Chart2.Series(2).Enabled = True
+            Chart2TempSeries.IsVisible = True
             RefreshPlaybackCSVFile()
         End If
 
@@ -4998,9 +4199,10 @@ Public Class Chart
         'RefreshPlaybackCSVFile()
 
         If PlaybackHum.Checked = False Then
-            Chart2.Series(3).Enabled = False
+            Chart2HumSeries.IsVisible = False
+            FormsPlot2.Refresh()
         Else
-            Chart2.Series(3).Enabled = True
+            Chart2HumSeries.IsVisible = True
             RefreshPlaybackCSVFile()
         End If
 
@@ -5012,27 +4214,23 @@ Public Class Chart
 
     End Sub
 
-    Private Sub CheckBoxYscaletidy_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxYscaletidy.CheckedChanged
-
-        ' Tidy up Y-scale annotations on graph in order to keep length same irrespective of numerical data and No. DP's
-        Yscaletidy()
-
-    End Sub
-
-
 
     Private Sub CheckDev1Line_CheckedChanged(sender As Object, e As EventArgs) Handles CheckDev1Line.CheckedChanged
 
         If CheckDev1Line.Checked = True Then
             CheckDev1Point.Checked = False
             System.Threading.Thread.Sleep(50)
-            Chart2.Series(0).ChartType = DataVisualization.Charting.SeriesChartType.Line
+            Chart2Dev1Series.LineWidth = 1
+            Chart2Dev1Series.MarkerStyle.IsVisible = False
         Else
             CheckDev1Point.Checked = True
             System.Threading.Thread.Sleep(50)
-            Chart2.Series(0).ChartType = DataVisualization.Charting.SeriesChartType.Point
-            Chart2.Series(0).MarkerStep = 1
+            Chart2Dev1Series.LineWidth = 0
+            Chart2Dev1Series.MarkerStyle.IsVisible = True
+            Chart2Dev1Series.MarkerSize = 2
         End If
+
+        FormsPlot2.Refresh()
 
     End Sub
 
@@ -5041,14 +4239,17 @@ Public Class Chart
         If CheckDev1Point.Checked = True Then
             CheckDev1Line.Checked = False
             System.Threading.Thread.Sleep(50)
-            Chart2.Series(0).ChartType = DataVisualization.Charting.SeriesChartType.Point
-            Chart2.Series(0).MarkerStep = 1
-            Chart2.Series(0).MarkerSize = 2
+            Chart2Dev1Series.LineWidth = 0
+            Chart2Dev1Series.MarkerStyle.IsVisible = True
+            Chart2Dev1Series.MarkerSize = 2
         Else
             CheckDev1Line.Checked = True
             System.Threading.Thread.Sleep(50)
-            Chart2.Series(0).ChartType = DataVisualization.Charting.SeriesChartType.Line
+            Chart2Dev1Series.LineWidth = 1
+            Chart2Dev1Series.MarkerStyle.IsVisible = False
         End If
+
+        FormsPlot2.Refresh()
 
     End Sub
 
@@ -5057,14 +4258,17 @@ Public Class Chart
         If CheckDev2Line.Checked = True Then
             CheckDev2Point.Checked = False
             System.Threading.Thread.Sleep(50)
-            Chart2.Series(1).ChartType = DataVisualization.Charting.SeriesChartType.Line
+            Chart2Dev2Series.LineWidth = 1
+            Chart2Dev2Series.MarkerStyle.IsVisible = False
         Else
             CheckDev2Point.Checked = True
             System.Threading.Thread.Sleep(50)
-            Chart2.Series(1).ChartType = DataVisualization.Charting.SeriesChartType.Point
-            Chart2.Series(1).MarkerStep = 1
-            Chart2.Series(1).MarkerSize = 2
+            Chart2Dev2Series.LineWidth = 0
+            Chart2Dev2Series.MarkerStyle.IsVisible = True
+            Chart2Dev2Series.MarkerSize = 2
         End If
+
+        FormsPlot2.Refresh()
 
     End Sub
 
@@ -5073,14 +4277,17 @@ Public Class Chart
         If CheckDev2Point.Checked = True Then
             CheckDev2Line.Checked = False
             System.Threading.Thread.Sleep(50)
-            Chart2.Series(1).ChartType = DataVisualization.Charting.SeriesChartType.Point
-            Chart2.Series(1).MarkerStep = 1
-            Chart2.Series(1).MarkerSize = 2
+            Chart2Dev2Series.LineWidth = 0
+            Chart2Dev2Series.MarkerStyle.IsVisible = True
+            Chart2Dev2Series.MarkerSize = 2
         Else
             CheckDev2Line.Checked = True
             System.Threading.Thread.Sleep(50)
-            Chart2.Series(1).ChartType = DataVisualization.Charting.SeriesChartType.Line
+            Chart2Dev2Series.LineWidth = 1
+            Chart2Dev2Series.MarkerStyle.IsVisible = False
         End If
+
+        FormsPlot2.Refresh()
 
     End Sub
 
@@ -5092,170 +4299,6 @@ Public Class Chart
 
         ' 5sec timer for automatic refresh of Playback chart
         RefreshPlaybackCSVFile()
-
-    End Sub
-
-    Private Sub YaxisSave_Click(sender As Object, e As EventArgs) Handles YaxisSave.Click
-
-        If (YaxisCheck1.Checked = True) Then
-            My.Settings.data187 = ParseInvariantDouble(YaxisMaximum.Text)
-            My.Settings.data188 = ParseInvariantDouble(YaxisMinimum.Text)
-        End If
-
-        If (YaxisCheck2.Checked = True) Then
-            My.Settings.data189 = ParseInvariantDouble(YaxisMaximum.Text)
-            My.Settings.data190 = ParseInvariantDouble(YaxisMinimum.Text)
-        End If
-
-        If (YaxisCheck3.Checked = True) Then
-            My.Settings.data191 = ParseInvariantDouble(YaxisMaximum.Text)
-            My.Settings.data192 = ParseInvariantDouble(YaxisMinimum.Text)
-        End If
-
-        If (YaxisCheck4.Checked = True) Then
-            My.Settings.data193 = ParseInvariantDouble(YaxisMaximum.Text)
-            My.Settings.data194 = ParseInvariantDouble(YaxisMinimum.Text)
-        End If
-
-    End Sub
-
-    Private Sub YaxisLoad_Click(sender As Object, e As EventArgs) Handles YaxisLoad.Click
-
-        If (YaxisCheck1.Checked = True) Then
-            YaxisMaximum.Text = My.Settings.data187.ToString(Globalization.CultureInfo.InvariantCulture)
-            YaxisMinimum.Text = My.Settings.data188.ToString(Globalization.CultureInfo.InvariantCulture)
-
-            Dim result As Double = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 32
-            YaxisPerDiv.Text = result.ToString("#0.000000000")
-
-
-            RefreshPlaybackCSVFile()
-            Dim intervalY As Double = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 20
-            If intervalY <= 0 Then intervalY = 0.0000001   ' avoid MSChart crash when Y-max = Y-min (flat/no-variance data)
-            Chart2.ChartAreas(0).AxisY.Interval = intervalY
-            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((ParseInvariantDouble(YaxisMaximum.Text)), 7)
-        End If
-
-        If (YaxisCheck2.Checked = True) Then
-            YaxisMaximum.Text = My.Settings.data189.ToString(Globalization.CultureInfo.InvariantCulture)
-            YaxisMinimum.Text = My.Settings.data190.ToString(Globalization.CultureInfo.InvariantCulture)
-
-            Dim result As Double = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 32
-            YaxisPerDiv.Text = result.ToString("#0.000000000")
-
-
-            RefreshPlaybackCSVFile()
-            Dim intervalY As Double = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 20
-            If intervalY <= 0 Then intervalY = 0.0000001   ' avoid MSChart crash when Y-max = Y-min (flat/no-variance data)
-            Chart2.ChartAreas(0).AxisY.Interval = intervalY
-            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((ParseInvariantDouble(YaxisMaximum.Text)), 7)
-        End If
-
-        If (YaxisCheck3.Checked = True) Then
-            YaxisMaximum.Text = My.Settings.data191.ToString(Globalization.CultureInfo.InvariantCulture)
-            YaxisMinimum.Text = My.Settings.data192.ToString(Globalization.CultureInfo.InvariantCulture)
-
-            Dim result As Double = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 32
-            YaxisPerDiv.Text = result.ToString("#0.000000000")
-
-
-            RefreshPlaybackCSVFile()
-            Dim intervalY As Double = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 20
-            If intervalY <= 0 Then intervalY = 0.0000001   ' avoid MSChart crash when Y-max = Y-min (flat/no-variance data)
-            Chart2.ChartAreas(0).AxisY.Interval = intervalY
-            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((ParseInvariantDouble(YaxisMaximum.Text)), 7)
-        End If
-
-        If (YaxisCheck4.Checked = True) Then
-            YaxisMaximum.Text = My.Settings.data193.ToString(Globalization.CultureInfo.InvariantCulture)
-            YaxisMinimum.Text = My.Settings.data194.ToString(Globalization.CultureInfo.InvariantCulture)
-
-            Dim result As Double = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 32
-            YaxisPerDiv.Text = result.ToString("#0.000000000")
-
-
-            RefreshPlaybackCSVFile()
-            Dim intervalY As Double = (ParseInvariantDouble(YaxisMaximum.Text) - ParseInvariantDouble(YaxisMinimum.Text)) / 20
-            If intervalY <= 0 Then intervalY = 0.0000001   ' avoid MSChart crash when Y-max = Y-min (flat/no-variance data)
-            Chart2.ChartAreas(0).AxisY.Interval = intervalY
-            Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((ParseInvariantDouble(YaxisMaximum.Text)), 7)
-        End If
-
-
-
-
-
-        'Chart2.ChartAreas(0).AxisY.Minimum = Math.Round((ParseInvariantDouble(YaxisMinimum.Text)), 7)
-        'Chart2.ChartAreas(0).AxisY.Maximum = Math.Round((ParseInvariantDouble(YaxisMaximum.Text)), 1)
-        'Chart2.ChartAreas(0).AxisY.Minimum = YaxisMinimum.Text
-        'Chart2.ChartAreas(0).AxisY.Maximum = YaxisMaximum.Text
-
-
-
-    End Sub
-
-    Private Sub YaxisCheck1_CheckedChanged(sender As Object, e As EventArgs) Handles YaxisCheck1.CheckedChanged
-
-        If (YaxisCheck1.Checked = True) Then
-
-            CheckBoxMaxMin.Checked = False
-
-            YaxisCheck2.Checked = False
-            YaxisCheck3.Checked = False
-            YaxisCheck4.Checked = False
-        End If
-
-    End Sub
-
-    Private Sub YaxisCheck2_CheckedChanged(sender As Object, e As EventArgs) Handles YaxisCheck2.CheckedChanged
-
-        If (YaxisCheck2.Checked = True) Then
-
-            CheckBoxMaxMin.Checked = False
-
-            YaxisCheck1.Checked = False
-            YaxisCheck3.Checked = False
-            YaxisCheck4.Checked = False
-        End If
-
-    End Sub
-
-    Private Sub YaxisCheck3_CheckedChanged(sender As Object, e As EventArgs) Handles YaxisCheck3.CheckedChanged
-
-        If (YaxisCheck3.Checked = True) Then
-
-            CheckBoxMaxMin.Checked = False
-
-            YaxisCheck1.Checked = False
-            YaxisCheck2.Checked = False
-            YaxisCheck4.Checked = False
-        End If
-
-    End Sub
-
-    Private Sub YaxisCheck4_CheckedChanged(sender As Object, e As EventArgs) Handles YaxisCheck4.CheckedChanged
-
-        If (YaxisCheck4.Checked = True) Then
-
-            CheckBoxMaxMin.Checked = False
-
-            YaxisCheck1.Checked = False
-            YaxisCheck2.Checked = False
-            YaxisCheck3.Checked = False
-        End If
-
-    End Sub
-
-    Private Sub CheckBoxMaxMin_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxMaxMin.CheckedChanged
-
-        If (CheckBoxMaxMin.Checked = True) Then
-
-            YaxisCheck1.Checked = False
-            YaxisCheck2.Checked = False
-            YaxisCheck3.Checked = False
-            YaxisCheck4.Checked = False
-
-        End If
 
     End Sub
 
@@ -5293,10 +4336,7 @@ Public Class Chart
             End If
             RefreshPlaybackCSVFile()
 
-            ' RefreshPlaybackCSVFile() only recalculates scales/ticks - it
-            ' never re-plots the Data trace itself, so changing the
-            ' averaging window here had no visible effect until something
-            ' else (e.g. Zoom All) happened to trigger a full replot.
+            ' RefreshPlaybackCSVFile() doesn't re-plot the Data trace, so replot it here when the averaging window changes.
             FilterDeviceName1()
         End If
 
@@ -5333,10 +4373,7 @@ Public Class Chart
 
     End Sub
 
-    ' A manually-typed Initial Value/Initial Temp otherwise just sits in
-    ' the box - nothing re-ran GeneratePPMColumn() to pick it up until
-    ' something else happened to trigger a refresh. Apply it as soon as
-    ' the user presses Enter or moves on to another control.
+    ' Apply a typed Initial Value/Initial Temp on Enter or Leave by re-running GeneratePPMColumn().
     Private Sub MedianValue_KeyDown(sender As Object, e As KeyEventArgs) Handles MedianValue.KeyDown
         If e.KeyCode = Keys.Enter Then
             e.SuppressKeyPress = True   ' stop the Windows "ding" for Enter in a plain TextBox
@@ -5464,48 +4501,42 @@ Public Class Chart
 
     End Sub
 
+    Private Sub ChartScaleHUMMax_TextChanged(sender As Object, e As EventArgs) Handles ChartScaleHUMMax.TextChanged
+
+        Dim userInput As String = ChartScaleHUMMax.Text.Trim()
+        Dim isNumeric As Boolean = Integer.TryParse(userInput, Nothing)
+
+        If Not String.IsNullOrEmpty(userInput) AndAlso isNumeric AndAlso ParseInvariantDouble(ChartScaleHUMMax.Text) > ParseInvariantDouble(ChartScaleHUMMin.Text) Then
+            RefreshPlaybackCSVFile()
+        End If
+
+    End Sub
+
+    Private Sub ChartScaleHUMMin_TextChanged(sender As Object, e As EventArgs) Handles ChartScaleHUMMin.TextChanged
+
+        Dim userInput As String = ChartScaleHUMMin.Text.Trim()
+        Dim isNumeric As Boolean = Integer.TryParse(userInput, Nothing)
+
+        If Not String.IsNullOrEmpty(userInput) AndAlso isNumeric AndAlso ParseInvariantDouble(ChartScaleHUMMax.Text) > ParseInvariantDouble(ChartScaleHUMMin.Text) Then
+            RefreshPlaybackCSVFile()
+        End If
+
+    End Sub
+
     Private Sub ChartOffReadyForCSV()
 
-        Chart2.Visible = False      ' invisible until CSV loading
+        FormsPlot2.Visible = False      ' invisible until CSV loading
 
-        Scale1.Visible = False
-        Scale2.Visible = False
-        Scale3.Visible = False
-        Scale4.Visible = False
-        Scale5.Visible = False
-        Scale6.Visible = False
-        Scale7.Visible = False
-        Scale8.Visible = False
-        Scale9.Visible = False
-        Scale10.Visible = False
-        Scale11.Visible = False
-        Scale12.Visible = False
-        Scale13.Visible = False
-        Scale14.Visible = False
-        Scale15.Visible = False
-        Scale16.Visible = False
-        Scale17.Visible = False
-        Scale18.Visible = False
-        Scale19.Visible = False
-        Scale20.Visible = False
-        Scale21.Visible = False
-        Scale22.Visible = False
-        Scale23.Visible = False
-        Scale24.Visible = False
-        Scale25.Visible = False
-        ButtonShiftUp.Visible = False
-        ButtonShiftDn.Visible = False
         Xscale.Visible = False
         Xscaletotal.Visible = False
         LabelTempC.Visible = False
         LabelHum.Visible = False
-        LabelPPMtop.Visible = False
         LabelPPMdegctop.Visible = False
-        LabelTopChart.Visible = False
         LabelTopTopChart.Visible = False
         LabelBottomChart.Visible = False
+        LabelPPMstats.Visible = False
+        PanelChartSplitter.Visible = False
         CheckBoxColours.Enabled = False
-        CheckBoxToolTips.Enabled = False
         CheckBoxPPMenable.Enabled = False
         Loading.Visible = False
         PleaseLoadCSV.Visible = True
@@ -5516,32 +4547,19 @@ Public Class Chart
 
         If CheckBoxColours.Checked = False Then
             ' normal mode
-            Chart2.ChartAreas(0).AxisX.MajorGrid.LineColor = Color.FromArgb(255, 85, 85, 85)
-            Chart2.ChartAreas(0).AxisY.MajorGrid.LineColor = Color.FromArgb(255, 85, 85, 85)
-            Chart2.ChartAreas(0).AxisX.MinorGrid.LineColor = Color.FromArgb(150, 85, 85, 85)
-            Chart2.ChartAreas(0).AxisY.MinorGrid.LineColor = Color.FromArgb(150, 85, 85, 85)
-            Chart2.ChartAreas(0).AxisY2.MajorGrid.LineColor = Color.FromArgb(100, 85, 85, 85)
-            Chart2.ChartAreas(0).AxisY2.MinorGrid.LineColor = Color.FromArgb(100, 85, 85, 85)
-            Chart2.Series(0).Color = Color.Yellow
-            Chart2.Series(1).Color = Color.Aqua
+            FormsPlot2.Plot.Grid.MajorLineColor = New ScottPlot.Color(Color.FromArgb(255, 85, 85, 85))
+            FormsPlot2.Plot.Grid.MinorLineColor = New ScottPlot.Color(Color.FromArgb(150, 85, 85, 85))
+            Chart2Dev1Series.Color = New ScottPlot.Color(Color.Yellow)
+            Chart2Dev2Series.Color = New ScottPlot.Color(Color.Aqua)
             CheckPlaybackDev1Data.BackColor = Color.Yellow
             CheckPlaybackDev1Data.ResetForeColor()
             CheckPlaybackDev2Data.BackColor = Color.Aqua
             CheckPlaybackDev2Data.ResetForeColor()
-            Chart2.Series(2).Color = Color.Red
-            Chart2.Series(3).Color = Color.DodgerBlue
-            Chart2.Series(4).Color = Color.White
-            Chart2.ChartAreas(0).BackColor = Color.Black
-            Chart2.ChartAreas("Statistics").BackColor = Color.Black
-            Chart2.ChartAreas("Statistics").AxisX.MajorGrid.LineColor = Color.FromArgb(255, 85, 85, 85)
-            Chart2.ChartAreas("Statistics").AxisY.MajorGrid.LineColor = Color.FromArgb(255, 85, 85, 85)
-
-            ' Statistics-area traces - reassert their original colours,
-            ' same reasoning as the ChartArea background above.
-            Chart2.Series(6).Color = Color.LightGray    ' Dev 1 STDEV
-            Chart2.Series(11).Color = Color.Gold        ' Dev 1 Max Diff
-            Chart2.Series(12).Color = Color.White       ' Dev 1 PPM Deviation
-            Chart2.Series(14).Color = Color.LightGray   ' Dev 2 PPM Deviation
+            Chart2TempSeries.Color = New ScottPlot.Color(Color.Red)
+            Chart2HumSeries.Color = New ScottPlot.Color(Color.DodgerBlue)
+            Chart2PPMSeries.Color = New ScottPlot.Color(Color.White)
+            FormsPlot2.Plot.DataBackground.Color = ScottPlot.Colors.Black
+            Chart3ApplyTheme(False)
 
             ' Keep the checkbox that toggles this trace matching its
             ' colour, same idea as the Allan trace-select checkboxes.
@@ -5561,27 +4579,24 @@ Public Class Chart
             LabelHum.ForeColor = Color.DodgerBlue
 
             ' Set background colours to normal
-            Chart2.BackColor = SystemColors.Control
+            FormsPlot2.Plot.FigureBackground.Color = New ScottPlot.Color(SystemColors.Control)
             Me.BackColor = SystemColors.Control
             If FormGrip IsNot Nothing Then FormGrip.BackColor = SystemColors.Control
         Else
             ' light mode
-            Chart2.ChartAreas(0).AxisX.MajorGrid.LineColor = Color.FromArgb(155, 185, 185, 185)
-            Chart2.ChartAreas(0).AxisY.MajorGrid.LineColor = Color.FromArgb(155, 185, 185, 185)
-            Chart2.ChartAreas(0).AxisX.MinorGrid.LineColor = Color.FromArgb(155, 185, 185, 185)
-            Chart2.ChartAreas(0).AxisY.MinorGrid.LineColor = Color.FromArgb(155, 185, 185, 185)
-            Chart2.ChartAreas(0).AxisY2.MajorGrid.LineColor = Color.FromArgb(50, 185, 185, 185)
-            Chart2.ChartAreas(0).AxisY2.MinorGrid.LineColor = Color.FromArgb(50, 185, 185, 185)
-            Chart2.Series(0).Color = Color.DarkGreen
-            Chart2.Series(1).Color = Color.DarkViolet
+            FormsPlot2.Plot.Grid.MajorLineColor = New ScottPlot.Color(Color.FromArgb(155, 185, 185, 185))
+            FormsPlot2.Plot.Grid.MinorLineColor = New ScottPlot.Color(Color.FromArgb(155, 185, 185, 185))
+            Chart2Dev1Series.Color = New ScottPlot.Color(Color.DarkGreen)
+            Chart2Dev2Series.Color = New ScottPlot.Color(Color.DarkViolet)
             CheckPlaybackDev1Data.BackColor = Color.DarkGreen
             CheckPlaybackDev1Data.ForeColor = Color.White
             CheckPlaybackDev2Data.BackColor = Color.DarkViolet
             CheckPlaybackDev2Data.ForeColor = Color.White
-            Chart2.Series(2).Color = Color.Red
-            Chart2.Series(3).Color = Color.DodgerBlue
-            Chart2.Series(4).Color = Color.Gray
-            Chart2.ChartAreas(0).BackColor = Color.White
+            Chart2TempSeries.Color = New ScottPlot.Color(Color.Red)
+            Chart2HumSeries.Color = New ScottPlot.Color(Color.DodgerBlue)
+            Chart2PPMSeries.Color = New ScottPlot.Color(Color.Gray)
+            FormsPlot2.Plot.DataBackground.Color = ScottPlot.Colors.White
+            Chart3ApplyTheme(True)
 
             ' label colours
             Xscale.BackColor = Color.White
@@ -5596,40 +4611,19 @@ Public Class Chart
             LabelHum.ForeColor = Color.Black
 
             ' Set background colours to white
-            Chart2.BackColor = Color.White
+            FormsPlot2.Plot.FigureBackground.Color = New ScottPlot.Color(Color.White)
             Me.BackColor = Color.White
             If FormGrip IsNot Nothing Then FormGrip.BackColor = Color.White
 
-            ' Chart2 actually has a 2nd ChartArea ("Statistics", added in
-            ' Formtest_Load) rendered as its own panel below the main
-            ' plot - only ChartAreas(0) was being switched above, so this
-            ' one stayed black. Its axis label text is already black
-            ' (never changed), so flipping just the background to white
-            ' is enough to make it match instead of staying illegible.
-            Chart2.ChartAreas("Statistics").BackColor = Color.White
-            Chart2.ChartAreas("Statistics").AxisX.MajorGrid.LineColor = Color.FromArgb(155, 185, 185, 185)
-            Chart2.ChartAreas("Statistics").AxisY.MajorGrid.LineColor = Color.FromArgb(155, 185, 185, 185)
-
-            ' Same four traces, darkened for visibility against the new
-            ' white Statistics panel - LightGray/Gold/White all wash out
-            ' or vanish outright (your reported Dev 1 PPM Deviation case).
-            Chart2.Series(6).Color = Color.DarkGray    ' Dev 1 STDEV
-            Chart2.Series(11).Color = Color.DarkGoldenrod ' Dev 1 Max Diff
-            Chart2.Series(12).Color = Color.Black      ' Dev 1 PPM Deviation
-            Chart2.Series(14).Color = Color.DarkGray   ' Dev 2 PPM Deviation
-
-            ' Match the checkbox to the now-black trace, or a white
-            ' checkbox with the default dark text becomes just as hard to
-            ' associate with its (now black) trace as the trace itself was.
+            ' Match the checkbox to the black trace so it stays easy to associate with it.
             CheckPlaybackDev1Deviation.BackColor = Color.Black
             CheckPlaybackDev1Deviation.ForeColor = Color.White
         End If
 
-        ' The Allan Deviation pop-up is a separate Chart control and was
-        ' left untouched by all of the above, so it stayed black even
-        ' after switching Light Mode on. Re-theme it (background, grid,
-        ' legend, checkboxes, grip) and refresh its trace colours if it's
-        ' currently open; both are no-ops if it isn't.
+
+        FormsPlot2.Refresh()
+
+        ' Re-themes the Allan Deviation pop-up (if open) and refreshes its trace colours.
         ApplyAllanChartTheme()
         RefreshAllanChart()
 
@@ -5883,9 +4877,7 @@ Public Class Chart
 
         Dim row As DataRow = dataTable1.NewRow()
 
-        ' ==========================================================
         ' Standard fields - old and new CSV
-        ' ==========================================================
 
         row("INDEX") = CInt(Val(values(0)))
         row("DEVICE") = values(1)
@@ -5896,9 +4888,7 @@ Public Class Chart
         row("HUM") = CDbl(Val(values(5)))
 
 
-        ' ==========================================================
         ' V5 statistics fields
-        ' ==========================================================
 
         If values.Length >= 16 Then
 
@@ -5932,11 +4922,9 @@ Public Class Chart
         End If
 
 
-        ' ==========================================================
         ' V6 statistics fields (Max Diff / Deviation) - appended
         ' after the original V5 block, so V5 CSVs (exactly 16
         ' fields) still load correctly with these left blank.
-        ' ==========================================================
 
         If values.Length >= 20 Then
 
@@ -5965,7 +4953,8 @@ Public Class Chart
 
     Private Sub FilterDev1Mean()
 
-        Chart2.Series(5).Points.Clear()
+        Chart2Dev1MeanData.Clear()
+        Chart2Dev1MeanSeries.IsVisible = CheckPlaybackDev1Mean.Checked
 
         If CheckPlaybackDev1Mean.Checked = False Then Exit Sub
         If DeviceName1.Text = "" Then Exit Sub
@@ -5977,9 +4966,7 @@ Public Class Chart
             Dim s As String = dr("DEV1_MEAN").ToString().Trim()
 
             If s <> "" AndAlso s.ToLower() <> "nil" Then
-                Chart2.Series(5).Points.AddXY(
-                dr("DEVICE"),
-                CDbl(Val(s)))
+                Chart2Dev1MeanData.Add(New ScottPlot.Coordinates(Chart2Dev1MeanData.Count, CDbl(Val(s))))
             End If
 
         Next
@@ -5989,7 +4976,7 @@ Public Class Chart
 
     Private Sub FilterDev1Stdev()
 
-        Chart2.Series(6).Points.Clear()
+        Chart2Dev1StdevData.Clear()
 
         If CheckPlaybackDev1Stdev.Checked = False Then Exit Sub
         If DeviceName1.Text = "" Then Exit Sub
@@ -6001,9 +4988,7 @@ Public Class Chart
             Dim s As String = dr("DEV1_STDEV").ToString().Trim()
 
             If s <> "" AndAlso s.ToLower() <> "nil" Then
-                Chart2.Series(6).Points.AddXY(
-                dr("DEVICE"),
-                CDbl(Val(s)))
+                Chart2Dev1StdevData.Add(New ScottPlot.Coordinates(Chart2Dev1StdevData.Count, CDbl(Val(s))))
             End If
 
         Next
@@ -6013,7 +4998,7 @@ Public Class Chart
 
     Private Sub FilterDev1SEM()
 
-        Chart2.Series(7).Points.Clear()
+        Chart2Dev1SEMData.Clear()
 
         If CheckPlaybackDev1SEM.Checked = False Then Exit Sub
         If DeviceName1.Text = "" Then Exit Sub
@@ -6025,9 +5010,7 @@ Public Class Chart
             Dim s As String = dr("DEV1_SEM").ToString().Trim()
 
             If s <> "" AndAlso s.ToLower() <> "nil" Then
-                Chart2.Series(7).Points.AddXY(
-                dr("DEVICE"),
-                CDbl(Val(s)))
+                Chart2Dev1SEMData.Add(New ScottPlot.Coordinates(Chart2Dev1SEMData.Count, CDbl(Val(s))))
             End If
 
         Next
@@ -6037,7 +5020,8 @@ Public Class Chart
 
     Private Sub FilterDev2Mean()
 
-        Chart2.Series(8).Points.Clear()
+        Chart2Dev2MeanData.Clear()
+        Chart2Dev2MeanSeries.IsVisible = CheckPlaybackDev2Mean.Checked
 
         If CheckPlaybackDev2Mean.Checked = False Then Exit Sub
         If DeviceName2.Text = "" Then Exit Sub
@@ -6049,9 +5033,7 @@ Public Class Chart
             Dim s As String = dr("DEV2_MEAN").ToString().Trim()
 
             If s <> "" AndAlso s.ToLower() <> "nil" Then
-                Chart2.Series(8).Points.AddXY(
-                dr("DEVICE"),
-                CDbl(Val(s)))
+                Chart2Dev2MeanData.Add(New ScottPlot.Coordinates(Chart2Dev2MeanData.Count, CDbl(Val(s))))
             End If
 
         Next
@@ -6061,7 +5043,7 @@ Public Class Chart
 
     Private Sub FilterDev2Stdev()
 
-        Chart2.Series(9).Points.Clear()
+        Chart2Dev2StdevData.Clear()
 
         If CheckPlaybackDev2Stdev.Checked = False Then Exit Sub
         If DeviceName2.Text = "" Then Exit Sub
@@ -6073,9 +5055,7 @@ Public Class Chart
             Dim s As String = dr("DEV2_STDEV").ToString().Trim()
 
             If s <> "" AndAlso s.ToLower() <> "nil" Then
-                Chart2.Series(9).Points.AddXY(
-                dr("DEVICE"),
-                CDbl(Val(s)))
+                Chart2Dev2StdevData.Add(New ScottPlot.Coordinates(Chart2Dev2StdevData.Count, CDbl(Val(s))))
             End If
 
         Next
@@ -6085,7 +5065,7 @@ Public Class Chart
 
     Private Sub FilterDev2SEM()
 
-        Chart2.Series(10).Points.Clear()
+        Chart2Dev2SEMData.Clear()
 
         If CheckPlaybackDev2SEM.Checked = False Then Exit Sub
         If DeviceName2.Text = "" Then Exit Sub
@@ -6097,9 +5077,7 @@ Public Class Chart
             Dim s As String = dr("DEV2_SEM").ToString().Trim()
 
             If s <> "" AndAlso s.ToLower() <> "nil" Then
-                Chart2.Series(10).Points.AddXY(
-                dr("DEVICE"),
-                CDbl(Val(s)))
+                Chart2Dev2SEMData.Add(New ScottPlot.Coordinates(Chart2Dev2SEMData.Count, CDbl(Val(s))))
             End If
 
         Next
@@ -6109,7 +5087,7 @@ Public Class Chart
 
     Private Sub FilterDev1MaxDiff()
 
-        Chart2.Series(11).Points.Clear()
+        Chart2Dev1MaxDiffData.Clear()
 
         If CheckPlaybackDev1MaxDiff.Checked = False Then Exit Sub
         If DeviceName1.Text = "" Then Exit Sub
@@ -6121,9 +5099,7 @@ Public Class Chart
             Dim s As String = dr("DEV1_MAXDIFF").ToString().Trim()
 
             If s <> "" AndAlso s.ToLower() <> "nil" Then
-                Chart2.Series(11).Points.AddXY(
-                dr("DEVICE"),
-                CDbl(Val(s)))
+                Chart2Dev1MaxDiffData.Add(New ScottPlot.Coordinates(Chart2Dev1MaxDiffData.Count, CDbl(Val(s))))
             End If
 
         Next
@@ -6133,7 +5109,7 @@ Public Class Chart
 
     Private Sub FilterDev1Deviation()
 
-        Chart2.Series(12).Points.Clear()
+        Chart2Dev1DeviationData.Clear()
 
         If CheckPlaybackDev1Deviation.Checked = False Then Exit Sub
         If DeviceName1.Text = "" Then Exit Sub
@@ -6145,9 +5121,7 @@ Public Class Chart
             Dim s As String = dr("DEV1_DEVIATION").ToString().Trim()
 
             If s <> "" AndAlso s.ToLower() <> "nil" Then
-                Chart2.Series(12).Points.AddXY(
-                dr("DEVICE"),
-                CDbl(Val(s)))
+                Chart2Dev1DeviationData.Add(New ScottPlot.Coordinates(Chart2Dev1DeviationData.Count, CDbl(Val(s))))
             End If
 
         Next
@@ -6157,7 +5131,7 @@ Public Class Chart
 
     Private Sub FilterDev2MaxDiff()
 
-        Chart2.Series(13).Points.Clear()
+        Chart2Dev2MaxDiffData.Clear()
 
         If CheckPlaybackDev2MaxDiff.Checked = False Then Exit Sub
         If DeviceName2.Text = "" Then Exit Sub
@@ -6169,9 +5143,7 @@ Public Class Chart
             Dim s As String = dr("DEV2_MAXDIFF").ToString().Trim()
 
             If s <> "" AndAlso s.ToLower() <> "nil" Then
-                Chart2.Series(13).Points.AddXY(
-                dr("DEVICE"),
-                CDbl(Val(s)))
+                Chart2Dev2MaxDiffData.Add(New ScottPlot.Coordinates(Chart2Dev2MaxDiffData.Count, CDbl(Val(s))))
             End If
 
         Next
@@ -6181,7 +5153,7 @@ Public Class Chart
 
     Private Sub FilterDev2Deviation()
 
-        Chart2.Series(14).Points.Clear()
+        Chart2Dev2DeviationData.Clear()
 
         If CheckPlaybackDev2Deviation.Checked = False Then Exit Sub
         If DeviceName2.Text = "" Then Exit Sub
@@ -6193,9 +5165,7 @@ Public Class Chart
             Dim s As String = dr("DEV2_DEVIATION").ToString().Trim()
 
             If s <> "" AndAlso s.ToLower() <> "nil" Then
-                Chart2.Series(14).Points.AddXY(
-                dr("DEVICE"),
-                CDbl(Val(s)))
+                Chart2Dev2DeviationData.Add(New ScottPlot.Coordinates(Chart2Dev2DeviationData.Count, CDbl(Val(s))))
             End If
 
         Next
@@ -6217,35 +5187,7 @@ Public Class Chart
         FilterDev2MaxDiff()
         FilterDev2Deviation()
 
-        If Chart2.ChartAreas.IndexOf("Statistics") >= 0 Then
-
-            ' Reset to auto (NaN) before recalculating - once
-            ' RecalculateAxesScale() runs, it assigns concrete
-            ' numbers to Minimum/Maximum rather than leaving the
-            ' axis in auto mode, so without this reset every call
-            ' after the first just reuses the original range instead
-            ' of rescaling to the newly zoomed/scrolled data.
-            With Chart2.ChartAreas("Statistics").AxisY
-                .Minimum = Double.NaN
-                .Maximum = Double.NaN
-                .Interval = Double.NaN
-            End With
-
-            Chart2.ChartAreas("Statistics").RecalculateAxesScale()
-
-            ' Match the main chart area's grid spacing (8 major divisions)
-            ' instead of leaving this on MSChart's own auto-interval, which
-            ' picks a density unrelated to the main chart's and made the
-            ' two panels' gridlines look inconsistent side by side.
-            Dim statsYRange As Double =
-            Chart2.ChartAreas("Statistics").AxisY.Maximum -
-            Chart2.ChartAreas("Statistics").AxisY.Minimum
-
-            If statsYRange > 0 Then
-                Chart2.ChartAreas("Statistics").AxisY.MajorGrid.Interval = statsYRange / 8
-            End If
-
-        End If
+        Chart3SyncFromTop(True)
 
     End Sub
 
@@ -6266,24 +5208,27 @@ Public Class Chart
             CheckPlaybackDev2Deviation.CheckedChanged,
             CheckPlaybackDev2ShortTermMean.CheckedChanged
 
-        If Chart2.Series.Count < 17 Then Exit Sub
+        If Chart2Dev1Series Is Nothing OrElse Chart3Dev1StdevSeries Is Nothing Then Exit Sub
 
-        Chart2.Series(0).Enabled = CheckPlaybackDev1Data.Checked
-        Chart2.Series(1).Enabled = CheckPlaybackDev2Data.Checked
+        Chart2Dev1Series.IsVisible = CheckPlaybackDev1Data.Checked
+        Chart2Dev2Series.IsVisible = CheckPlaybackDev2Data.Checked
 
-        Chart2.Series(5).Enabled = CheckPlaybackDev1Mean.Checked
-        Chart2.Series(6).Enabled = CheckPlaybackDev1Stdev.Checked
-        Chart2.Series(7).Enabled = CheckPlaybackDev1SEM.Checked
-        Chart2.Series(11).Enabled = CheckPlaybackDev1MaxDiff.Checked
-        Chart2.Series(12).Enabled = CheckPlaybackDev1Deviation.Checked
-        Chart2.Series(15).Enabled = CheckPlaybackDev1ShortTermMean.Checked
+        Chart2Dev1MeanSeries.IsVisible = CheckPlaybackDev1Mean.Checked
+        Chart2Dev1ShortTermMeanSeries.IsVisible = CheckPlaybackDev1ShortTermMean.Checked
 
-        Chart2.Series(8).Enabled = CheckPlaybackDev2Mean.Checked
-        Chart2.Series(9).Enabled = CheckPlaybackDev2Stdev.Checked
-        Chart2.Series(10).Enabled = CheckPlaybackDev2SEM.Checked
-        Chart2.Series(13).Enabled = CheckPlaybackDev2MaxDiff.Checked
-        Chart2.Series(14).Enabled = CheckPlaybackDev2Deviation.Checked
-        Chart2.Series(16).Enabled = CheckPlaybackDev2ShortTermMean.Checked
+        Chart2Dev2MeanSeries.IsVisible = CheckPlaybackDev2Mean.Checked
+        Chart2Dev2ShortTermMeanSeries.IsVisible = CheckPlaybackDev2ShortTermMean.Checked
+
+        ' Stdev/SEM/MaxDiff/Deviation checkboxes toggle their trace on FormsPlot3 and gate their data population
+        ' in FilterDev1Stdev() etc., called via UpdatePlaybackStatsSeries().
+        Chart3Dev1StdevSeries.IsVisible = CheckPlaybackDev1Stdev.Checked
+        Chart3Dev1SEMSeries.IsVisible = CheckPlaybackDev1SEM.Checked
+        Chart3Dev1MaxDiffSeries.IsVisible = CheckPlaybackDev1MaxDiff.Checked
+        Chart3Dev1DeviationSeries.IsVisible = CheckPlaybackDev1Deviation.Checked
+        Chart3Dev2StdevSeries.IsVisible = CheckPlaybackDev2Stdev.Checked
+        Chart3Dev2SEMSeries.IsVisible = CheckPlaybackDev2SEM.Checked
+        Chart3Dev2MaxDiffSeries.IsVisible = CheckPlaybackDev2MaxDiff.Checked
+        Chart3Dev2DeviationSeries.IsVisible = CheckPlaybackDev2Deviation.Checked
 
         ' Short-Term Mean isn't populated by UpdatePlaybackStatsSeries() (it's
         ' not a recorded CSV column, it's recomputed from raw VALUE) - refresh
@@ -6295,19 +5240,14 @@ Public Class Chart
             UpdatePlaybackStatsSeries()
         End If
 
+        FormsPlot2.Refresh()
+        Chart3SyncFromTop(True)
+
     End Sub
 
 
-    ' ==============================================================
-    ' Allan Deviation pop-up chart (Dev 1 / Dev 2)
-    '
-    ' A retrospective stability plot computed from the raw VALUE
-    ' column for whichever device(s) are checked - independent of
-    ' Chart2 and everything else on the Playback chart. Log-log axes:
-    ' averaging time (tau, in samples) on X, Allan deviation (ppm of
-    ' the device's overall mean) on Y. Opens on first checkbox tick,
-    ' closes when both are unchecked or the user closes it directly.
-    ' ==============================================================
+    ' Allan Deviation pop-up: log-log plot of tau (samples, X) against Allan deviation (ppm of the device's mean, Y),
+    ' computed from the raw VALUE column of the checked device(s). Opens on the first checkbox tick, closes when both are unchecked.
 
     Private AllanPopupForm As Form = Nothing
     Private AllanPopupChart As DataVisualization.Charting.Chart = Nothing
@@ -6318,14 +5258,8 @@ Public Class Chart
     ' every sample many times over, much smoother tail from the same data).
     Private AllanUseOverlapping As Boolean = False
 
-    ' Adds a Modified Allan Deviation (MDEV) curve alongside each shown
-    ' device's regular ADEV curve. MDEV applies an extra averaging stage
-    ' that makes it react differently to phase noise than ADEV does, so a
-    ' visibly steeper MDEV-vs-ADEV gap at short tau indicates phase/timing
-    ' noise the regular ADEV curve can't distinguish on its own. Always
-    ' uses the standard (overlapping) MDEV estimator regardless of the
-    ' Overlapping checkbox above, since that's the only form MDEV is
-    ' normally computed in.
+    ' Adds a Modified Allan Deviation (MDEV) curve per device; a steeper MDEV-vs-ADEV gap at short tau indicates phase noise.
+    ' Always uses the overlapping estimator, the only normal form.
     Private AllanShowMDEV As Boolean = False
 
     Private Sub AllanCheckbox_CheckedChanged(sender As Object, e As EventArgs) _
@@ -6337,10 +5271,7 @@ Public Class Chart
 
     Private Sub RefreshAllanChart()
 
-        ' No CSV loaded means DeviceName1/2.Text are both blank, so neither
-        ' device would have anything to plot - opening the pop-up anyway
-        ' would leave its logarithmic axes with zero data points to
-        ' auto-range from, which crashes MSChart on the next repaint.
+        ' No CSV loaded means no device names and no data; opening the pop-up would crash the log axes on repaint.
         If Not (ChartLoaded AndAlso CSVfileok) Then
             CheckPlaybackDev1Allan.Checked = False
             CheckPlaybackDev2Allan.Checked = False
@@ -6358,19 +5289,8 @@ Public Class Chart
 
         EnsureAllanPopupOpen()
 
-        ' Yellow/Aqua read fine on the popup's default black background,
-        ' but are nearly invisible on the white background Light Mode
-        ' (CheckBoxColours) switches to - use darker analogues in that
-        ' case, same idea as the existing Chart2 series colour swap.
-        ' Match the Allan checkboxes' own colours (CheckPlaybackDev1Allan/
-        ' Dev2Allan) rather than Chart2's Series(0)/(1) - light mode
-        ' matches Chart2 because that's what those checkboxes were set to
-        ' for light mode; normal mode matches the checkboxes' existing
-        ' LightYellow/LightCyan instead of Chart2's Yellow/Aqua.
-        ' Khaki/Turquoise instead of LightYellow/LightCyan - those two were
-        ' too close to each other (both very pale) to tell apart at a
-        ' glance against the black background; these keep the same
-        ' yellow/cyan family but with enough contrast to distinguish.
+        ' Light Mode uses darker trace colours (Yellow/Aqua are invisible on white). Dark mode uses Khaki/Turquoise, distinct
+        ' from each other on black; light mode matches the main chart's colours.
         Dim dev1AllanColor As Color = If(CheckBoxColours.Checked, Color.SeaGreen, Color.Khaki)
         Dim dev2AllanColor As Color = If(CheckBoxColours.Checked, Color.MediumOrchid, Color.Turquoise)
 
@@ -6382,13 +5302,8 @@ Public Class Chart
     End Sub
 
 
-    ' Applies Light Mode (CheckBoxColours) to the Allan popup's static
-    ' chrome - background, grid, axis/legend colours, the two trace-select
-    ' checkboxes' colours, and the resize grip - everything that doesn't
-    ' already get re-set on every RefreshAllanChart() call. Safe to call
-    ' whether or not the popup is currently open. Trace colours themselves
-    ' are handled separately in RefreshAllanChart(), since those need to
-    ' stay correct across every refresh, not just at theme-switch time.
+    ' Applies Light Mode to the pop-up's static chrome (background, grid, axes, legend, checkboxes, grip).
+    ' Trace colours are set in RefreshAllanChart(). Safe to call whether or not the pop-up is open.
     Private Sub ApplyAllanChartTheme()
 
         If AllanPopupChart Is Nothing OrElse AllanPopupForm Is Nothing Then Exit Sub
@@ -6422,25 +5337,15 @@ Public Class Chart
                 ctl.ForeColor = fg
                 ctl.BackColor = bg
             ElseIf TypeOf ctl Is PictureBox Then
-                ' The grip glyph is tinted dark for a white/light background
-                ' or near-white for a black one, or it disappears the same
-                ' way the traces did. BackColor also needs setting explicitly
-                ' (not left Transparent) now that the image is genuinely
-                ' transparent instead of a flat opaque square - see
-                ' MakeGripTransparent.
+                ' Tint the grip dark on light backgrounds and near-white on dark; set BackColor explicitly as the image is transparent.
                 Dim gripPic As PictureBox = DirectCast(ctl, PictureBox)
                 gripPic.Image = MakeGripTransparent(My.Resources.grip, If(lightMode, Color.FromArgb(105, 105, 105), Color.FromArgb(220, 220, 220)))
                 gripPic.BackColor = bg
             End If
         Next
 
-        ' Match the Dev1/Dev2 Allan trace-select checkboxes on the main
-        ' Playback chart to the same colours as their traces, same as the
-        ' dev1AllanColor/dev2AllanColor swap in RefreshAllanChart(). These
-        ' two never had an explicit ForeColor originally (only BackColor),
-        ' so it's only set here for light mode's darker background - dark
-        ' mode resets it back to inherited/default instead of forcing a
-        ' colour that was never part of the original design.
+        ' Match the Allan trace-select checkboxes to their trace colours (see RefreshAllanChart);
+        ' ForeColor is only set for light mode, dark mode resets it.
         If lightMode Then
             CheckPlaybackDev1Allan.BackColor = Color.SeaGreen
             CheckPlaybackDev1Allan.ForeColor = Color.White
@@ -6458,12 +5363,8 @@ Public Class Chart
     End Sub
 
 
-    ' MSChart's logarithmic axis only labels whole decades (1, 10, 100, ...),
-    ' which can leave very few gridlines when the data spans less than a
-    ' couple of decades - exactly the "not many points" look. Pin the axis
-    ' range to whole decades from the actual data, then add unlabeled minor
-    ' gridlines at 2x-9x within each decade (the standard look for a log-log
-    ' plot) so there's always a useful density of reference lines.
+    ' MSChart's log axis only labels whole decades: pin the range to whole decades and add unlabeled 2x-9x minor gridlines
+    ' for a usable density of reference lines.
     Private Sub RescaleAllanAxes()
 
         If AllanPopupChart Is Nothing Then Exit Sub
@@ -6494,11 +5395,7 @@ Public Class Chart
         ca.AxisY.Minimum = axisYMin
         ca.AxisY.Maximum = axisYMax
 
-        ' For a logarithmic axis, Interval is a power-of-ten step rather than
-        ' a data value - 1 (the default) only ticks whole decades. 0.5 adds a
-        ' gridline/label at the half-decade point too (e.g. 0.01, 0.0316, 0.1,
-        ' 0.316, 1 instead of just 0.01, 0.1, 1), which is the same mechanism
-        ' already drawing the decade lines, just ticking twice as often.
+        ' On a log axis Interval is a power-of-ten step; 0.5 also ticks the half-decade points.
         ca.AxisX.Interval = 0.5
         ca.AxisY.Interval = 0.25
         ' X (tau, always a whole sample count) rounded to no decimals for
@@ -6533,23 +5430,11 @@ Public Class Chart
         Dim ca As New ChartArea("Main")
         ca.BackColor = Color.Black
 
-        ' The plot area is pinned to a fixed rectangle instead of being
-        ' left on MSChart's default auto-layout, which shares space
-        ' between the chart area and the legend based on the legend's
-        ' current content - enabling MDEV (longer/more legend entries)
-        ' was shrinking and shifting the plotted chart itself every time
-        ' it was toggled. The actual split between plot and legend is set
-        ' up just below in UpdateAllanChartLayout(), which keeps the
-        ' legend column a roughly constant PIXEL width regardless of the
-        ' popup's size - so maximizing the window hands all the extra
-        ' space to the plot instead of stretching the legend along with it.
+        ' The plot area is pinned to a fixed rectangle (split with the legend set in UpdateAllanChartLayout()) so toggling MDEV,
+        ' which adds legend entries, doesn't shrink or shift the plot. The legend keeps a roughly constant pixel width.
 
-        ' Explicit fallback Minimum/Maximum on both axes - a logarithmic
-        ' axis that's left on Auto with zero series/points to range from
-        ' (e.g. the pop-up ends up empty for any reason) throws an
-        ' InvalidOperationException from MSChart on the next repaint.
-        ' RescaleAllanAxes() overwrites these with real values as soon as
-        ' there's actual data.
+        ' Fallback Minimum/Maximum on both axes: a log axis with no data to range from throws on repaint.
+        ' RescaleAllanAxes() replaces them once data exists.
         ca.AxisX.IsLogarithmic = True
         ca.AxisX.Minimum = 1
         ca.AxisX.Maximum = 10
@@ -6577,14 +5462,8 @@ Public Class Chart
         lg.BackColor = Color.Black
         AllanPopupChart.Legends.Add(lg)
 
-        ' Only the plot area gets a fixed rectangle - the legend is left
-        ' on MSChart's own auto-layout (as originally), which correctly
-        ' lays entries out in a single tidy column into whatever space
-        ' isn't claimed by the chart area below. Giving the legend its own
-        ' explicit Position/LegendStyle was tried and made things worse
-        ' (entries scattered, and disappeared entirely with few items) -
-        ' not worth the risk versus the minor cosmetic tradeoff of the
-        ' legend's auto-computed width growing somewhat on maximize.
+        ' Only the plot area gets a fixed rectangle; the legend stays on MSChart's auto-layout, as giving it an explicit
+        ' position scattered its entries.
         Dim UpdateAllanChartLayout =
         Sub()
             Const legendPixelWidth As Integer = 190
@@ -6602,19 +5481,11 @@ Public Class Chart
             ca.Position = New ElementPosition(2, 3, chartWidthPct, 90)
         End Sub
 
-        ' Not called here yet - AllanPopupChart.Width is still whatever
-        ' WinForms' default is until it's actually added to the form and
-        ' Dock=Fill has taken effect, so an initial call here would
-        ' calculate against the wrong size. Called for real just after
-        ' AllanPopupForm.Controls.Add(AllanPopupChart) below, then kept in
-        ' sync on every subsequent resize via the handler.
+        ' Called after AllanPopupChart is added to the form (Width is only correct once Dock=Fill applies), then on each resize.
         AddHandler AllanPopupChart.Resize, Sub() UpdateAllanChartLayout()
 
-        ' Overlapping vs non-overlapping Allan deviation. Overlapping
-        ' reuses every sample in many sliding windows instead of chopping
-        ' the data into disjoint blocks, giving a much smoother curve at
-        ' large tau from the same file - at the cost of the points no
-        ' longer being statistically independent of each other.
+        ' Overlapping Allan deviation reuses every sample in sliding windows, giving a smoother curve at large tau
+        ' but with points no longer statistically independent.
         Dim overlapCheck As New CheckBox With {
             .Location = New Point(540, 169),
             .Size = New Size(230, 24),
@@ -6651,14 +5522,8 @@ Public Class Chart
         AllanToolTip.SetToolTip(overlapCheck, "Smooths the tail by reusing every sample in sliding windows instead of separate blocks.")
         AllanToolTip.SetToolTip(mdevCheck, "Adds a dotted curve that reveals phase/timing noise regular ADEV can't show on its own.")
 
-        ' Bottom-right resize grip - purely a visual cue that the window can
-        ' be resized. Dragging it hands off to Windows' own native resize
-        ' (WM_NCLBUTTONDOWN / HTBOTTOMRIGHT) rather than us tracking the
-        ' drag - same approach as LiveWatch.vb's Live Analysis chart pop-up.
-        ' Built assuming the default dark/black popup background below -
-        ' ApplyAllanChartTheme() (called right after this popup is fully
-        ' built) immediately re-syncs both Image and BackColor to
-        ' whatever theme is actually current, same as everything else here.
+        ' Bottom-right resize grip: dragging hands off to Windows' native resize (WM_NCLBUTTONDOWN / HTBOTTOMRIGHT),
+        ' as in LiveWatch.vb's Live Analysis pop-up. ApplyAllanChartTheme() syncs its image and BackColor to the current theme.
         Dim allanGrip As New PictureBox With {
             .Image = MakeGripTransparent(My.Resources.grip, Color.FromArgb(220, 220, 220)),
             .SizeMode = PictureBoxSizeMode.StretchImage,
@@ -6706,12 +5571,7 @@ Public Class Chart
 
     Private Sub AllanPopupForm_FormClosed(sender As Object, e As FormClosedEventArgs)
 
-        ' Keep the checkboxes in sync if the user closes the pop-up directly
-        ' (via its own close button) instead of unchecking both boxes first.
-        ' Guarded against this Chart form already being closed/disposed
-        ' (e.g. when Chart_FormClosing below is what triggered this Close)
-        ' - its own checkboxes would already be gone, so touching them
-        ' would throw.
+        ' Keep the checkboxes in sync if the user closes the pop-up directly, unless this form is already closed/disposed.
         If Not Me.IsDisposed Then
             CheckPlaybackDev1Allan.Checked = False
             CheckPlaybackDev2Allan.Checked = False
@@ -6729,14 +5589,8 @@ Public Class Chart
 
     Private Sub Chart_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
 
-        ' The Allan Deviation pop-up depends entirely on this form's own
-        ' live state (dataTable1, DeviceName1/2, the Allan checkboxes) - it
-        ' must not be left running once this form is gone. Interacting
-        ' with it afterwards (e.g. the Overlapping checkbox, which
-        ' recomputes and repaints the chart) could crash with an MSChart
-        ' "logarithmic scale" exception once that data is no longer valid.
-        ' Closing it here, while this form's own controls are still alive,
-        ' also lets AllanPopupForm_FormClosed's checkbox sync run safely.
+        ' The pop-up depends on this form's live data (dataTable1, DeviceName1/2, Allan checkboxes), so close it with this form;
+        ' otherwise interacting with it could crash on the log axis.
         If AllanPopupForm IsNot Nothing AndAlso Not AllanPopupForm.IsDisposed Then
             AllanPopupForm.Close()
         End If
@@ -6803,15 +5657,8 @@ Public Class Chart
 
         AllanPopupChart.Series.Add(newSeries)
 
-        ' "Ideal" (white noise) reference line: a straight slope -1/2 on
-        ' these log-log axes, anchored to this device's own first plotted
-        ' point - i.e. what the curve would look like if averaging longer
-        ' kept reducing noise indefinitely with no floor or drift. Only
-        ' needs two points since it's a straight line on a log-log plot.
-        ' Wherever the real curve departs upward from this dashed line,
-        ' something other than plain white noise has taken over (a
-        ' flicker floor, or long-term drift) and further averaging isn't
-        ' buying you anything.
+        ' "Ideal" white-noise reference: a slope of -1/2 on the log-log axes, anchored to this device's first plotted point.
+        ' Where the real curve rises above it, flicker floor or drift dominates and more averaging doesn't help.
         If haveFirst AndAlso newSeries.Points.Count >= 2 Then
 
             Dim lastTau As Double = newSeries.Points(newSeries.Points.Count - 1).XValue
@@ -6833,10 +5680,7 @@ Public Class Chart
 
         End If
 
-        ' Modified Allan Deviation (MDEV) - an additional curve in this
-        ' device's own colour, dotted so it reads as a companion to the
-        ' solid ADEV line above rather than a competing trace. See
-        ' AllanShowMDEV for why this exists.
+        ' Modified Allan Deviation (MDEV) in the device's colour, dotted to read as a companion to the solid ADEV line.
         If AllanShowMDEV Then
 
             Dim mdevSeries As New Series(mdevSeriesName) With {
@@ -6859,19 +5703,9 @@ Public Class Chart
 
     End Sub
 
-    ' Non-overlapping Allan deviation: bin the raw samples into
-    ' consecutive, disjoint windows of length tau, average each bin, then
-    ' take the RMS of the differences between consecutive bin averages.
-    ' Overlapping Allan deviation: slide a length-tau window forward one
-    ' sample at a time instead of jumping by tau, reusing every sample in
-    ' many windows, then RMS the differences between window averages that
-    ' are tau apart. Same underlying shape either way, but overlapping
-    ' gives far more pairs to average at large tau (where non-overlapping
-    ' only has a couple of disjoint blocks left), so the tail comes out
-    ' much smoother - at the cost of those pairs no longer being fully
-    ' statistically independent of each other.
-    ' Both use a log-spaced set of tau values from 1 sample up to half the
-    ' total sample count (the minimum needed to form one difference).
+    ' Non-overlapping: average disjoint length-tau bins, then RMS the differences of consecutive bin averages.
+    ' Overlapping: slide the length-tau window one sample at a time and RMS the differences of averages tau apart (smoother tail).
+    ' Both use log-spaced tau from 1 sample up to half the sample count.
     Private Function ComputeAllanDeviation(rawValues As List(Of Double), overlapping As Boolean) As List(Of KeyValuePair(Of Integer, Double))
 
         Dim results As New List(Of KeyValuePair(Of Integer, Double))
@@ -6943,13 +5777,8 @@ Public Class Chart
 
     End Function
 
-    ' Modified Allan Deviation (MDEV) - the standard IEEE-1139 estimator,
-    ' always computed the "overlapping" way since that's the only form
-    ' MDEV is normally used in (there's no meaningful non-overlapping
-    ' variant). Defined on phase data, so the raw frequency-like VALUE
-    ' readings are integrated (cumulative sum) first. The extra averaging
-    ' stage this adds is what makes MDEV react differently than ADEV to
-    ' phase noise - that's its whole purpose.
+    ' Modified Allan Deviation (IEEE-1139): computed the overlapping way on phase data, so the VALUE readings
+    ' are integrated (cumulative sum) first.
     Private Function ComputeModifiedAllanDeviation(rawValues As List(Of Double)) As List(Of KeyValuePair(Of Integer, Double))
 
         Dim results As New List(Of KeyValuePair(Of Integer, Double))
@@ -6981,10 +5810,7 @@ Public Class Chart
             Dim count As Integer = n - 3 * m + 1
             If count < 1 Then Continue For
 
-            ' Running sum of the second difference of phase (three points m
-            ' apart) over an m-wide inner window, slid one sample at a time -
-            ' the standard efficient way to compute MDEV without recomputing
-            ' the inner sum from scratch at every step.
+            ' Running sum of the second difference of phase (points m apart) over an m-wide inner window, slid one sample at a time.
             Dim innerSum As Double = 0.0
             For k As Integer = 0 To m - 1
                 innerSum += x(k + 2 * m) - 2.0 * x(k + m) + x(k)
@@ -7011,9 +5837,7 @@ Public Class Chart
     End Function
 
 
-    ' ==============================================================
     ' Playback Chart help
-    ' ==============================================================
 
     Private Sub ButtonPlaybackHelp_Click(sender As Object, e As EventArgs) Handles ButtonPlaybackHelp.Click
 
@@ -7040,25 +5864,35 @@ Public Class Chart
         .Text =
 "PLAYBACK CHART" & vbLf &
 "The Playback Chart loads a previously saved CSV log file and lets you review, zoom and analyse it after the fact - independent of the Live Chart, which only shows data while a device is actively running." & vbLf & vbLf &
+"The main chart shows the Dev 1 / Dev 2 data, Temperature, Humidity and PPM. A Statistics chart underneath shows the recorded STDEV, SEM, Max Diff. and PPM Deviation, and follows the main chart's X range." & vbLf & vbLf &
 "LOADING A CSV" & vbLf &
 "LOAD .CSV FILE opens a saved log file from disk. If the CSV only contains data for one device, every Dev.2 checkbox and control is automatically greyed out and unchecked - there is nothing to plot for a device that isn't in the file." & vbLf & vbLf &
-"Save Settings stores the current chart control settings (scale, checkboxes, etc.) so they're restored next time." & vbLf & vbLf &
+"Save Settings stores the current control settings (Y-axis scale, Temp/Hum scale ranges, PPM scale, etc.) so they're restored next time." & vbLf & vbLf &
+"MOUSE CONTROLS" & vbLf &
+"Main chart:" & vbLf &
+"- Pan - Left-click + drag" & vbLf &
+"- Zoom - Right-click + drag" & vbLf &
+"- Box zoom a region - Middle-click + drag" & vbLf &
+"- Fit the view to all the data - Middle-click" & vbLf &
+"- Zoom in/out at the cursor - Scroll wheel (hold Shift to zoom Y only, Ctrl to zoom X only)" & vbLf &
+"- Measure the delta between two points - Double-click two points, double-click again (or press Esc) to clear" & vbLf &
+"- Hover a trace to see the value of the nearest data point" & vbLf &
+"- Right-click (no drag) for a menu: Save Image, Copy Value At Cursor, Clear Measurement" & vbLf &
+"- Any pan or zoom unticks AutoScale." & vbLf &
+"Only the Dev 1 / Dev 2 traces and their left-hand scale respond to pan/zoom - the Temp, Hum and PPM scales stay fixed to their own scale boxes." & vbLf & vbLf &
+"Statistics chart (underneath): hover and double-click measure only. It has no pan/zoom of its own and follows the main chart's X range." & vbLf & vbLf &
 "DEVICES" & vbLf &
-"The Dev 1 / Dev 2 radio buttons choose which device's readings feed the PPM Deviation/Tempco calculation and the Y-axis Min/Max reference - they don't hide or show any traces themselves." & vbLf & vbLf &
-"X-AXIS SCALE" & vbLf &
-"Sets the chart's time axis in minutes and controls how much of the log is visible at once." & vbLf & vbLf &
-"Y-AXIS SCALE" & vbLf &
-"ZOOM IN / ZOOM OUT - zoom the Y-axis in or out around the centre line." & vbLf & vbLf &
-"SHIFT UP / SHIFT DOWN - move the current Y-axis max/min window up or down by 20%, for panning through a large range without changing the zoom level." & vbLf & vbLf &
-"ZOOM ALL - resets the Y-axis to show the entire chart." & vbLf & vbLf &
-"Auto Min/Max - automatically sets the Y-axis range from the data instead of a fixed range." & vbLf & vbLf &
-"Tidy Scale - rounds the Y-axis labels to tidier numbers instead of raw calculated values." & vbLf & vbLf &
-"SAVE / LOAD - stores or recalls the current Y-axis Min/Max into one of four saved slots, for quickly switching between preferred view ranges." & vbLf & vbLf &
-"x1k / x1000k - rescales the displayed values by 1,000 or 1,000,000 (e.g. VDC to mVDC or " & Global.Microsoft.VisualBasic.ChrW(181) & "VDC) without altering the underlying data." & vbLf & vbLf &
-"NAVIGATION" & vbLf &
-"Scroll and zoom controls let you move through the loaded file and adjust how much time is shown at once, in both large and small steps." & vbLf & vbLf &
+"Each device found in the CSV is listed with its own averaging, Max-Min, RMS Noise and Line/Point controls (see AVERAGING / NOISE / RANGE below). The Dev 1 / Dev 2 radio buttons in the PPM box choose which device feeds the PPM calculation." & vbLf & vbLf &
+"x1k / x1000k rescale the Max-Min and RMS Noise readouts by 1,000 or 1,000,000 (e.g. VDC to mVDC or " & Global.Microsoft.VisualBasic.ChrW(181) & "VDC). The plotted data is not changed." & vbLf & vbLf &
+"CSV DETAILS" & vbLf &
+"Read-only details of the loaded file: sample rate, total minutes, and the start/end data positions." & vbLf & vbLf &
+"X & Y-AXIS SCALES" & vbLf &
+"AutoScale X-axis & Y-axis fits both axes to the Dev 1 / Dev 2 data. Any mouse pan or zoom on the chart unticks it." & vbLf & vbLf &
+"With AutoScale unticked, the Y-axis Max/Min boxes set the left-hand scale: type a value and press Enter (or click away) to apply it. A non-numeric entry, or a Max at or below the Min, is ignored and the box reverts. With AutoScale ticked the boxes show the detected range and are read-only." & vbLf & vbLf &
+"ZOOM ALL reloads the whole file and fits both axes to the data - use it to return to the full view after zooming." & vbLf & vbLf &
+"The X-axis is time in minutes across the loaded file, and the Time (mins) figure above the chart shows the minutes currently visible over the total length (e.g. 120.0/228.0)." & vbLf & vbLf &
 "DEV 1 TRACES / DEV 2 TRACES" & vbLf &
-"Each checkbox shows or hides one trace on the top chart, all calculated from the loaded CSV:" & vbLf & vbLf &
+"Each checkbox shows or hides one trace, all calculated from the loaded CSV. Data, Mean and Short Term Mean are on the main chart; STDEV, SEM, Max Diff. and PPM Deviation are on the Statistics chart underneath (PPM Deviation has its own right-hand scale, as it is in ppm):" & vbLf & vbLf &
 "Data - the raw VALUE reading logged for every sample." & vbLf & vbLf &
 "Mean - the cumulative Mean recorded in the CSV statistics for that device, running from whenever stats were last reset during acquisition." & vbLf & vbLf &
 "STDEV - the recorded Standard Deviation for that device." & vbLf &
@@ -7107,10 +5941,11 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
 "STDEV alone can't separate genuinely noisy from drifting, and will always read equal to or higher than the ADEV noise floor whenever any drift is present. Check whether the Allan Deviation curve rises again at larger tau - that's the classic drift signature, and it's where the variability STDEV was counting shows up." & vbLf & vbLf &
 "AVERAGING / NOISE / RANGE (per device)" & vbLf &
 "The numeric box next to '- Avg.' sets how many points the raw Data trace itself is rolling-averaged over before being plotted (0 disables it, range 0-100). This smooths the Data trace directly, unlike Short Term Mean, which is a separate overlay trace and never alters Data itself." & vbLf & vbLf &
-"'- RMS Noise' and '- Max-Min' are read-only figures calculated for whatever portion of the chart is currently visible/zoomed: RMS Noise is a noise calculation that accounts for drift over time, and Max-Min is the peak-to-peak spread of the visible data." & vbLf & vbLf &
-"Line / Point switch that device's Data trace between a connected line and individual points." & vbLf & vbLf &
+"'- RMS Noise' and '- Max-Min' are read-only figures calculated for the loaded data: RMS Noise is a noise calculation that accounts for drift over time, and Max-Min is the peak-to-peak spread of the data." & vbLf & vbLf &
+"Line / Point switch that device's Data trace between a connected line and individual points. Line is selected on every new CSV load." & vbLf & vbLf &
 "PPM DEVIATION / TEMPCO" & vbLf &
-"Enable PPM turns on a separate, live-recalculated PPM trace (distinct from the recorded 'PPM Deviation' checkbox trace above) for whichever device is selected by the Dev 1/Dev 2 radio buttons in the DEVICES panel." & vbLf & vbLf &
+"Enable PPM turns on a separate, live-recalculated PPM trace (distinct from the recorded 'PPM Deviation' checkbox trace above) for whichever device is selected by the Dev 1/Dev 2 radio buttons in this box. Unchecking Enable PPM hides the PPM trace." & vbLf & vbLf &
+"The '- Scale' box sets the full height of the right-hand PPM scale: entering 5 gives +2.5 at the top and -2.5 at the bottom." & vbLf & vbLf &
 "PPM Deviation formula: (Value - Baseline Value) / Baseline Value x 1,000,000" & vbLf & vbLf &
 "PPM/DegC (temperature coefficient) formula: PPM Deviation / (Temp - Baseline Temp)" & vbLf & vbLf &
 "PPM/DegC often spikes or looks noisy right at the start of a file, then settles - this is expected. It divides by how far temperature has moved from baseline, which is close to zero at the start, so ordinary reading noise gets massively amplified until temperature has drifted enough to measure reliably." & vbLf & vbLf &
@@ -7118,10 +5953,9 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
 "PPM/DegC (Trend) works the same way as Fit, but re-fits over just the last 'RMS window' points at a time instead of the whole file, sliding forward as it goes - so the figure can genuinely drift over time instead of being one fixed number for the whole chart." & vbLf & vbLf &
 "For Fit and Trend, Initial Value is still used to convert the fitted slope into ppm - leave '- From CSV' checked so it matches the real logged baseline. Typing in a different number doesn't change the meter's behaviour, it just changes what 1 ppm is measured against, so the result will look smaller or larger without anything real having changed." & vbLf & vbLf &
 "TEMP/HUM" & vbLf &
-"Temp and Hum. show or hide the logged temperature and humidity traces. Temp/Hum Max. and Min. and Temp Avg. summarise the recorded values." & vbLf & vbLf &
+"Temp and Hum. show or hide the logged temperature and humidity traces. Each has its own right-hand scale: Temp Max./Min. and Hum Max./Min. set the range of those scales (they are not recorded values), and the scales don't respond to mouse pan/zoom. Temp Avg. sets how many points the Temp trace is rolling-averaged over (0 disables it)." & vbLf & vbLf &
 "MISC." & vbLf &
-"ToolTip Values - shows a tooltip with the exact value when hovering over a point on the chart." & vbLf & vbLf &
-"Light Mode - switches the chart to a white background, better suited to printing than the default dark theme." & vbLf & vbLf &
+"Light Mode - switches both charts (and the Allan Deviation pop-up) to a white background, better suited to printing than the default dark theme." & vbLf & vbLf &
 "IMPORTANT" & vbLf &
 "- All Dev.2 controls are automatically disabled for a single-device CSV - there's no need to manually hide them." & vbLf & vbLf &
 "- Short Term Mean and Allan Deviation are both computed fresh from the raw VALUE column every time - they are not values that were written to the CSV during acquisition, and toggling them never changes the underlying log file." & vbLf & vbLf &
@@ -7132,10 +5966,10 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
         Dim headings() As String = {
         "PLAYBACK CHART",
         "LOADING A CSV",
+        "MOUSE CONTROLS",
         "DEVICES",
-        "X-AXIS SCALE",
-        "Y-AXIS SCALE",
-        "NAVIGATION",
+        "CSV DETAILS",
+        "X & Y-AXIS SCALES",
         "DEV 1 TRACES / DEV 2 TRACES",
         "SHORT TERM MEAN",
         "ALLAN DEVIATION",
@@ -7158,10 +5992,7 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
 
         Next
 
-        ' Make just the equation part of each formula line bold - not the
-        ' "Formula:" label and not any trailing explanatory clause - so it
-        ' stands out from the surrounding explanatory prose without the
-        ' whole sentence turning bold.
+        ' Bold only the equation part of each formula line, not the "Formula:" label or trailing text.
         Dim formulaLines() As String = {
         "sqrt( sum( (Xi - Mean)^2 ) / (N - 1) )",
         "STDEV / sqrt(N)",
@@ -7186,12 +6017,7 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
 
         Next
 
-        ' Indent each section's body text (everything between one heading
-        ' and the next) so it reads as clearly belonging under its
-        ' heading. Uses SelectionIndent (a paragraph-level left margin)
-        ' rather than literal leading spaces - spaces would only indent
-        ' the first visual line of a wrapped paragraph, leaving wrapped
-        ' continuation lines flush left and ragged.
+        ' Indent each section's body text with SelectionIndent so wrapped lines stay aligned under the heading.
         For i As Integer = 0 To headings.Length - 1
 
             Dim headingStart As Integer = txt.Text.IndexOf(headings(i), StringComparison.Ordinal)

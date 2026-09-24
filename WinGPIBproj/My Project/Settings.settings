@@ -4618,5 +4618,11 @@ QFORMAT NUM</Value>
     <Setting Name="data1463" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="data1464" Type="System.Decimal" Scope="User">
+      <Value Profile="(Default)">40</Value>
+    </Setting>
+    <Setting Name="data1465" Type="System.Decimal" Scope="User">
+      <Value Profile="(Default)">70</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
