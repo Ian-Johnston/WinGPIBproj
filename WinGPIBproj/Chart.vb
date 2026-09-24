@@ -5888,9 +5888,11 @@ Public Class Chart
 "Read-only details of the loaded file: sample rate, total minutes, and the start/end data positions." & vbLf & vbLf &
 "X & Y-AXIS SCALES" & vbLf &
 "AutoScale X-axis & Y-axis fits both axes to the Dev 1 / Dev 2 data. Any mouse pan or zoom on the chart unticks it." & vbLf & vbLf &
-"With AutoScale unticked, the Y-axis Max/Min boxes set the left-hand scale: type a value and press Enter (or click away) to apply it. A non-numeric entry, or a Max at or below the Min, is ignored and the box reverts. With AutoScale ticked the boxes show the detected range and are read-only." & vbLf & vbLf &
-"ZOOM ALL reloads the whole file and fits both axes to the data - use it to return to the full view after zooming." & vbLf & vbLf &
+"The Y-axis Max/Min boxes always show the chart's current left-hand scale limits, with the same number of decimal places as the scale, and follow any mouse pan or zoom. With AutoScale ticked they are read-only. Once it's unticked (including by a mouse pan or zoom) you can type your own values: press Enter or click away to apply them. A non-numeric entry, or a Max at or below the Min, is ignored and the box reverts." & vbLf & vbLf &
+"ZOOM ALL reloads the whole file and applies the same fit as AutoScale once - use it to return to the full view after zooming." & vbLf & vbLf &
 "The X-axis is time in minutes across the loaded file, and the Time (mins) figure above the chart shows the minutes currently visible over the total length (e.g. 120.0/228.0)." & vbLf & vbLf &
+"CHART SPLIT" & vbLf &
+"Drag the small bar between the main chart and the Statistics chart up or down to change their heights; the gap between them stays the same. Resizing the window keeps your split, and it returns to the default each time a new CSV is loaded." & vbLf & vbLf &
 "DEV 1 TRACES / DEV 2 TRACES" & vbLf &
 "Each checkbox shows or hides one trace, all calculated from the loaded CSV. Data, Mean and Short Term Mean are on the main chart; STDEV, SEM, Max Diff. and PPM Deviation are on the Statistics chart underneath (PPM Deviation has its own right-hand scale, as it is in ppm):" & vbLf & vbLf &
 "Data - the raw VALUE reading logged for every sample." & vbLf & vbLf &
@@ -5970,6 +5972,7 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
         "DEVICES",
         "CSV DETAILS",
         "X & Y-AXIS SCALES",
+        "CHART SPLIT",
         "DEV 1 TRACES / DEV 2 TRACES",
         "SHORT TERM MEAN",
         "ALLAN DEVIATION",
