@@ -224,9 +224,6 @@ Public Class Chart
     Dim TempAvgBuffer() As Double
     Dim HumAvgBuffer() As Double
 
-    ' Saved trace/PPM selections are applied once, after the first CSV is loaded (see ApplySavedPlaybackTraceSettings).
-    Private SavedTraceSettingsPending As Boolean = True
-
     ' Editable CSV metadata (MetadataChart): only when the file has a single group of at most 3 metadata lines.
     Private Const MetadataMaxLines As Integer = 3
     Private MetadataEditable As Boolean = False
@@ -798,7 +795,7 @@ Public Class Chart
 
     ' ScottPlot lays out its own margins from the rendered tick labels, so no margin tracking is needed on resize.
 
-    ' Xscale/Xscaletotal are a rigid pair centred on the form width, as is LabelTopTopChart (shown before a CSV loads).
+    ' Xscale/Xscaletotal are a rigid pair centred on the form width.
     Private OriginalXscalePairWidth As Integer
     Private OriginalXscaletotalGapFromXscale As Integer
 
@@ -836,8 +833,8 @@ Public Class Chart
         For Each ctl As Control In Me.Controls
             If ctl Is FormsPlot2 Then Continue For
             If groupB.Contains(ctl) Then Continue For
-            ' Xscale/Xscaletotal/LabelTopTopChart are centred separately, not slot-spaced with the panel.
-            If ctl Is Xscale OrElse ctl Is Xscaletotal OrElse ctl Is LabelTopTopChart OrElse ctl Is LabelDEV1 OrElse ctl Is LabelDEV2 OrElse ctl Is LabelMean OrElse ctl Is LabelSMean Then Continue For
+            ' Xscale/Xscaletotal are centred separately, not slot-spaced with the panel.
+            If ctl Is Xscale OrElse ctl Is Xscaletotal OrElse ctl Is LabelDEV1 OrElse ctl Is LabelDEV2 OrElse ctl Is LabelMean OrElse ctl Is LabelSMean Then Continue For
             If ctl.Top >= groupABottomLimit Then Continue For
 
             OriginalGroupALeft(ctl) = ctl.Left
@@ -1049,7 +1046,6 @@ Public Class Chart
         ' Xscale/Xscaletotal - rigid pair (fixed gap), centred as a block.
         CenterXscalePair()
 
-        LabelTopTopChart.Left = (Me.ClientSize.Width - LabelTopTopChart.Width) \ 2
 
     End Sub
 
@@ -1896,6 +1892,10 @@ Public Class Chart
 
         ' A slimmed down version of loading the CSV file again as it is written to externally.
 
+        ' BrowseFile is True while a browsed file is being loaded (until CheckPathCSVfile consumes it). Control
+        ' changes made by the load itself (e.g. the Dev 1/2 radios) must not start a refresh of the old data.
+        If BrowseFile Then Exit Sub
+
         If (CSVfilenamePlayback.Text <> "" And ChartLoaded = True And CSVfileok = True) Then
 
             ' CurrentPos/TargetPos/RangeReqd/EndRange/CentreRange are deliberately not reset: this only refreshes
@@ -2277,7 +2277,6 @@ Public Class Chart
             LabelHum.Visible = True
             LabelPPMtop.Visible = True
             LabelPPMdegctop.Visible = True
-            LabelTopTopChart.Visible = True
             LabelBottomChart.Visible = True
             LabelPPMstats.Visible = True
             LabelSTATS.Visible = True
@@ -2596,26 +2595,44 @@ Public Class Chart
 
     End Sub
 
-    ' Applies the saved trace, PPM and AutoScale selections. Done once, after the first CSV is loaded, because
-    ' each load resets and enables these controls according to what the file contains.
+    Private Sub ApplySavedCheck(box As CheckBox, value As Boolean)
+        If box.Enabled AndAlso box.Checked <> value Then box.Checked = value
+    End Sub
+
+    Private Sub ApplySavedText(box As TextBox, value As String)
+        If box.Enabled AndAlso box.Text <> value Then box.Text = value
+    End Sub
+
+    ' Re-applies the saved (Save button) settings after every CSV load, since each load resets or enables the
+    ' trace controls according to what the file contains. Controls the file can't use (disabled) are left alone,
+    ' and only values that differ are set, so no needless refreshes are triggered.
     Private Sub ApplySavedPlaybackTraceSettings()
 
-        If Not SavedTraceSettingsPending OrElse Not CSVfileok Then Exit Sub
-        SavedTraceSettingsPending = False
+        If Not CSVfileok Then Exit Sub
 
-        If CheckPlaybackDev1Mean.Enabled Then CheckPlaybackDev1Mean.Checked = My.Settings.data1469
-        If CheckPlaybackDev1Stdev.Enabled Then CheckPlaybackDev1Stdev.Checked = My.Settings.data1470
-        If CheckPlaybackDev1SEM.Enabled Then CheckPlaybackDev1SEM.Checked = My.Settings.data1471
-        If CheckPlaybackDev1MaxDiff.Enabled Then CheckPlaybackDev1MaxDiff.Checked = My.Settings.data1472
-        If CheckPlaybackDev1Deviation.Enabled Then CheckPlaybackDev1Deviation.Checked = My.Settings.data1473
-        If CheckPlaybackDev1ShortTermMean.Enabled Then CheckPlaybackDev1ShortTermMean.Checked = My.Settings.data1474
+        ApplySavedCheck(CheckPlaybackDev1Data, My.Settings.data1468)
+        ApplySavedCheck(CheckPlaybackDev1Mean, My.Settings.data1469)
+        ApplySavedCheck(CheckPlaybackDev1Stdev, My.Settings.data1470)
+        ApplySavedCheck(CheckPlaybackDev1SEM, My.Settings.data1471)
+        ApplySavedCheck(CheckPlaybackDev1MaxDiff, My.Settings.data1472)
+        ApplySavedCheck(CheckPlaybackDev1Deviation, My.Settings.data1473)
+        ApplySavedCheck(CheckPlaybackDev1ShortTermMean, My.Settings.data1474)
 
-        If CheckPlaybackDev2Mean.Enabled Then CheckPlaybackDev2Mean.Checked = My.Settings.data1476
-        If CheckPlaybackDev2Stdev.Enabled Then CheckPlaybackDev2Stdev.Checked = My.Settings.data1477
-        If CheckPlaybackDev2SEM.Enabled Then CheckPlaybackDev2SEM.Checked = My.Settings.data1478
-        If CheckPlaybackDev2MaxDiff.Enabled Then CheckPlaybackDev2MaxDiff.Checked = My.Settings.data1479
-        If CheckPlaybackDev2Deviation.Enabled Then CheckPlaybackDev2Deviation.Checked = My.Settings.data1480
-        If CheckPlaybackDev2ShortTermMean.Enabled Then CheckPlaybackDev2ShortTermMean.Checked = My.Settings.data1481
+        ApplySavedCheck(CheckPlaybackDev2Data, My.Settings.data1475)
+        ApplySavedCheck(CheckPlaybackDev2Mean, My.Settings.data1476)
+        ApplySavedCheck(CheckPlaybackDev2Stdev, My.Settings.data1477)
+        ApplySavedCheck(CheckPlaybackDev2SEM, My.Settings.data1478)
+        ApplySavedCheck(CheckPlaybackDev2MaxDiff, My.Settings.data1479)
+        ApplySavedCheck(CheckPlaybackDev2Deviation, My.Settings.data1480)
+        ApplySavedCheck(CheckPlaybackDev2ShortTermMean, My.Settings.data1481)
+
+        ApplySavedCheck(CheckDev1Line, My.Settings.data1482)
+        ApplySavedCheck(CheckDev2Line, My.Settings.data1483)
+
+        ApplySavedCheck(PlaybackTemp, My.Settings.data1487)
+        ApplySavedCheck(PlaybackHum, My.Settings.data1488)
+        ApplySavedCheck(CheckX1000, My.Settings.data1489)
+        ApplySavedCheck(CheckX1000000, My.Settings.data1490)
 
         ' PPM: choose the mode and device first, then enable it, so it runs once with the right setup.
         If CheckBoxPPMenable.Enabled Then
@@ -2634,6 +2651,12 @@ Public Class Chart
 
             CheckBoxPPMenable.Checked = My.Settings.data1491
         End If
+
+        ' Averaging last: each change refreshes the chart.
+        ApplySavedText(DEV1avg, CInt(My.Settings.data1484).ToString())
+        ApplySavedText(DEV2avg, CInt(My.Settings.data1485).ToString())
+        ApplySavedText(TEMPavg, CInt(My.Settings.data1466).ToString())
+        ApplySavedText(HUMavg, CInt(My.Settings.data1467).ToString())
 
         CheckBoxPBXYaxis.Checked = My.Settings.data1495
 
@@ -4946,7 +4969,6 @@ Public Class Chart
         LabelTempC.Visible = False
         LabelHum.Visible = False
         LabelPPMdegctop.Visible = False
-        LabelTopTopChart.Visible = False
         LabelBottomChart.Visible = False
         LabelPPMstats.Visible = False
         LabelSTATS.Visible = False
@@ -6325,7 +6347,7 @@ Public Class Chart
 "The main chart shows the Dev 1 / Dev 2 data, Temperature, Humidity and PPM. A Statistics chart underneath shows the recorded STDEV, SEM, Max Diff. and PPM Deviation, and follows the main chart's X range." & vbLf & vbLf &
 "LOADING A CSV" & vbLf &
 "LOAD .CSV FILE opens a saved log file from disk. If the CSV only contains data for one device, every Dev.2 checkbox and control is automatically greyed out and unchecked - there is nothing to plot for a device that isn't in the file." & vbLf & vbLf &
-"Save Settings stores the current control settings (Y-axis and Temp/Hum scale ranges, PPM scale and setup, averaging and RMS window, trace checkboxes, Line/Point, x1k/x1000k, AutoScale, Light Mode) so they're restored next time. Trace and PPM selections are applied when the first CSV is loaded. Allan Deviation is not saved." & vbLf & vbLf &
+"Save Settings stores the current control settings (Y-axis and Temp/Hum scale ranges, PPM scale and setup, averaging and RMS window, trace checkboxes, Line/Point, x1k/x1000k, AutoScale, Light Mode) so they're restored next time. The saved settings are re-applied each time a CSV is loaded. Allan Deviation is not saved." & vbLf & vbLf &
 "MOUSE CONTROLS" & vbLf &
 "Main chart:" & vbLf &
 "- Pan - Left-click + drag" & vbLf &

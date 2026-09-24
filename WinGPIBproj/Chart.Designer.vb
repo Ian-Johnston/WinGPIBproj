@@ -139,7 +139,6 @@ Partial Class Chart
         Me.GroupBox4 = New System.Windows.Forms.GroupBox()
         Me.GroupBox5 = New System.Windows.Forms.GroupBox()
         Me.LabelBottomChart = New System.Windows.Forms.Label()
-        Me.LabelTopTopChart = New System.Windows.Forms.Label()
         Me.LabelPPMstats = New System.Windows.Forms.Label()
         Me.LabelDEV1 = New System.Windows.Forms.Label()
         Me.LabelSTATS = New System.Windows.Forms.Label()
@@ -407,11 +406,11 @@ Partial Class Chart
         '
         Me.LabelHum.AutoSize = True
         Me.LabelHum.BackColor = System.Drawing.Color.Black
-        Me.LabelHum.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelHum.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelHum.ForeColor = System.Drawing.Color.DodgerBlue
-        Me.LabelHum.Location = New System.Drawing.Point(1282, 205)
+        Me.LabelHum.Location = New System.Drawing.Point(1285, 205)
         Me.LabelHum.Name = "LabelHum"
-        Me.LabelHum.Size = New System.Drawing.Size(36, 15)
+        Me.LabelHum.Size = New System.Drawing.Size(31, 13)
         Me.LabelHum.TabIndex = 102
         Me.LabelHum.Text = "%RH"
         '
@@ -419,11 +418,11 @@ Partial Class Chart
         '
         Me.LabelTempC.AutoSize = True
         Me.LabelTempC.BackColor = System.Drawing.Color.Black
-        Me.LabelTempC.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelTempC.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelTempC.ForeColor = System.Drawing.Color.Red
-        Me.LabelTempC.Location = New System.Drawing.Point(1243, 205)
+        Me.LabelTempC.Location = New System.Drawing.Point(1248, 205)
         Me.LabelTempC.Name = "LabelTempC"
-        Me.LabelTempC.Size = New System.Drawing.Size(38, 15)
+        Me.LabelTempC.Size = New System.Drawing.Size(34, 13)
         Me.LabelTempC.TabIndex = 101
         Me.LabelTempC.Text = "DegC"
         '
@@ -640,13 +639,13 @@ Partial Class Chart
         '
         Me.LabelPPMtop.AutoSize = True
         Me.LabelPPMtop.BackColor = System.Drawing.Color.Black
-        Me.LabelPPMtop.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelPPMtop.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelPPMtop.ForeColor = System.Drawing.Color.White
         Me.LabelPPMtop.Location = New System.Drawing.Point(1319, 205)
         Me.LabelPPMtop.Name = "LabelPPMtop"
-        Me.LabelPPMtop.Size = New System.Drawing.Size(34, 15)
+        Me.LabelPPMtop.Size = New System.Drawing.Size(33, 13)
         Me.LabelPPMtop.TabIndex = 152
-        Me.LabelPPMtop.Text = "PPM"
+        Me.LabelPPMtop.Text = "PPM "
         '
         'GroupBoxMisc
         '
@@ -1471,26 +1470,15 @@ Partial Class Chart
         Me.LabelBottomChart.Text = "Initial baseline for PPM Deviation value is derived from Stats."
         Me.LabelBottomChart.Visible = False
         '
-        'LabelTopTopChart
-        '
-        Me.LabelTopTopChart.AutoSize = True
-        Me.LabelTopTopChart.ForeColor = System.Drawing.SystemColors.ControlDarkDark
-        Me.LabelTopTopChart.Location = New System.Drawing.Point(517, 230)
-        Me.LabelTopTopChart.Name = "LabelTopTopChart"
-        Me.LabelTopTopChart.Size = New System.Drawing.Size(390, 13)
-        Me.LabelTopTopChart.TabIndex = 583
-        Me.LabelTopTopChart.Text = "Data, Mean, Short Term Mean. PPM Deviation / Tempco, Temperature, Humidity"
-        Me.LabelTopTopChart.Visible = False
-        '
         'LabelPPMstats
         '
         Me.LabelPPMstats.AutoSize = True
         Me.LabelPPMstats.BackColor = System.Drawing.Color.Black
-        Me.LabelPPMstats.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelPPMstats.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelPPMstats.ForeColor = System.Drawing.Color.White
-        Me.LabelPPMstats.Location = New System.Drawing.Point(1239, 644)
+        Me.LabelPPMstats.Location = New System.Drawing.Point(1244, 644)
         Me.LabelPPMstats.Name = "LabelPPMstats"
-        Me.LabelPPMstats.Size = New System.Drawing.Size(34, 15)
+        Me.LabelPPMstats.Size = New System.Drawing.Size(30, 13)
         Me.LabelPPMstats.TabIndex = 584
         Me.LabelPPMstats.Text = "PPM"
         '
@@ -1498,11 +1486,11 @@ Partial Class Chart
         '
         Me.LabelDEV1.AutoSize = True
         Me.LabelDEV1.BackColor = System.Drawing.Color.Yellow
-        Me.LabelDEV1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelDEV1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelDEV1.ForeColor = System.Drawing.Color.Black
         Me.LabelDEV1.Location = New System.Drawing.Point(5, 205)
         Me.LabelDEV1.Name = "LabelDEV1"
-        Me.LabelDEV1.Size = New System.Drawing.Size(38, 15)
+        Me.LabelDEV1.Size = New System.Drawing.Size(35, 13)
         Me.LabelDEV1.TabIndex = 586
         Me.LabelDEV1.Text = "DEV1"
         '
@@ -1510,11 +1498,11 @@ Partial Class Chart
         '
         Me.LabelSTATS.AutoSize = True
         Me.LabelSTATS.BackColor = System.Drawing.Color.Black
-        Me.LabelSTATS.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelSTATS.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelSTATS.ForeColor = System.Drawing.Color.White
         Me.LabelSTATS.Location = New System.Drawing.Point(12, 644)
         Me.LabelSTATS.Name = "LabelSTATS"
-        Me.LabelSTATS.Size = New System.Drawing.Size(62, 15)
+        Me.LabelSTATS.Size = New System.Drawing.Size(56, 13)
         Me.LabelSTATS.TabIndex = 587
         Me.LabelSTATS.Text = "MAX DIFF"
         '
@@ -1522,11 +1510,11 @@ Partial Class Chart
         '
         Me.LabelDEV2.AutoSize = True
         Me.LabelDEV2.BackColor = System.Drawing.Color.Cyan
-        Me.LabelDEV2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelDEV2.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelDEV2.ForeColor = System.Drawing.Color.Black
-        Me.LabelDEV2.Location = New System.Drawing.Point(46, 205)
+        Me.LabelDEV2.Location = New System.Drawing.Point(43, 205)
         Me.LabelDEV2.Name = "LabelDEV2"
-        Me.LabelDEV2.Size = New System.Drawing.Size(38, 15)
+        Me.LabelDEV2.Size = New System.Drawing.Size(35, 13)
         Me.LabelDEV2.TabIndex = 588
         Me.LabelDEV2.Text = "DEV2"
         '
@@ -1534,11 +1522,11 @@ Partial Class Chart
         '
         Me.LabelSTDEV.AutoSize = True
         Me.LabelSTDEV.BackColor = System.Drawing.Color.Black
-        Me.LabelSTDEV.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelSTDEV.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelSTDEV.ForeColor = System.Drawing.Color.White
-        Me.LabelSTDEV.Location = New System.Drawing.Point(1274, 644)
+        Me.LabelSTDEV.Location = New System.Drawing.Point(1276, 644)
         Me.LabelSTDEV.Name = "LabelSTDEV"
-        Me.LabelSTDEV.Size = New System.Drawing.Size(46, 15)
+        Me.LabelSTDEV.Size = New System.Drawing.Size(43, 13)
         Me.LabelSTDEV.TabIndex = 590
         Me.LabelSTDEV.Text = "STDEV"
         '
@@ -1546,11 +1534,11 @@ Partial Class Chart
         '
         Me.LabelSEM.AutoSize = True
         Me.LabelSEM.BackColor = System.Drawing.Color.Black
-        Me.LabelSEM.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelSEM.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelSEM.ForeColor = System.Drawing.Color.White
         Me.LabelSEM.Location = New System.Drawing.Point(1321, 644)
         Me.LabelSEM.Name = "LabelSEM"
-        Me.LabelSEM.Size = New System.Drawing.Size(34, 15)
+        Me.LabelSEM.Size = New System.Drawing.Size(30, 13)
         Me.LabelSEM.TabIndex = 591
         Me.LabelSEM.Text = "SEM"
         '
@@ -1582,11 +1570,11 @@ Partial Class Chart
         '
         Me.LabelMean.AutoSize = True
         Me.LabelMean.BackColor = System.Drawing.Color.Black
-        Me.LabelMean.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelMean.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelMean.ForeColor = System.Drawing.Color.White
-        Me.LabelMean.Location = New System.Drawing.Point(5, 223)
+        Me.LabelMean.Location = New System.Drawing.Point(5, 220)
         Me.LabelMean.Name = "LabelMean"
-        Me.LabelMean.Size = New System.Drawing.Size(42, 15)
+        Me.LabelMean.Size = New System.Drawing.Size(38, 13)
         Me.LabelMean.TabIndex = 594
         Me.LabelMean.Text = "MEAN"
         '
@@ -1594,11 +1582,11 @@ Partial Class Chart
         '
         Me.LabelSMean.AutoSize = True
         Me.LabelSMean.BackColor = System.Drawing.Color.Black
-        Me.LabelSMean.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelSMean.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelSMean.ForeColor = System.Drawing.Color.White
-        Me.LabelSMean.Location = New System.Drawing.Point(48, 223)
+        Me.LabelSMean.Location = New System.Drawing.Point(45, 220)
         Me.LabelSMean.Name = "LabelSMean"
-        Me.LabelSMean.Size = New System.Drawing.Size(53, 15)
+        Me.LabelSMean.Size = New System.Drawing.Size(48, 13)
         Me.LabelSMean.TabIndex = 595
         Me.LabelSMean.Text = "S.MEAN"
         '
@@ -1619,7 +1607,6 @@ Partial Class Chart
         Me.Controls.Add(Me.LabelDEV1)
         Me.Controls.Add(Me.PanelChartSplitter)
         Me.Controls.Add(Me.LabelPPMstats)
-        Me.Controls.Add(Me.LabelTopTopChart)
         Me.Controls.Add(Me.LabelBottomChart)
         Me.Controls.Add(Me.ButtonPlaybackHelp)
         Me.Controls.Add(Me.GroupBox5)
@@ -1786,7 +1773,6 @@ Partial Class Chart
     Friend WithEvents RadioButtonPPMTempoLinReg As RadioButton
     Friend WithEvents RadioButtonPPMTempoRolling As RadioButton
     Friend WithEvents LabelBottomChart As Label
-    Friend WithEvents LabelTopTopChart As Label
     Friend WithEvents Label13 As Label
     Friend WithEvents HUMavg As TextBox
     Friend WithEvents ChartScaleHUMMax As TextBox
