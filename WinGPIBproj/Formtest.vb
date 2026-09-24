@@ -270,7 +270,7 @@ Public Class Formtest
             End If
             CheckBoxThemeSet.Checked = My.Settings.ThemeSet
 
-            BannerText1 = "WinGPIB - V5.102    (Free for Non-Commercial Use • Support WinGPIB — see About)"
+            BannerText1 = "WinGPIB - V5.103    (Free for Non-Commercial Use • Support WinGPIB — see About)"
             Me.Text = BannerText1.ToString()
 
             ' Advantest R6581 tab

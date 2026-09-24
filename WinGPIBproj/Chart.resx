@@ -120,6 +120,26 @@
   <metadata name="ToolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <metadata name="ToolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <data name="ButtonSaveSettings.ToolTip" xml:space="preserve">
+    <value>Save settings for:
+
+Y-AXIS Max. / Min.
+TEMP Max. / Min. and HUM Max. / Min.
+TEMP Avg., HUM Avg., DEV 1 Avg., DEV 2 Avg.
+RMS window
+DEV 1 / DEV 2 traces: Data, Mean, STDEV, SEM, Max Diff., PPM Deviation, Short Term Mean
+DEV 1 / DEV 2 Line / Point
+Temp and Hum. traces
+x1k / x1000k
+AutoScale X-axis &amp; Y-axis
+PPM: Enable PPM, mode, Dev 1/2, Initial Value, Initial Temp, Scale
+Light Mode
+
+(Allan Deviation is not saved)</value>
+  </data>
   <data name="RadioButtonPPMTempoRolling.ToolTip" xml:space="preserve">
     <value>Refits a straight line through just the last RMS Window points at a time, sliding forward through the chart,
 so the Tempco reading can genuinely drift over time instead of being one fixed number for the whole file</value>

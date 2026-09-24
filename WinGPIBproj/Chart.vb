@@ -20,8 +20,14 @@ Public Class Chart
     ' Draggable splitter (PanelChartSplitter) between the two charts. False hides it and restores
     ' the fixed split (the charts grow by the same percentage). Minimum chart heights while dragging.
     Private Const PlaybackSplitterEnabled As Boolean = True
+    Private Const PlaybackResizeGripVisible As Boolean = True       ' bottom-right window resize grip
+    Private Const PlaybackResizeGripSize As Integer = 8             ' its width and height (px)
     Private Const PlaybackMainChartMinHeight As Integer = 200
     Private Const PlaybackStatsChartMinHeight As Integer = 80
+
+    ' Minimum width (px) of each right-hand scale on both charts, so the main chart's three right scales
+    ' reserve room for the Statistics chart's three (PPM Deviation, STDEV, SEM) and their plot edges stay aligned.
+    Private Const PlaybackRightAxisMinWidth As Single = 36
 
     ' Hands the Allan pop-up's resize-grip drag off to Windows' native bottom-right resize handling.
     <DllImport("user32.dll")>
@@ -91,6 +97,9 @@ Public Class Chart
     ' STDEV/SEM/Max Diff share the left axis; PPM Deviation is in ppm, not
     ' the reading's units, so it gets the right-hand axis.
     Dim FormsPlot3 As ScottPlot.WinForms.FormsPlot
+    Dim Chart3PPMAxis As ScottPlot.IYAxis
+    Dim Chart3StdevAxis As ScottPlot.IYAxis
+    Dim Chart3SEMAxis As ScottPlot.IYAxis
     Dim Chart3Dev1StdevSeries As ScottPlot.Plottables.Scatter
     Dim Chart3Dev1SEMSeries As ScottPlot.Plottables.Scatter
     Dim Chart3Dev1MaxDiffSeries As ScottPlot.Plottables.Scatter
@@ -213,6 +222,17 @@ Public Class Chart
     Dim Dev1AvgBuffer() As Double
     Dim Dev2AvgBuffer() As Double
     Dim TempAvgBuffer() As Double
+    Dim HumAvgBuffer() As Double
+
+    ' Saved trace/PPM selections are applied once, after the first CSV is loaded (see ApplySavedPlaybackTraceSettings).
+    Private SavedTraceSettingsPending As Boolean = True
+
+    ' Editable CSV metadata (MetadataChart): only when the file has a single group of at most 3 metadata lines.
+    Private Const MetadataMaxLines As Integer = 3
+    Private MetadataEditable As Boolean = False
+    Private MetadataUpdating As Boolean = False
+    Private MetadataLoadedText As String = ""
+    Private MetadataFileLineCount As Integer = 0
 
     Dim DEV1rollingAverageValues As New List(Of Double)         ' Create a list to store the rolling average values
     Dim DEV2rollingAverageValues As New List(Of Double)         ' Create a list to store the rolling average values
@@ -356,6 +376,8 @@ Public Class Chart
         ChartScaleMin.Text = My.Settings.data21
         ChartScaleHUMMin.Text = My.Settings.data1464
         ChartScaleHUMMax.Text = My.Settings.data1465
+        TEMPavg.Text = CInt(My.Settings.data1466).ToString()
+        HUMavg.Text = CInt(My.Settings.data1467).ToString()
         YaxisMaximum.Text = My.Settings.data24
         YaxisMinimum.Text = My.Settings.data25
         MedianValue.Text = My.Settings.data26
@@ -571,9 +593,26 @@ Public Class Chart
         Chart3Dev2MaxDiffSeries = FormsPlot3.Plot.Add.Scatter(Chart2Dev2MaxDiffData, New ScottPlot.Color(Color.HotPink))
         Chart3Dev2DeviationSeries = FormsPlot3.Plot.Add.Scatter(Chart2Dev2DeviationData, New ScottPlot.Color(Color.LightGray))
 
-        FormsPlot3.Plot.Axes.Right.IsVisible = True
-        Chart3Dev1DeviationSeries.Axes.YAxis = FormsPlot3.Plot.Axes.Right
-        Chart3Dev2DeviationSeries.Axes.YAxis = FormsPlot3.Plot.Axes.Right
+        ' PPM Deviation, STDEV and SEM each get their own right-hand scale; Max Diff uses the left.
+        Chart3PPMAxis = FormsPlot3.Plot.Axes.Right
+        Chart3StdevAxis = FormsPlot3.Plot.Axes.AddRightAxis()
+        Chart3SEMAxis = FormsPlot3.Plot.Axes.AddRightAxis()
+        For Each statsAxis As ScottPlot.IYAxis In {Chart3PPMAxis, Chart3StdevAxis, Chart3SEMAxis}
+            statsAxis.TickLabelStyle.FontSize = 9
+            statsAxis.MinimumSize = PlaybackRightAxisMinWidth
+            statsAxis.MaximumSize = PlaybackRightAxisMinWidth     ' fixed width, so the foot labels can be placed under each scale
+            statsAxis.IsVisible = False         ' shown only while a trace uses it (Chart3SyncFromTop)
+        Next
+        Chart2TempAxis.MinimumSize = PlaybackRightAxisMinWidth
+        Chart2HumAxis.MinimumSize = PlaybackRightAxisMinWidth
+        Chart2PPMAxis.MinimumSize = PlaybackRightAxisMinWidth
+
+        Chart3Dev1DeviationSeries.Axes.YAxis = Chart3PPMAxis
+        Chart3Dev2DeviationSeries.Axes.YAxis = Chart3PPMAxis
+        Chart3Dev1StdevSeries.Axes.YAxis = Chart3StdevAxis
+        Chart3Dev2StdevSeries.Axes.YAxis = Chart3StdevAxis
+        Chart3Dev1SEMSeries.Axes.YAxis = Chart3SEMAxis
+        Chart3Dev2SEMSeries.Axes.YAxis = Chart3SEMAxis
 
         For Each st As ScottPlot.Plottables.Scatter In Chart3AllSeries()
             st.MarkerStyle.IsVisible = False
@@ -714,6 +753,9 @@ Public Class Chart
 
         InitializeResizableLayout()
 
+        InitMetadataEditing()
+        LoadSavedPlaybackSettings()
+
     End Sub
 
 
@@ -727,6 +769,12 @@ Public Class Chart
     Private OriginalChart3Top As Integer
     Private OriginalChart3Height As Integer
     Private OriginalPPMStatsTopOffset As Integer
+    Private OriginalStatsLabelTopOffset As Integer
+    Private OriginalStdevLabelTopOffset As Integer
+    Private OriginalSEMLabelTopOffset As Integer
+    Private OriginalStdevScaleLabelBottomOffset As Integer
+    Private OriginalSEMScaleLabelBottomOffset As Integer
+    Private StatsScaleLabelOffsetsCaptured As Boolean = False
     Private Chart3HeightShare As Double = 0     ' Statistics chart's share of the two charts' combined height
     Private SplitterDragging As Boolean = False
     Private SplitterDragStartY As Integer
@@ -789,7 +837,7 @@ Public Class Chart
             If ctl Is FormsPlot2 Then Continue For
             If groupB.Contains(ctl) Then Continue For
             ' Xscale/Xscaletotal/LabelTopTopChart are centred separately, not slot-spaced with the panel.
-            If ctl Is Xscale OrElse ctl Is Xscaletotal OrElse ctl Is LabelTopTopChart Then Continue For
+            If ctl Is Xscale OrElse ctl Is Xscaletotal OrElse ctl Is LabelTopTopChart OrElse ctl Is LabelDEV1 OrElse ctl Is LabelDEV2 Then Continue For
             If ctl.Top >= groupABottomLimit Then Continue For
 
             OriginalGroupALeft(ctl) = ctl.Left
@@ -800,6 +848,16 @@ Public Class Chart
         OriginalChart3Top = FormsPlot3.Top
         OriginalChart3Height = FormsPlot3.Height
         OriginalPPMStatsTopOffset = LabelPPMstats.Top - FormsPlot3.Top
+        OriginalStatsLabelTopOffset = LabelSTATS.Top - FormsPlot3.Top
+        OriginalStdevLabelTopOffset = LabelSTDEV.Top - FormsPlot3.Top
+        OriginalSEMLabelTopOffset = LabelSEM.Top - FormsPlot3.Top
+        LabelSTDEV.Anchor = AnchorStyles.Top Or AnchorStyles.Right
+        OriginalStdevScaleLabelBottomOffset = LabelSTDEVscale.Top - FormsPlot3.Bottom
+        OriginalSEMScaleLabelBottomOffset = LabelSEMscale.Top - FormsPlot3.Bottom
+        LabelSTDEVscale.Anchor = AnchorStyles.Top Or AnchorStyles.Right
+        LabelSEMscale.Anchor = AnchorStyles.Top Or AnchorStyles.Right
+        StatsScaleLabelOffsetsCaptured = True
+        LabelSEM.Anchor = AnchorStyles.Top Or AnchorStyles.Right
         LabelPPMstats.Anchor = AnchorStyles.Top Or AnchorStyles.Right
 
         Chart3HeightShare = OriginalChart3Height / CDbl(OriginalChart2Height + OriginalChart3Height)
@@ -827,7 +885,7 @@ Public Class Chart
         FormGrip = New PictureBox With {
             .Image = MakeGripTransparent(My.Resources.grip, Color.FromArgb(105, 105, 105)),
             .SizeMode = PictureBoxSizeMode.StretchImage,
-            .Size = New Size(30, 30),
+            .Size = New Size(PlaybackResizeGripSize, PlaybackResizeGripSize),
             .BackColor = If(CheckBoxColours.Checked, Color.White, SystemColors.Control),
             .Cursor = Cursors.SizeNWSE,
             .Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
@@ -846,6 +904,7 @@ Public Class Chart
 
         Me.Controls.Add(FormGrip)
         FormGrip.BringToFront()
+        FormGrip.Visible = PlaybackResizeGripVisible
 
         ' Only allow growing: most controls have no resize behaviour and would overlap if shrunk.
         Me.MinimumSize = Me.Size
@@ -896,6 +955,10 @@ Public Class Chart
 
         ' Stays at the top-right of the Statistics chart (Right anchor handles the horizontal side).
         LabelPPMstats.Top = FormsPlot3.Top + OriginalPPMStatsTopOffset
+        LabelSTATS.Top = FormsPlot3.Top + OriginalStatsLabelTopOffset
+        LabelSTDEV.Top = FormsPlot3.Top + OriginalStdevLabelTopOffset
+        LabelSEM.Top = FormsPlot3.Top + OriginalSEMLabelTopOffset
+        PositionStatsScaleLabels()
 
     End Sub
 
@@ -1044,6 +1107,11 @@ Public Class Chart
 
     Private Sub BrowseToFile_Click(sender As Object, e As EventArgs) Handles BrowseToFile.Click
 
+        If MetadataEditable AndAlso MetadataChart.Text <> MetadataLoadedText Then
+            If MessageBox.Show("The CSV metadata has unsaved changes. Discard them and load another file?",
+                               "Unsaved metadata", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) <> DialogResult.Yes Then Return
+        End If
+
         ' User Browse to File button, check and load the CSV file into the datatable.
         CurrentPos = 0
         TargetPos = 49
@@ -1143,7 +1211,12 @@ Public Class Chart
 
         ' Initialize variables.
         CSVdelimit = ""
+        MetadataUpdating = True
         MetadataChart.Text = ""
+        MetadataUpdating = False
+        MetadataEditable = False
+        MetadataChart.ReadOnly = True
+        ButtonSaveCSVMeta.Enabled = False
 
         Dim separator As String = "------------------------------"
         Dim isFirstGroup As Boolean = True
@@ -1369,7 +1442,34 @@ Public Class Chart
 
         ' Update metadata
 
-        MetadataChart.Text = metadataBuilder.ToString()
+        ' Editable only for a single contiguous group of at most MetadataMaxLines "//" lines.
+        Dim metaRuns As Integer = 0
+        Dim metaLines As Integer = 0
+        Dim previousWasMeta As Boolean = False
+        For Each metaCandidate As String In lines
+            If metaCandidate.TrimStart().StartsWith("//") Then
+                metaLines += 1
+                If Not previousWasMeta Then metaRuns += 1
+                previousWasMeta = True
+            Else
+                previousWasMeta = False
+            End If
+        Next
+
+        MetadataEditable = (metaRuns <= 1 AndAlso metaLines <= MetadataMaxLines)
+        MetadataFileLineCount = metaLines
+
+        MetadataUpdating = True
+        If MetadataEditable Then
+            MetadataChart.Text = metadataBuilder.ToString().TrimEnd(ChrW(13), ChrW(10))
+        Else
+            MetadataChart.Text = metadataBuilder.ToString()
+        End If
+        MetadataUpdating = False
+
+        MetadataLoadedText = MetadataChart.Text
+        MetadataChart.ReadOnly = Not MetadataEditable
+        ButtonSaveCSVMeta.Enabled = MetadataEditable
 
 
         numberofmetadatalines = lines.Count - numberlinesCSV
@@ -1631,6 +1731,8 @@ Public Class Chart
 
         Loading.Visible = False
         PleaseLoadCSV.Visible = False
+
+        ApplySavedPlaybackTraceSettings()
 
     End Sub
 
@@ -2178,6 +2280,11 @@ Public Class Chart
             LabelTopTopChart.Visible = True
             LabelBottomChart.Visible = True
             LabelPPMstats.Visible = True
+            LabelSTATS.Visible = True
+            LabelSTDEV.Visible = True
+            LabelSEM.Visible = True
+            LabelDEV1.Visible = True
+            LabelDEV2.Visible = True
             PanelChartSplitter.Visible = PlaybackSplitterEnabled
             CheckBoxColours.Enabled = True
             CheckBoxPPMenable.Enabled = True
@@ -2342,17 +2449,241 @@ Public Class Chart
     End Sub
 
 
+    ' ---- Editable CSV metadata (strictly MetadataMaxLines lines) ----
+
+    Private Sub InitMetadataEditing()
+
+        MetadataChart.AcceptsReturn = True
+        MetadataChart.WordWrap = False
+        ButtonSaveCSVMeta.Enabled = False
+
+    End Sub
+
+    ' No new line once the box already has the maximum number of lines.
+    Private Sub MetadataChart_KeyPress(sender As Object, e As KeyPressEventArgs) Handles MetadataChart.KeyPress
+
+        If MetadataEditable AndAlso e.KeyChar = ChrW(13) AndAlso MetadataChart.Lines.Length >= MetadataMaxLines Then
+            e.Handled = True
+        End If
+
+    End Sub
+
+    Private Sub MetadataChart_TextChanged(sender As Object, e As EventArgs) Handles MetadataChart.TextChanged
+
+        If MetadataUpdating OrElse Not MetadataEditable Then Exit Sub
+
+        ' Pasting can add lines; cut back to the maximum.
+        If MetadataChart.Lines.Length > MetadataMaxLines Then
+            MetadataUpdating = True
+            MetadataChart.Text = String.Join(vbCrLf, MetadataChart.Lines.Take(MetadataMaxLines))
+            MetadataChart.SelectionStart = MetadataChart.TextLength
+            MetadataUpdating = False
+        End If
+
+    End Sub
+
+    ' Rewrites the CSV with the edited metadata lines in place of the old ones; data lines are untouched.
+    ' The original is kept as <file>.bak (first save only) and the swap is done via a temporary file.
+    Private Sub ButtonSaveCSVMeta_Click(sender As Object, e As EventArgs) Handles ButtonSaveCSVMeta.Click
+
+        If Not MetadataEditable OrElse Not CSVfileok OrElse filePlayback = "" Then Exit Sub
+
+        ' The CSV always carries exactly MetadataMaxLines metadata lines; unused ones are written as a bare "//".
+        Dim newLines As New List(Of String)
+        For i As Integer = 0 To MetadataMaxLines - 1
+            Dim boxLine As String = If(i < MetadataChart.Lines.Length, MetadataChart.Lines(i), "")
+            If boxLine.Trim() = "" Then
+                newLines.Add("//")
+            Else
+                newLines.Add("//" & If(boxLine.StartsWith(" "), boxLine, " " & boxLine).TrimEnd())
+            End If
+        Next
+
+        Try
+
+            ' Refuse if something else (e.g. the logger) has the file open.
+            Using probe As New IO.FileStream(filePlayback, IO.FileMode.Open, IO.FileAccess.ReadWrite, IO.FileShare.None)
+            End Using
+
+            Dim hasBom As Boolean = False
+            Using bomReader As New IO.FileStream(filePlayback, IO.FileMode.Open, IO.FileAccess.Read)
+                Dim head(2) As Byte
+                hasBom = (bomReader.Read(head, 0, 3) = 3 AndAlso head(0) = &HEF AndAlso head(1) = &HBB AndAlso head(2) = &HBF)
+            End Using
+
+            Dim text As String = IO.File.ReadAllText(filePlayback)
+            Dim newline As String = If(text.Contains(vbCrLf), vbCrLf, vbLf)
+            Dim fileLines As List(Of String) = text.Replace(vbCrLf, vbLf).Split(ChrW(10)).ToList()
+
+            ' Locate the existing metadata group (a single run of "//" lines, or none).
+            Dim firstMeta As Integer = -1
+            Dim lastMeta As Integer = -1
+            Dim oldCount As Integer = 0
+            For i As Integer = 0 To fileLines.Count - 1
+                If fileLines(i).TrimStart().StartsWith("//") Then
+                    If firstMeta = -1 Then firstMeta = i
+                    If lastMeta <> -1 AndAlso i <> lastMeta + 1 Then
+                        MessageBox.Show("The file's metadata has changed since it was loaded. Please reload the CSV.", "Metadata", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                        Exit Sub
+                    End If
+                    lastMeta = i
+                    oldCount += 1
+                End If
+            Next
+
+            If oldCount <> MetadataFileLineCount Then
+                MessageBox.Show("The file's metadata has changed since it was loaded. Please reload the CSV.", "Metadata", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                Exit Sub
+            End If
+
+            If firstMeta = -1 Then
+                fileLines.InsertRange(0, newLines)
+            Else
+                fileLines.RemoveRange(firstMeta, oldCount)
+                fileLines.InsertRange(firstMeta, newLines)
+            End If
+
+            Dim backupPath As String = filePlayback & ".bak"
+            If Not IO.File.Exists(backupPath) Then IO.File.Copy(filePlayback, backupPath)
+
+            Dim tempPath As String = filePlayback & ".tmp"
+            IO.File.WriteAllText(tempPath, String.Join(newline, fileLines), New System.Text.UTF8Encoding(hasBom))
+            IO.File.Replace(tempPath, filePlayback, Nothing)
+
+        Catch ex As Exception When TypeOf ex Is IO.IOException OrElse TypeOf ex Is UnauthorizedAccessException
+
+            MessageBox.Show("The CSV could not be saved (is it open in the logger or another program?)." & vbCrLf & ex.Message,
+                            "Metadata", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Exit Sub
+
+        End Try
+
+        ' The data lines are unchanged; only the file's line counts move by the change in metadata lines.
+        Dim delta As Integer = newLines.Count - MetadataFileLineCount
+        numberlinesCSV += delta
+        numberofmetadatalines += delta
+        MetadataFileLineCount = newLines.Count
+
+        MetadataUpdating = True
+        MetadataChart.Text = String.Join(vbCrLf, newLines.Select(Function(l) l.Substring(2))).TrimEnd(ChrW(13), ChrW(10))
+        MetadataUpdating = False
+        MetadataLoadedText = MetadataChart.Text
+
+        MessageBox.Show("CSV metadata saved.", "Metadata", MessageBoxButtons.OK, MessageBoxIcon.Information)
+
+    End Sub
+
+    ' Restores the saved settings that don't depend on a CSV being loaded (called at the end of Formtest_Load).
+    Private Sub LoadSavedPlaybackSettings()
+
+        RMSwindow.Text = CInt(My.Settings.data1486).ToString()
+        DEV1avg.Text = CInt(My.Settings.data1484).ToString()
+        DEV2avg.Text = CInt(My.Settings.data1485).ToString()
+
+        CheckPlaybackDev1Data.Checked = My.Settings.data1468
+        CheckPlaybackDev2Data.Checked = My.Settings.data1475
+        CheckDev1Line.Checked = My.Settings.data1482
+        CheckDev2Line.Checked = My.Settings.data1483
+
+        PlaybackTemp.Checked = My.Settings.data1487
+        PlaybackHum.Checked = My.Settings.data1488
+        CheckX1000.Checked = My.Settings.data1489
+        CheckX1000000.Checked = My.Settings.data1490
+
+        CheckBoxColours.Checked = My.Settings.data1494
+
+    End Sub
+
+    ' Applies the saved trace, PPM and AutoScale selections. Done once, after the first CSV is loaded, because
+    ' each load resets and enables these controls according to what the file contains.
+    Private Sub ApplySavedPlaybackTraceSettings()
+
+        If Not SavedTraceSettingsPending OrElse Not CSVfileok Then Exit Sub
+        SavedTraceSettingsPending = False
+
+        If CheckPlaybackDev1Mean.Enabled Then CheckPlaybackDev1Mean.Checked = My.Settings.data1469
+        If CheckPlaybackDev1Stdev.Enabled Then CheckPlaybackDev1Stdev.Checked = My.Settings.data1470
+        If CheckPlaybackDev1SEM.Enabled Then CheckPlaybackDev1SEM.Checked = My.Settings.data1471
+        If CheckPlaybackDev1MaxDiff.Enabled Then CheckPlaybackDev1MaxDiff.Checked = My.Settings.data1472
+        If CheckPlaybackDev1Deviation.Enabled Then CheckPlaybackDev1Deviation.Checked = My.Settings.data1473
+        If CheckPlaybackDev1ShortTermMean.Enabled Then CheckPlaybackDev1ShortTermMean.Checked = My.Settings.data1474
+
+        If CheckPlaybackDev2Mean.Enabled Then CheckPlaybackDev2Mean.Checked = My.Settings.data1476
+        If CheckPlaybackDev2Stdev.Enabled Then CheckPlaybackDev2Stdev.Checked = My.Settings.data1477
+        If CheckPlaybackDev2SEM.Enabled Then CheckPlaybackDev2SEM.Checked = My.Settings.data1478
+        If CheckPlaybackDev2MaxDiff.Enabled Then CheckPlaybackDev2MaxDiff.Checked = My.Settings.data1479
+        If CheckPlaybackDev2Deviation.Enabled Then CheckPlaybackDev2Deviation.Checked = My.Settings.data1480
+        If CheckPlaybackDev2ShortTermMean.Enabled Then CheckPlaybackDev2ShortTermMean.Checked = My.Settings.data1481
+
+        ' PPM: choose the mode and device first, then enable it, so it runs once with the right setup.
+        If CheckBoxPPMenable.Enabled Then
+            Select Case My.Settings.data1492
+                Case 1 : RadioButtonPPMTempo.Checked = True
+                Case 2 : RadioButtonPPMTempoLinReg.Checked = True
+                Case 3 : RadioButtonPPMTempoRolling.Checked = True
+                Case Else : RadioButtonPPMDev.Checked = True
+            End Select
+
+            If My.Settings.data1493 = 2 AndAlso DeviceName2.Text <> "" Then
+                RadioButtonDev2.Checked = True
+            ElseIf DeviceName1.Text <> "" Then
+                RadioButtonDev1.Checked = True
+            End If
+
+            CheckBoxPPMenable.Checked = My.Settings.data1491
+        End If
+
+        CheckBoxPBXYaxis.Checked = My.Settings.data1495
+
+    End Sub
+
     Private Sub ButtonSaveSettings_Click(sender As Object, e As EventArgs) Handles ButtonSaveSettings.Click
 
         My.Settings.data20 = ChartScaleMax.Text
         My.Settings.data21 = ChartScaleMin.Text
         My.Settings.data1464 = ChartScaleHUMMin.Text
         My.Settings.data1465 = ChartScaleHUMMax.Text
+        My.Settings.data1466 = CDec(Val(TEMPavg.Text))
+        My.Settings.data1467 = CDec(Val(HUMavg.Text))
         My.Settings.data24 = YaxisMaximum.Text
         My.Settings.data25 = YaxisMinimum.Text
         My.Settings.data26 = MedianValue.Text
         My.Settings.data27 = MedianTemp.Text
         My.Settings.data28 = PPMscalerangeentry.Text
+
+        ' Trace checkboxes: a disabled box (e.g. Dev 2 for a single-device CSV) keeps its previously saved state.
+        If CheckPlaybackDev1Data.Enabled Then My.Settings.data1468 = CheckPlaybackDev1Data.Checked
+        If CheckPlaybackDev1Mean.Enabled Then My.Settings.data1469 = CheckPlaybackDev1Mean.Checked
+        If CheckPlaybackDev1Stdev.Enabled Then My.Settings.data1470 = CheckPlaybackDev1Stdev.Checked
+        If CheckPlaybackDev1SEM.Enabled Then My.Settings.data1471 = CheckPlaybackDev1SEM.Checked
+        If CheckPlaybackDev1MaxDiff.Enabled Then My.Settings.data1472 = CheckPlaybackDev1MaxDiff.Checked
+        If CheckPlaybackDev1Deviation.Enabled Then My.Settings.data1473 = CheckPlaybackDev1Deviation.Checked
+        If CheckPlaybackDev1ShortTermMean.Enabled Then My.Settings.data1474 = CheckPlaybackDev1ShortTermMean.Checked
+        If CheckPlaybackDev2Data.Enabled Then My.Settings.data1475 = CheckPlaybackDev2Data.Checked
+        If CheckPlaybackDev2Mean.Enabled Then My.Settings.data1476 = CheckPlaybackDev2Mean.Checked
+        If CheckPlaybackDev2Stdev.Enabled Then My.Settings.data1477 = CheckPlaybackDev2Stdev.Checked
+        If CheckPlaybackDev2SEM.Enabled Then My.Settings.data1478 = CheckPlaybackDev2SEM.Checked
+        If CheckPlaybackDev2MaxDiff.Enabled Then My.Settings.data1479 = CheckPlaybackDev2MaxDiff.Checked
+        If CheckPlaybackDev2Deviation.Enabled Then My.Settings.data1480 = CheckPlaybackDev2Deviation.Checked
+        If CheckPlaybackDev2ShortTermMean.Enabled Then My.Settings.data1481 = CheckPlaybackDev2ShortTermMean.Checked
+
+        If CheckDev1Line.Enabled Then My.Settings.data1482 = CheckDev1Line.Checked
+        If CheckDev2Line.Enabled Then My.Settings.data1483 = CheckDev2Line.Checked
+        If DEV1avg.Enabled Then My.Settings.data1484 = CDec(Val(DEV1avg.Text))
+        If DEV2avg.Enabled Then My.Settings.data1485 = CDec(Val(DEV2avg.Text))
+        My.Settings.data1486 = CDec(Val(RMSwindow.Text))
+
+        My.Settings.data1487 = PlaybackTemp.Checked
+        My.Settings.data1488 = PlaybackHum.Checked
+        My.Settings.data1489 = CheckX1000.Checked
+        My.Settings.data1490 = CheckX1000000.Checked
+
+        My.Settings.data1491 = CheckBoxPPMenable.Checked
+        My.Settings.data1492 = If(RadioButtonPPMTempoRolling.Checked, 3, If(RadioButtonPPMTempoLinReg.Checked, 2, If(RadioButtonPPMTempo.Checked, 1, 0)))
+        If RadioButtonDev1.Enabled OrElse RadioButtonDev2.Enabled Then My.Settings.data1493 = If(RadioButtonDev2.Checked, 2, 1)
+
+        My.Settings.data1494 = CheckBoxColours.Checked
+        My.Settings.data1495 = CheckBoxPBXYaxis.Checked
 
     End Sub
 
@@ -2363,17 +2694,16 @@ Public Class Chart
     Private Function Chart3HoverTargets() As List(Of Tuple(Of ScottPlot.Plottables.Scatter, List(Of ScottPlot.Coordinates), ScottPlot.IYAxis))
 
         Dim leftAxis As ScottPlot.IYAxis = FormsPlot3.Plot.Axes.Left
-        Dim rightAxis As ScottPlot.IYAxis = FormsPlot3.Plot.Axes.Right
 
         Return New List(Of Tuple(Of ScottPlot.Plottables.Scatter, List(Of ScottPlot.Coordinates), ScottPlot.IYAxis)) From {
-            Tuple.Create(Chart3Dev1StdevSeries, Chart2Dev1StdevData, leftAxis),
-            Tuple.Create(Chart3Dev1SEMSeries, Chart2Dev1SEMData, leftAxis),
+            Tuple.Create(Chart3Dev1StdevSeries, Chart2Dev1StdevData, Chart3StdevAxis),
+            Tuple.Create(Chart3Dev1SEMSeries, Chart2Dev1SEMData, Chart3SEMAxis),
             Tuple.Create(Chart3Dev1MaxDiffSeries, Chart2Dev1MaxDiffData, leftAxis),
-            Tuple.Create(Chart3Dev1DeviationSeries, Chart2Dev1DeviationData, rightAxis),
-            Tuple.Create(Chart3Dev2StdevSeries, Chart2Dev2StdevData, leftAxis),
-            Tuple.Create(Chart3Dev2SEMSeries, Chart2Dev2SEMData, leftAxis),
+            Tuple.Create(Chart3Dev1DeviationSeries, Chart2Dev1DeviationData, Chart3PPMAxis),
+            Tuple.Create(Chart3Dev2StdevSeries, Chart2Dev2StdevData, Chart3StdevAxis),
+            Tuple.Create(Chart3Dev2SEMSeries, Chart2Dev2SEMData, Chart3SEMAxis),
             Tuple.Create(Chart3Dev2MaxDiffSeries, Chart2Dev2MaxDiffData, leftAxis),
-            Tuple.Create(Chart3Dev2DeviationSeries, Chart2Dev2DeviationData, rightAxis)
+            Tuple.Create(Chart3Dev2DeviationSeries, Chart2Dev2DeviationData, Chart3PPMAxis)
         }
 
     End Function
@@ -2696,21 +3026,66 @@ Public Class Chart
             FormsPlot3.Plot.Layout.Fixed(New ScottPlot.PixelPadding(padLeft, padRight, 4, 4))
         End If
 
-        ' Only refit an axis that actually has something showing on it.
-        Dim leftHasData As Boolean = False
-        Dim rightHasData As Boolean = False
+        ' Only refit an axis that actually has something showing on it; right-hand scales without a
+        ' visible trace are hidden so they take no room.
+        Dim axesInUse As New HashSet(Of ScottPlot.IYAxis)
         For Each st As ScottPlot.Plottables.Scatter In Chart3AllSeries()
-            If st.IsVisible AndAlso st.Data.GetScatterPoints().Count > 0 Then
-                If st.Axes.YAxis Is FormsPlot3.Plot.Axes.Right Then rightHasData = True Else leftHasData = True
+            If st.IsVisible AndAlso st.Data.GetScatterPoints().Count > 0 Then axesInUse.Add(st.Axes.YAxis)
+        Next
+
+        For Each statsAxis As ScottPlot.IYAxis In {FormsPlot3.Plot.Axes.Left, Chart3PPMAxis, Chart3StdevAxis, Chart3SEMAxis}
+            If axesInUse.Contains(statsAxis) Then FormsPlot3.Plot.Axes.AutoScaleY(statsAxis)
+            If Not statsAxis Is FormsPlot3.Plot.Axes.Left Then statsAxis.IsVisible = axesInUse.Contains(statsAxis)
+            If statsAxis Is Chart3StdevAxis Then
+                Chart3SetScaledLabels(statsAxis, LabelSTDEVscale)
+            ElseIf statsAxis Is Chart3SEMAxis Then
+                Chart3SetScaledLabels(statsAxis, LabelSEMscale)
+            Else
+                Chart3SetDecimalLabels(statsAxis)
             End If
         Next
-        If leftHasData Then FormsPlot3.Plot.Axes.AutoScaleY(FormsPlot3.Plot.Axes.Left)
-        If rightHasData Then FormsPlot3.Plot.Axes.AutoScaleY(FormsPlot3.Plot.Axes.Right)
 
-        Chart3SetDecimalLabels(FormsPlot3.Plot.Axes.Left)
-        Chart3SetDecimalLabels(FormsPlot3.Plot.Axes.Right)
+        PositionStatsScaleLabels(axesInUse)
 
         FormsPlot3.Refresh()
+
+    End Sub
+
+    ' The STDEV/SEM scale labels (multiplier text, e.g. x1e-6) keep their distance from the bottom of the
+    ' Statistics chart and show only while their scale is in use and has a multiplier.
+    Private Sub PositionStatsScaleLabels(Optional axesInUse As HashSet(Of ScottPlot.IYAxis) = Nothing)
+
+        If FormsPlot3 Is Nothing Then Exit Sub
+
+        ' Not before the Designer positions have been recorded (startup calls would otherwise level both labels).
+        If StatsScaleLabelOffsetsCaptured Then
+            LabelSTDEVscale.Top = FormsPlot3.Bottom + OriginalStdevScaleLabelBottomOffset
+            LabelSEMscale.Top = FormsPlot3.Bottom + OriginalSEMScaleLabelBottomOffset
+        End If
+
+        LabelSTDEVscale.Visible = FormsPlot3.Visible AndAlso Chart3StdevAxis.IsVisible AndAlso LabelSTDEVscale.Text <> ""
+        LabelSEMscale.Visible = FormsPlot3.Visible AndAlso Chart3SEMAxis.IsVisible AndAlso LabelSEMscale.Text <> ""
+
+    End Sub
+
+    ' STDEV/SEM values are tiny (e.g. 0.0000008), so their scales show numbers divided by a power of ten
+    ' (0.8) and a label at the foot of the scale carries the multiplier (x1e-6); values and hover readings are unchanged.
+    Private Sub Chart3SetScaledLabels(axis As ScottPlot.IYAxis, multiplierLabel As Label)
+
+        Dim gen = TryCast(axis.TickGenerator, ScottPlot.TickGenerators.NumericAutomatic)
+        Dim span As Double = axis.Max - axis.Min
+        Dim maxAbs As Double = Math.Max(Math.Abs(axis.Min), Math.Abs(axis.Max))
+        If gen Is Nothing OrElse span <= 0 OrElse maxAbs = 0 OrElse Double.IsInfinity(span) OrElse Double.IsNaN(span) Then Exit Sub
+
+        Dim exponent As Integer = CInt(Math.Floor(Math.Log10(maxAbs)))
+        Dim divisor As Double = Math.Pow(10, exponent)
+
+        Dim decimals As Integer = Math.Min(6, Math.Max(0, CInt(Math.Ceiling(-Math.Log10(span / divisor / 10)))))
+        Dim numberFormat As String = "F" & decimals.ToString()
+        gen.LabelFormatter = Function(v As Double) (v / divisor).ToString(numberFormat)
+
+        Dim multiplierText As String = If(exponent = 0, "", "x1e" & exponent.ToString())
+        If multiplierLabel.Text <> multiplierText Then multiplierLabel.Text = multiplierText
 
     End Sub
 
@@ -3580,10 +3955,20 @@ Public Class Chart
         ' Filter Humidity from whichever device is actually present
         If (PlaybackHum.Checked = True) Then
             Dim selectedRows4() As DataRow = dataTable1.Select("DEVICE ='" & humDeviceName & "'")
-            'Add filtered data to series
-            For Each dr As DataRow In selectedRows4
-                Chart2HumData.Add(New ScottPlot.Coordinates(Chart2HumData.Count, Convert.ToDouble(dr("HUM"))))
-            Next
+
+            If Val(HUMavg.Text) < 1 Then
+                'Add filtered data to series
+                For Each dr As DataRow In selectedRows4
+                    Chart2HumData.Add(New ScottPlot.Coordinates(Chart2HumData.Count, Convert.ToDouble(dr("HUM"))))
+                Next
+            Else
+                ' Rolling average over HUMavg points; fresh buffer so earlier passes don't leak in.
+                HumAvgBuffer = Nothing
+                For Each dr As DataRow In selectedRows4
+                    Dim humRollingAverage As Double = CalculateRollingAverage(Convert.ToDouble(dr("HUM")), CInt(Val(HUMavg.Text)), HumAvgBuffer)
+                    Chart2HumData.Add(New ScottPlot.Coordinates(Chart2HumData.Count, humRollingAverage))
+                Next
+            End If
         End If
 
     End Sub
@@ -4465,6 +4850,8 @@ Public Class Chart
 
     Private Sub TEMPavg_TextChanged(sender As Object, e As EventArgs) Handles TEMPavg.TextChanged
 
+        If Not CSVfileok Then Exit Sub      ' e.g. the saved value being restored at startup
+
         If PlaybackTemp.Checked = True Then
 
             Dim userInput As String = TEMPavg.Text.Trim()
@@ -4480,6 +4867,31 @@ Public Class Chart
                 ' See DEV1avg_TextChanged - RefreshPlaybackCSVFile() alone
                 ' doesn't re-plot the Temp trace.
                 FilterTempDevice1()
+            End If
+
+        End If
+
+    End Sub
+
+    Private Sub HUMavg_TextChanged(sender As Object, e As EventArgs) Handles HUMavg.TextChanged
+
+        If Not CSVfileok Then Exit Sub      ' e.g. the saved value being restored at startup
+
+        If PlaybackHum.Checked = True Then
+
+            Dim userInput As String = HUMavg.Text.Trim()
+            Dim isNumeric As Boolean = Integer.TryParse(userInput, Nothing)
+
+            If Not String.IsNullOrEmpty(userInput) AndAlso isNumeric Then
+                ' limits of Humidity averaging
+                If HUMavg.Text > 100 Then
+                    HUMavg.Text = 100
+                End If
+                RefreshPlaybackCSVFile()
+
+                ' As with TEMPavg, RefreshPlaybackCSVFile() alone doesn't re-plot the trace.
+                FilterHumDevice1()
+                FormsPlot2.Refresh()
             End If
 
         End If
@@ -4535,6 +4947,16 @@ Public Class Chart
         LabelTopTopChart.Visible = False
         LabelBottomChart.Visible = False
         LabelPPMstats.Visible = False
+        LabelSTATS.Visible = False
+        LabelSTDEV.Visible = False
+        LabelSEM.Visible = False
+        LabelSTDEVscale.Visible = False
+        LabelSEMscale.Visible = False
+        LabelDEV1.Visible = False
+        LabelDEV2.Visible = False
+        MetadataEditable = False
+        MetadataChart.ReadOnly = True
+        ButtonSaveCSVMeta.Enabled = False
         PanelChartSplitter.Visible = False
         CheckBoxColours.Enabled = False
         CheckBoxPPMenable.Enabled = False
@@ -4577,6 +4999,22 @@ Public Class Chart
             LabelTempC.ForeColor = Color.Red
             LabelHum.BackColor = Color.Black
             LabelHum.ForeColor = Color.DodgerBlue
+            LabelPPMstats.BackColor = Color.Black
+            LabelPPMstats.ForeColor = Color.White
+            LabelSTATS.BackColor = Color.Black
+            LabelSTATS.ForeColor = Color.White
+            LabelSTDEV.BackColor = Color.Black
+            LabelSTDEV.ForeColor = Color.White
+            LabelSEM.BackColor = Color.Black
+            LabelSEM.ForeColor = Color.White
+            LabelSTDEVscale.BackColor = Color.Black
+            LabelSTDEVscale.ForeColor = Color.White
+            LabelSEMscale.BackColor = Color.Black
+            LabelSEMscale.ForeColor = Color.White
+            LabelDEV1.BackColor = Color.Yellow
+            LabelDEV1.ForeColor = Color.Black
+            LabelDEV2.BackColor = Color.Cyan
+            LabelDEV2.ForeColor = Color.Black
 
             ' Set background colours to normal
             FormsPlot2.Plot.FigureBackground.Color = New ScottPlot.Color(SystemColors.Control)
@@ -4609,6 +5047,22 @@ Public Class Chart
             LabelTempC.ForeColor = Color.Black
             LabelHum.BackColor = Color.White
             LabelHum.ForeColor = Color.Black
+            LabelPPMstats.BackColor = Color.White
+            LabelPPMstats.ForeColor = Color.Black
+            LabelSTATS.BackColor = Color.White
+            LabelSTATS.ForeColor = Color.Black
+            LabelSTDEV.BackColor = Color.White
+            LabelSTDEV.ForeColor = Color.Black
+            LabelSEM.BackColor = Color.White
+            LabelSEM.ForeColor = Color.Black
+            LabelSTDEVscale.BackColor = Color.White
+            LabelSTDEVscale.ForeColor = Color.Black
+            LabelSEMscale.BackColor = Color.White
+            LabelSEMscale.ForeColor = Color.Black
+            LabelDEV1.BackColor = Color.White
+            LabelDEV1.ForeColor = Color.Black
+            LabelDEV2.BackColor = Color.White
+            LabelDEV2.ForeColor = Color.Black
 
             ' Set background colours to white
             FormsPlot2.Plot.FigureBackground.Color = New ScottPlot.Color(Color.White)
@@ -5867,7 +6321,7 @@ Public Class Chart
 "The main chart shows the Dev 1 / Dev 2 data, Temperature, Humidity and PPM. A Statistics chart underneath shows the recorded STDEV, SEM, Max Diff. and PPM Deviation, and follows the main chart's X range." & vbLf & vbLf &
 "LOADING A CSV" & vbLf &
 "LOAD .CSV FILE opens a saved log file from disk. If the CSV only contains data for one device, every Dev.2 checkbox and control is automatically greyed out and unchecked - there is nothing to plot for a device that isn't in the file." & vbLf & vbLf &
-"Save Settings stores the current control settings (Y-axis scale, Temp/Hum scale ranges, PPM scale, etc.) so they're restored next time." & vbLf & vbLf &
+"Save Settings stores the current control settings (Y-axis and Temp/Hum scale ranges, PPM scale and setup, averaging and RMS window, trace checkboxes, Line/Point, x1k/x1000k, AutoScale, Light Mode) so they're restored next time. Trace and PPM selections are applied when the first CSV is loaded. Allan Deviation is not saved." & vbLf & vbLf &
 "MOUSE CONTROLS" & vbLf &
 "Main chart:" & vbLf &
 "- Pan - Left-click + drag" & vbLf &
@@ -5955,7 +6409,7 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
 "PPM/DegC (Trend) works the same way as Fit, but re-fits over just the last 'RMS window' points at a time instead of the whole file, sliding forward as it goes - so the figure can genuinely drift over time instead of being one fixed number for the whole chart." & vbLf & vbLf &
 "For Fit and Trend, Initial Value is still used to convert the fitted slope into ppm - leave '- From CSV' checked so it matches the real logged baseline. Typing in a different number doesn't change the meter's behaviour, it just changes what 1 ppm is measured against, so the result will look smaller or larger without anything real having changed." & vbLf & vbLf &
 "TEMP/HUM" & vbLf &
-"Temp and Hum. show or hide the logged temperature and humidity traces. Each has its own right-hand scale: Temp Max./Min. and Hum Max./Min. set the range of those scales (they are not recorded values), and the scales don't respond to mouse pan/zoom. Temp Avg. sets how many points the Temp trace is rolling-averaged over (0 disables it)." & vbLf & vbLf &
+"Temp and Hum. show or hide the logged temperature and humidity traces. Each has its own right-hand scale: Temp Max./Min. and Hum Max./Min. set the range of those scales (they are not recorded values), and the scales don't respond to mouse pan/zoom. Temp Avg. and Hum Avg. set how many points the Temp and Hum traces are rolling-averaged over (0 disables it, range 0-100)." & vbLf & vbLf &
 "MISC." & vbLf &
 "Light Mode - switches both charts (and the Allan Deviation pop-up) to a white background, better suited to printing than the default dark theme." & vbLf & vbLf &
 "IMPORTANT" & vbLf &

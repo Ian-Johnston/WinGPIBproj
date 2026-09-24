@@ -103,6 +103,8 @@ Partial Class Chart
         Me.CheckPlaybackDev1Allan = New System.Windows.Forms.CheckBox()
         Me.CheckPlaybackDev2Allan = New System.Windows.Forms.CheckBox()
         Me.HUMavg = New System.Windows.Forms.TextBox()
+        Me.PanelChartSplitter = New System.Windows.Forms.Panel()
+        Me.ButtonSaveCSVMeta = New System.Windows.Forms.Button()
         Me.ButtonPlaybackHelp = New System.Windows.Forms.Button()
         Me.Xscaletotal = New System.Windows.Forms.Label()
         Me.Loading = New System.Windows.Forms.Label()
@@ -139,7 +141,13 @@ Partial Class Chart
         Me.LabelBottomChart = New System.Windows.Forms.Label()
         Me.LabelTopTopChart = New System.Windows.Forms.Label()
         Me.LabelPPMstats = New System.Windows.Forms.Label()
-        Me.PanelChartSplitter = New System.Windows.Forms.Panel()
+        Me.LabelDEV1 = New System.Windows.Forms.Label()
+        Me.LabelSTATS = New System.Windows.Forms.Label()
+        Me.LabelDEV2 = New System.Windows.Forms.Label()
+        Me.LabelSTDEV = New System.Windows.Forms.Label()
+        Me.LabelSEM = New System.Windows.Forms.Label()
+        Me.LabelSTDEVscale = New System.Windows.Forms.Label()
+        Me.LabelSEMscale = New System.Windows.Forms.Label()
         Me.PPMBox1.SuspendLayout()
         Me.Panel1.SuspendLayout()
         Me.GroupBoxMisc.SuspendLayout()
@@ -279,20 +287,20 @@ Partial Class Chart
         '
         Me.BrowseToFile.Location = New System.Drawing.Point(15, 9)
         Me.BrowseToFile.Name = "BrowseToFile"
-        Me.BrowseToFile.Size = New System.Drawing.Size(101, 45)
+        Me.BrowseToFile.Size = New System.Drawing.Size(69, 45)
         Me.BrowseToFile.TabIndex = 84
-        Me.BrowseToFile.Text = "LOAD .CSV FILE"
+        Me.BrowseToFile.Text = "LOAD" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & ".CSV FILE"
         Me.ToolTip1.SetToolTip(Me.BrowseToFile, "Load CSV from disk.")
         Me.BrowseToFile.UseVisualStyleBackColor = True
         '
         'ButtonDisplayAll
         '
         Me.ButtonDisplayAll.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonDisplayAll.Location = New System.Drawing.Point(164, 36)
+        Me.ButtonDisplayAll.Location = New System.Drawing.Point(164, 41)
         Me.ButtonDisplayAll.Name = "ButtonDisplayAll"
-        Me.ButtonDisplayAll.Size = New System.Drawing.Size(88, 30)
+        Me.ButtonDisplayAll.Size = New System.Drawing.Size(88, 22)
         Me.ButtonDisplayAll.TabIndex = 85
-        Me.ButtonDisplayAll.Text = "ZOOM ALL"
+        Me.ButtonDisplayAll.Text = "Zoom All"
         Me.ToolTip1.SetToolTip(Me.ButtonDisplayAll, "Display all of chart")
         Me.ButtonDisplayAll.UseVisualStyleBackColor = True
         '
@@ -385,14 +393,12 @@ Partial Class Chart
         'ButtonSaveSettings
         '
         Me.ButtonSaveSettings.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.ButtonSaveSettings.Location = New System.Drawing.Point(391, 35)
+        Me.ButtonSaveSettings.Location = New System.Drawing.Point(391, 32)
         Me.ButtonSaveSettings.Name = "ButtonSaveSettings"
         Me.ButtonSaveSettings.Size = New System.Drawing.Size(50, 22)
         Me.ButtonSaveSettings.TabIndex = 98
         Me.ButtonSaveSettings.Text = "Save"
-        Me.ToolTip1.SetToolTip(Me.ButtonSaveSettings, "Save settings for:" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "TEMP/HUM Max." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "TEMP/HIM Min." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Y-AXIS SCALE Max." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Y-AXIS SCA" &
-        "LE Min." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "PPM DEVIATION Initial Value" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "PPM DEVIATION Initial Temp" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "PPM DEVIATION " &
-        "PPM Scale")
+        Me.ToolTip1.SetToolTip(Me.ButtonSaveSettings, resources.GetString("ButtonSaveSettings.ToolTip"))
         Me.ButtonSaveSettings.UseVisualStyleBackColor = True
         '
         'LabelHum
@@ -702,7 +708,7 @@ Partial Class Chart
         'ShowFiles2
         '
         Me.ShowFiles2.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.ShowFiles2.Location = New System.Drawing.Point(391, 10)
+        Me.ShowFiles2.Location = New System.Drawing.Point(391, 9)
         Me.ShowFiles2.Name = "ShowFiles2"
         Me.ShowFiles2.Size = New System.Drawing.Size(104, 22)
         Me.ShowFiles2.TabIndex = 558
@@ -1026,10 +1032,33 @@ Partial Class Chart
         Me.ToolTip1.SetToolTip(Me.HUMavg, "Set to '0' to disable averaging" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Range = 0 to 100.")
         Me.HUMavg.WordWrap = False
         '
+        'PanelChartSplitter
+        '
+        Me.PanelChartSplitter.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.PanelChartSplitter.BackColor = System.Drawing.Color.DimGray
+        Me.PanelChartSplitter.Cursor = System.Windows.Forms.Cursors.HSplit
+        Me.PanelChartSplitter.Location = New System.Drawing.Point(585, 644)
+        Me.PanelChartSplitter.Name = "PanelChartSplitter"
+        Me.PanelChartSplitter.Size = New System.Drawing.Size(200, 5)
+        Me.PanelChartSplitter.TabIndex = 585
+        Me.ToolTip1.SetToolTip(Me.PanelChartSplitter, "Grab and move to re-size charts")
+        '
+        'ButtonSaveCSVMeta
+        '
+        Me.ButtonSaveCSVMeta.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.ButtonSaveCSVMeta.Location = New System.Drawing.Point(333, 10)
+        Me.ButtonSaveCSVMeta.Name = "ButtonSaveCSVMeta"
+        Me.ButtonSaveCSVMeta.Size = New System.Drawing.Size(44, 44)
+        Me.ButtonSaveCSVMeta.TabIndex = 589
+        Me.ButtonSaveCSVMeta.Text = "Save" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Meta"
+        Me.ToolTip1.SetToolTip(Me.ButtonSaveCSVMeta, "Save Metadata to CSV file")
+        Me.ButtonSaveCSVMeta.UseVisualStyleBackColor = True
+        '
         'ButtonPlaybackHelp
         '
         Me.ButtonPlaybackHelp.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.ButtonPlaybackHelp.Location = New System.Drawing.Point(445, 35)
+        Me.ButtonPlaybackHelp.Location = New System.Drawing.Point(445, 32)
         Me.ButtonPlaybackHelp.Name = "ButtonPlaybackHelp"
         Me.ButtonPlaybackHelp.Size = New System.Drawing.Size(50, 22)
         Me.ButtonPlaybackHelp.TabIndex = 581
@@ -1369,12 +1398,10 @@ Partial Class Chart
         '
         'MetadataChart
         '
-        Me.MetadataChart.Location = New System.Drawing.Point(130, 10)
+        Me.MetadataChart.Location = New System.Drawing.Point(99, 10)
         Me.MetadataChart.Multiline = True
         Me.MetadataChart.Name = "MetadataChart"
-        Me.MetadataChart.ReadOnly = True
-        Me.MetadataChart.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.MetadataChart.Size = New System.Drawing.Size(247, 45)
+        Me.MetadataChart.Size = New System.Drawing.Size(233, 44)
         Me.MetadataChart.TabIndex = 575
         '
         'GroupBox3
@@ -1435,12 +1462,11 @@ Partial Class Chart
         '
         Me.LabelBottomChart.AutoSize = True
         Me.LabelBottomChart.ForeColor = System.Drawing.SystemColors.ControlDarkDark
-        Me.LabelBottomChart.Location = New System.Drawing.Point(411, 785)
+        Me.LabelBottomChart.Location = New System.Drawing.Point(542, 785)
         Me.LabelBottomChart.Name = "LabelBottomChart"
-        Me.LabelBottomChart.Size = New System.Drawing.Size(608, 13)
+        Me.LabelBottomChart.Size = New System.Drawing.Size(292, 13)
         Me.LabelBottomChart.TabIndex = 582
-        Me.LabelBottomChart.Text = "STDEV, SEM, MAX DIFF. && PPM Deviation (from Stats)                  Initial base" &
-    "line for PPM Deviation value is derived from Stats."
+        Me.LabelBottomChart.Text = "Initial baseline for PPM Deviation value is derived from Stats."
         Me.LabelBottomChart.Visible = False
         '
         'LabelTopTopChart
@@ -1460,29 +1486,109 @@ Partial Class Chart
         Me.LabelPPMstats.BackColor = System.Drawing.Color.Black
         Me.LabelPPMstats.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelPPMstats.ForeColor = System.Drawing.Color.White
-        Me.LabelPPMstats.Location = New System.Drawing.Point(1253, 644)
+        Me.LabelPPMstats.Location = New System.Drawing.Point(1239, 644)
         Me.LabelPPMstats.Name = "LabelPPMstats"
         Me.LabelPPMstats.Size = New System.Drawing.Size(34, 15)
         Me.LabelPPMstats.TabIndex = 584
         Me.LabelPPMstats.Text = "PPM"
         '
-        'PanelChartSplitter
+        'LabelDEV1
         '
-        Me.PanelChartSplitter.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.PanelChartSplitter.BackColor = System.Drawing.Color.DimGray
-        Me.PanelChartSplitter.Cursor = System.Windows.Forms.Cursors.HSplit
-        Me.PanelChartSplitter.Location = New System.Drawing.Point(585, 644)
-        Me.PanelChartSplitter.Name = "PanelChartSplitter"
-        Me.PanelChartSplitter.Size = New System.Drawing.Size(200, 5)
-        Me.PanelChartSplitter.TabIndex = 585
-        Me.ToolTip1.SetToolTip(Me.PanelChartSplitter, "Grab and move to re-size charts")
+        Me.LabelDEV1.AutoSize = True
+        Me.LabelDEV1.BackColor = System.Drawing.Color.Yellow
+        Me.LabelDEV1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelDEV1.ForeColor = System.Drawing.Color.Black
+        Me.LabelDEV1.Location = New System.Drawing.Point(5, 205)
+        Me.LabelDEV1.Name = "LabelDEV1"
+        Me.LabelDEV1.Size = New System.Drawing.Size(38, 15)
+        Me.LabelDEV1.TabIndex = 586
+        Me.LabelDEV1.Text = "DEV1"
+        '
+        'LabelSTATS
+        '
+        Me.LabelSTATS.AutoSize = True
+        Me.LabelSTATS.BackColor = System.Drawing.Color.Black
+        Me.LabelSTATS.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelSTATS.ForeColor = System.Drawing.Color.White
+        Me.LabelSTATS.Location = New System.Drawing.Point(12, 644)
+        Me.LabelSTATS.Name = "LabelSTATS"
+        Me.LabelSTATS.Size = New System.Drawing.Size(62, 15)
+        Me.LabelSTATS.TabIndex = 587
+        Me.LabelSTATS.Text = "MAX DIFF"
+        '
+        'LabelDEV2
+        '
+        Me.LabelDEV2.AutoSize = True
+        Me.LabelDEV2.BackColor = System.Drawing.Color.Cyan
+        Me.LabelDEV2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelDEV2.ForeColor = System.Drawing.Color.Black
+        Me.LabelDEV2.Location = New System.Drawing.Point(46, 205)
+        Me.LabelDEV2.Name = "LabelDEV2"
+        Me.LabelDEV2.Size = New System.Drawing.Size(38, 15)
+        Me.LabelDEV2.TabIndex = 588
+        Me.LabelDEV2.Text = "DEV2"
+        '
+        'LabelSTDEV
+        '
+        Me.LabelSTDEV.AutoSize = True
+        Me.LabelSTDEV.BackColor = System.Drawing.Color.Black
+        Me.LabelSTDEV.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelSTDEV.ForeColor = System.Drawing.Color.White
+        Me.LabelSTDEV.Location = New System.Drawing.Point(1274, 644)
+        Me.LabelSTDEV.Name = "LabelSTDEV"
+        Me.LabelSTDEV.Size = New System.Drawing.Size(46, 15)
+        Me.LabelSTDEV.TabIndex = 590
+        Me.LabelSTDEV.Text = "STDEV"
+        '
+        'LabelSEM
+        '
+        Me.LabelSEM.AutoSize = True
+        Me.LabelSEM.BackColor = System.Drawing.Color.Black
+        Me.LabelSEM.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelSEM.ForeColor = System.Drawing.Color.White
+        Me.LabelSEM.Location = New System.Drawing.Point(1321, 644)
+        Me.LabelSEM.Name = "LabelSEM"
+        Me.LabelSEM.Size = New System.Drawing.Size(34, 15)
+        Me.LabelSEM.TabIndex = 591
+        Me.LabelSEM.Text = "SEM"
+        '
+        'LabelSTDEVscale
+        '
+        Me.LabelSTDEVscale.AutoSize = True
+        Me.LabelSTDEVscale.BackColor = System.Drawing.Color.Black
+        Me.LabelSTDEVscale.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelSTDEVscale.ForeColor = System.Drawing.Color.White
+        Me.LabelSTDEVscale.Location = New System.Drawing.Point(1279, 783)
+        Me.LabelSTDEVscale.Name = "LabelSTDEVscale"
+        Me.LabelSTDEVscale.Size = New System.Drawing.Size(32, 13)
+        Me.LabelSTDEVscale.TabIndex = 592
+        Me.LabelSTDEVscale.Text = "scale"
+        '
+        'LabelSEMscale
+        '
+        Me.LabelSEMscale.AutoSize = True
+        Me.LabelSEMscale.BackColor = System.Drawing.Color.Black
+        Me.LabelSEMscale.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelSEMscale.ForeColor = System.Drawing.Color.White
+        Me.LabelSEMscale.Location = New System.Drawing.Point(1317, 783)
+        Me.LabelSEMscale.Name = "LabelSEMscale"
+        Me.LabelSEMscale.Size = New System.Drawing.Size(32, 13)
+        Me.LabelSEMscale.TabIndex = 593
+        Me.LabelSEMscale.Text = "scale"
         '
         'Chart
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1359, 801)
+        Me.Controls.Add(Me.LabelSEMscale)
+        Me.Controls.Add(Me.LabelSTDEVscale)
+        Me.Controls.Add(Me.LabelSEM)
+        Me.Controls.Add(Me.LabelSTDEV)
+        Me.Controls.Add(Me.ButtonSaveCSVMeta)
+        Me.Controls.Add(Me.LabelDEV2)
+        Me.Controls.Add(Me.LabelSTATS)
+        Me.Controls.Add(Me.LabelDEV1)
         Me.Controls.Add(Me.PanelChartSplitter)
         Me.Controls.Add(Me.LabelPPMstats)
         Me.Controls.Add(Me.LabelTopTopChart)
@@ -1662,4 +1768,12 @@ Partial Class Chart
     Friend WithEvents CheckBoxPBXYaxis As CheckBox
     Friend WithEvents LabelPPMstats As Label
     Friend WithEvents PanelChartSplitter As Panel
+    Friend WithEvents LabelDEV1 As Label
+    Friend WithEvents LabelSTATS As Label
+    Friend WithEvents LabelDEV2 As Label
+    Friend WithEvents ButtonSaveCSVMeta As Button
+    Friend WithEvents LabelSTDEV As Label
+    Friend WithEvents LabelSEM As Label
+    Friend WithEvents LabelSTDEVscale As Label
+    Friend WithEvents LabelSEMscale As Label
 End Class
