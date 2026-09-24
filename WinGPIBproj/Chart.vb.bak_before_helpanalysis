@@ -7254,7 +7254,11 @@ Public Class Chart
 "- Measure the delta between two points - Double-click two points, double-click again (or press Esc) to clear" & vbLf &
 "- Hover a trace to see the value of the nearest data point" & vbLf &
 "- Right-click (no drag) for a menu: Save Image, Copy Value At Cursor, Clear Measurement, Region Statistics, Noise Band, Trend Line, Tempco Curve, Histogram of Readings" & vbLf &
-"- Analysis tools (Regional Stats, Noise Band, Trend Line, Tempco Curve, Histogram) are on this menu too - see the analysis tools section below." & vbLf &
+"- Region Statistics - shows a band you can drag, or resize by its edges, with the mean, STDEV, min/max, peak-to-peak and drift of the visible Dev 1 / Dev 2 traces inside it. Choose it again to hide the band." & vbLf &
+"- Noise Band - shades the rolling mean +/- 1 STDEV around each visible Dev 1 / Dev 2 trace, calculated over the RMS window." & vbLf &
+"- Trend Line - draws a straight least-squares line through each visible Dev 1 / Dev 2 trace (the whole run, or just the Region Statistics band if it is showing) and reports the drift per hour, in ppm, and how well the line fits (R2)." & vbLf &
+"- Histogram of Readings - opens a pop-up showing how the readings of each visible Dev 1 / Dev 2 trace are distributed (over the Region Statistics band if it is showing, otherwise the whole run), with the mean, STDEV, skew and kurtosis, and a red normal curve to compare against. A very lumpy histogram with only a few distinct values shows the meter's resolution; a lop-sided or double-humped one points to drift or interference. It is a snapshot - open it again to refresh." & vbLf &
+"- Tempco Curve - fits the reading against temperature and draws the fit as a curve along the trace. If the curve follows the trace, temperature explains the movement; the text gives the ppm/DegC with its uncertainty and the share of the variation explained." & vbLf &
 "- Any pan or zoom unticks AutoScale." & vbLf &
 "Only the Dev 1 / Dev 2 traces and their left-hand scale respond to pan/zoom - the Temp, Hum and PPM scales stay fixed to their own scale boxes." & vbLf & vbLf &
 "Statistics chart (underneath): hover and double-click measure only. It has no pan/zoom of its own and follows the main chart's X range." & vbLf & vbLf &
@@ -7267,15 +7271,8 @@ Public Class Chart
 "AutoScale X-axis & Y-axis fits both axes to the Dev 1 / Dev 2 data. Any mouse pan or zoom on the chart unticks it." & vbLf & vbLf &
 "The Y-axis Max/Min boxes always show the chart's current left-hand scale limits, with the same number of decimal places as the scale, and follow any mouse pan or zoom. With AutoScale ticked they are read-only. Once it's unticked (including by a mouse pan or zoom) you can type your own values: press Enter or click away to apply them. A non-numeric entry, or a Max at or below the Min, is ignored and the box reverts." & vbLf & vbLf &
 "ZOOM ALL reloads the whole file and applies the same fit as AutoScale once - use it to return to the full view after zooming." & vbLf & vbLf &
+"The Regional Stats, Noise Band, Trend Line, Tempco Curve and Histogram of Readings checkboxes in this group switch the analysis tools described under MOUSE CONTROLS on and off (they are also on the chart's right-click menu). Noise Band, Trend Line and Tempco Curve are saved with Save Settings and re-applied on each load; all of them are cleared when a new CSV is loaded." & vbLf & vbLf &
 "The X-axis is time in minutes across the loaded file, and the Time (mins) figure above the chart shows the minutes currently visible over the total length (e.g. 120.0/228.0)." & vbLf & vbLf &
-"ANALYSIS TOOLS" & vbLf &
-"The Regional Stats, Noise Band, Trend Line, Tempco Curve and Histogram of Readings checkboxes in the SCALES & ANALYSIS group switch on tools for studying the Dev 1 / Dev 2 traces (the same tools are on the main chart's right-click menu). They are enabled once a CSV is loaded, they only use the traces that are ticked, and they are all cleared when a new CSV is loaded. Noise Band, Trend Line and Tempco Curve are saved with Save Settings and re-applied on each load." & vbLf & vbLf &
-"Regional Stats (menu: Region Statistics) - shows a translucent band on the chart. Drag it to move it, or drag either edge to resize it. A text box lists, for each visible trace inside the band: the mean, STDEV, min, max, peak-to-peak and drift (last minus first reading, also in ppm), plus the number of samples and minutes covered. Trend Line, Tempco Curve and Histogram of Readings use the band instead of the whole run while it is showing." & vbLf & vbLf &
-"Noise Band - shades the rolling mean +/- 1 STDEV around each visible trace, calculated over the RMS window. A wide band means a noisy stretch, a narrow one a quiet stretch. The text box reports the typical, quietest and noisiest STDEV found for each trace, in the reading's units and in ppm." & vbLf & vbLf &
-"Trend Line - draws a dashed straight line, fitted by least squares, through each visible trace (the whole run, or just the Regional Stats band). The text box gives the drift per hour, in the reading's units and in ppm, and R2 - how well a straight line describes the trace (near 1 = a clean straight drift, near 0 = no straight-line trend)." & vbLf & vbLf &
-"Tempco Curve - fits the reading against temperature and draws the fit as a coloured curve along the trace (magenta for Dev 1, purple for Dev 2). If the curve follows the trace, temperature explains its movement. The text box gives the ppm/DegC with its uncertainty, R2, and the percentage of the variation that temperature explains. It needs the temperature to change enough to fit, and is calculated relative to the trace's mean, so it can differ slightly from the PPM/DegC (Fit) figure, which uses the Initial Value." & vbLf & vbLf &
-"Histogram of Readings - opens a pop-up showing how the readings of each visible trace are distributed (over the Regional Stats band if it is showing, otherwise the whole run), with the mean, STDEV, skew, kurtosis, the number of distinct values and a red normal curve with the same mean and STDEV to compare against. A histogram with only a few distinct values shows the meter's resolution; a lop-sided or double-humped one points to drift or interference. It is a snapshot: untick and tick it again to refresh, and closing the pop-up unticks it." & vbLf & vbLf &
-"The results boxes sit in the corners of the main chart (Regional Stats top-left, Noise Band bottom-left, Trend Line and Tempco Curve bottom-right) and follow Light Mode." & vbLf & vbLf &
 "CHART SPLIT" & vbLf &
 "Drag the small bar between the main chart and the Statistics chart up or down to change their heights; the gap between them stays the same. Resizing the window keeps your split, and it returns to the default each time a new CSV is loaded." & vbLf & vbLf &
 "DEV 1 TRACES / DEV 2 TRACES" & vbLf &
@@ -7358,7 +7355,6 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
         "DEVICES",
         "CSV DETAILS",
         "SCALES & ANALYSIS",
-        "ANALYSIS TOOLS",
         "CHART SPLIT",
         "DEV 1 TRACES / DEV 2 TRACES",
         "SHORT TERM MEAN",

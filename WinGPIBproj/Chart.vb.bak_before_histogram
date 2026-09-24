@@ -23,7 +23,6 @@ Public Class Chart
     Private Const PlaybackRegionStatsEnabled As Boolean = True      ' right-click > Region Statistics (main chart)
     Private Const PlaybackNoiseBandEnabled As Boolean = True        ' right-click > Noise Band (main chart)
     Private Const PlaybackTrendEnabled As Boolean = True            ' right-click > Trend Line / Tempco Curve (main chart)
-    Private Const PlaybackHistogramEnabled As Boolean = True        ' right-click > Histogram of Readings (main chart)
     Private Const PlaybackNoiseBandSigmas As Double = 1.0           ' band half-width in STDEVs
     Private Const PlaybackResizeGripVisible As Boolean = True       ' bottom-right window resize grip
     Private Const PlaybackResizeGripSize As Integer = 8             ' its width and height (px)
@@ -174,8 +173,6 @@ Public Class Chart
     Dim Chart2Dev1TempcoSeries As ScottPlot.Plottables.Scatter
     Dim Chart2Dev2TempcoSeries As ScottPlot.Plottables.Scatter
     Dim Chart2TrendText As ScottPlot.Plottables.Annotation
-    Dim Chart2HistogramForm As Form
-    Dim Chart2HistogramSync As Boolean = False      ' True while code (not the user) changes ButtonHistogram or closes its pop-up
     Dim Chart2TrendTemps1() As Double       ' TEMP per sample of each device, cached from dataTable1
     Dim Chart2TrendTemps2() As Double
     Dim Chart2TempSeries As ScottPlot.Plottables.Scatter
@@ -636,7 +633,6 @@ Public Class Chart
             chart2Menu.Add("Trend Line (on/off)", AddressOf Chart2ToggleTrend)
             chart2Menu.Add("Tempco Curve (on/off)", AddressOf Chart2ToggleTempco)
         End If
-        If PlaybackHistogramEnabled Then chart2Menu.Add("Histogram of Readings", AddressOf Chart2MenuHistogram)
 
         AddHandler FormsPlot2.MouseDown, AddressOf Chart2OnMouseDown
         AddHandler FormsPlot2.MouseWheel,
@@ -837,7 +833,6 @@ Public Class Chart
         InitializeResizableLayout()
 
         InitMetadataEditing()
-        InitAnalysisControls()
         LoadSavedPlaybackSettings()
 
     End Sub
@@ -1250,11 +1245,6 @@ Public Class Chart
         Chart2HighlightMarker.IsVisible = False
         Chart2HighlightText.IsVisible = False
         Chart2ClearMeasurement(FormsPlot2.Plot)
-        CheckBoxRegionStats.Checked = False
-        CheckBoxNoiseBand.Checked = False
-        CheckBoxTrendLine.Checked = False
-        CheckBoxTempcoCurve.Checked = False
-        ButtonHistogram.Checked = False
         Chart2HideRegion()
         Chart2NoiseBandOn = False
         Chart2RefreshNoiseBand()
@@ -2382,7 +2372,6 @@ Public Class Chart
             LabelDEV2.Visible = True
             LabelMean.Visible = True
             LabelSMean.Visible = True
-            SetAnalysisControlsEnabled(True)
             PanelChartSplitter.Visible = PlaybackSplitterEnabled
             CheckBoxColours.Enabled = True
             CheckBoxPPMenable.Enabled = True
@@ -2548,30 +2537,6 @@ Public Class Chart
 
 
     ' ---- Editable CSV metadata (strictly MetadataMaxLines lines) ----
-
-    ' Enables the Regional Stats / Noise Band / Trend Line / Tempco Curve / Histogram controls (and only those
-    ' whose feature is switched on at the top of this file) once a CSV is loaded.
-    Private Sub SetAnalysisControlsEnabled(loaded As Boolean)
-
-        CheckBoxRegionStats.Enabled = loaded AndAlso PlaybackRegionStatsEnabled
-        CheckBoxNoiseBand.Enabled = loaded AndAlso PlaybackNoiseBandEnabled
-        CheckBoxTrendLine.Enabled = loaded AndAlso PlaybackTrendEnabled
-        CheckBoxTempcoCurve.Enabled = loaded AndAlso PlaybackTrendEnabled
-        ButtonHistogram.Enabled = loaded AndAlso PlaybackHistogramEnabled
-
-    End Sub
-
-    Private Sub InitAnalysisControls()
-
-        SetAnalysisControlsEnabled(False)
-
-        ToolTip1.SetToolTip(CheckBoxRegionStats, "Shows a band you can drag (or resize by its edges) with the mean, STDEV, min/max, peak-to-peak and drift of the visible Dev 1 / Dev 2 traces inside it.")
-        ToolTip1.SetToolTip(CheckBoxNoiseBand, "Shades the rolling mean +/- 1 STDEV around each visible Dev 1 / Dev 2 trace, over the RMS window.")
-        ToolTip1.SetToolTip(CheckBoxTrendLine, "Draws a straight least-squares line through each visible trace (or the Regional Stats band if it is showing) and reports the drift per hour.")
-        ToolTip1.SetToolTip(CheckBoxTempcoCurve, "Fits the reading against temperature and draws the fit along the trace; the text gives the ppm/DegC and how much of the variation temperature explains.")
-        ToolTip1.SetToolTip(ButtonHistogram, "Opens a pop-up histogram of the readings (the Regional Stats band if it is showing, otherwise the whole run). Untick, or close the pop-up, to remove it.")
-
-    End Sub
 
     Private Sub InitMetadataEditing()
 
@@ -2781,10 +2746,6 @@ Public Class Chart
 
         CheckBoxPBXYaxis.Checked = My.Settings.data1495
 
-        ApplySavedCheck(CheckBoxNoiseBand, My.Settings.data1496)
-        ApplySavedCheck(CheckBoxTrendLine, My.Settings.data1497)
-        ApplySavedCheck(CheckBoxTempcoCurve, My.Settings.data1498)
-
     End Sub
 
     Private Sub ButtonSaveSettings_Click(sender As Object, e As EventArgs) Handles ButtonSaveSettings.Click
@@ -2834,9 +2795,6 @@ Public Class Chart
 
         My.Settings.data1494 = CheckBoxColours.Checked
         My.Settings.data1495 = CheckBoxPBXYaxis.Checked
-        My.Settings.data1496 = CheckBoxNoiseBand.Checked
-        My.Settings.data1497 = CheckBoxTrendLine.Checked
-        My.Settings.data1498 = CheckBoxTempcoCurve.Checked
 
     End Sub
 
@@ -3657,298 +3615,20 @@ Public Class Chart
 
     End Sub
 
-    ' ---- Histogram of readings ----
-
-    ' Pop-up (a snapshot) showing the distribution of the readings of each visible Dev 1 / Dev 2 trace: over the
-    ' Region Statistics band if it is showing, otherwise the whole run. Reopen it to refresh.
-    ' The right-click menu item: ticks the checkbox (opening the pop-up), or refreshes the pop-up if it is already open.
-    Private Sub Chart2MenuHistogram(plot As ScottPlot.Plot)
-
-        If ButtonHistogram.Checked Then
-            Chart2ShowHistogram()
-        Else
-            ButtonHistogram.Checked = True
-        End If
-
-    End Sub
-
-    Private Sub Chart2SetHistogramChecked(value As Boolean)
-
-        Chart2HistogramSync = True
-        ButtonHistogram.Checked = value
-        Chart2HistogramSync = False
-
-    End Sub
-
-    Private Sub ButtonHistogram_CheckedChanged(sender As Object, e As EventArgs) Handles ButtonHistogram.CheckedChanged
-
-        If Chart2HistogramSync Then Exit Sub
-
-        If ButtonHistogram.Checked Then
-            Chart2ShowHistogram()
-        ElseIf Chart2HistogramForm IsNot Nothing AndAlso Not Chart2HistogramForm.IsDisposed Then
-            Chart2HistogramForm.Close()
-        End If
-
-    End Sub
-
-    Private Sub Chart2ShowHistogram()
-
-        If Chart2HistogramForm IsNot Nothing AndAlso Not Chart2HistogramForm.IsDisposed Then
-            Chart2HistogramSync = True
-            Chart2HistogramForm.Close()
-            Chart2HistogramSync = False
-        End If
-
-        Dim regionOn As Boolean = Chart2RegionSpan IsNot Nothing AndAlso Chart2RegionSpan.IsVisible
-        Dim x1 As Double = If(regionOn, Chart2RegionSpan.Left, 0)
-        Dim x2 As Double = If(regionOn, Chart2RegionSpan.Right, 0)
-        Dim scope As String = If(regionOn, "region " & CInt(Math.Ceiling(x1)).ToString() & " - " & CInt(Math.Floor(x2)).ToString(), "whole run")
-
-        Dim names As New List(Of String)
-        Dim valueSets As New List(Of Double())
-        Dim colours As New List(Of ScottPlot.Color)
-
-        For device As Integer = 1 To 2
-            Dim data As List(Of ScottPlot.Coordinates) = If(device = 1, Chart2Dev1Data, Chart2Dev2Data)
-            Dim series As ScottPlot.Plottables.Scatter = If(device = 1, Chart2Dev1Series, Chart2Dev2Series)
-            If Not series.IsVisible OrElse data.Count < 3 Then Continue For
-
-            Dim first As Integer = If(regionOn, Math.Max(0, CInt(Math.Ceiling(x1))), 0)
-            Dim last As Integer = If(regionOn, Math.Min(data.Count - 1, CInt(Math.Floor(x2))), data.Count - 1)
-            If last - first < 2 Then Continue For
-
-            Dim values(last - first) As Double
-            For i As Integer = first To last
-                values(i - first) = data(i).Y
-            Next
-
-            Dim deviceLabel As String = If(device = 1, DeviceName1.Text, DeviceName2.Text)
-            names.Add("Dev " & device.ToString() & If(deviceLabel <> "", " - " & deviceLabel, ""))
-            valueSets.Add(values)
-            colours.Add(series.Color)
-        Next
-
-        If names.Count = 0 Then
-            MessageBox.Show("There is no visible Dev 1 / Dev 2 trace with enough points to plot.", "Histogram", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            Chart2SetHistogramChecked(False)
-            Exit Sub
-        End If
-
-        Dim frm As New Form With {
-            .Text = "Histogram of readings (" & scope & ")",
-            .StartPosition = FormStartPosition.CenterParent,
-            .Width = 780,
-            .Height = If(names.Count = 1, 480, 780),
-            .ShowIcon = False
-        }
-
-        Dim layout As New TableLayoutPanel With {.Dock = DockStyle.Fill, .ColumnCount = 1, .RowCount = names.Count}
-        Dim plots As New List(Of ScottPlot.WinForms.FormsPlot)
-
-        For i As Integer = 0 To names.Count - 1
-            layout.RowStyles.Add(New RowStyle(SizeType.Percent, 100.0F / names.Count))
-            Dim histogramPlot As New ScottPlot.WinForms.FormsPlot With {.Dock = DockStyle.Fill}
-            Chart2BuildHistogram(histogramPlot.Plot, names(i), valueSets(i), colours(i), CheckBoxColours.Checked)
-            layout.Controls.Add(histogramPlot, 0, i)
-            plots.Add(histogramPlot)
-        Next
-
-        frm.Controls.Add(layout)
-        AddHandler frm.Shown, Sub(snd, ev)
-                                  For Each fp As ScottPlot.WinForms.FormsPlot In plots
-                                      fp.Refresh()
-                                  Next
-                              End Sub
-
-        ' Closing the pop-up unticks the checkbox (unless the code is just replacing it).
-        AddHandler frm.FormClosed, Sub(snd, ev)
-                                       If Chart2HistogramForm Is frm Then Chart2HistogramForm = Nothing
-                                       If Not Chart2HistogramSync Then Chart2SetHistogramChecked(False)
-                                   End Sub
-
-        ApplySquareCorners(frm)
-        Chart2HistogramForm = frm
-        Chart2SetHistogramChecked(True)
-        frm.Show(Me)
-
-    End Sub
-
-    Private Sub Chart2BuildHistogram(plot As ScottPlot.Plot, title As String, values() As Double, barColor As ScottPlot.Color, light As Boolean)
-
-        Dim n As Integer = values.Length
-        Dim sorted() As Double = DirectCast(values.Clone(), Double())
-        Array.Sort(sorted)
-
-        Dim minValue As Double = sorted(0)
-        Dim maxValue As Double = sorted(n - 1)
-
-        ' Moments.
-        Dim mean As Double = 0
-        For Each v As Double In sorted
-            mean += v
-        Next
-        mean /= n
-
-        Dim m2 As Double = 0
-        Dim m3 As Double = 0
-        Dim m4 As Double = 0
-        For Each v As Double In sorted
-            Dim d As Double = v - mean
-            m2 += d * d
-            m3 += d * d * d
-            m4 += d * d * d * d
-        Next
-        m2 /= n
-        m3 /= n
-        m4 /= n
-        Dim stdev As Double = Math.Sqrt(m2 * n / (n - 1))
-        Dim skew As Double = If(m2 > 0, m3 / Math.Pow(m2, 1.5), 0)
-        Dim excessKurtosis As Double = If(m2 > 0, m4 / (m2 * m2) - 3, 0)
-
-        ' Distinct values (a meter's resolution shows up as a few discrete levels).
-        Dim distinct As New List(Of Double)
-        Dim distinctCounts As New List(Of Integer)
-        Dim minGap As Double = Double.MaxValue
-        For Each v As Double In sorted
-            If distinct.Count > 0 AndAlso v = distinct(distinct.Count - 1) Then
-                distinctCounts(distinctCounts.Count - 1) += 1
-            Else
-                If distinct.Count > 0 Then minGap = Math.Min(minGap, v - distinct(distinct.Count - 1))
-                distinct.Add(v)
-                distinctCounts.Add(1)
-            End If
-        Next
-
-        Dim positions As New List(Of Double)
-        Dim counts As New List(Of Double)
-        Dim barWidth As Double
-
-        If distinct.Count <= 60 Then
-            ' One bar per level.
-            barWidth = If(distinct.Count > 1, minGap, Math.Max(Math.Abs(minValue) * 0.000001, 0.000000001))
-            For i As Integer = 0 To distinct.Count - 1
-                positions.Add(distinct(i))
-                counts.Add(distinctCounts(i))
-            Next
-        Else
-            ' Freedman-Diaconis bin width, kept between 5 and 200 bins.
-            Dim iqr As Double = sorted(CInt(0.75 * (n - 1))) - sorted(CInt(0.25 * (n - 1)))
-            Dim width As Double = 2 * iqr / Math.Pow(n, 1.0 / 3.0)
-            If width <= 0 Then width = (maxValue - minValue) / Math.Sqrt(n)
-            Dim binCount As Integer = Math.Max(5, Math.Min(200, CInt(Math.Ceiling((maxValue - minValue) / width))))
-            barWidth = (maxValue - minValue) / binCount
-
-            Dim binCounts(binCount - 1) As Double
-            For Each v As Double In sorted
-                Dim index As Integer = Math.Min(binCount - 1, CInt(Math.Floor((v - minValue) / barWidth)))
-                binCounts(index) += 1
-            Next
-            For i As Integer = 0 To binCount - 1
-                positions.Add(minValue + (i + 0.5) * barWidth)
-                counts.Add(binCounts(i))
-            Next
-        End If
-
-        Dim bars As New List(Of ScottPlot.Bar)
-        Dim tallest As Double = 0
-        For i As Integer = 0 To positions.Count - 1
-            bars.Add(New ScottPlot.Bar With {
-                .Position = positions(i),
-                .Value = counts(i),
-                .Size = barWidth * 0.92,
-                .FillColor = barColor.WithAlpha(0.85),
-                .LineColor = If(light, ScottPlot.Colors.Black, ScottPlot.Colors.White).WithAlpha(0.6),
-                .LineWidth = 1
-            })
-            tallest = Math.Max(tallest, counts(i))
-        Next
-        plot.Add.Bars(bars)
-
-        ' Normal curve with the same mean and STDEV, scaled to counts.
-        If stdev > 0 Then
-            Dim curveX(199) As Double
-            Dim curveY(199) As Double
-            Dim spanLow As Double = Math.Min(minValue, mean - 4 * stdev)
-            Dim spanHigh As Double = Math.Max(maxValue, mean + 4 * stdev)
-            For i As Integer = 0 To 199
-                curveX(i) = spanLow + (spanHigh - spanLow) * i / 199
-                Dim z As Double = (curveX(i) - mean) / stdev
-                curveY(i) = n * barWidth / (stdev * Math.Sqrt(2 * Math.PI)) * Math.Exp(-0.5 * z * z)
-                tallest = Math.Max(tallest, curveY(i))
-            Next
-            Dim curve As ScottPlot.Plottables.Scatter = plot.Add.Scatter(curveX, curveY)
-            curve.Color = ScottPlot.Colors.Red
-            curve.LineWidth = 2
-            curve.MarkerStyle.IsVisible = False
-        End If
-
-        Dim resolutionText As String = If(distinct.Count > 1, "   smallest step " & minGap.ToString("0.########"), "")
-        Dim info As String = "n " & n.ToString() & "   mean " & mean.ToString("0.########") & "   STDEV " & stdev.ToString("0.########") &
-                             vbLf & "min " & minValue.ToString("0.########") & "   max " & maxValue.ToString("0.########") &
-                             vbLf & "skew " & skew.ToString("0.00") & "   excess kurtosis " & excessKurtosis.ToString("0.00") &
-                             vbLf & distinct.Count.ToString() & " distinct values" & resolutionText &
-                             vbLf & "red curve = normal distribution with the same mean and STDEV"
-
-        Dim note As ScottPlot.Plottables.Annotation = plot.Add.Annotation(info, ScottPlot.Alignment.UpperRight)
-        note.LabelFontSize = 12
-        note.LabelBackgroundColor = If(light, New ScottPlot.Color(Color.FromArgb(230, 255, 255, 255)), New ScottPlot.Color(Color.FromArgb(230, 40, 40, 40)))
-        note.LabelFontColor = If(light, ScottPlot.Colors.Black, ScottPlot.Colors.White)
-
-        plot.Title(title, 14)
-        plot.XLabel("Reading")
-        plot.YLabel("Count")
-        plot.Axes.SetLimitsY(0, tallest * 1.15)
-
-        ' Fixed-decimal tick labels sized to the spread (the default drops all decimals above 1000).
-        Dim xSpan As Double = Math.Max(maxValue - minValue, stdev * 8)
-        If xSpan > 0 Then
-            Dim gen = TryCast(plot.Axes.Bottom.TickGenerator, ScottPlot.TickGenerators.NumericAutomatic)
-            If gen IsNot Nothing Then
-                Dim decimals As Integer = Math.Min(10, Math.Max(0, CInt(Math.Ceiling(-Math.Log10(xSpan / 10))) + 1))
-                Dim numberFormat As String = "F" & decimals.ToString()
-                gen.LabelFormatter = Function(v As Double) v.ToString(numberFormat)
-            End If
-        End If
-
-        If light Then
-            plot.FigureBackground.Color = ScottPlot.Colors.White
-            plot.DataBackground.Color = ScottPlot.Colors.White
-        Else
-            plot.FigureBackground.Color = New ScottPlot.Color(Color.FromArgb(30, 30, 30))
-            plot.DataBackground.Color = ScottPlot.Colors.Black
-            plot.Axes.Color(New ScottPlot.Color(Color.FromArgb(220, 220, 220)))
-            plot.Grid.MajorLineColor = New ScottPlot.Color(Color.FromArgb(255, 70, 70, 70))
-        End If
-
-    End Sub
-
     ' ---- Trend line and Tempco curve ----
 
     Private Sub Chart2ToggleTrend(plot As ScottPlot.Plot)
-        CheckBoxTrendLine.Checked = Not CheckBoxTrendLine.Checked
+        Chart2TrendOn = Not Chart2TrendOn
+        Chart2TrendKey = ""
+        Chart2UpdateTrend()
+        FormsPlot2.Refresh()
     End Sub
 
     Private Sub Chart2ToggleTempco(plot As ScottPlot.Plot)
-        CheckBoxTempcoCurve.Checked = Not CheckBoxTempcoCurve.Checked
-    End Sub
-
-    Private Sub CheckBoxTrendLine_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxTrendLine.CheckedChanged
-
-        Chart2TrendOn = CheckBoxTrendLine.Checked
+        Chart2TempcoOn = Not Chart2TempcoOn
         Chart2TrendKey = ""
         Chart2UpdateTrend()
         FormsPlot2.Refresh()
-
-    End Sub
-
-    Private Sub CheckBoxTempcoCurve_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxTempcoCurve.CheckedChanged
-
-        Chart2TempcoOn = CheckBoxTempcoCurve.Checked
-        Chart2TrendKey = ""
-        Chart2UpdateTrend()
-        FormsPlot2.Refresh()
-
     End Sub
 
     Private Sub Chart2HideTrend()
@@ -4133,12 +3813,8 @@ Public Class Chart
     ' ---- Noise band ----
 
     Private Sub Chart2ToggleNoiseBand(plot As ScottPlot.Plot)
-        CheckBoxNoiseBand.Checked = Not CheckBoxNoiseBand.Checked
-    End Sub
 
-    Private Sub CheckBoxNoiseBand_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxNoiseBand.CheckedChanged
-
-        Chart2NoiseBandOn = CheckBoxNoiseBand.Checked
+        Chart2NoiseBandOn = Not Chart2NoiseBandOn
         Chart2RefreshNoiseBand()
         FormsPlot2.Refresh()
 
@@ -4285,17 +3961,14 @@ Public Class Chart
 
     End Sub
 
-    ' Shows a span over the middle of the current view (drag it or its edges), or hides it. Driven by the
-    ' Regional Stats checkbox; the right-click menu item just flips that checkbox.
+    ' Right-click menu: shows a span over the middle of the current view (drag it or its edges), or hides it.
     Private Sub Chart2ToggleRegion(plot As ScottPlot.Plot)
-        CheckBoxRegionStats.Checked = Not CheckBoxRegionStats.Checked
-    End Sub
-
-    Private Sub CheckBoxRegionStats_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxRegionStats.CheckedChanged
 
         If Chart2RegionSpan Is Nothing Then Exit Sub
 
-        If CheckBoxRegionStats.Checked Then
+        If Chart2RegionSpan.IsVisible Then
+            Chart2HideRegion()
+        Else
             Dim xMin As Double = FormsPlot2.Plot.Axes.Bottom.Min
             Dim xSpan As Double = FormsPlot2.Plot.Axes.Bottom.Max - xMin
             Chart2RegionSpan.X1 = xMin + xSpan * 0.35
@@ -4304,8 +3977,6 @@ Public Class Chart
             Chart2RegionText.IsVisible = True
             Chart2RegionKey = ""
             Chart2UpdateRegionStats()
-        Else
-            Chart2HideRegion()
         End If
 
         FormsPlot2.Refresh()
@@ -5861,7 +5532,6 @@ Public Class Chart
         LabelDEV2.Visible = False
         LabelMean.Visible = False
         LabelSMean.Visible = False
-        SetAnalysisControlsEnabled(False)
         MetadataEditable = False
         MetadataChart.ReadOnly = True
         ButtonSaveCSVMeta.Enabled = False
@@ -7253,8 +6923,11 @@ Public Class Chart
 "- Zoom in/out at the cursor - Scroll wheel (hold Shift to zoom Y only, Ctrl to zoom X only)" & vbLf &
 "- Measure the delta between two points - Double-click two points, double-click again (or press Esc) to clear" & vbLf &
 "- Hover a trace to see the value of the nearest data point" & vbLf &
-"- Right-click (no drag) for a menu: Save Image, Copy Value At Cursor, Clear Measurement, Region Statistics, Noise Band, Trend Line, Tempco Curve, Histogram of Readings" & vbLf &
-"- Analysis tools (Regional Stats, Noise Band, Trend Line, Tempco Curve, Histogram) are on this menu too - see the analysis tools section below." & vbLf &
+"- Right-click (no drag) for a menu: Save Image, Copy Value At Cursor, Clear Measurement, Region Statistics, Noise Band, Trend Line, Tempco Curve" & vbLf &
+"- Region Statistics - shows a band you can drag, or resize by its edges, with the mean, STDEV, min/max, peak-to-peak and drift of the visible Dev 1 / Dev 2 traces inside it. Choose it again to hide the band." & vbLf &
+"- Noise Band - shades the rolling mean +/- 1 STDEV around each visible Dev 1 / Dev 2 trace, calculated over the RMS window." & vbLf &
+"- Trend Line - draws a straight least-squares line through each visible Dev 1 / Dev 2 trace (the whole run, or just the Region Statistics band if it is showing) and reports the drift per hour, in ppm, and how well the line fits (R2)." & vbLf &
+"- Tempco Curve - fits the reading against temperature and draws the fit as a curve along the trace. If the curve follows the trace, temperature explains the movement; the text gives the ppm/DegC with its uncertainty and the share of the variation explained." & vbLf &
 "- Any pan or zoom unticks AutoScale." & vbLf &
 "Only the Dev 1 / Dev 2 traces and their left-hand scale respond to pan/zoom - the Temp, Hum and PPM scales stay fixed to their own scale boxes." & vbLf & vbLf &
 "Statistics chart (underneath): hover and double-click measure only. It has no pan/zoom of its own and follows the main chart's X range." & vbLf & vbLf &
@@ -7263,19 +6936,11 @@ Public Class Chart
 "x1k / x1000k rescale the Max-Min and RMS Noise readouts by 1,000 or 1,000,000 (e.g. VDC to mVDC or " & Global.Microsoft.VisualBasic.ChrW(181) & "VDC). The plotted data is not changed." & vbLf & vbLf &
 "CSV DETAILS" & vbLf &
 "Read-only details of the loaded file: sample rate, total minutes, and the start/end data positions." & vbLf & vbLf &
-"SCALES & ANALYSIS" & vbLf &
+"X & Y-AXIS SCALES" & vbLf &
 "AutoScale X-axis & Y-axis fits both axes to the Dev 1 / Dev 2 data. Any mouse pan or zoom on the chart unticks it." & vbLf & vbLf &
 "The Y-axis Max/Min boxes always show the chart's current left-hand scale limits, with the same number of decimal places as the scale, and follow any mouse pan or zoom. With AutoScale ticked they are read-only. Once it's unticked (including by a mouse pan or zoom) you can type your own values: press Enter or click away to apply them. A non-numeric entry, or a Max at or below the Min, is ignored and the box reverts." & vbLf & vbLf &
 "ZOOM ALL reloads the whole file and applies the same fit as AutoScale once - use it to return to the full view after zooming." & vbLf & vbLf &
 "The X-axis is time in minutes across the loaded file, and the Time (mins) figure above the chart shows the minutes currently visible over the total length (e.g. 120.0/228.0)." & vbLf & vbLf &
-"ANALYSIS TOOLS" & vbLf &
-"The Regional Stats, Noise Band, Trend Line, Tempco Curve and Histogram of Readings checkboxes in the SCALES & ANALYSIS group switch on tools for studying the Dev 1 / Dev 2 traces (the same tools are on the main chart's right-click menu). They are enabled once a CSV is loaded, they only use the traces that are ticked, and they are all cleared when a new CSV is loaded. Noise Band, Trend Line and Tempco Curve are saved with Save Settings and re-applied on each load." & vbLf & vbLf &
-"Regional Stats (menu: Region Statistics) - shows a translucent band on the chart. Drag it to move it, or drag either edge to resize it. A text box lists, for each visible trace inside the band: the mean, STDEV, min, max, peak-to-peak and drift (last minus first reading, also in ppm), plus the number of samples and minutes covered. Trend Line, Tempco Curve and Histogram of Readings use the band instead of the whole run while it is showing." & vbLf & vbLf &
-"Noise Band - shades the rolling mean +/- 1 STDEV around each visible trace, calculated over the RMS window. A wide band means a noisy stretch, a narrow one a quiet stretch. The text box reports the typical, quietest and noisiest STDEV found for each trace, in the reading's units and in ppm." & vbLf & vbLf &
-"Trend Line - draws a dashed straight line, fitted by least squares, through each visible trace (the whole run, or just the Regional Stats band). The text box gives the drift per hour, in the reading's units and in ppm, and R2 - how well a straight line describes the trace (near 1 = a clean straight drift, near 0 = no straight-line trend)." & vbLf & vbLf &
-"Tempco Curve - fits the reading against temperature and draws the fit as a coloured curve along the trace (magenta for Dev 1, purple for Dev 2). If the curve follows the trace, temperature explains its movement. The text box gives the ppm/DegC with its uncertainty, R2, and the percentage of the variation that temperature explains. It needs the temperature to change enough to fit, and is calculated relative to the trace's mean, so it can differ slightly from the PPM/DegC (Fit) figure, which uses the Initial Value." & vbLf & vbLf &
-"Histogram of Readings - opens a pop-up showing how the readings of each visible trace are distributed (over the Regional Stats band if it is showing, otherwise the whole run), with the mean, STDEV, skew, kurtosis, the number of distinct values and a red normal curve with the same mean and STDEV to compare against. A histogram with only a few distinct values shows the meter's resolution; a lop-sided or double-humped one points to drift or interference. It is a snapshot: untick and tick it again to refresh, and closing the pop-up unticks it." & vbLf & vbLf &
-"The results boxes sit in the corners of the main chart (Regional Stats top-left, Noise Band bottom-left, Trend Line and Tempco Curve bottom-right) and follow Light Mode." & vbLf & vbLf &
 "CHART SPLIT" & vbLf &
 "Drag the small bar between the main chart and the Statistics chart up or down to change their heights; the gap between them stays the same. Resizing the window keeps your split, and it returns to the default each time a new CSV is loaded." & vbLf & vbLf &
 "DEV 1 TRACES / DEV 2 TRACES" & vbLf &
@@ -7357,8 +7022,7 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
         "MOUSE CONTROLS",
         "DEVICES",
         "CSV DETAILS",
-        "SCALES & ANALYSIS",
-        "ANALYSIS TOOLS",
+        "X & Y-AXIS SCALES",
         "CHART SPLIT",
         "DEV 1 TRACES / DEV 2 TRACES",
         "SHORT TERM MEAN",

@@ -18869,6 +18869,42 @@ Namespace My
                 Me("data1495") = value
             End Set
         End Property
+
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1496() As Boolean
+            Get
+                Return CType(Me("data1496"),Boolean)
+            End Get
+            Set
+                Me("data1496") = value
+            End Set
+        End Property
+
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1497() As Boolean
+            Get
+                Return CType(Me("data1497"),Boolean)
+            End Get
+            Set
+                Me("data1497") = value
+            End Set
+        End Property
+
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property data1498() As Boolean
+            Get
+                Return CType(Me("data1498"),Boolean)
+            End Get
+            Set
+                Me("data1498") = value
+            End Set
+        End Property
     End Class
 End Namespace
 
