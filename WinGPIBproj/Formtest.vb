@@ -270,7 +270,7 @@ Public Class Formtest
             End If
             CheckBoxThemeSet.Checked = My.Settings.ThemeSet
 
-            BannerText1 = "WinGPIB - V5.105    (Free for Non-Commercial Use • Support WinGPIB — see About)"
+            BannerText1 = "WinGPIB - V5.106    (Free for Non-Commercial Use • Support WinGPIB — see About)"
             Me.Text = BannerText1.ToString()
 
             ' Advantest R6581 tab
@@ -3328,23 +3328,32 @@ Public Class Formtest
                 "- Zoom (drag in/out) - Right-click + drag" & vbCrLf &
                 "- Box zoom a region - Middle-click + drag" & vbCrLf &
                 "- Reset view to fit all data - Middle-click" & vbCrLf &
-                "- Zoom in/out at cursor - Shift/Ctrl + scroll" & vbCrLf &
+                "- Zoom in/out at cursor - Scroll wheel (Shift = Y only, Ctrl = X only)" & vbCrLf &
                 "- Measure delta between two points - Double-click 2 points, double-click again to clear" & vbCrLf &
                 "- Clear measurement - Esc" & vbCrLf &
                 "- Mouse controls will disable AutoScale." & vbCrLf &
-                "- Right click on chart for menu." & vbCrLf &
-                "- Hover trace for datapoint at cursor.")
+                "- Right click on chart for menu (Save Image, Copy Value At Cursor, Clear Measurement)." & vbCrLf &
+                "- Hover trace for datapoint at cursor." & vbCrLf &
+                "- Only the Dev 1 / Dev 2 scale responds to pan/zoom; the Temperature scale stays fixed to its own Max/Min boxes.")
 
             addSection("Y-Axis Scale",
-                "AutoScale Y-axis keeps the view following the newest data. Unchecking it " &
-                "(or panning/zooming with the mouse) switches to the manual Y-axis Scale Max/Min boxes instead.")
+                "AutoScale Y-axis keeps the view following the newest data, with a little padding and tick marks at the " &
+                "detected Max/Min; hidden traces are ignored. Unchecking it, or panning/zooming with the mouse, switches to manual." & vbCrLf & vbCrLf &
+                "The Y-axis Scale Max/Min boxes always show the chart's current limits. With AutoScale off you can type your " &
+                "own values and press Enter (or click away) to apply them; an invalid entry, or a Max at or below the Min, " &
+                "is ignored and the box reverts.")
+
+            addSection("Temperature Scale",
+                "Temperature has its own right-hand scale, set by its Max/Min boxes. It doesn't respond to mouse pan/zoom.")
 
             addSection("Chart Controls",
                 "Start/Pause Chart toggles the running trace. Clear Chart resets the chart and its data.")
 
             addSection("X-Axis / Rolling Window",
-                "X-axis Scale Points sets how many samples are shown before the chart scrolls. " &
-                "Disable X-axis Rolling Chart keeps all data on screen instead of scrolling.")
+                "X-axis Scale Points sets how many samples are shown before the chart scrolls; once AutoScale is off " &
+                "it becomes read-only and shows the current view width. Disable X-axis Rolling Chart keeps all data on " &
+                "screen instead: the X axis always fits the whole trace, whatever the AutoScale setting, so panning or " &
+                "zooming along X with the mouse won't hold.")
 
             ' The AppendText calls above leave the caret/selection at the
             ' very end, which RichTextBox auto-scrolls to keep in view -

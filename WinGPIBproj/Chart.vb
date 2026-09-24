@@ -6346,8 +6346,12 @@ Public Class Chart
 "The Playback Chart loads a previously saved CSV log file and lets you review, zoom and analyse it after the fact - independent of the Live Chart, which only shows data while a device is actively running." & vbLf & vbLf &
 "The main chart shows the Dev 1 / Dev 2 data, Temperature, Humidity and PPM. A Statistics chart underneath shows the recorded STDEV, SEM, Max Diff. and PPM Deviation, and follows the main chart's X range." & vbLf & vbLf &
 "LOADING A CSV" & vbLf &
-"LOAD .CSV FILE opens a saved log file from disk. If the CSV only contains data for one device, every Dev.2 checkbox and control is automatically greyed out and unchecked - there is nothing to plot for a device that isn't in the file." & vbLf & vbLf &
-"Save Settings stores the current control settings (Y-axis and Temp/Hum scale ranges, PPM scale and setup, averaging and RMS window, trace checkboxes, Line/Point, x1k/x1000k, AutoScale, Light Mode) so they're restored next time. The saved settings are re-applied each time a CSV is loaded. Allan Deviation is not saved." & vbLf & vbLf &
+"LOAD .CSV FILE opens a saved log file from disk. If the CSV only contains data for one device, every checkbox and control for the other device (Dev.2 in most files, Dev.1 if the single device is physical Device 2) is automatically greyed out and unchecked - there is nothing to plot for a device that isn't in the file." & vbLf & vbLf &
+"Save Settings stores the current control settings (Y-axis and Temp/Hum scale ranges, PPM scale and setup, averaging and RMS window, trace checkboxes, Line/Point, x1k/x1000k, AutoScale, Light Mode) so they're restored next time. The saved settings are re-applied each time a CSV is loaded. Changes made after loading (for example averaging or the PPM setup) are not remembered until you press Save again. Allan Deviation is not saved." & vbLf & vbLf &
+"CSV METADATA" & vbLf &
+"The box beside LOAD .CSV FILE shows the // metadata lines at the top of the CSV (sample names, notes). When the file has a single group of at most 3 metadata lines the box is editable: Enter and pasted text beyond 3 lines are ignored." & vbLf & vbLf &
+"SAVE META writes the box back into the CSV. Only the metadata lines are replaced - every data line is left untouched - and the file always ends up with exactly 3 metadata lines, unused ones being written as a bare //. The first save keeps a copy of the original as <file>.csv.bak. Saving is refused if the CSV is open in another program (for example still being logged to)." & vbLf & vbLf &
+"A CSV with more than 3 metadata lines, or several metadata groups, is shown read-only. Loading another CSV while there are unsaved metadata edits asks you first." & vbLf & vbLf &
 "MOUSE CONTROLS" & vbLf &
 "Main chart:" & vbLf &
 "- Pan - Left-click + drag" & vbLf &
@@ -6375,6 +6379,7 @@ Public Class Chart
 "Drag the small bar between the main chart and the Statistics chart up or down to change their heights; the gap between them stays the same. Resizing the window keeps your split, and it returns to the default each time a new CSV is loaded." & vbLf & vbLf &
 "DEV 1 TRACES / DEV 2 TRACES" & vbLf &
 "Each checkbox shows or hides one trace, all calculated from the loaded CSV. Data, Mean and Short Term Mean are on the main chart; STDEV, SEM, Max Diff. and PPM Deviation are on the Statistics chart underneath (PPM Deviation has its own right-hand scale, as it is in ppm):" & vbLf & vbLf &
+"The Statistics chart has a left scale for Max Diff. and a separate right-hand scale each for PPM Deviation, STDEV and SEM (a scale only appears while a trace using it is ticked). STDEV and SEM values are tiny, so their scales show the numbers divided by a power of ten and the small label under the scale gives the multiplier: 3.0 with x1e-7 means 0.0000003. The plotted data and the hover readings still use the full values." & vbLf & vbLf &
 "Data - the raw VALUE reading logged for every sample." & vbLf & vbLf &
 "Mean - the cumulative Mean recorded in the CSV statistics for that device, running from whenever stats were last reset during acquisition." & vbLf & vbLf &
 "STDEV - the recorded Standard Deviation for that device." & vbLf &
@@ -6415,15 +6420,14 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
 "MDEV formula:" & vbLf &
 "Mod sigma(tau) = sqrt( sum( (second-difference sum over an m-sample window)^2 ) / (2 x tau^2 x m^2 x (N-3m+1)) ), where m = tau and the second difference is taken on x, the cumulative sum (integration) of the raw readings." & vbLf & vbLf &
 "COMMON QUESTIONS" & vbLf &
-"Why doesn't Allan Deviation match the recorded STDEV?" & vbLf & vbLf &
-"That's expected, not a bug - STDEV and Allan Deviation at tau=1 are answering two different questions." & vbLf & vbLf &
-"STDEV (the recorded/Data tab/Live Analysis figure) measures how far every individual reading sits from the overall mean of the whole run: sqrt(sum((Xi - Mean)^2) / (N-1)). If the reading drifts slowly over the logging session (thermal settling, reference aging, environmental changes), that drift adds to the spread away from the overall mean, and STDEV counts all of that as deviation, whether it's random noise or systematic drift." & vbLf & vbLf &
-"Allan Deviation at tau=1 measures something narrower: the RMS of the difference between consecutive readings. Two back-to-back samples are barely affected by slow drift, so ADEV(tau=1) picks up almost purely the short-term, sample-to-sample (white) noise floor, filtered clean of slow drift." & vbLf & vbLf &
-"Example: if ADEV(tau=1) reads ~0.2 ppm while recorded STDEV reads ~0.4 ppm and never drops below ~0.3 ppm, that gap is informative - it means the true random noise floor is around 0.2 ppm, and roughly half of what STDEV reports as variation is actually systematic drift, not noise." & vbLf & vbLf &
-"STDEV alone can't separate genuinely noisy from drifting, and will always read equal to or higher than the ADEV noise floor whenever any drift is present. Check whether the Allan Deviation curve rises again at larger tau - that's the classic drift signature, and it's where the variability STDEV was counting shows up." & vbLf & vbLf &
+"How does Allan Deviation compare with the recorded STDEV?" & vbLf & vbLf &
+"At tau=1 the two agree when the reading is dominated by random (white) noise. For a steady signal, the Allan Deviation at tau=1 matches the STDEV shown in the Data tab statistics - for example, both read 0 while every reading is within the meter's resolution, and both read the same value (e.g. 2.26 ppm) after a longer recording." & vbLf & vbLf &
+"They only pull apart when the reading also drifts. STDEV (the recorded/Data tab/Live Analysis figure) measures how far every reading sits from the overall mean of the whole run: sqrt(sum((Xi - Mean)^2) / (N-1)), so slow drift (thermal settling, reference aging, environmental changes) adds to it. Allan Deviation at tau=1 is the RMS of the difference between consecutive readings, which slow drift barely affects, so it stays at the short-term noise floor." & vbLf & vbLf &
+"So if STDEV reads clearly higher than ADEV(tau=1), the gap is drift. For example, ADEV(tau=1) ~0.2 ppm against STDEV ~0.4 ppm means the random noise floor is about 0.2 ppm and the rest is systematic drift. Check whether the Allan Deviation curve rises again at larger tau - that's the classic drift signature." & vbLf & vbLf &
 "AVERAGING / NOISE / RANGE (per device)" & vbLf &
 "The numeric box next to '- Avg.' sets how many points the raw Data trace itself is rolling-averaged over before being plotted (0 disables it, range 0-100). This smooths the Data trace directly, unlike Short Term Mean, which is a separate overlay trace and never alters Data itself." & vbLf & vbLf &
 "'- RMS Noise' and '- Max-Min' are read-only figures calculated for the loaded data: RMS Noise is a noise calculation that accounts for drift over time, and Max-Min is the peak-to-peak spread of the data." & vbLf & vbLf &
+"'- RMS window' sets how many points the RMS Noise figure is calculated over, and the window used by PPM/DegC (Trend). It is set automatically for very short files." & vbLf & vbLf &
 "Line / Point switch that device's Data trace between a connected line and individual points. Line is selected on every new CSV load." & vbLf & vbLf &
 "PPM DEVIATION / TEMPCO" & vbLf &
 "Enable PPM turns on a separate, live-recalculated PPM trace (distinct from the recorded 'PPM Deviation' checkbox trace above) for whichever device is selected by the Dev 1/Dev 2 radio buttons in this box. Unchecking Enable PPM hides the PPM trace." & vbLf & vbLf &
@@ -6439,7 +6443,7 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
 "MISC." & vbLf &
 "Light Mode - switches both charts (and the Allan Deviation pop-up) to a white background, better suited to printing than the default dark theme." & vbLf & vbLf &
 "IMPORTANT" & vbLf &
-"- All Dev.2 controls are automatically disabled for a single-device CSV - there's no need to manually hide them." & vbLf & vbLf &
+"- The controls for a device that isn't in the CSV are automatically disabled - there's no need to manually hide them." & vbLf & vbLf &
 "- Short Term Mean and Allan Deviation are both computed fresh from the raw VALUE column every time - they are not values that were written to the CSV during acquisition, and toggling them never changes the underlying log file." & vbLf & vbLf &
 "- The recorded Mean/STDEV/SEM/Max Diff./PPM Deviation traces reflect whatever statistics were being calculated live at acquisition time, and depend on when Reset Stats was last pressed during logging."
     }
@@ -6448,6 +6452,7 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
         Dim headings() As String = {
         "PLAYBACK CHART",
         "LOADING A CSV",
+        "CSV METADATA",
         "MOUSE CONTROLS",
         "DEVICES",
         "CSV DETAILS",
