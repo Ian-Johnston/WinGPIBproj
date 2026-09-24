@@ -174,7 +174,6 @@ Public Class Chart
     Dim Chart2Dev1TempcoSeries As ScottPlot.Plottables.Scatter
     Dim Chart2Dev2TempcoSeries As ScottPlot.Plottables.Scatter
     Dim Chart2TrendText As ScottPlot.Plottables.Annotation
-    Dim Chart2TempcoText As ScottPlot.Plottables.Annotation     ' Tempco Curve results (top-right); Trend Line's are bottom-right
     Dim Chart2HistogramForm As Form
     Dim Chart2HistogramSync As Boolean = False      ' True while code (not the user) changes ButtonHistogram or closes its pop-up
     Dim Chart2TrendTemps1() As Double       ' TEMP per sample of each device, cached from dataTable1
@@ -619,10 +618,6 @@ Public Class Chart
             Chart2TrendText = FormsPlot2.Plot.Add.Annotation("", ScottPlot.Alignment.LowerRight)
             Chart2TrendText.LabelFontSize = 12
             Chart2TrendText.IsVisible = False
-
-            Chart2TempcoText = FormsPlot2.Plot.Add.Annotation("", ScottPlot.Alignment.UpperRight)
-            Chart2TempcoText.LabelFontSize = 12
-            Chart2TempcoText.IsVisible = False
         End If
 
         AddHandler FormsPlot2.MouseMove, AddressOf Chart2ShowValueOnHover
@@ -4031,7 +4026,6 @@ Public Class Chart
             Chart2Dev1TempcoSeries.IsVisible = False
             Chart2Dev2TempcoSeries.IsVisible = False
             Chart2TrendText.IsVisible = False
-            Chart2TempcoText.IsVisible = False
             Exit Sub
         End If
 
@@ -4051,11 +4045,9 @@ Public Class Chart
         Dim sampleCount As Integer = Math.Max(Chart2Dev1Data.Count, Chart2Dev2Data.Count)
         Dim minsPerSample As Double = If(sampleCount > 1 AndAlso Chart2TotalMins > 0, Chart2TotalMins / (sampleCount - 1), 0)
 
-        Dim lines As New List(Of String)            ' Trend Line text (bottom-right)
-        Dim tempcoLines As New List(Of String)      ' Tempco Curve text (top-right)
+        Dim lines As New List(Of String)
         Dim scope As String = If(regionOn, "region " & CInt(Math.Ceiling(x1)).ToString() & " - " & CInt(Math.Floor(x2)).ToString(), "whole run")
-        lines.Add("TREND LINE  (" & scope & ")")
-        tempcoLines.Add("TEMPCO CURVE  (" & scope & ")")
+        lines.Add(If(Chart2TrendOn, "TREND LINE", "") & If(Chart2TrendOn AndAlso Chart2TempcoOn, " + ", "") & If(Chart2TempcoOn, "TEMPCO CURVE", "") & "  (" & scope & ")")
 
         For device As Integer = 1 To 2
 
@@ -4108,7 +4100,7 @@ Public Class Chart
                 End If
 
                 If temps.Length <> data.Count Then
-                    tempcoLines.Add(name & ": tempco - temperature data doesn't match the trace")
+                    lines.Add(name & ": tempco - temperature data doesn't match the trace")
                 ElseIf Chart2Regress(Function(i) temps(i), data, first, last, meanX, meanY, slope, r2, slopeError) Then
 
                     Dim stepSize As Integer = Math.Max(1, (last - first + 1) \ 3000)
@@ -4118,32 +4110,23 @@ Public Class Chart
                     tempcoSeries.IsVisible = True
 
                     If meanY <> 0 Then
-                        tempcoLines.Add(name & ": tempco " & (slope / Math.Abs(meanY) * 1000000).ToString("+0.00;-0.00") & " ppm/DegC  +/- " &
+                        lines.Add(name & ": tempco " & (slope / Math.Abs(meanY) * 1000000).ToString("+0.00;-0.00") & " ppm/DegC  +/- " &
                                   (slopeError / Math.Abs(meanY) * 1000000).ToString("0.00") & "   R2 " & r2.ToString("0.00") &
                                   "  (temperature explains " & (r2 * 100).ToString("0") & "% of the variation)")
                     End If
                 Else
-                    tempcoLines.Add(name & ": tempco - the temperature doesn't change enough to fit")
+                    lines.Add(name & ": tempco - the temperature doesn't change enough to fit")
                 End If
             End If
 
         Next
 
         If lines.Count = 1 Then lines.Add("(no visible Dev 1 / Dev 2 trace)")
-        If tempcoLines.Count = 1 Then tempcoLines.Add("(no visible Dev 1 / Dev 2 trace)")
-
-        Dim textBackground As ScottPlot.Color = If(light, New ScottPlot.Color(Color.FromArgb(230, 255, 255, 255)), New ScottPlot.Color(Color.FromArgb(230, 40, 40, 40)))
-        Dim textForeground As ScottPlot.Color = If(light, ScottPlot.Colors.Black, ScottPlot.Colors.White)
 
         Chart2TrendText.LabelText = String.Join(vbLf, lines)
-        Chart2TrendText.LabelBackgroundColor = textBackground
-        Chart2TrendText.LabelFontColor = textForeground
-        Chart2TrendText.IsVisible = Chart2TrendOn
-
-        Chart2TempcoText.LabelText = String.Join(vbLf, tempcoLines)
-        Chart2TempcoText.LabelBackgroundColor = textBackground
-        Chart2TempcoText.LabelFontColor = textForeground
-        Chart2TempcoText.IsVisible = Chart2TempcoOn
+        Chart2TrendText.LabelBackgroundColor = If(light, New ScottPlot.Color(Color.FromArgb(230, 255, 255, 255)), New ScottPlot.Color(Color.FromArgb(230, 40, 40, 40)))
+        Chart2TrendText.LabelFontColor = If(light, ScottPlot.Colors.Black, ScottPlot.Colors.White)
+        Chart2TrendText.IsVisible = True
 
     End Sub
 
@@ -7292,7 +7275,7 @@ Public Class Chart
 "Trend Line - draws a dashed straight line, fitted by least squares, through each visible trace (the whole run, or just the Regional Stats band). The text box gives the drift per hour, in the reading's units and in ppm, and R2 - how well a straight line describes the trace (near 1 = a clean straight drift, near 0 = no straight-line trend)." & vbLf & vbLf &
 "Tempco Curve - fits the reading against temperature and draws the fit as a coloured curve along the trace (magenta for Dev 1, purple for Dev 2). If the curve follows the trace, temperature explains its movement. The text box gives the ppm/DegC with its uncertainty, R2, and the percentage of the variation that temperature explains. It needs the temperature to change enough to fit, and is calculated relative to the trace's mean, so it can differ slightly from the PPM/DegC (Fit) figure, which uses the Initial Value." & vbLf & vbLf &
 "Histogram of Readings - opens a pop-up showing how the readings of each visible trace are distributed (over the Regional Stats band if it is showing, otherwise the whole run), with the mean, STDEV, skew, kurtosis, the number of distinct values and a red normal curve with the same mean and STDEV to compare against. A histogram with only a few distinct values shows the meter's resolution; a lop-sided or double-humped one points to drift or interference. It is a snapshot: untick and tick it again to refresh, and closing the pop-up unticks it." & vbLf & vbLf &
-"The results boxes sit in the corners of the main chart (Regional Stats top-left, Tempco Curve top-right, Noise Band bottom-left, Trend Line bottom-right) and follow Light Mode." & vbLf & vbLf &
+"The results boxes sit in the corners of the main chart (Regional Stats top-left, Noise Band bottom-left, Trend Line and Tempco Curve bottom-right) and follow Light Mode." & vbLf & vbLf &
 "CHART SPLIT" & vbLf &
 "Drag the small bar between the main chart and the Statistics chart up or down to change their heights; the gap between them stays the same. Resizing the window keeps your split, and it returns to the default each time a new CSV is loaded." & vbLf & vbLf &
 "DEV 1 TRACES / DEV 2 TRACES" & vbLf &
