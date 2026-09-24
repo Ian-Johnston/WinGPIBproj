@@ -148,6 +148,8 @@ Partial Class Chart
         Me.LabelSEM = New System.Windows.Forms.Label()
         Me.LabelSTDEVscale = New System.Windows.Forms.Label()
         Me.LabelSEMscale = New System.Windows.Forms.Label()
+        Me.LabelMean = New System.Windows.Forms.Label()
+        Me.LabelSMean = New System.Windows.Forms.Label()
         Me.PPMBox1.SuspendLayout()
         Me.Panel1.SuspendLayout()
         Me.GroupBoxMisc.SuspendLayout()
@@ -1576,11 +1578,37 @@ Partial Class Chart
         Me.LabelSEMscale.TabIndex = 593
         Me.LabelSEMscale.Text = "scale"
         '
+        'LabelMean
+        '
+        Me.LabelMean.AutoSize = True
+        Me.LabelMean.BackColor = System.Drawing.Color.Black
+        Me.LabelMean.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelMean.ForeColor = System.Drawing.Color.White
+        Me.LabelMean.Location = New System.Drawing.Point(5, 223)
+        Me.LabelMean.Name = "LabelMean"
+        Me.LabelMean.Size = New System.Drawing.Size(42, 15)
+        Me.LabelMean.TabIndex = 594
+        Me.LabelMean.Text = "MEAN"
+        '
+        'LabelSMean
+        '
+        Me.LabelSMean.AutoSize = True
+        Me.LabelSMean.BackColor = System.Drawing.Color.Black
+        Me.LabelSMean.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelSMean.ForeColor = System.Drawing.Color.White
+        Me.LabelSMean.Location = New System.Drawing.Point(48, 223)
+        Me.LabelSMean.Name = "LabelSMean"
+        Me.LabelSMean.Size = New System.Drawing.Size(53, 15)
+        Me.LabelSMean.TabIndex = 595
+        Me.LabelSMean.Text = "S.MEAN"
+        '
         'Chart
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1359, 801)
+        Me.Controls.Add(Me.LabelSMean)
+        Me.Controls.Add(Me.LabelMean)
         Me.Controls.Add(Me.LabelSEMscale)
         Me.Controls.Add(Me.LabelSTDEVscale)
         Me.Controls.Add(Me.LabelSEM)
@@ -1776,4 +1804,6 @@ Partial Class Chart
     Friend WithEvents LabelSEM As Label
     Friend WithEvents LabelSTDEVscale As Label
     Friend WithEvents LabelSEMscale As Label
+    Friend WithEvents LabelMean As Label
+    Friend WithEvents LabelSMean As Label
 End Class

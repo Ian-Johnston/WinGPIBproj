@@ -837,7 +837,7 @@ Public Class Chart
             If ctl Is FormsPlot2 Then Continue For
             If groupB.Contains(ctl) Then Continue For
             ' Xscale/Xscaletotal/LabelTopTopChart are centred separately, not slot-spaced with the panel.
-            If ctl Is Xscale OrElse ctl Is Xscaletotal OrElse ctl Is LabelTopTopChart OrElse ctl Is LabelDEV1 OrElse ctl Is LabelDEV2 Then Continue For
+            If ctl Is Xscale OrElse ctl Is Xscaletotal OrElse ctl Is LabelTopTopChart OrElse ctl Is LabelDEV1 OrElse ctl Is LabelDEV2 OrElse ctl Is LabelMean OrElse ctl Is LabelSMean Then Continue For
             If ctl.Top >= groupABottomLimit Then Continue For
 
             OriginalGroupALeft(ctl) = ctl.Left
@@ -2285,6 +2285,8 @@ Public Class Chart
             LabelSEM.Visible = True
             LabelDEV1.Visible = True
             LabelDEV2.Visible = True
+            LabelMean.Visible = True
+            LabelSMean.Visible = True
             PanelChartSplitter.Visible = PlaybackSplitterEnabled
             CheckBoxColours.Enabled = True
             CheckBoxPPMenable.Enabled = True
@@ -4954,6 +4956,8 @@ Public Class Chart
         LabelSEMscale.Visible = False
         LabelDEV1.Visible = False
         LabelDEV2.Visible = False
+        LabelMean.Visible = False
+        LabelSMean.Visible = False
         MetadataEditable = False
         MetadataChart.ReadOnly = True
         ButtonSaveCSVMeta.Enabled = False
