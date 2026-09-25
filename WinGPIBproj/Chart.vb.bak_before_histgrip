@@ -3726,11 +3726,8 @@ Public Class Chart
             .StartPosition = FormStartPosition.CenterParent,
             .Width = 780,
             .Height = If(names.Count = 1, 480, 780),
-            .MinimumSize = New Size(480, 360),
             .ShowIcon = False
         }
-        Dim histLight As Boolean = CheckBoxColours.Checked
-        frm.BackColor = If(histLight, Color.White, Color.Black)
 
         Dim layout As New TableLayoutPanel With {.Dock = DockStyle.Fill, .ColumnCount = 1, .RowCount = names.Count}
         Dim plots As New List(Of ScottPlot.WinForms.FormsPlot)
@@ -3744,27 +3741,6 @@ Public Class Chart
         Next
 
         frm.Controls.Add(layout)
-
-        ' Bottom-right resize grip, same as the Allan Deviation pop-up.
-        Dim histGrip As New PictureBox With {
-            .Image = MakeGripTransparent(My.Resources.grip, If(histLight, Color.FromArgb(105, 105, 105), Color.FromArgb(220, 220, 220))),
-            .SizeMode = PictureBoxSizeMode.StretchImage,
-            .Size = New Size(36, 36),
-            .BackColor = If(histLight, Color.White, Color.Black),
-            .Cursor = Cursors.SizeNWSE,
-            .Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
-        }
-        histGrip.Location = New Point(frm.ClientSize.Width - histGrip.Width, frm.ClientSize.Height - histGrip.Height)
-        AddHandler histGrip.MouseDown,
-            Sub(gripSender As Object, gripArgs As MouseEventArgs)
-                If gripArgs.Button = MouseButtons.Left Then
-                    ReleaseCapture()
-                    SendMessage(frm.Handle, &HA1, 17, 0)   ' WM_NCLBUTTONDOWN, HTBOTTOMRIGHT
-                End If
-            End Sub
-        frm.Controls.Add(histGrip)
-        histGrip.BringToFront()
-
         AddHandler frm.Shown, Sub(snd, ev)
                                   For Each fp As ScottPlot.WinForms.FormsPlot In plots
                                       fp.Refresh()

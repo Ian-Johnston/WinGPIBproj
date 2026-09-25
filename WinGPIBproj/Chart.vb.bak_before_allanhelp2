@@ -3726,11 +3726,8 @@ Public Class Chart
             .StartPosition = FormStartPosition.CenterParent,
             .Width = 780,
             .Height = If(names.Count = 1, 480, 780),
-            .MinimumSize = New Size(480, 360),
             .ShowIcon = False
         }
-        Dim histLight As Boolean = CheckBoxColours.Checked
-        frm.BackColor = If(histLight, Color.White, Color.Black)
 
         Dim layout As New TableLayoutPanel With {.Dock = DockStyle.Fill, .ColumnCount = 1, .RowCount = names.Count}
         Dim plots As New List(Of ScottPlot.WinForms.FormsPlot)
@@ -3744,27 +3741,6 @@ Public Class Chart
         Next
 
         frm.Controls.Add(layout)
-
-        ' Bottom-right resize grip, same as the Allan Deviation pop-up.
-        Dim histGrip As New PictureBox With {
-            .Image = MakeGripTransparent(My.Resources.grip, If(histLight, Color.FromArgb(105, 105, 105), Color.FromArgb(220, 220, 220))),
-            .SizeMode = PictureBoxSizeMode.StretchImage,
-            .Size = New Size(36, 36),
-            .BackColor = If(histLight, Color.White, Color.Black),
-            .Cursor = Cursors.SizeNWSE,
-            .Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
-        }
-        histGrip.Location = New Point(frm.ClientSize.Width - histGrip.Width, frm.ClientSize.Height - histGrip.Height)
-        AddHandler histGrip.MouseDown,
-            Sub(gripSender As Object, gripArgs As MouseEventArgs)
-                If gripArgs.Button = MouseButtons.Left Then
-                    ReleaseCapture()
-                    SendMessage(frm.Handle, &HA1, 17, 0)   ' WM_NCLBUTTONDOWN, HTBOTTOMRIGHT
-                End If
-            End Sub
-        frm.Controls.Add(histGrip)
-        histGrip.BringToFront()
-
         AddHandler frm.Shown, Sub(snd, ev)
                                   For Each fp As ScottPlot.WinForms.FormsPlot In plots
                                       fp.Refresh()
@@ -7345,34 +7321,13 @@ Public Class Chart
 "ZOOM ALL reloads the whole file and applies the same fit as AutoScale once - use it to return to the full view after zooming." & vbLf & vbLf &
 "The X-axis is time in minutes across the loaded file, and the Time (mins) figure above the chart shows the minutes currently visible over the total length (e.g. 120.0/228.0)." & vbLf & vbLf &
 "ANALYSIS TOOLS" & vbLf &
-"The Regional Stats, Noise Band, Trend Line, Tempco Curve, Histogram of Readings and Allan Deviation checkboxes in the SCALES & ANALYSIS group switch on tools for studying the Dev 1 / Dev 2 traces (the first five are also on the main chart's right-click menu). They are enabled once a CSV is loaded, and they are all cleared when a new CSV is loaded. Apart from Allan Deviation, they only use the traces that are ticked. Noise Band, Trend Line and Tempco Curve are saved with Save Settings and re-applied on each load." & vbLf & vbLf &
+"The Regional Stats, Noise Band, Trend Line, Tempco Curve and Histogram of Readings checkboxes in the SCALES & ANALYSIS group switch on tools for studying the Dev 1 / Dev 2 traces (the same tools are on the main chart's right-click menu). They are enabled once a CSV is loaded, they only use the traces that are ticked, and they are all cleared when a new CSV is loaded. Noise Band, Trend Line and Tempco Curve are saved with Save Settings and re-applied on each load. The Allan Deviation checkbox in the same group opens the Allan Deviation pop-up (see the Allan Deviation section below)." & vbLf & vbLf &
 "Regional Stats (menu: Region Statistics) - shows a translucent band on the chart. Drag it to move it, or drag either edge to resize it. A text box lists, for each visible trace inside the band: the mean, STDEV, min, max, peak-to-peak and drift (last minus first reading, also in ppm), plus the number of samples and minutes covered. Trend Line, Tempco Curve and Histogram of Readings use the band instead of the whole run while it is showing." & vbLf & vbLf &
 "Noise Band - shades the rolling mean +/- 1 STDEV around each visible trace, calculated over the RMS window. A wide band means a noisy stretch, a narrow one a quiet stretch. The text box reports the typical, quietest and noisiest STDEV found for each trace, in the reading's units and in ppm." & vbLf & vbLf &
 "Trend Line - draws a dashed straight line, fitted by least squares, through each visible trace (the whole run, or just the Regional Stats band). The text box gives the drift per hour, in the reading's units and in ppm, and R2 - how well a straight line describes the trace (near 1 = a clean straight drift, near 0 = no straight-line trend)." & vbLf & vbLf &
 "Tempco Curve - fits the reading against temperature and draws the fit as a coloured curve along the trace (magenta for Dev 1, purple for Dev 2). If the curve follows the trace, temperature explains its movement. The text box gives the ppm/DegC with its uncertainty, R2, and the percentage of the variation that temperature explains. It needs the temperature to change enough to fit, and is calculated relative to the trace's mean, so it can differ slightly from the PPM/DegC (Fit) figure, which uses the Initial Value." & vbLf & vbLf &
 "Histogram of Readings - opens a pop-up showing how the readings of each visible trace are distributed (over the Regional Stats band if it is showing, otherwise the whole run), with the mean, STDEV, skew, kurtosis, the number of distinct values and a red normal curve with the same mean and STDEV to compare against. A histogram with only a few distinct values shows the meter's resolution; a lop-sided or double-humped one points to drift or interference. It is a snapshot: untick and tick it again to refresh, and closing the pop-up unticks it." & vbLf & vbLf &
 "The results boxes sit in the corners of the main chart (Regional Stats top-left, Tempco Curve top-right, Noise Band bottom-left, Trend Line bottom-right) and follow Light Mode." & vbLf & vbLf &
-"Allan Deviation - ticking Allan Deviation in the SCALES & ANALYSIS group opens a separate pop-up chart plotting the Allan Deviation (ADEV) of each device in the file, Dev 1 and Dev 2 together. It doesn't need the Dev 1 / Dev 2 trace checkboxes to be ticked. Unticking it, or closing the pop-up, clears the tick, and a new CSV closes it. It is not saved with Save Settings." & vbLf & vbLf &
-"The 'Show Dev 1' and 'Show Dev 2' checkboxes in the pop-up hide or show each device's curves (ADEV, Ideal and MDEV). At least one always stays ticked, and with a single-device CSV the unused device's checkbox is greyed out." & vbLf & vbLf &
-"ADEV is a stability metric showing how much the average reading wanders as you change the averaging time (tau), rather than a single STDEV number for the whole file." & vbLf & vbLf &
-"The pop-up's X-axis is averaging time (tau, in samples); the Y-axis is deviation in ppm of that device's overall mean." & vbLf & vbLf &
-"Both axes are log-log, rounded outward to whole decades (1, 10, 100...) rather than tightly fitted to the data." & vbLf & vbLf &
-"Non-overlapping ADEV formula:" & vbLf &
-"sigma(tau) = sqrt( sum( (Ybar[k+1] - Ybar[k])^2 ) / (2 x (M-1)) ), where Ybar[k] is the average of block k (blocks of length tau, M = N/tau blocks)." & vbLf & vbLf &
-"Overlapping ADEV formula:" & vbLf &
-"sigma(tau) = sqrt( sum( (Ybar[i+tau] - Ybar[i])^2 ) / (2 x (N-2tau+1)) ), using a sliding window instead of separate blocks." & vbLf & vbLf &
-"Starting at the top-left (tau=1) and reading rightward: the closer the curve hugs its dashed 'Ideal' line, the more that stretch behaves like pure random noise - each step right is genuinely buying more stability." & vbLf & vbLf &
-"Where the curve pulls away and rises above the dashed line, averaging longer has stopped helping - a flat stretch is a noise floor, a rising stretch is long-term drift making things worse." & vbLf & vbLf &
-"Each device gets its own grey dotted 'Ideal' reference line, anchored to that device's own first plotted point, showing pure white-noise behaviour (a straight slope of -1/2 on the log-log axes)." & vbLf & vbLf &
-"It's a reference, not a hard boundary - the real curve can dip below it too, which is just statistical scatter in the estimate, especially on the right where only a few independent samples remain to compare." & vbLf & vbLf &
-"The 'Overlapping (smoother tail)' checkbox switches between non-overlapping ADEV (disjoint tau-length blocks - fewer pairs at large tau, so the tail can look noisy/jagged) and overlapping ADEV (a sliding window that reuses every sample many times over)." & vbLf & vbLf &
-"Overlapping gives a much smoother tail from the same data, at the cost of the points no longer being fully statistically independent." & vbLf & vbLf &
-"The 'Show MDEV' checkbox adds a second, dotted curve per device - Modified Allan Deviation (MDEV)." & vbLf & vbLf &
-"MDEV applies an extra averaging stage that makes it react differently than ADEV to phase/timing noise specifically." & vbLf & vbLf &
-"On its own, ADEV can't tell ordinary amplitude noise apart from phase noise - both just look like a similar falling slope." & vbLf & vbLf &
-"If MDEV runs visibly steeper than its device's ADEV curve at short tau, that's a sign of phase noise ADEV alone wouldn't show." & vbLf & vbLf &
-"MDEV formula:" & vbLf &
-"Mod sigma(tau) = sqrt( sum( (second-difference sum over an m-sample window)^2 ) / (2 x tau^2 x m^2 x (N-3m+1)) ), where m = tau and the second difference is taken on x, the cumulative sum (integration) of the raw readings." & vbLf & vbLf &
 "CHART SPLIT" & vbLf &
 "Drag the small bar between the main chart and the Statistics chart up or down to change their heights; the gap between them stays the same. Resizing the window keeps your split, and it returns to the default each time a new CSV is loaded." & vbLf & vbLf &
 "DEV 1 TRACES / DEV 2 TRACES" & vbLf &
@@ -7395,6 +7350,27 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
 "Same concept as the Short-Term Mean on the Live Analysis chart, but calculated retrospectively from the file rather than live." & vbLf & vbLf &
 "Responds faster to recent changes than the recorded Mean trace, at the cost of being noisier." & vbLf & vbLf &
 "Purely a display trace - it doesn't affect the recorded Mean/STDEV/SEM or anything written back to the CSV." & vbLf & vbLf &
+"ALLAN DEVIATION" & vbLf &
+"Ticking Allan Deviation in the SCALES & ANALYSIS group opens a separate pop-up chart plotting the Allan Deviation (ADEV) of each device in the file, Dev 1 and Dev 2 together." & vbLf & vbLf &
+"ADEV is a stability metric showing how much the average reading wanders as you change the averaging time (tau), rather than a single STDEV number for the whole file." & vbLf & vbLf &
+"The pop-up's X-axis is averaging time (tau, in samples); the Y-axis is deviation in ppm of that device's overall mean." & vbLf & vbLf &
+"Both axes are log-log, rounded outward to whole decades (1, 10, 100...) rather than tightly fitted to the data." & vbLf & vbLf &
+"Non-overlapping ADEV formula:" & vbLf &
+"sigma(tau) = sqrt( sum( (Ybar[k+1] - Ybar[k])^2 ) / (2 x (M-1)) ), where Ybar[k] is the average of block k (blocks of length tau, M = N/tau blocks)." & vbLf & vbLf &
+"Overlapping ADEV formula:" & vbLf &
+"sigma(tau) = sqrt( sum( (Ybar[i+tau] - Ybar[i])^2 ) / (2 x (N-2tau+1)) ), using a sliding window instead of separate blocks." & vbLf & vbLf &
+"Starting at the top-left (tau=1) and reading rightward: the closer the curve hugs its dashed 'Ideal' line, the more that stretch behaves like pure random noise - each step right is genuinely buying more stability." & vbLf & vbLf &
+"Where the curve pulls away and rises above the dashed line, averaging longer has stopped helping - a flat stretch is a noise floor, a rising stretch is long-term drift making things worse." & vbLf & vbLf &
+"Each device gets its own grey dotted 'Ideal' reference line, anchored to that device's own first plotted point, showing pure white-noise behaviour (a straight slope of -1/2 on the log-log axes)." & vbLf & vbLf &
+"It's a reference, not a hard boundary - the real curve can dip below it too, which is just statistical scatter in the estimate, especially on the right where only a few independent samples remain to compare." & vbLf & vbLf &
+"The 'Overlapping (smoother tail)' checkbox switches between non-overlapping ADEV (disjoint tau-length blocks - fewer pairs at large tau, so the tail can look noisy/jagged) and overlapping ADEV (a sliding window that reuses every sample many times over)." & vbLf & vbLf &
+"Overlapping gives a much smoother tail from the same data, at the cost of the points no longer being fully statistically independent." & vbLf & vbLf &
+"The 'Show MDEV' checkbox adds a second, dotted curve per device - Modified Allan Deviation (MDEV)." & vbLf & vbLf &
+"MDEV applies an extra averaging stage that makes it react differently than ADEV to phase/timing noise specifically." & vbLf & vbLf &
+"On its own, ADEV can't tell ordinary amplitude noise apart from phase noise - both just look like a similar falling slope." & vbLf & vbLf &
+"If MDEV runs visibly steeper than its device's ADEV curve at short tau, that's a sign of phase noise ADEV alone wouldn't show." & vbLf & vbLf &
+"MDEV formula:" & vbLf &
+"Mod sigma(tau) = sqrt( sum( (second-difference sum over an m-sample window)^2 ) / (2 x tau^2 x m^2 x (N-3m+1)) ), where m = tau and the second difference is taken on x, the cumulative sum (integration) of the raw readings." & vbLf & vbLf &
 "COMMON QUESTIONS" & vbLf &
 "How does Allan Deviation compare with the recorded STDEV?" & vbLf & vbLf &
 "At tau=1 the two agree when the reading is dominated by random (white) noise. For a steady signal, the Allan Deviation at tau=1 matches the STDEV shown in the Data tab statistics - for example, both read 0 while every reading is within the meter's resolution, and both read the same value (e.g. 2.26 ppm) after a longer recording." & vbLf & vbLf &
@@ -7437,6 +7413,7 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
         "CHART SPLIT",
         "DEV 1 TRACES / DEV 2 TRACES",
         "SHORT TERM MEAN",
+        "ALLAN DEVIATION",
         "COMMON QUESTIONS",
         "AVERAGING / NOISE / RANGE (per device)",
         "PPM DEVIATION / TEMPCO",
@@ -7451,21 +7428,6 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
 
             If start >= 0 Then
                 txt.Select(start, heading.Length)
-                txt.SelectionFont = New Font(txt.Font, FontStyle.Bold)
-            End If
-
-        Next
-
-        ' Bold the tool name at the start of each ANALYSIS TOOLS entry ("Histogram of Readings - opens ...").
-        Dim toolNames() As String = {"Regional Stats", "Noise Band", "Trend Line", "Tempco Curve", "Histogram of Readings", "Allan Deviation"}
-        Dim toolsStart As Integer = txt.Text.IndexOf("ANALYSIS TOOLS", StringComparison.Ordinal)
-
-        For Each toolName As String In toolNames
-
-            Dim start As Integer = txt.Text.IndexOf(vbLf & toolName & " ", Math.Max(0, toolsStart), StringComparison.Ordinal)
-
-            If start >= 0 Then
-                txt.Select(start + 1, toolName.Length)
                 txt.SelectionFont = New Font(txt.Font, FontStyle.Bold)
             End If
 
