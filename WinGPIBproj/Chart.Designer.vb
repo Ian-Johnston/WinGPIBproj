@@ -1524,7 +1524,7 @@ Partial Class Chart
         Me.LabelPPMstats.BackColor = System.Drawing.Color.Black
         Me.LabelPPMstats.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelPPMstats.ForeColor = System.Drawing.Color.White
-        Me.LabelPPMstats.Location = New System.Drawing.Point(1244, 644)
+        Me.LabelPPMstats.Location = New System.Drawing.Point(1244, 642)
         Me.LabelPPMstats.Name = "LabelPPMstats"
         Me.LabelPPMstats.Size = New System.Drawing.Size(30, 13)
         Me.LabelPPMstats.TabIndex = 584
@@ -1548,7 +1548,7 @@ Partial Class Chart
         Me.LabelSTATS.BackColor = System.Drawing.Color.Black
         Me.LabelSTATS.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelSTATS.ForeColor = System.Drawing.Color.White
-        Me.LabelSTATS.Location = New System.Drawing.Point(12, 644)
+        Me.LabelSTATS.Location = New System.Drawing.Point(12, 642)
         Me.LabelSTATS.Name = "LabelSTATS"
         Me.LabelSTATS.Size = New System.Drawing.Size(56, 13)
         Me.LabelSTATS.TabIndex = 587
@@ -1572,7 +1572,7 @@ Partial Class Chart
         Me.LabelSTDEV.BackColor = System.Drawing.Color.Black
         Me.LabelSTDEV.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelSTDEV.ForeColor = System.Drawing.Color.White
-        Me.LabelSTDEV.Location = New System.Drawing.Point(1276, 644)
+        Me.LabelSTDEV.Location = New System.Drawing.Point(1276, 642)
         Me.LabelSTDEV.Name = "LabelSTDEV"
         Me.LabelSTDEV.Size = New System.Drawing.Size(43, 13)
         Me.LabelSTDEV.TabIndex = 590
@@ -1584,7 +1584,7 @@ Partial Class Chart
         Me.LabelSEM.BackColor = System.Drawing.Color.Black
         Me.LabelSEM.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LabelSEM.ForeColor = System.Drawing.Color.White
-        Me.LabelSEM.Location = New System.Drawing.Point(1321, 644)
+        Me.LabelSEM.Location = New System.Drawing.Point(1321, 642)
         Me.LabelSEM.Name = "LabelSEM"
         Me.LabelSEM.Size = New System.Drawing.Size(30, 13)
         Me.LabelSEM.TabIndex = 591

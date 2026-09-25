@@ -3679,23 +3679,6 @@ Public Class Chart
 
     End Sub
 
-    ' Re-themes an open histogram pop-up (form, grip and plots) to match Light Mode.
-    Private Sub Chart2ApplyHistogramTheme()
-
-        If Chart2HistogramForm Is Nothing OrElse Chart2HistogramForm.IsDisposed Then Exit Sub
-
-        Dim light As Boolean = CheckBoxColours.Checked
-        Chart2HistogramForm.BackColor = If(light, Color.White, Color.Black)
-
-        For Each gripPic As PictureBox In Chart2HistogramForm.Controls.OfType(Of PictureBox)()
-            gripPic.Image = MakeGripTransparent(My.Resources.grip, If(light, Color.FromArgb(105, 105, 105), Color.FromArgb(220, 220, 220)))
-            gripPic.BackColor = If(light, Color.White, Color.Black)
-        Next
-
-        Chart2RefreshHistogram()
-
-    End Sub
-
     ' Refreshes the contents of an open histogram pop-up (the window stays put) after the Regional Stats band is toggled or moved.
     Private Sub Chart2RefreshHistogram()
 
@@ -6085,7 +6068,6 @@ Public Class Chart
         ' Re-themes the Allan Deviation pop-up (if open) and refreshes its trace colours.
         ApplyAllanChartTheme()
         RefreshAllanChart()
-        Chart2ApplyHistogramTheme()
 
     End Sub
 
@@ -6806,8 +6788,6 @@ Public Class Chart
             If TypeOf ctl Is CheckBox Then
                 ctl.ForeColor = fg
                 ctl.BackColor = bg
-            ElseIf TypeOf ctl Is Label Then
-                ctl.BackColor = bg   ' unused-device text stays grey, on the themed background
             ElseIf TypeOf ctl Is PictureBox Then
                 ' Tint the grip dark on light backgrounds and near-white on dark; set BackColor explicitly as the image is transparent.
                 Dim gripPic As PictureBox = DirectCast(ctl, PictureBox)
