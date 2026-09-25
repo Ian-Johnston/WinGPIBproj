@@ -5989,10 +5989,6 @@ Public Class Chart
             LabelSTDEVscale.ForeColor = Color.White
             LabelSEMscale.BackColor = Color.Black
             LabelSEMscale.ForeColor = Color.White
-            LabelMean.BackColor = Color.Black
-            LabelMean.ForeColor = Color.White
-            LabelSMean.BackColor = Color.Black
-            LabelSMean.ForeColor = Color.White
             LabelDEV1.BackColor = Color.Yellow
             LabelDEV1.ForeColor = Color.Black
             LabelDEV2.BackColor = Color.Cyan
@@ -6043,10 +6039,6 @@ Public Class Chart
             LabelSTDEVscale.ForeColor = Color.Black
             LabelSEMscale.BackColor = Color.White
             LabelSEMscale.ForeColor = Color.Black
-            LabelMean.BackColor = Color.White
-            LabelMean.ForeColor = Color.Black
-            LabelSMean.BackColor = Color.White
-            LabelSMean.ForeColor = Color.Black
             LabelDEV1.BackColor = Color.White
             LabelDEV1.ForeColor = Color.Black
             LabelDEV2.BackColor = Color.White
