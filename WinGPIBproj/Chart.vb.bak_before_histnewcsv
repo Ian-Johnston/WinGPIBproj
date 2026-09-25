@@ -1236,9 +1236,6 @@ Public Class Chart
         ' A new CSV invalidates the Allan Deviation pop-up (it doesn't refresh itself), so close it.
         CheckPlaybackDev12Allan.Checked = False
 
-        ' Same for the histogram pop-up; closed before the region reset below so it isn't asked to refresh on empty data.
-        ButtonHistogram.Checked = False
-
         ' The chart split returns to the default on every new CSV.
         Chart3HeightShare = OriginalChart3Height / CDbl(OriginalChart2Height + OriginalChart3Height)
         ApplyChartHeights()
@@ -3649,8 +3646,8 @@ Public Class Chart
 
     ' ---- Histogram of readings ----
 
-    ' Pop-up showing the distribution of the readings of each visible Dev 1 / Dev 2 trace: over the
-    ' Region Statistics band if it is showing, otherwise the whole run. Refreshes as the band changes.
+    ' Pop-up (a snapshot) showing the distribution of the readings of each visible Dev 1 / Dev 2 trace: over the
+    ' Region Statistics band if it is showing, otherwise the whole run. Reopen it to refresh.
     ' The right-click menu item: ticks the checkbox (opening the pop-up), or refreshes the pop-up if it is already open.
     Private Sub Chart2MenuHistogram(plot As ScottPlot.Plot)
 
@@ -3704,11 +3701,11 @@ Public Class Chart
 
         If Chart2HistogramForm Is Nothing OrElse Chart2HistogramForm.IsDisposed Then Exit Sub
 
-        Chart2ShowHistogram(True)
+        Chart2ShowHistogram()
 
     End Sub
 
-    Private Sub Chart2ShowHistogram(Optional silent As Boolean = False)
+    Private Sub Chart2ShowHistogram()
 
         Dim regionOn As Boolean = Chart2RegionSpan IsNot Nothing AndAlso Chart2RegionSpan.IsVisible
         Dim x1 As Double = If(regionOn, Chart2RegionSpan.Left, 0)
@@ -3749,7 +3746,7 @@ Public Class Chart
                 existing.Close()
                 Chart2HistogramSync = False
             End If
-            If Not silent Then MessageBox.Show("There is no visible Dev 1 / Dev 2 trace with enough points to plot.", "Histogram", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show("There is no visible Dev 1 / Dev 2 trace with enough points to plot.", "Histogram", MessageBoxButtons.OK, MessageBoxIcon.Information)
             Chart2SetHistogramChecked(False)
             Exit Sub
         End If

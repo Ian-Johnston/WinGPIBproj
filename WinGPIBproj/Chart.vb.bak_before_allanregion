@@ -1236,9 +1236,6 @@ Public Class Chart
         ' A new CSV invalidates the Allan Deviation pop-up (it doesn't refresh itself), so close it.
         CheckPlaybackDev12Allan.Checked = False
 
-        ' Same for the histogram pop-up; closed before the region reset below so it isn't asked to refresh on empty data.
-        ButtonHistogram.Checked = False
-
         ' The chart split returns to the default on every new CSV.
         Chart3HeightShare = OriginalChart3Height / CDbl(OriginalChart2Height + OriginalChart3Height)
         ApplyChartHeights()
@@ -3649,8 +3646,8 @@ Public Class Chart
 
     ' ---- Histogram of readings ----
 
-    ' Pop-up showing the distribution of the readings of each visible Dev 1 / Dev 2 trace: over the
-    ' Region Statistics band if it is showing, otherwise the whole run. Refreshes as the band changes.
+    ' Pop-up (a snapshot) showing the distribution of the readings of each visible Dev 1 / Dev 2 trace: over the
+    ' Region Statistics band if it is showing, otherwise the whole run. Reopen it to refresh.
     ' The right-click menu item: ticks the checkbox (opening the pop-up), or refreshes the pop-up if it is already open.
     Private Sub Chart2MenuHistogram(plot As ScottPlot.Plot)
 
@@ -3704,11 +3701,11 @@ Public Class Chart
 
         If Chart2HistogramForm Is Nothing OrElse Chart2HistogramForm.IsDisposed Then Exit Sub
 
-        Chart2ShowHistogram(True)
+        Chart2ShowHistogram()
 
     End Sub
 
-    Private Sub Chart2ShowHistogram(Optional silent As Boolean = False)
+    Private Sub Chart2ShowHistogram()
 
         Dim regionOn As Boolean = Chart2RegionSpan IsNot Nothing AndAlso Chart2RegionSpan.IsVisible
         Dim x1 As Double = If(regionOn, Chart2RegionSpan.Left, 0)
@@ -3734,8 +3731,7 @@ Public Class Chart
             Next
 
             Dim deviceLabel As String = If(device = 1, DeviceName1.Text, DeviceName2.Text)
-            names.Add("Dev " & device.ToString() & If(deviceLabel <> "", " - " & deviceLabel, "") & "   |   " &
-                      If(regionOn, "REGION " & first.ToString() & " - " & last.ToString(), "Whole run") & " (" & values.Length.ToString() & " samples)")
+            names.Add("Dev " & device.ToString() & If(deviceLabel <> "", " - " & deviceLabel, ""))
             valueSets.Add(values)
             colours.Add(series.Color)
         Next
@@ -3749,7 +3745,7 @@ Public Class Chart
                 existing.Close()
                 Chart2HistogramSync = False
             End If
-            If Not silent Then MessageBox.Show("There is no visible Dev 1 / Dev 2 trace with enough points to plot.", "Histogram", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show("There is no visible Dev 1 / Dev 2 trace with enough points to plot.", "Histogram", MessageBoxButtons.OK, MessageBoxIcon.Information)
             Chart2SetHistogramChecked(False)
             Exit Sub
         End If
@@ -3771,7 +3767,6 @@ Public Class Chart
                     existingLayout.RowStyles.Add(New RowStyle(SizeType.Percent, 100.0F / names.Count))
                     Dim histogramPlot As New ScottPlot.WinForms.FormsPlot With {.Dock = DockStyle.Fill}
                     Chart2BuildHistogram(histogramPlot.Plot, names(i), valueSets(i), colours(i), CheckBoxColours.Checked)
-                    If regionOn Then histogramPlot.Plot.Axes.Title.Label.ForeColor = New ScottPlot.Color(Color.DarkOrange)
                     existingLayout.Controls.Add(histogramPlot, 0, i)
                     newPlots.Add(histogramPlot)
                 Next
@@ -3805,7 +3800,6 @@ Public Class Chart
             layout.RowStyles.Add(New RowStyle(SizeType.Percent, 100.0F / names.Count))
             Dim histogramPlot As New ScottPlot.WinForms.FormsPlot With {.Dock = DockStyle.Fill}
             Chart2BuildHistogram(histogramPlot.Plot, names(i), valueSets(i), colours(i), CheckBoxColours.Checked)
-            If regionOn Then histogramPlot.Plot.Axes.Title.Label.ForeColor = New ScottPlot.Color(Color.DarkOrange)
             layout.Controls.Add(histogramPlot, 0, i)
             plots.Add(histogramPlot)
         Next
@@ -4399,7 +4393,6 @@ Public Class Chart
 
         FormsPlot2.Refresh()
         Chart2RefreshHistogram()
-        If AllanPopupForm IsNot Nothing AndAlso Not AllanPopupForm.IsDisposed Then RefreshAllanChart()
 
     End Sub
 
@@ -4476,7 +4469,6 @@ Public Class Chart
             FormsPlot2.UserInputProcessor.Enable()
             FormsPlot2.Refresh()
             Chart2RefreshHistogram()
-            If AllanPopupForm IsNot Nothing AndAlso Not AllanPopupForm.IsDisposed Then RefreshAllanChart()
         End If
 
         Chart2EchoYRange()
@@ -6767,27 +6759,6 @@ Public Class Chart
 
         EnsureAllanPopupOpen()
 
-        Dim regionOn As Boolean = Chart2RegionSpan IsNot Nothing AndAlso Chart2RegionSpan.IsVisible
-        AllanPopupForm.Text = "WinGPIB - Allan Deviation (" &
-            If(regionOn, "region " & CInt(Math.Ceiling(Chart2RegionSpan.Left)).ToString() & " - " & CInt(Math.Floor(Chart2RegionSpan.Right)).ToString(), "whole run") & ")"
-
-        ' Banner along the bottom of the chart: orange while only the Regional Stats band is used.
-        If AllanPopupChart.Titles.IndexOf("Scope") < 0 Then
-            AllanPopupChart.Titles.Add(New Title("", Docking.Bottom, New Font("Microsoft Sans Serif", 10.0!, FontStyle.Bold), Color.Gray) With {.Name = "Scope"})
-        End If
-        Dim scopeTitle As Title = AllanPopupChart.Titles("Scope")
-        Dim shownNames As New List(Of String)
-        If showDev1 Then shownNames.Add(DeviceName1.Text)
-        If showDev2 Then shownNames.Add(DeviceName2.Text)
-        Dim namePrefix As String = String.Join(" / ", shownNames) & " - "
-        If regionOn Then
-            scopeTitle.Text = namePrefix & "REGION " & CInt(Math.Ceiling(Chart2RegionSpan.Left)).ToString() & " - " & CInt(Math.Floor(Chart2RegionSpan.Right)).ToString() & " only (Regional Stats band)"
-            scopeTitle.ForeColor = Color.DarkOrange
-        Else
-            scopeTitle.Text = namePrefix & "Whole run"
-            scopeTitle.ForeColor = Color.Gray
-        End If
-
         ' Light Mode uses darker trace colours (Yellow/Aqua are invisible on white). Dark mode uses Khaki/Turquoise, distinct
         ' from each other on black; light mode matches the main chart's colours.
         Dim dev1AllanColor As Color = If(CheckBoxColours.Checked, Color.SeaGreen, Color.Khaki)
@@ -7171,18 +7142,9 @@ Public Class Chart
         Dim selectedRows() As DataRow = dataTable1.Select("DEVICE ='" & deviceName & "'")
         If selectedRows.Length < 4 Then Exit Sub    ' not enough samples for any tau
 
-        ' Only the Regional Stats band's samples when it is showing (X is the sample index), otherwise the whole run.
-        Dim firstIdx As Integer = 0
-        Dim lastIdx As Integer = selectedRows.Length - 1
-        If Chart2RegionSpan IsNot Nothing AndAlso Chart2RegionSpan.IsVisible Then
-            firstIdx = Math.Max(0, CInt(Math.Ceiling(Chart2RegionSpan.Left)))
-            lastIdx = Math.Min(selectedRows.Length - 1, CInt(Math.Floor(Chart2RegionSpan.Right)))
-            If lastIdx - firstIdx + 1 < 4 Then Exit Sub
-        End If
-
         Dim rawValues As New List(Of Double)
-        For i As Integer = firstIdx To lastIdx
-            rawValues.Add(Convert.ToDouble(selectedRows(i)("VALUE")))
+        For Each dr As DataRow In selectedRows
+            rawValues.Add(Convert.ToDouble(dr("VALUE")))
         Next
 
         Dim overallMean As Double = rawValues.Average()
@@ -7464,7 +7426,7 @@ Public Class Chart
 "Tempco Curve - fits the reading against temperature and draws the fit as a coloured curve along the trace (magenta for Dev 1, purple for Dev 2). If the curve follows the trace, temperature explains its movement. The text box gives the ppm/DegC with its uncertainty, R2, and the percentage of the variation that temperature explains. It needs the temperature to change enough to fit, and is calculated relative to the trace's mean, so it can differ slightly from the PPM/DegC (Fit) figure, which uses the Initial Value." & vbLf & vbLf &
 "Histogram of Readings - opens a pop-up showing how the readings of each visible trace are distributed (over the Regional Stats band if it is showing, otherwise the whole run), with the mean, STDEV, skew, kurtosis, the number of distinct values and a red normal curve with the same mean and STDEV to compare against. A histogram with only a few distinct values shows the meter's resolution; a lop-sided or double-humped one points to drift or interference. It refreshes when the Regional Stats band is switched on, off or moved, and closing the pop-up unticks it." & vbLf & vbLf &
 "The results boxes sit in the corners of the main chart (Regional Stats top-left, Tempco Curve top-right, Noise Band bottom-left, Trend Line bottom-right) and follow Light Mode." & vbLf & vbLf &
-"Allan Deviation - ticking Allan Deviation in the SCALES & ANALYSIS group opens a separate pop-up chart plotting the Allan Deviation (ADEV) of each device in the file, Dev 1 and Dev 2 together. It doesn't need the Dev 1 / Dev 2 trace checkboxes to be ticked. Unticking it, or closing the pop-up, clears the tick, and a new CSV closes it. It is not saved with Save Settings. Like the other tools, it uses just the Regional Stats band while the band is showing (the pop-up title says 'region' or 'whole run') and updates when the band is switched on, off, or moved. A short band limits how far right the curve can go." & vbLf & vbLf &
+"Allan Deviation - ticking Allan Deviation in the SCALES & ANALYSIS group opens a separate pop-up chart plotting the Allan Deviation (ADEV) of each device in the file, Dev 1 and Dev 2 together. It doesn't need the Dev 1 / Dev 2 trace checkboxes to be ticked. Unticking it, or closing the pop-up, clears the tick, and a new CSV closes it. It is not saved with Save Settings." & vbLf & vbLf &
 "The 'Show Dev 1' and 'Show Dev 2' checkboxes in the pop-up hide or show each device's curves (ADEV, Ideal and MDEV). At least one always stays ticked, and with a single-device CSV the unused device's checkbox is greyed out." & vbLf & vbLf &
 "ADEV is a stability metric showing how much the average reading wanders as you change the averaging time (tau), rather than a single STDEV number for the whole file." & vbLf & vbLf &
 "The pop-up's X-axis is averaging time (tau, in samples); the Y-axis is deviation in ppm of that device's overall mean." & vbLf & vbLf &
