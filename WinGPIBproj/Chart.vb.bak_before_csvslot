@@ -999,17 +999,16 @@ Public Class Chart
     ' The PPM box and MISC. (right-most of each row) share a right edge - see RepositionResizableLayout.
     Private Function ClassifyGroupASlot(top As Integer, left As Integer) As Integer
 
-        If top < 80 Then
+        If top < 93 Then
             If left < 502 Then Return 0
             If left < 690 Then Return 1
             If left < 880 Then Return 2
             Return 3
         Else
-            If left < 200 Then Return 0
-            If left < 445 Then Return 1
-            If left < 1035 Then Return 2
-            If left < 1270 Then Return 3
-            Return 4
+            If left < 445 Then Return 0
+            If left < 1035 Then Return 1
+            If left < 1270 Then Return 2
+            Return 3
         End If
 
     End Function
@@ -1099,7 +1098,7 @@ Public Class Chart
 
         ' Group A spaces its column slots apart as the form widens; every gap in a row grows equally.
         ' Both rows shift their right-most box by the same total (capped at 200px) so their right edges stay aligned.
-        Const bottomRowGaps As Integer = 4
+        Const bottomRowGaps As Integer = 3
         Const topRowGaps As Integer = 3
         Const maxTotalShiftPx As Double = 200.0
 
@@ -1108,7 +1107,7 @@ Public Class Chart
 
         For Each kvp In OriginalGroupALeft
             Dim slot As Integer = OriginalGroupASlot(kvp.Key)
-            Dim gapsInRow As Integer = If(kvp.Key.Top >= 80, bottomRowGaps, topRowGaps)
+            Dim gapsInRow As Integer = If(kvp.Key.Top >= 93, bottomRowGaps, topRowGaps)
             kvp.Key.Left = kvp.Value + CInt(slot * totalShiftPx / gapsInRow)
         Next
 
