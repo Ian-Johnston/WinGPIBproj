@@ -3679,16 +3679,27 @@ Public Class Chart
 
     End Sub
 
-    ' Refreshes the contents of an open histogram pop-up (the window stays put) after the Regional Stats band is toggled or moved.
+    ' Rebuilds an open histogram pop-up (same position and size) after the Regional Stats band is toggled or moved.
     Private Sub Chart2RefreshHistogram()
 
         If Chart2HistogramForm Is Nothing OrElse Chart2HistogramForm.IsDisposed Then Exit Sub
 
+        Dim oldBounds As Rectangle = Chart2HistogramForm.Bounds
         Chart2ShowHistogram()
+
+        If Chart2HistogramForm IsNot Nothing AndAlso Not Chart2HistogramForm.IsDisposed Then
+            Chart2HistogramForm.Bounds = oldBounds
+        End If
 
     End Sub
 
     Private Sub Chart2ShowHistogram()
+
+        If Chart2HistogramForm IsNot Nothing AndAlso Not Chart2HistogramForm.IsDisposed Then
+            Chart2HistogramSync = True
+            Chart2HistogramForm.Close()
+            Chart2HistogramSync = False
+        End If
 
         Dim regionOn As Boolean = Chart2RegionSpan IsNot Nothing AndAlso Chart2RegionSpan.IsVisible
         Dim x1 As Double = If(regionOn, Chart2RegionSpan.Left, 0)
@@ -3719,50 +3730,10 @@ Public Class Chart
             colours.Add(series.Color)
         Next
 
-        Dim existing As Form = Chart2HistogramForm
-        If existing IsNot Nothing AndAlso existing.IsDisposed Then existing = Nothing
-
         If names.Count = 0 Then
-            If existing IsNot Nothing Then
-                Chart2HistogramSync = True
-                existing.Close()
-                Chart2HistogramSync = False
-            End If
             MessageBox.Show("There is no visible Dev 1 / Dev 2 trace with enough points to plot.", "Histogram", MessageBoxButtons.OK, MessageBoxIcon.Information)
             Chart2SetHistogramChecked(False)
             Exit Sub
-        End If
-
-        ' Pop-up already open: keep the window and just swap in the new plots.
-        If existing IsNot Nothing Then
-            Dim existingLayout As TableLayoutPanel = existing.Controls.OfType(Of TableLayoutPanel)().FirstOrDefault()
-            If existingLayout IsNot Nothing Then
-                existing.Text = "WinGPIB - Histogram of readings (" & scope & ")"
-                existingLayout.SuspendLayout()
-                For Each oldPlot As Control In existingLayout.Controls.Cast(Of Control)().ToList()
-                    existingLayout.Controls.Remove(oldPlot)
-                    oldPlot.Dispose()
-                Next
-                existingLayout.RowStyles.Clear()
-                existingLayout.RowCount = names.Count
-                Dim newPlots As New List(Of ScottPlot.WinForms.FormsPlot)
-                For i As Integer = 0 To names.Count - 1
-                    existingLayout.RowStyles.Add(New RowStyle(SizeType.Percent, 100.0F / names.Count))
-                    Dim histogramPlot As New ScottPlot.WinForms.FormsPlot With {.Dock = DockStyle.Fill}
-                    Chart2BuildHistogram(histogramPlot.Plot, names(i), valueSets(i), colours(i), CheckBoxColours.Checked)
-                    existingLayout.Controls.Add(histogramPlot, 0, i)
-                    newPlots.Add(histogramPlot)
-                Next
-                existingLayout.ResumeLayout()
-                For Each fp As ScottPlot.WinForms.FormsPlot In newPlots
-                    fp.Refresh()
-                Next
-                Chart2SetHistogramChecked(True)
-                Exit Sub
-            End If
-            Chart2HistogramSync = True
-            existing.Close()
-            Chart2HistogramSync = False
         End If
 
         Dim frm As New Form With {

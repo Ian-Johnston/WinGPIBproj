@@ -3679,16 +3679,13 @@ Public Class Chart
 
     End Sub
 
-    ' Refreshes the contents of an open histogram pop-up (the window stays put) after the Regional Stats band is toggled or moved.
-    Private Sub Chart2RefreshHistogram()
-
-        If Chart2HistogramForm Is Nothing OrElse Chart2HistogramForm.IsDisposed Then Exit Sub
-
-        Chart2ShowHistogram()
-
-    End Sub
-
     Private Sub Chart2ShowHistogram()
+
+        If Chart2HistogramForm IsNot Nothing AndAlso Not Chart2HistogramForm.IsDisposed Then
+            Chart2HistogramSync = True
+            Chart2HistogramForm.Close()
+            Chart2HistogramSync = False
+        End If
 
         Dim regionOn As Boolean = Chart2RegionSpan IsNot Nothing AndAlso Chart2RegionSpan.IsVisible
         Dim x1 As Double = If(regionOn, Chart2RegionSpan.Left, 0)
@@ -3719,50 +3716,10 @@ Public Class Chart
             colours.Add(series.Color)
         Next
 
-        Dim existing As Form = Chart2HistogramForm
-        If existing IsNot Nothing AndAlso existing.IsDisposed Then existing = Nothing
-
         If names.Count = 0 Then
-            If existing IsNot Nothing Then
-                Chart2HistogramSync = True
-                existing.Close()
-                Chart2HistogramSync = False
-            End If
             MessageBox.Show("There is no visible Dev 1 / Dev 2 trace with enough points to plot.", "Histogram", MessageBoxButtons.OK, MessageBoxIcon.Information)
             Chart2SetHistogramChecked(False)
             Exit Sub
-        End If
-
-        ' Pop-up already open: keep the window and just swap in the new plots.
-        If existing IsNot Nothing Then
-            Dim existingLayout As TableLayoutPanel = existing.Controls.OfType(Of TableLayoutPanel)().FirstOrDefault()
-            If existingLayout IsNot Nothing Then
-                existing.Text = "WinGPIB - Histogram of readings (" & scope & ")"
-                existingLayout.SuspendLayout()
-                For Each oldPlot As Control In existingLayout.Controls.Cast(Of Control)().ToList()
-                    existingLayout.Controls.Remove(oldPlot)
-                    oldPlot.Dispose()
-                Next
-                existingLayout.RowStyles.Clear()
-                existingLayout.RowCount = names.Count
-                Dim newPlots As New List(Of ScottPlot.WinForms.FormsPlot)
-                For i As Integer = 0 To names.Count - 1
-                    existingLayout.RowStyles.Add(New RowStyle(SizeType.Percent, 100.0F / names.Count))
-                    Dim histogramPlot As New ScottPlot.WinForms.FormsPlot With {.Dock = DockStyle.Fill}
-                    Chart2BuildHistogram(histogramPlot.Plot, names(i), valueSets(i), colours(i), CheckBoxColours.Checked)
-                    existingLayout.Controls.Add(histogramPlot, 0, i)
-                    newPlots.Add(histogramPlot)
-                Next
-                existingLayout.ResumeLayout()
-                For Each fp As ScottPlot.WinForms.FormsPlot In newPlots
-                    fp.Refresh()
-                Next
-                Chart2SetHistogramChecked(True)
-                Exit Sub
-            End If
-            Chart2HistogramSync = True
-            existing.Close()
-            Chart2HistogramSync = False
         End If
 
         Dim frm As New Form With {
@@ -4375,7 +4332,6 @@ Public Class Chart
         End If
 
         FormsPlot2.Refresh()
-        Chart2RefreshHistogram()
 
     End Sub
 
@@ -4451,7 +4407,6 @@ Public Class Chart
             Chart2RegionDrag = Nothing
             FormsPlot2.UserInputProcessor.Enable()
             FormsPlot2.Refresh()
-            Chart2RefreshHistogram()
         End If
 
         Chart2EchoYRange()
@@ -7396,7 +7351,7 @@ Public Class Chart
 "Noise Band - shades the rolling mean +/- 1 STDEV around each visible trace, calculated over the RMS window. A wide band means a noisy stretch, a narrow one a quiet stretch. The text box reports the typical, quietest and noisiest STDEV found for each trace, in the reading's units and in ppm." & vbLf & vbLf &
 "Trend Line - draws a dashed straight line, fitted by least squares, through each visible trace (the whole run, or just the Regional Stats band). The text box gives the drift per hour, in the reading's units and in ppm, and R2 - how well a straight line describes the trace (near 1 = a clean straight drift, near 0 = no straight-line trend)." & vbLf & vbLf &
 "Tempco Curve - fits the reading against temperature and draws the fit as a coloured curve along the trace (magenta for Dev 1, purple for Dev 2). If the curve follows the trace, temperature explains its movement. The text box gives the ppm/DegC with its uncertainty, R2, and the percentage of the variation that temperature explains. It needs the temperature to change enough to fit, and is calculated relative to the trace's mean, so it can differ slightly from the PPM/DegC (Fit) figure, which uses the Initial Value." & vbLf & vbLf &
-"Histogram of Readings - opens a pop-up showing how the readings of each visible trace are distributed (over the Regional Stats band if it is showing, otherwise the whole run), with the mean, STDEV, skew, kurtosis, the number of distinct values and a red normal curve with the same mean and STDEV to compare against. A histogram with only a few distinct values shows the meter's resolution; a lop-sided or double-humped one points to drift or interference. It refreshes when the Regional Stats band is switched on, off or moved, and closing the pop-up unticks it." & vbLf & vbLf &
+"Histogram of Readings - opens a pop-up showing how the readings of each visible trace are distributed (over the Regional Stats band if it is showing, otherwise the whole run), with the mean, STDEV, skew, kurtosis, the number of distinct values and a red normal curve with the same mean and STDEV to compare against. A histogram with only a few distinct values shows the meter's resolution; a lop-sided or double-humped one points to drift or interference. It is a snapshot: untick and tick it again to refresh, and closing the pop-up unticks it." & vbLf & vbLf &
 "The results boxes sit in the corners of the main chart (Regional Stats top-left, Tempco Curve top-right, Noise Band bottom-left, Trend Line bottom-right) and follow Light Mode." & vbLf & vbLf &
 "Allan Deviation - ticking Allan Deviation in the SCALES & ANALYSIS group opens a separate pop-up chart plotting the Allan Deviation (ADEV) of each device in the file, Dev 1 and Dev 2 together. It doesn't need the Dev 1 / Dev 2 trace checkboxes to be ticked. Unticking it, or closing the pop-up, clears the tick, and a new CSV closes it. It is not saved with Save Settings." & vbLf & vbLf &
 "The 'Show Dev 1' and 'Show Dev 2' checkboxes in the pop-up hide or show each device's curves (ADEV, Ideal and MDEV). At least one always stays ticked, and with a single-device CSV the unused device's checkbox is greyed out." & vbLf & vbLf &
