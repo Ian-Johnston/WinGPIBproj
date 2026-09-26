@@ -2530,6 +2530,7 @@ Public Class Chart
         CheckBoxTempcoCurve.Enabled = loaded AndAlso PlaybackTrendEnabled
         ButtonHistogram.Enabled = loaded AndAlso PlaybackHistogramEnabled
         CheckPlaybackDev12Allan.Enabled = loaded
+        ButtonExportResults.Enabled = loaded
 
     End Sub
 
@@ -2542,6 +2543,7 @@ Public Class Chart
         ToolTip1.SetToolTip(CheckBoxTrendLine, "Draws a straight least-squares line through each visible trace (or the Regional Stats band if it is showing) and reports the drift per hour.")
         ToolTip1.SetToolTip(CheckBoxTempcoCurve, "Fits the reading against temperature and draws the fit along the trace; the text gives the ppm/DegC and how much of the variation temperature explains.")
         ToolTip1.SetToolTip(CheckPlaybackDev12Allan, "Opens the Allan Deviation pop-up (calculated in the Playback Chart) with a curve for each device in the file.")
+        ToolTip1.SetToolTip(ButtonExportResults, "Saves all the statistics and analysis results for the visible Dev 1 / Dev 2 traces to a text file, using the Regional Stats band if it is showing, otherwise the whole run.")
         ToolTip1.SetToolTip(ButtonHistogram, "Opens a pop-up histogram of the readings (the Regional Stats band if it is showing, otherwise the whole run).")
 
     End Sub
@@ -3830,7 +3832,7 @@ Public Class Chart
         ApplySquareCorners(frm)
         Chart2HistogramForm = frm
         Chart2SetHistogramChecked(True)
-        frm.Show(Me)
+        frm.Show()
 
     End Sub
 
@@ -7454,6 +7456,7 @@ Public Class Chart
 "Trend Line - draws a dashed straight line, fitted by least squares, through each visible trace (the whole run, or just the Regional Stats band). The text box gives the drift per hour, in the reading's units and in ppm, and R2 - how well a straight line describes the trace (near 1 = a clean straight drift, near 0 = no straight-line trend)." & vbLf & vbLf &
 "Tempco Curve - fits the reading against temperature and draws the fit as a coloured curve along the trace (magenta for Dev 1, purple for Dev 2). If the curve follows the trace, temperature explains its movement. The text box gives the ppm/DegC with its uncertainty, R2, and the percentage of the variation that temperature explains. It needs the temperature to change enough to fit, and is calculated relative to the trace's mean, so it can differ slightly from the PPM/DegC (Fit) figure, which uses the Initial Value." & vbLf & vbLf &
 "Histogram of Readings - opens a pop-up showing how the readings of each visible trace are distributed (over the Regional Stats band if it is showing, otherwise the whole run), with the mean, STDEV, skew, kurtosis, the number of distinct values and a red normal curve with the same mean and STDEV to compare against. A histogram with only a few distinct values shows the meter's resolution; a lop-sided or double-humped one points to drift or interference. It refreshes when the Regional Stats band is switched on, off or moved, and closing the pop-up unticks it." & vbLf & vbLf &
+"Export Results - the button in the MISC. group saves every statistic and analysis result to a text file, named after the CSV (for example MyLog_Results.txt, or MyLog_Results_region_49-149.txt when the Regional Stats band is showing), in the CSV's folder unless you choose another. It covers the devices whose Data checkbox is ticked, over the Regional Stats band if it is showing, otherwise the whole run, and it always includes every result whatever the analysis checkboxes are set to: the recorded statistics, Max/Min, RMS Noise, PPM Deviation, PPM/DegC (point, Fit and Trend), Tempco Curve, Trend Line, Noise Band, the statistics of the scope, the Histogram figures and the Allan Deviation / MDEV table. Figures use the raw readings (the Avg boxes are ignored) and are written to 10 significant digits." & vbLf & vbLf &
 "The results boxes sit in the corners of the main chart (Regional Stats top-left, Tempco Curve top-right, Noise Band bottom-left, Trend Line bottom-right) and follow Light Mode." & vbLf & vbLf &
 "Allan Deviation - ticking Allan Deviation in the SCALES & ANALYSIS group opens a separate pop-up chart plotting the Allan Deviation (ADEV) of each device in the file, Dev 1 and Dev 2 together. It doesn't need the Dev 1 / Dev 2 trace checkboxes to be ticked. Unticking it, or closing the pop-up, clears the tick, and a new CSV closes it. It is not saved with Save Settings. Like the other tools, it uses just the Regional Stats band while the band is showing (the pop-up title says 'region' or 'whole run') and updates when the band is switched on, off, or moved. A short band limits how far right the curve can go." & vbLf & vbLf &
 "The 'Show Dev 1' and 'Show Dev 2' checkboxes in the pop-up hide or show each device's curves (ADEV, Ideal and MDEV). At least one always stays ticked, and with a single-device CSV the unused device's checkbox is greyed out." & vbLf & vbLf &
@@ -7560,7 +7563,7 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
         Next
 
         ' Bold the tool name at the start of each ANALYSIS TOOLS entry ("Histogram of Readings - opens ...").
-        Dim toolNames() As String = {"Regional Stats", "Noise Band", "Trend Line", "Tempco Curve", "Histogram of Readings", "Allan Deviation"}
+        Dim toolNames() As String = {"Regional Stats", "Noise Band", "Trend Line", "Tempco Curve", "Histogram of Readings", "Allan Deviation", "Export Results"}
         Dim toolsStart As Integer = txt.Text.IndexOf("ANALYSIS TOOLS", StringComparison.Ordinal)
 
         For Each toolName As String In toolNames

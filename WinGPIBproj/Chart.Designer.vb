@@ -153,6 +153,7 @@ Partial Class Chart
         Me.LabelSEMscale = New System.Windows.Forms.Label()
         Me.LabelMean = New System.Windows.Forms.Label()
         Me.LabelSMean = New System.Windows.Forms.Label()
+        Me.ButtonExportResults = New System.Windows.Forms.Button()
         Me.PPMBox1.SuspendLayout()
         Me.Panel1.SuspendLayout()
         Me.GroupBoxMisc.SuspendLayout()
@@ -653,6 +654,7 @@ Partial Class Chart
         '
         'GroupBoxMisc
         '
+        Me.GroupBoxMisc.Controls.Add(Me.ButtonExportResults)
         Me.GroupBoxMisc.Controls.Add(Me.CheckBoxColours)
         Me.GroupBoxMisc.Enabled = False
         Me.GroupBoxMisc.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -1638,6 +1640,16 @@ Partial Class Chart
         Me.LabelSMean.TabIndex = 595
         Me.LabelSMean.Text = "S.MEAN"
         '
+        'ButtonExportResults
+        '
+        Me.ButtonExportResults.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonExportResults.Location = New System.Drawing.Point(7, 45)
+        Me.ButtonExportResults.Name = "ButtonExportResults"
+        Me.ButtonExportResults.Size = New System.Drawing.Size(60, 39)
+        Me.ButtonExportResults.TabIndex = 118
+        Me.ButtonExportResults.Text = "Export" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Results"
+        Me.ButtonExportResults.UseVisualStyleBackColor = True
+        '
         'Chart
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -1844,4 +1856,5 @@ Partial Class Chart
     Friend WithEvents CheckBoxNoiseBand As CheckBox
     Friend WithEvents CheckBoxRegionStats As CheckBox
     Friend WithEvents CheckPlaybackDev12Allan As CheckBox
+    Friend WithEvents ButtonExportResults As Button
 End Class
