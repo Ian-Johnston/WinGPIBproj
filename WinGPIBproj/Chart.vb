@@ -884,6 +884,9 @@ Public Class Chart
 
     ' Total length of the CSV in minutes; Xscaletotal's text is display only (visible/total).
     Private Chart2TotalMins As Double = 0
+    Private Chart2ElapsedSeconds As Double = 0    ' first-to-last timestamp span of the loaded CSV
+    Private Chart2SampleCount As Integer = 0      ' samples per device in the loaded CSV
+    Private Chart2MinsPerSample As Double = 0     ' Chart2TotalMins / (samples - 1)
 
     Private Sub InitializeResizableLayout()
 
@@ -2112,19 +2115,12 @@ Public Class Chart
             ' Calculate the interval to evenly space the ticks
             Dim intervalc As Double = (maxXc - minXc) / (numberOfTicks - 1)     ' counts
 
-            ' Counts-to-mins ratio; Xscaletotal can be 0 (very short file or identical timestamps), so fall back to 1.
-            Dim ticklabelgridratioRaw As Double = (maxXc - minXc) / Math.Round(Chart2TotalMins, 1)
-            Dim ticklabelgridratio As Integer = 1
-            If Not Double.IsNaN(ticklabelgridratioRaw) AndAlso
-               Math.Abs(ticklabelgridratioRaw) <= Integer.MaxValue Then
-                ticklabelgridratio = CInt(ticklabelgridratioRaw)
-                If ticklabelgridratio = 0 Then ticklabelgridratio = 1
-            End If
+            ' Minutes per sample (labels fall back to sample numbers if the time base is unknown).
+            Dim minsPerCount As Double = If(Chart2MinsPerSample > 0, Chart2MinsPerSample, 1.0)
 
             ' Calculate the x-axis labels
             For i As Double = 1 To (Val(CSVfileLines.Text) + 2) Step intervalc              ' + 2 at the end seems to help fill in the far right X-Scale label that is sometimes missing!
-                Dim ii As Double = i / ticklabelgridratio                                   ' Value to be displayed, i.e. 0 / 69.5 = 0, or, 1877 / 12 = 15
-                xTicks.AddMajor(i, (ii + Val(CurrentPosition.Text) / ticklabelgridratio).ToString("0.00"))   ' Format to X.XX
+                xTicks.AddMajor(i, ((i + Val(CurrentPosition.Text)) * minsPerCount).ToString("0.00"))   ' Format to X.XX
                 xTicks3.AddMajor(i, "")
             Next
 
@@ -2145,19 +2141,11 @@ Public Class Chart
             ' Calculate the interval to evenly space the ticks
             Dim intervalc As Double = (maxXc - minXc) / (numberOfTicks - 1)     ' counts
 
-            ' Ratio of counts to mins - see the single-device branch above
-            ' for why this needs to be guarded against Xscaletotal = "0".
-            Dim ticklabelgridratioRaw As Double = (maxXc - minXc) / Math.Round(Chart2TotalMins, 1)
-            Dim ticklabelgridratio As Integer = 1
-            If Not Double.IsNaN(ticklabelgridratioRaw) AndAlso
-               Math.Abs(ticklabelgridratioRaw) <= Integer.MaxValue Then
-                ticklabelgridratio = CInt(ticklabelgridratioRaw)
-                If ticklabelgridratio = 0 Then ticklabelgridratio = 1
-            End If
+            ' Minutes per sample - see the single-device branch above.
+            Dim minsPerCount As Double = If(Chart2MinsPerSample > 0, Chart2MinsPerSample, 1.0)
 
             For i As Double = 1 To (Val(CSVfileLines.Text) + 2) Step intervalc              ' + 2 at the end seems to help fill in the far right X-Scale label that is sometimes missing!
-                Dim ii As Integer = i / ticklabelgridratio                                   ' Value to be displayed, i.e. 0 / 69.5 = 0, or, 1877 / 12 = 15
-                xTicks.AddMajor(i, (ii + (Val(CurrentPosition.Text) / 2) / ticklabelgridratio).ToString("0.00"))   ' Format to X.XX
+                xTicks.AddMajor(i, ((i + Val(CurrentPosition.Text) / 2) * minsPerCount).ToString("0.00"))   ' Format to X.XX
                 xTicks3.AddMajor(i, "")
             Next
 
@@ -2216,7 +2204,7 @@ Public Class Chart
         If (DualDev = True) Then
             DateTimeSplit1 = DateStart.Add(TimeStart.TimeOfDay)
             DateTimeSplit2 = DateStop.Add(TimeStop.TimeOfDay)
-            TimePoint = ((DateTimeSplit2 - DateTimeSplit1).TotalSeconds) / ((endRowIndex - startRowIndex) / 2) ' /2 due to dual device CSV so half numbers of entries each
+            TimePoint = ((DateTimeSplit2 - DateTimeSplit1).TotalSeconds) / ((endRowIndex - startRowIndex - 1) / 2) ' rows come in pairs, so N samples = (rows)/2 and N-1 intervals = (rows-2)/2
         Else
             DateTimeSplit1 = DateStart.Add(TimeStart.TimeOfDay)
             DateTimeSplit2 = DateStop.Add(TimeStop.TimeOfDay)
@@ -2225,7 +2213,11 @@ Public Class Chart
 
         ' Identical or sub-second timestamps give an elapsed time of 0; fall back to 1 second/sample
         ' to avoid zeroing MinsTotal/Xscaletotal and dividing by zero in FixTicks.
-        If TimePoint <= 0 Then TimePoint = 1
+        If TimePoint <= 0 OrElse Double.IsNaN(TimePoint) OrElse Double.IsInfinity(TimePoint) Then TimePoint = 1
+
+        ' Exact span and sample count for the X scale (see PrintXscale).
+        Chart2ElapsedSeconds = (DateTimeSplit2 - DateTimeSplit1).TotalSeconds
+        Chart2SampleCount = If(DualDev, (endRowIndex - startRowIndex + 1) \ 2, endRowIndex - startRowIndex + 1)
 
     End Sub
 
@@ -2263,32 +2255,23 @@ Public Class Chart
 
     Sub PrintXscale()
 
-        ' TimePoint = time per point in secs
-
-        ' Total length of the loaded CSV in minutes.
-        Dim totalMins As Double = (RangeReqd * Val(MinsTotal.Text)) / numberlinesCSV
+        ' Total length of the loaded CSV in minutes: the first-to-last timestamp span (or, if the timestamps don't
+        ' advance, (samples - 1) x the fallback sample period). Everything time-based (X labels, Trend Line per hour,
+        ' Regional Stats minutes) derives from this, so it must not depend on line counts or the rounded Mins Total box.
+        Dim totalMins As Double = 0
+        Chart2MinsPerSample = 0
+        If Chart2SampleCount > 1 Then
+            Dim totalSeconds As Double = If(Chart2ElapsedSeconds > 0, Chart2ElapsedSeconds, (Chart2SampleCount - 1) * TimePoint)
+            totalMins = totalSeconds / 60.0
+            Chart2MinsPerSample = totalMins / (Chart2SampleCount - 1)
+        End If
         If Double.IsNaN(totalMins) OrElse Double.IsInfinity(totalMins) Then totalMins = 0
-        Chart2TotalMins = Math.Round(totalMins, 3)
+        Chart2TotalMins = totalMins
         Chart2UpdateXscaleLabel()
 
-        If DualDev = False Then
-            MinsTotal.Text = Format(Math.Round((numberlinesCSV * TimePoint) / 60, 2), "#0")
-        Else
-            MinsTotal.Text = Format(Math.Round(((numberlinesCSV / 2) * TimePoint) / 60, 2), "#0")
-        End If
-
+        MinsTotal.Text = totalMins.ToString("0.0")
 
     End Sub
-
-
-
-
-
-
-
-
-
-
 
 
     Private Sub CheckPathCSVfile(Optional recalculateYAxis As Boolean = True)
@@ -3960,8 +3943,8 @@ Public Class Chart
             curve.MarkerStyle.IsVisible = False
         End If
 
-        Dim resolutionText As String = If(distinct.Count > 1, "   smallest step " & minGap.ToString("0.########"), "")
-        Dim info As String = "n " & n.ToString() & "   mean " & mean.ToString("0.########") & "   STDEV " & stdev.ToString("0.########") &
+        Dim resolutionText As String = If(distinct.Count > 1, "   smallest step " & FormatSmall(minGap), "")
+        Dim info As String = "n " & n.ToString() & "   mean " & mean.ToString("0.########") & "   STDEV " & FormatSmall(stdev) &
                              vbLf & "min " & minValue.ToString("0.########") & "   max " & maxValue.ToString("0.########") &
                              vbLf & "skew " & skew.ToString("0.00") & "   excess kurtosis " & excessKurtosis.ToString("0.00") &
                              vbLf & distinct.Count.ToString() & " distinct values" & resolutionText &
@@ -4329,8 +4312,8 @@ Public Class Chart
         Dim typicalStdev As Double = spreadSum / points
         Dim typicalMean As Double = meanSum / points
         Dim ppmText As String = If(typicalMean <> 0, " (" & (typicalStdev / Math.Abs(typicalMean) * 1000000).ToString("0.00") & " ppm)", "")
-        summary = name & ": typical STDEV " & typicalStdev.ToString("0.########") & ppmText &
-                  "   quietest " & spreadMin.ToString("0.########") & "   noisiest " & spreadMax.ToString("0.########")
+        summary = name & ": typical STDEV " & FormatSmall(typicalStdev) & ppmText &
+                  "   quietest " & FormatSmall(spreadMin) & "   noisiest " & FormatSmall(spreadMax)
 
         Dim band As ScottPlot.Plottables.FillY = FormsPlot2.Plot.Add.FillY(xs.ToArray(), lows.ToArray(), highs.ToArray())
 
@@ -4404,6 +4387,14 @@ Public Class Chart
     End Sub
 
     ' Mean / STDEV / min / max / peak-to-peak / drift of one trace between two X positions (X is the sample index).
+    ' Fixed decimals hide tiny values (a 1E-9 STDEV would read "0"), so use scientific notation below 1E-6.
+    Private Function FormatSmall(x As Double) As String
+
+        If x <> 0 AndAlso Math.Abs(x) < 0.000001 Then Return x.ToString("0.###E+0")
+        Return x.ToString("0.########")
+
+    End Function
+
     Private Function Chart2RegionLine(name As String, data As List(Of ScottPlot.Coordinates), first As Integer, last As Integer) As String
 
         If last - first < 1 Then Return name & ": (too few points)"
@@ -4428,10 +4419,10 @@ Public Class Chart
         Dim drift As Double = data(last).Y - data(first).Y
         Dim driftPpm As String = If(mean <> 0, (drift / Math.Abs(mean) * 1000000).ToString("0.00") & " ppm", "")
 
-        Return name & ": mean " & mean.ToString("0.########") & "   STDEV " & stdev.ToString("0.########") &
+        Return name & ": mean " & mean.ToString("0.########") & "   STDEV " & FormatSmall(stdev) &
                vbLf & "     min " & lo.ToString("0.########") & "   max " & hi.ToString("0.########") &
-               "   p-p " & (hi - lo).ToString("0.########") &
-               vbLf & "     drift " & drift.ToString("0.########") & " (" & driftPpm & ")"
+               "   p-p " & FormatSmall(hi - lo) &
+               vbLf & "     drift " & FormatSmall(drift) & " (" & driftPpm & ")"
 
     End Function
 
