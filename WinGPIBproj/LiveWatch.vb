@@ -970,6 +970,7 @@ Partial Class Formtest
     "Shows how precisely the mean has been determined from the accumulated readings." & vbLf &
     "SEM is derived from the STDEV and decreases as more independent readings are averaged." & vbLf & vbLf &
     "SEM = STDEV / Sqrt(N)" & vbLf & vbLf &
+    "STDEV and SEM compared: STDEV describes the scatter of the individual readings, so it settles at roughly a constant value however long you record. SEM describes how well the average is known, so it keeps falling as more readings are collected. On the chart, expect the STDEV trace to flatten out while the SEM trace keeps sloping down. A STDEV that keeps rising points to drift or extra noise." & vbLf & vbLf &
     "AVERAGING GAIN (DIGITS)" & vbLf &
     "Shows the theoretical increase in resolution obtained by averaging N independent readings." & vbLf & vbLf &
     "Averaging Gain = 0.5 x Log10(N)" & vbLf & vbLf &

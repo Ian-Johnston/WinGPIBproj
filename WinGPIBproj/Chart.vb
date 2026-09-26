@@ -7492,9 +7492,9 @@ Public Class Chart
 "The Statistics chart has a left scale for Max Diff. and a separate right-hand scale each for PPM Deviation, STDEV and SEM (a scale only appears while a trace using it is ticked). STDEV and SEM values are tiny, so their scales show the numbers divided by a power of ten and the small label under the scale gives the multiplier: 3.0 with x1e-7 means 0.0000003. The plotted data and the hover readings still use the full values." & vbLf & vbLf &
 "Data - the raw VALUE reading logged for every sample." & vbLf & vbLf &
 "Mean - the cumulative Mean recorded in the CSV statistics for that device, running from whenever stats were last reset during acquisition." & vbLf & vbLf &
-"STDEV - the recorded Standard Deviation for that device." & vbLf &
+"STDEV - the recorded Standard Deviation for that device: how much the individual readings scatter around the mean. A smaller STDEV means less noise. It includes all variation, so drift and temperature effects raise it as well as random noise." & vbLf &
 "Formula: sqrt( sum( (Xi - Mean)^2 ) / (N - 1) )" & vbLf & vbLf &
-"SEM - the recorded Standard Error of the Mean for that device." & vbLf &
+"SEM - the recorded Standard Error of the Mean for that device: how precisely the mean is known. It falls as more independent readings are averaged, whereas STDEV settles at a roughly constant value - so a flat STDEV trace with a falling SEM trace is normal. A small SEM is not the same as accuracy." & vbLf &
 "Formula: STDEV / sqrt(N)" & vbLf & vbLf &
 "Max Diff. - the recorded Maximum-Minimum spread for that device." & vbLf &
 "Formula: Max - Min" & vbLf & vbLf &
