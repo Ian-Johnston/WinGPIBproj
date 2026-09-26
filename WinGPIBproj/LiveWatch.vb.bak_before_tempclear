@@ -2644,14 +2644,7 @@ Partial Class Formtest
 
                                             ' Stopped -> running clears that device's traces and re-enables its checkboxes.
                                             ' Running -> stopped leaves them frozen so the last run stays on screen.
-                                            ' A device run starting from nothing running restarts the sample counter, so the counter is reset and the
-            ' Temperature trace (which shares it) is cleared too; otherwise it carries on from the previous run.
-            If (dev1Active AndAlso Not dev1WasActive OrElse dev2Active AndAlso Not dev2WasActive) AndAlso Not (dev1WasActive OrElse dev2WasActive) Then
-                ClearLiveAnalysisSeries({"Temperature"})
-                LiveAnalysisSample = 0
-            End If
-
-            If dev1Active AndAlso Not dev1WasActive Then
+                                            If dev1Active AndAlso Not dev1WasActive Then
                                                 ClearLiveAnalysisSeries({"Device 1", "Dev 1 Mean", "Dev 1 STDEV", "Dev 1 SEM", "Dev 1 PPM Deviation"})
                                                 q1ShortTermMean.Clear() : sum1ShortTermMean = 0.0
                                                 LiveAnalysisLastStats1Count = Stats1Count
