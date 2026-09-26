@@ -1336,6 +1336,8 @@ Partial Class Formtest
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer18 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer19 = New System.Windows.Forms.Timer(Me.components)
+        Me.CheckBoxMaximizePlayback = New System.Windows.Forms.CheckBox()
+        Me.CheckBoxRememberPlayback = New System.Windows.Forms.CheckBox()
         Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
@@ -2638,7 +2640,7 @@ Partial Class Formtest
         'btnRestore
         '
         Me.btnRestore.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.btnRestore.Location = New System.Drawing.Point(8, 209)
+        Me.btnRestore.Location = New System.Drawing.Point(8, 252)
         Me.btnRestore.Name = "btnRestore"
         Me.btnRestore.Size = New System.Drawing.Size(90, 22)
         Me.btnRestore.TabIndex = 603
@@ -2649,7 +2651,7 @@ Partial Class Formtest
         'btnBackup
         '
         Me.btnBackup.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.btnBackup.Location = New System.Drawing.Point(8, 183)
+        Me.btnBackup.Location = New System.Drawing.Point(8, 226)
         Me.btnBackup.Name = "btnBackup"
         Me.btnBackup.Size = New System.Drawing.Size(90, 22)
         Me.btnBackup.TabIndex = 602
@@ -2845,7 +2847,7 @@ Partial Class Formtest
         'ButtonCheckUpdates
         '
         Me.ButtonCheckUpdates.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.ButtonCheckUpdates.Location = New System.Drawing.Point(9, 264)
+        Me.ButtonCheckUpdates.Location = New System.Drawing.Point(9, 314)
         Me.ButtonCheckUpdates.Name = "ButtonCheckUpdates"
         Me.ButtonCheckUpdates.Size = New System.Drawing.Size(112, 22)
         Me.ButtonCheckUpdates.TabIndex = 606
@@ -14961,6 +14963,8 @@ Partial Class Formtest
         '
         'GroupBox11
         '
+        Me.GroupBox11.Controls.Add(Me.CheckBoxRememberPlayback)
+        Me.GroupBox11.Controls.Add(Me.CheckBoxMaximizePlayback)
         Me.GroupBox11.Controls.Add(Me.Label317)
         Me.GroupBox11.Controls.Add(Me.ButtonCheckUpdates)
         Me.GroupBox11.Controls.Add(Me.Label416)
@@ -14994,7 +14998,7 @@ Partial Class Formtest
         'Label317
         '
         Me.Label317.AutoSize = True
-        Me.Label317.Location = New System.Drawing.Point(127, 269)
+        Me.Label317.Location = New System.Drawing.Point(127, 319)
         Me.Label317.Name = "Label317"
         Me.Label317.Size = New System.Drawing.Size(200, 13)
         Me.Label317.TabIndex = 608
@@ -15023,7 +15027,7 @@ Partial Class Formtest
         '
         Me.Label337.AutoSize = True
         Me.Label337.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label337.Location = New System.Drawing.Point(7, 114)
+        Me.Label337.Location = New System.Drawing.Point(7, 150)
         Me.Label337.Name = "Label337"
         Me.Label337.Size = New System.Drawing.Size(100, 15)
         Me.Label337.TabIndex = 620
@@ -15043,7 +15047,7 @@ Partial Class Formtest
         '
         Me.Label335.AutoSize = True
         Me.Label335.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label335.Location = New System.Drawing.Point(7, 163)
+        Me.Label335.Location = New System.Drawing.Point(7, 206)
         Me.Label335.Name = "Label335"
         Me.Label335.Size = New System.Drawing.Size(78, 15)
         Me.Label335.TabIndex = 614
@@ -15053,7 +15057,7 @@ Partial Class Formtest
         '
         Me.Label276.AutoSize = True
         Me.Label276.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label276.Location = New System.Drawing.Point(6, 245)
+        Me.Label276.Location = New System.Drawing.Point(6, 295)
         Me.Label276.Name = "Label276"
         Me.Label276.Size = New System.Drawing.Size(134, 15)
         Me.Label276.TabIndex = 607
@@ -15062,7 +15066,7 @@ Partial Class Formtest
         'Label314
         '
         Me.Label314.AutoSize = True
-        Me.Label314.Location = New System.Drawing.Point(104, 214)
+        Me.Label314.Location = New System.Drawing.Point(104, 257)
         Me.Label314.Name = "Label314"
         Me.Label314.Size = New System.Drawing.Size(303, 13)
         Me.Label314.TabIndex = 605
@@ -15071,7 +15075,7 @@ Partial Class Formtest
         'Label307
         '
         Me.Label307.AutoSize = True
-        Me.Label307.Location = New System.Drawing.Point(104, 188)
+        Me.Label307.Location = New System.Drawing.Point(104, 231)
         Me.Label307.Name = "Label307"
         Me.Label307.Size = New System.Drawing.Size(394, 13)
         Me.Label307.TabIndex = 604
@@ -15081,7 +15085,7 @@ Partial Class Formtest
         'TextBox1
         '
         Me.TextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None
-        Me.TextBox1.Location = New System.Drawing.Point(593, 133)
+        Me.TextBox1.Location = New System.Drawing.Point(593, 169)
         Me.TextBox1.Multiline = True
         Me.TextBox1.Name = "TextBox1"
         Me.TextBox1.ReadOnly = True
@@ -15092,7 +15096,7 @@ Partial Class Formtest
         'Label247
         '
         Me.Label247.AutoSize = True
-        Me.Label247.Location = New System.Drawing.Point(531, 133)
+        Me.Label247.Location = New System.Drawing.Point(531, 169)
         Me.Label247.Name = "Label247"
         Me.Label247.Size = New System.Drawing.Size(55, 13)
         Me.Label247.TabIndex = 596
@@ -15101,7 +15105,7 @@ Partial Class Formtest
         'Label10
         '
         Me.Label10.AutoSize = True
-        Me.Label10.Location = New System.Drawing.Point(7, 133)
+        Me.Label10.Location = New System.Drawing.Point(7, 169)
         Me.Label10.Name = "Label10"
         Me.Label10.Size = New System.Drawing.Size(225, 13)
         Me.Label10.TabIndex = 595
@@ -15109,7 +15113,7 @@ Partial Class Formtest
         '
         'TextBoxTextEditor
         '
-        Me.TextBoxTextEditor.Location = New System.Drawing.Point(240, 130)
+        Me.TextBoxTextEditor.Location = New System.Drawing.Point(240, 166)
         Me.TextBoxTextEditor.Name = "TextBoxTextEditor"
         Me.TextBoxTextEditor.Size = New System.Drawing.Size(273, 20)
         Me.TextBoxTextEditor.TabIndex = 594
@@ -15396,6 +15400,30 @@ Partial Class Formtest
         'Timer14
         '
         Me.Timer14.Interval = 50
+        '
+        'CheckBoxMaximizePlayback
+        '
+        Me.CheckBoxMaximizePlayback.AutoSize = True
+        Me.CheckBoxMaximizePlayback.Location = New System.Drawing.Point(10, 95)
+        Me.CheckBoxMaximizePlayback.Name = "CheckBoxMaximizePlayback"
+        Me.CheckBoxMaximizePlayback.Size = New System.Drawing.Size(178, 17)
+        Me.CheckBoxMaximizePlayback.TabIndex = 623
+        Me.CheckBoxMaximizePlayback.Text = "Open Playback Chart maximized"
+        Me.ToolTip1.SetToolTip(Me.CheckBoxMaximizePlayback, "Opens the Playback Chart maximized instead of at its normal size. Takes effect th" &
+        "e next time it is opened")
+        Me.CheckBoxMaximizePlayback.UseVisualStyleBackColor = True
+        '
+        'CheckBoxRememberPlayback
+        '
+        Me.CheckBoxRememberPlayback.AutoSize = True
+        Me.CheckBoxRememberPlayback.Location = New System.Drawing.Point(10, 117)
+        Me.CheckBoxRememberPlayback.Name = "CheckBoxRememberPlayback"
+        Me.CheckBoxRememberPlayback.Size = New System.Drawing.Size(173, 17)
+        Me.CheckBoxRememberPlayback.TabIndex = 624
+        Me.CheckBoxRememberPlayback.Text = "Remember Playback Chart size"
+        Me.ToolTip1.SetToolTip(Me.CheckBoxRememberPlayback, "Opens the Playback Chart at the size you last left it. Takes effect the next time" &
+        " it is opened. Cannot be used with Open Playback Chart maximized")
+        Me.CheckBoxRememberPlayback.UseVisualStyleBackColor = True
         '
         'OnOffLed2
         '
@@ -16850,4 +16878,6 @@ Partial Class Formtest
     Friend WithEvents LabelStats2Value As Label
     Friend WithEvents ButtonSCOTTPLOTack As Button
     Friend WithEvents ButtonLiveChartHelp As Button
+    Friend WithEvents CheckBoxMaximizePlayback As CheckBox
+    Friend WithEvents CheckBoxRememberPlayback As CheckBox
 End Class

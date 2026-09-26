@@ -13,21 +13,13 @@
 ' Console.WriteLine("Rolling Average Value for Device " & PPMdevice & " - " & tempcounter & " - " & PPMdegCrollingAverageValue)
 
 
-'Imports System.Threading
 Imports System.Diagnostics
 Imports System.IO
-'Imports System
 Imports System.IO.Ports
-'Imports System.Drawing
 Imports System.Management
 Imports System.Net
 Imports System.Reflection
 Imports System.Runtime.InteropServices
-'Imports System.Xml.Serialization
-'Imports System.Configuration
-'Imports System.Text.RegularExpressions
-'Imports System.Configuration
-'Imports WinGPIBproj.Formtest
 Imports System.Text
 Imports System.Text.RegularExpressions
 Imports System.Windows.Forms.VisualStyles.VisualStyleElement.Button
@@ -268,9 +260,12 @@ Public Class Formtest
                 EnhanceTextBoxBorders(Me)
                 MakeButtonsWin10ish(Me)
             End If
-            CheckBoxThemeSet.Checked = My.Settings.ThemeSet
 
-            BannerText1 = "WinGPIB - V5.114    (Free for Non-Commercial Use • Support WinGPIB — see About)"
+            CheckBoxThemeSet.Checked = My.Settings.ThemeSet
+            CheckBoxRememberPlayback.Checked = My.Settings.data1500
+            CheckBoxMaximizePlayback.Checked = My.Settings.data1499
+
+            BannerText1 = "WinGPIB - V5.115    (Free for Non-Commercial Use • Support WinGPIB — see About)"
             Me.Text = BannerText1.ToString()
 
             ' Advantest R6581 tab
@@ -2480,6 +2475,34 @@ Public Class Formtest
     Private Sub ButtonPlaybackChart_Click_1(sender As Object, e As EventArgs)
         Dim externalchart = New Chart()
         externalchart.Show()
+
+        ApplyPlaybackChartOpenSize(externalchart)
+    End Sub
+
+    ' Applied after Show: the Playback Chart records its designed size when it loads, and its layout and minimum size are based on
+    ' that. Maximized comes from CheckBoxMaximizePlayback; otherwise the size last left is used if CheckBoxRememberPlayback is ticked.
+    Private Sub ApplyPlaybackChartOpenSize(chart As Chart)
+
+        If My.Settings.data1499 Then
+            chart.WindowState = FormWindowState.Maximized
+            Exit Sub
+        End If
+
+        If Not My.Settings.data1500 Then Exit Sub
+
+        Dim w As Integer = My.Settings.data1501
+        Dim h As Integer = My.Settings.data1502
+        Dim area As Rectangle = Screen.FromControl(chart).WorkingArea
+
+        ' Ignore a missing or unusable size (nothing saved yet, or a different screen setup).
+        If w < chart.MinimumSize.Width OrElse h < chart.MinimumSize.Height OrElse w > area.Width OrElse h > area.Height Then Exit Sub
+
+        chart.Size = New Size(w, h)
+
+        ' Keep the window on screen if the larger size would push it off the edge.
+        chart.Left = Math.Max(area.Left, Math.Min(chart.Left, area.Right - chart.Width))
+        chart.Top = Math.Max(area.Top, Math.Min(chart.Top, area.Bottom - chart.Height))
+
     End Sub
 
     Private Sub ButtonHelp_Click_1(sender As Object, e As EventArgs)
@@ -2729,6 +2752,8 @@ Public Class Formtest
                 ' Make WinGPIB the owner so the Playback form
                 ' remains in front of the main application.
                 externalchart.Show()
+
+                ApplyPlaybackChartOpenSize(externalchart)
 
                 externalchart.BringToFront()
                 externalchart.Activate()

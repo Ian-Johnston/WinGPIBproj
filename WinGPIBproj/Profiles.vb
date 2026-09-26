@@ -111,6 +111,23 @@ Partial Class Formtest
     End Sub
 
 
+    ' Maximize and Remember size are mutually exclusive: ticking one unticks the other.
+    Private Sub CheckBoxMaximizePlayback_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxMaximizePlayback.CheckedChanged
+
+        If CheckBoxMaximizePlayback.Checked Then CheckBoxRememberPlayback.Checked = False
+        My.Settings.data1499 = CheckBoxMaximizePlayback.Checked
+
+    End Sub
+
+
+    Private Sub CheckBoxRememberPlayback_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxRememberPlayback.CheckedChanged
+
+        If CheckBoxRememberPlayback.Checked Then CheckBoxMaximizePlayback.Checked = False
+        My.Settings.data1500 = CheckBoxRememberPlayback.Checked
+
+    End Sub
+
+
     Private Sub ButtonSaveSettings_Click(sender As Object, e As EventArgs) Handles ButtonSaveSettings.Click
 
         SaveSettings()
@@ -121,6 +138,8 @@ Partial Class Formtest
     Private Sub SaveSettings()
 
         My.Settings.ThemeSet = CheckBoxThemeSet.Checked
+        My.Settings.data1499 = CheckBoxMaximizePlayback.Checked
+        My.Settings.data1500 = CheckBoxRememberPlayback.Checked
 
         ' Profile selection flags Dev 1 & 2 (1..20)
         My.Settings.Dev1Prof1 = (Dev1ProfileNumber() = 1)

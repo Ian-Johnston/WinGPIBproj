@@ -1141,6 +1141,7 @@ Public Class Chart
 
     Private Sub Chart_Resize(sender As Object, e As EventArgs) Handles MyBase.Resize
         RepositionResizableLayout()
+        If FormGrip IsNot Nothing Then FormGrip.Visible = PlaybackResizeGripVisible AndAlso Me.WindowState = FormWindowState.Normal
     End Sub
 
 
@@ -5985,6 +5986,7 @@ Public Class Chart
         Xscaletotal.Visible = False
         LabelTempC.Visible = False
         LabelHum.Visible = False
+        LabelPPMtop.Visible = False
         LabelPPMdegctop.Visible = False
         LabelBottomChart.Visible = False
         LabelPPMstats.Visible = False
@@ -7182,6 +7184,13 @@ Public Class Chart
     End Sub
 
     Private Sub Chart_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+
+        ' Remember the size it was left at (its normal size if it is maximized or minimized).
+        If My.Settings.data1500 Then
+            Dim normalSize As Size = If(Me.WindowState = FormWindowState.Normal, Me.Size, Me.RestoreBounds.Size)
+            My.Settings.data1501 = normalSize.Width
+            My.Settings.data1502 = normalSize.Height
+        End If
 
         ' The pop-up depends on this form's live data (dataTable1, DeviceName1/2, Allan checkboxes), so close it with this form;
         ' otherwise interacting with it could crash on the log axis.
