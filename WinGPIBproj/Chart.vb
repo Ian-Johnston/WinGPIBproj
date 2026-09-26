@@ -176,6 +176,7 @@ Public Class Chart
     Dim Chart2TrendText As ScottPlot.Plottables.Annotation
     Dim Chart2TempcoText As ScottPlot.Plottables.Annotation     ' Tempco Curve results (top-right); Trend Line's are bottom-right
     Dim Chart2HistogramForm As Form
+    Dim PpmBaselineUpdating As Boolean = False       ' True while Set PPM Baseline Here changes both From CSV boxes (one refresh afterwards)
     Dim Chart2HistogramSync As Boolean = False      ' True while code (not the user) changes ButtonHistogram or closes its pop-up
     Dim Chart2TrendTemps1() As Double       ' TEMP per sample of each device, cached from dataTable1
     Dim Chart2TrendTemps2() As Double
@@ -627,6 +628,7 @@ Public Class Chart
         chart2Menu.Add("Save Image", AddressOf chart2Menu.OpenSaveImageDialog)
         chart2Menu.Add("Copy Value At Cursor", AddressOf Chart2CopyValueAtCursor)
         chart2Menu.Add("Clear Measurement", AddressOf Chart2ClearMeasurement)
+        chart2Menu.Add("Zoom All", AddressOf Chart2MenuZoomAll)
         If PlaybackRegionStatsEnabled Then chart2Menu.Add("Region Statistics (on/off)", AddressOf Chart2ToggleRegion)
         If PlaybackNoiseBandEnabled Then chart2Menu.Add("Noise Band (on/off)", AddressOf Chart2ToggleNoiseBand)
         If PlaybackTrendEnabled Then
@@ -634,6 +636,8 @@ Public Class Chart
             chart2Menu.Add("Tempco Curve (on/off)", AddressOf Chart2ToggleTempco)
         End If
         If PlaybackHistogramEnabled Then chart2Menu.Add("Histogram of Readings", AddressOf Chart2MenuHistogram)
+        chart2Menu.Add("Allan Deviation (on/off)", AddressOf Chart2ToggleAllan)
+        chart2Menu.Add("Set PPM Baseline Here", AddressOf Chart2SetPpmBaseline)
 
         AddHandler FormsPlot2.MouseDown, AddressOf Chart2OnMouseDown
         AddHandler FormsPlot2.MouseWheel,
@@ -3505,6 +3509,50 @@ Public Class Chart
 
     End Sub
 
+    ' Right-click > Zoom All: the same as the ZOOM ALL button.
+    Private Sub Chart2MenuZoomAll(plot As ScottPlot.Plot)
+
+        If ButtonDisplayAll.Enabled Then ShowAll()
+
+    End Sub
+
+    ' Right-click > Allan Deviation (on/off): flips the checkbox, which opens or closes the pop-up.
+    Private Sub Chart2ToggleAllan(plot As ScottPlot.Plot)
+
+        If CheckPlaybackDev12Allan.Enabled Then CheckPlaybackDev12Allan.Checked = Not CheckPlaybackDev12Allan.Checked
+
+    End Sub
+
+    ' Right-click > Set PPM Baseline Here: takes the reading and temperature of the sample under the cursor (for the
+    ' device selected by the Dev 1/Dev 2 radios) as Initial Value / Initial Temp, and unticks both "From CSV" boxes.
+    Private Sub Chart2SetPpmBaseline(plot As ScottPlot.Plot)
+
+        If Not RadioButtonPPMDev.Checked AndAlso Not RadioButtonPPMTempo.Checked Then
+            MessageBox.Show("Initial Value / Initial Temp are only used by PPM Deviation and PPM/DegC (point). Select one of those first.",
+                            "Set PPM Baseline", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Exit Sub
+        End If
+
+        Dim slot As Integer = If(RadioButtonDev2.Checked, 2, 1)
+        Dim data As List(Of ScottPlot.Coordinates) = If(slot = 1, Chart2Dev1Data, Chart2Dev2Data)
+        Dim temps() As Double = Chart2DeviceTemps(If(slot = 1, DeviceName1.Text, DeviceName2.Text))
+
+        If data.Count = 0 OrElse temps.Length <> data.Count Then Exit Sub
+
+        Dim x As Double = FormsPlot2.Plot.GetCoordinates(Chart2LastRightClickPixel).X
+        Dim idx As Integer = Math.Max(0, Math.Min(data.Count - 1, CInt(Math.Round(x))))
+
+        PpmBaselineUpdating = True
+        MedianValue.Text = data(idx).Y.ToString("R", Globalization.CultureInfo.InvariantCulture)
+        MedianTemp.Text = temps(idx).ToString("R", Globalization.CultureInfo.InvariantCulture)
+        CheckBoxMedianV.Checked = False
+        CheckBoxMedianT.Checked = False
+        PpmBaselineUpdating = False
+
+        RefreshPlaybackCSVFile()
+
+    End Sub
+
     Private Sub Chart2CopyValueAtCursor(plot As ScottPlot.Plot)
 
         Dim found As Boolean = False
@@ -5787,12 +5835,14 @@ Public Class Chart
 
     Private Sub CheckBoxMedianT_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxMedianT.CheckedChanged
 
+        If PpmBaselineUpdating Then Exit Sub
         RefreshPlaybackCSVFile()
 
     End Sub
 
     Private Sub CheckBoxMedianV_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBoxMedianV.CheckedChanged
 
+        If PpmBaselineUpdating Then Exit Sub
         RefreshPlaybackCSVFile()
 
     End Sub
@@ -7434,8 +7484,8 @@ Public Class Chart
 "- Zoom in/out at the cursor - Scroll wheel (hold Shift to zoom Y only, Ctrl to zoom X only)" & vbLf &
 "- Measure the delta between two points - Double-click two points, double-click again (or press Esc) to clear" & vbLf &
 "- Hover a trace to see the value of the nearest data point" & vbLf &
-"- Right-click (no drag) for a menu: Save Image, Copy Value At Cursor, Clear Measurement, Region Statistics, Noise Band, Trend Line, Tempco Curve, Histogram of Readings" & vbLf &
-"- Analysis tools (Regional Stats, Noise Band, Trend Line, Tempco Curve, Histogram) are on this menu too - see the analysis tools section below." & vbLf &
+"- Right-click (no drag) for a menu: Save Image, Copy Value At Cursor, Clear Measurement, Zoom All, Region Statistics, Noise Band, Trend Line, Tempco Curve, Histogram of Readings, Allan Deviation, Set PPM Baseline Here" & vbLf &
+"- Analysis tools (Regional Stats, Noise Band, Trend Line, Tempco Curve, Histogram, Allan Deviation) are on this menu too - see the analysis tools section below. Zoom All does the same as the ZOOM ALL button, and Set PPM Baseline Here is described under PPM Deviation / Tempco." & vbLf &
 "- Any pan or zoom unticks AutoScale." & vbLf &
 "Only the Dev 1 / Dev 2 traces and their left-hand scale respond to pan/zoom - the Temp, Hum and PPM scales stay fixed to their own scale boxes." & vbLf & vbLf &
 "Statistics chart (underneath): hover and double-click measure only. It has no pan/zoom of its own and follows the main chart's X range." & vbLf & vbLf &
@@ -7450,7 +7500,7 @@ Public Class Chart
 "ZOOM ALL reloads the whole file and applies the same fit as AutoScale once - use it to return to the full view after zooming." & vbLf & vbLf &
 "The X-axis is time in minutes across the loaded file, and the Time (mins) figure above the chart shows the minutes currently visible over the total length (e.g. 120.0/228.0)." & vbLf & vbLf &
 "ANALYSIS TOOLS" & vbLf &
-"The Regional Stats, Noise Band, Trend Line, Tempco Curve, Histogram of Readings and Allan Deviation checkboxes in the SCALES & ANALYSIS group switch on tools for studying the Dev 1 / Dev 2 traces (the first five are also on the main chart's right-click menu). They are enabled once a CSV is loaded, and they are all cleared when a new CSV is loaded. Apart from Allan Deviation, they only use the traces that are ticked. Noise Band, Trend Line and Tempco Curve are saved with Save Settings and re-applied on each load." & vbLf & vbLf &
+"The Regional Stats, Noise Band, Trend Line, Tempco Curve, Histogram of Readings and Allan Deviation checkboxes in the SCALES & ANALYSIS group switch on tools for studying the Dev 1 / Dev 2 traces (they are also on the main chart's right-click menu). They are enabled once a CSV is loaded, and they are all cleared when a new CSV is loaded. Apart from Allan Deviation, they only use the traces that are ticked. Noise Band, Trend Line and Tempco Curve are saved with Save Settings and re-applied on each load." & vbLf & vbLf &
 "Regional Stats (menu: Region Statistics) - shows a translucent band on the chart. Drag it to move it, or drag either edge to resize it. A text box lists, for each visible trace inside the band: the mean, STDEV, min, max, peak-to-peak and drift (last minus first reading, also in ppm), plus the number of samples and minutes covered. Trend Line, Tempco Curve and Histogram of Readings use the band instead of the whole run while it is showing." & vbLf & vbLf &
 "Noise Band - shades the rolling mean +/- 1 STDEV around each visible trace, calculated over the RMS window. A wide band means a noisy stretch, a narrow one a quiet stretch. The text box reports the typical, quietest and noisiest STDEV found for each trace, in the reading's units and in ppm." & vbLf & vbLf &
 "Trend Line - draws a dashed straight line, fitted by least squares, through each visible trace (the whole run, or just the Regional Stats band). The text box gives the drift per hour, in the reading's units and in ppm, and R2 - how well a straight line describes the trace (near 1 = a clean straight drift, near 0 = no straight-line trend)." & vbLf & vbLf &
@@ -7519,6 +7569,7 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
 "PPM/DegC often spikes or looks noisy right at the start of a file, then settles - this is expected. It divides by how far temperature has moved from baseline, which is close to zero at the start, so ordinary reading noise gets massively amplified until temperature has drifted enough to measure reliably." & vbLf & vbLf &
 "PPM/DegC (Fit) avoids this by fitting one straight line through all the Temp/Value points instead of dividing point-by-point, giving one steady figure for the whole view. It also shows a +/- uncertainty in the Initial Value/Initial Temp boxes - a large +/- means this file's real temperature range is too small to trust the number." & vbLf & vbLf &
 "PPM/DegC (Trend) works the same way as Fit, but re-fits over just the last 'RMS window' points at a time instead of the whole file, sliding forward as it goes - so the figure can genuinely drift over time instead of being one fixed number for the whole chart." & vbLf & vbLf &
+"Right-click the chart > Set PPM Baseline Here takes the reading and temperature of the sample under the cursor (for the device selected by the Dev 1/Dev 2 radio buttons) as the Initial Value and Initial Temp, and unticks both '- From CSV' boxes - a quick way to measure PPM and PPM/DegC (point) against a stretch you consider settled instead of the first reading. Tick '- From CSV' again to go back to the logged baseline. It only applies to PPM Deviation and PPM/DegC (point)." & vbLf & vbLf &
 "For Fit and Trend, Initial Value is still used to convert the fitted slope into ppm - leave '- From CSV' checked so it matches the real logged baseline. Typing in a different number doesn't change the meter's behaviour, it just changes what 1 ppm is measured against, so the result will look smaller or larger without anything real having changed." & vbLf & vbLf &
 "TEMP/HUM" & vbLf &
 "Temp and Hum. show or hide the logged temperature and humidity traces. Each has its own right-hand scale: Temp Max./Min. and Hum Max./Min. set the range of those scales (they are not recorded values), and the scales don't respond to mouse pan/zoom. Temp Avg. and Hum Avg. set how many points the Temp and Hum traces are rolling-averaged over (0 disables it, range 0-100)." & vbLf & vbLf &
