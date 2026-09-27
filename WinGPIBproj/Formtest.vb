@@ -265,7 +265,7 @@ Public Class Formtest
             CheckBoxRememberPlayback.Checked = My.Settings.data1500
             CheckBoxMaximizePlayback.Checked = My.Settings.data1499
 
-            BannerText1 = "WinGPIB - V5.115    (Free for Non-Commercial Use • Support WinGPIB — see About)"
+            BannerText1 = "WinGPIB - V5.116    (Free for Non-Commercial Use • Support WinGPIB — see About)"
             Me.Text = BannerText1.ToString()
 
             ' Advantest R6581 tab

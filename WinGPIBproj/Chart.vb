@@ -2244,10 +2244,19 @@ Public Class Chart
 
         Dim text As String = Chart2TotalMins.ToString("0.0")
         Dim sampleCount As Integer = Math.Max(Chart2Dev1Data.Count, Chart2Dev2Data.Count)
-        Dim span As Double = FormsPlot2.Plot.Axes.Bottom.Max - FormsPlot2.Plot.Axes.Bottom.Min
+        Dim axisMin As Double = FormsPlot2.Plot.Axes.Bottom.Min
+        Dim axisMax As Double = FormsPlot2.Plot.Axes.Bottom.Max
 
-        If sampleCount > 1 AndAlso Chart2TotalMins > 0 AndAlso Not Double.IsNaN(span) AndAlso Not Double.IsInfinity(span) Then
-            Dim visibleMins As Double = Math.Min(Chart2TotalMins, Math.Max(0, span * Chart2TotalMins / (sampleCount - 1)))
+        If sampleCount > 1 AndAlso Chart2TotalMins > 0 AndAlso Not Double.IsNaN(axisMin) AndAlso Not Double.IsNaN(axisMax) AndAlso
+           Not Double.IsInfinity(axisMin) AndAlso Not Double.IsInfinity(axisMax) Then
+
+            ' Clamp the view to the data's own range (0 to sampleCount-1) first, so panning off either end
+            ' reports less (down to 0) visible data, the same as zooming out would - not the raw window width.
+            Dim clampedMin As Double = Math.Max(0, Math.Min(axisMin, sampleCount - 1))
+            Dim clampedMax As Double = Math.Max(0, Math.Min(axisMax, sampleCount - 1))
+            Dim span As Double = Math.Max(0, clampedMax - clampedMin)
+
+            Dim visibleMins As Double = Math.Min(Chart2TotalMins, span * Chart2TotalMins / (sampleCount - 1))
             text = visibleMins.ToString("0.0") & "/" & text
         End If
 
