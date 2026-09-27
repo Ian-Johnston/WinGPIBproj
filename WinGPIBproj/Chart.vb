@@ -2,6 +2,7 @@
 
 Imports System.Runtime.InteropServices
 Imports System.Windows.Forms.DataVisualization.Charting
+Imports System.Media
 
 
 Public Class Chart
@@ -24,6 +25,21 @@ Public Class Chart
     Private Const PlaybackNoiseBandEnabled As Boolean = True        ' right-click > Noise Band (main chart)
     Private Const PlaybackTrendEnabled As Boolean = True            ' right-click > Trend Line / Tempco Curve (main chart)
     Private Const PlaybackHistogramEnabled As Boolean = True        ' right-click > Histogram of Readings (main chart)
+
+    ' Right-click menu: a real WinForms ContextMenuStrip (Chart2ContextMenu, built in Chart2BuildContextMenu) is used
+    ' instead of ScottPlot's own menu, so the on/off items can show a properly aligned, sized checkbox (see
+    ' Chart2CheckboxImage) - text glyphs (tried first) rendered at slightly different widths depending on state.
+    Private Const ChartMenuCheckboxSize As Integer = 18   ' a little larger than the ToolStrip's default 16px icon area
+    Private Chart2ContextMenu As ContextMenuStrip = Nothing
+    Private Chart2ContextMenuToggles As New List(Of KeyValuePair(Of ToolStripMenuItem, Func(Of Boolean)))
+    Private Chart2CheckboxImageOff As Bitmap = Nothing
+    Private Chart2CheckboxImageOn As Bitmap = Nothing
+
+    ' Set PPM Baseline is a two-step "arm, then click a point" action (see Chart2SetPpmBaseline /
+    ' Chart2ArmPpmBaselinePick), because it's only reachable via a right-click that itself picks a point, and
+    ' users may expect to choose the menu item first and then click the point afterwards.
+    Private Chart2PpmBaselineArmed As Boolean = False
+    Private Chart2PpmBaselineNotice As ScottPlot.Plottables.Annotation = Nothing
     Private Const PlaybackNoiseBandSigmas As Double = 1.0           ' band half-width in STDEVs
     Private Const PlaybackResizeGripVisible As Boolean = True       ' bottom-right window resize grip
     Private Const PlaybackResizeGripSize As Integer = 8             ' its width and height (px)
@@ -176,7 +192,7 @@ Public Class Chart
     Dim Chart2TrendText As ScottPlot.Plottables.Annotation
     Dim Chart2TempcoText As ScottPlot.Plottables.Annotation     ' Tempco Curve results (top-right); Trend Line's are bottom-right
     Dim Chart2HistogramForm As Form
-    Dim PpmBaselineUpdating As Boolean = False       ' True while Set PPM Baseline Here changes both From CSV boxes (one refresh afterwards)
+    Dim PpmBaselineUpdating As Boolean = False       ' True while Set PPM Baseline changes both From CSV boxes (one refresh afterwards)
     Dim Chart2HistogramSync As Boolean = False      ' True while code (not the user) changes ButtonHistogram or closes its pop-up
     Dim Chart2TrendTemps1() As Double       ' TEMP per sample of each device, cached from dataTable1
     Dim Chart2TrendTemps2() As Double
@@ -618,26 +634,24 @@ Public Class Chart
             Chart2TempcoText.IsVisible = False
         End If
 
+        Chart2PpmBaselineNotice = FormsPlot2.Plot.Add.Annotation("", ScottPlot.Alignment.UpperCenter)
+        Chart2PpmBaselineNotice.LabelFontSize = 13
+        Chart2PpmBaselineNotice.LabelBold = True
+        Chart2PpmBaselineNotice.LabelBackgroundColor = New ScottPlot.Color(Color.FromArgb(230, 255, 200, 0))
+        Chart2PpmBaselineNotice.LabelFontColor = New ScottPlot.Color(Color.Black)
+        Chart2PpmBaselineNotice.OffsetY = 6
+        Chart2PpmBaselineNotice.IsVisible = False
+
         AddHandler FormsPlot2.MouseMove, AddressOf Chart2ShowValueOnHover
 
         ' Frees up double-click for the measurement tool.
         FormsPlot2.UserInputProcessor.DoubleLeftClickBenchmark(False)
 
-        Dim chart2Menu As ScottPlot.WinForms.FormsPlotMenu = DirectCast(FormsPlot2.Menu, ScottPlot.WinForms.FormsPlotMenu)
-        chart2Menu.Clear()
-        chart2Menu.Add("Save Image", AddressOf chart2Menu.OpenSaveImageDialog)
-        chart2Menu.Add("Copy Value At Cursor", AddressOf Chart2CopyValueAtCursor)
-        chart2Menu.Add("Clear Measurement", AddressOf Chart2ClearMeasurement)
-        chart2Menu.Add("Zoom All", AddressOf Chart2MenuZoomAll)
-        If PlaybackRegionStatsEnabled Then chart2Menu.Add("Region Statistics (on/off)", AddressOf Chart2ToggleRegion)
-        If PlaybackNoiseBandEnabled Then chart2Menu.Add("Noise Band (on/off)", AddressOf Chart2ToggleNoiseBand)
-        If PlaybackTrendEnabled Then
-            chart2Menu.Add("Trend Line (on/off)", AddressOf Chart2ToggleTrend)
-            chart2Menu.Add("Tempco Curve (on/off)", AddressOf Chart2ToggleTempco)
-        End If
-        If PlaybackHistogramEnabled Then chart2Menu.Add("Histogram of Readings", AddressOf Chart2MenuHistogram)
-        chart2Menu.Add("Allan Deviation (on/off)", AddressOf Chart2ToggleAllan)
-        chart2Menu.Add("Set PPM Baseline Here", AddressOf Chart2SetPpmBaseline)
+        ' ScottPlot's own menu is left empty and its auto-popup switched off (right-click-drag zoom is untouched) -
+        ' Chart2ContextMenu (a real WinForms ContextMenuStrip, shown from Chart2OnMouseUp) replaces it.
+        DirectCast(FormsPlot2.Menu, ScottPlot.WinForms.FormsPlotMenu).Clear()
+        FormsPlot2.UserInputProcessor.RemoveAll(Of ScottPlot.Interactivity.UserActionResponses.SingleClickContextMenu)()
+        Chart2BuildContextMenu()
 
         AddHandler FormsPlot2.MouseDown, AddressOf Chart2OnMouseDown
         AddHandler FormsPlot2.MouseWheel,
@@ -1243,6 +1257,8 @@ Public Class Chart
 
         ' A new CSV invalidates the Allan Deviation pop-up (it doesn't refresh itself), so close it.
         CheckPlaybackDev12Allan.Checked = False
+
+        Chart2CancelPpmBaselinePick()
 
         ' Same for the histogram pop-up; closed before the region reset below so it isn't asked to refresh on empty data.
         ButtonHistogram.Checked = False
@@ -3417,10 +3433,16 @@ Public Class Chart
 
         Dim found As Boolean = False
         Dim bestPoint As ScottPlot.DataPoint = Nothing
-        Dim bestYAxis As ScottPlot.IYAxis = Nothing
+        Dim bestYAxis As ScottPlot.IYAxis = FormsPlot2.Plot.Axes.Left
         Dim bestColor As ScottPlot.Color = Nothing
 
-        Chart2FindNearestPoint(mousePixel, found, bestPoint, bestYAxis, bestColor)
+        If Chart2PpmBaselineArmed Then
+            ' Restricted to the armed target's own trace (Chart2NearestOnArmedTarget), not every trace on the
+            ' chart, so the hover preview only ever suggests a point that a click would actually be accepted at.
+            Chart2NearestOnArmedTarget(mousePixel, found, bestPoint, bestColor)
+        Else
+            Chart2FindNearestPoint(mousePixel, found, bestPoint, bestYAxis, bestColor)
+        End If
 
         If Not found Then
             If Chart2Crosshair.IsVisible Then
@@ -3479,6 +3501,15 @@ Public Class Chart
     ' double-clicks by timing consecutive mouse-downs (FormsPlot's DoubleClick event isn't reliable).
     Private Sub Chart2OnMouseDown(sender As Object, e As MouseEventArgs)
 
+        If Chart2PpmBaselineArmed Then
+            If e.Button = MouseButtons.Left Then
+                Chart2ConfirmPpmBaselinePick(New ScottPlot.Pixel(CSng(e.X), CSng(e.Y)))
+            Else
+                Chart2CancelPpmBaselinePick()
+            End If
+            Exit Sub
+        End If
+
         ' Left-click on the region band (or its edges) drags/resizes it instead of panning.
         If e.Button = MouseButtons.Left AndAlso Chart2RegionSpan IsNot Nothing AndAlso Chart2RegionSpan.IsVisible Then
             Chart2RegionDrag = Chart2RegionSpan.UnderMouse(FormsPlot2.Plot.GetCoordinateRect(CSng(e.X), CSng(e.Y), 10))
@@ -3533,8 +3564,9 @@ Public Class Chart
 
     End Sub
 
-    ' Right-click > Set PPM Baseline Here: takes the reading and temperature of the sample under the cursor (for the
-    ' device selected by the Dev 1/Dev 2 radios) as Initial Value / Initial Temp, and unticks both "From CSV" boxes.
+    ' Right-click > Set PPM Baseline: arms picking mode (shows Chart2PpmBaselineNotice, suspends the normal
+    ' pan/zoom so the next click can't be mistaken for one) rather than acting immediately on this right-click's
+    ' own position - some users expect to choose the item first and then click the point afterwards.
     Private Sub Chart2SetPpmBaseline(plot As ScottPlot.Plot)
 
         If Not RadioButtonPPMDev.Checked AndAlso Not RadioButtonPPMTempo.Checked Then
@@ -3543,14 +3575,122 @@ Public Class Chart
             Exit Sub
         End If
 
+        Dim slotName As String = If(RadioButtonDev2.Checked, DeviceName2.Text, DeviceName1.Text)
+
+        Chart2PpmBaselineArmed = True
+        Chart2PpmBaselineNotice.LabelText = "Click the " & slotName & " trace (Data or Mean) to set the PPM baseline there.   (Esc, or right-click, to cancel)"
+        Chart2PpmBaselineNotice.IsVisible = True
+        FormsPlot2.UserInputProcessor.Disable()   ' same approach as dragging the Regional Stats band - our own mouse handlers still run
+        FormsPlot2.Refresh()
+
+    End Sub
+
+    Private Sub Chart2CancelPpmBaselinePick()
+
+        If Not Chart2PpmBaselineArmed Then Exit Sub
+
+        Chart2PpmBaselineArmed = False
+        Chart2PpmBaselineNotice.IsVisible = False
+        FormsPlot2.UserInputProcessor.Enable()
+        FormsPlot2.Refresh()
+
+    End Sub
+
+    ' Distance (pixels) a click on the target device's own trace (Data or Mean) needs to land within to count -
+    ' generous enough for a deliberate click, but tight enough that a different trace or empty space won't match.
+    Private Const ChartPpmBaselineHitPixels As Single = 25.0F
+
+    ' Nearest point on ONE specific series (unlike Chart2FindNearestPoint, which searches every trace) - used so a
+    ' PPM baseline pick only ever lands on the selected device's own trace, never a different one.
+    Private Sub Chart2NearestOnSeries(series As ScottPlot.Plottables.Scatter, mousePixel As ScottPlot.Pixel,
+                                      ByRef found As Boolean, ByRef point As ScottPlot.DataPoint, ByRef pixelDistance As Single)
+
+        found = False
+        If series Is Nothing OrElse Not series.IsVisible Then Exit Sub
+
+        Dim yAxis As ScottPlot.IYAxis = FormsPlot2.Plot.Axes.Left
+        Dim mouseLocation As ScottPlot.Coordinates = FormsPlot2.Plot.GetCoordinates(mousePixel, FormsPlot2.Plot.Axes.Bottom, yAxis)
+        Dim dataSource As ScottPlot.IDataSource = DirectCast(series.Data, ScottPlot.IDataSource)
+        point = ScottPlot.DataSourceUtilities.GetNearestSmart(dataSource, mouseLocation, FormsPlot2.Plot.LastRender, 10000, FormsPlot2.Plot.Axes.Bottom, yAxis)
+        If Not point.IsReal Then Exit Sub
+
+        Dim pointPixel As ScottPlot.Pixel = FormsPlot2.Plot.GetPixel(point.Coordinates, FormsPlot2.Plot.Axes.Bottom, yAxis)
+        pixelDistance = pointPixel.DistanceFrom(mousePixel)
+        found = True
+
+    End Sub
+
+    ' Nearest point to pixel on the currently-armed device's own trace (Data or Mean, whichever is closer) - used
+    ' by both the hover preview (so it only ever highlights this trace while armed) and the click that confirms
+    ' the pick. Beyond ChartPpmBaselineHitPixels counts as not found, same as no trace being there at all.
+    Private Sub Chart2NearestOnArmedTarget(pixel As ScottPlot.Pixel, ByRef found As Boolean, ByRef point As ScottPlot.DataPoint, ByRef color As ScottPlot.Color)
+
+        found = False
+
         Dim slot As Integer = If(RadioButtonDev2.Checked, 2, 1)
+        Dim series As ScottPlot.Plottables.Scatter = If(slot = 1, Chart2Dev1Series, Chart2Dev2Series)
+        Dim meanSeries As ScottPlot.Plottables.Scatter = If(slot = 1, Chart2Dev1MeanSeries, Chart2Dev2MeanSeries)
+
+        Dim foundData As Boolean = False
+        Dim pointData As ScottPlot.DataPoint = Nothing
+        Dim distData As Single = Single.MaxValue
+        Chart2NearestOnSeries(series, pixel, foundData, pointData, distData)
+
+        Dim foundMean As Boolean = False
+        Dim pointMean As ScottPlot.DataPoint = Nothing
+        Dim distMean As Single = Single.MaxValue
+        Chart2NearestOnSeries(meanSeries, pixel, foundMean, pointMean, distMean)
+
+        Dim best As ScottPlot.DataPoint = Nothing
+        Dim bestDistance As Single = Single.MaxValue
+        Dim bestSeries As ScottPlot.Plottables.Scatter = Nothing
+
+        If foundData AndAlso (Not foundMean OrElse distData <= distMean) Then
+            best = pointData : bestDistance = distData : bestSeries = series
+        ElseIf foundMean Then
+            best = pointMean : bestDistance = distMean : bestSeries = meanSeries
+        Else
+            Exit Sub
+        End If
+
+        If bestDistance > ChartPpmBaselineHitPixels Then Exit Sub
+
+        found = True
+        point = best
+        color = bestSeries.LineStyle.Color
+
+    End Sub
+
+    ' Takes the reading and temperature of the sample nearest pixel, on the selected device's own trace only (see
+    ' Chart2NearestOnArmedTarget), as Initial Value / Initial Temp, and unticks both "From CSV" boxes. A click that
+    ' isn't close enough to that trace is rejected (beep, stays armed) rather than picking the wrong point.
+    Private Sub Chart2ConfirmPpmBaselinePick(pixel As ScottPlot.Pixel)
+
+        Dim slot As Integer = If(RadioButtonDev2.Checked, 2, 1)
+        Dim slotName As String = If(slot = 1, DeviceName1.Text, DeviceName2.Text)
+        Dim temps() As Double = Chart2DeviceTemps(slotName)
         Dim data As List(Of ScottPlot.Coordinates) = If(slot = 1, Chart2Dev1Data, Chart2Dev2Data)
-        Dim temps() As Double = Chart2DeviceTemps(If(slot = 1, DeviceName1.Text, DeviceName2.Text))
 
-        If data.Count = 0 OrElse temps.Length <> data.Count Then Exit Sub
+        If slotName = "" OrElse data.Count = 0 OrElse temps.Length <> data.Count Then
+            Chart2CancelPpmBaselinePick()
+            MessageBox.Show("Dev " & slot.ToString() & " has no data to take a baseline from (check it is the device selected under PPM Deviation / Tempco, and that it is in this CSV).",
+                            "Set PPM Baseline", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Exit Sub
+        End If
 
-        Dim x As Double = FormsPlot2.Plot.GetCoordinates(Chart2LastRightClickPixel).X
-        Dim idx As Integer = Math.Max(0, Math.Min(data.Count - 1, CInt(Math.Round(x))))
+        Dim found As Boolean = False
+        Dim point As ScottPlot.DataPoint = Nothing
+        Dim color As ScottPlot.Color = Nothing
+        Chart2NearestOnArmedTarget(pixel, found, point, color)
+
+        If Not found Then
+            SystemSounds.Beep.Play()   ' remains armed - not close enough to this device's own trace
+            Exit Sub
+        End If
+
+        Chart2CancelPpmBaselinePick()
+
+        Dim idx As Integer = Math.Max(0, Math.Min(data.Count - 1, CInt(Math.Round(point.Coordinates.X))))
 
         PpmBaselineUpdating = True
         MedianValue.Text = data(idx).Y.ToString("R", Globalization.CultureInfo.InvariantCulture)
@@ -3562,6 +3702,88 @@ Public Class Chart
         RefreshPlaybackCSVFile()
 
     End Sub
+
+    ' Builds the main chart's right-click menu as a real ContextMenuStrip (once, from FormsPlot2 setup) so the
+    ' on/off items can show a properly sized, aligned checkbox image - ScottPlot's own menu has no Checked support.
+    Private Sub Chart2BuildContextMenu()
+
+        Chart2ContextMenu = New ContextMenuStrip With {.ImageScalingSize = New Size(ChartMenuCheckboxSize, ChartMenuCheckboxSize)}
+        Chart2ContextMenuToggles.Clear()
+
+        Dim formsMenu As ScottPlot.WinForms.FormsPlotMenu = DirectCast(FormsPlot2.Menu, ScottPlot.WinForms.FormsPlotMenu)
+
+        Dim addAction =
+            Sub(text As String, action As Action(Of ScottPlot.Plot))
+                Dim mi As New ToolStripMenuItem(text)
+                AddHandler mi.Click, Sub(s, ev) action(FormsPlot2.Plot)
+                Chart2ContextMenu.Items.Add(mi)
+            End Sub
+
+        Dim addToggle =
+            Sub(text As String, action As Action(Of ScottPlot.Plot), isChecked As Func(Of Boolean))
+                Dim mi As New ToolStripMenuItem(text)
+                AddHandler mi.Click, Sub(s, ev) action(FormsPlot2.Plot)
+                Chart2ContextMenu.Items.Add(mi)
+                Chart2ContextMenuToggles.Add(New KeyValuePair(Of ToolStripMenuItem, Func(Of Boolean))(mi, isChecked))
+            End Sub
+
+        addAction("Save Image", AddressOf formsMenu.OpenSaveImageDialog)
+        addAction("Copy Value At Cursor", AddressOf Chart2CopyValueAtCursor)
+        addAction("Clear Measurement", AddressOf Chart2ClearMeasurement)
+        addAction("Zoom All", AddressOf Chart2MenuZoomAll)
+        If PlaybackRegionStatsEnabled Then addToggle("Region Statistics", AddressOf Chart2ToggleRegion, Function() CheckBoxRegionStats.Checked)
+        If PlaybackNoiseBandEnabled Then addToggle("Noise Band", AddressOf Chart2ToggleNoiseBand, Function() CheckBoxNoiseBand.Checked)
+        If PlaybackTrendEnabled Then
+            addToggle("Trend Line", AddressOf Chart2ToggleTrend, Function() CheckBoxTrendLine.Checked)
+            addToggle("Tempco Curve", AddressOf Chart2ToggleTempco, Function() CheckBoxTempcoCurve.Checked)
+        End If
+        If PlaybackHistogramEnabled Then addToggle("Histogram of Readings", AddressOf Chart2MenuHistogram, Function() ButtonHistogram.Checked)
+        addToggle("Allan Deviation", AddressOf Chart2ToggleAllan, Function() CheckPlaybackDev12Allan.Checked)
+        addAction("Set PPM Baseline", AddressOf Chart2SetPpmBaseline)
+
+        AddHandler Chart2ContextMenu.Opening, Sub(s, ev) Chart2RefreshContextMenuChecks()
+
+    End Sub
+
+    ' Refreshes each toggle item's checkbox image from its checkbox before the menu is shown (wired to Opening above).
+    Private Sub Chart2RefreshContextMenuChecks()
+
+        For Each kv As KeyValuePair(Of ToolStripMenuItem, Func(Of Boolean)) In Chart2ContextMenuToggles
+            kv.Key.Image = Chart2CheckboxImage(kv.Value.Invoke())
+        Next
+
+    End Sub
+
+    ' Small checkbox icon drawn once and cached (outline, plus a tick when checked) - avoids relying on a font's
+    ' own checkbox/tick glyphs, which render at different widths for the checked and unchecked states.
+    Private Function Chart2CheckboxImage(checked As Boolean) As Bitmap
+
+        If Chart2CheckboxImageOff Is Nothing Then
+
+            Dim sz As Integer = ChartMenuCheckboxSize
+
+            Chart2CheckboxImageOff = New Bitmap(sz, sz)
+            Using g As Graphics = Graphics.FromImage(Chart2CheckboxImageOff)
+                g.Clear(Color.Transparent)
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias
+                g.DrawRectangle(Pens.DimGray, 2, 2, sz - 5, sz - 5)
+            End Using
+
+            Chart2CheckboxImageOn = New Bitmap(sz, sz)
+            Using g As Graphics = Graphics.FromImage(Chart2CheckboxImageOn)
+                g.Clear(Color.Transparent)
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias
+                g.DrawRectangle(Pens.DimGray, 2, 2, sz - 5, sz - 5)
+                Using p As New Pen(Color.Black, 2.4F) With {.StartCap = System.Drawing.Drawing2D.LineCap.Round, .EndCap = System.Drawing.Drawing2D.LineCap.Round}
+                    g.DrawLines(p, New Point() {New Point(4, CInt(sz * 0.55)), New Point(CInt(sz * 0.4), sz - 5), New Point(sz - 4, 4)})
+                End Using
+            End Using
+
+        End If
+
+        Return If(checked, Chart2CheckboxImageOn, Chart2CheckboxImageOff)
+
+    End Function
 
     Private Sub Chart2CopyValueAtCursor(plot As ScottPlot.Plot)
 
@@ -4522,6 +4744,16 @@ Public Class Chart
 
     Private Sub Chart2OnMouseUp(sender As Object, e As MouseEventArgs)
 
+        If e.Button = MouseButtons.Right Then
+            Dim dragDistance As Single = Math.Max(Math.Abs(e.X - Chart2LastRightClickPixel.X), Math.Abs(e.Y - Chart2LastRightClickPixel.Y))
+            If dragDistance < 5 AndAlso Chart2ContextMenu IsNot Nothing Then
+                ' Deferred via BeginInvoke: showing it directly inside this MouseUp handler makes it flash and
+                ' close itself immediately (a classic WinForms quirk), instead of staying open normally.
+                Dim menuPos As New Point(e.X, e.Y)
+                Me.BeginInvoke(New MethodInvoker(Sub() Chart2ContextMenu.Show(FormsPlot2, menuPos)))
+            End If
+        End If
+
         If Chart2RegionDrag IsNot Nothing Then
             Chart2RegionDrag = Nothing
             FormsPlot2.UserInputProcessor.Enable()
@@ -4537,7 +4769,11 @@ Public Class Chart
     Private Sub Chart2OnKeyDown(sender As Object, e As KeyEventArgs)
 
         If e.KeyCode = Keys.Escape Then
-            Chart2ClearMeasurement(FormsPlot2.Plot)
+            If Chart2PpmBaselineArmed Then
+                Chart2CancelPpmBaselinePick()
+            Else
+                Chart2ClearMeasurement(FormsPlot2.Plot)
+            End If
         End If
 
         Chart2EchoYRange()
@@ -7502,8 +7738,8 @@ Public Class Chart
 "- Zoom in/out at the cursor - Scroll wheel (hold Shift to zoom Y only, Ctrl to zoom X only)" & vbLf &
 "- Measure the delta between two points - Double-click two points, double-click again (or press Esc) to clear" & vbLf &
 "- Hover a trace to see the value of the nearest data point" & vbLf &
-"- Right-click (no drag) for a menu: Save Image, Copy Value At Cursor, Clear Measurement, Zoom All, Region Statistics, Noise Band, Trend Line, Tempco Curve, Histogram of Readings, Allan Deviation, Set PPM Baseline Here" & vbLf &
-"- Analysis tools (Regional Stats, Noise Band, Trend Line, Tempco Curve, Histogram, Allan Deviation) are on this menu too - see the analysis tools section below. Zoom All does the same as the ZOOM ALL button, and Set PPM Baseline Here is described under PPM Deviation / Tempco." & vbLf &
+"- Right-click (no drag) for a menu: Save Image, Copy Value At Cursor, Clear Measurement, Zoom All, Region Statistics, Noise Band, Trend Line, Tempco Curve, Histogram of Readings, Allan Deviation, Set PPM Baseline" & vbLf &
+"- Analysis tools (Regional Stats, Noise Band, Trend Line, Tempco Curve, Histogram, Allan Deviation) are on this menu too - see the analysis tools section below. Zoom All does the same as the ZOOM ALL button, and Set PPM Baseline is described under PPM Deviation / Tempco. Each on/off item shows a checkbox in front of it (checked or empty) for its current state." & vbLf &
 "- Any pan or zoom unticks AutoScale." & vbLf &
 "Only the Dev 1 / Dev 2 traces and their left-hand scale respond to pan/zoom - the Temp, Hum and PPM scales stay fixed to their own scale boxes." & vbLf & vbLf &
 "Statistics chart (underneath): hover and double-click measure only. It has no pan/zoom of its own and follows the main chart's X range." & vbLf & vbLf &
@@ -7587,7 +7823,7 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
 "PPM/DegC often spikes or looks noisy right at the start of a file, then settles - this is expected. It divides by how far temperature has moved from baseline, which is close to zero at the start, so ordinary reading noise gets massively amplified until temperature has drifted enough to measure reliably." & vbLf & vbLf &
 "PPM/DegC (Fit) avoids this by fitting one straight line through all the Temp/Value points instead of dividing point-by-point, giving one steady figure for the whole view. It also shows a +/- uncertainty in the Initial Value/Initial Temp boxes - a large +/- means this file's real temperature range is too small to trust the number." & vbLf & vbLf &
 "PPM/DegC (Trend) works the same way as Fit, but re-fits over just the last 'RMS window' points at a time instead of the whole file, sliding forward as it goes - so the figure can genuinely drift over time instead of being one fixed number for the whole chart." & vbLf & vbLf &
-"Right-click the chart > Set PPM Baseline Here takes the reading and temperature of the sample under the cursor (for the device selected by the Dev 1/Dev 2 radio buttons) as the Initial Value and Initial Temp, and unticks both '- From CSV' boxes - a quick way to measure PPM and PPM/DegC (point) against a stretch you consider settled instead of the first reading. Tick '- From CSV' again to go back to the logged baseline. It only applies to PPM Deviation and PPM/DegC (point)." & vbLf & vbLf &
+"Right-click the chart > Set PPM Baseline arms baseline picking - a yellow banner names the device's own trace to click (Data or Mean); clicking anywhere else on the chart, or on the other device's trace, doesn't count and just beeps. Esc, or a right-click, cancels. The sample you click becomes the Initial Value and Initial Temp, and both '- From CSV' boxes are unticked - a quick way to measure PPM and PPM/DegC (point) against a stretch you consider settled instead of the first reading. Tick '- From CSV' again to go back to the logged baseline. It only applies to PPM Deviation and PPM/DegC (point)." & vbLf & vbLf &
 "For Fit and Trend, Initial Value is still used to convert the fitted slope into ppm - leave '- From CSV' checked so it matches the real logged baseline. Typing in a different number doesn't change the meter's behaviour, it just changes what 1 ppm is measured against, so the result will look smaller or larger without anything real having changed." & vbLf & vbLf &
 "TEMP/HUM" & vbLf &
 "Temp and Hum. show or hide the logged temperature and humidity traces. Each has its own right-hand scale: Temp Max./Min. and Hum Max./Min. set the range of those scales (they are not recorded values), and the scales don't respond to mouse pan/zoom. Temp Avg. and Hum Avg. set how many points the Temp and Hum traces are rolling-averaged over (0 disables it, range 0-100)." & vbLf & vbLf &

@@ -70,6 +70,7 @@ Partial Class Chart
         Me.MedianTemp = New System.Windows.Forms.TextBox()
         Me.LabelPPMtop = New System.Windows.Forms.Label()
         Me.GroupBoxMisc = New System.Windows.Forms.GroupBox()
+        Me.ButtonExportResults = New System.Windows.Forms.Button()
         Me.CheckBoxColours = New System.Windows.Forms.CheckBox()
         Me.Xscale = New System.Windows.Forms.Label()
         Me.MinsTotal = New System.Windows.Forms.TextBox()
@@ -153,7 +154,6 @@ Partial Class Chart
         Me.LabelSEMscale = New System.Windows.Forms.Label()
         Me.LabelMean = New System.Windows.Forms.Label()
         Me.LabelSMean = New System.Windows.Forms.Label()
-        Me.ButtonExportResults = New System.Windows.Forms.Button()
         Me.PPMBox1.SuspendLayout()
         Me.Panel1.SuspendLayout()
         Me.GroupBoxMisc.SuspendLayout()
@@ -664,6 +664,16 @@ Partial Class Chart
         Me.GroupBoxMisc.TabIndex = 155
         Me.GroupBoxMisc.TabStop = False
         Me.GroupBoxMisc.Text = "MISC."
+        '
+        'ButtonExportResults
+        '
+        Me.ButtonExportResults.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonExportResults.Location = New System.Drawing.Point(7, 45)
+        Me.ButtonExportResults.Name = "ButtonExportResults"
+        Me.ButtonExportResults.Size = New System.Drawing.Size(60, 39)
+        Me.ButtonExportResults.TabIndex = 118
+        Me.ButtonExportResults.Text = "Export" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Results"
+        Me.ButtonExportResults.UseVisualStyleBackColor = True
         '
         'CheckBoxColours
         '
@@ -1640,16 +1650,6 @@ Partial Class Chart
         Me.LabelSMean.TabIndex = 595
         Me.LabelSMean.Text = "S.MEAN"
         '
-        'ButtonExportResults
-        '
-        Me.ButtonExportResults.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonExportResults.Location = New System.Drawing.Point(7, 45)
-        Me.ButtonExportResults.Name = "ButtonExportResults"
-        Me.ButtonExportResults.Size = New System.Drawing.Size(60, 39)
-        Me.ButtonExportResults.TabIndex = 118
-        Me.ButtonExportResults.Text = "Export" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Results"
-        Me.ButtonExportResults.UseVisualStyleBackColor = True
-        '
         'Chart
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -1699,8 +1699,8 @@ Partial Class Chart
         Me.Controls.Add(Me.YaxisBox1)
         Me.Controls.Add(Me.GroupBox2)
         Me.Name = "Chart"
-        Me.Text = "WinGPIB    Playback Chart    (Free for Non-Commercial Use • Support WinGPIB — see" &
-    " About)"
+        Me.Text = "WinGPIB           Playback Chart    (Free for Non-Commercial Use • Support WinGPI" &
+    "B — see About)"
         Me.PPMBox1.ResumeLayout(False)
         Me.PPMBox1.PerformLayout()
         Me.Panel1.ResumeLayout(False)
