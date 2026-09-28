@@ -226,7 +226,6 @@ Public Class Chart
     Dim Ymin As Double = 0
     Dim Ymax As Double = 0
     Dim BrowseFile As Boolean = False
-    'Dim fd As OpenFileDialog = New OpenFileDialog()
     Dim fd As New OpenFileDialog()
     Dim YmaxFromDT As Double = 0
     Dim YminFromDT As Double = 0
@@ -255,9 +254,6 @@ Public Class Chart
     Dim SavedMedianTempBeforeFit As String = ""
 
     Dim currentValue As Double
-
-    'Dim maxValue As Double = -10000000.0
-    'Dim minValue As Double = 10000000.0
 
     Dim maxValue As Double = Double.MinValue
     Dim minValue As Double = Double.MaxValue
@@ -2568,13 +2564,14 @@ Public Class Chart
 
         SetAnalysisControlsEnabled(False)
 
-        ToolTip1.SetToolTip(CheckBoxRegionStats, "Shows a band you can drag (or resize by its edges) with the mean, STDEV, min/max, peak-to-peak and drift of the visible Dev 1 / Dev 2 traces inside it.")
-        ToolTip1.SetToolTip(CheckBoxNoiseBand, "Shades the rolling mean +/- 1 STDEV around each visible Dev 1 / Dev 2 trace, over the RMS window.")
-        ToolTip1.SetToolTip(CheckBoxTrendLine, "Draws a straight least-squares line through each visible trace (or the Regional Stats band if it is showing) and reports the drift per hour.")
-        ToolTip1.SetToolTip(CheckBoxTempcoCurve, "Fits the reading against temperature and draws the fit along the trace; the text gives the ppm/DegC and how much of the variation temperature explains.")
-        ToolTip1.SetToolTip(CheckPlaybackDev12Allan, "Opens the Allan Deviation pop-up (calculated in the Playback Chart) with a curve for each device in the file.")
-        ToolTip1.SetToolTip(ButtonExportResults, "Saves all the statistics and analysis results for the visible Dev 1 / Dev 2 traces to a text file, using the Regional Stats band if it is showing, otherwise the whole run.")
-        ToolTip1.SetToolTip(ButtonHistogram, "Opens a pop-up histogram of the readings (the Regional Stats band if it is showing, otherwise the whole run).")
+        ToolTip1.SetToolTip(CheckBoxRegionStats, "Shows a band you can drag (or resize by its edges) with the" & vbCrLf & "mean, STDEV, min/max, peak-to-peak and drift of the visible traces inside it.")
+        ToolTip1.SetToolTip(CheckBoxNoiseBand, "Shades the rolling mean +/- 1 STDEV around each visible" & vbCrLf & "Dev 1 / Dev 2 trace, over the RMS window.")
+        ToolTip1.SetToolTip(CheckBoxTrendLine, "Draws a straight least-squares line through each visible trace" & vbCrLf & "(or the Regional Stats band if showing) and reports the drift per hour.")
+        ToolTip1.SetToolTip(CheckBoxTempcoCurve, "Fits the reading against temperature and draws the fit along the trace;" & vbCrLf & "the text gives the ppm/DegC and how much of the variation temperature explains.")
+        ToolTip1.SetToolTip(CheckPlaybackDev12Allan, "Opens the Allan Deviation pop-up (calculated in the Playback Chart)" & vbCrLf & "with a curve for each device in the file.")
+        ToolTip1.SetToolTip(ButtonExportResults, "Saves all the statistics and analysis results for the visible traces to a text file," & vbCrLf & "using the Regional Stats band if it is showing, otherwise the whole run.")
+        ToolTip1.SetToolTip(ButtonHistogram, "Opens a pop-up histogram of the readings" & vbCrLf & "(the Regional Stats band if showing, otherwise the whole run).")
+        ToolTip1.SetToolTip(ButtonPlaybackHelp, "Playback Chart Help")
 
     End Sub
 

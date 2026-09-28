@@ -670,7 +670,7 @@ Partial Class Chart
         Me.ButtonExportResults.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.ButtonExportResults.Location = New System.Drawing.Point(7, 45)
         Me.ButtonExportResults.Name = "ButtonExportResults"
-        Me.ButtonExportResults.Size = New System.Drawing.Size(60, 39)
+        Me.ButtonExportResults.Size = New System.Drawing.Size(64, 39)
         Me.ButtonExportResults.TabIndex = 118
         Me.ButtonExportResults.Text = "Export" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Results"
         Me.ButtonExportResults.UseVisualStyleBackColor = True

@@ -1,13 +1,26 @@
 ﻿' Multithreaded-communication-for-GPIB-Visa-Serial
-' Base GPIB device code by Pawel Wzietek and modified/extended by Ian Johnston
+' WinGPIB (Windows application) is the work of Ian Johnston.
+' The GPIB device DLL it uses is based on code by Pawel Wzietek, which Ian has also modified.
 '
-' Pawel's original code - https://github.com/pawel-wzietek/IODevices
-' Ian's thread - www.eevblog.com/forum/metrology/3458a-logging-via-windows-app-revisited/
+' Pawel's original DLL code - https://github.com/pawel-wzietek/IODevices
+' WinGPIB webpage - https://www.ianjohnston.com/index.php/projects/project-025-gpib-project
 '
-' Disclaimer from Ian:
+' Ian Johnston:
 ' I am not a VB programmer, heck I'm not even a programmer!!!......but I usually manage to hack things together and that includes writing apps for Windows.
 ' You'll see some 'methods' in this source which you may laugh at or say "OMG".......well, all I can say is that despite the iffy programming, this Windows app WORKS!!!
 ' Ian Johnston
+'
+' Licence & Usage:
+' WinGPIB is provided free of charge for personal, non-commercial use only.
+' The WinGPIB source code is made publicly available and may be used, modified and redistributed for non-commercial purposes only.
+' Neither WinGPIB nor its source code, in whole or in part, may be used for commercial purposes without a separate commercial licence from the author.
+' This includes use within businesses and organisations.
+' Please contact the author (www.ianjohnston.com) to discuss commercial licensing arrangements.
+'
+' Disclaimer & Limitation of Liability:
+' WinGPIB and its source code are provided "as is", without warranty of any kind, express or implied. Use of this software and source code is entirely at the user's own risk.
+' To the fullest extent permitted by law, the author shall not be liable for any loss, damage, damage to connected equipment, data loss, loss of use, loss of profits,
+' or other direct, indirect, incidental or consequential loss arising from the installation, modification or use of, or inability to use, this software or source code.
 '
 ' Example console
 ' Console.WriteLine("Rolling Average Value for Device " & PPMdevice & " - " & tempcounter & " - " & PPMdegCrollingAverageValue)
@@ -265,7 +278,7 @@ Public Class Formtest
             CheckBoxRememberPlayback.Checked = My.Settings.data1500
             CheckBoxMaximizePlayback.Checked = My.Settings.data1499
 
-            BannerText1 = "WinGPIB - V5.117           (Free for Non-Commercial Use • Support WinGPIB — see About)"
+            BannerText1 = "WinGPIB - V5.118           (Free for Non-Commercial Use • Support WinGPIB — see About)"
             Me.Text = BannerText1.ToString()
 
             ' Advantest R6581 tab
