@@ -154,6 +154,7 @@ Partial Class Chart
         Me.LabelSEMscale = New System.Windows.Forms.Label()
         Me.LabelMean = New System.Windows.Forms.Label()
         Me.LabelSMean = New System.Windows.Forms.Label()
+        Me.ButtonSetPPMBaseline = New System.Windows.Forms.Button()
         Me.PPMBox1.SuspendLayout()
         Me.Panel1.SuspendLayout()
         Me.GroupBoxMisc.SuspendLayout()
@@ -486,6 +487,7 @@ Partial Class Chart
         '
         'PPMBox1
         '
+        Me.PPMBox1.Controls.Add(Me.ButtonSetPPMBaseline)
         Me.PPMBox1.Controls.Add(Me.Label5)
         Me.PPMBox1.Controls.Add(Me.CheckBoxMedianT)
         Me.PPMBox1.Controls.Add(Me.CheckBoxMedianV)
@@ -1650,6 +1652,18 @@ Partial Class Chart
         Me.LabelSMean.TabIndex = 595
         Me.LabelSMean.Text = "S.MEAN"
         '
+        'ButtonSetPPMBaseline
+        '
+        Me.ButtonSetPPMBaseline.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonSetPPMBaseline.Location = New System.Drawing.Point(261, 41)
+        Me.ButtonSetPPMBaseline.Name = "ButtonSetPPMBaseline"
+        Me.ButtonSetPPMBaseline.Size = New System.Drawing.Size(61, 39)
+        Me.ButtonSetPPMBaseline.TabIndex = 580
+        Me.ButtonSetPPMBaseline.Text = "Set PPM" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Baseline"
+        Me.ToolTip1.SetToolTip(Me.ButtonSetPPMBaseline, "Sets the PPM Initial Value and Initial Temp from a point you click on the trace. " &
+        "Esc cancels")
+        Me.ButtonSetPPMBaseline.UseVisualStyleBackColor = True
+        '
         'Chart
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -1857,4 +1871,5 @@ Partial Class Chart
     Friend WithEvents CheckBoxRegionStats As CheckBox
     Friend WithEvents CheckPlaybackDev12Allan As CheckBox
     Friend WithEvents ButtonExportResults As Button
+    Friend WithEvents ButtonSetPPMBaseline As Button
 End Class

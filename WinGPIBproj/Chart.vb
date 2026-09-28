@@ -382,6 +382,7 @@ Public Class Chart
         RadioButtonPPMTempo.Enabled = False
         RadioButtonPPMTempoLinReg.Enabled = False
         RadioButtonPPMTempoRolling.Enabled = False
+        ButtonSetPPMBaseline.Enabled = False
 
         PlaybackTemp.BackColor = Color.Red
         PlaybackHum.BackColor = Color.DodgerBlue
@@ -2570,6 +2571,7 @@ Public Class Chart
         ToolTip1.SetToolTip(CheckBoxTempcoCurve, "Fits the reading against temperature and draws the fit along the trace;" & vbCrLf & "the text gives the ppm/DegC and how much of the variation temperature explains.")
         ToolTip1.SetToolTip(CheckPlaybackDev12Allan, "Opens the Allan Deviation pop-up (calculated in the Playback Chart)" & vbCrLf & "with a curve for each device in the file.")
         ToolTip1.SetToolTip(ButtonExportResults, "Saves all the statistics and analysis results for the visible traces to a text file," & vbCrLf & "using the Regional Stats band if it is showing, otherwise the whole run.")
+        ToolTip1.SetToolTip(ButtonSetPPMBaseline, "Then click the device's Data or Mean trace to use that sample's reading" & vbCrLf & "and temperature as the PPM baseline (same as right-click > Set PPM Baseline).")
         ToolTip1.SetToolTip(ButtonHistogram, "Opens a pop-up histogram of the readings" & vbCrLf & "(the Regional Stats band if showing, otherwise the whole run).")
         ToolTip1.SetToolTip(ButtonPlaybackHelp, "Playback Chart Help")
 
@@ -3579,6 +3581,19 @@ Public Class Chart
         Chart2PpmBaselineNotice.IsVisible = True
         FormsPlot2.UserInputProcessor.Disable()   ' same approach as dragging the Regional Stats band - our own mouse handlers still run
         FormsPlot2.Refresh()
+        FormsPlot2.Focus()                        ' so Esc cancels even when this was started from the ButtonSetPPMBaseline button
+
+    End Sub
+
+    ' The button in the PPM DEVIATION / TEMPCO group does the same as the right-click Set PPM Baseline item;
+    ' pressing it again while picking is armed cancels.
+    Private Sub ButtonSetPPMBaseline_Click(sender As Object, e As EventArgs) Handles ButtonSetPPMBaseline.Click
+
+        If Chart2PpmBaselineArmed Then
+            Chart2CancelPpmBaselinePick()
+        Else
+            Chart2SetPpmBaseline(FormsPlot2.Plot)
+        End If
 
     End Sub
 
@@ -4854,6 +4869,7 @@ Public Class Chart
             RadioButtonPPMTempo.Enabled = True
             RadioButtonPPMTempoLinReg.Enabled = True
             RadioButtonPPMTempoRolling.Enabled = True
+            ButtonSetPPMBaseline.Enabled = True
             MedianValue.Enabled = True
             UpdatePPMDeviceAvailability()
             MedianValueText.Enabled = True
@@ -4869,6 +4885,8 @@ Public Class Chart
             RadioButtonPPMTempo.Enabled = False
             RadioButtonPPMTempoLinReg.Enabled = False
             RadioButtonPPMTempoRolling.Enabled = False
+            ButtonSetPPMBaseline.Enabled = False
+            Chart2CancelPpmBaselinePick()
             MedianValue.Enabled = False
             RadioButtonDev1.Enabled = False
             RadioButtonDev2.Enabled = False

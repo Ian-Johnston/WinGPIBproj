@@ -8,6 +8,7 @@
 ' Ian Johnston:
 ' I am not a VB programmer, heck I'm not even a programmer!!!......but I usually manage to hack things together and that includes writing apps for Windows.
 ' You'll see some 'methods' in this source which you may laugh at or say "OMG".......well, all I can say is that despite the iffy programming, this Windows app WORKS!!!
+' For more on Ian Johnston see https://www.ianjohnston.com
 ' Ian Johnston
 '
 ' Licence & Usage:
