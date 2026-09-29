@@ -7500,6 +7500,11 @@ Public Class Chart
         Dim overallMean As Double = rawValues.Average()
         If overallMean = 0.0 Then Exit Sub   ' avoid a divide-by-zero in the ppm conversion
 
+        ' Noise as a fraction of the reading is a magnitude, not a signed quantity - a shorted input (or anything
+        ' else that averages to a small negative number) must not flip every point negative, which MSChart's
+        ' logarithmic Y axis rejects outright and crashes on.
+        Dim overallMeanAbs As Double = Math.Abs(overallMean)
+
         Dim newSeries As New Series(seriesName) With {
             .ChartType = SeriesChartType.Line,
             .ChartArea = "Main",
@@ -7516,7 +7521,7 @@ Public Class Chart
         Dim haveFirst As Boolean = False
 
         For Each point As KeyValuePair(Of Integer, Double) In ComputeAllanDeviation(rawValues, AllanUseOverlapping)
-            Dim sigmaPpm As Double = (point.Value / overallMean) * 1000000.0
+            Dim sigmaPpm As Double = (point.Value / overallMeanAbs) * 1000000.0
             If sigmaPpm > 0.0 Then
                 newSeries.Points.AddXY(point.Key, sigmaPpm)
                 If Not haveFirst Then
@@ -7565,7 +7570,7 @@ Public Class Chart
             }
 
             For Each point As KeyValuePair(Of Integer, Double) In ComputeModifiedAllanDeviation(rawValues)
-                Dim sigmaPpm As Double = (point.Value / overallMean) * 1000000.0
+                Dim sigmaPpm As Double = (point.Value / overallMeanAbs) * 1000000.0
                 If sigmaPpm > 0.0 Then mdevSeries.Points.AddXY(point.Key, sigmaPpm)
             Next
 
