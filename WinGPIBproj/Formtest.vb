@@ -279,7 +279,7 @@ Public Class Formtest
             CheckBoxRememberPlayback.Checked = My.Settings.data1500
             CheckBoxMaximizePlayback.Checked = My.Settings.data1499
 
-            BannerText1 = "WinGPIB - V5.119           (Free for Non-Commercial Use • Support WinGPIB — see About)"
+            BannerText1 = "WinGPIB - V5.120           (Free for Non-Commercial Use • Support WinGPIB — see About)"
             Me.Text = BannerText1.ToString()
 
             ' Advantest R6581 tab
@@ -1123,6 +1123,30 @@ Public Class Formtest
 
     End Sub
 
+    ' Applies the Timeout (ms) field to the VISA session itself (VI_ATTR_TMO_VALUE) as well as to readtimeout.
+    ' readtimeout only limits how long WinGPIB keeps retrying a READ; every individual VISA read and write is still
+    ' bound by the session timeout, which is short by default. So a long write (e.g. a multi-thousand-point arbitrary
+    ' waveform upload) failed with "write timeout" whatever the field was set to.
+    ' VISA devices only (no effect on other interfaces). Raise-only: a session timeout that is already longer than
+    ' the field is left alone, so nothing that works today gets stricter. Applies on connect (reconnect to change it).
+    Private Sub ApplyVisaTimeout(target As IODevice, timeoutText As String)
+
+        Dim visaDev As VisaDevice = TryCast(target, VisaDevice)
+        If visaDev Is Nothing Then Exit Sub
+
+        Dim wantedMs As Double = Val(timeoutText)
+        If wantedMs <= 0 Then Exit Sub
+        If wantedMs > 2000000000.0R Then wantedMs = 2000000000.0R
+
+        Try
+            Dim wanted As UInteger = CUInt(wantedMs)
+            If visaDev.IOTimeout < wanted Then visaDev.IOTimeout = wanted
+        Catch
+            ' Never stop a connection over this - the device still works with VISA's default timeout.
+        End Try
+
+    End Sub
+
     Private Sub Btncreate2_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btncreate2.Click
 
         dev1 = CreateDevice(txtname1.Text, txtaddr1.Text, lstIntf1.SelectedIndex)
@@ -1154,6 +1178,7 @@ Public Class Formtest
             dev1.maxtasks = 10
             'dev1.readtimeout = 5000
             dev1.readtimeout = Val(Dev1Timeout.Text)
+            ApplyVisaTimeout(dev1, Dev1Timeout.Text)
 
             dev1.delayop = Val(Dev1delayop.Text)
 
@@ -1227,6 +1252,7 @@ Public Class Formtest
             dev2.maxtasks = 10
             'dev2.readtimeout = 5000
             dev2.readtimeout = Val(Dev2Timeout.Text)
+            ApplyVisaTimeout(dev2, Dev2Timeout.Text)
 
             dev2.delayop = Val(Dev2delayop.Text)
 
@@ -1331,6 +1357,7 @@ Public Class Formtest
             dev1.maxtasks = 10
             'dev1.readtimeout = 5000
             dev1.readtimeout = Val(Dev1Timeout.Text)
+            ApplyVisaTimeout(dev1, Dev1Timeout.Text)
 
             dev1.delayop = Val(Dev1delayop.Text)
 
@@ -1377,6 +1404,7 @@ Public Class Formtest
             dev2.maxtasks = 10
             'dev2.readtimeout = 5000
             dev2.readtimeout = Val(Dev2Timeout.Text)
+            ApplyVisaTimeout(dev2, Dev2Timeout.Text)
 
             dev2.delayop = Val(Dev2delayop.Text)
 
