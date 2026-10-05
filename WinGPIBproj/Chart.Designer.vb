@@ -56,6 +56,7 @@ Partial Class Chart
         Me.RadioButtonDev1 = New System.Windows.Forms.RadioButton()
         Me.RadioButtonDev2 = New System.Windows.Forms.RadioButton()
         Me.PPMBox1 = New System.Windows.Forms.GroupBox()
+        Me.ButtonSetPPMBaseline = New System.Windows.Forms.Button()
         Me.Label5 = New System.Windows.Forms.Label()
         Me.CheckBoxMedianT = New System.Windows.Forms.CheckBox()
         Me.CheckBoxMedianV = New System.Windows.Forms.CheckBox()
@@ -154,7 +155,7 @@ Partial Class Chart
         Me.LabelSEMscale = New System.Windows.Forms.Label()
         Me.LabelMean = New System.Windows.Forms.Label()
         Me.LabelSMean = New System.Windows.Forms.Label()
-        Me.ButtonSetPPMBaseline = New System.Windows.Forms.Button()
+        Me.ButtonZoomOverview = New System.Windows.Forms.CheckBox()
         Me.PPMBox1.SuspendLayout()
         Me.Panel1.SuspendLayout()
         Me.GroupBoxMisc.SuspendLayout()
@@ -305,7 +306,7 @@ Partial Class Chart
         Me.ButtonDisplayAll.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.ButtonDisplayAll.Location = New System.Drawing.Point(6, 89)
         Me.ButtonDisplayAll.Name = "ButtonDisplayAll"
-        Me.ButtonDisplayAll.Size = New System.Drawing.Size(147, 22)
+        Me.ButtonDisplayAll.Size = New System.Drawing.Size(66, 22)
         Me.ButtonDisplayAll.TabIndex = 85
         Me.ButtonDisplayAll.Text = "Zoom All"
         Me.ToolTip1.SetToolTip(Me.ButtonDisplayAll, "Display all of chart")
@@ -506,6 +507,18 @@ Partial Class Chart
         Me.PPMBox1.TabIndex = 149
         Me.PPMBox1.TabStop = False
         Me.PPMBox1.Text = "PPM DEVIATION / TEMPCO"
+        '
+        'ButtonSetPPMBaseline
+        '
+        Me.ButtonSetPPMBaseline.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonSetPPMBaseline.Location = New System.Drawing.Point(261, 41)
+        Me.ButtonSetPPMBaseline.Name = "ButtonSetPPMBaseline"
+        Me.ButtonSetPPMBaseline.Size = New System.Drawing.Size(61, 39)
+        Me.ButtonSetPPMBaseline.TabIndex = 580
+        Me.ButtonSetPPMBaseline.Text = "Set PPM" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Baseline"
+        Me.ToolTip1.SetToolTip(Me.ButtonSetPPMBaseline, "Sets the PPM Initial Value and Initial Temp from a point you click on the trace. " &
+        "Esc cancels")
+        Me.ButtonSetPPMBaseline.UseVisualStyleBackColor = True
         '
         'Label5
         '
@@ -1130,6 +1143,7 @@ Partial Class Chart
         '
         'YaxisBox1
         '
+        Me.YaxisBox1.Controls.Add(Me.ButtonZoomOverview)
         Me.YaxisBox1.Controls.Add(Me.CheckPlaybackDev12Allan)
         Me.YaxisBox1.Controls.Add(Me.ButtonHistogram)
         Me.YaxisBox1.Controls.Add(Me.CheckBoxTempcoCurve)
@@ -1652,17 +1666,17 @@ Partial Class Chart
         Me.LabelSMean.TabIndex = 595
         Me.LabelSMean.Text = "S.MEAN"
         '
-        'ButtonSetPPMBaseline
+        'ButtonZoomOverview
         '
-        Me.ButtonSetPPMBaseline.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonSetPPMBaseline.Location = New System.Drawing.Point(261, 41)
-        Me.ButtonSetPPMBaseline.Name = "ButtonSetPPMBaseline"
-        Me.ButtonSetPPMBaseline.Size = New System.Drawing.Size(61, 39)
-        Me.ButtonSetPPMBaseline.TabIndex = 580
-        Me.ButtonSetPPMBaseline.Text = "Set PPM" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Baseline"
-        Me.ToolTip1.SetToolTip(Me.ButtonSetPPMBaseline, "Sets the PPM Initial Value and Initial Temp from a point you click on the trace. " &
-        "Esc cancels")
-        Me.ButtonSetPPMBaseline.UseVisualStyleBackColor = True
+        Me.ButtonZoomOverview.Appearance = System.Windows.Forms.Appearance.Button
+        Me.ButtonZoomOverview.AutoSize = True
+        Me.ButtonZoomOverview.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonZoomOverview.Location = New System.Drawing.Point(77, 89)
+        Me.ButtonZoomOverview.Name = "ButtonZoomOverview"
+        Me.ButtonZoomOverview.Size = New System.Drawing.Size(92, 23)
+        Me.ButtonZoomOverview.TabIndex = 93
+        Me.ButtonZoomOverview.Text = "Zoom Overview"
+        Me.ButtonZoomOverview.UseVisualStyleBackColor = True
         '
         'Chart
         '
@@ -1872,4 +1886,5 @@ Partial Class Chart
     Friend WithEvents CheckPlaybackDev12Allan As CheckBox
     Friend WithEvents ButtonExportResults As Button
     Friend WithEvents ButtonSetPPMBaseline As Button
+    Friend WithEvents ButtonZoomOverview As CheckBox
 End Class

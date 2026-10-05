@@ -25,6 +25,7 @@ Public Class Chart
     Private Const PlaybackNoiseBandEnabled As Boolean = True        ' right-click > Noise Band (main chart)
     Private Const PlaybackTrendEnabled As Boolean = True            ' right-click > Trend Line / Tempco Curve (main chart)
     Private Const PlaybackHistogramEnabled As Boolean = True        ' right-click > Histogram of Readings (main chart)
+    Private Const PlaybackZoomOverviewEnabled As Boolean = True     ' Zoom Overview button and right-click item (ChartOverview.vb)
 
     ' Right-click menu: a real WinForms ContextMenuStrip (Chart2ContextMenu, built in Chart2BuildContextMenu) is used
     ' instead of ScottPlot's own menu, so the on/off items can show a properly aligned, sized checkbox (see
@@ -340,6 +341,9 @@ Public Class Chart
         Chart2TempAxis.RegenerateTicks(tickLength, rp.Paint)
         Chart2HumAxis.RegenerateTicks(tickLength, rp.Paint)
         Chart2PPMAxis.RegenerateTicks(tickLength, rp.Paint)
+
+        ' Zoom Overview window (does nothing unless it is open)
+        Chart2SyncOverview()
 
     End Sub
 
@@ -2558,6 +2562,8 @@ Public Class Chart
         ButtonHistogram.Enabled = loaded AndAlso PlaybackHistogramEnabled
         CheckPlaybackDev12Allan.Enabled = loaded
         ButtonExportResults.Enabled = loaded
+        ButtonZoomOverview.Enabled = loaded AndAlso PlaybackZoomOverviewEnabled
+        If Not loaded Then Chart2CloseOverview()
 
     End Sub
 
@@ -2573,6 +2579,7 @@ Public Class Chart
         ToolTip1.SetToolTip(ButtonExportResults, "Saves all the statistics and analysis results for the visible traces to a text file," & vbCrLf & "using the Regional Stats band if it is showing, otherwise the whole run.")
         ToolTip1.SetToolTip(ButtonSetPPMBaseline, "Then click the device's Data or Mean trace to use that sample's reading" & vbCrLf & "and temperature as the PPM baseline (same as right-click > Set PPM Baseline).")
         ToolTip1.SetToolTip(ButtonHistogram, "Opens a pop-up histogram of the readings" & vbCrLf & "(the Regional Stats band if showing, otherwise the whole run).")
+        ToolTip1.SetToolTip(ButtonZoomOverview, "Opens a small overview of the whole run in a window that stays above the" & vbCrLf & "Playback Chart. Drag its rectangle to pan, its edges to zoom.")
         ToolTip1.SetToolTip(ButtonPlaybackHelp, "Playback Chart Help")
 
     End Sub
@@ -3751,6 +3758,7 @@ Public Class Chart
         End If
         If PlaybackHistogramEnabled Then addToggle("Histogram of Readings", AddressOf Chart2MenuHistogram, Function() ButtonHistogram.Checked)
         addToggle("Allan Deviation", AddressOf Chart2ToggleAllan, Function() CheckPlaybackDev12Allan.Checked)
+        If PlaybackZoomOverviewEnabled Then addToggle("Zoom Overview", AddressOf Chart2MenuZoomOverview, Function() ButtonZoomOverview.Checked)
         addAction("Set PPM Baseline", AddressOf Chart2SetPpmBaseline)
 
         AddHandler Chart2ContextMenu.Opening, Sub(s, ev) Chart2RefreshContextMenuChecks()
@@ -7458,6 +7466,8 @@ Public Class Chart
             AllanPopupForm.Close()
         End If
 
+        Chart2CloseOverview()
+
     End Sub
 
     Private Sub UpdateAllanSeries(seriesName As String, deviceName As String, show As Boolean, seriesColor As Color)
@@ -7758,7 +7768,7 @@ Public Class Chart
 "- Zoom in/out at the cursor - Scroll wheel (hold Shift to zoom Y only, Ctrl to zoom X only)" & vbLf &
 "- Measure the delta between two points - Double-click two points, double-click again (or press Esc) to clear" & vbLf &
 "- Hover a trace to see the value of the nearest data point" & vbLf &
-"- Right-click (no drag) for a menu: Save Image, Copy Value At Cursor, Clear Measurement, Zoom All, Region Statistics, Noise Band, Trend Line, Tempco Curve, Histogram of Readings, Allan Deviation, Set PPM Baseline" & vbLf &
+"- Right-click (no drag) for a menu: Save Image, Copy Value At Cursor, Clear Measurement, Zoom All, Region Statistics, Noise Band, Trend Line, Tempco Curve, Histogram of Readings, Allan Deviation, Zoom Overview, Set PPM Baseline" & vbLf &
 "- Analysis tools (Regional Stats, Noise Band, Trend Line, Tempco Curve, Histogram, Allan Deviation) are on this menu too - see the analysis tools section below. Zoom All does the same as the ZOOM ALL button, and Set PPM Baseline is described under PPM Deviation / Tempco. Each on/off item shows a checkbox in front of it (checked or empty) for its current state." & vbLf &
 "- Any pan or zoom unticks AutoScale." & vbLf &
 "Only the Dev 1 / Dev 2 traces and their left-hand scale respond to pan/zoom - the Temp, Hum and PPM scales stay fixed to their own scale boxes." & vbLf & vbLf &
@@ -7803,6 +7813,10 @@ Public Class Chart
 "If MDEV runs visibly steeper than its device's ADEV curve at short tau, that's a sign of phase noise ADEV alone wouldn't show." & vbLf & vbLf &
 "MDEV formula:" & vbLf &
 "Mod sigma(tau) = sqrt( sum( (second-difference sum over an m-sample window)^2 ) / (2 x tau^2 x m^2 x (N-3m+1)) ), where m = tau and the second difference is taken on x, the cumulative sum (integration) of the raw readings." & vbLf & vbLf &
+"ZOOM OVERVIEW" & vbLf &
+"The Zoom Overview button in the SCALES & ANALYSIS group opens a small window showing the whole run - a min/max envelope and mean line for each visible Dev 1 / Dev 2 trace, over the full time axis - with a rectangle marking the part the main chart is showing. It is a fixed size. You can move it, and it stays above the Playback Chart (but not above other programs), closes with it, and reopens where you left it." & vbLf & vbLf &
+"Drag the rectangle to pan the main chart, drag either edge of the rectangle to zoom, or click anywhere else in the overview to jump there. Double-click for the full view (the same fit as AutoScale). Like any pan or zoom this unticks AutoScale, and the Y scale is left as it is. The Regional Stats band, if showing, is shown on the overview too." & vbLf & vbLf &
+"The overview follows the main chart (pan, zoom, Avg changes, trace checkboxes, Light Mode) and updates when a new CSV is loaded. Closing the window unticks the button. It is also on the main chart's right-click menu, and is not saved with Save Settings." & vbLf & vbLf &
 "CHART SPLIT" & vbLf &
 "Drag the small bar between the main chart and the Statistics chart up or down to change their heights; the gap between them stays the same. Resizing the window keeps your split, and it returns to the default each time a new CSV is loaded." & vbLf & vbLf &
 "DEV 1 TRACES / DEV 2 TRACES" & vbLf &
@@ -7865,6 +7879,7 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
         "CSV DETAILS",
         "SCALES & ANALYSIS",
         "ANALYSIS TOOLS",
+        "ZOOM OVERVIEW",
         "CHART SPLIT",
         "DEV 1 TRACES / DEV 2 TRACES",
         "SHORT TERM MEAN",
