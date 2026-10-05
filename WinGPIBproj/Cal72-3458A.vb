@@ -56,7 +56,7 @@ Partial Class Formtest
         DataGridViewCal72.Columns("Avg ppm/day").HeaderText = "Drift Avg ppm/Day"
         DataGridViewCal72.Columns("CAL? 1,1 Dev").HeaderText = "CAL? 1,1 40k" & vbCrLf & "Deviation"
         DataGridViewCal72.Columns("CAL? 2,1 Dev").HeaderText = "CAL? 2,1 Vref" & vbCrLf & "Deviation"
-        DataGridViewCal72.Columns("Days From Day 1").HeaderText = "Total Days" & vbCrLf & "Elapsed"
+        DataGridViewCal72.Columns("Days From Day 1").HeaderText = "Days Since" & vbCrLf & "Day 1"
         DataGridViewCal72.Columns("Days From Last").HeaderText = "Days Since Last"
         DataGridViewCal72.Columns("CAL? 1,1 40k").HeaderText = "CAL? 1,1" & vbCrLf & "40k"
         DataGridViewCal72.Columns("CAL? 2,1 Vref").HeaderText = "CAL? 2,1" & vbCrLf & "Vref"
@@ -511,46 +511,27 @@ Handles RadioButton34581.CheckedChanged,
 
         If Cal72Table.Rows.Count = 0 Then Exit Sub
 
+        ' Day 1 baseline: the first row, unless a later row has [DAY1] in its Notes (e.g. the first reading after the
+        ' meter returns from recalibration). That row becomes the baseline for itself and every row below it; the rows
+        ' above keep the figures calculated against the earlier baseline, so the history is kept.
         Dim day1Cal72 As Double
-        Dim firstDay As Double
+        Dim baselineDay As Double
         Dim day1Cal11 As Double
         Dim day1Cal21 As Double
+        Dim baselineDateTime As DateTime
+        Dim baselineDateTimeValid As Boolean
+        Dim baselineIndex As Integer = 0
 
-        If Not Double.TryParse(Cal72Table.Rows(0)("CAL? 72").ToString(),
-                           NumberStyles.Float,
-                           CultureInfo.InvariantCulture,
-                           day1Cal72) Then
+        If Not ReadCal72Baseline(Cal72Table.Rows(0), day1Cal72, baselineDay, day1Cal11, day1Cal21,
+                                 baselineDateTime, baselineDateTimeValid) Then
             Exit Sub
         End If
 
-        If Not Double.TryParse(Cal72Table.Rows(0)("Day").ToString(),
-                           NumberStyles.Float,
-                           CultureInfo.InvariantCulture,
-                           firstDay) Then
-            firstDay = 1
-        End If
-
-        Double.TryParse(Cal72Table.Rows(0)("CAL? 1,1 40k").ToString(),
-                    NumberStyles.Float,
-                    CultureInfo.InvariantCulture,
-                    day1Cal11)
-
-        Double.TryParse(Cal72Table.Rows(0)("CAL? 2,1 Vref").ToString(),
-                    NumberStyles.Float,
-                    CultureInfo.InvariantCulture,
-                    day1Cal21)
-
-        If day1Cal72 = 0 Then Exit Sub
-
-        Dim firstDateTime As DateTime
-        Dim firstDateTimeValid As Boolean =
-        GetRowDateTime(Cal72Table.Rows(0), firstDateTime)
-
-        Dim previousDay As Double = firstDay
+        Dim previousDay As Double = baselineDay
         Dim previousCal72 As Double = day1Cal72
 
-        Dim previousDateTime As DateTime = firstDateTime
-        Dim previousDateTimeValid As Boolean = firstDateTimeValid
+        Dim previousDateTime As DateTime = baselineDateTime
+        Dim previousDateTimeValid As Boolean = baselineDateTimeValid
 
         For i As Integer = 0 To Cal72Table.Rows.Count - 1
 
@@ -589,13 +570,25 @@ Handles RadioButton34581.CheckedChanged,
             Dim thisDateTimeValid As Boolean =
             GetRowDateTime(r, thisDateTime)
 
+            ' [DAY1] in the Notes: this row becomes the new Day 1 baseline from here on
+            Dim isNewBaselineRow As Boolean = False
+
+            If i > 0 AndAlso IsCal72Day1Row(r) Then
+
+                isNewBaselineRow = ReadCal72Baseline(r, day1Cal72, baselineDay, day1Cal11, day1Cal21,
+                                                     baselineDateTime, baselineDateTimeValid)
+
+                If isNewBaselineRow Then baselineIndex = i
+
+            End If
+
             Dim daysFromDay1 As Double
             Dim daysFromLast As Double
 
-            If firstDateTimeValid AndAlso thisDateTimeValid Then
-                daysFromDay1 = (thisDateTime - firstDateTime).TotalDays
+            If baselineDateTimeValid AndAlso thisDateTimeValid Then
+                daysFromDay1 = (thisDateTime - baselineDateTime).TotalDays
             Else
-                daysFromDay1 = thisDay - firstDay
+                daysFromDay1 = thisDay - baselineDay
             End If
 
             If i = 0 Then
@@ -624,9 +617,11 @@ Handles RadioButton34581.CheckedChanged,
                 Math.Abs(driftPpmDay1 / daysFromDay1)
             End If
 
+            ' Not for a [DAY1] row: its step from the row above is the recalibration, not drift
             Dim driftPpmLast As Double = 0
 
             If i > 0 AndAlso
+           Not isNewBaselineRow AndAlso
            previousCal72 <> 0 AndAlso
            daysFromLast > 0 Then
 
@@ -650,7 +645,7 @@ Handles RadioButton34581.CheckedChanged,
 
             If String.IsNullOrWhiteSpace(cal11Text) OrElse
            String.IsNullOrWhiteSpace(
-               Cal72Table.Rows(0)("CAL? 1,1 40k").ToString()) Then
+               Cal72Table.Rows(baselineIndex)("CAL? 1,1 40k").ToString()) Then
 
                 r("CAL? 1,1 Dev") = DBNull.Value
 
@@ -663,7 +658,7 @@ Handles RadioButton34581.CheckedChanged,
 
             If String.IsNullOrWhiteSpace(cal21Text) OrElse
            String.IsNullOrWhiteSpace(
-               Cal72Table.Rows(0)("CAL? 2,1 Vref").ToString()) Then
+               Cal72Table.Rows(baselineIndex)("CAL? 2,1 Vref").ToString()) Then
 
                 r("CAL? 2,1 Dev") = DBNull.Value
 
@@ -688,6 +683,135 @@ Handles RadioButton34581.CheckedChanged,
 
     End Sub
 
+    ' Reads the Day 1 baseline values from a row. False (and the outputs untouched) if its CAL? 72 is missing,
+    ' not a number, or zero (it is divided by).
+    Private Function ReadCal72Baseline(r As DataRow, ByRef cal72 As Double, ByRef dayNumber As Double,
+                                       ByRef cal11 As Double, ByRef cal21 As Double,
+                                       ByRef dateTimeValue As DateTime, ByRef dateTimeValid As Boolean) As Boolean
+
+        Dim newCal72 As Double
+
+        If Not Double.TryParse(r("CAL? 72").ToString(),
+                           NumberStyles.Float,
+                           CultureInfo.InvariantCulture,
+                           newCal72) Then
+            Return False
+        End If
+
+        If newCal72 = 0 Then Return False
+
+        Dim newDay As Double
+
+        If Not Double.TryParse(r("Day").ToString(),
+                           NumberStyles.Float,
+                           CultureInfo.InvariantCulture,
+                           newDay) Then
+            newDay = 1
+        End If
+
+        Dim newCal11 As Double
+        Double.TryParse(r("CAL? 1,1 40k").ToString(),
+                    NumberStyles.Float,
+                    CultureInfo.InvariantCulture,
+                    newCal11)
+
+        Dim newCal21 As Double
+        Double.TryParse(r("CAL? 2,1 Vref").ToString(),
+                    NumberStyles.Float,
+                    CultureInfo.InvariantCulture,
+                    newCal21)
+
+        Dim newDateTime As DateTime
+        Dim newDateTimeValid As Boolean = GetRowDateTime(r, newDateTime)
+
+        cal72 = newCal72
+        dayNumber = newDay
+        cal11 = newCal11
+        cal21 = newCal21
+        dateTimeValue = newDateTime
+        dateTimeValid = newDateTimeValid
+
+        Return True
+
+    End Function
+
+    ' A row with [DAY1] in its Notes (not case sensitive) starts a new Day 1 baseline - provided it has a usable Day and a
+    ' non-zero CAL? 72, otherwise the tag is ignored. Used by the table, the summary panel and the chart so they agree.
+    Private Function IsCal72Day1Row(r As DataRow) As Boolean
+
+        If r("Notes").ToString().IndexOf("[DAY1]", StringComparison.OrdinalIgnoreCase) < 0 Then Return False
+
+        Dim dayNumber As Double
+        Dim cal72 As Double
+
+        If Not Double.TryParse(r("Day").ToString(),
+                           NumberStyles.Float,
+                           CultureInfo.InvariantCulture,
+                           dayNumber) Then
+            Return False
+        End If
+
+        If Not Double.TryParse(r("CAL? 72").ToString(),
+                           NumberStyles.Float,
+                           CultureInfo.InvariantCulture,
+                           cal72) Then
+            Return False
+        End If
+
+        Return cal72 <> 0
+
+    End Function
+
+    ' Index of the row the latest figures are measured from: the last [DAY1] row, or the first row if there is none.
+    Private Function GetCal72CurrentBaselineIndex() As Integer
+
+        For i As Integer = Cal72Table.Rows.Count - 1 To 1 Step -1
+            If IsCal72Day1Row(Cal72Table.Rows(i)) Then Return i
+        Next
+
+        Return 0
+
+    End Function
+
+    ' X value for the chart: days since the very first entry, so the line keeps running through any [DAY1] re-baseline.
+    ' (The "Days From Day 1" column restarts from zero at each [DAY1] row, so it cannot be used for the chart.)
+    Private Function TryGetCal72ChartDays(gridRow As DataGridViewRow, ByRef days As Double) As Boolean
+
+        Dim boundRow As DataRowView = TryCast(gridRow.DataBoundItem, DataRowView)
+
+        If boundRow Is Nothing OrElse Cal72Table.Rows.Count = 0 Then Return False
+
+        Dim r As DataRow = boundRow.Row
+        Dim firstRow As DataRow = Cal72Table.Rows(0)
+
+        Dim firstDateTime As DateTime
+        Dim thisDateTime As DateTime
+
+        If GetRowDateTime(firstRow, firstDateTime) AndAlso GetRowDateTime(r, thisDateTime) Then
+            days = (thisDateTime - firstDateTime).TotalDays
+            Return True
+        End If
+
+        Dim firstDay As Double
+        Dim thisDay As Double
+
+        If Double.TryParse(firstRow("Day").ToString(),
+                       NumberStyles.Float,
+                       CultureInfo.InvariantCulture,
+                       firstDay) AndAlso
+           Double.TryParse(r("Day").ToString(),
+                       NumberStyles.Float,
+                       CultureInfo.InvariantCulture,
+                       thisDay) Then
+
+            days = thisDay - firstDay
+            Return True
+
+        End If
+
+        Return False
+
+    End Function
 
     Private Function GetRowDateTime(r As DataRow, ByRef dt As DateTime) As Boolean
 
@@ -937,15 +1061,15 @@ Handles RadioButton34581.CheckedChanged,
         .ShowIcon = False,
         .ShowInTaskbar = False,
         .Width = 700,
-        .Height = 450,
+        .Height = 600,
         .MinimizeBox = False,
         .MaximizeBox = False
     }
 
-        Dim txt As New TextBox With {
-        .Multiline = True,
+        Dim txt As New RichTextBox With {
         .ReadOnly = True,
         .WordWrap = True,
+        .ScrollBars = RichTextBoxScrollBars.Vertical,
         .Dock = DockStyle.Fill,
         .Font = New Font("Segoe UI", 9),
         .BackColor = Color.White,
@@ -955,7 +1079,7 @@ Handles RadioButton34581.CheckedChanged,
 "- Allow the 3458A to thermally stabilise before recording data" & vbCrLf &
 "- Perform ACAL DCV before recording values where possible" & vbCrLf &
 "- Auto Log performs ACAL DCV, waits for completion, then logs a new entry" & vbCrLf &
-"- First entry becomes the permanent Day 1 reference baseline" & vbCrLf &
+"- The first entry is the Day 1 reference baseline, unless a later entry is tagged [DAY1] (see NOTES FIELD COMMANDS below)" & vbCrLf &
 "- CAL? 72 drift can be temperature related - monitor temperature carefully" & vbCrLf &
 "- Lower average ppm/day values indicate better long-term U180 stability" & vbCrLf &
 "- CAL? 72 accepts decimal or E-notation values for manual entry" & vbCrLf &
@@ -964,15 +1088,58 @@ Handles RadioButton34581.CheckedChanged,
 "- Deviation columns show the change from the Day 1 CAL? 1,1 and CAL? 2,1 values" & vbCrLf &
 "- Estimated Annual Drift = Average Drift ppm/day × 365.25" & vbCrLf &
 "- Example 1Vdc Reading shows the expected reading today if exactly 1.000000000 Vdc was applied on Day 1" & vbCrLf &
-"- Total Drift Ref Day1 shows the overall drift relative to the first recorded entry" & vbCrLf &
+"- Total Drift Ref Day1 shows the overall drift relative to the Day 1 entry" & vbCrLf &
 "- Drift Ref Last Entry shows the drift rate relative to the previous reading" & vbCrLf &
-"- Worst Drift Ref Day1 shows the largest overall drift recorded" & vbCrLf &
+"- Worst Drift Ref Day1 shows the largest drift recorded since the current Day 1" & vbCrLf &
 "- Days Since Last Entry shows the elapsed time between the last two readings" & vbCrLf &
-"- Add [RECAL] anywhere in the Notes field to mark recalibration events on the chart" & vbCrLf &
 "- Auto Log automatically performs ACAL DCV then reads and records a new entry at the selected hourly interval" & vbCrLf &
 "- Auto logging stops if disabled or if Device 1 is disconnected" & vbCrLf &
-"- Deleting Day 1 renumbers all remaining entries and creates a new Day 1 baseline"
+"- Deleting Day 1 renumbers all remaining entries and creates a new Day 1 baseline" & vbCrLf & vbCrLf &
+"NOTES FIELD COMMANDS" & vbCrLf &
+"Type these anywhere in a row's Notes. They are not case sensitive and can be used together on the same row." & vbCrLf &
+"Edit the Notes in the table to add or remove one - the table, summary and chart update immediately." & vbCrLf &
+"- [RECAL] marks a recalibration event with a red dashed line on the chart. It does not change any figures" & vbCrLf &
+"- [DAY1] makes that row the new Day 1 reference baseline - use it on the first reading after the meter returns from recalibration" & vbCrLf &
+"- From a [DAY1] row down, Days Since Day 1, Drift ppm Ref. Day 1, Drift Avg ppm/Day, the CAL? 1,1 and CAL? 2,1 deviations, Estimated Annual Drift, Example 1Vdc Reading and Worst Drift all refer to that row" & vbCrLf &
+"- Rows above it keep their existing figures, so the earlier history is kept" & vbCrLf &
+"- The [DAY1] row itself shows zero drift (including Drift Ref Last), so the recalibration step is not counted as drift" & vbCrLf &
+"- On the chart the drift line restarts from zero at each [DAY1] row, marked with a green DAY 1 line (a row also marked [RECAL] shows only the red line)" & vbCrLf &
+"- Several [DAY1] rows can be used, one per recalibration. [DAY1] on the first row has no effect" & vbCrLf &
+"- A [DAY1] row needs a valid Day and CAL? 72 value, otherwise the tag is ignored. Delete the tag to return to the earlier baseline" & vbCrLf &
+"- [AUTO] is added automatically to entries logged by Auto Log. It is only a label" & vbCrLf &
+"- Any other text is a free note and does not change the figures"
     }
+
+        ' Hanging indent for the "- " bullets so wrapped lines line up under the text after the dash (a plain TextBox
+        ' can't do this, hence the RichTextBox). The two headings are bold.
+        Dim bulletIndent As Integer = TextRenderer.MeasureText("- ", txt.Font, System.Drawing.Size.Empty, TextFormatFlags.NoPadding).Width
+        Dim searchFrom As Integer = 0
+
+        For Each helpLine As String In txt.Lines
+
+            If helpLine.Length = 0 Then Continue For
+
+            Dim lineStart As Integer = txt.Text.IndexOf(helpLine, searchFrom, StringComparison.Ordinal)
+            If lineStart < 0 Then Continue For
+
+            If helpLine.StartsWith("- ") Then
+
+                txt.Select(lineStart, helpLine.Length)
+                txt.SelectionIndent = 0
+                txt.SelectionHangingIndent = bulletIndent
+
+            ElseIf helpLine = "NOTES FIELD COMMANDS" OrElse helpLine.StartsWith("3458A U180 A/D") Then
+
+                txt.Select(lineStart, helpLine.Length)
+                txt.SelectionFont = New Font(txt.Font, FontStyle.Bold)
+
+            End If
+
+            searchFrom = lineStart + helpLine.Length
+
+        Next
+
+        txt.Select(0, 0)
 
         Dim btn As New Button With {
         .Text = "OK",
@@ -1072,7 +1239,10 @@ Handles RadioButton34581.CheckedChanged,
 
         Dim worstDrift As Double = 0
 
-        For Each row As DataRow In Cal72Table.Rows
+        ' Only the entries since the current Day 1 baseline (the last [DAY1] row, or the first row if there is none)
+        For rowIndex As Integer = GetCal72CurrentBaselineIndex() To Cal72Table.Rows.Count - 1
+
+            Dim row As DataRow = Cal72Table.Rows(rowIndex)
 
             Dim drift As Double
 
@@ -1340,49 +1510,11 @@ Handles RadioButton34581.CheckedChanged,
         Dim driftSeries As Series = ChartCal72.Series("Drift ppm Day 1")
         driftSeries.Points.Clear()
 
-        Dim daysColumnIndex As Integer = -1
-        Dim driftColumnIndex As Integer = -1
+        ' The drift column is found by its name (heading text is edited for display, so it is not reliable)
+        Dim driftColumn As DataGridViewColumn = DataGridViewCal72.Columns("Drift ppm Day 1")
 
-        ' Find the required columns using their displayed headings
-        For Each column As DataGridViewColumn In DataGridViewCal72.Columns
-
-            ' Remove line breaks because the headings are displayed
-            ' on two or more lines
-            Dim heading As String =
-            column.HeaderText.Replace(vbCr, " ").
-                              Replace(vbLf, " ").
-                              Trim()
-
-            While heading.Contains("  ")
-                heading = heading.Replace("  ", " ")
-            End While
-
-            If heading.IndexOf(
-            "Total Days Elapsed",
-            StringComparison.OrdinalIgnoreCase) >= 0 Then
-
-                daysColumnIndex = column.Index
-
-            End If
-
-            If heading.IndexOf(
-            "Drift ppm",
-            StringComparison.OrdinalIgnoreCase) >= 0 AndAlso
-           heading.IndexOf(
-            "Day 1",
-            StringComparison.OrdinalIgnoreCase) >= 0 AndAlso
-           heading.IndexOf(
-            "Last",
-            StringComparison.OrdinalIgnoreCase) = -1 Then
-
-                driftColumnIndex = column.Index
-
-            End If
-
-        Next
-
-        ' Stop if the required columns could not be found
-        If daysColumnIndex = -1 OrElse driftColumnIndex = -1 Then
+        ' Stop if the required column could not be found
+        If driftColumn Is Nothing Then
 
             ChartCal72.Titles.Clear()
 
@@ -1401,13 +1533,13 @@ Handles RadioButton34581.CheckedChanged,
 
         End If
 
-        ' Add valid points from the grid
+        Dim driftColumnIndex As Integer = driftColumn.Index
+
+        ' Add valid points from the grid. X is the days since the very first entry (TryGetCal72ChartDays), so the line
+        ' keeps running through any [DAY1] re-baseline, where the drift value itself restarts from zero.
         For Each row As DataGridViewRow In DataGridViewCal72.Rows
 
             If row.IsNewRow Then Continue For
-
-            Dim daysText As String =
-            Convert.ToString(row.Cells(daysColumnIndex).Value).Trim()
 
             Dim driftText As String =
             Convert.ToString(row.Cells(driftColumnIndex).Value).Trim()
@@ -1415,7 +1547,7 @@ Handles RadioButton34581.CheckedChanged,
             Dim days As Double
             Dim driftPpm As Double
 
-            If Double.TryParse(daysText, days) AndAlso
+            If TryGetCal72ChartDays(row, days) AndAlso
            Double.TryParse(driftText, driftPpm) Then
 
                 driftSeries.Points.AddXY(days, driftPpm)
@@ -1439,35 +1571,55 @@ Handles RadioButton34581.CheckedChanged,
             Dim notesText As String =
         Convert.ToString(row.Cells(notesColumnIndex).Value).Trim()
 
+            Dim markerDays As Double
+
+            If Not TryGetCal72ChartDays(row, markerDays) Then Continue For
+
             If notesText.IndexOf("[RECAL]",
                          StringComparison.OrdinalIgnoreCase) >= 0 Then
 
-                Dim daysText As String =
-            Convert.ToString(row.Cells(daysColumnIndex).Value).Trim()
+                Dim recalMarker As New StripLine()
 
-                Dim recalDay As Double
+                recalMarker.Interval = 0
+                recalMarker.IntervalOffset = markerDays
+                recalMarker.StripWidth = 0
 
-                If Double.TryParse(daysText,
-                           NumberStyles.Float,
-                           CultureInfo.InvariantCulture,
-                           recalDay) Then
+                recalMarker.BorderColor = Color.Red
+                recalMarker.BorderWidth = 2
+                recalMarker.BorderDashStyle = ChartDashStyle.Dash
 
-                    Dim recalMarker As New StripLine()
+                recalMarker.Text = "RECAL"
+                recalMarker.ForeColor = Color.Red
+                recalMarker.Font =
+            New Font("Segoe UI", 7, FontStyle.Bold)
 
-                    recalMarker.Interval = 0
-                    recalMarker.IntervalOffset = recalDay
-                    recalMarker.StripWidth = 0
+                area.AxisX.StripLines.Add(recalMarker)
 
-                    recalMarker.BorderColor = Color.Red
-                    recalMarker.BorderWidth = 2
-                    recalMarker.BorderDashStyle = ChartDashStyle.Dash
+            Else
 
-                    recalMarker.Text = "RECAL"
-                    recalMarker.ForeColor = Color.Red
-                    recalMarker.Font =
+                ' A [DAY1] row (not also marked [RECAL]) gets its own marker where the drift line restarts from zero
+                Dim boundRow As DataRowView = TryCast(row.DataBoundItem, DataRowView)
+
+                If boundRow IsNot Nothing AndAlso
+               Cal72Table.Rows.IndexOf(boundRow.Row) > 0 AndAlso
+               IsCal72Day1Row(boundRow.Row) Then
+
+                    Dim day1Marker As New StripLine()
+
+                    day1Marker.Interval = 0
+                    day1Marker.IntervalOffset = markerDays
+                    day1Marker.StripWidth = 0
+
+                    day1Marker.BorderColor = Color.LimeGreen
+                    day1Marker.BorderWidth = 2
+                    day1Marker.BorderDashStyle = ChartDashStyle.Dash
+
+                    day1Marker.Text = "DAY 1"
+                    day1Marker.ForeColor = Color.LimeGreen
+                    day1Marker.Font =
                 New Font("Segoe UI", 7, FontStyle.Bold)
 
-                    area.AxisX.StripLines.Add(recalMarker)
+                    area.AxisX.StripLines.Add(day1Marker)
 
                 End If
 
