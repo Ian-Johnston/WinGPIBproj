@@ -251,6 +251,8 @@ Partial Class Formtest
         Me.LabelXaxisProjectedTime = New System.Windows.Forms.Label()
         Me.ButtonSCOTTPLOTack = New System.Windows.Forms.Button()
         Me.ButtonLiveChartHelp = New System.Windows.Forms.Button()
+        Me.CheckBoxMaximizePlayback = New System.Windows.Forms.CheckBox()
+        Me.CheckBoxRememberPlayback = New System.Windows.Forms.CheckBox()
         Me.ButtonDev1INFO = New System.Windows.Forms.Button()
         Me.ButtonDev2INFO = New System.Windows.Forms.Button()
         Me.CheckBoxPrologixSerialDTR = New System.Windows.Forms.CheckBox()
@@ -1336,8 +1338,8 @@ Partial Class Formtest
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer18 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer19 = New System.Windows.Forms.Timer(Me.components)
-        Me.CheckBoxMaximizePlayback = New System.Windows.Forms.CheckBox()
-        Me.CheckBoxRememberPlayback = New System.Windows.Forms.CheckBox()
+        Me.LabelDAY1 = New System.Windows.Forms.Label()
+        Me.LabelDay1num = New System.Windows.Forms.Label()
         Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
@@ -3787,6 +3789,30 @@ Partial Class Formtest
         Me.ButtonLiveChartHelp.Text = "Help"
         Me.ToolTip1.SetToolTip(Me.ButtonLiveChartHelp, "Live Chart Help")
         Me.ButtonLiveChartHelp.UseVisualStyleBackColor = True
+        '
+        'CheckBoxMaximizePlayback
+        '
+        Me.CheckBoxMaximizePlayback.AutoSize = True
+        Me.CheckBoxMaximizePlayback.Location = New System.Drawing.Point(10, 95)
+        Me.CheckBoxMaximizePlayback.Name = "CheckBoxMaximizePlayback"
+        Me.CheckBoxMaximizePlayback.Size = New System.Drawing.Size(178, 17)
+        Me.CheckBoxMaximizePlayback.TabIndex = 623
+        Me.CheckBoxMaximizePlayback.Text = "Open Playback Chart maximized"
+        Me.ToolTip1.SetToolTip(Me.CheckBoxMaximizePlayback, "Opens the Playback Chart maximized instead of at its normal size. Takes effect th" &
+        "e next time it is opened")
+        Me.CheckBoxMaximizePlayback.UseVisualStyleBackColor = True
+        '
+        'CheckBoxRememberPlayback
+        '
+        Me.CheckBoxRememberPlayback.AutoSize = True
+        Me.CheckBoxRememberPlayback.Location = New System.Drawing.Point(10, 117)
+        Me.CheckBoxRememberPlayback.Name = "CheckBoxRememberPlayback"
+        Me.CheckBoxRememberPlayback.Size = New System.Drawing.Size(173, 17)
+        Me.CheckBoxRememberPlayback.TabIndex = 624
+        Me.CheckBoxRememberPlayback.Text = "Remember Playback Chart size"
+        Me.ToolTip1.SetToolTip(Me.CheckBoxRememberPlayback, "Opens the Playback Chart at the size you last left it. Takes effect the next time" &
+        " it is opened. Cannot be used with Open Playback Chart maximized")
+        Me.CheckBoxRememberPlayback.UseVisualStyleBackColor = True
         '
         'ButtonDev1INFO
         '
@@ -7574,6 +7600,8 @@ Partial Class Formtest
         '
         Me.PanelCal72Summary.BackColor = System.Drawing.Color.WhiteSmoke
         Me.PanelCal72Summary.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.PanelCal72Summary.Controls.Add(Me.LabelDay1num)
+        Me.PanelCal72Summary.Controls.Add(Me.LabelDAY1)
         Me.PanelCal72Summary.Controls.Add(Me.LabelCal72OneVolt)
         Me.PanelCal72Summary.Controls.Add(Me.Label387)
         Me.PanelCal72Summary.Controls.Add(Me.LabelCal72WorstDrift)
@@ -15401,29 +15429,25 @@ Partial Class Formtest
         '
         Me.Timer14.Interval = 50
         '
-        'CheckBoxMaximizePlayback
+        'LabelDAY1
         '
-        Me.CheckBoxMaximizePlayback.AutoSize = True
-        Me.CheckBoxMaximizePlayback.Location = New System.Drawing.Point(10, 95)
-        Me.CheckBoxMaximizePlayback.Name = "CheckBoxMaximizePlayback"
-        Me.CheckBoxMaximizePlayback.Size = New System.Drawing.Size(178, 17)
-        Me.CheckBoxMaximizePlayback.TabIndex = 623
-        Me.CheckBoxMaximizePlayback.Text = "Open Playback Chart maximized"
-        Me.ToolTip1.SetToolTip(Me.CheckBoxMaximizePlayback, "Opens the Playback Chart maximized instead of at its normal size. Takes effect th" &
-        "e next time it is opened")
-        Me.CheckBoxMaximizePlayback.UseVisualStyleBackColor = True
+        Me.LabelDAY1.Location = New System.Drawing.Point(3, 74)
+        Me.LabelDAY1.Name = "LabelDAY1"
+        Me.LabelDAY1.Size = New System.Drawing.Size(100, 13)
+        Me.LabelDAY1.TabIndex = 27
+        Me.LabelDAY1.Text = "New Day 1 at:"
+        Me.ToolTip1.SetToolTip(Me.LabelDAY1, "Average absolute drift rate since Day 1," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "calculated from total drift divided by " &
+        "elapsed days." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Lower values indicate better long-term stability.")
         '
-        'CheckBoxRememberPlayback
+        'LabelDay1num
         '
-        Me.CheckBoxRememberPlayback.AutoSize = True
-        Me.CheckBoxRememberPlayback.Location = New System.Drawing.Point(10, 117)
-        Me.CheckBoxRememberPlayback.Name = "CheckBoxRememberPlayback"
-        Me.CheckBoxRememberPlayback.Size = New System.Drawing.Size(173, 17)
-        Me.CheckBoxRememberPlayback.TabIndex = 624
-        Me.CheckBoxRememberPlayback.Text = "Remember Playback Chart size"
-        Me.ToolTip1.SetToolTip(Me.CheckBoxRememberPlayback, "Opens the Playback Chart at the size you last left it. Takes effect the next time" &
-        " it is opened. Cannot be used with Open Playback Chart maximized")
-        Me.CheckBoxRememberPlayback.UseVisualStyleBackColor = True
+        Me.LabelDay1num.Location = New System.Drawing.Point(108, 74)
+        Me.LabelDay1num.Name = "LabelDay1num"
+        Me.LabelDay1num.Size = New System.Drawing.Size(100, 13)
+        Me.LabelDay1num.TabIndex = 28
+        Me.LabelDay1num.Text = "#####"
+        Me.ToolTip1.SetToolTip(Me.LabelDay1num, "Average absolute drift rate since Day 1," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "calculated from total drift divided by " &
+        "elapsed days." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Lower values indicate better long-term stability.")
         '
         'OnOffLed2
         '
@@ -16880,4 +16904,6 @@ Partial Class Formtest
     Friend WithEvents ButtonLiveChartHelp As Button
     Friend WithEvents CheckBoxMaximizePlayback As CheckBox
     Friend WithEvents CheckBoxRememberPlayback As CheckBox
+    Friend WithEvents LabelDAY1 As Label
+    Friend WithEvents LabelDay1num As Label
 End Class

@@ -813,6 +813,37 @@ Handles RadioButton34581.CheckedChanged,
 
     End Function
 
+    ' The Day column number of a row as shown in the table (no trailing zeros).
+    Private Function Cal72DayText(r As DataRow) As String
+
+        Dim dayNumber As Double
+
+        If Double.TryParse(r("Day").ToString(),
+                       NumberStyles.Float,
+                       CultureInfo.InvariantCulture,
+                       dayNumber) Then
+            Return dayNumber.ToString("0.##", CultureInfo.InvariantCulture)
+        End If
+
+        Return r("Day").ToString()
+
+    End Function
+
+    ' "[RECAL] Days 1190, 2250" - the most recent 8 if there are more than that.
+    Private Function Cal72DayListText(label As String, dayNumbers As List(Of String)) As String
+
+        Dim shown As List(Of String) = dayNumbers
+        Dim more As String = ""
+
+        If dayNumbers.Count > 8 Then
+            shown = dayNumbers.GetRange(dayNumbers.Count - 8, 8)
+            more = "... "
+        End If
+
+        Return label & If(dayNumbers.Count = 1, " Day ", " Days ") & more & String.Join(", ", shown)
+
+    End Function
+
     Private Function GetRowDateTime(r As DataRow, ByRef dt As DateTime) As Boolean
 
         Dim dateText As String = r("Date").ToString().Trim()
@@ -1104,6 +1135,7 @@ Handles RadioButton34581.CheckedChanged,
 "- Rows above it keep their existing figures, so the earlier history is kept" & vbCrLf &
 "- The [DAY1] row itself shows zero drift (including Drift Ref Last), so the recalibration step is not counted as drift" & vbCrLf &
 "- On the chart the drift line restarts from zero at each [DAY1] row, marked with a green DAY 1 line (a row also marked [RECAL] shows only the red line)" & vbCrLf &
+"- The chart lists the Day numbers of the [RECAL] and [DAY1] rows at its top left, so they can be found in the table" & vbCrLf &
 "- Several [DAY1] rows can be used, one per recalibration. [DAY1] on the first row has no effect" & vbCrLf &
 "- A [DAY1] row needs a valid Day and CAL? 72 value, otherwise the tag is ignored. Delete the tag to return to the earlier baseline" & vbCrLf &
 "- [AUTO] is added automatically to entries logged by Auto Log. It is only a label" & vbCrLf &
@@ -1191,6 +1223,8 @@ Handles RadioButton34581.CheckedChanged,
             LabelCal72WorstDrift.Text = "-"
             LabelCal72OneVolt.Text = "-"
 
+            LabelDay1num.Text = "N/A"
+
             Exit Sub
 
         End If
@@ -1261,6 +1295,16 @@ Handles RadioButton34581.CheckedChanged,
 
         LabelCal72WorstDrift.Text =
         worstDrift.ToString("0.000000")
+
+        ' The Day number of every [DAY1] row that has been added, comma separated (the last one is what the figures
+        ' above are measured from), or N/A if there are none
+        Dim day1DayNumbers As New List(Of String)
+
+        For i As Integer = 1 To Cal72Table.Rows.Count - 1
+            If IsCal72Day1Row(Cal72Table.Rows(i)) Then day1DayNumbers.Add(Cal72DayText(Cal72Table.Rows(i)))
+        Next
+
+        LabelDay1num.Text = If(day1DayNumbers.Count > 0, String.Join(", ", day1DayNumbers), "N/A")
 
     End Sub
 
@@ -1558,11 +1602,23 @@ Handles RadioButton34581.CheckedChanged,
 
         Dim area As ChartArea = ChartCal72.ChartAreas("Cal72Area")
 
-        ' Remove any existing recalibration markers
+        ' Remove any existing recalibration markers and the info box that lists them
         area.AxisX.StripLines.Clear()
+        ChartCal72.Annotations.Clear()
 
         Dim notesColumnIndex As Integer =
     DataGridViewCal72.Columns("Notes").Index
+
+        ' Where the data ends: a label that would run off the right-hand edge goes on the other side of its line
+        Dim chartMaxDays As Double = 0
+
+        If driftSeries.Points.Count > 0 Then
+            chartMaxDays = driftSeries.Points.Max(Function(point) point.XValue)
+        End If
+
+        ' Day numbers (the Day column) of the marked rows, listed on the chart so they can be found in the table
+        Dim recalDayNumbers As New List(Of String)
+        Dim day1DayNumbers As New List(Of String)
 
         For Each row As DataGridViewRow In DataGridViewCal72.Rows
 
@@ -1575,8 +1631,22 @@ Handles RadioButton34581.CheckedChanged,
 
             If Not TryGetCal72ChartDays(row, markerDays) Then Continue For
 
-            If notesText.IndexOf("[RECAL]",
-                         StringComparison.OrdinalIgnoreCase) >= 0 Then
+            Dim boundRow As DataRowView = TryCast(row.DataBoundItem, DataRowView)
+
+            Dim isRecal As Boolean =
+            notesText.IndexOf("[RECAL]", StringComparison.OrdinalIgnoreCase) >= 0
+
+            Dim isDay1 As Boolean =
+            boundRow IsNot Nothing AndAlso
+            Cal72Table.Rows.IndexOf(boundRow.Row) > 0 AndAlso
+            IsCal72Day1Row(boundRow.Row)
+
+            If boundRow IsNot Nothing Then
+                If isRecal Then recalDayNumbers.Add(Cal72DayText(boundRow.Row))
+                If isDay1 Then day1DayNumbers.Add(Cal72DayText(boundRow.Row))
+            End If
+
+            If isRecal Then
 
                 Dim recalMarker As New StripLine()
 
@@ -1593,39 +1663,68 @@ Handles RadioButton34581.CheckedChanged,
                 recalMarker.Font =
             New Font("Segoe UI", 7, FontStyle.Bold)
 
+                ' Label on the left of its line (the default, stated so it stays that way)
+                recalMarker.TextAlignment = StringAlignment.Far
+
                 area.AxisX.StripLines.Add(recalMarker)
 
-            Else
+            ElseIf isDay1 Then
 
                 ' A [DAY1] row (not also marked [RECAL]) gets its own marker where the drift line restarts from zero
-                Dim boundRow As DataRowView = TryCast(row.DataBoundItem, DataRowView)
+                Dim day1Marker As New StripLine()
 
-                If boundRow IsNot Nothing AndAlso
-               Cal72Table.Rows.IndexOf(boundRow.Row) > 0 AndAlso
-               IsCal72Day1Row(boundRow.Row) Then
+                day1Marker.Interval = 0
+                day1Marker.IntervalOffset = markerDays
+                day1Marker.StripWidth = 0
 
-                    Dim day1Marker As New StripLine()
+                day1Marker.BorderColor = Color.LimeGreen
+                day1Marker.BorderWidth = 2
+                day1Marker.BorderDashStyle = ChartDashStyle.Dash
 
-                    day1Marker.Interval = 0
-                    day1Marker.IntervalOffset = markerDays
-                    day1Marker.StripWidth = 0
+                day1Marker.Text = "DAY 1"
+                day1Marker.ForeColor = Color.LimeGreen
+                day1Marker.Font =
+            New Font("Segoe UI", 7, FontStyle.Bold)
 
-                    day1Marker.BorderColor = Color.LimeGreen
-                    day1Marker.BorderWidth = 2
-                    day1Marker.BorderDashStyle = ChartDashStyle.Dash
+                ' This line is usually close to a RECAL line, whose label is at the top on its left, so DAY 1 goes at the
+                ' bottom of its own line, on the right of it. At the right-hand end of the chart there is no room on the
+                ' right, so it goes on the left instead (still at the bottom, clear of RECAL's label).
+                day1Marker.TextLineAlignment = StringAlignment.Far
 
-                    day1Marker.Text = "DAY 1"
-                    day1Marker.ForeColor = Color.LimeGreen
-                    day1Marker.Font =
-                New Font("Segoe UI", 7, FontStyle.Bold)
-
-                    area.AxisX.StripLines.Add(day1Marker)
-
+                If markerDays >= chartMaxDays * 0.97 Then
+                    day1Marker.TextAlignment = StringAlignment.Far
+                Else
+                    day1Marker.TextAlignment = StringAlignment.Near
                 End If
+
+                area.AxisX.StripLines.Add(day1Marker)
 
             End If
 
         Next
+
+        ' Info box (top left of the plot) giving the Day numbers of the marked rows
+        If recalDayNumbers.Count > 0 OrElse day1DayNumbers.Count > 0 Then
+
+            Dim infoLines As New List(Of String)
+
+            If recalDayNumbers.Count > 0 Then infoLines.Add(Cal72DayListText("[RECAL]", recalDayNumbers))
+            If day1DayNumbers.Count > 0 Then infoLines.Add(Cal72DayListText("[DAY1]", day1DayNumbers))
+
+            Dim info As New TextAnnotation()
+
+            info.Text = String.Join(vbLf, infoLines)
+            info.ForeColor = Color.White
+            info.BackColor = Color.FromArgb(200, 40, 40, 40)
+            info.LineColor = Color.DimGray
+            info.Font = New Font("Segoe UI", 7)
+            info.Alignment = ContentAlignment.TopLeft
+            info.X = 1.5
+            info.Y = 18
+
+            ChartCal72.Annotations.Add(info)
+
+        End If
 
         ' Keep the X-axis automatic
         area.AxisX.Minimum = Double.NaN
