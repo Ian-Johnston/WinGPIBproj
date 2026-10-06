@@ -114,6 +114,7 @@ Partial Class Chart
         Me.CheckDev2Point = New System.Windows.Forms.CheckBox()
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.YaxisBox1 = New System.Windows.Forms.GroupBox()
+        Me.ButtonZoomOverview = New System.Windows.Forms.CheckBox()
         Me.CheckPlaybackDev12Allan = New System.Windows.Forms.CheckBox()
         Me.ButtonHistogram = New System.Windows.Forms.CheckBox()
         Me.CheckBoxTempcoCurve = New System.Windows.Forms.CheckBox()
@@ -155,7 +156,6 @@ Partial Class Chart
         Me.LabelSEMscale = New System.Windows.Forms.Label()
         Me.LabelMean = New System.Windows.Forms.Label()
         Me.LabelSMean = New System.Windows.Forms.Label()
-        Me.ButtonZoomOverview = New System.Windows.Forms.CheckBox()
         Me.PPMBox1.SuspendLayout()
         Me.Panel1.SuspendLayout()
         Me.GroupBoxMisc.SuspendLayout()
@@ -306,7 +306,7 @@ Partial Class Chart
         Me.ButtonDisplayAll.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.ButtonDisplayAll.Location = New System.Drawing.Point(6, 89)
         Me.ButtonDisplayAll.Name = "ButtonDisplayAll"
-        Me.ButtonDisplayAll.Size = New System.Drawing.Size(66, 22)
+        Me.ButtonDisplayAll.Size = New System.Drawing.Size(66, 23)
         Me.ButtonDisplayAll.TabIndex = 85
         Me.ButtonDisplayAll.Text = "Zoom All"
         Me.ToolTip1.SetToolTip(Me.ButtonDisplayAll, "Display all of chart")
@@ -1162,6 +1162,18 @@ Partial Class Chart
         Me.YaxisBox1.TabStop = False
         Me.YaxisBox1.Text = "SCALES && ANALYSIS"
         '
+        'ButtonZoomOverview
+        '
+        Me.ButtonZoomOverview.Appearance = System.Windows.Forms.Appearance.Button
+        Me.ButtonZoomOverview.AutoSize = True
+        Me.ButtonZoomOverview.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonZoomOverview.Location = New System.Drawing.Point(77, 89)
+        Me.ButtonZoomOverview.Name = "ButtonZoomOverview"
+        Me.ButtonZoomOverview.Size = New System.Drawing.Size(92, 23)
+        Me.ButtonZoomOverview.TabIndex = 93
+        Me.ButtonZoomOverview.Text = "Zoom Overview"
+        Me.ButtonZoomOverview.UseVisualStyleBackColor = True
+        '
         'CheckPlaybackDev12Allan
         '
         Me.CheckPlaybackDev12Allan.AutoSize = True
@@ -1665,18 +1677,6 @@ Partial Class Chart
         Me.LabelSMean.Size = New System.Drawing.Size(48, 13)
         Me.LabelSMean.TabIndex = 595
         Me.LabelSMean.Text = "S.MEAN"
-        '
-        'ButtonZoomOverview
-        '
-        Me.ButtonZoomOverview.Appearance = System.Windows.Forms.Appearance.Button
-        Me.ButtonZoomOverview.AutoSize = True
-        Me.ButtonZoomOverview.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonZoomOverview.Location = New System.Drawing.Point(77, 89)
-        Me.ButtonZoomOverview.Name = "ButtonZoomOverview"
-        Me.ButtonZoomOverview.Size = New System.Drawing.Size(92, 23)
-        Me.ButtonZoomOverview.TabIndex = 93
-        Me.ButtonZoomOverview.Text = "Zoom Overview"
-        Me.ButtonZoomOverview.UseVisualStyleBackColor = True
         '
         'Chart
         '

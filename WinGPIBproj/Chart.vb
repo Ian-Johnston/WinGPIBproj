@@ -304,6 +304,8 @@ Public Class Chart
     ' pan/zoom applied to those axes, so only Dev1/Dev2 (Bottom/Left) respond.
     Private Sub Chart2RenderStarting(sender As Object, rp As ScottPlot.RenderPack)
 
+        Chart2UpdateXTicks(rp)      ' before the Statistics chart is synced, so it picks up the same gridlines
+
         Chart3SyncFromTop(False, rp)
 
         Chart2UpdateXscaleLabel()
@@ -2114,7 +2116,79 @@ Public Class Chart
     End Sub
 
 
+    ' X-scale ticks for whatever part of the run is on screen: round minute values (1, 2, 5, 10, ... or 0.5, 0.2, 0.1 ... when
+    ' zoomed in) with as many decimals as the spacing needs, about one every 70 pixels. FixTicks' fixed 28 ticks across
+    ' the whole run left almost none showing once zoomed in. Runs every render, but only rebuilds when the view changes.
+    Private Chart2XTickMin As Double = Double.NaN
+    Private Chart2XTickMax As Double = Double.NaN
+    Private Chart2XTickWidth As Double = 0
+    Private Chart2XTickMinsPerCount As Double = 0
+    Private Chart2XTickOffset As Double = 0
+
+    Private Sub Chart2UpdateXTicks(rp As ScottPlot.RenderPack)
+
+        If Not (ChartLoaded AndAlso CSVfileok) Then Exit Sub
+        If Not rp.DataRect.HasArea Then Exit Sub
+
+        Dim axisMin As Double = FormsPlot2.Plot.Axes.Bottom.Min
+        Dim axisMax As Double = FormsPlot2.Plot.Axes.Bottom.Max
+
+        If Double.IsNaN(axisMin) OrElse Double.IsNaN(axisMax) OrElse Double.IsInfinity(axisMin) OrElse Double.IsInfinity(axisMax) OrElse
+           axisMax <= axisMin Then Exit Sub
+
+        ' Same time scale as FixTicks: label = (X + start offset) x minutes per sample (sample numbers if the time scale isn't known)
+        Dim minsPerCount As Double = If(Chart2MinsPerSample > 0, Chart2MinsPerSample, 1.0)
+        Dim offset As Double = Val(CurrentPosition.Text) / If(DualDev, 2.0, 1.0)
+        Dim width As Double = rp.DataRect.Width
+
+        If axisMin = Chart2XTickMin AndAlso axisMax = Chart2XTickMax AndAlso width = Chart2XTickWidth AndAlso
+           minsPerCount = Chart2XTickMinsPerCount AndAlso offset = Chart2XTickOffset Then Exit Sub
+
+        Chart2XTickMin = axisMin
+        Chart2XTickMax = axisMax
+        Chart2XTickWidth = width
+        Chart2XTickMinsPerCount = minsPerCount
+        Chart2XTickOffset = offset
+
+        Dim tMin As Double = (axisMin + offset) * minsPerCount
+        Dim tMax As Double = (axisMax + offset) * minsPerCount
+
+        Dim tickCount As Double = Math.Max(3, Math.Min(28, width / 70.0))
+        Dim rawStep As Double = (tMax - tMin) / tickCount
+        If rawStep <= 0 OrElse Double.IsNaN(rawStep) OrElse Double.IsInfinity(rawStep) Then Exit Sub
+
+        Dim magnitude As Double = Math.Pow(10, Math.Floor(Math.Log10(rawStep)))
+        Dim fraction As Double = rawStep / magnitude
+        Dim niceStep As Double = magnitude * If(fraction <= 1, 1, If(fraction <= 2, 2, If(fraction <= 5, 5, 10)))
+        Dim decimals As Integer = Math.Min(8, Math.Max(0, CInt(-Math.Floor(Math.Log10(niceStep) + 0.000001))))
+        Dim labelFormat As String = If(decimals = 0, "0", "0." & New String("0"c, decimals))
+
+        Dim xTicks As New ScottPlot.TickGenerators.NumericManual()
+        Dim xTicks3 As New ScottPlot.TickGenerators.NumericManual()      ' same gridlines for the stats chart, no labels
+
+        Dim k As Double = Math.Ceiling(tMin / niceStep)
+        Dim added As Integer = 0
+
+        Do While k * niceStep <= tMax + niceStep * 0.000001 AndAlso added < 200
+            Dim tickMins As Double = k * niceStep
+            Dim position As Double = tickMins / minsPerCount - offset
+            xTicks.AddMajor(position, tickMins.ToString(labelFormat, Globalization.CultureInfo.InvariantCulture))
+            xTicks3.AddMajor(position, "")
+            k += 1
+            added += 1
+        Loop
+
+        FormsPlot2.Plot.Axes.Bottom.TickGenerator = xTicks
+        If FormsPlot3 IsNot Nothing Then FormsPlot3.Plot.Axes.Bottom.TickGenerator = xTicks3
+
+        ' This frame's ticks were generated before this hook ran, so regenerate them with the new generator
+        FormsPlot2.Plot.Axes.Bottom.RegenerateTicks(New ScottPlot.PixelLength(rp.DataRect.Width), rp.Paint)
+
+    End Sub
+
     Private Sub FixTicks()
+
+        Chart2XTickMin = Double.NaN         ' these ticks replace the view-based ones, so rebuild those on the next render
 
         ' NumericManual tick generator: one tick per division, positioned at each range's centre (i).
         Dim xTicks As New ScottPlot.TickGenerators.NumericManual()
@@ -6643,6 +6717,21 @@ Public Class Chart
                     b.BackColor = Color.FromArgb(245, 245, 245)
                     b.ForeColor = Color.FromArgb(80, 80, 80)
                 End If
+
+            ElseIf TypeOf c Is CheckBox AndAlso DirectCast(c, CheckBox).Appearance = Appearance.Button Then
+
+                ' A toggle button (e.g. Zoom Overview): same flat square look, with a tinted face while it is pressed in
+                Dim cb = DirectCast(c, CheckBox)
+
+                cb.FlatStyle = FlatStyle.Flat
+                cb.UseVisualStyleBackColor = False
+
+                cb.FlatAppearance.BorderSize = 1
+                cb.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200)
+                cb.FlatAppearance.CheckedBackColor = Color.FromArgb(204, 228, 247)
+
+                cb.BackColor = Color.White
+                cb.ForeColor = Color.Black
             End If
         Next
     End Sub
@@ -7830,7 +7919,7 @@ Public Class Chart
 "Mod sigma(tau) = sqrt( sum( (second-difference sum over an m-sample window)^2 ) / (2 x tau^2 x m^2 x (N-3m+1)) ), where m = tau and the second difference is taken on x, the cumulative sum (integration) of the raw readings." & vbLf & vbLf &
 "ZOOM OVERVIEW" & vbLf &
 "The Zoom Overview button in the SCALES & ANALYSIS group opens a small window showing the whole run - a min/max envelope and mean line for each visible Dev 1 / Dev 2 trace, over the full time axis - with a rectangle marking the part the main chart is showing. It is a fixed size. You can move it, and it stays above the Playback Chart (but not above other programs), closes with it, and reopens where you left it." & vbLf & vbLf &
-"Drag the rectangle to pan the main chart, drag either edge of the rectangle to zoom, or click anywhere else in the overview to jump there. Double-click for the full view (the same fit as AutoScale). Like any pan or zoom this unticks AutoScale, and the Y scale is left as it is. The Regional Stats band, if showing, is shown on the overview too." & vbLf & vbLf &
+"Drag the rectangle to pan the main chart, drag either edge of the rectangle to zoom, or click anywhere else in the overview to jump there. Double-click for the full view (the same fit as AutoScale). Like any pan or zoom this unticks AutoScale, and the Y scale is left as it is. The Regional Stats band, if showing, is shown on the overview too. Hovering shows the time under the pointer, and when zoomed in the rectangle is labelled with its start and end times." & vbLf & vbLf &
 "The overview follows the main chart (pan, zoom, Avg changes, trace checkboxes, Light Mode) and updates when a new CSV is loaded. Closing the window unticks the button. It is also on the main chart's right-click menu, and is not saved with Save Settings." & vbLf & vbLf &
 "CHART SPLIT" & vbLf &
 "Drag the small bar between the main chart and the Statistics chart up or down to change their heights; the gap between them stays the same. Resizing the window keeps your split, and it returns to the default each time a new CSV is loaded." & vbLf & vbLf &

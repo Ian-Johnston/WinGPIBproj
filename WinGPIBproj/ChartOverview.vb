@@ -10,6 +10,7 @@ Partial Public Class Chart
     Private Chart2OverviewPlot As ScottPlot.WinForms.FormsPlot = Nothing
     Private Chart2OverviewViewSpan As ScottPlot.Plottables.HorizontalSpan = Nothing     ' the main chart's current X range
     Private Chart2OverviewRegionSpan As ScottPlot.Plottables.HorizontalSpan = Nothing   ' the Regional Stats band, if showing
+    Private Chart2OverviewHoverLabel As Label = Nothing                                 ' time under the mouse pointer
     Private Chart2OverviewViewText As ScottPlot.Plottables.Text = Nothing               ' the rectangle's start-end minutes, when zoomed in
 
     Private Chart2OverviewKey As String = ""             ' what the overview was last built from (see Chart2OverviewDataKey)
@@ -121,6 +122,18 @@ Partial Public Class Chart
         AddHandler overviewPlot.MouseDown, AddressOf Chart2OverviewMouseDown
         AddHandler overviewPlot.MouseMove, AddressOf Chart2OverviewMouseMove
         AddHandler overviewPlot.MouseUp, AddressOf Chart2OverviewMouseUp
+        AddHandler overviewPlot.MouseLeave, Sub(snd, ev) Chart2OverviewHideHover()
+
+        ' Small time read-out that follows the mouse pointer (a plain label over the plot, so hovering never redraws the plot)
+        Dim hover As New Label With {
+            .AutoSize = True,
+            .Visible = False,
+            .Font = New Font("Segoe UI", 9.0F, FontStyle.Bold),
+            .Padding = New Padding(3, 1, 3, 1),
+            .BorderStyle = BorderStyle.FixedSingle
+        }
+        overviewPlot.Controls.Add(hover)
+        hover.BringToFront()
 
         AddHandler frm.Shown, Sub(snd, ev) overviewPlot.Refresh()
 
@@ -133,6 +146,7 @@ Partial Public Class Chart
                                        If Chart2OverviewForm Is frm Then
                                            Chart2OverviewForm = Nothing
                                            Chart2OverviewPlot = Nothing
+                                           Chart2OverviewHoverLabel = Nothing
                                            Chart2OverviewViewSpan = Nothing
                                            Chart2OverviewRegionSpan = Nothing
                                            Chart2OverviewDragMode = 0
@@ -144,6 +158,7 @@ Partial Public Class Chart
 
         Chart2OverviewForm = frm
         Chart2OverviewPlot = overviewPlot
+        Chart2OverviewHoverLabel = hover
         Chart2OverviewKey = ""
         Chart2OverviewRegionKey = ""
         Chart2OverviewViewX1 = Double.NaN
@@ -202,6 +217,11 @@ Partial Public Class Chart
 
         ' Theme: window and plot
         Chart2OverviewForm.BackColor = If(light, Color.White, Color.Black)
+
+        If Chart2OverviewHoverLabel IsNot Nothing Then
+            Chart2OverviewHoverLabel.BackColor = If(light, Color.FromArgb(255, 255, 225), Color.FromArgb(50, 50, 50))
+            Chart2OverviewHoverLabel.ForeColor = If(light, Color.Black, Color.White)
+        End If
 
         If light Then
             plot.FigureBackground.Color = ScottPlot.Colors.White
@@ -567,6 +587,8 @@ Partial Public Class Chart
 
         Dim plot As ScottPlot.Plot = Chart2OverviewPlot.Plot
 
+        Chart2OverviewShowHover(e.X, e.Y, plot.GetCoordinates(New ScottPlot.Pixel(CSng(e.X), CSng(e.Y))).X)
+
         If Chart2OverviewDragMode <> 0 Then
             Chart2OverviewDragTo(plot.GetCoordinates(New ScottPlot.Pixel(CSng(e.X), CSng(e.Y))).X)
             Exit Sub
@@ -589,6 +611,48 @@ Partial Public Class Chart
         Else
             Chart2OverviewPlot.Cursor = Cursors.Hand
         End If
+
+    End Sub
+
+    ' The time under the pointer, in the same units as the axis (minutes; sample numbers if the time scale isn't known).
+    ' Placed beside the pointer, never under it, and kept inside the plot.
+    Private Sub Chart2OverviewShowHover(mouseX As Integer, mouseY As Integer, xValue As Double)
+
+        Dim lbl As Label = Chart2OverviewHoverLabel
+
+        If lbl Is Nothing OrElse Chart2OverviewPlot Is Nothing Then Exit Sub
+
+        If Chart2OverviewMaxX <= 0 Then
+            lbl.Visible = False
+            Exit Sub
+        End If
+
+        xValue = Math.Max(0, Math.Min(Chart2OverviewMaxX, xValue))
+
+        Dim minsPerSample As Double = Chart2MinsPerSample
+
+        If minsPerSample > 0 Then
+            lbl.Text = (xValue * minsPerSample).ToString(If(Chart2OverviewMaxX * minsPerSample >= 30, "0.0", "0.00")) & " mins"
+        Else
+            lbl.Text = "Sample " & CInt(xValue).ToString()
+        End If
+
+        Dim hostSize As Size = Chart2OverviewPlot.ClientSize
+        Dim lx As Integer = mouseX + 14
+        Dim ly As Integer = mouseY + 20
+
+        If lx + lbl.Width > hostSize.Width Then lx = mouseX - lbl.Width - 14
+        If ly + lbl.Height > hostSize.Height Then ly = mouseY - lbl.Height - 10
+
+        lbl.Location = New Point(Math.Max(0, lx), Math.Max(0, ly))
+        lbl.Visible = True
+        lbl.BringToFront()
+
+    End Sub
+
+    Private Sub Chart2OverviewHideHover()
+
+        If Chart2OverviewHoverLabel IsNot Nothing Then Chart2OverviewHoverLabel.Visible = False
 
     End Sub
 
