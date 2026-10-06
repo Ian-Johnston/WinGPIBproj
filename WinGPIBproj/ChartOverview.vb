@@ -10,6 +10,7 @@ Partial Public Class Chart
     Private Chart2OverviewPlot As ScottPlot.WinForms.FormsPlot = Nothing
     Private Chart2OverviewViewSpan As ScottPlot.Plottables.HorizontalSpan = Nothing     ' the main chart's current X range
     Private Chart2OverviewRegionSpan As ScottPlot.Plottables.HorizontalSpan = Nothing   ' the Regional Stats band, if showing
+    Private Chart2OverviewViewText As ScottPlot.Plottables.Text = Nothing               ' the rectangle's start-end minutes, when zoomed in
 
     Private Chart2OverviewKey As String = ""             ' what the overview was last built from (see Chart2OverviewDataKey)
     Private Chart2OverviewRegionKey As String = ""
@@ -291,6 +292,7 @@ Partial Public Class Chart
 
         Chart2OverviewViewSpan = Nothing
         Chart2OverviewRegionSpan = Nothing
+        Chart2OverviewViewText = Nothing
         Chart2OverviewViewX1 = Double.NaN
         Chart2OverviewViewX2 = Double.NaN
         Chart2OverviewRegionKey = ""
@@ -299,7 +301,7 @@ Partial Public Class Chart
         plot.Axes.Left.IsVisible = True
 
         ' Equal fixed margins left and right (room for the first and last X labels, which are centred on the ends of the run)
-        plot.Layout.Fixed(New ScottPlot.PixelPadding(28, 28, 30, 8))
+        plot.Layout.Fixed(New ScottPlot.PixelPadding(14, 14, 26, 4))
         plot.Axes.Left.TickGenerator = New ScottPlot.TickGenerators.NumericManual()
         plot.Axes.Left.MajorTickStyle.Length = 0
         plot.Axes.Left.MinorTickStyle.Length = 0
@@ -362,6 +364,17 @@ Partial Public Class Chart
             Chart2OverviewViewSpan.FillColor = New ScottPlot.Color(Color.FromArgb(45, 255, 255, 255))
             Chart2OverviewViewSpan.LineColor = New ScottPlot.Color(Color.FromArgb(230, 255, 255, 255))
         End If
+
+        ' The rectangle's start-end minutes, along the top of the plot; positioned by Chart2SetOverviewView
+        Chart2OverviewViewText = plot.Add.Text("", 0, yHi + yPad)
+        Chart2OverviewViewText.LabelAlignment = ScottPlot.Alignment.UpperCenter
+        Chart2OverviewViewText.LabelFontSize = 11
+        Chart2OverviewViewText.LabelBold = True
+        Chart2OverviewViewText.OffsetY = 2
+        Chart2OverviewViewText.LabelFontColor = If(light, ScottPlot.Colors.Black, ScottPlot.Colors.White)
+        Chart2OverviewViewText.LabelBackgroundColor = If(light, New ScottPlot.Color(Color.FromArgb(200, 255, 255, 255)),
+                                                             New ScottPlot.Color(Color.FromArgb(200, 0, 0, 0)))
+        Chart2OverviewViewText.IsVisible = False
 
         Chart2OverviewPlot.Refresh()
 
@@ -429,10 +442,46 @@ Partial Public Class Chart
         Chart2OverviewViewX2 = x2
         Chart2OverviewViewSpan.X1 = x1
         Chart2OverviewViewSpan.X2 = x2
+        Chart2UpdateOverviewViewText()
 
         Return True
 
     End Function
+
+    ' Labels the rectangle with its start-end minutes (sample numbers if the time scale isn't known), centred on it but kept
+    ' inside the plot. Hidden at the full view, where it would only repeat the axis.
+    Private Sub Chart2UpdateOverviewViewText()
+
+        If Chart2OverviewViewText Is Nothing OrElse Chart2OverviewPlot Is Nothing Then Exit Sub
+
+        Dim maxX As Double = Chart2OverviewMaxX
+        Dim x1 As Double = Math.Max(0, Chart2OverviewViewX1)
+        Dim x2 As Double = Math.Min(maxX, Chart2OverviewViewX2)
+
+        If maxX <= 0 OrElse x2 <= x1 OrElse (x1 <= 0.5 AndAlso x2 >= maxX - 0.5) Then
+            Chart2OverviewViewText.IsVisible = False
+            Exit Sub
+        End If
+
+        Dim minsPerSample As Double = Chart2MinsPerSample
+        If minsPerSample > 0 Then
+            Dim fmt As String = If((x2 - x1) * minsPerSample < 1, "0.00", "0.0")
+            Chart2OverviewViewText.LabelText = (x1 * minsPerSample).ToString(fmt) & " - " & (x2 * minsPerSample).ToString(fmt) & " mins"
+        Else
+            Chart2OverviewViewText.LabelText = CInt(x1).ToString() & " - " & CInt(x2).ToString()
+        End If
+
+        ' Keep the whole label inside the plot near either end (width estimated from the character count)
+        Dim dataWidthPx As Double = Chart2OverviewPlot.Plot.LastRender.DataRect.Width
+        If dataWidthPx <= 0 Then dataWidthPx = Chart2OverviewPlot.Width - 28
+        Dim halfLabel As Double = (Chart2OverviewViewText.LabelText.Length * 7.0 / 2.0 + 4) * maxX / Math.Max(1.0, dataWidthPx)
+        Dim centre As Double = (x1 + x2) / 2.0
+        If halfLabel * 2 < maxX Then centre = Math.Max(halfLabel, Math.Min(maxX - halfLabel, centre))
+
+        Chart2OverviewViewText.Location = New ScottPlot.Coordinates(centre, Chart2OverviewViewText.Location.Y)
+        Chart2OverviewViewText.IsVisible = True
+
+    End Sub
 
     ' Gives the main chart the rectangle's X range. Unticks AutoScale, as any mouse pan or zoom does. Throttled unless forced.
     Private Sub Chart2OverviewApplyToMain(force As Boolean)

@@ -2442,6 +2442,21 @@ Public Class Chart
                 YaxisMaximum.Text = YmaxFromDT.ToString(Globalization.CultureInfo.InvariantCulture)
                 YaxisMinimum.Text = YminFromDT.ToString(Globalization.CultureInfo.InvariantCulture)
 
+                ' X must be reset too: otherwise the previous file's (or a panned/zoomed) X window carries over and
+                ' can lie entirely beyond this file's samples, leaving the main chart empty.
+                Dim xLo As Double = Double.MaxValue
+                Dim xHi As Double = Double.MinValue
+                For Each data As List(Of ScottPlot.Coordinates) In {Chart2Dev1Data, Chart2Dev2Data}
+                    For Each c As ScottPlot.Coordinates In data
+                        If c.X < xLo Then xLo = c.X
+                        If c.X > xHi Then xHi = c.X
+                    Next
+                Next
+                If xHi > xLo Then
+                    FormsPlot2.Plot.Axes.Bottom.Min = xLo
+                    FormsPlot2.Plot.Axes.Bottom.Max = xHi
+                End If
+
             End If
 
 
