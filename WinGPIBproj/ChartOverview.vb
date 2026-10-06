@@ -8,9 +8,12 @@ Partial Public Class Chart
 
     Private Chart2OverviewForm As Form = Nothing
     Private Chart2OverviewPlot As ScottPlot.WinForms.FormsPlot = Nothing
-    Private Chart2OverviewViewSpan As ScottPlot.Plottables.HorizontalSpan = Nothing     ' the main chart's current X range
+    Private Chart2OverviewViewSpan As ScottPlot.Plottables.HorizontalSpan = Nothing     ' the main chart's current X range (invisible: holds the range)
+    Private Chart2OverviewViewBox As ScottPlot.Plottables.Rectangle = Nothing           ' the closed box drawn for that range
     Private Chart2OverviewRegionSpan As ScottPlot.Plottables.HorizontalSpan = Nothing   ' the Regional Stats band, if showing
     Private Chart2OverviewHoverLabel As Label = Nothing                                 ' time under the mouse pointer
+    Private Chart2OverviewHoverTimer As System.Windows.Forms.Timer = Nothing                                 ' hides it when the mouse has not moved over the window for a while
+    Private Const ChartOverviewHoverTimeoutMs As Integer = 2000
     Private Chart2OverviewViewText As ScottPlot.Plottables.Text = Nothing               ' the rectangle's start-end minutes, when zoomed in
 
     Private Chart2OverviewKey As String = ""             ' what the overview was last built from (see Chart2OverviewDataKey)
@@ -106,18 +109,19 @@ Partial Public Class Chart
             .Text = "WinGPIB - Zoom Overview",
             .StartPosition = FormStartPosition.Manual,
             .Location = loc,
-            .FormBorderStyle = FormBorderStyle.FixedSingle,
             .Size = New Size(w, h),
             .ShowIcon = False,
             .ShowInTaskbar = False,
             .MinimizeBox = False,
-            .MaximizeBox = False,
-            .BackColor = If(light, Color.White, Color.Black)
+            .MaximizeBox = False
         }
 
         Dim overviewPlot As New ScottPlot.WinForms.FormsPlot With {.Dock = DockStyle.Fill}
         overviewPlot.UserInputProcessor.Disable()       ' no built-in pan/zoom: the mouse handlers below do the work
         frm.Controls.Add(overviewPlot)
+
+        ' Thin title strip in place of the Windows title bar (added after the plot so the plot fills what is left below it)
+        AddPopupTitleStrip(frm, "WinGPIB - Zoom Overview")
 
         AddHandler overviewPlot.MouseDown, AddressOf Chart2OverviewMouseDown
         AddHandler overviewPlot.MouseMove, AddressOf Chart2OverviewMouseMove
@@ -135,6 +139,12 @@ Partial Public Class Chart
         overviewPlot.Controls.Add(hover)
         hover.BringToFront()
 
+        ' The read-out disappears 2 seconds after the mouse last moved over the window (so it does not stay up after the mouse
+        ' has left it)
+        Dim hoverTimer As New System.Windows.Forms.Timer With {.Interval = ChartOverviewHoverTimeoutMs}
+        AddHandler hoverTimer.Tick, Sub(snd, ev) Chart2OverviewHideHover()
+        Chart2OverviewHoverTimer = hoverTimer
+
         AddHandler frm.Shown, Sub(snd, ev) overviewPlot.Refresh()
 
         AddHandler frm.FormClosing, Sub(snd, ev)
@@ -147,7 +157,13 @@ Partial Public Class Chart
                                            Chart2OverviewForm = Nothing
                                            Chart2OverviewPlot = Nothing
                                            Chart2OverviewHoverLabel = Nothing
+                                           If Chart2OverviewHoverTimer IsNot Nothing Then
+                                               Chart2OverviewHoverTimer.Stop()
+                                               Chart2OverviewHoverTimer.Dispose()
+                                               Chart2OverviewHoverTimer = Nothing
+                                           End If
                                            Chart2OverviewViewSpan = Nothing
+                                           Chart2OverviewViewBox = Nothing
                                            Chart2OverviewRegionSpan = Nothing
                                            Chart2OverviewDragMode = 0
                                        End If
@@ -171,6 +187,146 @@ Partial Public Class Chart
         Chart2SyncOverview()
 
     End Sub
+
+    ' ---- Shared pop-up chrome (Zoom Overview, Allan Deviation, Histogram) ----
+
+    Private Const PopupTitleStripHeight As Integer = 18
+
+    Private Class PopupTitleStrip
+        Public Bar As Panel
+        Public TitleLabel As Label
+        Public CloseLabel As Label
+    End Class
+
+    ' Replaces the Windows title bar (about twice as tall) with a thin strip in the same colours: drag it to move the window,
+    ' X to close. Add it AFTER the form's other docked content so that content fills what is left below it. The form gets a 1px
+    ' border. Keeps the strip in frm.Tag so SetPopupTitle can change the title.
+    Private Function AddPopupTitleStrip(frm As Form, title As String) As PopupTitleStrip
+
+        Dim strip As New PopupTitleStrip
+
+        frm.FormBorderStyle = FormBorderStyle.None
+        frm.Padding = New Padding(1)          ' the form's own colour shows round the edge as a 1px border
+        frm.Text = title
+
+        strip.Bar = New Panel With {.Dock = DockStyle.Top, .Height = PopupTitleStripHeight}
+        strip.TitleLabel = New Label With {
+            .Text = title,
+            .Dock = DockStyle.Fill,
+            .TextAlign = ContentAlignment.MiddleLeft,
+            .Font = New Font("Segoe UI", 9.0F),
+            .Padding = New Padding(6, 0, 0, 0)
+        }
+        strip.CloseLabel = New Label With {
+            .Text = ChrW(&H2715),
+            .Dock = DockStyle.Right,
+            .Width = 28,
+            .TextAlign = ContentAlignment.MiddleCenter,
+            .Font = New Font("Segoe UI Symbol", 9.0F),
+            .Cursor = Cursors.Default
+        }
+        strip.Bar.Controls.Add(strip.TitleLabel)
+        strip.Bar.Controls.Add(strip.CloseLabel)
+        frm.Controls.Add(strip.Bar)
+        frm.Tag = strip
+
+        Dim dragWindow As MouseEventHandler =
+            Sub(snd As Object, ev As MouseEventArgs)
+                If ev.Button = MouseButtons.Left Then
+                    ReleaseCapture()
+                    SendMessage(frm.Handle, &HA1, 2, 0)   ' WM_NCLBUTTONDOWN, HTCAPTION: move the window
+                End If
+            End Sub
+        AddHandler strip.Bar.MouseDown, dragWindow
+        AddHandler strip.TitleLabel.MouseDown, dragWindow
+
+        AddHandler strip.CloseLabel.Click, Sub(snd, ev) frm.Close()
+        AddHandler strip.CloseLabel.MouseEnter, Sub(snd, ev)
+                                                    strip.CloseLabel.BackColor = Color.FromArgb(196, 43, 28)
+                                                    strip.CloseLabel.ForeColor = Color.White
+                                                End Sub
+        AddHandler strip.CloseLabel.MouseLeave, Sub(snd, ev) ApplyPopupTitleColors(frm, strip)
+
+        ApplyPopupTitleColors(frm, strip)
+
+        Return strip
+
+    End Function
+
+    ' The standard light title bar colours (not the app's Light Mode)
+    Private Sub ApplyPopupTitleColors(frm As Form, strip As PopupTitleStrip)
+
+        Dim barBack As Color = SystemTitleBarColor()
+        Dim barText As Color = TitleTextColorFor(barBack)
+
+        frm.BackColor = SystemTitleBorderColor()
+        strip.Bar.BackColor = barBack
+        strip.TitleLabel.BackColor = barBack
+        strip.TitleLabel.ForeColor = barText
+        strip.CloseLabel.BackColor = barBack
+        strip.CloseLabel.ForeColor = barText
+
+    End Sub
+
+    ' Title text of a pop-up made with AddPopupTitleStrip (also sets the form's own Text).
+    Private Sub SetPopupTitle(frm As Form, title As String)
+
+        If frm Is Nothing OrElse frm.IsDisposed Then Exit Sub
+
+        frm.Text = title
+
+        Dim strip As PopupTitleStrip = TryCast(frm.Tag, PopupTitleStrip)
+        If strip IsNot Nothing Then strip.TitleLabel.Text = title
+
+    End Sub
+
+    ' Resize grip for a frameless form (Windows' own resize needs a frame): drag to change the size, never below MinimumSize.
+    Private Sub HookPopupResizeGrip(grip As PictureBox, frm As Form)
+
+        Dim dragging As Boolean = False
+        Dim startMouse As Point
+        Dim startSize As Size
+
+        AddHandler grip.MouseDown,
+            Sub(snd As Object, ev As MouseEventArgs)
+                If ev.Button = MouseButtons.Left Then
+                    dragging = True
+                    startMouse = Control.MousePosition
+                    startSize = frm.Size
+                End If
+            End Sub
+
+        AddHandler grip.MouseMove,
+            Sub(snd As Object, ev As MouseEventArgs)
+                If Not dragging Then Exit Sub
+                Dim mouse As Point = Control.MousePosition
+                frm.Size = New Size(Math.Max(frm.MinimumSize.Width, startSize.Width + mouse.X - startMouse.X),
+                                    Math.Max(frm.MinimumSize.Height, startSize.Height + mouse.Y - startMouse.Y))
+            End Sub
+
+        AddHandler grip.MouseUp, Sub(snd, ev) dragging = False
+
+    End Sub
+
+    ' The standard light Windows title bar colour (the other windows' own title bars, which the app does not ask Windows to darken)
+    Private Function SystemTitleBarColor() As Color
+
+        Return Color.FromArgb(243, 243, 243)
+
+    End Function
+
+    Private Function SystemTitleBorderColor() As Color
+
+        Return Color.FromArgb(160, 160, 160)
+
+    End Function
+
+    Private Function TitleTextColorFor(back As Color) As Color
+
+        Dim luminance As Double = 0.299 * back.R + 0.587 * back.G + 0.114 * back.B
+        Return If(luminance > 150, Color.Black, Color.White)
+
+    End Function
 
     ' What the overview was built from: both devices' visibility, sample counts and a few sample values (so a different
     ' file, or a changed Avg, is noticed even if the count is the same), the theme and the time scale.
@@ -215,8 +371,7 @@ Partial Public Class Chart
 
         plot.Clear()
 
-        ' Theme: window and plot
-        Chart2OverviewForm.BackColor = If(light, Color.White, Color.Black)
+        ' Theme: plot (the window frame and title strip follow the Windows title bar colours, not Light Mode)
 
         If Chart2OverviewHoverLabel IsNot Nothing Then
             Chart2OverviewHoverLabel.BackColor = If(light, Color.FromArgb(255, 255, 225), Color.FromArgb(50, 50, 50))
@@ -311,6 +466,7 @@ Partial Public Class Chart
         Next
 
         Chart2OverviewViewSpan = Nothing
+        Chart2OverviewViewBox = Nothing
         Chart2OverviewRegionSpan = Nothing
         Chart2OverviewViewText = Nothing
         Chart2OverviewViewX1 = Double.NaN
@@ -373,24 +529,35 @@ Partial Public Class Chart
             Chart2OverviewRegionSpan.LineColor = New ScottPlot.Color(Color.FromArgb(170, 255, 255, 0))
         End If
 
+        ' The view rectangle: a span (kept only to hold the X range, drawn as nothing) plus a closed box that just touches the
+        ' top and bottom of the plot (a span has no top or bottom edge; a line exactly on the edge of the plot is half clipped)
         Chart2OverviewViewSpan = plot.Add.HorizontalSpan(0, 1)
         Chart2OverviewViewSpan.EnableAutoscale = False
-        Chart2OverviewViewSpan.LineWidth = 2
+        Chart2OverviewViewSpan.LineWidth = 0
+        Chart2OverviewViewSpan.LineColor = ScottPlot.Colors.Transparent
+        Chart2OverviewViewSpan.FillColor = ScottPlot.Colors.Transparent
+
+        Dim boxInset As Double = yPad * 0.12     ' about a pixel: the 2px outline shows in full, touching the edge of the plot
+        Dim boxLo As Double = yLo - yPad + boxInset
+        Dim boxHi As Double = yHi + yPad - boxInset
+
+        Chart2OverviewViewBox = plot.Add.Rectangle(0, 1, boxLo, boxHi)
+        Chart2OverviewViewBox.LineWidth = 2
 
         If light Then
-            Chart2OverviewViewSpan.FillColor = New ScottPlot.Color(Color.FromArgb(45, 0, 0, 0))
-            Chart2OverviewViewSpan.LineColor = New ScottPlot.Color(Color.FromArgb(210, 0, 0, 0))
+            Chart2OverviewViewBox.FillColor = ScottPlot.Colors.Transparent
+            Chart2OverviewViewBox.LineColor = New ScottPlot.Color(Color.FromArgb(230, 0, 140, 0))
         Else
-            Chart2OverviewViewSpan.FillColor = New ScottPlot.Color(Color.FromArgb(45, 255, 255, 255))
-            Chart2OverviewViewSpan.LineColor = New ScottPlot.Color(Color.FromArgb(230, 255, 255, 255))
+            Chart2OverviewViewBox.FillColor = ScottPlot.Colors.Transparent
+            Chart2OverviewViewBox.LineColor = New ScottPlot.Color(Color.FromArgb(240, 50, 255, 50))
         End If
 
         ' The rectangle's start-end minutes, along the top of the plot; positioned by Chart2SetOverviewView
-        Chart2OverviewViewText = plot.Add.Text("", 0, yHi + yPad)
+        Chart2OverviewViewText = plot.Add.Text("", 0, boxHi)
         Chart2OverviewViewText.LabelAlignment = ScottPlot.Alignment.UpperCenter
         Chart2OverviewViewText.LabelFontSize = 11
         Chart2OverviewViewText.LabelBold = True
-        Chart2OverviewViewText.OffsetY = 2
+        Chart2OverviewViewText.OffsetY = 3
         Chart2OverviewViewText.LabelFontColor = If(light, ScottPlot.Colors.Black, ScottPlot.Colors.White)
         Chart2OverviewViewText.LabelBackgroundColor = If(light, New ScottPlot.Color(Color.FromArgb(200, 255, 255, 255)),
                                                              New ScottPlot.Color(Color.FromArgb(200, 0, 0, 0)))
@@ -462,6 +629,10 @@ Partial Public Class Chart
         Chart2OverviewViewX2 = x2
         Chart2OverviewViewSpan.X1 = x1
         Chart2OverviewViewSpan.X2 = x2
+        If Chart2OverviewViewBox IsNot Nothing Then
+            Chart2OverviewViewBox.X1 = x1
+            Chart2OverviewViewBox.X2 = x2
+        End If
         Chart2UpdateOverviewViewText()
 
         Return True
@@ -648,10 +819,16 @@ Partial Public Class Chart
         lbl.Visible = True
         lbl.BringToFront()
 
+        If Chart2OverviewHoverTimer IsNot Nothing Then
+            Chart2OverviewHoverTimer.Stop()
+            Chart2OverviewHoverTimer.Start()        ' restart the 2 seconds
+        End If
+
     End Sub
 
     Private Sub Chart2OverviewHideHover()
 
+        If Chart2OverviewHoverTimer IsNot Nothing Then Chart2OverviewHoverTimer.Stop()
         If Chart2OverviewHoverLabel IsNot Nothing Then Chart2OverviewHoverLabel.Visible = False
 
     End Sub

@@ -4062,7 +4062,6 @@ Public Class Chart
         If Chart2HistogramForm Is Nothing OrElse Chart2HistogramForm.IsDisposed Then Exit Sub
 
         Dim light As Boolean = CheckBoxColours.Checked
-        Chart2HistogramForm.BackColor = If(light, Color.White, Color.Black)
 
         For Each gripPic As PictureBox In Chart2HistogramForm.Controls.OfType(Of PictureBox)()
             gripPic.Image = MakeGripTransparent(My.Resources.grip, If(light, Color.FromArgb(105, 105, 105), Color.FromArgb(220, 220, 220)))
@@ -4132,7 +4131,7 @@ Public Class Chart
         If existing IsNot Nothing Then
             Dim existingLayout As TableLayoutPanel = existing.Controls.OfType(Of TableLayoutPanel)().FirstOrDefault()
             If existingLayout IsNot Nothing Then
-                existing.Text = "WinGPIB - Histogram of readings (" & scope & ")"
+                SetPopupTitle(existing, "WinGPIB - Histogram of readings (" & scope & ")")
                 existingLayout.SuspendLayout()
                 For Each oldPlot As Control In existingLayout.Controls.Cast(Of Control)().ToList()
                     existingLayout.Controls.Remove(oldPlot)
@@ -4143,7 +4142,7 @@ Public Class Chart
                 Dim newPlots As New List(Of ScottPlot.WinForms.FormsPlot)
                 For i As Integer = 0 To names.Count - 1
                     existingLayout.RowStyles.Add(New RowStyle(SizeType.Percent, 100.0F / names.Count))
-                    Dim histogramPlot As New ScottPlot.WinForms.FormsPlot With {.Dock = DockStyle.Fill}
+                    Dim histogramPlot As New ScottPlot.WinForms.FormsPlot With {.Dock = DockStyle.Fill, .Margin = Padding.Empty}
                     Chart2BuildHistogram(histogramPlot.Plot, names(i), valueSets(i), colours(i), CheckBoxColours.Checked)
                     If regionOn Then histogramPlot.Plot.Axes.Title.Label.ForeColor = New ScottPlot.Color(Color.DarkOrange)
                     existingLayout.Controls.Add(histogramPlot, 0, i)
@@ -4167,17 +4166,17 @@ Public Class Chart
             .Width = 780,
             .Height = If(names.Count = 1, 480, 780),
             .MinimumSize = New Size(480, 360),
+            .FormBorderStyle = FormBorderStyle.None,        ' thin title strip added below (AddPopupTitleStrip)
             .ShowIcon = False
         }
         Dim histLight As Boolean = CheckBoxColours.Checked
-        frm.BackColor = If(histLight, Color.White, Color.Black)
 
-        Dim layout As New TableLayoutPanel With {.Dock = DockStyle.Fill, .ColumnCount = 1, .RowCount = names.Count}
+        Dim layout As New TableLayoutPanel With {.Dock = DockStyle.Fill, .ColumnCount = 1, .RowCount = names.Count, .Margin = Padding.Empty, .Padding = Padding.Empty}
         Dim plots As New List(Of ScottPlot.WinForms.FormsPlot)
 
         For i As Integer = 0 To names.Count - 1
             layout.RowStyles.Add(New RowStyle(SizeType.Percent, 100.0F / names.Count))
-            Dim histogramPlot As New ScottPlot.WinForms.FormsPlot With {.Dock = DockStyle.Fill}
+            Dim histogramPlot As New ScottPlot.WinForms.FormsPlot With {.Dock = DockStyle.Fill, .Margin = Padding.Empty}
             Chart2BuildHistogram(histogramPlot.Plot, names(i), valueSets(i), colours(i), CheckBoxColours.Checked)
             If regionOn Then histogramPlot.Plot.Axes.Title.Label.ForeColor = New ScottPlot.Color(Color.DarkOrange)
             layout.Controls.Add(histogramPlot, 0, i)
@@ -4196,15 +4195,12 @@ Public Class Chart
             .Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
         }
         histGrip.Location = New Point(frm.ClientSize.Width - histGrip.Width, frm.ClientSize.Height - histGrip.Height)
-        AddHandler histGrip.MouseDown,
-            Sub(gripSender As Object, gripArgs As MouseEventArgs)
-                If gripArgs.Button = MouseButtons.Left Then
-                    ReleaseCapture()
-                    SendMessage(frm.Handle, &HA1, 17, 0)   ' WM_NCLBUTTONDOWN, HTBOTTOMRIGHT
-                End If
-            End Sub
+        HookPopupResizeGrip(histGrip, frm)
         frm.Controls.Add(histGrip)
         histGrip.BringToFront()
+
+        ' Thin title strip in place of the Windows title bar (added last, after the content that fills the rest of the window)
+        AddPopupTitleStrip(frm, "WinGPIB - Histogram of readings (" & scope & ")")
 
         AddHandler frm.Shown, Sub(snd, ev)
                                   For Each fp As ScottPlot.WinForms.FormsPlot In plots
@@ -4366,7 +4362,7 @@ Public Class Chart
             plot.FigureBackground.Color = ScottPlot.Colors.White
             plot.DataBackground.Color = ScottPlot.Colors.White
         Else
-            plot.FigureBackground.Color = New ScottPlot.Color(Color.FromArgb(30, 30, 30))
+            plot.FigureBackground.Color = ScottPlot.Colors.Black     ' same as the Allan Deviation pop-up
             plot.DataBackground.Color = ScottPlot.Colors.Black
             plot.Axes.Color(New ScottPlot.Color(Color.FromArgb(220, 220, 220)))
             plot.Grid.MajorLineColor = New ScottPlot.Color(Color.FromArgb(255, 70, 70, 70))
@@ -7185,8 +7181,8 @@ Public Class Chart
         EnsureAllanPopupOpen()
 
         Dim regionOn As Boolean = Chart2RegionSpan IsNot Nothing AndAlso Chart2RegionSpan.IsVisible
-        AllanPopupForm.Text = "WinGPIB - Allan Deviation (" &
-            If(regionOn, "region " & CInt(Math.Ceiling(Chart2RegionSpan.Left)).ToString() & " - " & CInt(Math.Floor(Chart2RegionSpan.Right)).ToString(), "whole run") & ")"
+        SetPopupTitle(AllanPopupForm, "WinGPIB - Allan Deviation (" &
+            If(regionOn, "region " & CInt(Math.Ceiling(Chart2RegionSpan.Left)).ToString() & " - " & CInt(Math.Floor(Chart2RegionSpan.Right)).ToString(), "whole run") & ")")
 
         ' Banner along the bottom of the chart: orange while only the Regional Stats band is used.
         If AllanPopupChart.Titles.IndexOf("Scope") < 0 Then
@@ -7323,6 +7319,7 @@ Public Class Chart
             .Height = 540,
             .MinimumSize = New Size(780, 540),
             .StartPosition = FormStartPosition.CenterParent,
+            .FormBorderStyle = FormBorderStyle.None,        ' thin title strip added below (AddPopupTitleStrip)
             .ShowIcon = False
         }
 
@@ -7391,8 +7388,8 @@ Public Class Chart
         ' Overlapping Allan deviation reuses every sample in sliding windows, giving a smoother curve at large tau
         ' but with points no longer statistically independent.
         Dim overlapCheck As New CheckBox With {
-            .Location = New Point(540, 169),
-            .Size = New Size(230, 24),
+            .Location = New Point(540, 169 + PopupTitleStripHeight + 1),
+            .Size = New Size(200, 24),
             .Text = "Overlapping (smoother tail)",
             .ForeColor = Color.White,
             .BackColor = Color.Black,
@@ -7408,8 +7405,8 @@ Public Class Chart
         ' Adds a dotted MDEV curve alongside each shown device's ADEV
         ' curve, in that device's own colour - see AllanShowMDEV.
         Dim mdevCheck As New CheckBox With {
-            .Location = New Point(540, 196),
-            .Size = New Size(230, 24),
+            .Location = New Point(540, 196 + PopupTitleStripHeight + 1),
+            .Size = New Size(200, 24),
             .Text = "Show MDEV",
             .ForeColor = Color.White,
             .BackColor = Color.Black,
@@ -7423,8 +7420,8 @@ Public Class Chart
             End Sub
 
         Dim dev1Check As New CheckBox With {
-            .Location = New Point(540, 115),
-            .Size = New Size(230, 24),
+            .Location = New Point(540, 115 + PopupTitleStripHeight + 1),
+            .Size = New Size(200, 24),
             .Text = "Show Dev 1",
             .ForeColor = Color.White,
             .BackColor = Color.Black,
@@ -7433,8 +7430,8 @@ Public Class Chart
             .Enabled = DeviceName1.Text <> ""
         }
         Dim dev2Check As New CheckBox With {
-            .Location = New Point(540, 142),
-            .Size = New Size(230, 24),
+            .Location = New Point(540, 142 + PopupTitleStripHeight + 1),
+            .Size = New Size(200, 24),
             .Text = "Show Dev 2",
             .ForeColor = Color.White,
             .BackColor = Color.Black,
@@ -7483,8 +7480,8 @@ Public Class Chart
         AllanToolTip.SetToolTip(overlapCheck, "Smooths the tail by reusing every sample in sliding windows instead of separate blocks.")
         AllanToolTip.SetToolTip(mdevCheck, "Adds a dotted curve that reveals phase/timing noise regular ADEV can't show on its own.")
 
-        ' Bottom-right resize grip: dragging hands off to Windows' native resize (WM_NCLBUTTONDOWN / HTBOTTOMRIGHT),
-        ' as in LiveWatch.vb's Live Analysis pop-up. ApplyAllanChartTheme() syncs its image and BackColor to the current theme.
+        ' Bottom-right resize grip (the window has no frame, so HookPopupResizeGrip resizes it).
+        ' ApplyAllanChartTheme() syncs its image and BackColor to the current theme.
         Dim allanGrip As New PictureBox With {
             .Image = MakeGripTransparent(My.Resources.grip, Color.FromArgb(220, 220, 220)),
             .SizeMode = PictureBoxSizeMode.StretchImage,
@@ -7497,13 +7494,7 @@ Public Class Chart
             AllanPopupForm.ClientSize.Width - allanGrip.Width,
             AllanPopupForm.ClientSize.Height - allanGrip.Height)
 
-        AddHandler allanGrip.MouseDown,
-        Sub(gripSender As Object, gripArgs As MouseEventArgs)
-            If gripArgs.Button = MouseButtons.Left Then
-                ReleaseCapture()
-                SendMessage(AllanPopupForm.Handle, &HA1, 17, 0)   ' WM_NCLBUTTONDOWN, HTBOTTOMRIGHT
-            End If
-        End Sub
+        HookPopupResizeGrip(allanGrip, AllanPopupForm)
 
         AllanPopupForm.Controls.Add(AllanPopupChart)
 
@@ -7525,6 +7516,9 @@ Public Class Chart
         overlapCheck.BringToFront()
         mdevCheck.BringToFront()
         allanGrip.BringToFront()
+
+        ' Thin title strip in place of the Windows title bar (added last, after the chart that fills the rest of the window)
+        AddPopupTitleStrip(AllanPopupForm, "WinGPIB - Allan Deviation")
 
         AddHandler AllanPopupForm.FormClosed, AddressOf AllanPopupForm_FormClosed
 
