@@ -630,8 +630,13 @@ Partial Public Class Chart
         Chart2OverviewViewSpan.X1 = x1
         Chart2OverviewViewSpan.X2 = x2
         If Chart2OverviewViewBox IsNot Nothing Then
-            Chart2OverviewViewBox.X1 = x1
-            Chart2OverviewViewBox.X2 = x2
+            ' Keep the box's outline a pixel or two inside the plot so the left and right edges are not half hidden by the
+            ' plot's own border when the view reaches either end of the run
+            Dim dataWidthPx As Double = Chart2OverviewPlot.Plot.LastRender.DataRect.Width
+            If dataWidthPx <= 0 Then dataWidthPx = Math.Max(1, Chart2OverviewPlot.Width - 56)
+            Dim pixelX As Double = Chart2OverviewMaxX / dataWidthPx
+            Chart2OverviewViewBox.X1 = Math.Max(x1, pixelX * 2.0)       ' 2px: clear of the left axis line
+            Chart2OverviewViewBox.X2 = Math.Max(Chart2OverviewViewBox.X1, Math.Min(x2, Chart2OverviewMaxX - pixelX * 1.0))
         End If
         Chart2UpdateOverviewViewText()
 

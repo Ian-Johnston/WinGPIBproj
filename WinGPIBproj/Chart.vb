@@ -4871,6 +4871,98 @@ Public Class Chart
 
     End Sub
 
+    ' ---- Keyboard pan and zoom on the main chart ----
+    ' Left / Right pan (Shift = a bigger step), + / - zoom about the centre of the view, Home = full view. Does nothing while
+    ' typing in a text box / drop-down, or before a CSV is loaded. Like any pan or zoom it unticks AutoScale.
+
+    Protected Overrides Function ProcessCmdKey(ByRef msg As Message, keyData As Keys) As Boolean
+
+        If Chart2HandleViewKey(keyData) Then Return True
+
+        Return MyBase.ProcessCmdKey(msg, keyData)
+
+    End Function
+
+    Private Function Chart2TypingInBox() As Boolean
+
+        Dim focused As Control = Me.ActiveControl
+
+        Do While TypeOf focused Is ContainerControl AndAlso DirectCast(focused, ContainerControl).ActiveControl IsNot Nothing
+            focused = DirectCast(focused, ContainerControl).ActiveControl
+        Loop
+
+        Return TypeOf focused Is TextBoxBase OrElse TypeOf focused Is ComboBox OrElse TypeOf focused Is NumericUpDown
+
+    End Function
+
+    Private Function Chart2HandleViewKey(keyData As Keys) As Boolean
+
+        If Not (ChartLoaded AndAlso CSVfileok) OrElse Not FormsPlot2.Visible Then Return False
+        If (keyData And (Keys.Control Or Keys.Alt)) <> Keys.None Then Return False
+
+        Dim key As Keys = keyData And Keys.KeyCode
+        Dim bigStep As Boolean = (keyData And Keys.Shift) = Keys.Shift
+
+        Dim panDirection As Integer = 0
+        Dim zoomIn As Boolean = False
+        Dim zoomOut As Boolean = False
+        Dim fullView As Boolean = False
+
+        Select Case key
+            Case Keys.Left : panDirection = -1
+            Case Keys.Right : panDirection = 1
+            Case Keys.Oemplus, Keys.Add : zoomIn = True
+            Case Keys.OemMinus, Keys.Subtract : zoomOut = True
+            Case Keys.Home : fullView = True
+            Case Else : Return False
+        End Select
+
+        If Chart2TypingInBox() Then Return False
+
+        If fullView Then
+            Chart2OverviewZoomAll()         ' the same fit as AutoScale
+            Chart2EchoYRange()
+            Return True
+        End If
+
+        ' X is the sample index: the data runs from 0 to (samples - 1)
+        Dim total As Double = Math.Max(Chart2Dev1Data.Count, Chart2Dev2Data.Count) - 1
+        If total <= 0 Then Return True
+
+        Dim xMin As Double = FormsPlot2.Plot.Axes.Bottom.Min
+        Dim xMax As Double = FormsPlot2.Plot.Axes.Bottom.Max
+        If Double.IsNaN(xMin) OrElse Double.IsNaN(xMax) OrElse Double.IsInfinity(xMin) OrElse Double.IsInfinity(xMax) OrElse xMax <= xMin Then Return True
+
+        Dim span As Double = xMax - xMin
+        Dim newMin As Double = xMin
+        Dim newSpan As Double = span
+
+        If panDirection <> 0 Then
+            newMin = xMin + panDirection * span * If(bigStep, 0.5, 0.1)
+        Else
+            Dim centre As Double = (xMin + xMax) / 2.0
+            Dim minSpan As Double = Math.Min(total, 5.0)
+            newSpan = Math.Max(minSpan, Math.Min(total, If(zoomIn, span * 0.8, span / 0.8)))
+            newMin = centre - newSpan / 2.0
+        End If
+
+        ' Stay inside the data
+        If newSpan >= total Then
+            newMin = 0
+            newSpan = total
+        Else
+            newMin = Math.Max(0, Math.Min(newMin, total - newSpan))
+        End If
+
+        CheckBoxPBXYaxis.Checked = False
+        FormsPlot2.Plot.Axes.SetLimitsX(newMin, newMin + newSpan)
+        FormsPlot2.Refresh()
+        Chart2EchoYRange()
+
+        Return True
+
+    End Function
+
     Private Sub Chart2OnKeyDown(sender As Object, e As KeyEventArgs)
 
         If e.KeyCode = Keys.Escape Then
@@ -7871,6 +7963,13 @@ Public Class Chart
 "- Any pan or zoom unticks AutoScale." & vbLf &
 "Only the Dev 1 / Dev 2 traces and their left-hand scale respond to pan/zoom - the Temp, Hum and PPM scales stay fixed to their own scale boxes." & vbLf & vbLf &
 "Statistics chart (underneath): hover and double-click measure only. It has no pan/zoom of its own and follows the main chart's X range." & vbLf & vbLf &
+"KEYBOARD CONTROLS" & vbLf &
+"Once a CSV is loaded, the main chart can also be moved from the keyboard (not while you are typing in a box or choosing from a drop-down):" & vbLf &
+"- Pan - Left / Right arrow (hold Shift for a bigger step)" & vbLf &
+"- Zoom in / out - + / - (about the centre of the view; the numeric keypad + and - work too)" & vbLf &
+"- Full view - Home (the same fit as AutoScale)" & vbLf &
+"- Esc - clears a measurement, or cancels Set PPM Baseline" & vbLf &
+"Panning and zooming stay within the data, and unticks AutoScale like the mouse does. Click on the chart (or any button) first if the keys do nothing." & vbLf & vbLf &
 "DEVICES" & vbLf &
 "Each device found in the CSV is listed with its own averaging, Max-Min, RMS Noise and Line/Point controls (see AVERAGING / NOISE / RANGE below). The Dev 1 / Dev 2 radio buttons in the PPM box choose which device feeds the PPM calculation." & vbLf & vbLf &
 "x1k / x1000k rescale the Max-Min and RMS Noise readouts by 1,000 or 1,000,000 (e.g. VDC to mVDC or " & Global.Microsoft.VisualBasic.ChrW(181) & "VDC). The plotted data is not changed." & vbLf & vbLf &
@@ -7973,6 +8072,7 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
         "LOADING A CSV",
         "CSV METADATA",
         "MOUSE CONTROLS",
+        "KEYBOARD CONTROLS",
         "DEVICES",
         "CSV DETAILS",
         "SCALES & ANALYSIS",
