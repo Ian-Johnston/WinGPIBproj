@@ -156,6 +156,7 @@ Partial Class Chart
         Me.LabelSEMscale = New System.Windows.Forms.Label()
         Me.LabelMean = New System.Windows.Forms.Label()
         Me.LabelSMean = New System.Windows.Forms.Label()
+        Me.ButtonExportReport = New System.Windows.Forms.Button()
         Me.PPMBox1.SuspendLayout()
         Me.Panel1.SuspendLayout()
         Me.GroupBoxMisc.SuspendLayout()
@@ -338,7 +339,7 @@ Partial Class Chart
         '
         Me.PlaybackTemp.AutoSize = True
         Me.PlaybackTemp.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.PlaybackTemp.Location = New System.Drawing.Point(9, 24)
+        Me.PlaybackTemp.Location = New System.Drawing.Point(9, 18)
         Me.PlaybackTemp.Name = "PlaybackTemp"
         Me.PlaybackTemp.Size = New System.Drawing.Size(53, 17)
         Me.PlaybackTemp.TabIndex = 92
@@ -350,7 +351,7 @@ Partial Class Chart
         '
         Me.PlaybackHum.AutoSize = True
         Me.PlaybackHum.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.PlaybackHum.Location = New System.Drawing.Point(107, 24)
+        Me.PlaybackHum.Location = New System.Drawing.Point(107, 18)
         Me.PlaybackHum.Name = "PlaybackHum"
         Me.PlaybackHum.Size = New System.Drawing.Size(51, 17)
         Me.PlaybackHum.TabIndex = 93
@@ -361,7 +362,7 @@ Partial Class Chart
         'ChartScaleMax
         '
         Me.ChartScaleMax.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ChartScaleMax.Location = New System.Drawing.Point(6, 65)
+        Me.ChartScaleMax.Location = New System.Drawing.Point(6, 60)
         Me.ChartScaleMax.Name = "ChartScaleMax"
         Me.ChartScaleMax.Size = New System.Drawing.Size(26, 20)
         Me.ChartScaleMax.TabIndex = 94
@@ -371,7 +372,7 @@ Partial Class Chart
         'ChartScaleMin
         '
         Me.ChartScaleMin.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ChartScaleMin.Location = New System.Drawing.Point(6, 84)
+        Me.ChartScaleMin.Location = New System.Drawing.Point(6, 81)
         Me.ChartScaleMin.Name = "ChartScaleMin"
         Me.ChartScaleMin.Size = New System.Drawing.Size(26, 20)
         Me.ChartScaleMin.TabIndex = 95
@@ -382,7 +383,7 @@ Partial Class Chart
         '
         Me.Label6.AutoSize = True
         Me.Label6.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label6.Location = New System.Drawing.Point(32, 69)
+        Me.Label6.Location = New System.Drawing.Point(32, 64)
         Me.Label6.Name = "Label6"
         Me.Label6.Size = New System.Drawing.Size(60, 13)
         Me.Label6.TabIndex = 96
@@ -392,7 +393,7 @@ Partial Class Chart
         '
         Me.Label7.AutoSize = True
         Me.Label7.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label7.Location = New System.Drawing.Point(32, 88)
+        Me.Label7.Location = New System.Drawing.Point(32, 85)
         Me.Label7.Name = "Label7"
         Me.Label7.Size = New System.Drawing.Size(57, 13)
         Me.Label7.TabIndex = 97
@@ -669,6 +670,7 @@ Partial Class Chart
         '
         'GroupBoxMisc
         '
+        Me.GroupBoxMisc.Controls.Add(Me.ButtonExportReport)
         Me.GroupBoxMisc.Controls.Add(Me.ButtonExportResults)
         Me.GroupBoxMisc.Controls.Add(Me.CheckBoxColours)
         Me.GroupBoxMisc.Enabled = False
@@ -683,9 +685,9 @@ Partial Class Chart
         'ButtonExportResults
         '
         Me.ButtonExportResults.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonExportResults.Location = New System.Drawing.Point(7, 45)
+        Me.ButtonExportResults.Location = New System.Drawing.Point(7, 34)
         Me.ButtonExportResults.Name = "ButtonExportResults"
-        Me.ButtonExportResults.Size = New System.Drawing.Size(64, 39)
+        Me.ButtonExportResults.Size = New System.Drawing.Size(64, 35)
         Me.ButtonExportResults.TabIndex = 118
         Me.ButtonExportResults.Text = "Export" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Results"
         Me.ButtonExportResults.UseVisualStyleBackColor = True
@@ -694,7 +696,7 @@ Partial Class Chart
         '
         Me.CheckBoxColours.AutoSize = True
         Me.CheckBoxColours.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CheckBoxColours.Location = New System.Drawing.Point(8, 24)
+        Me.CheckBoxColours.Location = New System.Drawing.Point(8, 18)
         Me.CheckBoxColours.Name = "CheckBoxColours"
         Me.CheckBoxColours.Size = New System.Drawing.Size(64, 17)
         Me.CheckBoxColours.TabIndex = 117
@@ -795,7 +797,7 @@ Partial Class Chart
         'TEMPavg
         '
         Me.TEMPavg.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TEMPavg.Location = New System.Drawing.Point(6, 46)
+        Me.TEMPavg.Location = New System.Drawing.Point(6, 39)
         Me.TEMPavg.Name = "TEMPavg"
         Me.TEMPavg.Size = New System.Drawing.Size(26, 20)
         Me.TEMPavg.TabIndex = 582
@@ -1030,7 +1032,7 @@ Partial Class Chart
         'HUMavg
         '
         Me.HUMavg.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.HUMavg.Location = New System.Drawing.Point(104, 46)
+        Me.HUMavg.Location = New System.Drawing.Point(104, 39)
         Me.HUMavg.Name = "HUMavg"
         Me.HUMavg.Size = New System.Drawing.Size(26, 20)
         Me.HUMavg.TabIndex = 588
@@ -1419,7 +1421,7 @@ Partial Class Chart
         '
         Me.Label13.AutoSize = True
         Me.Label13.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label13.Location = New System.Drawing.Point(130, 50)
+        Me.Label13.Location = New System.Drawing.Point(130, 43)
         Me.Label13.Name = "Label13"
         Me.Label13.Size = New System.Drawing.Size(54, 13)
         Me.Label13.TabIndex = 587
@@ -1428,7 +1430,7 @@ Partial Class Chart
         'ChartScaleHUMMax
         '
         Me.ChartScaleHUMMax.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ChartScaleHUMMax.Location = New System.Drawing.Point(104, 65)
+        Me.ChartScaleHUMMax.Location = New System.Drawing.Point(104, 60)
         Me.ChartScaleHUMMax.Name = "ChartScaleHUMMax"
         Me.ChartScaleHUMMax.Size = New System.Drawing.Size(26, 20)
         Me.ChartScaleHUMMax.TabIndex = 583
@@ -1438,7 +1440,7 @@ Partial Class Chart
         'ChartScaleHUMMin
         '
         Me.ChartScaleHUMMin.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ChartScaleHUMMin.Location = New System.Drawing.Point(104, 84)
+        Me.ChartScaleHUMMin.Location = New System.Drawing.Point(104, 81)
         Me.ChartScaleHUMMin.Name = "ChartScaleHUMMin"
         Me.ChartScaleHUMMin.Size = New System.Drawing.Size(26, 20)
         Me.ChartScaleHUMMin.TabIndex = 584
@@ -1449,7 +1451,7 @@ Partial Class Chart
         '
         Me.Label14.AutoSize = True
         Me.Label14.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label14.Location = New System.Drawing.Point(130, 69)
+        Me.Label14.Location = New System.Drawing.Point(130, 64)
         Me.Label14.Name = "Label14"
         Me.Label14.Size = New System.Drawing.Size(55, 13)
         Me.Label14.TabIndex = 585
@@ -1459,7 +1461,7 @@ Partial Class Chart
         '
         Me.Label15.AutoSize = True
         Me.Label15.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label15.Location = New System.Drawing.Point(130, 88)
+        Me.Label15.Location = New System.Drawing.Point(130, 85)
         Me.Label15.Name = "Label15"
         Me.Label15.Size = New System.Drawing.Size(52, 13)
         Me.Label15.TabIndex = 586
@@ -1469,7 +1471,7 @@ Partial Class Chart
         '
         Me.Label11.AutoSize = True
         Me.Label11.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label11.Location = New System.Drawing.Point(32, 50)
+        Me.Label11.Location = New System.Drawing.Point(32, 43)
         Me.Label11.Name = "Label11"
         Me.Label11.Size = New System.Drawing.Size(59, 13)
         Me.Label11.TabIndex = 582
@@ -1677,6 +1679,16 @@ Partial Class Chart
         Me.LabelSMean.Size = New System.Drawing.Size(48, 13)
         Me.LabelSMean.TabIndex = 595
         Me.LabelSMean.Text = "S.MEAN"
+        '
+        'ButtonExportReport
+        '
+        Me.ButtonExportReport.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonExportReport.Location = New System.Drawing.Point(6, 70)
+        Me.ButtonExportReport.Name = "ButtonExportReport"
+        Me.ButtonExportReport.Size = New System.Drawing.Size(64, 35)
+        Me.ButtonExportReport.TabIndex = 119
+        Me.ButtonExportReport.Text = "Export" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Report"
+        Me.ButtonExportReport.UseVisualStyleBackColor = True
         '
         'Chart
         '
@@ -1887,4 +1899,5 @@ Partial Class Chart
     Friend WithEvents ButtonExportResults As Button
     Friend WithEvents ButtonSetPPMBaseline As Button
     Friend WithEvents ButtonZoomOverview As CheckBox
+    Friend WithEvents ButtonExportReport As Button
 End Class
