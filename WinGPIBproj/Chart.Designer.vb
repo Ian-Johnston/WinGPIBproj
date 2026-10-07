@@ -339,7 +339,7 @@ Partial Class Chart
         '
         Me.PlaybackTemp.AutoSize = True
         Me.PlaybackTemp.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.PlaybackTemp.Location = New System.Drawing.Point(9, 18)
+        Me.PlaybackTemp.Location = New System.Drawing.Point(9, 17)
         Me.PlaybackTemp.Name = "PlaybackTemp"
         Me.PlaybackTemp.Size = New System.Drawing.Size(53, 17)
         Me.PlaybackTemp.TabIndex = 92
@@ -351,7 +351,7 @@ Partial Class Chart
         '
         Me.PlaybackHum.AutoSize = True
         Me.PlaybackHum.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.PlaybackHum.Location = New System.Drawing.Point(107, 18)
+        Me.PlaybackHum.Location = New System.Drawing.Point(107, 17)
         Me.PlaybackHum.Name = "PlaybackHum"
         Me.PlaybackHum.Size = New System.Drawing.Size(51, 17)
         Me.PlaybackHum.TabIndex = 93
@@ -685,7 +685,7 @@ Partial Class Chart
         'ButtonExportReport
         '
         Me.ButtonExportReport.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonExportReport.Location = New System.Drawing.Point(6, 70)
+        Me.ButtonExportReport.Location = New System.Drawing.Point(7, 70)
         Me.ButtonExportReport.Name = "ButtonExportReport"
         Me.ButtonExportReport.Size = New System.Drawing.Size(64, 36)
         Me.ButtonExportReport.TabIndex = 119
@@ -695,7 +695,7 @@ Partial Class Chart
         'ButtonExportResults
         '
         Me.ButtonExportResults.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonExportResults.Location = New System.Drawing.Point(7, 34)
+        Me.ButtonExportResults.Location = New System.Drawing.Point(7, 33)
         Me.ButtonExportResults.Name = "ButtonExportResults"
         Me.ButtonExportResults.Size = New System.Drawing.Size(64, 36)
         Me.ButtonExportResults.TabIndex = 118
@@ -706,7 +706,7 @@ Partial Class Chart
         '
         Me.CheckBoxColours.AutoSize = True
         Me.CheckBoxColours.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CheckBoxColours.Location = New System.Drawing.Point(8, 18)
+        Me.CheckBoxColours.Location = New System.Drawing.Point(8, 17)
         Me.CheckBoxColours.Name = "CheckBoxColours"
         Me.CheckBoxColours.Size = New System.Drawing.Size(64, 17)
         Me.CheckBoxColours.TabIndex = 117
