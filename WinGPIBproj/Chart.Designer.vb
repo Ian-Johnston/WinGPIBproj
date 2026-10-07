@@ -71,6 +71,7 @@ Partial Class Chart
         Me.MedianTemp = New System.Windows.Forms.TextBox()
         Me.LabelPPMtop = New System.Windows.Forms.Label()
         Me.GroupBoxMisc = New System.Windows.Forms.GroupBox()
+        Me.ButtonExportReport = New System.Windows.Forms.Button()
         Me.ButtonExportResults = New System.Windows.Forms.Button()
         Me.CheckBoxColours = New System.Windows.Forms.CheckBox()
         Me.Xscale = New System.Windows.Forms.Label()
@@ -156,7 +157,6 @@ Partial Class Chart
         Me.LabelSEMscale = New System.Windows.Forms.Label()
         Me.LabelMean = New System.Windows.Forms.Label()
         Me.LabelSMean = New System.Windows.Forms.Label()
-        Me.ButtonExportReport = New System.Windows.Forms.Button()
         Me.PPMBox1.SuspendLayout()
         Me.Panel1.SuspendLayout()
         Me.GroupBoxMisc.SuspendLayout()
@@ -682,12 +682,22 @@ Partial Class Chart
         Me.GroupBoxMisc.TabStop = False
         Me.GroupBoxMisc.Text = "MISC."
         '
+        'ButtonExportReport
+        '
+        Me.ButtonExportReport.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ButtonExportReport.Location = New System.Drawing.Point(6, 70)
+        Me.ButtonExportReport.Name = "ButtonExportReport"
+        Me.ButtonExportReport.Size = New System.Drawing.Size(64, 36)
+        Me.ButtonExportReport.TabIndex = 119
+        Me.ButtonExportReport.Text = "Export" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Report"
+        Me.ButtonExportReport.UseVisualStyleBackColor = True
+        '
         'ButtonExportResults
         '
         Me.ButtonExportResults.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.ButtonExportResults.Location = New System.Drawing.Point(7, 34)
         Me.ButtonExportResults.Name = "ButtonExportResults"
-        Me.ButtonExportResults.Size = New System.Drawing.Size(64, 35)
+        Me.ButtonExportResults.Size = New System.Drawing.Size(64, 36)
         Me.ButtonExportResults.TabIndex = 118
         Me.ButtonExportResults.Text = "Export" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Results"
         Me.ButtonExportResults.UseVisualStyleBackColor = True
@@ -1679,16 +1689,6 @@ Partial Class Chart
         Me.LabelSMean.Size = New System.Drawing.Size(48, 13)
         Me.LabelSMean.TabIndex = 595
         Me.LabelSMean.Text = "S.MEAN"
-        '
-        'ButtonExportReport
-        '
-        Me.ButtonExportReport.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonExportReport.Location = New System.Drawing.Point(6, 70)
-        Me.ButtonExportReport.Name = "ButtonExportReport"
-        Me.ButtonExportReport.Size = New System.Drawing.Size(64, 35)
-        Me.ButtonExportReport.TabIndex = 119
-        Me.ButtonExportReport.Text = "Export" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Report"
-        Me.ButtonExportReport.UseVisualStyleBackColor = True
         '
         'Chart
         '

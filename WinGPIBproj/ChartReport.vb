@@ -2267,6 +2267,12 @@ Partial Public Class Chart
             ' (it was cut off on the right). A viewBox lets it scale to the page.
             svg = New System.Text.RegularExpressions.Regex("<svg(?![^>]*viewBox)").Replace(svg, "<svg viewBox=""0 0 " & width.ToString() & " " & height.ToString() & """", 1)
 
+            ' ScottPlot also positions every single character of every label (x="0, 7.4, 10.5, ..." with a matching comma-ended y). Some SVG
+            ' viewers ignore those lists and pile the characters of each label on top of one another (garbled text). Keep just the first
+            ' position of each label and let the viewer lay the characters out itself, and give the fonts fallbacks for machines without them.
+            svg = New System.Text.RegularExpressions.Regex("\b([xy])=""(-?[0-9.]+(?:[eE][-+]?[0-9]+)?)\s*,[^""]*""").Replace(svg, "$1=""$2""")
+            svg = New System.Text.RegularExpressions.Regex("font-family=""([^""]*)""").Replace(svg, "font-family=""$1, Segoe UI, Arial, Helvetica, sans-serif""")
+
             Return "<div class=""chart"">" & svg & "</div>"
         Catch
             Return ""
