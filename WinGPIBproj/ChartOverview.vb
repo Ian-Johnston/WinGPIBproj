@@ -35,6 +35,42 @@ Partial Public Class Chart
     Private Const ChartOverviewApplyIntervalMs As Integer = 25 ' main chart redraw rate while dragging
     Private Const ChartOverviewEdgePixels As Single = 6.0F     ' how close to an edge counts as grabbing it
 
+    ' ---- "Always on top" checkbox for the Allan Deviation and Histogram pop-ups ----
+    ' Bottom left of the pop-up. Ticked (the default): the pop-up is owned by the Playback Chart, so it always stays in front of
+    ' it (but not in front of other programs). Unticked: a free window, which the Playback Chart can come in front of. The
+    ' setting is remembered while WinGPIB is running (applied again when the pop-up is reopened), not saved with Save Settings.
+    ' (The Zoom Overview has no checkbox: it is always owned by the Playback Chart.)
+
+    Private Chart2AllanOnTop As Boolean = True
+    Private Chart2HistogramOnTop As Boolean = True
+
+    Private Function AddPopupAlwaysOnTopCheckBox(frm As Form, initial As Boolean, onChanged As Action(Of Boolean), light As Boolean) As CheckBox
+
+        Dim cb As New CheckBox With {
+            .Text = "Always on top",
+            .AutoSize = True,
+            .Anchor = AnchorStyles.Bottom Or AnchorStyles.Left,
+            .ForeColor = If(light, Color.Black, Color.White),
+            .BackColor = If(light, Color.White, Color.Black),
+            .Checked = initial
+        }
+
+        cb.Location = New Point(8, frm.ClientSize.Height - cb.PreferredSize.Height - 9)
+
+        AddHandler cb.CheckedChanged,
+            Sub(snd As Object, ev As EventArgs)
+                frm.Owner = If(cb.Checked, Me, Nothing)
+                onChanged(cb.Checked)
+            End Sub
+
+        frm.Controls.Add(cb)
+        cb.BringToFront()
+        frm.Owner = If(initial, Me, Nothing)
+
+        Return cb
+
+    End Function
+
     Private Sub ButtonZoomOverview_CheckedChanged(sender As Object, e As EventArgs) Handles ButtonZoomOverview.CheckedChanged
 
         If Chart2OverviewSync Then Exit Sub
@@ -182,7 +218,7 @@ Partial Public Class Chart
         Chart2OverviewDragMode = 0
 
         Chart2SetOverviewChecked(True)
-        frm.Show(Me)        ' owned by the Playback Chart: stays above it, closes with it, not above other programs
+        frm.Show(Me)        ' owned by the Playback Chart: always in front of it (not other programs), closes with it, no taskbar button
 
         Chart2SyncOverview()
 
@@ -230,15 +266,38 @@ Partial Public Class Chart
         frm.Controls.Add(strip.Bar)
         frm.Tag = strip
 
-        Dim dragWindow As MouseEventHandler =
+        ' Dragging the strip moves the window by hand. (Windows' own title-bar drag, WM_NCLBUTTONDOWN / HTCAPTION, also raises the
+        ' window to the top of the stack, which for the owned Zoom Overview drags the Playback Chart up in front of the other
+        ' pop-ups.)
+        Dim dragging As Boolean = False
+        Dim dragMouseStart As Point
+        Dim dragFormStart As Point
+
+        Dim dragDown As MouseEventHandler =
             Sub(snd As Object, ev As MouseEventArgs)
                 If ev.Button = MouseButtons.Left Then
-                    ReleaseCapture()
-                    SendMessage(frm.Handle, &HA1, 2, 0)   ' WM_NCLBUTTONDOWN, HTCAPTION: move the window
+                    dragging = True
+                    dragMouseStart = Control.MousePosition
+                    dragFormStart = frm.Location
                 End If
             End Sub
-        AddHandler strip.Bar.MouseDown, dragWindow
-        AddHandler strip.TitleLabel.MouseDown, dragWindow
+        Dim dragMove As MouseEventHandler =
+            Sub(snd As Object, ev As MouseEventArgs)
+                If Not dragging Then Exit Sub
+                Dim mouse As Point = Control.MousePosition
+                frm.Location = New Point(dragFormStart.X + mouse.X - dragMouseStart.X, dragFormStart.Y + mouse.Y - dragMouseStart.Y)
+            End Sub
+        Dim dragUp As MouseEventHandler =
+            Sub(snd As Object, ev As MouseEventArgs)
+                dragging = False
+            End Sub
+
+        AddHandler strip.Bar.MouseDown, dragDown
+        AddHandler strip.Bar.MouseMove, dragMove
+        AddHandler strip.Bar.MouseUp, dragUp
+        AddHandler strip.TitleLabel.MouseDown, dragDown
+        AddHandler strip.TitleLabel.MouseMove, dragMove
+        AddHandler strip.TitleLabel.MouseUp, dragUp
 
         AddHandler strip.CloseLabel.Click, Sub(snd, ev) frm.Close()
         AddHandler strip.CloseLabel.MouseEnter, Sub(snd, ev)

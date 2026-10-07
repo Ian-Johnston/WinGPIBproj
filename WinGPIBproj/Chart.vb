@@ -4068,6 +4068,11 @@ Public Class Chart
             gripPic.BackColor = If(light, Color.White, Color.Black)
         Next
 
+        For Each onTopBox As CheckBox In Chart2HistogramForm.Controls.OfType(Of CheckBox)()
+            onTopBox.ForeColor = If(light, Color.Black, Color.White)
+            onTopBox.BackColor = If(light, Color.White, Color.Black)
+        Next
+
         Chart2RefreshHistogram()
 
     End Sub
@@ -4198,6 +4203,8 @@ Public Class Chart
         HookPopupResizeGrip(histGrip, frm)
         frm.Controls.Add(histGrip)
         histGrip.BringToFront()
+
+        AddPopupAlwaysOnTopCheckBox(frm, Chart2HistogramOnTop, Sub(ticked) Chart2HistogramOnTop = ticked, histLight)
 
         ' Thin title strip in place of the Windows title bar (added last, after the content that fills the rest of the window)
         AddPopupTitleStrip(frm, "WinGPIB - Histogram of readings (" & scope & ")")
@@ -4345,6 +4352,14 @@ Public Class Chart
         plot.Title(title, 14)
         plot.XLabel("Reading")
         plot.YLabel("Count")
+
+        ' Axis titles plain (not bold) and the same size as the Allan Deviation pop-up's 10pt titles (ScottPlot sizes are in pixels)
+        For Each axisLabel As ScottPlot.LabelStyle In {plot.Axes.Bottom.Label, plot.Axes.Left.Label}
+            axisLabel.Bold = False
+            axisLabel.FontSize = 14
+            axisLabel.Padding = 5       ' a little air between the title and the tick numbers
+            axisLabel.FontName = "Microsoft Sans Serif"
+        Next
         plot.Axes.SetLimitsY(0, tallest * 1.15)
 
         ' Fixed-decimal tick labels sized to the spread (the default drops all decimals above 1000).
@@ -7609,6 +7624,8 @@ Public Class Chart
         mdevCheck.BringToFront()
         allanGrip.BringToFront()
 
+        AddPopupAlwaysOnTopCheckBox(AllanPopupForm, Chart2AllanOnTop, Sub(ticked) Chart2AllanOnTop = ticked, CheckBoxColours.Checked)
+
         ' Thin title strip in place of the Windows title bar (added last, after the chart that fills the rest of the window)
         AddPopupTitleStrip(AllanPopupForm, "WinGPIB - Allan Deviation")
 
@@ -7654,6 +7671,10 @@ Public Class Chart
         ' otherwise interacting with it could crash on the log axis.
         If AllanPopupForm IsNot Nothing AndAlso Not AllanPopupForm.IsDisposed Then
             AllanPopupForm.Close()
+        End If
+
+        If Chart2HistogramForm IsNot Nothing AndAlso Not Chart2HistogramForm.IsDisposed Then
+            Chart2HistogramForm.Close()
         End If
 
         Chart2CloseOverview()
@@ -7986,10 +8007,10 @@ Public Class Chart
 "Noise Band - shades the rolling mean +/- 1 STDEV around each visible trace, calculated over the RMS window. A wide band means a noisy stretch, a narrow one a quiet stretch. The text box reports the typical, quietest and noisiest STDEV found for each trace, in the reading's units and in ppm." & vbLf & vbLf &
 "Trend Line - draws a dashed straight line, fitted by least squares, through each visible trace (the whole run, or just the Regional Stats band). The text box gives the drift per hour, in the reading's units and in ppm, and R2 - how well a straight line describes the trace (near 1 = a clean straight drift, near 0 = no straight-line trend)." & vbLf & vbLf &
 "Tempco Curve - fits the reading against temperature and draws the fit as a coloured curve along the trace (magenta for Dev 1, purple for Dev 2). If the curve follows the trace, temperature explains its movement. The text box gives the ppm/DegC with its uncertainty, R2, and the percentage of the variation that temperature explains. It needs the temperature to change enough to fit, and is calculated relative to the trace's mean, so it can differ slightly from the PPM/DegC (Fit) figure, which uses the Initial Value." & vbLf & vbLf &
-"Histogram of Readings - opens a pop-up showing how the readings of each visible trace are distributed (over the Regional Stats band if it is showing, otherwise the whole run), with the mean, STDEV, skew, kurtosis, the number of distinct values and a red normal curve with the same mean and STDEV to compare against. A histogram with only a few distinct values shows the meter's resolution; a lop-sided or double-humped one points to drift or interference. It refreshes when the Regional Stats band is switched on, off or moved, and closing the pop-up unticks it." & vbLf & vbLf &
+"Histogram of Readings - opens a pop-up showing how the readings of each visible trace are distributed (over the Regional Stats band if it is showing, otherwise the whole run), with the mean, STDEV, skew, kurtosis, the number of distinct values and a red normal curve with the same mean and STDEV to compare against. A histogram with only a few distinct values shows the meter's resolution; a lop-sided or double-humped one points to drift or interference. It refreshes when the Regional Stats band is switched on, off or moved, and closing the pop-up unticks it. The Always on top box (bottom left of the pop-up, ticked by default) keeps it in front of the Playback Chart (other programs can still cover it); untick it to let the Playback Chart come in front. The setting is remembered until you close WinGPIB." & vbLf & vbLf &
 "Export Results - the button in the MISC. group saves every statistic and analysis result to a text file, named after the CSV (for example MyLog_Results.txt, or MyLog_Results_region_49-149.txt when the Regional Stats band is showing), in the CSV's folder unless you choose another. It covers the devices whose Data checkbox is ticked, over the Regional Stats band if it is showing, otherwise the whole run, and it always includes every result whatever the analysis checkboxes are set to: the recorded statistics, Max/Min, RMS Noise, PPM Deviation, PPM/DegC (point, Fit and Trend), Tempco Curve, Trend Line, Noise Band, the statistics of the scope, the Histogram figures and the Allan Deviation / MDEV table. Figures use the raw readings (the Avg boxes are ignored) and are written to 10 significant digits." & vbLf & vbLf &
 "The results boxes sit in the corners of the main chart (Regional Stats top-left, Tempco Curve top-right, Noise Band bottom-left, Trend Line bottom-right) and follow Light Mode." & vbLf & vbLf &
-"Allan Deviation - ticking Allan Deviation in the SCALES & ANALYSIS group opens a separate pop-up chart plotting the Allan Deviation (ADEV) of each device in the file, Dev 1 and Dev 2 together. It doesn't need the Dev 1 / Dev 2 trace checkboxes to be ticked. Unticking it, or closing the pop-up, clears the tick, and a new CSV closes it. It is not saved with Save Settings. Like the other tools, it uses just the Regional Stats band while the band is showing (the pop-up title says 'region' or 'whole run') and updates when the band is switched on, off, or moved. A short band limits how far right the curve can go." & vbLf & vbLf &
+"Allan Deviation - ticking Allan Deviation in the SCALES & ANALYSIS group opens a separate pop-up chart plotting the Allan Deviation (ADEV) of each device in the file, Dev 1 and Dev 2 together. It doesn't need the Dev 1 / Dev 2 trace checkboxes to be ticked. Unticking it, or closing the pop-up, clears the tick, and a new CSV closes it. It is not saved with Save Settings. Like the other tools, it uses just the Regional Stats band while the band is showing (the pop-up title says 'region' or 'whole run') and updates when the band is switched on, off, or moved. A short band limits how far right the curve can go. The Always on top box (bottom left of the pop-up, ticked by default) keeps it in front of the Playback Chart (other programs can still cover it); untick it to let the Playback Chart come in front. The setting is remembered until you close WinGPIB." & vbLf & vbLf &
 "The 'Show Dev 1' and 'Show Dev 2' checkboxes in the pop-up hide or show each device's curves (ADEV, Ideal and MDEV). At least one always stays ticked, and with a single-device CSV the unused device's checkbox is greyed out." & vbLf & vbLf &
 "ADEV is a stability metric showing how much the average reading wanders as you change the averaging time (tau), rather than a single STDEV number for the whole file." & vbLf & vbLf &
 "The pop-up's X-axis is averaging time (tau, in samples); the Y-axis is deviation in ppm of that device's overall mean." & vbLf & vbLf &
@@ -8011,7 +8032,7 @@ Public Class Chart
 "MDEV formula:" & vbLf &
 "Mod sigma(tau) = sqrt( sum( (second-difference sum over an m-sample window)^2 ) / (2 x tau^2 x m^2 x (N-3m+1)) ), where m = tau and the second difference is taken on x, the cumulative sum (integration) of the raw readings." & vbLf & vbLf &
 "ZOOM OVERVIEW" & vbLf &
-"The Zoom Overview button in the SCALES & ANALYSIS group opens a small window showing the whole run - a min/max envelope and mean line for each visible Dev 1 / Dev 2 trace, over the full time axis - with a rectangle marking the part the main chart is showing. It is a fixed size. You can move it, and it stays above the Playback Chart (but not above other programs), closes with it, and reopens where you left it." & vbLf & vbLf &
+"The Zoom Overview button in the SCALES & ANALYSIS group opens a small window showing the whole run - a min/max envelope and mean line for each visible Dev 1 / Dev 2 trace, over the full time axis - with a rectangle marking the part the main chart is showing. It is a fixed size. You can move it; it always stays in front of the Playback Chart (but not other programs), closes with it, and reopens where you left it." & vbLf & vbLf &
 "Drag the rectangle to pan the main chart, drag either edge of the rectangle to zoom, or click anywhere else in the overview to jump there. Double-click for the full view (the same fit as AutoScale). Like any pan or zoom this unticks AutoScale, and the Y scale is left as it is. The Regional Stats band, if showing, is shown on the overview too. Hovering shows the time under the pointer, and when zoomed in the rectangle is labelled with its start and end times." & vbLf & vbLf &
 "The overview follows the main chart (pan, zoom, Avg changes, trace checkboxes, Light Mode) and updates when a new CSV is loaded. Closing the window unticks the button. It is also on the main chart's right-click menu, and is not saved with Save Settings." & vbLf & vbLf &
 "CHART SPLIT" & vbLf &
