@@ -1180,7 +1180,7 @@ Partial Class Chart
         '
         Me.CheckBoxShowComments.AutoSize = True
         Me.CheckBoxShowComments.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CheckBoxShowComments.Location = New System.Drawing.Point(8, 31)
+        Me.CheckBoxShowComments.Location = New System.Drawing.Point(8, 14)
         Me.CheckBoxShowComments.Name = "CheckBoxShowComments"
         Me.CheckBoxShowComments.Size = New System.Drawing.Size(105, 17)
         Me.CheckBoxShowComments.TabIndex = 94
@@ -1271,7 +1271,7 @@ Partial Class Chart
         Me.CheckBoxPBXYaxis.Checked = True
         Me.CheckBoxPBXYaxis.CheckState = System.Windows.Forms.CheckState.Checked
         Me.CheckBoxPBXYaxis.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CheckBoxPBXYaxis.Location = New System.Drawing.Point(8, 15)
+        Me.CheckBoxPBXYaxis.Location = New System.Drawing.Point(8, 30)
         Me.CheckBoxPBXYaxis.Name = "CheckBoxPBXYaxis"
         Me.CheckBoxPBXYaxis.Size = New System.Drawing.Size(146, 17)
         Me.CheckBoxPBXYaxis.TabIndex = 86
