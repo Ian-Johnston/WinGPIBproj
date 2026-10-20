@@ -115,6 +115,7 @@ Partial Class Chart
         Me.CheckDev2Point = New System.Windows.Forms.CheckBox()
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.YaxisBox1 = New System.Windows.Forms.GroupBox()
+        Me.CheckBoxShowComments = New System.Windows.Forms.CheckBox()
         Me.ButtonZoomOverview = New System.Windows.Forms.CheckBox()
         Me.CheckPlaybackDev12Allan = New System.Windows.Forms.CheckBox()
         Me.ButtonHistogram = New System.Windows.Forms.CheckBox()
@@ -256,7 +257,7 @@ Partial Class Chart
         '
         'YaxisMinimum
         '
-        Me.YaxisMinimum.Location = New System.Drawing.Point(13, 151)
+        Me.YaxisMinimum.Location = New System.Drawing.Point(13, 154)
         Me.YaxisMinimum.Name = "YaxisMinimum"
         Me.YaxisMinimum.Size = New System.Drawing.Size(83, 20)
         Me.YaxisMinimum.TabIndex = 71
@@ -267,7 +268,7 @@ Partial Class Chart
         '
         Me.Label4.AutoSize = True
         Me.Label4.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label4.Location = New System.Drawing.Point(97, 130)
+        Me.Label4.Location = New System.Drawing.Point(97, 136)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(67, 13)
         Me.Label4.TabIndex = 72
@@ -277,7 +278,7 @@ Partial Class Chart
         '
         Me.YaxisMax.AutoSize = True
         Me.YaxisMax.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.YaxisMax.Location = New System.Drawing.Point(91, 68)
+        Me.YaxisMax.Location = New System.Drawing.Point(91, 71)
         Me.YaxisMax.Name = "YaxisMax"
         Me.YaxisMax.Size = New System.Drawing.Size(64, 13)
         Me.YaxisMax.TabIndex = 74
@@ -285,7 +286,7 @@ Partial Class Chart
         '
         'YaxisMaximum
         '
-        Me.YaxisMaximum.Location = New System.Drawing.Point(13, 127)
+        Me.YaxisMaximum.Location = New System.Drawing.Point(13, 133)
         Me.YaxisMaximum.Name = "YaxisMaximum"
         Me.YaxisMaximum.Size = New System.Drawing.Size(83, 20)
         Me.YaxisMaximum.TabIndex = 73
@@ -305,7 +306,7 @@ Partial Class Chart
         'ButtonDisplayAll
         '
         Me.ButtonDisplayAll.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonDisplayAll.Location = New System.Drawing.Point(6, 89)
+        Me.ButtonDisplayAll.Location = New System.Drawing.Point(6, 90)
         Me.ButtonDisplayAll.Name = "ButtonDisplayAll"
         Me.ButtonDisplayAll.Size = New System.Drawing.Size(66, 23)
         Me.ButtonDisplayAll.TabIndex = 85
@@ -1155,6 +1156,7 @@ Partial Class Chart
         '
         'YaxisBox1
         '
+        Me.YaxisBox1.Controls.Add(Me.CheckBoxShowComments)
         Me.YaxisBox1.Controls.Add(Me.ButtonZoomOverview)
         Me.YaxisBox1.Controls.Add(Me.CheckPlaybackDev12Allan)
         Me.YaxisBox1.Controls.Add(Me.ButtonHistogram)
@@ -1174,12 +1176,23 @@ Partial Class Chart
         Me.YaxisBox1.TabStop = False
         Me.YaxisBox1.Text = "SCALES && ANALYSIS"
         '
+        'CheckBoxShowComments
+        '
+        Me.CheckBoxShowComments.AutoSize = True
+        Me.CheckBoxShowComments.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.CheckBoxShowComments.Location = New System.Drawing.Point(8, 31)
+        Me.CheckBoxShowComments.Name = "CheckBoxShowComments"
+        Me.CheckBoxShowComments.Size = New System.Drawing.Size(105, 17)
+        Me.CheckBoxShowComments.TabIndex = 94
+        Me.CheckBoxShowComments.Text = "Show Comments"
+        Me.CheckBoxShowComments.UseVisualStyleBackColor = True
+        '
         'ButtonZoomOverview
         '
         Me.ButtonZoomOverview.Appearance = System.Windows.Forms.Appearance.Button
         Me.ButtonZoomOverview.AutoSize = True
         Me.ButtonZoomOverview.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonZoomOverview.Location = New System.Drawing.Point(77, 89)
+        Me.ButtonZoomOverview.Location = New System.Drawing.Point(77, 90)
         Me.ButtonZoomOverview.Name = "ButtonZoomOverview"
         Me.ButtonZoomOverview.Size = New System.Drawing.Size(92, 23)
         Me.ButtonZoomOverview.TabIndex = 93
@@ -1258,7 +1271,7 @@ Partial Class Chart
         Me.CheckBoxPBXYaxis.Checked = True
         Me.CheckBoxPBXYaxis.CheckState = System.Windows.Forms.CheckState.Checked
         Me.CheckBoxPBXYaxis.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CheckBoxPBXYaxis.Location = New System.Drawing.Point(8, 19)
+        Me.CheckBoxPBXYaxis.Location = New System.Drawing.Point(8, 15)
         Me.CheckBoxPBXYaxis.Name = "CheckBoxPBXYaxis"
         Me.CheckBoxPBXYaxis.Size = New System.Drawing.Size(146, 17)
         Me.CheckBoxPBXYaxis.TabIndex = 86
@@ -1900,4 +1913,5 @@ Partial Class Chart
     Friend WithEvents ButtonSetPPMBaseline As Button
     Friend WithEvents ButtonZoomOverview As CheckBox
     Friend WithEvents ButtonExportReport As Button
+    Friend WithEvents CheckBoxShowComments As CheckBox
 End Class

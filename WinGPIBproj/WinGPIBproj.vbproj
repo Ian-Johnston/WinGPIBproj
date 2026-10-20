@@ -213,6 +213,10 @@
       <DependentUpon>Chart.vb</DependentUpon>
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="ChartComments.vb">
+      <DependentUpon>Chart.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="FormUserConfigEditor.vb">
       <SubType>Form</SubType>
     </Compile>

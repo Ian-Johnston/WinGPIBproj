@@ -347,6 +347,9 @@ Public Class Chart
         ' Zoom Overview window (does nothing unless it is open)
         Chart2SyncOverview()
 
+        ' Comments on the chart (does nothing when there are none)
+        Chart2UpdateComments(rp)
+
     End Sub
 
 
@@ -776,6 +779,9 @@ Public Class Chart
         AddHandler FormsPlot3.MouseMove, AddressOf Chart3ShowValueOnHover
         AddHandler FormsPlot3.MouseDown, AddressOf Chart3OnMouseDown
         AddHandler FormsPlot3.KeyDown, AddressOf Chart3OnKeyDown
+
+        ' Right-click menu with Add Comment..., dragging of comment boxes and drawing them on this chart (ChartComments.vb)
+        If PlaybackCommentsEnabled Then Chart3BuildContextMenu()
 
         Chart3ApplyTheme(CheckBoxColours.Checked)
 
@@ -2570,6 +2576,9 @@ Public Class Chart
 
             ChartLoaded = True      ' set flag allowing chart controls to work
 
+            ' Comments saved beside the CSV (<csv name>_comments.txt): loaded on a fresh load, or when the file has changed
+            If PlaybackCommentsEnabled AndAlso (recalculateYAxis OrElse Chart2CommentsLoadedFor <> filePlayback) Then Chart2LoadComments()
+
             'DevicesMinMax()         ' get device min & max values
 
         End If
@@ -2652,6 +2661,7 @@ Public Class Chart
         CheckPlaybackDev12Allan.Enabled = loaded
         ButtonExportResults.Enabled = loaded
         ButtonExportReport.Enabled = loaded
+        CheckBoxShowComments.Enabled = loaded AndAlso PlaybackCommentsEnabled
         ButtonZoomOverview.Enabled = loaded AndAlso PlaybackZoomOverviewEnabled
         If Not loaded Then Chart2CloseOverview()
 
@@ -2667,6 +2677,7 @@ Public Class Chart
         ToolTip1.SetToolTip(CheckBoxTempcoCurve, "Fits the reading against temperature and draws the fit along the trace;" & vbCrLf & "the text gives the ppm/DegC and how much of the variation temperature explains.")
         ToolTip1.SetToolTip(CheckPlaybackDev12Allan, "Opens the Allan Deviation pop-up (calculated in the Playback Chart)" & vbCrLf & "with a curve for each device in the file.")
         ToolTip1.SetToolTip(ButtonExportResults, "Saves all the statistics and analysis results for the visible traces to a text file," & vbCrLf & "using the Regional Stats band if it is showing, otherwise the whole run.")
+        ToolTip1.SetToolTip(CheckBoxShowComments, "Shows or hides the comments added to the charts" & vbCrLf & "(right-click a trace > Add Comment).")
         ToolTip1.SetToolTip(ButtonExportReport, "Analyses the CSV and writes a report (HTML) with key findings," & vbCrLf & "statistics, drift, tempco, Allan deviation, events and charts.")
         ToolTip1.SetToolTip(ButtonSetPPMBaseline, "Then click the device's Data or Mean trace to use that sample's reading" & vbCrLf & "and temperature as the PPM baseline (same as right-click > Set PPM Baseline).")
         ToolTip1.SetToolTip(ButtonHistogram, "Opens a pop-up histogram of the readings" & vbCrLf & "(the Regional Stats band if showing, otherwise the whole run).")
@@ -3065,6 +3076,8 @@ Public Class Chart
     Private Sub Chart3OnMouseDown(sender As Object, e As MouseEventArgs)
 
         If e.Button <> MouseButtons.Left Then Exit Sub
+
+        If PlaybackCommentsEnabled AndAlso Chart2CommentAt(FormsPlot3, New ScottPlot.Pixel(CSng(e.X), CSng(e.Y))) IsNot Nothing Then Exit Sub
 
         Dim thisPixel As New ScottPlot.Pixel(CSng(e.X), CSng(e.Y))
         Dim elapsedMs As Double = (DateTime.Now - Chart3LastLeftClickTime).TotalMilliseconds
@@ -3513,6 +3526,8 @@ Public Class Chart
 
         If Not FormsPlot2.Visible Then Exit Sub
 
+        If Chart2CommentMouseMove(e) Then Exit Sub
+
         If Chart2RegionDrag IsNot Nothing Then
             Chart2RegionDrag.DragTo(FormsPlot2.Plot.GetCoordinates(New ScottPlot.Pixel(CSng(e.X), CSng(e.Y))))
             FormsPlot2.Refresh()
@@ -3606,6 +3621,9 @@ Public Class Chart
             End If
             Exit Sub
         End If
+
+        ' Left-click on a comment box drags the box instead of panning.
+        If e.Button = MouseButtons.Left AndAlso Chart2BeginCommentDrag(New ScottPlot.Pixel(CSng(e.X), CSng(e.Y))) Then Exit Sub
 
         ' Left-click on the region band (or its edges) drags/resizes it instead of panning.
         If e.Button = MouseButtons.Left AndAlso Chart2RegionSpan IsNot Nothing AndAlso Chart2RegionSpan.IsVisible Then
@@ -3840,6 +3858,7 @@ Public Class Chart
         addAction("Save Image", AddressOf formsMenu.OpenSaveImageDialog)
         addAction("Copy Value At Cursor", AddressOf Chart2CopyValueAtCursor)
         addAction("Clear Measurement", AddressOf Chart2ClearMeasurement)
+        If PlaybackCommentsEnabled Then Chart2BuildCommentMenuItems()
         addAction("Zoom All", AddressOf Chart2MenuZoomAll)
         If PlaybackRegionStatsEnabled Then addToggle("Region Statistics", AddressOf Chart2ToggleRegion, Function() CheckBoxRegionStats.Checked)
         If PlaybackNoiseBandEnabled Then addToggle("Noise Band", AddressOf Chart2ToggleNoiseBand, Function() CheckBoxNoiseBand.Checked)
@@ -3862,6 +3881,8 @@ Public Class Chart
         For Each kv As KeyValuePair(Of ToolStripMenuItem, Func(Of Boolean)) In Chart2ContextMenuToggles
             kv.Key.Image = Chart2CheckboxImage(kv.Value.Invoke())
         Next
+
+        Chart2RefreshCommentMenu()
 
     End Sub
 
@@ -4865,6 +4886,8 @@ Public Class Chart
     End Sub
 
     Private Sub Chart2OnMouseUp(sender As Object, e As MouseEventArgs)
+
+        Chart2EndCommentDrag()
 
         If e.Button = MouseButtons.Right Then
             Dim dragDistance As Single = Math.Max(Math.Abs(e.X - Chart2LastRightClickPixel.X), Math.Abs(e.Y - Chart2LastRightClickPixel.Y))
@@ -6442,6 +6465,8 @@ Public Class Chart
 
     Private Sub ChartOffReadyForCSV()
 
+        Chart2ClearComments()           ' comments belong to the CSV that was loaded; they stay in its _comments.txt file
+
         FormsPlot2.Visible = False      ' invisible until CSV loading
 
         Xscale.Visible = False
@@ -7981,11 +8006,11 @@ Public Class Chart
 "- Zoom in/out at the cursor - Scroll wheel (hold Shift to zoom Y only, Ctrl to zoom X only)" & vbLf &
 "- Measure the delta between two points - Double-click two points, double-click again (or press Esc) to clear" & vbLf &
 "- Hover a trace to see the value of the nearest data point" & vbLf &
-"- Right-click (no drag) for a menu: Save Image, Copy Value At Cursor, Clear Measurement, Zoom All, Region Statistics, Noise Band, Trend Line, Tempco Curve, Histogram of Readings, Allan Deviation, Zoom Overview, Set PPM Baseline" & vbLf &
+"- Right-click (no drag) for a menu: Save Image, Copy Value At Cursor, Clear Measurement, Zoom All, Region Statistics, Noise Band, Trend Line, Tempco Curve, Histogram of Readings, Allan Deviation, Zoom Overview, Set PPM Baseline, Add Comment" & vbLf &
 "- Analysis tools (Regional Stats, Noise Band, Trend Line, Tempco Curve, Histogram, Allan Deviation) are on this menu too - see the analysis tools section below. Zoom All does the same as the ZOOM ALL button, and Set PPM Baseline is described under PPM Deviation / Tempco. Each on/off item shows a checkbox in front of it (checked or empty) for its current state." & vbLf &
 "- Any pan or zoom unticks AutoScale." & vbLf &
 "Only the Dev 1 / Dev 2 traces and their left-hand scale respond to pan/zoom - the Temp, Hum and PPM scales stay fixed to their own scale boxes." & vbLf & vbLf &
-"Statistics chart (underneath): hover and double-click measure only. It has no pan/zoom of its own and follows the main chart's X range." & vbLf & vbLf &
+"Statistics chart (underneath): hover and double-click measure, and right-click for Save Image and Add Comment. It has no pan/zoom of its own and follows the main chart's X range." & vbLf & vbLf &
 "KEYBOARD CONTROLS" & vbLf &
 "Once a CSV is loaded, the main chart can also be moved from the keyboard (not while you are typing in a box or choosing from a drop-down):" & vbLf &
 "- Pan - Left / Right arrow (hold Shift for a bigger step)" & vbLf &
@@ -8038,6 +8063,9 @@ Public Class Chart
 "The Zoom Overview button in the SCALES & ANALYSIS group opens a small window showing the whole run - a min/max envelope and mean line for each visible Dev 1 / Dev 2 trace, over the full time axis - with a rectangle marking the part the main chart is showing. It is a fixed size. You can move it; it always stays in front of the Playback Chart (but not other programs), closes with it, and reopens where you left it." & vbLf & vbLf &
 "Drag the rectangle to pan the main chart, drag either edge of the rectangle to zoom, or click anywhere else in the overview to jump there. Double-click for the full view (the same fit as AutoScale). Like any pan or zoom this unticks AutoScale, and the Y scale is left as it is. The Regional Stats band, if showing, is shown on the overview too. Hovering shows the time under the pointer, and when zoomed in the rectangle is labelled with its start and end times." & vbLf & vbLf &
 "The overview follows the main chart (pan, zoom, Avg changes, trace checkboxes, Light Mode) and updates when a new CSV is loaded. Closing the window unticks the button. It is also on the main chart's right-click menu, and is not saved with Save Settings." & vbLf & vbLf &
+"COMMENTS" & vbLf &
+"Right-click on a trace and choose Add Comment to pin a note to that reading: type the text and press OK, and a small box appears with a line to the point. It can go on any trace of the main chart - Data, Mean or Short Term Mean of either device, Temperature, Humidity or PPM Deviation - or of the Statistics chart underneath (right-click it for a menu with Save Image and Add Comment): STDEV, SEM, Max Diff. or PPM Deviation of either device. The menu item names the trace and time it will use. The box keeps the same distance from its point as you zoom and pan, and you can drag it elsewhere. Right-click a box to edit or delete it." & vbLf & vbLf &
+"The Show Comments checkbox shows or hides them all (adding a comment ticks it). Comments are saved as soon as you make them in a file beside the CSV, named after it - for example MyLog.csv gives MyLog_comments.txt - and are loaded again with the CSV. The file is plain comma separated text (device, trace, date/time, reading number, box position and the comment), so it can be opened in a text editor or spreadsheet and sent with the CSV. Each comment is tied to the reading's own date and time, so it stays on the right reading when you zoom, change the Avg boxes or reload; if the CSV is changed so a reading can no longer be found, the comment is not shown but is kept in the file. Comments are included in Save Image." & vbLf & vbLf &
 "CHART SPLIT" & vbLf &
 "Drag the small bar between the main chart and the Statistics chart up or down to change their heights; the gap between them stays the same. Resizing the window keeps your split, and it returns to the default each time a new CSV is loaded." & vbLf & vbLf &
 "DEV 1 TRACES / DEV 2 TRACES" & vbLf &
@@ -8102,6 +8130,7 @@ $"Plots a rolling average of only the last {ShortTermMeanWindow} raw readings, r
         "SCALES & ANALYSIS",
         "ANALYSIS TOOLS",
         "ZOOM OVERVIEW",
+        "COMMENTS",
         "CHART SPLIT",
         "DEV 1 TRACES / DEV 2 TRACES",
         "SHORT TERM MEAN",
