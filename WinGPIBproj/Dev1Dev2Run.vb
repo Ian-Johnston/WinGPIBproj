@@ -45,6 +45,12 @@ Partial Class Formtest
 
     Private Sub Dev12Run_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonDev12Run.Click
 
+        ' Auto Log on the CAL?72 tab reads the 3458A on Device 1, which must not be running (polling) at the same time
+        If ButtonDev12Run.Text = "Run" AndAlso CheckBoxCal72Auto.Checked Then
+            MessageBox.Show("Auto Log is on (CAL?72 tab). Untick it before running Device 1.", "WinGPIB", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Exit Sub
+        End If
+
         Dev1INT.ForeColor = Color.Black
         Dev1INTb.ForeColor = Color.Black
         Dev2INT.ForeColor = Color.Black
@@ -213,6 +219,12 @@ Partial Class Formtest
 
 
     Private Sub Dev1Run_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ButtonDev1Run.Click
+
+        ' Auto Log on the CAL?72 tab reads the 3458A on Device 1, which must not be running (polling) at the same time
+        If ButtonDev1Run.Text = "Run" AndAlso CheckBoxCal72Auto.Checked Then
+            MessageBox.Show("Auto Log is on (CAL?72 tab). Untick it before running Device 1.", "WinGPIB", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Exit Sub
+        End If
 
         Dev1INT.ForeColor = Color.Black
         Dev1INTb.ForeColor = Color.Black

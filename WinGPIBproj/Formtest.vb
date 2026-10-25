@@ -279,7 +279,7 @@ Public Class Formtest
             CheckBoxRememberPlayback.Checked = My.Settings.data1500
             CheckBoxMaximizePlayback.Checked = My.Settings.data1499
 
-            BannerText1 = "WinGPIB - V5.135           (Free for Non-Commercial Use • Support WinGPIB — see About)"
+            BannerText1 = "WinGPIB - V5.136           (Free for Non-Commercial Use • Support WinGPIB — see About)"
             Me.Text = BannerText1.ToString()
 
             ' Advantest R6581 tab
@@ -2244,6 +2244,9 @@ Public Class Formtest
     End Sub
 
 
+    ' Last Device 1 running state seen by the CAL?72 tab gating below (so only a real change acts)
+    Private _cal72Dev1Running As Boolean = False
+
     ' Disable reset button when logging
     Private Sub ButtonRunState_TextChanged_UpdateReset(sender As Object, e As EventArgs) Handles ButtonDev1Run.TextChanged, ButtonDev2Run.TextChanged, ButtonDev12Run.TextChanged
 
@@ -2251,6 +2254,30 @@ Public Class Formtest
             ButtonReset.Enabled = False
         Else
             ButtonReset.Enabled = True
+        End If
+
+        ' CAL?72 tab: the 3458A can only be read (or Auto Log run) while Device 1 is NOT running. A running Device 1 polls the meter and
+        ' its readings land in the same reply box as the CAL? answers, which then show the input readings instead. This fires whenever any
+        ' Run button's text changes (Run / Stop clicks and every other place that resets them), but only acts when Device 1's state changes.
+        Dim dev1Running As Boolean = (ButtonDev1Run.Text = "Stop" OrElse ButtonDev12Run.Text = "Stop")
+
+        If dev1Running <> _cal72Dev1Running Then
+
+            _cal72Dev1Running = dev1Running
+
+            If dev1Running Then
+                CheckBoxCal72Auto.Checked = False       ' stops Auto Log (its own handler stops the timer)
+                CheckBoxCal72Auto.Enabled = False
+                ButtonCal72Read.Enabled = False
+                ButtonCal72AcalDcv.Enabled = False
+                ButtonCal72Add.Enabled = False
+            Else
+                CheckBoxCal72Auto.Enabled = True
+                ButtonCal72Read.Enabled = True
+                ButtonCal72AcalDcv.Enabled = (dev1 IsNot Nothing)
+                ButtonCal72Add.Enabled = True
+            End If
+
         End If
 
     End Sub

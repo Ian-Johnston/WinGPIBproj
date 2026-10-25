@@ -1106,7 +1106,7 @@ Handles RadioButton34581.CheckedChanged,
         .BackColor = Color.White,
         .Text =
 "3458A U180 A/D CURRENT STEERING HYBRID DRIFT MONITOR" & vbCrLf & vbCrLf &
-"- Connect Device 1 to your 3458A and leave in STOP position" & vbCrLf &
+"- Connect Device 1 to your 3458A and leave in STOP position: its button on the Devices tab must say Run, not Stop. While Device 1 is running, READ FROM 3458A, ACAL DCV, ADD TO TABLE and Auto Log are greyed out, and starting Device 1 switches Auto Log off" & vbCrLf &
 "- Allow the 3458A to thermally stabilise before recording data" & vbCrLf &
 "- Perform ACAL DCV before recording values where possible" & vbCrLf &
 "- Auto Log performs ACAL DCV, waits for completion, then logs a new entry" & vbCrLf &

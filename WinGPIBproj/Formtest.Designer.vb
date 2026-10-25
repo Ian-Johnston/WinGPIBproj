@@ -24,9 +24,9 @@ Partial Class Formtest
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Formtest))
-        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend2 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea3 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend3 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim Series3 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
@@ -7450,22 +7450,23 @@ Partial Class Formtest
         '
         'ChartCal72
         '
-        ChartArea2.Name = "ChartArea1"
-        Me.ChartCal72.ChartAreas.Add(ChartArea2)
-        Legend2.Name = "Legend1"
-        Me.ChartCal72.Legends.Add(Legend2)
+        ChartArea3.Name = "ChartArea1"
+        Me.ChartCal72.ChartAreas.Add(ChartArea3)
+        Legend3.Name = "Legend1"
+        Me.ChartCal72.Legends.Add(Legend3)
         Me.ChartCal72.Location = New System.Drawing.Point(625, 165)
         Me.ChartCal72.Name = "ChartCal72"
-        Series2.ChartArea = "ChartArea1"
-        Series2.Legend = "Legend1"
-        Series2.Name = "Series1"
-        Me.ChartCal72.Series.Add(Series2)
+        Series3.ChartArea = "ChartArea1"
+        Series3.Legend = "Legend1"
+        Series3.Name = "Series1"
+        Me.ChartCal72.Series.Add(Series3)
         Me.ChartCal72.Size = New System.Drawing.Size(300, 300)
         Me.ChartCal72.TabIndex = 2
         Me.ChartCal72.Text = "Chart2"
         '
         'Panel1
         '
+        Me.Panel1.Controls.Add(Me.RadioButton34581)
         Me.Panel1.Controls.Add(Me.Label378)
         Me.Panel1.Controls.Add(Me.ButtonCal72Read)
         Me.Panel1.Controls.Add(Me.Label316)
@@ -7496,7 +7497,6 @@ Partial Class Formtest
         Me.Panel1.Controls.Add(Me.RadioButton34584)
         Me.Panel1.Controls.Add(Me.RadioButton34583)
         Me.Panel1.Controls.Add(Me.RadioButton34582)
-        Me.Panel1.Controls.Add(Me.RadioButton34581)
         Me.Panel1.Controls.Add(Me.Label376)
         Me.Panel1.Controls.Add(Me.Label375)
         Me.Panel1.Controls.Add(Me.Label374)
@@ -7529,9 +7529,9 @@ Partial Class Formtest
         Me.Label316.Font = New System.Drawing.Font("Microsoft Sans Serif", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label316.Location = New System.Drawing.Point(5, 23)
         Me.Label316.Name = "Label316"
-        Me.Label316.Size = New System.Drawing.Size(241, 12)
+        Me.Label316.Size = New System.Drawing.Size(212, 12)
         Me.Label316.TabIndex = 547
-        Me.Label316.Text = "Connect Device 1 to your 3458A (leave in STOP position)."
+        Me.Label316.Text = "Connect Device 1 to your 3458A - Logging stopped"
         '
         'Label400
         '
@@ -7564,7 +7564,7 @@ Partial Class Formtest
         'RadioButton34588
         '
         Me.RadioButton34588.AutoSize = True
-        Me.RadioButton34588.Location = New System.Drawing.Point(558, 16)
+        Me.RadioButton34588.Location = New System.Drawing.Point(568, 16)
         Me.RadioButton34588.Name = "RadioButton34588"
         Me.RadioButton34588.Size = New System.Drawing.Size(31, 17)
         Me.RadioButton34588.TabIndex = 34
@@ -7575,7 +7575,7 @@ Partial Class Formtest
         'RadioButton34587
         '
         Me.RadioButton34587.AutoSize = True
-        Me.RadioButton34587.Location = New System.Drawing.Point(520, 16)
+        Me.RadioButton34587.Location = New System.Drawing.Point(530, 16)
         Me.RadioButton34587.Name = "RadioButton34587"
         Me.RadioButton34587.Size = New System.Drawing.Size(31, 17)
         Me.RadioButton34587.TabIndex = 33
@@ -7586,7 +7586,7 @@ Partial Class Formtest
         'RadioButton34586
         '
         Me.RadioButton34586.AutoSize = True
-        Me.RadioButton34586.Location = New System.Drawing.Point(482, 16)
+        Me.RadioButton34586.Location = New System.Drawing.Point(492, 16)
         Me.RadioButton34586.Name = "RadioButton34586"
         Me.RadioButton34586.Size = New System.Drawing.Size(31, 17)
         Me.RadioButton34586.TabIndex = 32
@@ -7771,7 +7771,7 @@ Partial Class Formtest
         'Label379
         '
         Me.Label379.AutoSize = True
-        Me.Label379.Location = New System.Drawing.Point(247, 18)
+        Me.Label379.Location = New System.Drawing.Point(262, 18)
         Me.Label379.Name = "Label379"
         Me.Label379.Size = New System.Drawing.Size(41, 13)
         Me.Label379.TabIndex = 19
@@ -7780,7 +7780,7 @@ Partial Class Formtest
         'RadioButton34585
         '
         Me.RadioButton34585.AutoSize = True
-        Me.RadioButton34585.Location = New System.Drawing.Point(444, 16)
+        Me.RadioButton34585.Location = New System.Drawing.Point(454, 16)
         Me.RadioButton34585.Name = "RadioButton34585"
         Me.RadioButton34585.Size = New System.Drawing.Size(31, 17)
         Me.RadioButton34585.TabIndex = 18
@@ -7791,7 +7791,7 @@ Partial Class Formtest
         'RadioButton34584
         '
         Me.RadioButton34584.AutoSize = True
-        Me.RadioButton34584.Location = New System.Drawing.Point(406, 16)
+        Me.RadioButton34584.Location = New System.Drawing.Point(416, 16)
         Me.RadioButton34584.Name = "RadioButton34584"
         Me.RadioButton34584.Size = New System.Drawing.Size(31, 17)
         Me.RadioButton34584.TabIndex = 17
@@ -7802,7 +7802,7 @@ Partial Class Formtest
         'RadioButton34583
         '
         Me.RadioButton34583.AutoSize = True
-        Me.RadioButton34583.Location = New System.Drawing.Point(368, 16)
+        Me.RadioButton34583.Location = New System.Drawing.Point(378, 16)
         Me.RadioButton34583.Name = "RadioButton34583"
         Me.RadioButton34583.Size = New System.Drawing.Size(31, 17)
         Me.RadioButton34583.TabIndex = 16
@@ -7813,7 +7813,7 @@ Partial Class Formtest
         'RadioButton34582
         '
         Me.RadioButton34582.AutoSize = True
-        Me.RadioButton34582.Location = New System.Drawing.Point(330, 16)
+        Me.RadioButton34582.Location = New System.Drawing.Point(340, 16)
         Me.RadioButton34582.Name = "RadioButton34582"
         Me.RadioButton34582.Size = New System.Drawing.Size(31, 17)
         Me.RadioButton34582.TabIndex = 15
@@ -7825,7 +7825,7 @@ Partial Class Formtest
         '
         Me.RadioButton34581.AutoSize = True
         Me.RadioButton34581.Checked = True
-        Me.RadioButton34581.Location = New System.Drawing.Point(292, 16)
+        Me.RadioButton34581.Location = New System.Drawing.Point(302, 16)
         Me.RadioButton34581.Name = "RadioButton34581"
         Me.RadioButton34581.Size = New System.Drawing.Size(31, 17)
         Me.RadioButton34581.TabIndex = 14
@@ -7930,9 +7930,9 @@ Partial Class Formtest
         Me.Label60.AutoSize = True
         Me.Label60.Location = New System.Drawing.Point(16, 50)
         Me.Label60.Name = "Label60"
-        Me.Label60.Size = New System.Drawing.Size(282, 13)
+        Me.Label60.Size = New System.Drawing.Size(250, 13)
         Me.Label60.TabIndex = 546
-        Me.Label60.Text = "Connect Device 1 to your 3458A (leave in STOP position)."
+        Me.Label60.Text = "Connect Device 1 to your 3458A - Logging stopped"
         '
         'Label38
         '
@@ -8152,9 +8152,9 @@ Partial Class Formtest
         Me.Label390.AutoSize = True
         Me.Label390.Location = New System.Drawing.Point(11, 381)
         Me.Label390.Name = "Label390"
-        Me.Label390.Size = New System.Drawing.Size(282, 13)
+        Me.Label390.Size = New System.Drawing.Size(250, 13)
         Me.Label390.TabIndex = 589
-        Me.Label390.Text = "Connect Device 1 to your 3458A (leave in STOP position)."
+        Me.Label390.Text = "Connect Device 1 to your 3458A - Logging stopped"
         '
         'Label386
         '
@@ -8629,9 +8629,9 @@ Partial Class Formtest
         Me.Label122.AutoSize = True
         Me.Label122.Location = New System.Drawing.Point(6, 50)
         Me.Label122.Name = "Label122"
-        Me.Label122.Size = New System.Drawing.Size(282, 13)
+        Me.Label122.Size = New System.Drawing.Size(250, 13)
         Me.Label122.TabIndex = 608
-        Me.Label122.Text = "Connect Device 1 to your 3457A (leave in STOP position)."
+        Me.Label122.Text = "Connect Device 1 to your 3457A - Logging stopped"
         '
         'Label123
         '
@@ -8964,9 +8964,9 @@ Partial Class Formtest
         Me.Label241.AutoSize = True
         Me.Label241.Location = New System.Drawing.Point(8, 321)
         Me.Label241.Name = "Label241"
-        Me.Label241.Size = New System.Drawing.Size(296, 13)
+        Me.Label241.Size = New System.Drawing.Size(264, 13)
         Me.Label241.TabIndex = 612
-        Me.Label241.Text = "Connect Device 1 to your R6581(T) - leave in STOP position."
+        Me.Label241.Text = "Connect Device 1 to your R6581(T) - Logging stopped"
         '
         'Label242
         '
@@ -9040,9 +9040,9 @@ Partial Class Formtest
         Me.Label310.AutoSize = True
         Me.Label310.Location = New System.Drawing.Point(8, 53)
         Me.Label310.Name = "Label310"
-        Me.Label310.Size = New System.Drawing.Size(296, 13)
+        Me.Label310.Size = New System.Drawing.Size(264, 13)
         Me.Label310.TabIndex = 601
-        Me.Label310.Text = "Connect Device 1 to your R6581(T) - leave in STOP position."
+        Me.Label310.Text = "Connect Device 1 to your R6581(T) - Logging stopped"
         '
         'Label311
         '
@@ -9740,9 +9740,9 @@ Partial Class Formtest
         Me.Label273.AutoSize = True
         Me.Label273.Location = New System.Drawing.Point(12, 85)
         Me.Label273.Name = "Label273"
-        Me.Label273.Size = New System.Drawing.Size(283, 13)
+        Me.Label273.Size = New System.Drawing.Size(250, 13)
         Me.Label273.TabIndex = 596
-        Me.Label273.Text = "Connect Device 2 to your 3245A - Leave in STOP position"
+        Me.Label273.Text = "Connect Device 2 to your 3245A - Logging stopped"
         '
         'PictureBox8
         '
@@ -9758,9 +9758,9 @@ Partial Class Formtest
         Me.Label272.AutoSize = True
         Me.Label272.Location = New System.Drawing.Point(12, 67)
         Me.Label272.Name = "Label272"
-        Me.Label272.Size = New System.Drawing.Size(278, 13)
+        Me.Label272.Size = New System.Drawing.Size(245, 13)
         Me.Label272.TabIndex = 595
-        Me.Label272.Text = "Connect Device 1 to your DMM - Leave in STOP position"
+        Me.Label272.Text = "Connect Device 1 to your DMM - Logging stopped"
         '
         'Label267
         '
@@ -11930,9 +11930,9 @@ Partial Class Formtest
         Me.Label3233478A.AutoSize = True
         Me.Label3233478A.Location = New System.Drawing.Point(19, 347)
         Me.Label3233478A.Name = "Label3233478A"
-        Me.Label3233478A.Size = New System.Drawing.Size(183, 13)
+        Me.Label3233478A.Size = New System.Drawing.Size(268, 13)
         Me.Label3233478A.TabIndex = 569
-        Me.Label3233478A.Text = "Connect Device 1 to your HP 3478A."
+        Me.Label3233478A.Text = "Connect Device 1 to your HP 3478A - Logging stopped"
         '
         'Label3223478A
         '
