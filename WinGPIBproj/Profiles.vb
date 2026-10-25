@@ -229,7 +229,7 @@ Partial Class Formtest
             My.Settings.data274 = Dev1IntEnable.Checked
             My.Settings.data337 = Dev1Regex.Checked
             My.Settings.data453 = Dev1DecimalNumDPs.Text
-            My.Settings.data484 = Dev1IntEnable.Checked
+            My.Settings.data484 = Dev1SendQuery.Checked
             My.Settings.data509 = txtOperationDev1.Text
             My.Settings.data1342 = Dev1TextResponse.Checked
         End If
@@ -266,7 +266,7 @@ Partial Class Formtest
             My.Settings.data278 = Dev1IntEnable.Checked
             My.Settings.data338 = Dev1Regex.Checked
             My.Settings.data454 = Dev1DecimalNumDPs.Text
-            My.Settings.data486 = Dev1IntEnable.Checked
+            My.Settings.data486 = Dev1SendQuery.Checked
             My.Settings.data510 = txtOperationDev1.Text
             My.Settings.data1343 = Dev1TextResponse.Checked
         End If
@@ -303,7 +303,7 @@ Partial Class Formtest
             My.Settings.data282 = Dev1IntEnable.Checked
             My.Settings.data339 = Dev1Regex.Checked
             My.Settings.data455 = Dev1DecimalNumDPs.Text
-            My.Settings.data488 = Dev1IntEnable.Checked
+            My.Settings.data488 = Dev1SendQuery.Checked
             My.Settings.data511 = txtOperationDev1.Text
             My.Settings.data1344 = Dev1TextResponse.Checked
         End If
@@ -340,7 +340,7 @@ Partial Class Formtest
             My.Settings.data286 = Dev1IntEnable.Checked
             My.Settings.data340 = Dev1Regex.Checked
             My.Settings.data456 = Dev1DecimalNumDPs.Text
-            My.Settings.data490 = Dev1IntEnable.Checked
+            My.Settings.data490 = Dev1SendQuery.Checked
             My.Settings.data512 = txtOperationDev1.Text
             My.Settings.data1345 = Dev1TextResponse.Checked
         End If
@@ -377,7 +377,7 @@ Partial Class Formtest
             My.Settings.data290 = Dev1IntEnable.Checked
             My.Settings.data341 = Dev1Regex.Checked
             My.Settings.data457 = Dev1DecimalNumDPs.Text
-            My.Settings.data492 = Dev1IntEnable.Checked
+            My.Settings.data492 = Dev1SendQuery.Checked
             My.Settings.data513 = txtOperationDev1.Text
             My.Settings.data1346 = Dev1TextResponse.Checked
         End If
@@ -414,7 +414,7 @@ Partial Class Formtest
             My.Settings.data294 = Dev1IntEnable.Checked
             My.Settings.data342 = Dev1Regex.Checked
             My.Settings.data458 = Dev1DecimalNumDPs.Text
-            My.Settings.data494 = Dev1IntEnable.Checked
+            My.Settings.data494 = Dev1SendQuery.Checked
             My.Settings.data514 = txtOperationDev1.Text
             My.Settings.data1347 = Dev1TextResponse.Checked
         End If
@@ -451,7 +451,7 @@ Partial Class Formtest
             My.Settings.data373 = Dev1IntEnable.Checked
             My.Settings.data374 = Dev1Regex.Checked
             My.Settings.data459 = Dev1DecimalNumDPs.Text
-            My.Settings.data496 = Dev1IntEnable.Checked
+            My.Settings.data496 = Dev1SendQuery.Checked
             My.Settings.data515 = txtOperationDev1.Text
             My.Settings.data1348 = Dev1TextResponse.Checked
         End If
@@ -488,7 +488,7 @@ Partial Class Formtest
             My.Settings.data399 = Dev1IntEnable.Checked
             My.Settings.data400 = Dev1Regex.Checked
             My.Settings.data460 = Dev1DecimalNumDPs.Text
-            My.Settings.data498 = Dev1IntEnable.Checked
+            My.Settings.data498 = Dev1SendQuery.Checked
             My.Settings.data516 = txtOperationDev1.Text
             My.Settings.data1349 = Dev1TextResponse.Checked
         End If
@@ -526,7 +526,7 @@ Partial Class Formtest
             My.Settings.data550 = Dev1IntEnable.Checked
             My.Settings.data551 = Dev1Regex.Checked
             My.Settings.data552 = Dev1DecimalNumDPs.Text
-            My.Settings.data553 = Dev1IntEnable.Checked
+            My.Settings.data553 = Dev1SendQuery.Checked
             My.Settings.data554 = txtOperationDev1.Text
             My.Settings.data1350 = Dev1TextResponse.Checked
         End If
@@ -563,7 +563,7 @@ Partial Class Formtest
             My.Settings.data579 = Dev1IntEnable.Checked
             My.Settings.data580 = Dev1Regex.Checked
             My.Settings.data581 = Dev1DecimalNumDPs.Text
-            My.Settings.data582 = Dev1IntEnable.Checked
+            My.Settings.data582 = Dev1SendQuery.Checked
             My.Settings.data583 = txtOperationDev1.Text
             My.Settings.data1351 = Dev1TextResponse.Checked
         End If
@@ -600,7 +600,7 @@ Partial Class Formtest
             My.Settings.data608 = Dev1IntEnable.Checked
             My.Settings.data609 = Dev1Regex.Checked
             My.Settings.data610 = Dev1DecimalNumDPs.Text
-            My.Settings.data611 = Dev1IntEnable.Checked
+            My.Settings.data611 = Dev1SendQuery.Checked
             My.Settings.data612 = txtOperationDev1.Text
             My.Settings.data1352 = Dev1TextResponse.Checked
         End If
@@ -637,7 +637,7 @@ Partial Class Formtest
             My.Settings.data637 = Dev1IntEnable.Checked
             My.Settings.data638 = Dev1Regex.Checked
             My.Settings.data639 = Dev1DecimalNumDPs.Text
-            My.Settings.data640 = Dev1IntEnable.Checked
+            My.Settings.data640 = Dev1SendQuery.Checked
             My.Settings.data641 = txtOperationDev1.Text
             My.Settings.data1353 = Dev1TextResponse.Checked
         End If
@@ -674,7 +674,7 @@ Partial Class Formtest
             My.Settings.data782 = Dev1IntEnable.Checked
             My.Settings.data783 = Dev1Regex.Checked
             My.Settings.data784 = Dev1DecimalNumDPs.Text
-            My.Settings.data785 = Dev1IntEnable.Checked
+            My.Settings.data785 = Dev1SendQuery.Checked
             My.Settings.data786 = txtOperationDev1.Text
             My.Settings.data1354 = Dev1TextResponse.Checked
         End If
@@ -711,7 +711,7 @@ Partial Class Formtest
             My.Settings.data811 = Dev1IntEnable.Checked
             My.Settings.data812 = Dev1Regex.Checked
             My.Settings.data813 = Dev1DecimalNumDPs.Text
-            My.Settings.data814 = Dev1IntEnable.Checked
+            My.Settings.data814 = Dev1SendQuery.Checked
             My.Settings.data815 = txtOperationDev1.Text
             My.Settings.data1355 = Dev1TextResponse.Checked
         End If
@@ -748,7 +748,7 @@ Partial Class Formtest
             My.Settings.data840 = Dev1IntEnable.Checked
             My.Settings.data841 = Dev1Regex.Checked
             My.Settings.data842 = Dev1DecimalNumDPs.Text
-            My.Settings.data843 = Dev1IntEnable.Checked
+            My.Settings.data843 = Dev1SendQuery.Checked
             My.Settings.data844 = txtOperationDev1.Text
             My.Settings.data1356 = Dev1TextResponse.Checked
         End If
@@ -785,7 +785,7 @@ Partial Class Formtest
             My.Settings.data869 = Dev1IntEnable.Checked
             My.Settings.data870 = Dev1Regex.Checked
             My.Settings.data871 = Dev1DecimalNumDPs.Text
-            My.Settings.data872 = Dev1IntEnable.Checked
+            My.Settings.data872 = Dev1SendQuery.Checked
             My.Settings.data873 = txtOperationDev1.Text
             My.Settings.data1357 = Dev1TextResponse.Checked
         End If
@@ -822,7 +822,7 @@ Partial Class Formtest
             My.Settings.data898 = Dev1IntEnable.Checked
             My.Settings.data899 = Dev1Regex.Checked
             My.Settings.data900 = Dev1DecimalNumDPs.Text
-            My.Settings.data901 = Dev1IntEnable.Checked
+            My.Settings.data901 = Dev1SendQuery.Checked
             My.Settings.data902 = txtOperationDev1.Text
             My.Settings.data1358 = Dev1TextResponse.Checked
         End If
@@ -859,7 +859,7 @@ Partial Class Formtest
             My.Settings.data927 = Dev1IntEnable.Checked
             My.Settings.data928 = Dev1Regex.Checked
             My.Settings.data929 = Dev1DecimalNumDPs.Text
-            My.Settings.data930 = Dev1IntEnable.Checked
+            My.Settings.data930 = Dev1SendQuery.Checked
             My.Settings.data931 = txtOperationDev1.Text
             My.Settings.data1359 = Dev1TextResponse.Checked
         End If
@@ -896,7 +896,7 @@ Partial Class Formtest
             My.Settings.data956 = Dev1IntEnable.Checked
             My.Settings.data957 = Dev1Regex.Checked
             My.Settings.data958 = Dev1DecimalNumDPs.Text
-            My.Settings.data959 = Dev1IntEnable.Checked
+            My.Settings.data959 = Dev1SendQuery.Checked
             My.Settings.data960 = txtOperationDev1.Text
             My.Settings.data1360 = Dev1TextResponse.Checked
         End If
@@ -933,7 +933,7 @@ Partial Class Formtest
             My.Settings.data985 = Dev1IntEnable.Checked
             My.Settings.data986 = Dev1Regex.Checked
             My.Settings.data987 = Dev1DecimalNumDPs.Text
-            My.Settings.data988 = Dev1IntEnable.Checked
+            My.Settings.data988 = Dev1SendQuery.Checked
             My.Settings.data989 = txtOperationDev1.Text
             My.Settings.data1361 = Dev1TextResponse.Checked
         End If
@@ -1267,7 +1267,7 @@ Partial Class Formtest
             My.Settings.data666 = Dev2IntEnable.Checked
             My.Settings.data667 = Dev2Regex.Checked
             My.Settings.data668 = Dev2DecimalNumDPs.Text
-            My.Settings.data669 = Dev2IntEnable.Checked
+            My.Settings.data669 = Dev2SendQuery.Checked
             My.Settings.data670 = txtOperationDev2.Text
             My.Settings.data1370 = Dev2TextResponse.Checked
         End If
@@ -1304,7 +1304,7 @@ Partial Class Formtest
             My.Settings.data695 = Dev2IntEnable.Checked
             My.Settings.data696 = Dev2Regex.Checked
             My.Settings.data697 = Dev2DecimalNumDPs.Text
-            My.Settings.data698 = Dev2IntEnable.Checked
+            My.Settings.data698 = Dev2SendQuery.Checked
             My.Settings.data699 = txtOperationDev2.Text
             My.Settings.data1371 = Dev2TextResponse.Checked
         End If
@@ -1341,7 +1341,7 @@ Partial Class Formtest
             My.Settings.data724 = Dev2IntEnable.Checked
             My.Settings.data725 = Dev2Regex.Checked
             My.Settings.data726 = Dev2DecimalNumDPs.Text
-            My.Settings.data727 = Dev2IntEnable.Checked
+            My.Settings.data727 = Dev2SendQuery.Checked
             My.Settings.data728 = txtOperationDev2.Text
             My.Settings.data1372 = Dev2TextResponse.Checked
         End If
@@ -1378,7 +1378,7 @@ Partial Class Formtest
             My.Settings.data753 = Dev2IntEnable.Checked
             My.Settings.data754 = Dev2Regex.Checked
             My.Settings.data755 = Dev2DecimalNumDPs.Text
-            My.Settings.data756 = Dev2IntEnable.Checked
+            My.Settings.data756 = Dev2SendQuery.Checked
             My.Settings.data757 = txtOperationDev2.Text
             My.Settings.data1373 = Dev2TextResponse.Checked
         End If
@@ -1762,7 +1762,7 @@ Partial Class Formtest
 
         Dev1DecimalNumDPs.Text = My.Settings.data453
 
-        Dev1IntEnable.Checked = My.Settings.data484
+        Dev1SendQuery.Checked = My.Settings.data484
 
         txtOperationDev1.Text = My.Settings.data509
 
@@ -1827,7 +1827,7 @@ Partial Class Formtest
 
         Dev1DecimalNumDPs.Text = My.Settings.data454
 
-        Dev1IntEnable.Checked = My.Settings.data486
+        Dev1SendQuery.Checked = My.Settings.data486
 
         txtOperationDev1.Text = My.Settings.data510
 
@@ -1891,7 +1891,7 @@ Partial Class Formtest
 
         Dev1DecimalNumDPs.Text = My.Settings.data455
 
-        Dev1IntEnable.Checked = My.Settings.data488
+        Dev1SendQuery.Checked = My.Settings.data488
 
         txtOperationDev1.Text = My.Settings.data511
 
@@ -1949,7 +1949,7 @@ Partial Class Formtest
 
         Dev1DecimalNumDPs.Text = My.Settings.data456
 
-        Dev1IntEnable.Checked = My.Settings.data490
+        Dev1SendQuery.Checked = My.Settings.data490
 
         txtOperationDev1.Text = My.Settings.data512
 
@@ -2007,7 +2007,7 @@ Partial Class Formtest
 
         Dev1DecimalNumDPs.Text = My.Settings.data457
 
-        Dev1IntEnable.Checked = My.Settings.data492
+        Dev1SendQuery.Checked = My.Settings.data492
 
         txtOperationDev1.Text = My.Settings.data513
 
@@ -2065,7 +2065,7 @@ Partial Class Formtest
 
         Dev1DecimalNumDPs.Text = My.Settings.data458
 
-        Dev1IntEnable.Checked = My.Settings.data494
+        Dev1SendQuery.Checked = My.Settings.data494
 
         txtOperationDev1.Text = My.Settings.data514
 
@@ -2124,7 +2124,7 @@ Partial Class Formtest
 
         Dev1DecimalNumDPs.Text = My.Settings.data459
 
-        Dev1IntEnable.Checked = My.Settings.data496
+        Dev1SendQuery.Checked = My.Settings.data496
 
         txtOperationDev1.Text = My.Settings.data515
 
@@ -2183,7 +2183,7 @@ Partial Class Formtest
 
         Dev1DecimalNumDPs.Text = My.Settings.data460
 
-        Dev1IntEnable.Checked = My.Settings.data498
+        Dev1SendQuery.Checked = My.Settings.data498
 
         txtOperationDev1.Text = My.Settings.data516
 
@@ -2228,6 +2228,7 @@ Partial Class Formtest
         Dev1pauseDurationInSeconds.Text = My.Settings.data548
         Dev1runStopwatchEveryInMins.Text = My.Settings.data549
         Dev1IntEnable.Checked = My.Settings.data550
+        Dev1SendQuery.Checked = My.Settings.data553
         Dev1Regex.Checked = My.Settings.data551
         Dev1DecimalNumDPs.Text = My.Settings.data552
         txtOperationDev1.Text = My.Settings.data554
@@ -2273,6 +2274,7 @@ Partial Class Formtest
         Dev1pauseDurationInSeconds.Text = My.Settings.data577
         Dev1runStopwatchEveryInMins.Text = My.Settings.data578
         Dev1IntEnable.Checked = My.Settings.data579
+        Dev1SendQuery.Checked = My.Settings.data582
         Dev1Regex.Checked = My.Settings.data580
         Dev1DecimalNumDPs.Text = My.Settings.data581
         txtOperationDev1.Text = My.Settings.data583
@@ -2318,6 +2320,7 @@ Partial Class Formtest
         Dev1pauseDurationInSeconds.Text = My.Settings.data606
         Dev1runStopwatchEveryInMins.Text = My.Settings.data607
         Dev1IntEnable.Checked = My.Settings.data608
+        Dev1SendQuery.Checked = My.Settings.data611
         Dev1Regex.Checked = My.Settings.data609
         Dev1DecimalNumDPs.Text = My.Settings.data610
         txtOperationDev1.Text = My.Settings.data612
@@ -2363,6 +2366,7 @@ Partial Class Formtest
         Dev1pauseDurationInSeconds.Text = My.Settings.data635
         Dev1runStopwatchEveryInMins.Text = My.Settings.data636
         Dev1IntEnable.Checked = My.Settings.data637
+        Dev1SendQuery.Checked = My.Settings.data640
         Dev1Regex.Checked = My.Settings.data638
         Dev1DecimalNumDPs.Text = My.Settings.data639
         txtOperationDev1.Text = My.Settings.data641
@@ -2408,6 +2412,7 @@ Partial Class Formtest
         Dev1pauseDurationInSeconds.Text = My.Settings.data780
         Dev1runStopwatchEveryInMins.Text = My.Settings.data781
         Dev1IntEnable.Checked = My.Settings.data782
+        Dev1SendQuery.Checked = My.Settings.data785
         Dev1Regex.Checked = My.Settings.data783
         Dev1DecimalNumDPs.Text = My.Settings.data784
         txtOperationDev1.Text = My.Settings.data786
@@ -2453,6 +2458,7 @@ Partial Class Formtest
         Dev1pauseDurationInSeconds.Text = My.Settings.data809
         Dev1runStopwatchEveryInMins.Text = My.Settings.data810
         Dev1IntEnable.Checked = My.Settings.data811
+        Dev1SendQuery.Checked = My.Settings.data814
         Dev1Regex.Checked = My.Settings.data812
         Dev1DecimalNumDPs.Text = My.Settings.data813
         txtOperationDev1.Text = My.Settings.data815
@@ -2498,6 +2504,7 @@ Partial Class Formtest
         Dev1pauseDurationInSeconds.Text = My.Settings.data838
         Dev1runStopwatchEveryInMins.Text = My.Settings.data839
         Dev1IntEnable.Checked = My.Settings.data840
+        Dev1SendQuery.Checked = My.Settings.data843
         Dev1Regex.Checked = My.Settings.data841
         Dev1DecimalNumDPs.Text = My.Settings.data842
         txtOperationDev1.Text = My.Settings.data844
@@ -2543,6 +2550,7 @@ Partial Class Formtest
         Dev1pauseDurationInSeconds.Text = My.Settings.data867
         Dev1runStopwatchEveryInMins.Text = My.Settings.data868
         Dev1IntEnable.Checked = My.Settings.data869
+        Dev1SendQuery.Checked = My.Settings.data872
         Dev1Regex.Checked = My.Settings.data870
         Dev1DecimalNumDPs.Text = My.Settings.data871
         txtOperationDev1.Text = My.Settings.data873
@@ -2588,6 +2596,7 @@ Partial Class Formtest
         Dev1pauseDurationInSeconds.Text = My.Settings.data896
         Dev1runStopwatchEveryInMins.Text = My.Settings.data897
         Dev1IntEnable.Checked = My.Settings.data898
+        Dev1SendQuery.Checked = My.Settings.data901
         Dev1Regex.Checked = My.Settings.data899
         Dev1DecimalNumDPs.Text = My.Settings.data900
         txtOperationDev1.Text = My.Settings.data902
@@ -2633,6 +2642,7 @@ Partial Class Formtest
         Dev1pauseDurationInSeconds.Text = My.Settings.data925
         Dev1runStopwatchEveryInMins.Text = My.Settings.data926
         Dev1IntEnable.Checked = My.Settings.data927
+        Dev1SendQuery.Checked = My.Settings.data930
         Dev1Regex.Checked = My.Settings.data928
         Dev1DecimalNumDPs.Text = My.Settings.data929
         txtOperationDev1.Text = My.Settings.data931
@@ -2678,6 +2688,7 @@ Partial Class Formtest
         Dev1pauseDurationInSeconds.Text = My.Settings.data954
         Dev1runStopwatchEveryInMins.Text = My.Settings.data955
         Dev1IntEnable.Checked = My.Settings.data956
+        Dev1SendQuery.Checked = My.Settings.data959
         Dev1Regex.Checked = My.Settings.data957
         Dev1DecimalNumDPs.Text = My.Settings.data958
         txtOperationDev1.Text = My.Settings.data960
@@ -2723,6 +2734,7 @@ Partial Class Formtest
         Dev1pauseDurationInSeconds.Text = My.Settings.data983
         Dev1runStopwatchEveryInMins.Text = My.Settings.data984
         Dev1IntEnable.Checked = My.Settings.data985
+        Dev1SendQuery.Checked = My.Settings.data988
         Dev1Regex.Checked = My.Settings.data986
         Dev1DecimalNumDPs.Text = My.Settings.data987
         txtOperationDev1.Text = My.Settings.data989
@@ -3227,6 +3239,7 @@ Partial Class Formtest
         Dev2pauseDurationInSeconds.Text = My.Settings.data664
         Dev2runStopwatchEveryInMins.Text = My.Settings.data665
         Dev2IntEnable.Checked = My.Settings.data666
+        Dev2SendQuery.Checked = My.Settings.data669
         Dev2Regex.Checked = My.Settings.data667
         Dev2DecimalNumDPs.Text = My.Settings.data668
         txtOperationDev2.Text = My.Settings.data670
@@ -3269,6 +3282,7 @@ Partial Class Formtest
         Dev2pauseDurationInSeconds.Text = My.Settings.data693
         Dev2runStopwatchEveryInMins.Text = My.Settings.data694
         Dev2IntEnable.Checked = My.Settings.data695
+        Dev2SendQuery.Checked = My.Settings.data698
         Dev2Regex.Checked = My.Settings.data696
         Dev2DecimalNumDPs.Text = My.Settings.data697
         txtOperationDev2.Text = My.Settings.data699
@@ -3311,6 +3325,7 @@ Partial Class Formtest
         Dev2pauseDurationInSeconds.Text = My.Settings.data722
         Dev2runStopwatchEveryInMins.Text = My.Settings.data723
         Dev2IntEnable.Checked = My.Settings.data724
+        Dev2SendQuery.Checked = My.Settings.data727
         Dev2Regex.Checked = My.Settings.data725
         Dev2DecimalNumDPs.Text = My.Settings.data726
         txtOperationDev2.Text = My.Settings.data728
@@ -3353,6 +3368,7 @@ Partial Class Formtest
         Dev2pauseDurationInSeconds.Text = My.Settings.data751
         Dev2runStopwatchEveryInMins.Text = My.Settings.data752
         Dev2IntEnable.Checked = My.Settings.data753
+        Dev2SendQuery.Checked = My.Settings.data756
         Dev2Regex.Checked = My.Settings.data754
         Dev2DecimalNumDPs.Text = My.Settings.data755
         txtOperationDev2.Text = My.Settings.data757
@@ -3395,6 +3411,7 @@ Partial Class Formtest
         Dev2pauseDurationInSeconds.Text = My.Settings.data1012
         Dev2runStopwatchEveryInMins.Text = My.Settings.data1013
         Dev2IntEnable.Checked = My.Settings.data1014
+        Dev2SendQuery.Checked = My.Settings.data1017
         Dev2Regex.Checked = My.Settings.data1015
         Dev2DecimalNumDPs.Text = My.Settings.data1016
         txtOperationDev2.Text = My.Settings.data1018
@@ -3437,6 +3454,7 @@ Partial Class Formtest
         Dev2pauseDurationInSeconds.Text = My.Settings.data1041
         Dev2runStopwatchEveryInMins.Text = My.Settings.data1042
         Dev2IntEnable.Checked = My.Settings.data1043
+        Dev2SendQuery.Checked = My.Settings.data1046
         Dev2Regex.Checked = My.Settings.data1044
         Dev2DecimalNumDPs.Text = My.Settings.data1045
         txtOperationDev2.Text = My.Settings.data1047
@@ -3479,6 +3497,7 @@ Partial Class Formtest
         Dev2pauseDurationInSeconds.Text = My.Settings.data1070
         Dev2runStopwatchEveryInMins.Text = My.Settings.data1071
         Dev2IntEnable.Checked = My.Settings.data1072
+        Dev2SendQuery.Checked = My.Settings.data1075
         Dev2Regex.Checked = My.Settings.data1073
         Dev2DecimalNumDPs.Text = My.Settings.data1074
         txtOperationDev2.Text = My.Settings.data1076
@@ -3521,6 +3540,7 @@ Partial Class Formtest
         Dev2pauseDurationInSeconds.Text = My.Settings.data1099
         Dev2runStopwatchEveryInMins.Text = My.Settings.data1100
         Dev2IntEnable.Checked = My.Settings.data1101
+        Dev2SendQuery.Checked = My.Settings.data1104
         Dev2Regex.Checked = My.Settings.data1102
         Dev2DecimalNumDPs.Text = My.Settings.data1103
         txtOperationDev2.Text = My.Settings.data1105
@@ -3563,6 +3583,7 @@ Partial Class Formtest
         Dev2pauseDurationInSeconds.Text = My.Settings.data1128
         Dev2runStopwatchEveryInMins.Text = My.Settings.data1129
         Dev2IntEnable.Checked = My.Settings.data1130
+        Dev2SendQuery.Checked = My.Settings.data1133
         Dev2Regex.Checked = My.Settings.data1131
         Dev2DecimalNumDPs.Text = My.Settings.data1132
         txtOperationDev2.Text = My.Settings.data1134
@@ -3605,6 +3626,7 @@ Partial Class Formtest
         Dev2pauseDurationInSeconds.Text = My.Settings.data1157
         Dev2runStopwatchEveryInMins.Text = My.Settings.data1158
         Dev2IntEnable.Checked = My.Settings.data1159
+        Dev2SendQuery.Checked = My.Settings.data1162
         Dev2Regex.Checked = My.Settings.data1160
         Dev2DecimalNumDPs.Text = My.Settings.data1161
         txtOperationDev2.Text = My.Settings.data1163
@@ -3647,6 +3669,7 @@ Partial Class Formtest
         Dev2pauseDurationInSeconds.Text = My.Settings.data1186
         Dev2runStopwatchEveryInMins.Text = My.Settings.data1187
         Dev2IntEnable.Checked = My.Settings.data1188
+        Dev2SendQuery.Checked = My.Settings.data1191
         Dev2Regex.Checked = My.Settings.data1189
         Dev2DecimalNumDPs.Text = My.Settings.data1190
         txtOperationDev2.Text = My.Settings.data1192
@@ -3689,6 +3712,7 @@ Partial Class Formtest
         Dev2pauseDurationInSeconds.Text = My.Settings.data1215
         Dev2runStopwatchEveryInMins.Text = My.Settings.data1216
         Dev2IntEnable.Checked = My.Settings.data1217
+        Dev2SendQuery.Checked = My.Settings.data1220
         Dev2Regex.Checked = My.Settings.data1218
         Dev2DecimalNumDPs.Text = My.Settings.data1219
         txtOperationDev2.Text = My.Settings.data1221
@@ -4025,6 +4049,7 @@ Partial Class Formtest
         Dev1K2001isolatedataCHAR.Text = "N"
         Dev1STBMask.Text = "16"
         Dev1IntEnable.Checked = False
+        Dev1SendQuery.Checked = False
 
         ' ---- defaults you asked for ----
         Dev1PollingEnable.Checked = True
@@ -4054,6 +4079,7 @@ Partial Class Formtest
         Dev2K2001isolatedataCHAR.Text = "N"
         Dev2STBMask.Text = "16"
         Dev2IntEnable.Checked = False
+        Dev2SendQuery.Checked = False
 
         Dev2PollingEnable.Checked = True
         IgnoreErrors2.Checked = True
@@ -4069,20 +4095,28 @@ Partial Class Formtest
     End Sub
 
 
-    ' Dev1 profiles 1..20 => data1382..data1401
-    ' Dev2 profiles 1..20 => data1402..data1421
+    ' Where a profile's note (INFO) is kept. Slots 1..19 use data(base + slot), which is where every earlier version stored them (so existing notes
+    ' stay on their own profile). Slot 20 used to share slot 19's setting; it now has its own, the otherwise unused data(base), which starts empty
+    ' (so a slot 20 note may need entering again).
+    '   Dev1: base 1382 (slots 1..19 => data1383..data1401, slot 20 => data1382)
+    '   Dev2: base 1402 (slots 1..19 => data1403..data1421, slot 20 => data1402)
+    Private Function InfoSettingIndex(dev As Integer, slot As Integer) As Integer
+
+        Dim baseIdx As Integer = If(dev = 1, 1382, 1402)
+        Return baseIdx + (slot Mod 20)
+
+    End Function
+
+
     Private Function InfoKey(dev As Integer, profileRaw As Integer) As String
 
+        ' profileRaw is the profile SLOT NUMBER, 1..20 (Dev1ProfileNumber() / Dev2ProfileNumber()), never a 0-based index
         Dim p As Integer = profileRaw
-
-        ' Accept either 0..19 (SelectedIndex) or 1..20 (slot number)
-        If p >= 0 AndAlso p <= 19 Then p += 1
 
         If p < 1 Then p = 1
         If p > 20 Then p = 20
 
-        Dim baseIdx As Integer = If(dev = 1, 1382, 1402)
-        Return "data" & (baseIdx + (p - 1)).ToString()
+        Return "data" & InfoSettingIndex(dev, p).ToString()
 
     End Function
 
@@ -4155,16 +4189,13 @@ Partial Class Formtest
     ' Dev2 profiles 1..20 => data1402..data1421
     Private Function InfoSettingName(ByVal dev As Integer, ByVal profileRaw As Integer) As String
 
-        ' Accept 0..19 OR 1..20
+        ' profileRaw is the profile SLOT NUMBER, 1..20 (never a 0-based index)
         Dim p As Integer = profileRaw
-        If p >= 0 AndAlso p <= 19 Then p += 1
 
         If p < 1 Then p = 1
         If p > 20 Then p = 20
 
-        Dim baseIdx As Integer = If(dev = 1, 1382, 1402)
-        Dim idx As Integer = baseIdx + (p - 1)
-        Return "data" & idx.ToString()
+        Return "data" & InfoSettingIndex(dev, p).ToString()
 
     End Function
 

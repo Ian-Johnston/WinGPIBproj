@@ -279,7 +279,7 @@ Public Class Formtest
             CheckBoxRememberPlayback.Checked = My.Settings.data1500
             CheckBoxMaximizePlayback.Checked = My.Settings.data1499
 
-            BannerText1 = "WinGPIB - V5.134           (Free for Non-Commercial Use • Support WinGPIB — see About)"
+            BannerText1 = "WinGPIB - V5.135           (Free for Non-Commercial Use • Support WinGPIB — see About)"
             Me.Text = BannerText1.ToString()
 
             ' Advantest R6581 tab
@@ -1069,6 +1069,9 @@ Public Class Formtest
                 'Case 0 : dev = New VisaDevice(name, address, True)      ' activated interlock. Before IanJ mod 
 
 
+                ' "EOI only" checkbox: ticked = plain VISA, a reply ends on EOI only; unticked (default) = a reply also ends at an LF
+                ' (decimal 10), which instruments that cannot send EOI need. (The box used to be labelled "EOI Incapable", which was
+                ' the opposite of what it does; the behaviour is unchanged.)
                 Case 0 : If (noEOI.Checked = True) Then
                         dev = New VisaDevice(name, address, True)
                     Else

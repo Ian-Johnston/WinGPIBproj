@@ -253,8 +253,8 @@ Partial Class Formtest
         Me.ButtonLiveChartHelp = New System.Windows.Forms.Button()
         Me.CheckBoxMaximizePlayback = New System.Windows.Forms.CheckBox()
         Me.CheckBoxRememberPlayback = New System.Windows.Forms.CheckBox()
-        Me.LabelDAY1 = New System.Windows.Forms.Label()
         Me.LabelDay1num = New System.Windows.Forms.Label()
+        Me.LabelDAY1 = New System.Windows.Forms.Label()
         Me.ButtonDev1INFO = New System.Windows.Forms.Button()
         Me.ButtonDev2INFO = New System.Windows.Forms.Button()
         Me.CheckBoxPrologixSerialDTR = New System.Windows.Forms.CheckBox()
@@ -268,7 +268,6 @@ Partial Class Formtest
         Me.Timer7 = New System.Windows.Forms.Timer(Me.components)
         Me.TabControl1 = New System.Windows.Forms.TabControl()
         Me.TabPage1 = New System.Windows.Forms.TabPage()
-        Me.Label133 = New System.Windows.Forms.Label()
         Me.GroupBox9 = New System.Windows.Forms.GroupBox()
         Me.cboDev2Device = New System.Windows.Forms.ComboBox()
         Me.Label15 = New System.Windows.Forms.Label()
@@ -460,8 +459,6 @@ Partial Class Formtest
         Me.Label215 = New System.Windows.Forms.Label()
         Me.Label214 = New System.Windows.Forms.Label()
         Me.Label213 = New System.Windows.Forms.Label()
-        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
-        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
         Me.Label212 = New System.Windows.Forms.Label()
         Me.Label211 = New System.Windows.Forms.Label()
         Me.Label210 = New System.Windows.Forms.Label()
@@ -1027,7 +1024,6 @@ Partial Class Formtest
         Me.Label3133478A = New System.Windows.Forms.Label()
         Me.ShowFilesCalRam3478A = New System.Windows.Forms.Button()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
-        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
         Me.Label145 = New System.Windows.Forms.Label()
         Me.Label79 = New System.Windows.Forms.Label()
         Me.Label81 = New System.Windows.Forms.Label()
@@ -1283,7 +1279,6 @@ Partial Class Formtest
         Me.CalAccuracyFinal = New System.Windows.Forms.TextBox()
         Me.Label117 = New System.Windows.Forms.Label()
         Me.Label121 = New System.Windows.Forms.Label()
-        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabPage14 = New System.Windows.Forms.TabPage()
         Me.ButtonUserStart = New System.Windows.Forms.Button()
         Me.ButtonUserTabGuide = New System.Windows.Forms.Button()
@@ -1344,6 +1339,10 @@ Partial Class Formtest
         Me.Timer17 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer18 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer19 = New System.Windows.Forms.Timer(Me.components)
+        Me.OnOffLed2 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed1 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed4 = New WinGPIBproj.OnOffLed()
+        Me.OnOffLed3 = New WinGPIBproj.OnOffLed()
         Me.TabControl1.SuspendLayout
         Me.TabPage1.SuspendLayout
         Me.GroupBox9.SuspendLayout
@@ -2544,13 +2543,14 @@ Partial Class Formtest
         'noEOI
         '
         Me.noEOI.AutoSize = True
-        Me.noEOI.Location = New System.Drawing.Point(947, 137)
+        Me.noEOI.Location = New System.Drawing.Point(953, 135)
         Me.noEOI.Name = "noEOI"
         Me.noEOI.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.noEOI.Size = New System.Drawing.Size(94, 17)
+        Me.noEOI.Size = New System.Drawing.Size(88, 17)
         Me.noEOI.TabIndex = 507
-        Me.noEOI.Text = "EOI Incapable"
-        Me.ToolTip1.SetToolTip(Me.noEOI, "EOI incapable instruments , terminator will be set to 10")
+        Me.noEOI.Text = ".EOI only inst"
+        Me.ToolTip1.SetToolTip(Me.noEOI, "Ticked: a reply ends on EOI only (plain VISA)." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Unticked (default): also ends at " &
+        "an LF (10), for instruments with no EOI.")
         Me.noEOI.UseVisualStyleBackColor = True
         '
         'ShowFilesCalRamR6581
@@ -3814,14 +3814,6 @@ Partial Class Formtest
         " it is opened. Cannot be used with Open Playback Chart maximized")
         Me.CheckBoxRememberPlayback.UseVisualStyleBackColor = True
         '
-        'LabelDAY1
-        '
-        Me.LabelDAY1.Location = New System.Drawing.Point(3, 74)
-        Me.LabelDAY1.Name = "LabelDAY1"
-        Me.LabelDAY1.Size = New System.Drawing.Size(100, 13)
-        Me.LabelDAY1.TabIndex = 27
-        Me.LabelDAY1.Text = "New Day 1 at:"
-        '
         'LabelDay1num
         '
         Me.LabelDay1num.Location = New System.Drawing.Point(108, 74)
@@ -3830,6 +3822,14 @@ Partial Class Formtest
         Me.LabelDay1num.TabIndex = 28
         Me.LabelDay1num.Text = "#####"
         Me.ToolTip1.SetToolTip(Me.LabelDay1num, "Entry that [DAY1] has been used")
+        '
+        'LabelDAY1
+        '
+        Me.LabelDAY1.Location = New System.Drawing.Point(3, 74)
+        Me.LabelDAY1.Name = "LabelDAY1"
+        Me.LabelDAY1.Size = New System.Drawing.Size(100, 13)
+        Me.LabelDAY1.TabIndex = 27
+        Me.LabelDAY1.Text = "New Day 1 at:"
         '
         'ButtonDev1INFO
         '
@@ -3957,7 +3957,6 @@ Partial Class Formtest
         Me.TabPage1.Controls.Add(Me.ButtonReset)
         Me.TabPage1.Controls.Add(Me.btncreate)
         Me.TabPage1.Controls.Add(Me.ButtonAvailableComPorts)
-        Me.TabPage1.Controls.Add(Me.Label133)
         Me.TabPage1.Controls.Add(Me.GroupBox9)
         Me.TabPage1.Controls.Add(Me.noEOI)
         Me.TabPage1.Controls.Add(Me.GroupBox8)
@@ -3980,15 +3979,6 @@ Partial Class Formtest
         Me.TabPage1.Size = New System.Drawing.Size(1047, 626)
         Me.TabPage1.TabIndex = 0
         Me.TabPage1.Text = " Devices"
-        '
-        'Label133
-        '
-        Me.Label133.AutoSize = True
-        Me.Label133.Location = New System.Drawing.Point(962, 150)
-        Me.Label133.Name = "Label133"
-        Me.Label133.Size = New System.Drawing.Size(61, 13)
-        Me.Label133.TabIndex = 508
-        Me.Label133.Text = "Instruments"
         '
         'GroupBox9
         '
@@ -6111,26 +6101,6 @@ Partial Class Formtest
         Me.Label213.Size = New System.Drawing.Size(19, 13)
         Me.Label213.TabIndex = 537
         Me.Label213.Text = "Tx"
-        '
-        'OnOffLed2
-        '
-        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
-        Me.OnOffLed2.Name = "OnOffLed2"
-        Me.OnOffLed2.OffText = Nothing
-        Me.OnOffLed2.OnText = Nothing
-        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed2.TabIndex = 536
-        '
-        'OnOffLed1
-        '
-        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
-        Me.OnOffLed1.Name = "OnOffLed1"
-        Me.OnOffLed1.OffText = Nothing
-        Me.OnOffLed1.OnText = Nothing
-        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed1.TabIndex = 535
         '
         'Label212
         '
@@ -12101,16 +12071,6 @@ Partial Class Formtest
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = " PDVS2mini"
         '
-        'OnOffLed4
-        '
-        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
-        Me.OnOffLed4.Name = "OnOffLed4"
-        Me.OnOffLed4.OffText = Nothing
-        Me.OnOffLed4.OnText = Nothing
-        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed4.TabIndex = 797
-        '
         'Label145
         '
         Me.Label145.AutoSize = True
@@ -14936,16 +14896,6 @@ Partial Class Formtest
         Me.Label121.TabIndex = 554
         Me.Label121.Text = "Comms Delay (mS)"
         '
-        'OnOffLed3
-        '
-        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
-        Me.OnOffLed3.Name = "OnOffLed3"
-        Me.OnOffLed3.OffText = Nothing
-        Me.OnOffLed3.OnText = Nothing
-        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
-        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
-        Me.OnOffLed3.TabIndex = 796
-        '
         'TabPage14
         '
         Me.TabPage14.Controls.Add(Me.ButtonUserStart)
@@ -15485,6 +15435,46 @@ Partial Class Formtest
         'Timer14
         '
         Me.Timer14.Interval = 50
+        '
+        'OnOffLed2
+        '
+        Me.OnOffLed2.Location = New System.Drawing.Point(219, 96)
+        Me.OnOffLed2.Name = "OnOffLed2"
+        Me.OnOffLed2.OffText = Nothing
+        Me.OnOffLed2.OnText = Nothing
+        Me.OnOffLed2.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed2.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed2.TabIndex = 536
+        '
+        'OnOffLed1
+        '
+        Me.OnOffLed1.Location = New System.Drawing.Point(195, 96)
+        Me.OnOffLed1.Name = "OnOffLed1"
+        Me.OnOffLed1.OffText = Nothing
+        Me.OnOffLed1.OnText = Nothing
+        Me.OnOffLed1.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed1.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed1.TabIndex = 535
+        '
+        'OnOffLed4
+        '
+        Me.OnOffLed4.Location = New System.Drawing.Point(120, 34)
+        Me.OnOffLed4.Name = "OnOffLed4"
+        Me.OnOffLed4.OffText = Nothing
+        Me.OnOffLed4.OnText = Nothing
+        Me.OnOffLed4.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed4.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed4.TabIndex = 797
+        '
+        'OnOffLed3
+        '
+        Me.OnOffLed3.Location = New System.Drawing.Point(120, 11)
+        Me.OnOffLed3.Name = "OnOffLed3"
+        Me.OnOffLed3.OffText = Nothing
+        Me.OnOffLed3.OnText = Nothing
+        Me.OnOffLed3.Size = New System.Drawing.Size(20, 20)
+        Me.OnOffLed3.State = WinGPIBproj.OnOffLed.LedState.Off
+        Me.OnOffLed3.TabIndex = 796
         '
         'Formtest
         '
@@ -16207,7 +16197,6 @@ Partial Class Formtest
     Friend WithEvents txtname2 As TextBox
     Friend WithEvents txtaddr2 As TextBox
     Friend WithEvents Label2 As Label
-    Friend WithEvents Label133 As Label
     Friend WithEvents noEOI As CheckBox
     Friend WithEvents Label238 As Label
     Friend WithEvents Label237 As Label
